@@ -1,7 +1,8 @@
 import { useTransport } from "@/context/TransportContext";
+import { Badge } from "@/components/ui/badge";
 
 export default function LocationTracking() {
-  const { gpsCoordinates, isGpsActive, lastGpsUpdateTime } = useTransport();
+  const { gpsCoordinates, isGpsActive, lastGpsUpdateTime, isBackgroundActive } = useTransport();
   
   const formatTime = (timeString: string | null) => {
     if (!timeString) return "--:--:--";
@@ -15,7 +16,15 @@ export default function LocationTracking() {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-medium text-secondary-800 mb-4">iTrack</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-medium text-secondary-800">iTrack</h3>
+        
+        {isGpsActive && isBackgroundActive && (
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            Funcționează în background
+          </Badge>
+        )}
+      </div>
       
       <div className="bg-secondary-100 rounded-lg h-56 relative overflow-hidden mb-4">
         {/* Map placeholder - in a real implementation, this would be a proper map */}

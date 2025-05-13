@@ -3,8 +3,9 @@ import { useTransport } from "@/context/TransportContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Play, Pause, Check, AlertTriangle, Truck } from "lucide-react";
+import { Play, Pause, Check, AlertTriangle, Truck, Clock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 // Interfață pentru un transport
 interface Transport {
@@ -20,7 +21,14 @@ export default function TransportControls() {
   const { vehicleInfo, token } = useAuth();
   const [transports, setTransports] = useState<Transport[]>([]);
   const [battery, setBattery] = useState(100);
-  const { startTransport, pauseTransport, resumeTransport, finishTransport } = useTransport();
+  const { 
+    startTransport, 
+    pauseTransport, 
+    resumeTransport, 
+    finishTransport,
+    isBackgroundActive, // Adăugăm informație despre serviciul de background
+    transportStatus
+  } = useTransport();
 
   // Încarcă transporturile disponibile pentru vehicul 
   useEffect(() => {
@@ -38,6 +46,18 @@ export default function TransportControls() {
       ]);
     }
   }, [vehicleInfo]);
+  
+  // Sincronizează starea transporturilor cu starea globală din context
+  useEffect(() => {
+    if (transports.length === 0 || !transportStatus) return;
+    
+    // Actualizăm transporturile cu starea curentă din context
+    setTransports(prev => prev.map(transport => ({
+      ...transport,
+      status: transportStatus,
+      isTracking: transportStatus === "active"
+    })));
+  }, [transportStatus]);
 
   // Helper function pentru indicator de stare
   const getStatusIndicatorClass = (status: string, isTracking: boolean) => {
