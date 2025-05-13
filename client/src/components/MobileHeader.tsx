@@ -52,10 +52,10 @@ export default function MobileHeader() {
       
       {/* Sub-header with navigation */}
       <nav className="flex justify-around mt-2 pt-2 border-t border-secondary-700">
-        <Link href="/transport" className="text-xs px-2 py-1 rounded-full hover:bg-secondary-700">
+        <Link href="/transport" className="text-xs px-3 py-1.5 bg-primary text-white font-medium rounded-full hover:bg-primary-600">
           Transport
         </Link>
-        <Link href="/about" className="text-xs px-2 py-1 rounded-full hover:bg-secondary-700">
+        <Link href="/about" className="text-xs px-3 py-1.5 bg-secondary-600 text-white font-medium rounded-full hover:bg-secondary-700">
           Despre
         </Link>
       </nav>
