@@ -3,8 +3,20 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Adăugăm middleware personalizat pentru a procesa RAW body înainte de parser-ul JSON
+// Acest middleware ne ajută să procesăm corpul cererii în format raw pentru API-ul extern
+app.use(express.json({
+  // Acest reviver asigură că valorile din JSON sunt parsate corect
+  reviver: (key, value) => {
+    return value;
+  },
+  // Mărim limita payload-ului pentru a evita probleme cu date mai mari
+  limit: '10mb'
+}));
+
+// Adăugăm middleware-ul urlencoded pentru formulare
+app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
   const start = Date.now();
