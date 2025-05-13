@@ -258,10 +258,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           const position = await getCurrentPosition();
           
           // Trimite datele către server
-          await sendGpsData(position, {
+          await sendGpsUpdate(position, {
             nr: vehicleInfo.nr,
             uit: currentActiveUit.uit
-          }, token);
+          }, token, "in_progress");
           
           console.log("Poziție GPS trimisă");
           
