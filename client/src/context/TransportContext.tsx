@@ -748,12 +748,17 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Resetăm imediat starea transportului, fără întârziere
       console.log("Resetare completă stare transport");
+      
+      // Resetăm toate valorile la starea inițială
       setTransportStatus("inactive");
       setGpsCoordinates(null);
       setCurrentActiveUit(null);
       setLastGpsUpdateTime(null);
       setBattery(100);
       setIsGpsActive(false);
+      
+      // Resetăm și UIT selectate pentru a forța utilizatorul să selecteze din nou
+      setSelectedUits([]);
     } catch (error) {
       console.error("Eroare la finalizarea transportului:", error);
       

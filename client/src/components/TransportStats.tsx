@@ -94,17 +94,18 @@ export default function TransportStats() {
     setSpeedHistory(newSpeedHistoryArray);
     setPreviousCoords(newCoords);
     
-    // Actualizăm statisticile
-    setStats({
-      distanceTraveled: stats.distanceTraveled + distanceToAdd,
+    // Actualizăm statisticile - folosim un callback pentru a evita dependența circulară
+    setStats(prevStats => ({
+      ...prevStats,
+      distanceTraveled: prevStats.distanceTraveled + distanceToAdd,
       averageSpeed: avgSpeed,
       maxSpeed: maxSpeed,
       travelTime: travelTimeMinutes,
       batteryLevel: gpsCoordinates.baterie,
       status: transportStatus,
       speedHistory: newSpeedHistoryArray
-    });
-  }, [gpsCoordinates, transportStatus, startTime, previousCoords, speedHistory, stats.distanceTraveled]);
+    }));
+  }, [gpsCoordinates, transportStatus, startTime, previousCoords, speedHistory]);
   
   // Formatare timp de călătorie
   const formatTravelTime = (minutes: number) => {
