@@ -134,15 +134,7 @@ export default function LocationTracking() {
           </div>
         </div>
         
-        <div className="mt-4 p-3 bg-white rounded-lg border border-blue-100 shadow-sm flex items-center justify-between">
-          <div className="flex items-center text-blue-700">
-            <Clock className="w-4 h-4 mr-2" />
-            <p className="text-sm font-medium">Ultima actualizare</p>
-          </div>
-          <p className="text-base font-semibold text-slate-800">
-            {isGpsReallyActive && lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : "-"}
-          </p>
-        </div>
+
       
         {isGpsReallyActive && isBackgroundActive && (
           <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-2 flex items-center justify-center">

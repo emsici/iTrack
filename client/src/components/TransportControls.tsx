@@ -61,8 +61,8 @@ export default function TransportControls() {
 
   // Helper function pentru indicator de stare
   const getStatusIndicatorClass = (status: string, isTracking: boolean) => {
-    if (status === "active" && isTracking) {
-      return "bg-success shadow-[0_0_0_3px_rgba(16,185,129,0.2)]";
+    if (status === "active") {
+      return "bg-green-500 shadow-[0_0_0_3px_rgba(16,185,129,0.2)]";
     } else if (status === "paused") {
       return "bg-warning shadow-[0_0_0_3px_rgba(245,158,11,0.2)]";
     } else if (status === "finished") {
@@ -75,7 +75,7 @@ export default function TransportControls() {
   // Helper function pentru textul de stare
   const getStatusText = (status: string, isTracking: boolean) => {
     if (status === "active") {
-      return isTracking ? "GPS Activ" : "Transport Activ";
+      return "Transport Activ";
     } else if (status === "paused") {
       return "Transport în Pauză";
     } else if (status === "finished") {
@@ -87,8 +87,8 @@ export default function TransportControls() {
 
   // Helper function pentru clasa de culoare a textului
   const getStatusTextClass = (status: string, isTracking: boolean) => {
-    if (status === "active" && isTracking) {
-      return "text-success";
+    if (status === "active") {
+      return "text-green-600";
     } else if (status === "paused") {
       return "text-warning";
     } else if (status === "finished") {
