@@ -75,69 +75,26 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     transportStatusRef.current = transportStatus;
   }, [transportStatus]);
   
-  // Reset transport status când se schimbă vehiculul
+  // Actualizăm UIT-urile disponibile când se schimbă vehiculul
   useEffect(() => {
-    if (vehicleInfo) {
-      // Dacă avem un transport activ sau în pauză și vehiculul s-a schimbat
-      // trebuie să resetăm starea transportului
-      if (transportStatus === "active" || transportStatus === "paused") {
-        console.log("Schimbare număr înmatriculare detectată în timpul unui transport activ/în pauză", 
-          "Resetăm starea transportului...");
-        
-        // Oprim tracking-ul GPS dacă este activ
-        if (isGpsActive) {
-          stopGpsTracking();
-        }
-        
-        // Oprim serviciul de background
-        if (isBackgroundActive) {
-          const stopped = stopBackgroundLocationTracking();
-          console.log("Oprire serviciu background la schimbare vehicul:", stopped ? "Succes" : "Eșuat");
-          setIsBackgroundActive(false);
-        }
-        
-        // Resetăm starea transportului
-        setTransportStatus("inactive");
-        
-        // Resetăm UIT-ul activ și selecțiile
-        setCurrentActiveUit(null);
-        
-        // Creem un nou UIT bazat pe vehicleInfo
-        if (vehicleInfo.uit) {
-          const newUit: UitOption = {
-            uit: vehicleInfo.uit,
-            start_locatie: vehicleInfo.start_locatie || "",
-            stop_locatie: vehicleInfo.stop_locatie || ""
-          };
-          
-          // Actualizăm UIT-urile disponibile
-          setSelectedUits([newUit]);
-          console.log("UIT-uri resetate pentru noul vehicul:", newUit);
-        } else {
-          setSelectedUits([]);
-        }
-        
-        // Anunțăm utilizatorul
-        toast({
-          title: "Vehicul schimbat",
-          description: "Cursa anterioară a fost încheiată. Puteți începe o nouă cursă.",
-        });
-      } else {
-        // Vehiculul s-a schimbat dar nu există un transport activ,
-        // doar actualizăm UIT-urile disponibile
-        if (vehicleInfo.uit) {
-          const newUit: UitOption = {
-            uit: vehicleInfo.uit,
-            start_locatie: vehicleInfo.start_locatie || "",
-            stop_locatie: vehicleInfo.stop_locatie || ""
-          };
-          
-          setSelectedUits([newUit]);
-          console.log("UIT-uri actualizate pentru vehiculul nou:", newUit);
-        }
+    if (vehicleInfo && vehicleInfo.uit) {
+      // Doar actualizăm UIT-urile disponibile fără a afecta starea transportului
+      const newUit: UitOption = {
+        uit: vehicleInfo.uit,
+        start_locatie: vehicleInfo.start_locatie || "",
+        stop_locatie: vehicleInfo.stop_locatie || ""
+      };
+      
+      // Verificăm dacă UIT-ul nu există deja în listă
+      const uitExists = selectedUits.some(uit => uit.uit === newUit.uit);
+      
+      if (!uitExists) {
+        // Păstrăm UIT-urile existente și adăugăm cel nou
+        setSelectedUits(prev => [...prev, newUit]);
+        console.log("UIT adăugat pentru vehiculul nou:", newUit);
       }
     }
-  }, [vehicleInfo?.nr, transportStatus, isGpsActive, isBackgroundActive, stopGpsTracking, toast]); // Verificăm doar schimbarea numărului, nu a întregului obiect
+  }, [vehicleInfo?.nr, vehicleInfo?.uit, selectedUits]); // Verificăm doar schimbarea numărului și UIT-ului
   
   // Referințe pentru timer și watcher
   const gpsTimerRef = useRef<NodeJS.Timeout | null>(null);
