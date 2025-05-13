@@ -50,7 +50,7 @@ export const checkGpsAvailability = async (): Promise<boolean> => {
 // Setup listeners pentru monitorizarea stării conexiunii la internet
 export const setupConnectivityListeners = (
   onConnectivityChange?: (isConnected: boolean) => void
-): void => {
+): (() => void) => {
   // Adăugăm event listeners pentru schimbările de conectivitate
   window.addEventListener('online', () => {
     isInternetConnected = true;

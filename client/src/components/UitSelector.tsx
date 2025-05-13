@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useTransport } from "@/context/TransportContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -74,8 +75,16 @@ export default function UitSelector() {
     
     const uitToAdd = availableUits.find(uit => uit.uit === currentUit);
     
-    if (uitToAdd && !selectedUits.some(u => u.uit === currentUit)) {
-      setSelectedUits([...selectedUits, uitToAdd]);
+    if (uitToAdd && !localSelectedUits.some(u => u.uit === currentUit)) {
+      const newSelectedUits = [...localSelectedUits, uitToAdd];
+      setLocalSelectedUits(newSelectedUits);
+      setSelectedUits(newSelectedUits);
+      
+      // Setăm primul UIT ca active dacă nu există altul activ
+      if (newSelectedUits.length === 1) {
+        setCurrentActiveUit(uitToAdd);
+      }
+      
       setCurrentUit("");
       
       toast({
@@ -87,7 +96,16 @@ export default function UitSelector() {
 
   // Funcție pentru eliminarea unui UIT din lista de selectate
   const removeUit = (uitToRemove: string) => {
-    setSelectedUits(selectedUits.filter(uit => uit.uit !== uitToRemove));
+    const newSelectedUits = localSelectedUits.filter(uit => uit.uit !== uitToRemove);
+    setLocalSelectedUits(newSelectedUits);
+    setSelectedUits(newSelectedUits);
+    
+    // Actualizăm UIT-ul activ dacă cel eliminat era activ
+    if (newSelectedUits.length > 0) {
+      setCurrentActiveUit(newSelectedUits[0]);
+    } else {
+      setCurrentActiveUit(null);
+    }
     
     toast({
       variant: "default",
@@ -98,7 +116,7 @@ export default function UitSelector() {
 
   // Filtrăm UIT-urile care nu au fost deja selectate
   const availableForSelection = availableUits.filter(
-    uit => !selectedUits.some(selectedUit => selectedUit.uit === uit.uit)
+    uit => !localSelectedUits.some(selectedUit => selectedUit.uit === uit.uit)
   );
 
   return (
@@ -154,13 +172,13 @@ export default function UitSelector() {
             <div className="space-y-2">
               <h3 className="text-sm font-medium text-secondary-700">UIT-uri selectate:</h3>
               
-              {selectedUits.length === 0 ? (
+              {localSelectedUits.length === 0 ? (
                 <p className="text-sm text-secondary-500 italic py-2">
                   Nu ați selectat niciun UIT încă. Selectați cel puțin un UIT pentru a putea începe transportul.
                 </p>
               ) : (
                 <div className="space-y-2">
-                  {selectedUits.map(uit => (
+                  {localSelectedUits.map(uit => (
                     <div 
                       key={uit.uit}
                       className="flex justify-between items-center p-3 bg-secondary-50 rounded-md border border-secondary-200"
