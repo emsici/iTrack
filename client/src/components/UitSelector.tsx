@@ -28,9 +28,10 @@ interface UitOption {
 
 export default function UitSelector() {
   const { token } = useAuth();
+  const { setSelectedUits, setCurrentActiveUit } = useTransport();
   const [isLoading, setIsLoading] = useState(false);
   const [availableUits, setAvailableUits] = useState<UitOption[]>([]);
-  const [selectedUits, setSelectedUits] = useState<UitOption[]>([]);
+  const [localSelectedUits, setLocalSelectedUits] = useState<UitOption[]>([]);
   const [currentUit, setCurrentUit] = useState<string>("");
 
   // Simulăm obținerea listei de UIT-uri disponibile la încărcarea componentei
