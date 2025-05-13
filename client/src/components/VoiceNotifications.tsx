@@ -42,6 +42,7 @@ export default function VoiceNotifications() {
   
   // Monitorizează schimbările de stare și generează notificări
   useEffect(() => {
+    // Nu generăm notificări dacă sunt dezactivate
     if (!enabled) return;
     
     const currentTime = Date.now();
@@ -89,15 +90,20 @@ export default function VoiceNotifications() {
         setNotifications(prev => [...prev, newNotification!]);
         lastNotificationTimeRef.current = currentTime;
         
-        // Anunță imediat notificarea
-        if (speechSynthRef.current && newNotification.message) {
+        // Anunță imediat notificarea DOAR dacă sunt activate
+        if (enabled && speechSynthRef.current && newNotification.message) {
+          console.log("Redare vocală notificare:", newNotification.message);
+          
+          // Creăm un nou SpeechSynthesisUtterance
           const utterance = new SpeechSynthesisUtterance(newNotification.message);
           utterance.lang = 'ro-RO';
           utterance.volume = 1;
           utterance.rate = 1;
           
+          // Redăm notificarea vocală
           speechSynthRef.current.speak(utterance);
           
+          // Afișăm toast pentru utilizator
           toast({
             title: "Notificare vocală",
             description: newNotification.message,
@@ -158,6 +164,7 @@ export default function VoiceNotifications() {
   
   // Procesează notificările și le anunță vocal
   useEffect(() => {
+    // Nu procesăm notificările dacă sunt dezactivate sau nu avem acces la speech synthesis
     if (!enabled || !speechSynthRef.current) return;
     
     // Verifică dacă avem vreo notificare neafișată

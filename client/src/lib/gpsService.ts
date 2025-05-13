@@ -84,14 +84,30 @@ export const sendGpsUpdate = async (
       return true; // Returnăm true pentru a nu întrerupe fluxul aplicației
     }
     
+    // Construim payload-ul exact conform cu formatul din Postman
+    const jsonPayload = {
+      lat: latitude,
+      lng: longitude,
+      timestamp: timestamp,
+      viteza: speedKmh,
+      directie: heading || 0,
+      altitudine: altitude || 0,
+      baterie: batteryLevel,
+      numar_inmatriculare: vehicleInfo.nr,
+      uit: vehicleInfo.uit,
+      status: transportStatus
+    };
+    
+    console.log("Payload GPS exact (format raw):", JSON.stringify(jsonPayload, null, 2));
+    
     // Trimite datele către server prin proxy-ul local
-    // IMPORTANT: Nu adăugăm Content-Type header - trimitem raw JSON conform cerințelor API-ului
+    // IMPORTANT: Folosim Content-Type raw și trimitem JSON exact ca în exemplul din Postman
     const response = await fetch("/api/transport/gps", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify(gpsData)
+      body: JSON.stringify(jsonPayload)
     });
     
     if (!response.ok) {
