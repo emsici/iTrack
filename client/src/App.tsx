@@ -1,6 +1,7 @@
 import { Switch, Route, useLocation } from "wouter";
 import { useEffect } from "react";
 import { AuthProvider } from "@/context/AuthContext";
+import { TransportProvider } from "@/context/TransportContext";
 import LoginPage from "@/pages/LoginPage";
 import VehicleInputPage from "@/pages/VehicleInputPage";
 import TransportPage from "@/pages/TransportPage";
@@ -24,7 +25,9 @@ function Router() {
 function App() {
   return (
     <AuthProvider>
-      <Router />
+      <TransportProvider>
+        <Router />
+      </TransportProvider>
     </AuthProvider>
   );
 }
