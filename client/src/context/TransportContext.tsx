@@ -214,7 +214,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         position,
         {
           nr: vehicleInfo.nr,
-          uit: vehicleInfo.uit || "UIT56789" // Folosim direct UIT-ul din vehicleInfo
+          uit: currentActiveUit?.uit || vehicleInfo.uit // Folosim UIT-ul activ sau cel din vehicleInfo
         },
         token,
         status

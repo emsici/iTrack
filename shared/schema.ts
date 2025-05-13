@@ -84,7 +84,8 @@ export const gpsDataSchema = z.object({
   altitudine: z.number(),
   baterie: z.number(),
   numar_inmatriculare: z.string(),
-  uit: z.string()
+  uit: z.string(),
+  status: z.string() // Adăugăm câmpul status care poate fi "in_progress" sau "finished"
 });
 
 export type User = typeof users.$inferSelect;
