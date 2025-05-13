@@ -267,16 +267,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         // Actualizăm UIT-ul curent activ pentru viitoare cereri
         setCurrentActiveUit(uitToUse);
       }
-      // Dacă tot nu avem un UIT, încercăm să folosim un UIT generic
+      // Dacă nu avem un UIT din sursele anterioare, nu continuăm fără un UIT valid
       else {
-        uitToUse = {
-          uit: "UIT12345", // UIT generic pentru situații de urgență
-          start_locatie: "Origine",
-          stop_locatie: "Destinație"
-        };
-        console.log("Folosim UIT generic de urgență:", uitToUse);
-        // Actualizăm UIT-ul curent activ pentru viitoare cereri
-        setCurrentActiveUit(uitToUse);
+        console.error("Nu există un UIT valid disponibil");
+        return false; // Oprim procesul dacă nu avem un UIT valid
       }
     }
     
@@ -308,12 +302,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Verificăm UIT-ul încă o dată
       if (!uitToUse) {
-        console.error("UIT-ul necesar este în continuare nedefinit. Folosim UIT-ul din vehicleInfo");
-        uitToUse = {
-          uit: vehicleInfo.uit || "UIT12345",
-          start_locatie: vehicleInfo.start_locatie || "",
-          stop_locatie: vehicleInfo.stop_locatie || ""
-        };
+        console.error("UIT-ul necesar este în continuare nedefinit și nu există vehicleInfo");
+        return false; // Nu continuăm fără un UIT valid
       }
       
       setGpsCoordinates(gpsData);
