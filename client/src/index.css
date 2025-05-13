@@ -70,10 +70,16 @@
   
   .mobile-header {
     position: fixed;
-    top: 0;
+    top: env(safe-area-inset-top); /* Poziționează bara sub notch/bara de ceas */
     left: 0;
     right: 0;
     z-index: 50;
-    padding-top: env(safe-area-inset-top);
+    margin-top: 0 !important;
+    padding-top: 8px !important; /* Padding mai mare pentru a asigura spațiu sub bara telefonului */
+  }
+  
+  body {
+    /* Adăugăm padding pentru safe-area pentru a evita suprapunerea cu bara de status */
+    --safe-area-top: env(safe-area-inset-top);
   }
 }
