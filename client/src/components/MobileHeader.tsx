@@ -3,11 +3,15 @@ import { useTransport } from "@/context/TransportContext";
 import { useAuth } from "@/context/AuthContext";
 import { Battery, Signal, Wifi, MapPin, LogOut, Truck, Info } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
 
 export default function MobileHeader() {
   const { isGpsActive, battery, gpsCoordinates } = useTransport();
-  const { logout, vehicleInfo } = useAuth();
+  const { logout, vehicleInfo, registerVehicle } = useAuth();
+  const { toast } = useToast();
   const [location] = useLocation();
+  const [isEditingVehicle, setIsEditingVehicle] = useState<boolean>(false);
+  const [newRegistrationNumber, setNewRegistrationNumber] = useState<string>('');
   
   const getBatteryColor = useCallback(() => {
     if (battery > 50) return "text-success";
@@ -28,6 +32,33 @@ export default function MobileHeader() {
       logout();
     }
   };
+  
+  // Funcție pentru a începe editarea numărului de înmatriculare
+  const handleEditVehicle = () => {
+    if (vehicleInfo?.nr) {
+      setNewRegistrationNumber(vehicleInfo.nr);
+      setIsEditingVehicle(true);
+    }
+  };
+  
+  // Funcție pentru a salva noul număr de înmatriculare
+  const handleSaveVehicle = async () => {
+    if (newRegistrationNumber.trim() !== '') {
+      try {
+        const result = await registerVehicle(newRegistrationNumber.trim());
+        if (result) {
+          setIsEditingVehicle(false);
+        }
+      } catch (error) {
+        console.error("Eroare la modificarea numărului de înmatriculare:", error);
+      }
+    }
+  };
+  
+  // Funcție pentru a anula editarea
+  const handleCancelEdit = () => {
+    setIsEditingVehicle(false);
+  };
 
   return (
     <header className="bg-blue-700 text-white p-3 shadow-md fixed top-0 left-0 right-0 z-50">
@@ -38,7 +69,35 @@ export default function MobileHeader() {
           </div>
           <div>
             <h1 className="text-lg font-bold">iTrack</h1>
-            <p className="text-xs text-blue-200">{vehicleInfo?.nr || ''}</p>
+            {isEditingVehicle ? (
+              <div className="flex items-center">
+                <input 
+                  type="text" 
+                  value={newRegistrationNumber} 
+                  onChange={(e) => setNewRegistrationNumber(e.target.value)}
+                  className="text-xs bg-blue-600 text-white rounded px-1 py-0.5 w-24 border border-blue-400"
+                />
+                <button 
+                  onClick={handleSaveVehicle} 
+                  className="text-xs bg-green-600 rounded px-1 ml-1"
+                >
+                  ✓
+                </button>
+                <button 
+                  onClick={handleCancelEdit} 
+                  className="text-xs bg-red-600 rounded px-1 ml-1"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <p 
+                className="text-xs text-blue-200 cursor-pointer hover:underline" 
+                onClick={handleEditVehicle}
+              >
+                {vehicleInfo?.nr || ''} (click pentru editare)
+              </p>
+            )}
           </div>
         </div>
         
