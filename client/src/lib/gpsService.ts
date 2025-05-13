@@ -119,7 +119,7 @@ export const sendGpsUpdate = async (
       timestamp: timestamp,
       viteza: Math.max(0, Math.round(speedKmh * 10) / 10), // Rotunjim la o zecimală
       directie: Math.round(headingValue) || 0, // Direcția din senzori sau GPS, rotunjită
-      altitudine: Math.round(altitude) || 0,
+      altitudine: Math.round(altitude || 0),
       baterie: Math.round(batteryLevel),
       numar_inmatriculare: vehicleInfo.nr,
       uit: vehicleInfo.uit, // CRUCIAL: avem nevoie de UIT valid
