@@ -84,31 +84,34 @@ export const sendGpsUpdate = async (
       return true; // Returnăm true pentru a nu întrerupe fluxul aplicației
     }
     
-    // Construim payload-ul exact conform cu formatul din Postman
-    // IMPORTANT: Verificăm fiecare câmp să nu fie undefined sau alt tip de date decât cel așteptat
+    // Construim payload-ul EXACT în formatul din Postman și în ordinea exactă
+    // FOARTE IMPORTANT: Ordinea proprietăților contează pentru unele API-uri
     const jsonPayload = {
-      lat: Number(latitude) || 0, // Asigurăm că e număr
-      lng: Number(longitude) || 0, // Asigurăm că e număr
+      lat: Number(latitude) || 0,
+      lng: Number(longitude) || 0,
       timestamp: timestamp,
-      viteza: Number(speedKmh) || 0, // Asigurăm că e număr
-      directie: Number(heading) || 0, // Asigurăm că e număr
-      altitudine: Number(altitude) || 0, // Asigurăm că e număr
-      baterie: Number(batteryLevel) || 100, // Asigurăm că e număr
-      numar_inmatriculare: String(vehicleInfo.nr), // Asigurăm că e string
-      uit: String(vehicleInfo.uit), // Asigurăm că e string
-      status: transportStatus === "finished" ? "finished" : "in_progress" // Validăm status-ul
+      viteza: Number(speedKmh) || 0,
+      directie: Number(heading) || 0,
+      altitudine: Number(altitude) || 0,
+      baterie: Number(batteryLevel) || 100,
+      numar_inmatriculare: String(vehicleInfo.nr),
+      uit: String(vehicleInfo.uit),
+      status: transportStatus === "finished" ? "finished" : "in_progress"
     };
     
-    console.log("Payload GPS exact (format raw):", JSON.stringify(jsonPayload, null, 2));
+    // Convertim în string EXACT ca în Postman - fără whitespace sau formatare
+    const rawPayload = JSON.stringify(jsonPayload);
+    console.log("PAYLOAD GPS EXACT CA ÎN POSTMAN:", rawPayload);
     
     // Trimite datele către server prin proxy-ul local
-    // IMPORTANT: Folosim Content-Type raw și trimitem JSON exact ca în exemplul din Postman
+    // IMPORTANT: Folosim exact formatul din Postman - nu includ niciun header de Content-Type
     const response = await fetch("/api/transport/gps", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`
+        // FOARTE IMPORTANT: Nu setăm Content-Type pentru a asigura transmisia raw
       },
-      body: JSON.stringify(jsonPayload)
+      body: rawPayload // Folosim payload-ul raw generat mai sus
     });
     
     if (!response.ok) {

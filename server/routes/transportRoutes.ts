@@ -55,21 +55,33 @@ router.get("/transports/:vehicleId", async (req, res) => {
 // Endpoint pentru transmiterea datelor GPS
 router.post("/gps", async (req, res) => {
   try {
-    console.log("Corpul cererii brut:", req.body);
+    console.log("Corpul cererii raw:", typeof req.body, req.body);
+    
+    // Încercăm să parsăm corpul cererii dacă este string (raw JSON)
+    let bodyData = req.body;
+    if (typeof req.body === 'string') {
+      try {
+        bodyData = JSON.parse(req.body);
+      } catch (e) {
+        console.error("Eroare la parsarea corpului cererii ca JSON:", e);
+      }
+    }
+    
+    console.log("Body data procesat:", bodyData);
     
     // IMPORTANT: Validare mai relaxată - nu mai folosim Zod schema strictă
     // Extragem campurile necesare direct din corpul cererii
     const validatedData = {
-      lat: Number(req.body.lat || 0),
-      lng: Number(req.body.lng || 0),
-      timestamp: String(req.body.timestamp || new Date().toISOString().replace('T', ' ').substring(0, 19)),
-      viteza: Number(req.body.viteza || 0),
-      directie: Number(req.body.directie || 0),
-      altitudine: Number(req.body.altitudine || 0),
-      baterie: Number(req.body.baterie || 100),
-      numar_inmatriculare: String(req.body.numar_inmatriculare || ""),
-      uit: String(req.body.uit || ""),
-      status: String(req.body.status || "in_progress")
+      lat: Number(bodyData.lat || 0),
+      lng: Number(bodyData.lng || 0),
+      timestamp: String(bodyData.timestamp || new Date().toISOString().replace('T', ' ').substring(0, 19)),
+      viteza: Number(bodyData.viteza || 0),
+      directie: Number(bodyData.directie || 0),
+      altitudine: Number(bodyData.altitudine || 0),
+      baterie: Number(bodyData.baterie || 100),
+      numar_inmatriculare: String(bodyData.numar_inmatriculare || ""),
+      uit: String(bodyData.uit || ""),
+      status: String(bodyData.status || "in_progress")
     };
     
     // Store GPS data in local storage for tracking purposes
@@ -89,6 +101,25 @@ router.post("/gps", async (req, res) => {
     // Log exact formatul datelor trimise
     console.log("Trimitere date GPS către API extern:", JSON.stringify(validatedData, null, 2));
     
+    // FOARTE IMPORTANT: creăm obiectul exact în ordinea din exemplul client
+    // Conform Postman: lat, lng, timestamp, viteza, directie, altitudine, baterie, numar_inmatriculare, uit, status
+    const rawDataToSend = {
+      lat: validatedData.lat,
+      lng: validatedData.lng,
+      timestamp: validatedData.timestamp,
+      viteza: validatedData.viteza,
+      directie: validatedData.directie,
+      altitudine: validatedData.altitudine,
+      baterie: validatedData.baterie,
+      numar_inmatriculare: validatedData.numar_inmatriculare,
+      uit: validatedData.uit,
+      status: validatedData.status
+    };
+    
+    // Convertim în string direct, fără conversii ulterioare
+    const rawPayload = JSON.stringify(rawDataToSend);
+    console.log("RAW PAYLOAD EXACT CA ÎN POSTMAN:", rawPayload);
+
     try {
       // Forward request to the external API - EXACT ca în Postman: raw data, fără Content-Type header
       const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
@@ -96,7 +127,7 @@ router.post("/gps", async (req, res) => {
         headers: {
           "Authorization": req.headers.authorization || ""
         },
-        body: JSON.stringify(validatedData)
+        body: rawPayload // Trimitem payload-ul raw exact
       });
       
       const responseText = await response.text();

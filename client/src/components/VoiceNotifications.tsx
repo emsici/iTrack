@@ -162,10 +162,22 @@ export default function VoiceNotifications() {
     }
   }, [gpsCoordinates, enabled, transportStatus]);
   
+  // Acordăm prioritate stării "enabled" oriunde în componentă
+  useEffect(() => {
+    // Dacă notificările vocale sunt dezactivate - anulăm TOATE notificările actuale
+    if (!enabled && speechSynthRef.current) {
+      console.log("EFECTUL ENABLED CHANGED - ANULARE FORȚATĂ a tuturor notificărilor vocale");
+      speechSynthRef.current.cancel();
+    }
+  }, [enabled]);
+
   // Procesează notificările și le anunță vocal
   useEffect(() => {
-    // Nu procesăm notificările dacă sunt dezactivate sau nu avem acces la speech synthesis
-    if (!enabled || !speechSynthRef.current) return;
+    // VERIFICARE STRICTĂ: Nu procesăm notificările dacă sunt dezactivate sau nu avem acces la speech synthesis
+    if (!enabled || !speechSynthRef.current) {
+      console.log("Notificări vocale dezactivate sau speech synthesis nedisponibil - nu procesăm nicio notificare");
+      return;
+    }
     
     // Verifică dacă avem vreo notificare neafișată
     const unplayedNotification = notifications.find(n => !n.played);
@@ -290,13 +302,14 @@ export default function VoiceNotifications() {
           <Switch 
             id="voice-mode" 
             checked={enabled} 
-            onCheckedChange={(checked) => {
+            onCheckedChange={(checked: boolean) => {
               console.log("SCHIMBARE STARE NOTIFICĂRI VOCALE:", checked ? "ACTIVE" : "DEZACTIVATE");
               // Oprim orice citire vocală în curs
               if (!checked && speechSynthRef.current) {
                 speechSynthRef.current.cancel();
               }
-              toggleEnabled(checked);
+              // Setăm direct enabled fără a folosi toggleEnabled pentru a evita eroarea
+              setEnabled(checked);
             }} 
           />
           <Label htmlFor="voice-mode">{enabled ? 'Activate' : 'Dezactivate'}</Label>
