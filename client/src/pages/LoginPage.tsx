@@ -61,12 +61,18 @@ export default function LoginPage() {
     <div className={`min-h-screen flex flex-col items-center justify-center px-4 ${isMobile ? 'bg-gray-50' : 'bg-gray-100'}`}>
       {/* Mobile Status Bar (for mobile app) */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 bg-secondary-800 text-white p-2 flex justify-between items-center">
+        <div className="fixed top-0 left-0 right-0 bg-blue-700 text-white p-2 flex justify-between items-center">
           <div className="flex items-center">
-            <Truck className="h-4 w-4 text-primary mr-1" />
-            <span className="text-xs font-medium">Transport GPS</span>
+            <Truck className="h-4 w-4 text-white mr-1" />
+            <span className="text-xs font-medium">iTrack</span>
           </div>
-          <div className="text-xs">v1.0</div>
+          <div className="text-xs flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-0.5">
+              <rect x="1" y="6" width="18" height="12" rx="2" />
+              <line x1="23" y1="13" x2="23" y2="11" />
+            </svg>
+            100%
+          </div>
         </div>
       )}
       
@@ -150,7 +156,7 @@ export default function LoginPage() {
           
           {isMobile && (
             <div className="mt-5 pt-4 border-t border-gray-200 text-center text-xs text-gray-500">
-              <p>© Transport GPS 2025</p>
+              <p>© iTrack 2025</p>
               <p className="mt-1">Versiunea aplicației: 1.0</p>
             </div>
           )}

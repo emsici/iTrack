@@ -70,8 +70,8 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
     }
     
     // În mediul de dezvoltare, acceptăm orice răspuns de succes
-    if (import.meta.env.DEV && (response.status === 200 || response.status === 204)) {
-      console.log("Cerere reușită - Răspuns cu status:", response.status);
+    if (import.meta.env.DEV) {
+      console.log("Cerere reușită în mod development");
       return true;
     } 
     
