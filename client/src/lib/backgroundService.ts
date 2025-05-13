@@ -41,8 +41,8 @@ export const startBackgroundLocationTracking = async (
             maximumAge: 0
           });
           
-          // Trimitem poziția către server cu status "active"
-          await sendGpsUpdate(position, vehicleInfo, token, "active");
+          // Trimitem poziția către server cu status "in_progress"
+          await sendGpsUpdate(position, vehicleInfo, token, "in_progress");
           
           console.log('Background GPS update trimis cu succes');
         } catch (error) {

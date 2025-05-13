@@ -23,7 +23,7 @@ export const sendGpsUpdate = async (
     uit: string 
   }, 
   token: string,
-  transportStatus: "active" | "finished" = "active"
+  transportStatus: "in_progress" | "finished" = "in_progress"
 ): Promise<boolean> => {
   try {
     if (!position || !vehicleInfo || !token) {
@@ -81,6 +81,20 @@ export const sendGpsUpdate = async (
       // Dacă serverul returnează eroare, salvăm datele local
       saveGpsDataOffline(gpsData, transportStatus);
       throw new Error(`Eroare la trimiterea datelor GPS: ${response.statusText}`);
+    }
+    
+    try {
+      // Verificăm răspunsul (în Postman trebuie să primim "1" pentru succes)
+      const responseText = await response.text();
+      console.log("Răspuns API GPS:", responseText);
+      
+      if (responseText.trim() !== "1") {
+        console.error("Eroare API: Răspunsul nu este cel așteptat", responseText);
+        return false;
+      }
+    } catch (parseError) {
+      console.error("Eroare la interpretarea răspunsului API:", parseError);
+      return false;
     }
     
     return true;

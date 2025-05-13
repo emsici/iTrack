@@ -144,7 +144,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   }, []);
   
   // Trimitere date GPS către server
-  const sendGpsData = useCallback(async (status: "active" | "finished" = "active") => {
+  const sendGpsData = useCallback(async (status: "in_progress" | "finished" = "in_progress") => {
     console.log("Trimitere date GPS - status:", status);
     
     // Verificăm dacă avem tot ce ne trebuie pentru a trimite datele
@@ -215,15 +215,15 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     setIsGpsActive(true);
     
     try {
-      // Trimitem prima dată coordonatele cu status "active"
-      const success = await sendGpsData("active");
-      console.log("Trimitere inițială coordonate GPS (active):", success ? "Succes" : "Eșuată");
+      // Trimitem prima dată coordonatele cu status "in_progress"
+      const success = await sendGpsData("in_progress");
+      console.log("Trimitere inițială coordonate GPS (in_progress):", success ? "Succes" : "Eșuată");
       
       // Configurăm trimiterea periodică a coordonatelor (la fiecare 10 secunde)
       gpsTimerRef.current = setInterval(async () => {
         if (transportStatus === "active") {
-          const sendSuccess = await sendGpsData("active");
-          console.log("Trimitere periodică coordonate GPS (active):", sendSuccess ? "Succes" : "Eșuată");
+          const sendSuccess = await sendGpsData("in_progress");
+          console.log("Trimitere periodică coordonate GPS (in_progress):", sendSuccess ? "Succes" : "Eșuată");
         }
       }, 10000);
       
