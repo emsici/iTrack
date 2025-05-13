@@ -125,7 +125,7 @@ export default function TransportControls() {
         toast({
           variant: "destructive",
           title: "Eroare",
-          description: "Nu există un UIT valid. Verificați datele vehiculului."
+          description: "Nu s-a putut porni transportul. Verificați conexiunea GPS și datele vehiculului."
         });
         
         // Resetăm UI-ul înapoi la inactiv

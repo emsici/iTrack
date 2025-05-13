@@ -639,6 +639,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error("Eroare critică la notificarea vocală:", error);
       }
+      
+      // Dacă am ajuns aici, înseamnă că totul a funcționat corect
+      return true;
     } catch (error) {
       console.error("Eroare la pornirea transportului:", error);
       
@@ -660,7 +663,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   };
   
   // Pauză transport
-  const pauseTransport = async () => {
+  const pauseTransport = async (): Promise<void> => {
     console.log("Pauză transport");
     
     try {
@@ -712,7 +715,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   };
   
   // Reluare transport
-  const resumeTransport = async () => {
+  const resumeTransport = async (): Promise<void> => {
     console.log("Reluare transport - Verificare condiții");
     
     // Verificăm dacă avem toate datele necesare
@@ -780,7 +783,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   };
   
   // Finalizare transport
-  const finishTransport = async () => {
+  const finishTransport = async (): Promise<void> => {
     console.log("Finalizare transport");
     
     try {
