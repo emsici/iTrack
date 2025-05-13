@@ -13,8 +13,8 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
     
     console.log("Folosim API URL:", apiUrl);
     
-    // EXACT ca în Postman: Formatul raw fără niciun header Content-Type
-    // Asta este crucial pentru ca API-ul să accepte datele în formatul corect
+    // Validat cu curl: Formatăm datele exact în formatul care a funcționat
+    // JSON fără whitespace, fără Content-Type header, cu Authorization header
     const payload = JSON.stringify({
       lat: data.lat,
       lng: data.lng,
@@ -30,14 +30,14 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
     
     console.log("EXACT PAYLOAD RAW FORMAT:", payload);
     
-    // Utilizăm fetch direct pentru a controla exact formatul și headerele
+    // VALIDAT: Acest format funcționează cu API-ul extern (testat cu curl)
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`
-        // IMPORTANT: NU setăm Content-Type pentru a asigura transmisia RAW a datelor
+        // IMPORTANT: Nu setăm Content-Type header, exact ca în testul curl reușit
       },
-      body: payload // Trimitem payload-ul direct, fără conversii suplimentare
+      body: payload // Trimitem payload-ul formatat JSON.stringify
     });
 
     // Verificăm dacă răspunsul este ok

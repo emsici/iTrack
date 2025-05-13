@@ -123,18 +123,19 @@ router.post("/gps", async (req, res) => {
     console.log("RAW PAYLOAD EXACT CA ÎN POSTMAN (FORMAT COMPRIMAT):", rawPayload);
 
     try {
-      // Forward request to the external API - EXACT ca în Postman: raw data, cu Content-Type raw
-      // Conform exemplului din Postman, trimitem fără Content-Type pentru a fi tratat ca raw
+      // Forward request to the external API - EXACT ca în Postman
+      // Conform testului nostru in curl care a funcționat, nu setăm Content-Type
       console.log("Trimitem request către API cu payload:", rawPayload);
       console.log("Folosim header Authorization:", req.headers.authorization);
       
+      // VALIDAT: Acest format funcționează (testat cu curl)
       const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
         method: "POST",
         headers: {
-          "Authorization": req.headers.authorization || "",
-          // NOTĂ: Nu adăugăm Content-Type pentru a fi consistent cu Postman care folosește raw
+          "Authorization": req.headers.authorization || ""
+          // IMPORTANT: Nu setăm Content-Type pentru a fi same ca în curl (care a funcționat)
         },
-        body: rawPayload // Trimitem payload-ul raw exact
+        body: rawPayload // Trimitem payload-ul exact format JSON.stringify
       });
       
       // Verificăm statusul răspunsului
