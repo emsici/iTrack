@@ -21,10 +21,12 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 // Stiluri pentru hartă
 const mapStyle = {
-  height: '400px',
+  height: '500px',
   width: '100%',
-  borderRadius: '8px',
-  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+  borderRadius: '12px',
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+  border: '1px solid rgba(0, 0, 0, 0.07)',
+  overflow: 'hidden'
 };
 
 // Iconițe personalizate pentru marcaje
@@ -128,11 +130,32 @@ export default function TransportMap() {
   }
   
   return (
-    <div className="p-4 bg-white rounded-lg shadow-sm">
-      <h3 className="text-lg font-medium mb-3">
-        Traseu Transport
-        {currentActiveUit && <span className="text-sm text-blue-600 ml-2">UIT: {currentActiveUit.uit}</span>}
-      </h3>
+    <div className="relative">
+      <div className="absolute top-4 right-4 z-[999] bg-white px-3 py-2 rounded-full shadow-md flex items-center gap-2 text-xs font-medium">
+        <div className={`h-2 w-2 rounded-full ${isGpsActive ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
+        <span>GPS {isGpsActive ? 'Activ' : 'Inactiv'}</span>
+      </div>
+      
+      <div className="mb-2 px-1">
+        <div className="flex justify-between items-center">
+          <h3 className="text-base font-medium text-gray-700">
+            Traseu Transport
+          </h3>
+          {currentActiveUit && (
+            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
+              UIT: {currentActiveUit.uit}
+            </span>
+          )}
+        </div>
+        
+        {currentActiveUit && (
+          <div className="text-xs text-gray-500 flex items-center mt-1">
+            <span>{currentActiveUit.start_locatie}</span>
+            <div className="mx-2 text-gray-400">→</div>
+            <span>{currentActiveUit.stop_locatie}</span>
+          </div>
+        )}
+      </div>
       
       <MapContainer 
         center={center} 
@@ -151,13 +174,20 @@ export default function TransportMap() {
             position={[gpsCoordinates.lat, gpsCoordinates.lng]} 
             icon={customIcon}
           >
-            <Popup>
-              <div>
-                <strong>Vehicul: {vehicleInfo?.nr || 'N/A'}</strong><br />
-                <strong>UIT: {currentActiveUit?.uit || 'N/A'}</strong><br />
-                <span>Viteză: {gpsCoordinates.viteza.toFixed(1)} km/h</span><br />
-                <span>Baterie: {gpsCoordinates.baterie}%</span><br />
-                <span>Timp: {new Date(gpsCoordinates.timestamp).toLocaleTimeString()}</span>
+            <Popup className="custom-popup">
+              <div className="text-sm px-1">
+                <p className="font-bold text-blue-600">Poziție curentă</p>
+                <div className="grid grid-cols-2 gap-x-1 gap-y-0.5 my-1">
+                  <p className="text-gray-600">Vehicul:</p>
+                  <p className="font-medium">{vehicleInfo?.nr || 'N/A'}</p>
+                  <p className="text-gray-600">UIT:</p>
+                  <p className="font-medium">{currentActiveUit?.uit || 'N/A'}</p>
+                  <p className="text-gray-600">Viteză:</p>
+                  <p className="font-medium">{gpsCoordinates.viteza.toFixed(1)} km/h</p>
+                </div>
+                <p className="text-xs text-gray-500 mt-1 border-t pt-1">
+                  {new Date(gpsCoordinates.timestamp).toLocaleString()}
+                </p>
               </div>
             </Popup>
           </Marker>
@@ -167,7 +197,7 @@ export default function TransportMap() {
         {routeHistory.length > 1 && (
           <Polyline 
             positions={routeHistory.map(point => [point.lat, point.lng])} 
-            color="blue" 
+            color="#3b82f6" 
             weight={4} 
             opacity={0.7}
           />
@@ -179,21 +209,50 @@ export default function TransportMap() {
             position={[routeHistory[0].lat, routeHistory[0].lng]} 
             icon={startIcon}
           >
-            <Popup>
-              <div>
-                <strong>Punct de plecare</strong><br />
-                <span>Timp: {new Date(routeHistory[0].timestamp).toLocaleString()}</span>
+            <Popup className="custom-popup">
+              <div className="text-sm">
+                <p className="font-bold text-green-600">Punct de plecare</p>
+                <p className="text-xs text-gray-600 mt-1">
+                  {new Date(routeHistory[0].timestamp).toLocaleString()}
+                </p>
               </div>
             </Popup>
           </Marker>
         )}
       </MapContainer>
       
+      {gpsCoordinates && (
+        <div className="mt-3 bg-gray-50 rounded-lg p-3 flex justify-between items-center text-sm">
+          <span className="text-gray-600">
+            <span className="font-medium">Ultima actualizare:</span> {lastGpsUpdateTime}
+          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-gray-600">Baterie:</span>
+            <div className="w-20 bg-gray-200 rounded-full h-2.5">
+              <div 
+                className={`h-2.5 rounded-full ${gpsCoordinates.baterie > 20 ? 'bg-green-500' : 'bg-red-500'}`} 
+                style={{ width: `${gpsCoordinates.baterie}%` }}
+              ></div>
+            </div>
+            <span className="text-sm">{gpsCoordinates.baterie}%</span>
+          </div>
+        </div>
+      )}
+      
       {routeHistory.length > 0 && (
-        <div className="mt-3 text-sm text-gray-600">
-          <p>Distanța estimată: {calculateDistance(routeHistory).toFixed(2)} km</p>
-          <p>Viteză curentă: {gpsCoordinates?.viteza.toFixed(1) || 0} km/h</p>
-          <p>Timpul de deplasare: {calculateTravelTime(routeHistory)}</p>
+        <div className="mt-3 grid grid-cols-3 gap-3 text-center">
+          <div className="bg-blue-50 p-2 rounded-lg">
+            <p className="text-xs text-blue-700">Distanță</p>
+            <p className="font-medium text-blue-900">{calculateDistance(routeHistory).toFixed(2)} km</p>
+          </div>
+          <div className="bg-green-50 p-2 rounded-lg">
+            <p className="text-xs text-green-700">Viteză</p>
+            <p className="font-medium text-green-900">{gpsCoordinates?.viteza.toFixed(1) || 0} km/h</p>
+          </div>
+          <div className="bg-purple-50 p-2 rounded-lg">
+            <p className="text-xs text-purple-700">Durată</p>
+            <p className="font-medium text-purple-900">{calculateTravelTime(routeHistory)}</p>
+          </div>
         </div>
       )}
     </div>
