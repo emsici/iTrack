@@ -58,11 +58,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de autentificare cu:", credentials);
       
-      // Conform informațiilor furnizate de utilizator, Postman funcționează 
-      // cu raw JSON fără headers specifice
-      const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/login.php", {
+      // Folosim proxy-ul nostru pentru a evita probleme de CORS
+      const response = await fetch("/api/login", {
         method: "POST",
-        // Nu adăugăm headers de Content-Type
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           email: credentials.email,
           password: credentials.password
@@ -107,8 +108,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const registerVehicle = async (registrationNumber: string): Promise<boolean> => {
     try {
+      console.log("Încercare de înregistrare vehicul:", registrationNumber);
+      
+      // Folosim proxy-ul nostru pentru a evita probleme de CORS
       const response = await fetch(
-        `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`,
+        `/api/vehicle/${registrationNumber}`,
         {
           method: "GET",
           headers: {

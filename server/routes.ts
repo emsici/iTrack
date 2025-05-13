@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { loginSchema, gpsDataSchema } from "@shared/schema";
+import fetch from "node-fetch";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Login endpoint - proxy to external API
@@ -9,18 +10,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = loginSchema.parse(req.body);
       
+      console.log("Încercare de autentificare cu:", validatedData);
+      
       // Forward request to the external API
+      // Nu adăugăm Content-Type header, conform testelor din Postman
       const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/login.php", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
         body: JSON.stringify(validatedData)
       });
       
       const data = await response.json();
+      console.log("Răspuns de la API extern:", data);
+      
       return res.status(response.status).json(data);
     } catch (error) {
+      console.error("Eroare la autentificare:", error);
       return res.status(400).json({ message: "Invalid request data" });
     }
   });
@@ -29,6 +33,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/vehicle/:nr", async (req, res) => {
     try {
       const registrationNumber = req.params.nr;
+      
+      console.log("Cerere informații vehicul:", registrationNumber);
+      console.log("Token autorizare:", req.headers.authorization);
       
       // Forward request to the external API
       const response = await fetch(`https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`, {
