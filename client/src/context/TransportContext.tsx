@@ -135,7 +135,18 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         maximumAge: 0
       });
       
-      console.log("Poziție obținută:", position);
+      // Verificăm dacă poziția este validă
+      if (!position || !position.coords) {
+        throw new Error("Poziție GPS invalidă sau incompletă");
+      }
+      
+      console.log("Poziție obținută:", JSON.stringify({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        alt: position.coords.altitude,
+        speed: position.coords.speed,
+        heading: position.coords.heading
+      }));
       return position;
     } catch (error) {
       console.error("Eroare la obținerea poziției:", error);

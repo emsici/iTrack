@@ -27,6 +27,13 @@ export const sendGpsUpdate = async (
   transportStatus: "in_progress" | "finished" = "in_progress"
 ): Promise<boolean> => {
   try {
+    console.log("sendGpsUpdate - date primite:", {
+      hasPosition: !!position,
+      vehicleInfo,
+      hasToken: !!token,
+      transportStatus
+    });
+    
     if (!position || !vehicleInfo || !token) {
       console.error("Date lipsă pentru trimiterea actualizării GPS");
       return false;

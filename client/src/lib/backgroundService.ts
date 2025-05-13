@@ -32,8 +32,15 @@ export const startBackgroundLocationTracking = async (
       await CapacitorGeoService.requestPermissions();
       
       // Pentru dispozitive native, folosim Capacitor pentru a rula în background
+      // Folosim un interval mai scurt pentru a testa mai rapid
+      const updateInterval = 10000; // 10 secunde
+      
+      console.log(`Background service pornit - interval: ${updateInterval/1000} secunde`);
+      
       backgroundTaskId = window.setInterval(async () => {
         try {
+          console.log('Rulare task background - obținere poziție GPS');
+          
           // Obținem poziția curentă
           const position = await CapacitorGeoService.getCurrentPosition({
             enableHighAccuracy: true,
@@ -41,14 +48,24 @@ export const startBackgroundLocationTracking = async (
             maximumAge: 0
           });
           
-          // Trimitem poziția către server cu status "in_progress"
-          await sendGpsUpdate(position, vehicleInfo, token, "in_progress");
+          if (!position || !position.coords) {
+            console.error('Poziție GPS invalidă obținută în background');
+            return;
+          }
           
-          console.log('Background GPS update trimis cu succes');
+          console.log('Poziție GPS obținută în background:', JSON.stringify({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          }));
+          
+          // Trimitem poziția către server cu status "in_progress"
+          const success = await sendGpsUpdate(position, vehicleInfo, token, "in_progress");
+          
+          console.log('Background GPS update trimis:', success ? 'Succes' : 'Eșuat');
         } catch (error) {
           console.error('Eroare la trimiterea actualizării GPS din background:', error);
         }
-      }, BACKGROUND_UPDATE_INTERVAL);
+      }, updateInterval);
       
       isBackgroundServiceRunning = true;
       
