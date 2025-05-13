@@ -39,6 +39,7 @@ export const loginUser = async (credentials: Login) => {
           method: 'POST',
           url: apiUrl,
           data: payload,
+          params: {}, // Obiect params gol pentru a evita NullPointerException
           headers: {
             // Nu specificăm Content-Type pentru a fi conform cu cerințele API-ului
           }
@@ -120,12 +121,15 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
     if (isNative) {
       try {
         // Folosim HTTP plugin de la Capacitor pentru dispozitive native
+        // Verificăm dacă suntem pe Android pentru a seta explicit params
         const response = await Http.request({
           method: 'GET',
           url: apiUrl,
           headers: {
             "Authorization": `Bearer ${token}`
-          }
+          },
+          params: {}, // Obiect params gol pentru a evita NullPointerException
+          data: {} // Adăugăm și data gol pentru a evita probleme
         });
         
         console.log("Răspuns informații vehicul (native):", response.status, response.data);

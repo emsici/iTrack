@@ -99,7 +99,7 @@ export default function MobileHeader() {
   };
 
   return (
-    <header className="bg-blue-700 text-white p-3 shadow-md mobile-header">
+    <header className="text-white shadow-md mobile-header">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <div className="rounded-full bg-white w-8 h-8 flex items-center justify-center mr-2">

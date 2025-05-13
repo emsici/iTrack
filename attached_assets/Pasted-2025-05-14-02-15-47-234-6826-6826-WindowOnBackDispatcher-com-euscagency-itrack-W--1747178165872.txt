@@ -1,0 +1,14 @@
+2025-05-14 02:15:47.234  6826-6826  WindowOnBackDispatcher  com.euscagency.itrack                W  sendCancelIfRunning: isInProgress=false callback=android.view.ImeBackAnimationController@754f167
+2025-05-14 02:15:47.235  6826-6826  InsetsController        com.euscagency.itrack                D  Setting requestedVisibleTypes to -9 (was -1)
+2025-05-14 02:15:47.334  6826-7061  System.out              com.euscagency.itrack                I  java.lang.NullPointerException: Attempt to invoke virtual method 'java.util.Iterator com.getcapacitor.JSObject.keys()' on a null object reference
+2025-05-14 02:15:47.348  6826-7061  Capacitor/Plugin        com.euscagency.itrack                E  NullPointerException
+                                                                                                    java.lang.NullPointerException: Attempt to invoke virtual method 'java.util.Iterator com.getcapacitor.JSObject.keys()' on a null object reference
+                                                                                                    	at com.getcapacitor.plugin.http.HttpRequestHandler$HttpURLConnectionBuilder.setUrlParams(HttpRequestHandler.java:129)
+                                                                                                    	at com.getcapacitor.plugin.http.HttpRequestHandler.request(HttpRequestHandler.java:382)
+                                                                                                    	at com.getcapacitor.plugin.http.Http$1.run(Http.java:83)
+                                                                                                    	at java.lang.Thread.run(Thread.java:1119)
+2025-05-14 02:15:47.348  6826-7061  Capacitor               com.euscagency.itrack                D  Sending plugin error: {"save":false,"callbackId":"126000544","pluginId":"Http","methodName":"request","success":false,"error":{"message":"NullPointerException"}}
+2025-05-14 02:15:47.369  6826-6826  Capacitor/Console       com.euscagency.itrack                E  File: https://localhost/assets/index-B_xvO5n_.js - Line 48 - Msg: Eroare HTTP pe dispozitiv nativ (vehicul): Error: NullPointerException
+2025-05-14 02:15:47.371  6826-6826  Capacitor/Console       com.euscagency.itrack                E  File: https://localhost/assets/index-B_xvO5n_.js - Line 48 - Msg: Eroare la obținerea informațiilor vehiculului: Error: NullPointerException
+2025-05-14 02:15:47.372  6826-6826  Capacitor/Console       com.euscagency.itrack                E  File: https://localhost/assets/index-B_xvO5n_.js - Line 48 - Msg: Eroare la actualizarea vehiculului: Error: NullPointerException
+2025-05-14 02:15:47.597  6826-6826  ImeTracker              com.euscagency.itrack                I  system_server:5cb10244: onCancelled at PHASE_CLIENT_ON_CONTROLS_CHANGED
