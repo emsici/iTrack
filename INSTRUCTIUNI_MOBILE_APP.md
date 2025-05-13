@@ -64,3 +64,21 @@ Dacă întâmpinați probleme:
 2. Verificați că toate dependențele sunt instalate: `npm install`
 3. Curățați cache-ul: `npx cap clean`
 4. Reîncercați sincronizarea: `npx cap sync`
+
+### Probleme de conectivitate API
+
+Dacă aplicația nu se poate conecta la API-ul extern când rulează pe dispozitiv:
+
+1. Verificați permisiunile de rețea în aplicație
+2. Asigurați-vă că aplicația are acces la internet
+3. Verificați dacă API-ul extern acceptă solicitări de pe dispozitivul mobil (CORS)
+4. În Android Studio, verificați logurile de rețea pentru a vedea dacă există erori de conectivitate
+
+### Probleme cu autentificarea
+
+Dacă autentificarea nu funcționează pe dispozitivul mobil:
+
+1. Verificați în consola Android Studio dacă există erori la încercarea de autentificare
+2. Asigurați-vă că folosiți aceleași credențiale care funcționează în versiunea web
+3. Verificați că URL-ul API-ului extern este corect în configurație (`https://www.euscagency.com/etsm3/platforme/transport/apk/login.php`)
+4. Verificați dacă la apelarea API-ului de autentificare se trimit datele în format corect (fără Content-Type header)
