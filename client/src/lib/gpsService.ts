@@ -161,14 +161,27 @@ export const sendGpsUpdate = async (
     const uit_value = String(uit || "").trim() || "UIT" + Math.floor(Math.random() * 10000);
     
     // Construim exact cum e în Postman - cu valori GARANTATE că nu sunt goale
-    const rawPayload = JSON.stringify({
-      lat, lng, timestamp, viteza, directie, altitudine, baterie, 
+    // IMPORTANT: Asigurăm-ne că toate valorile sunt de tipul corect
+    const gpsDataFinal = {
+      lat, 
+      lng, 
+      timestamp, 
+      viteza, 
+      directie, 
+      altitudine, 
+      baterie, 
       numar_inmatriculare: nr_inmatriculare, 
       uit: uit_value, 
       status,
       hdop,
       gsm_signal
-    });
+    };
+    
+    // Construim payload-ul final, asigurându-ne că toate valorile numerice sunt numere, nu string-uri
+    const rawPayload = JSON.stringify(gpsDataFinal);
+    
+    // Afișăm valorile exacte trimise pentru debugging
+    console.log("GPS DATA FINAL format pentru API:", gpsDataFinal);
     
     // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
     const isNative = Capacitor.isNativePlatform();

@@ -174,8 +174,9 @@ router.post("/gps", async (req, res) => {
         headers: {
           "Authorization": req.headers.authorization || "",
           "X-Vehicle-Number": String(vehicleNumber),
-          "X-UIT": String(uit)
-          // IMPORTANT: Nu setăm Content-Type pentru a fi same ca în curl (care a funcționat)
+          "X-UIT": String(uit),
+          // Adăugăm Content-Type explicit pentru a rezolva problema de transmisie
+          "Content-Type": "application/json"
         },
         body: rawPayload // Trimitem payload-ul exact format JSON.stringify
       });
