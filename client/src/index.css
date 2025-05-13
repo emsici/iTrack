@@ -64,20 +64,25 @@
 
 /* Stiluri pentru compatibilitate cu afișaje mobile */
 @supports (padding: max(0px)) {
+  /* Stilizare pentru iOS și alte dispozitive cu notch/safe area */
   .safe-area-top {
     padding-top: max(env(safe-area-inset-top), 1rem);
   }
   
+  /* Header cu poziție fixă, dar sub bara de status/notch */
   .mobile-header {
     position: fixed;
-    top: env(safe-area-inset-top); /* Poziționează bara sub notch/bara de ceas */
+    top: 0;
     left: 0;
     right: 0;
     z-index: 50;
+    /* Un padding explicit pentru a deplasa conținutul headerului sub bara de status */
+    padding-top: calc(env(safe-area-inset-top, 20px) + 8px) !important;
+    /* Eliminăm margin-top deoarece folosim padding-top pentru a poziționa conținutul */
     margin-top: 0 !important;
-    padding-top: 8px !important; /* Padding mai mare pentru a asigura spațiu sub bara telefonului */
   }
   
+  /* Aplicăm padding la body */
   body {
     /* Adăugăm padding pentru safe-area pentru a evita suprapunerea cu bara de status */
     --safe-area-top: env(safe-area-inset-top);

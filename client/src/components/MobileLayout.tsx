@@ -36,7 +36,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
       {/* Main content - actualizat pentru a asigura compatibilitatea cu header-ul */}
       <main className="flex-1 p-4 max-w-lg mx-auto w-full" style={{ 
           /* Adăugăm padding pentru a compensa header-ul fix + tab navigation */
-          paddingTop: 'calc(7rem + env(safe-area-inset-top))'
+          paddingTop: 'calc(7rem + env(safe-area-inset-top, 20px))'
         }}>
         {children}
       </main>
