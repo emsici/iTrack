@@ -34,6 +34,45 @@ export const CapacitorGeoService = {
       return 100; // Valoare implicită
     }
   },
+  
+  // Obținerea direcției/headingului dispozitivului
+  getHeading: async (): Promise<number> => {
+    try {
+      // Pentru dispozitive native, încercăm să folosim senzori specifici
+      if (Capacitor.isNativePlatform()) {
+        // În viitor se poate adăuga un plugin dedicat pentru compas/direcție
+        // Deocamdată, folosim ultima direcție cunoscută din geolocation dacă e disponibilă
+        return 0; // Valoare implicită pentru dezvoltare
+      }
+      
+      // Pentru browser, folosim API-ul DeviceOrientation dacă e disponibil
+      if (window.DeviceOrientationEvent) {
+        return new Promise((resolve) => {
+          // Încercăm să obținem o singură citire
+          const handleOrientation = (event: DeviceOrientationEvent) => {
+            // alpha: direcție (0-360)
+            const heading = event.alpha || 0;
+            window.removeEventListener('deviceorientation', handleOrientation);
+            resolve(Math.round(heading));
+          };
+          
+          // Setăm un timeout în caz că nu primim evenimente
+          setTimeout(() => {
+            window.removeEventListener('deviceorientation', handleOrientation);
+            resolve(0);
+          }, 1000);
+          
+          window.addEventListener('deviceorientation', handleOrientation, { once: true });
+        });
+      }
+      
+      // Valoare implicită dacă nu avem acces la senzori
+      return 0;
+    } catch (error) {
+      console.warn('Nu se poate obține direcția/heading:', error);
+      return 0; // Valoare implicită
+    }
+  },
   // Cererea de permisiuni pentru locație
   requestPermissions: async () => {
     if (!isNativePlatform()) {

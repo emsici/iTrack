@@ -19,49 +19,52 @@ interface TransportStatistics {
 export default function TransportStats() {
   const { gpsCoordinates, transportStatus, currentActiveUit, battery } = useTransport();
   
-  // Folosim useRef pentru a stoca valorile fără a cauza re-renderări
-  const statsRef = useRef<TransportStatistics>({
+  const [stats, setStats] = useState<TransportStatistics>({
     distanceTraveled: 0,
     averageSpeed: 0,
     maxSpeed: 0,
     travelTime: 0,
-    batteryLevel: 100,
-    status: 'inactive',
+    batteryLevel: battery || 100,
+    status: transportStatus || 'inactive',
     speedHistory: [],
   });
   
-  // Stare pentru UI
-  const [displayStats, setDisplayStats] = useState<TransportStatistics>(statsRef.current);
-  
-  // Istoric pentru calcule statistici - folosim useRef pentru a evita re-renderările inutile
-  const speedHistoryRef = useRef<number[]>([]);
+  // Referințe pentru calcule statistici care nu trebuie să declanșeze re-renderări
   const startTimeRef = useRef<Date | null>(null);
   const previousCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
+  const speedHistoryRef = useRef<number[]>([]);
   
-  // Inițializează timpul de start când transportul devine activ
+  // Actualizăm starea când se modifică statusul transportului
   useEffect(() => {
+    // Când începe transportul
     if (transportStatus === 'active' && !startTimeRef.current) {
       startTimeRef.current = new Date();
-    } else if (transportStatus === 'inactive') {
-      // Resetează statisticile când transportul se oprește
+    } 
+    // Când se oprește/resetează transportul
+    else if (transportStatus === 'inactive') {
+      // Resetăm toate datele
       startTimeRef.current = null;
-      speedHistoryRef.current = [];
       previousCoordsRef.current = null;
+      speedHistoryRef.current = [];
       
-      // Resetează și statisticile de afișare
-      const resetStats = {
+      setStats({
         distanceTraveled: 0,
         averageSpeed: 0,
         maxSpeed: 0,
         travelTime: 0,
-        batteryLevel: 100,
+        batteryLevel: battery || 100,
         status: 'inactive',
         speedHistory: []
-      };
-      statsRef.current = resetStats;
-      setDisplayStats(resetStats);
+      });
     }
-  }, [transportStatus]);
+    
+    // Actualizăm statusul în statistici
+    setStats(prev => ({
+      ...prev,
+      status: transportStatus || 'inactive',
+      batteryLevel: battery || prev.batteryLevel
+    }));
+  }, [transportStatus, battery]);
   
   // Actualizează statisticile când se primesc noi coordonate GPS
   useEffect(() => {

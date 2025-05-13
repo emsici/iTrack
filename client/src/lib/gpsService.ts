@@ -78,13 +78,26 @@ export const sendGpsUpdate = async (
       "lungime_uit": vehicleInfo.uit ? vehicleInfo.uit.length : 0,
     });
     
+    // Obține direcția din senzorul dispozitivului, dacă e disponibil
+    let headingValue = heading || 0;
+    try {
+      // Încercăm să obținem direcția mai precisă din senzori specifici
+      const deviceHeading = await CapacitorGeoService.getHeading();
+      if (deviceHeading !== null && deviceHeading !== undefined) {
+        headingValue = deviceHeading;
+        console.log("Direcție obținută din senzor:", headingValue);
+      }
+    } catch (headingError) {
+      console.warn("Nu s-a putut obține direcția din senzor, se folosește valoarea GPS:", headingError);
+    }
+    
     // Construiește payload-ul pentru API
     const gpsData: GpsDataPayload = {
       lat: latitude,
       lng: longitude,
       timestamp: timestamp,
       viteza: speedKmh,
-      directie: heading || 0,
+      directie: headingValue, // Direcția din senzori sau GPS
       altitudine: altitude || 0,
       baterie: batteryLevel,
       numar_inmatriculare: vehicleInfo.nr,
