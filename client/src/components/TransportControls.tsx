@@ -101,6 +101,16 @@ export default function TransportControls() {
   // Funcții pentru gestionarea transporturilor
   const handleStartTransport = async (transportId: string) => {
     try {
+      // Verificăm dacă avem UIT valid în vehicleInfo
+      if (!vehicleInfo?.uit) {
+        toast({
+          variant: "destructive",
+          title: "Eroare",
+          description: "UIT invalid. Verificați informațiile vehiculului."
+        });
+        return;
+      }
+      
       // Actualizează starea transportului în UI
       setTransports(transports.map(transport => 
         transport.id === transportId 
@@ -109,7 +119,23 @@ export default function TransportControls() {
       ));
       
       // Pornește GPS tracking în backend
-      await startTransport();
+      const result = await startTransport();
+      
+      if (result === false) {
+        toast({
+          variant: "destructive",
+          title: "Eroare",
+          description: "Nu există un UIT valid. Verificați datele vehiculului."
+        });
+        
+        // Resetăm UI-ul înapoi la inactiv
+        setTransports(transports.map(transport => 
+          transport.id === transportId 
+            ? { ...transport, status: "inactive", isTracking: false } 
+            : transport
+        ));
+        return;
+      }
       
       toast({
         title: "Transport pornit",
@@ -122,6 +148,13 @@ export default function TransportControls() {
         title: "Eroare",
         description: "Nu s-a putut porni cursa. Încercați din nou."
       });
+      
+      // Resetăm UI-ul înapoi la inactiv
+      setTransports(transports.map(transport => 
+        transport.id === transportId 
+          ? { ...transport, status: "inactive", isTracking: false } 
+          : transport
+      ));
     }
   };
 
