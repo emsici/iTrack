@@ -101,9 +101,10 @@ router.post("/gps", async (req, res) => {
     // Log exact formatul datelor trimise
     console.log("Trimitere date GPS către API extern:", JSON.stringify(validatedData, null, 2));
     
-    // FOARTE IMPORTANT: creăm obiectul exact în ordinea din exemplul client
-    // Conform Postman: lat, lng, timestamp, viteza, directie, altitudine, baterie, numar_inmatriculare, uit, status
-    const rawDataToSend = {
+    // FOARTE IMPORTANT: După cum se vede în screenshot-ul Postman, obiectul JSON 
+    // este trimis comprimat, nu cu whitespace și newlines
+    // Simulăm exact acest format pentru a fi identic cu Postman
+    const jsonObj = {
       lat: validatedData.lat,
       lng: validatedData.lng,
       timestamp: validatedData.timestamp,
@@ -116,9 +117,10 @@ router.post("/gps", async (req, res) => {
       status: validatedData.status
     };
     
-    // Convertim în string direct, fără conversii ulterioare
-    const rawPayload = JSON.stringify(rawDataToSend);
-    console.log("RAW PAYLOAD EXACT CA ÎN POSTMAN:", rawPayload);
+    // IMPORTANT: Folosim JSON.stringify fără whitespace pentru formatul comprimat
+    const rawPayload = JSON.stringify(jsonObj);
+    
+    console.log("RAW PAYLOAD EXACT CA ÎN POSTMAN (FORMAT COMPRIMAT):", rawPayload);
 
     try {
       // Forward request to the external API - EXACT ca în Postman: raw data, fără Content-Type header

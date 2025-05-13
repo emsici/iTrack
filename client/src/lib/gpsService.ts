@@ -84,24 +84,26 @@ export const sendGpsUpdate = async (
       return true; // Returnăm true pentru a nu întrerupe fluxul aplicației
     }
     
-    // Construim payload-ul EXACT în formatul din Postman și în ordinea exactă
-    // FOARTE IMPORTANT: Ordinea proprietăților contează pentru unele API-uri
-    const jsonPayload = {
-      lat: Number(latitude) || 0,
-      lng: Number(longitude) || 0,
-      timestamp: timestamp,
-      viteza: Number(speedKmh) || 0,
-      directie: Number(heading) || 0,
-      altitudine: Number(altitude) || 0,
-      baterie: Number(batteryLevel) || 100,
-      numar_inmatriculare: String(vehicleInfo.nr),
-      uit: String(vehicleInfo.uit),
-      status: transportStatus === "finished" ? "finished" : "in_progress"
-    };
+    // FOARTE IMPORTANT: În Postman, JSON-ul este formatat cu spații și nicio linie nouă
+    // În imaginea trimisă vedem că JSON-ul trebuie formatat exact așa:
+    // {"lat":44.4268,"lng":26.1036,"timestamp":"2025-05-05 15:00:00","viteza":63.4,"directie":180,"altitudine":87.5,"baterie":75,"numar_inmatriculare":"B123XYZ","uit":"UIT56789","status":"in_progress"}
     
-    // Convertim în string EXACT ca în Postman - fără whitespace sau formatare
-    const rawPayload = JSON.stringify(jsonPayload);
-    console.log("PAYLOAD GPS EXACT CA ÎN POSTMAN:", rawPayload);
+    const lat = Number(latitude) || 0;
+    const lng = Number(longitude) || 0;
+    const viteza = Number(speedKmh) || 0;
+    const directie = Number(heading) || 0;
+    const altitudine = Number(altitude) || 0;
+    const baterie = Number(batteryLevel) || 100;
+    const numar_inmatriculare = String(vehicleInfo.nr);
+    const uit = String(vehicleInfo.uit);
+    const status = transportStatus === "finished" ? "finished" : "in_progress";
+    
+    // Construim exact cum e în Postman
+    const rawPayload = JSON.stringify({
+      lat, lng, timestamp, viteza, directie, altitudine, baterie, numar_inmatriculare, uit, status
+    });
+    
+    console.log("EXACT PAYLOAD RAW FORMAT:", rawPayload);
     
     // Trimite datele către server prin proxy-ul local
     // IMPORTANT: Folosim exact formatul din Postman - nu includ niciun header de Content-Type
