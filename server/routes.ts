@@ -33,9 +33,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Vehicle info endpoint - proxy to external API
-  app.get("/api/vehicle/:nr", async (req, res) => {
+  app.get("/api/vehicle", async (req, res) => {
     try {
-      const registrationNumber = req.params.nr;
+      // Extragem numărul de înmatriculare din query params
+      const registrationNumber = req.query.nr;
+      
+      if (!registrationNumber) {
+        return res.status(400).json({ message: "Missing registration number" });
+      }
       
       console.log("Cerere informații vehicul:", registrationNumber);
       console.log("Token autorizare:", req.headers.authorization);
