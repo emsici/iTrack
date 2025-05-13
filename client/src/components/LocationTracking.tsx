@@ -71,8 +71,8 @@ export default function LocationTracking() {
               }
             >
               <div className="flex items-center">
-                <div className="h-2 w-2 bg-white rounded-full mr-1.5 animate-pulse"></div>
-                GPS Activ
+                {isGpsReallyActive && <div className="h-2 w-2 bg-white rounded-full mr-1.5 animate-pulse"></div>}
+                GPS {isGpsReallyActive ? "Activ" : "Inactiv"}
               </div>
             </Badge>
           </div>
@@ -87,7 +87,7 @@ export default function LocationTracking() {
               <p className="text-sm font-medium">Latitudine</p>
             </div>
             <p className="text-lg font-bold text-slate-800 tracking-tight">
-              {gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}
+              {isGpsReallyActive && gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}
             </p>
           </div>
           
@@ -97,7 +97,7 @@ export default function LocationTracking() {
               <p className="text-sm font-medium">Longitudine</p>
             </div>
             <p className="text-lg font-bold text-slate-800 tracking-tight">
-              {gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}
+              {isGpsReallyActive && gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}
             </p>
           </div>
         </div>
@@ -109,7 +109,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Viteză</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "-"}
+              {isGpsReallyActive && gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "-"}
             </p>
           </div>
           
@@ -119,7 +119,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Direcție</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {gpsCoordinates?.directie !== undefined ? `${gpsCoordinates.directie}°` : "-"}
+              {isGpsReallyActive && gpsCoordinates?.directie !== undefined ? `${gpsCoordinates.directie}°` : "-"}
             </p>
           </div>
           
@@ -129,7 +129,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Baterie</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {battery ? `${battery}%` : "-"}
+              {isGpsReallyActive && battery ? `${battery}%` : "-"}
             </p>
           </div>
         </div>
@@ -140,7 +140,7 @@ export default function LocationTracking() {
             <p className="text-sm font-medium">Ultima actualizare</p>
           </div>
           <p className="text-base font-semibold text-slate-800">
-            {lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : "-"}
+            {isGpsReallyActive && lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : "-"}
           </p>
         </div>
       
