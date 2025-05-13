@@ -117,6 +117,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Obținem token-ul actualizat din localStorage pentru a ne asigura că folosim cea mai recentă versiune
       const currentToken = localStorage.getItem("auth_token") || token;
       
+      // Verificăm dacă token-ul conține "exp" pentru a detecta expirarea
+      if (currentToken) {
+        try {
+          const tokenParts = currentToken.split('.');
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            const exp = payload.exp;
+            const currentTime = Math.floor(Date.now() / 1000);
+            
+            if (exp && exp < currentTime) {
+              console.error("Token expirat, exp:", exp, "currentTime:", currentTime);
+              toast({
+                variant: "destructive",
+                title: "Sesiune expirată",
+                description: "Sesiunea dumneavoastră a expirat. Vă rugăm să vă autentificați din nou."
+              });
+              
+              // Deconectăm utilizatorul
+              logout();
+              return false;
+            }
+          }
+        } catch (e) {
+          console.error("Eroare la decodarea token-ului:", e);
+        }
+      }
+      
       try {
         // Folosim funcția din lib/auth.ts pentru a obține informații despre vehicul
         const data = await getVehicleInfo(registrationNumber, currentToken);

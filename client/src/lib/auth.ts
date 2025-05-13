@@ -126,9 +126,8 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
           method: 'GET',
           url: apiUrl,
           headers: {
-            // IMPORTANT: API-ul extern poate să aștepte un format diferit pentru token
-            // Încercăm fără Bearer pentru a vedea dacă funcționează
-            "Authorization": token
+            // IMPORTANT: Păstrăm formatul original, exact ce vine după login
+            "Authorization": token.startsWith("Bearer ") ? token : `Bearer ${token}`
           },
           params: {} as any, // FOARTE IMPORTANT: obiect gol transformat în any pentru a rezolva problema de tipuri
           data: {} as any  // FOARTE IMPORTANT: obiect gol transformat în any pentru a evita NullPointerException
