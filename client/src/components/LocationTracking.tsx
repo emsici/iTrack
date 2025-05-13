@@ -37,7 +37,7 @@ export default function LocationTracking() {
             <MapPin className="w-3 h-3 text-primary-600 mr-1" />
             <p className="text-xs text-secondary-600 font-medium">Latitudine</p>
           </div>
-          <p className="text-lg font-bold text-secondary-900">{gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "N/A"}</p>
+          <p className="text-lg font-bold text-secondary-900">{isGpsActive && gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}</p>
         </div>
         
         <div className="p-3 bg-secondary-50 rounded-md border border-secondary-100">
@@ -45,7 +45,7 @@ export default function LocationTracking() {
             <MapPin className="w-3 h-3 text-primary-600 mr-1" />
             <p className="text-xs text-secondary-600 font-medium">Longitudine</p>
           </div>
-          <p className="text-lg font-bold text-secondary-900">{gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "N/A"}</p>
+          <p className="text-lg font-bold text-secondary-900">{isGpsActive && gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}</p>
         </div>
         
         <div className="p-3 bg-secondary-50 rounded-md border border-secondary-100">
@@ -54,7 +54,7 @@ export default function LocationTracking() {
             <p className="text-xs text-secondary-600 font-medium">Viteză</p>
           </div>
           <p className="text-lg font-bold text-secondary-900">
-            {gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "N/A"}
+            {isGpsActive && gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "-"}
           </p>
         </div>
         
@@ -63,7 +63,7 @@ export default function LocationTracking() {
             <Clock className="w-3 h-3 text-primary-600 mr-1" />
             <p className="text-xs text-secondary-600 font-medium">Ultima actualizare</p>
           </div>
-          <p className="text-lg font-bold text-secondary-900">{formatTime(lastGpsUpdateTime)}</p>
+          <p className="text-lg font-bold text-secondary-900">{isGpsActive && lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : "-"}</p>
         </div>
       </div>
       
