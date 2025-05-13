@@ -13,6 +13,7 @@ interface TransportStatistics {
   travelTime: number; // în minute
   batteryLevel: number;
   status: string;
+  speedHistory?: number[]; // Adăugat pentru a evita dependența externă
 }
 
 export default function TransportStats() {
@@ -24,6 +25,7 @@ export default function TransportStats() {
     travelTime: 0,
     batteryLevel: 100,
     status: 'inactive',
+    speedHistory: [],
   });
   
   // Istoric pentru calcule statistici
@@ -55,47 +57,51 @@ export default function TransportStats() {
   useEffect(() => {
     if (!gpsCoordinates || transportStatus !== 'active') return;
     
-    // Actualizează istoricul de viteză
-    setSpeedHistory(prev => [...prev, gpsCoordinates.viteza]);
+    // Actualizează istoricul de viteză și coordonatele anterioare
+    const newSpeed = gpsCoordinates.viteza;
+    const newCoords = { lat: gpsCoordinates.lat, lng: gpsCoordinates.lng };
     
     // Calculează distanța
+    let distanceToAdd = 0;
     if (previousCoords) {
-      const distance = calculateDistance(
+      distanceToAdd = calculateDistance(
         previousCoords.lat,
         previousCoords.lng,
         gpsCoordinates.lat,
         gpsCoordinates.lng
       );
-      
-      setStats(prev => ({
-        ...prev,
-        distanceTraveled: prev.distanceTraveled + distance,
-      }));
     }
-    
-    // Actualizează coordonatele anterioare
-    setPreviousCoords({ lat: gpsCoordinates.lat, lng: gpsCoordinates.lng });
     
     // Calcul timp de călătorie
     const travelTimeMinutes = startTime 
       ? Math.floor((new Date().getTime() - startTime.getTime()) / (1000 * 60)) 
       : 0;
     
-    // Actualizează statisticile
-    setStats(prev => ({
-      ...prev,
-      averageSpeed: speedHistory.length > 0 
-        ? speedHistory.reduce((a, b) => a + b, 0) / speedHistory.length 
-        : 0,
-      maxSpeed: speedHistory.length > 0 
-        ? Math.max(...speedHistory) 
-        : 0,
-      travelTime: travelTimeMinutes,
-      batteryLevel: gpsCoordinates.baterie,
-      status: transportStatus,
-    }));
+    // Actualizează toate statele într-o singură actualizare pentru a evita bucla infinită
+    setSpeedHistory(prev => [...prev, newSpeed]);
+    setPreviousCoords(newCoords);
+    setStats(prev => {
+      // Calculează noile statistici
+      const newSpeedHistory = [...prev.speedHistory || [], newSpeed];
+      const avgSpeed = newSpeedHistory.length > 0 
+        ? newSpeedHistory.reduce((a, b) => a + b, 0) / newSpeedHistory.length 
+        : 0;
+      const maxSpeed = newSpeedHistory.length > 0 
+        ? Math.max(...newSpeedHistory) 
+        : 0;
+      
+      return {
+        ...prev,
+        distanceTraveled: prev.distanceTraveled + distanceToAdd,
+        averageSpeed: avgSpeed,
+        maxSpeed: maxSpeed,
+        travelTime: travelTimeMinutes,
+        batteryLevel: gpsCoordinates.baterie,
+        status: transportStatus,
+      };
+    });
     
-  }, [gpsCoordinates, transportStatus, previousCoords, startTime, speedHistory]);
+  }, [gpsCoordinates, transportStatus, previousCoords, startTime]);
   
   // Formatare timp de călătorie
   const formatTravelTime = (minutes: number) => {

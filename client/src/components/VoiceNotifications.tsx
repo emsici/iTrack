@@ -131,8 +131,8 @@ export default function VoiceNotifications() {
       }
     }
     
-    // Verifică schimbări în starea GPS-ului
-    if (isGpsActive !== prevGpsActiveRef.current) {
+    // Verifică schimbări în starea GPS-ului - doar când transportul este activ
+    if (isGpsActive !== prevGpsActiveRef.current && transportStatus === 'active') {
       if (!isGpsActive) {
         newNotification = {
           id: `gps_${Date.now()}`,
