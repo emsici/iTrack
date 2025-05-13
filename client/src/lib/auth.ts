@@ -1,42 +1,74 @@
 import { Login } from "@shared/schema";
 import { apiRequest } from "./queryClient";
+import { Http } from '@capacitor-community/http';
+import { Capacitor } from '@capacitor/core';
 
 export const loginUser = async (credentials: Login) => {
   try {
     console.log("Încercare autentificare cu email:", credentials.email);
     
     // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
-    const isNative = (window as any).Capacitor?.isNativePlatform?.() || false;
+    const isNative = Capacitor.isNativePlatform();
     
-    // În aplicația nativă folosim URL-ul API-ului direct, în browser folosim proxy-ul
-    // Evităm problemele CORS în aplicația nativă folosind proxy-ul în orice situație
-    const apiUrl = "/api/login";
-    
-    console.log("Folosim URL API:", apiUrl, "isNative:", isNative);
+    console.log("Suntem pe dispozitiv nativ:", isNative);
     
     // Construim payload-ul exact cum este în Postman
-    const payload = JSON.stringify({
+    const payload = {
       email: credentials.email,
       password: credentials.password
-    });
+    };
     
     console.log("Payload autentificare:", payload);
     
-    // Pentru aplicația nativă, trimitem cererea fără Content-Type
-    // În browser, folosim standardul JSON
-    const requestOptions: RequestInit = {
-      method: "POST",
-      body: payload
-    };
+    // URL-ul API extern
+    const apiExternUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php";
     
-    // În browser adăugăm header-ul Content-Type pentru a funcționa cu express
-    if (!isNative) {
-      requestOptions.headers = {
-        "Content-Type": "application/json"
+    if (isNative) {
+      // Pe dispozitiv nativ folosim plugin-ul @capacitor-community/http pentru a evita problemele CORS
+      console.log("Folosim Capacitor HTTP plugin pentru login");
+      
+      try {
+        const httpResponse = await Http.request({
+          method: 'POST',
+          url: apiExternUrl,
+          data: payload,
+          // Nu specificăm headers de tipul Content-Type conform cerințelor API-ului
+        });
+        
+        console.log("Status răspuns Capacitor HTTP:", httpResponse.status);
+        
+        if (httpResponse.status >= 200 && httpResponse.status < 300) {
+          // Simulăm un obiect Response similar cu cel returnat de fetch pentru a menține
+          // compatibilitatea cu restul codului
+          const response = {
+            ok: true,
+            status: httpResponse.status,
+            json: async () => httpResponse.data
+          } as unknown as Response;
+          
+          return response;
+        } else {
+          throw new Error(`Eroare la autentificare: ${httpResponse.status}`);
+        }
+      } catch (capacitorError) {
+        console.error("Eroare plugin Capacitor HTTP:", capacitorError);
+        throw capacitorError;
+      }
+    } else {
+      // În browser, folosim proxy-ul
+      const apiUrl = "/api/login";
+      console.log("Folosim URL API (browser):", apiUrl);
+      
+      // În browser, adăugăm header-ul Content-Type pentru a funcționa cu express
+      const requestOptions: RequestInit = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
       };
-    }
-    
-    const response = await fetch(apiUrl, requestOptions);
+      
+      const response = await fetch(apiUrl, requestOptions);
     
     if (!response.ok) {
       console.error("Eroare răspuns API autentificare:", response.status, response.statusText);
@@ -74,17 +106,54 @@ export const loginUser = async (credentials: Login) => {
 
 export const getVehicleInfo = async (registrationNumber: string, token: string) => {
   try {
-    // Folosim întotdeauna proxy-ul pentru a evita problemele CORS
-    const apiUrl = `/api/vehicle?nr=${registrationNumber}`;
+    // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
+    const isNative = Capacitor.isNativePlatform();
     
-    console.log("Folosim URL API pentru vehicul:", apiUrl);
+    // URL-ul API extern
+    const apiExternUrl = `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`;
     
-    const response = await fetch(apiUrl, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
+    if (isNative) {
+      // Pe dispozitiv nativ folosim plugin-ul @capacitor-community/http pentru a evita problemele CORS
+      console.log("Folosim Capacitor HTTP plugin pentru informații vehicul:", apiExternUrl);
+      
+      try {
+        const httpResponse = await Http.request({
+          method: 'GET',
+          url: apiExternUrl,
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        
+        console.log("Status răspuns Capacitor HTTP (vehicul):", httpResponse.status);
+        
+        if (httpResponse.status >= 200 && httpResponse.status < 300) {
+          // Simulăm un obiect Response similar cu cel returnat de fetch
+          const response = {
+            ok: true,
+            status: httpResponse.status,
+            json: async () => httpResponse.data
+          } as unknown as Response;
+          
+          return response;
+        } else {
+          throw new Error(`Eroare la obținerea informațiilor vehiculului: ${httpResponse.status}`);
+        }
+      } catch (capacitorError) {
+        console.error("Eroare plugin Capacitor HTTP (vehicul):", capacitorError);
+        throw capacitorError;
       }
-    });
+    } else {
+      // În browser, folosim proxy-ul
+      const apiUrl = `/api/vehicle?nr=${registrationNumber}`;
+      console.log("Folosim URL API pentru vehicul (browser):", apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
     
     if (!response.ok) {
       throw new Error(`Failed to get vehicle info: ${response.statusText}`);
