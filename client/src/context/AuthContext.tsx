@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Login } from "@shared/schema";
-import { Http } from '@capacitor-community/http';
-import { Capacitor } from '@capacitor/core';
+import { loginUser, getVehicleInfo } from "@/lib/auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -60,71 +59,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de autentificare cu:", credentials);
       
-      // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
-      const isNative = Capacitor.isNativePlatform();
+      // Folosim funcția din lib/auth.ts pentru autentificare uniformă
+      const result = await loginUser(credentials);
       
-      // URL-ul API extern
-      const apiExternUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php";
+      console.log("Rezultat autentificare:", result);
       
-      // În browser, folosim proxy-ul
-      const apiUrl = "/api/login";
-      
-      console.log("Folosim URL API:", isNative ? apiExternUrl : apiUrl, "isNative:", isNative);
-      
-      let data;
-      
-      if (isNative) {
-        // Pe dispozitiv nativ folosim plugin-ul @capacitor-community/http pentru a evita problemele CORS
-        console.log("Folosim Capacitor HTTP plugin pentru login");
-        
-        try {
-          const httpResponse = await Http.request({
-            method: 'POST',
-            url: apiExternUrl,
-            data: {
-              email: credentials.email,
-              password: credentials.password
-            }
-          });
-          
-          console.log("Status răspuns Capacitor HTTP:", httpResponse.status);
-          console.log("Răspuns date:", JSON.stringify(httpResponse.data));
-          
-          if (httpResponse.status >= 200 && httpResponse.status < 300) {
-            data = httpResponse.data;
-          } else {
-            throw new Error(`Eroare la autentificare: ${httpResponse.status}`);
-          }
-        } catch (capacitorError) {
-          console.error("Eroare plugin Capacitor HTTP:", capacitorError);
-          throw capacitorError;
-        }
-      } else {
-        // În browser, folosim fetch normal
-        const requestOptions: RequestInit = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            email: credentials.email,
-            password: credentials.password
-          })
-        };
-        
-        const response = await fetch(apiUrl, requestOptions);
-        data = await response.json();
-      }
-      
-      console.log("Răspuns autentificare:", data);
-
-      if (data.status === "success" && data.token) {
-        setToken(data.token);
+      if (result.success && result.token) {
+        // Autentificare reușită
+        setToken(result.token);
         setUserInfo({ email: credentials.email });
         setIsAuthenticated(true);
         
         // Store in localStorage
-        localStorage.setItem("auth_token", data.token);
+        localStorage.setItem("auth_token", result.token);
         localStorage.setItem("user_info", JSON.stringify({ email: credentials.email }));
         
         toast({
@@ -133,10 +80,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
         return true;
       } else {
+        // Autentificare eșuată
         toast({
           variant: "destructive",
           title: "Autentificare eșuată",
-          description: "Email sau parolă incorecte.",
+          description: result.message || "Credențiale incorecte",
         });
         return false;
       }
@@ -166,107 +114,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
       
-      // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
-      const isNative = Capacitor.isNativePlatform();
-      
-      // În aplicația nativă folosim URL-ul direct, în browser folosim proxy-ul
-      const apiUrl = isNative
-        ? `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`
-        : `/api/vehicle?nr=${registrationNumber}`;
-      
-      console.log("Folosim URL API vehicul:", apiUrl, "isNative:", isNative);
-      
       // Obținem token-ul actualizat din localStorage pentru a ne asigura că folosim cea mai recentă versiune
       const currentToken = localStorage.getItem("auth_token") || token;
-      console.log("Folosim token de autorizare:", currentToken ? "Token valid" : "Token lipsă");
       
-      let data;
-      
-      if (isNative) {
-        // Pe dispozitiv nativ folosim plugin-ul @capacitor-community/http pentru a evita problemele CORS
-        try {
-          const httpResponse = await Http.request({
-            method: 'GET',
-            url: apiUrl,
-            headers: {
-              "Authorization": `Bearer ${currentToken}`
-            }
+      try {
+        // Folosim funcția din lib/auth.ts pentru a obține informații despre vehicul
+        const data = await getVehicleInfo(registrationNumber, currentToken);
+        
+        console.log("Răspuns date vehicul:", data);
+        
+        if (data && data.status === "success") {
+          // Actualizăm informațiile vehiculului local
+          const vehicleData = {
+            nr: registrationNumber,  // Folosim numărul de înmatriculare furnizat
+            uit: data.uit || "",
+            start_locatie: data.start_locatie || "",
+            stop_locatie: data.stop_locatie || ""
+          };
+          
+          setVehicleInfo(vehicleData);
+          setHasVehicle(true);
+          
+          // Actualizăm localStorage
+          localStorage.setItem("vehicle_info", JSON.stringify(vehicleData));
+          
+          toast({
+            title: "Vehicul actualizat",
+            description: `Vehicul ${registrationNumber} actualizat cu succes!`,
           });
-          
-          console.log("Status răspuns Capacitor HTTP (vehicul):", httpResponse.status);
-          
-          if (httpResponse.status >= 200 && httpResponse.status < 300) {
-            data = httpResponse.data;
-          } else {
-            throw new Error(`Eroare la obținerea informațiilor vehiculului: ${httpResponse.status}`);
-          }
-        } catch (capacitorError) {
-          console.error("Eroare plugin Capacitor HTTP (vehicul):", capacitorError);
-          throw capacitorError;
-        }
-      } else {
-        // În browser folosim fetch normal
-        console.log("Trimit cerere către server cu token:", !!currentToken);
-        
-        const response = await fetch(apiUrl, {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${currentToken}`
-          }
-        });
-        
-        console.log("Status răspuns HTTP:", response.status);
-        
-        if (!response.ok) {
-          if (response.status === 401) {
-            throw new Error("Token invalid sau expirat. Reconectați-vă.");
-          }
-          throw new Error(`Răspuns server: ${response.status} ${response.statusText}`);
-        }
-        
-        // Verificăm tipul de conținut pentru a evita erori de parsare
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          data = await response.json();
+          return true;
         } else {
-          const textResponse = await response.text();
-          console.error("Răspunsul nu este în format JSON:", textResponse);
-          throw new Error("Răspunsul de la server nu este în formatul așteptat");
+          toast({
+            variant: "destructive",
+            title: "Actualizare eșuată",
+            description: "Numărul de înmatriculare nu este valid sau nu există în sistem.",
+          });
+          return false;
         }
-      }
-
-      console.log("Răspuns date vehicul:", data);
-
-      if (data && data.status === "success") {
-        // Actualizăm informațiile vehiculului local
-        setVehicleInfo({
-          nr: registrationNumber,  // Folosim numărul de înmatriculare furnizat
-          uit: data.uit || "",
-          start_locatie: data.start_locatie || "",
-          stop_locatie: data.stop_locatie || ""
-        });
-        setHasVehicle(true);
-        
-        // Actualizăm localStorage
-        localStorage.setItem("vehicle_info", JSON.stringify({
-          nr: registrationNumber,
-          uit: data.uit || "",
-          start_locatie: data.start_locatie || "",
-          stop_locatie: data.stop_locatie || ""
-        }));
-        
-        toast({
-          title: "Vehicul actualizat",
-          description: `Vehicul ${registrationNumber} actualizat cu succes!`,
-        });
-        return true;
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Actualizare eșuată",
-          description: "Numărul de înmatriculare nu este valid sau nu există în sistem.",
-        });
-        return false;
+      } catch (error) {
+        throw error;
       }
     } catch (error) {
       console.error("Eroare la actualizarea vehiculului:", error);
