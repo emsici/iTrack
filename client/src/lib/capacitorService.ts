@@ -7,6 +7,33 @@ export const getPlatform = () => Capacitor.getPlatform();
 
 // Serviciu de geolocation folosind Capacitor
 export const CapacitorGeoService = {
+  // Obținerea nivelului bateriei
+  getBatteryLevel: async (): Promise<number> => {
+    try {
+      // Folosim API-ul Browser Battery dacă e disponibil
+      if (typeof navigator !== 'undefined' && (navigator as any).getBattery) {
+        const batteryManager = await (navigator as any).getBattery();
+        return Math.round(batteryManager.level * 100);
+      }
+      // Verificăm API-uri mai vechi
+      else if ((navigator as any).battery || (navigator as any).mozBattery) {
+        const battery = (navigator as any).battery || (navigator as any).mozBattery;
+        return Math.round(battery.level * 100);
+      }
+      
+      // Pe iOS/Android, trebuie făcute verificări speciale pentru dispozitivul real
+      if (Capacitor.isNativePlatform()) {
+        // În versiunea viitoare se poate adăuga un plugin dedicat pentru baterie
+        return 100;
+      }
+
+      // Valoare implicită
+      return 100;
+    } catch (error) {
+      console.warn('Nu se poate obține nivelul bateriei:', error);
+      return 100; // Valoare implicită
+    }
+  },
   // Cererea de permisiuni pentru locație
   requestPermissions: async () => {
     if (!isNativePlatform()) {

@@ -1,6 +1,7 @@
 import { Position } from "@capacitor/geolocation";
 import { getInternetConnectivity } from "./connectivityService";
 import { saveGpsDataOffline } from "./offlineStorage";
+import { CapacitorGeoService } from "./capacitorService";
 
 export type GpsDataPayload = {
   lat: number;
@@ -40,8 +41,17 @@ export const sendGpsUpdate = async (
     // Calculează viteza (din m/s în km/h dacă e disponibilă)
     const speedKmh = speed ? speed * 3.6 : 0;
     
-    // Simulează nivelul bateriei (pentru demo)
-    const batteryLevel = 75; // Într-o implementare reală, am obține nivelul real al bateriei
+    // Obținem nivelul real al bateriei dacă API-ul este disponibil
+    let batteryLevel = 100; // Valoare implicită în cazul în care API-ul nu este disponibil
+    
+    // Încercăm să obținem nivelul real al bateriei prin CapacitorGeoService
+    try {
+      // Folosim metoda noastră centralizată pentru obținerea nivelului bateriei
+      batteryLevel = await CapacitorGeoService.getBatteryLevel();
+      console.log("Nivel baterie detectat:", batteryLevel + "%");
+    } catch (batteryError) {
+      console.warn("Nu s-a putut obține nivelul bateriei, se folosește valoarea implicită:", batteryError);
+    }
     
     // Construiește payload-ul pentru API
     const gpsData: GpsDataPayload = {
