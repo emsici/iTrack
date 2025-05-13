@@ -495,7 +495,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   }, []);
   
   // Pornire transport
-  const startTransport = async () => {
+  const startTransport = async (): Promise<boolean> => {
     console.log("Pornire transport - Verificare condiții");
     
     // Verificăm dacă avem toate datele necesare
@@ -553,7 +553,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       console.log("Tracking GPS pornit:", gpsStarted ? "Succes" : "Eșuat");
       
       if (!gpsStarted) {
-        throw new Error("Nu s-a putut iniția tracking-ul GPS");
+        toast({
+          variant: "destructive",
+          title: "Eroare",
+          description: "Nu s-a putut iniția tracking-ul GPS."
+        });
+        return false;
       }
       
       // Dacă tracking-ul GPS a pornit cu succes, schimbăm starea transportului și activăm GPS-ul
