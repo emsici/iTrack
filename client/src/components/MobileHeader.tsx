@@ -163,8 +163,8 @@ export default function MobileHeader() {
         
         <div className="flex items-center gap-3">
           <div className="flex items-center">
-            <Signal className={`h-4 w-4 ${(transportStatus === "active" && isGpsActive) ? "text-green-300" : "text-red-300"}`} />
-            <span className="text-xs ml-1 text-white">{(transportStatus === "active" && isGpsActive) ? "Activ" : "Inactiv"}</span>
+            <Signal className={`h-4 w-4 ${transportStatus === "active" ? "text-green-300" : "text-red-300"}`} />
+            <span className="text-xs ml-1 text-white">{transportStatus === "active" ? "Activ" : "Inactiv"}</span>
           </div>
           
           <div className="flex items-center">
