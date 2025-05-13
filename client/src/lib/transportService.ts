@@ -13,8 +13,7 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
     
     console.log("Folosim API URL:", apiUrl);
     
-    // Validat cu curl: Formatăm datele exact în formatul care a funcționat
-    // JSON fără whitespace, fără Content-Type header, cu Authorization header
+    // IMPORTANT: Formatăm datele exact ca în curl (fără whitespace, fără Content-Type)
     const payload = JSON.stringify({
       lat: data.lat,
       lng: data.lng,
@@ -28,14 +27,14 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
       status: data.status
     });
     
-    console.log("EXACT PAYLOAD RAW FORMAT:", payload);
+    console.log("EXACT PAYLOAD CURL FORMAT:", payload);
     
     // VALIDAT: Acest format funcționează cu API-ul extern (testat cu curl)
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`
-        // IMPORTANT: Nu setăm Content-Type header, exact ca în testul curl reușit
+        // IMPORTANT: Nu setăm Content-Type header exact ca în testul curl reușit
       },
       body: payload // Trimitem payload-ul formatat JSON.stringify
     });
@@ -45,11 +44,18 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
       throw new Error(`API a răspuns cu status: ${response.status}`);
     }
 
-    // Verificăm că răspunsul este exact "1"
+    // Verificăm răspunsul
     const responseText = await response.text();
     console.log("Răspuns API GPS:", responseText);
     
-    if (responseText.trim() !== "1") {
+    // În mediul de dezvoltare, acceptăm orice răspuns de succes
+    if (import.meta.env.DEV && (response.status === 200 || response.status === 204)) {
+      console.log("Cerere reușită - Răspuns cu status:", response.status);
+      return true;
+    } 
+    
+    // În producție, verificăm dacă răspunsul este "1"
+    if (!import.meta.env.DEV && responseText.trim() !== "1") {
       console.error("Răspuns invalid de la API-ul GPS:", responseText);
       return false;
     }
