@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [, setLocation] = useLocation();
   const [isMobile, setIsMobile] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Detectăm dacă rulăm pe mobil sau pe desktop
   useEffect(() => {
@@ -78,7 +79,7 @@ export default function LoginPage() {
           </div>
           
           <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-center text-primary-800 mb-5`}>
-            Transport GPS Tracking
+            iTrack
           </h1>
           
           <Form {...form}>
@@ -110,13 +111,27 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Parolă</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="••••••••" 
-                        type="password" 
-                        autoComplete="current-password" 
-                        className={isMobile ? 'h-10' : ''}
-                        {...field} 
-                      />
+                      <div className="relative">
+                        <Input 
+                          placeholder="••••••••" 
+                          type={showPassword ? "text" : "password"}
+                          autoComplete="current-password" 
+                          className={isMobile ? 'h-10 pr-10' : 'pr-10'}
+                          {...field} 
+                        />
+                        <button 
+                          type="button"
+                          className="absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 hover:text-gray-700"
+                          onClick={() => setShowPassword(!showPassword)}
+                          tabIndex={-1}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" aria-hidden="true" />
+                          ) : (
+                            <Eye className="h-4 w-4" aria-hidden="true" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
