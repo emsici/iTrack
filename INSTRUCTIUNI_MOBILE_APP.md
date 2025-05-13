@@ -84,7 +84,8 @@ Dacă aplicația nu se poate conecta la API-ul extern când rulează pe dispozit
 2. Asigurați-vă că aplicația are acces la internet
 3. Verificați dacă API-ul extern acceptă solicitări de pe dispozitivul mobil (CORS)
 4. În Android Studio, verificați logurile de rețea pentru a vedea dacă există erori de conectivitate
-5. Verificați în fișierul `android/app/src/main/AndroidManifest.xml` că aveți permisiunile:
+5. Verificați în fișierul `android/app/src/main/AndroidManifest.xml` că aveți permisiunile necesare și configurația pentru trafic necriptat:
+
    ```xml
    <uses-permission android:name="android.permission.INTERNET" />
    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -93,14 +94,41 @@ Dacă aplicația nu se poate conecta la API-ul extern când rulează pe dispozit
    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
    <uses-permission android:name="android.permission.WAKE_LOCK" />
+   
+   <!-- În secțiunea <application> -->
+   <application
+       android:usesCleartextTraffic="true"
+       android:networkSecurityConfig="@xml/network_security_config">
+   </application>
    ```
-6. Asigurați-vă că în `capacitor.config.ts` aveți configurația corectă:
+
+6. Creați un fișier `android/app/src/main/res/xml/network_security_config.xml` cu următorul conținut:
+   
+   ```xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <network-security-config>
+       <base-config cleartextTrafficPermitted="true">
+           <trust-anchors>
+               <certificates src="system" />
+           </trust-anchors>
+       </base-config>
+       <domain-config cleartextTrafficPermitted="true">
+           <domain includeSubdomains="true">www.euscagency.com</domain>
+       </domain-config>
+   </network-security-config>
+   ```
+
+7. Asigurați-vă că în `capacitor.config.ts` aveți configurația corectă:
    ```typescript
    server: {
      androidScheme: 'https',
-     url: '[URL-ul serverului de dezvoltare]',
      cleartext: true
    },
+   android: {
+     allowMixedContent: true,
+     webContentsDebuggingEnabled: true,
+     // ...
+   }
    ```
 
 ### Probleme cu autentificarea
