@@ -686,20 +686,24 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Emitem un mesaj vocal pentru finalizare transport + trimitem ultima poziție cu status "finished"
       if (window.speechSynthesis) {
-        // Anulăm orice alt mesaj în curs
-        window.speechSynthesis.cancel();
-        
-        // Creem mesajul cu parametri optimi pentru a fi auzit
-        const utterance = new SpeechSynthesisUtterance("Transport finalizat cu succes.");
-        utterance.lang = 'ro-RO';
-        utterance.volume = 1.0;
-        utterance.rate = 0.9;
-        
-        // Pronunțăm mesajul cu o mică întârziere
-        setTimeout(() => {
-          window.speechSynthesis.speak(utterance);
-          console.log("EMITERE VOCALĂ: Transport finalizat");
-        }, 300);
+        // Verificăm dacă notificările vocale sunt activate
+        const voiceNotificationsEnabled = localStorage.getItem('voice_notifications_enabled');
+        if (voiceNotificationsEnabled === 'true') {
+          // Anulăm orice alt mesaj în curs
+          window.speechSynthesis.cancel();
+          
+          // Creem mesajul cu parametri optimi pentru a fi auzit
+          const utterance = new SpeechSynthesisUtterance("Transport finalizat cu succes.");
+          utterance.lang = 'ro-RO';
+          utterance.volume = 1.0;
+          utterance.rate = 0.9;
+          
+          // Pronunțăm mesajul cu o mică întârziere
+          setTimeout(() => {
+            window.speechSynthesis.speak(utterance);
+            console.log("EMITERE VOCALĂ: Transport finalizat");
+          }, 300);
+        }
       }
       
       // Trimitem ultima poziție GPS cu status "finished" pentru a marca finalizarea transportului în sistem
@@ -719,16 +723,14 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         }
       }
       
-      // După 5 secunde, resetăm complet starea transportului
-      setTimeout(() => {
-        console.log("Resetare completă stare transport");
-        setTransportStatus("inactive");
-        setGpsCoordinates(null);
-        setCurrentActiveUit(null);
-        setLastGpsUpdateTime(null);
-        setBattery(100);
-        setIsGpsActive(false);
-      }, 5000);
+      // Resetăm imediat starea transportului, fără întârziere
+      console.log("Resetare completă stare transport");
+      setTransportStatus("inactive");
+      setGpsCoordinates(null);
+      setCurrentActiveUit(null);
+      setLastGpsUpdateTime(null);
+      setBattery(100);
+      setIsGpsActive(false);
     } catch (error) {
       console.error("Eroare la finalizarea transportului:", error);
       
