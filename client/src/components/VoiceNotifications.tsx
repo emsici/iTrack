@@ -287,7 +287,18 @@ export default function VoiceNotifications() {
           Notificări vocale
         </h3>
         <div className="flex items-center space-x-2">
-          <Switch id="voice-mode" checked={enabled} onCheckedChange={toggleEnabled} />
+          <Switch 
+            id="voice-mode" 
+            checked={enabled} 
+            onCheckedChange={(checked) => {
+              console.log("SCHIMBARE STARE NOTIFICĂRI VOCALE:", checked ? "ACTIVE" : "DEZACTIVATE");
+              // Oprim orice citire vocală în curs
+              if (!checked && speechSynthRef.current) {
+                speechSynthRef.current.cancel();
+              }
+              toggleEnabled(checked);
+            }} 
+          />
           <Label htmlFor="voice-mode">{enabled ? 'Activate' : 'Dezactivate'}</Label>
         </div>
       </div>

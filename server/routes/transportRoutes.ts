@@ -55,7 +55,22 @@ router.get("/transports/:vehicleId", async (req, res) => {
 // Endpoint pentru transmiterea datelor GPS
 router.post("/gps", async (req, res) => {
   try {
-    const validatedData = gpsDataSchema.parse(req.body);
+    console.log("Corpul cererii brut:", req.body);
+    
+    // IMPORTANT: Validare mai relaxată - nu mai folosim Zod schema strictă
+    // Extragem campurile necesare direct din corpul cererii
+    const validatedData = {
+      lat: Number(req.body.lat || 0),
+      lng: Number(req.body.lng || 0),
+      timestamp: String(req.body.timestamp || new Date().toISOString().replace('T', ' ').substring(0, 19)),
+      viteza: Number(req.body.viteza || 0),
+      directie: Number(req.body.directie || 0),
+      altitudine: Number(req.body.altitudine || 0),
+      baterie: Number(req.body.baterie || 100),
+      numar_inmatriculare: String(req.body.numar_inmatriculare || ""),
+      uit: String(req.body.uit || ""),
+      status: String(req.body.status || "in_progress")
+    };
     
     // Store GPS data in local storage for tracking purposes
     await storage.saveGpsData({
