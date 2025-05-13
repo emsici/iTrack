@@ -6,8 +6,12 @@ import MobileLayout from "@/components/MobileLayout";
 import TransportControls from "@/components/TransportControls";
 import LocationTracking from "@/components/LocationTracking";
 import ConnectivityAlert from "@/components/ConnectivityAlert";
+import TransportMap from "@/components/TransportMap";
+import TransportStats from "@/components/TransportStats";
+import VoiceNotifications from "@/components/VoiceNotifications";
 import { TransportProvider } from "@/context/TransportContext";
 import { Capacitor } from "@capacitor/core";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function TransportPage() {
   const { isAuthenticated, hasVehicle } = useAuth();
@@ -41,10 +45,31 @@ export default function TransportPage() {
   return (
     <TransportProvider>
       <Layout>
-        <section className="p-4">
+        <section className="p-4 space-y-4">
           <ConnectivityAlert />
           <TransportControls />
-          <LocationTracking />
+          
+          {/* Folosim tabs pentru a organiza componentele noi în interfața mobilă */}
+          <Tabs defaultValue="tracking" className="w-full">
+            <TabsList className="w-full grid grid-cols-3">
+              <TabsTrigger value="tracking">Traseu</TabsTrigger>
+              <TabsTrigger value="stats">Statistici</TabsTrigger>
+              <TabsTrigger value="settings">Notificări</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="tracking" className="space-y-4 pt-2">
+              <LocationTracking />
+              <TransportMap />
+            </TabsContent>
+            
+            <TabsContent value="stats" className="space-y-4 pt-2">
+              <TransportStats />
+            </TabsContent>
+            
+            <TabsContent value="settings" className="space-y-4 pt-2">
+              <VoiceNotifications />
+            </TabsContent>
+          </Tabs>
         </section>
       </Layout>
     </TransportProvider>
