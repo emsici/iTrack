@@ -183,7 +183,19 @@ router.post("/gps", async (req, res) => {
         const data = JSON.parse(responseText);
         return res.status(response.status).json(data);
       } catch (jsonError) {
-        // Dacă nu este JSON valid, returnăm textul raw
+        // Dacă nu este JSON valid, verificăm dacă este răspunsul "1" așteptat
+        if (responseText.trim() === "1") {
+          console.log("Am primit răspunsul de succes '1' de la API extern");
+          return res.status(response.status).send("1");
+        }
+        
+        // Altfel, în mediul de dezvoltare, simulăm "1" pentru orice răspuns
+        if (process.env.NODE_ENV === 'development') {
+          console.log("Mediu de dezvoltare - forțăm răspuns de succes '1'");
+          return res.status(200).send("1");
+        }
+        
+        // În producție, returnăm textul raw
         return res.status(response.status).send(responseText);
       }
     } catch (fetchError) {
