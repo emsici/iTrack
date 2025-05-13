@@ -45,14 +45,25 @@ export default function UitSelector() {
       setIsLoading(true);
       try {
         // În implementarea reală, aici ar trebui să faceți un apel API pentru a obține UIT-urile disponibile
-        // Preluăm UIT-urile disponibile - ne asigurăm că UIT12345 este primul, pentru a se potrivi cu vehicleInfo
-        let mockUits: UitOption[] = [
-          { uit: "UIT12345", start_locatie: "București", stop_locatie: "Cluj" },
-          { uit: "UIT56789", start_locatie: "Oradea", stop_locatie: "Arad" },
-          { uit: "UIT23456", start_locatie: "Cluj", stop_locatie: "Timișoara" },
-          { uit: "UIT34567", start_locatie: "Iași", stop_locatie: "Constanța" },
-          { uit: "UIT45678", start_locatie: "Brașov", stop_locatie: "Sibiu" }
-        ];
+        // Folosim informațiile din vehicleInfo pentru a construi lista de UIT-uri
+        let mockUits: UitOption[] = [];
+        
+        // Adăugăm UIT-ul din vehicleInfo dacă există
+        if (vehicleInfo && vehicleInfo.uit) {
+          mockUits.push({
+            uit: vehicleInfo.uit,
+            start_locatie: vehicleInfo.start_locatie || "",
+            stop_locatie: vehicleInfo.stop_locatie || ""
+          });
+          
+          console.log("Am adăugat UIT-ul din vehicleInfo:", vehicleInfo.uit);
+        } else {
+          // Adăugăm UIT-uri implicite doar dacă nu avem informații despre vehicul
+          mockUits = [
+            { uit: "UIT56789", start_locatie: "", stop_locatie: "" },
+            { uit: "UIT23456", start_locatie: "", stop_locatie: "" }
+          ];
+        }
         
         // Simulăm un răspuns de la API
         setTimeout(() => {

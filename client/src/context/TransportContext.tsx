@@ -203,7 +203,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         position,
         {
           nr: vehicleInfo.nr,
-          uit: currentActiveUit?.uit || "UIT56789" // Valoare implicită pentru siguranță
+          uit: vehicleInfo.uit || "UIT56789" // Folosim direct UIT-ul din vehicleInfo
         },
         token,
         status
@@ -341,22 +341,44 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     console.log("Pornire transport - Verificare condiții");
     
     // Verificăm dacă avem toate datele necesare
-    if (!vehicleInfo || !token || !currentActiveUit) {
+    if (!vehicleInfo || !token) {
       console.error("Date lipsă pentru pornirea transportului:");
       console.log("vehicleInfo:", vehicleInfo);
       console.log("token:", token ? "Există" : "Lipsește");
       console.log("currentActiveUit:", currentActiveUit);
       
-      // Dacă lipsește doar UIT-ul și avem UIT-uri selectate, folosim primul
-      if (vehicleInfo && token && !currentActiveUit && selectedUits.length > 0) {
-        setCurrentActiveUit(selectedUits[0]);
-        console.log("Am setat automat UIT-ul activ:", selectedUits[0]);
-        // Continuăm execuția - nu mai facem return
+      toast({
+        variant: "destructive",
+        title: "Eroare",
+        description: "Nu s-a putut porni cursa. Lipsesc date despre vehicul.",
+      });
+      return;
+    }
+    
+    // Dacă nu avem UIT activ, creăm unul din informațiile vehiculului
+    if (!currentActiveUit) {
+      console.log("Nu există UIT activ, creăm unul din vehicleInfo");
+      
+      if (vehicleInfo.uit) {
+        // Creăm un UIT bazat pe informațiile vehiculului
+        const newUit: UitOption = {
+          uit: vehicleInfo.uit,
+          start_locatie: vehicleInfo.start_locatie || "",
+          stop_locatie: vehicleInfo.stop_locatie || ""
+        };
+        
+        // Adăugăm UIT-ul în lista de selectate
+        const newSelectedUits = [...selectedUits, newUit];
+        setSelectedUits(newSelectedUits);
+        
+        // Setăm UIT-ul ca activ
+        setCurrentActiveUit(newUit);
+        console.log("Am creat și setat UIT activ din vehicleInfo:", newUit);
       } else {
         toast({
           variant: "destructive",
           title: "Eroare",
-          description: "Nu s-a putut porni cursa. Lipsesc date vehicul sau UIT.",
+          description: "Nu s-a putut porni cursa. Lipsesc date UIT.",
         });
         return;
       }
@@ -381,7 +403,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Pornim serviciul de background pentru tracking continuu
       const backgroundStarted = await startBackgroundLocationTracking(
-        { nr: vehicleInfo.nr, uit: currentActiveUit?.uit || "UIT56789" },
+        { nr: vehicleInfo.nr, uit: vehicleInfo.uit || "UIT56789" },
         token
       );
       console.log("Serviciu background pornit:", backgroundStarted ? "Succes" : "Eșuat");
