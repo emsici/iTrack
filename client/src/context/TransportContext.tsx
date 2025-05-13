@@ -414,7 +414,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Pornim serviciul de background pentru tracking continuu
       const backgroundStarted = await startBackgroundLocationTracking(
-        { nr: vehicleInfo.nr, uit: vehicleInfo.uit || "UIT56789" },
+        { nr: vehicleInfo.nr, uit: currentActiveUit?.uit || vehicleInfo.uit },
         token
       );
       console.log("Serviciu background pornit:", backgroundStarted ? "Succes" : "Eșuat");

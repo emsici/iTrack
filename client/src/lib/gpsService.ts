@@ -85,17 +85,18 @@ export const sendGpsUpdate = async (
     }
     
     // Construim payload-ul exact conform cu formatul din Postman
+    // IMPORTANT: Verificăm fiecare câmp să nu fie undefined sau alt tip de date decât cel așteptat
     const jsonPayload = {
-      lat: latitude,
-      lng: longitude,
+      lat: Number(latitude) || 0, // Asigurăm că e număr
+      lng: Number(longitude) || 0, // Asigurăm că e număr
       timestamp: timestamp,
-      viteza: speedKmh,
-      directie: heading || 0,
-      altitudine: altitude || 0,
-      baterie: batteryLevel,
-      numar_inmatriculare: vehicleInfo.nr,
-      uit: vehicleInfo.uit,
-      status: transportStatus
+      viteza: Number(speedKmh) || 0, // Asigurăm că e număr
+      directie: Number(heading) || 0, // Asigurăm că e număr
+      altitudine: Number(altitude) || 0, // Asigurăm că e număr
+      baterie: Number(batteryLevel) || 100, // Asigurăm că e număr
+      numar_inmatriculare: String(vehicleInfo.nr), // Asigurăm că e string
+      uit: String(vehicleInfo.uit), // Asigurăm că e string
+      status: transportStatus === "finished" ? "finished" : "in_progress" // Validăm status-ul
     };
     
     console.log("Payload GPS exact (format raw):", JSON.stringify(jsonPayload, null, 2));

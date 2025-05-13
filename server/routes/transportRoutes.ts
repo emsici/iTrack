@@ -71,7 +71,10 @@ router.post("/gps", async (req, res) => {
       battery: validatedData.baterie
     });
     
-    // Forward request to the external API - fără header Content-Type conform cerințelor API-ului
+    // Log exact formatul datelor trimise
+    console.log("Trimitere date GPS către API extern:", JSON.stringify(validatedData, null, 2));
+    
+    // Forward request to the external API - EXACT ca în Postman: raw data, fără Content-Type header
     const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
       method: "POST",
       headers: {
