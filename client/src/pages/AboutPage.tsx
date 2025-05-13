@@ -40,44 +40,31 @@ export default function AboutPage() {
           
           <div className="prose max-w-none text-sm">
             <p className="mb-3">
-              Aplicația <strong>iTrack</strong> este o soluție profesională care permite șoferilor să gestioneze transporturile, să transmită coordonatele GPS în timp real către sistemul central, și să monitorizeze performanța deplasărilor cu instrumente avansate de analiză.
+              Aplicația <strong>iTrack</strong> permite șoferilor să gestioneze transporturile și să transmită coordonatele GPS în timp real către sistemul central.
             </p>
-
-            <h3 className="text-base font-medium text-secondary-800 mb-2">Funcționalități principale</h3>
+            
+            <h3 className="text-base font-medium text-secondary-800 mb-2">Funcționalități</h3>
             <ul className="list-disc pl-5 mb-3 space-y-1">
-              <li>Autentificare securizată cu token JWT pentru șoferi</li>
-              <li>Gestionare completă a statusului cursei (pornire, pauză, reluare, finalizare)</li>
-              <li>Transmitere automată a coordonatelor GPS la interval de 1 minut</li>
-              <li>Monitorizare locație în timp real cu hartă interactivă</li>
-              <li>Gestionare UIT-uri (Unități de Transport) generate de ANAF</li>
-              <li>Reîncărcare automată a listei de transporturi după finalizare</li>
-              <li>Procesare în fundal chiar și când telefonul e blocat</li>
-            </ul>
-
-            <h3 className="text-base font-medium text-secondary-800 mb-2">Funcționalități avansate</h3>
-            <ul className="list-disc pl-5 mb-3 space-y-1">
-              <li>Stocare offline a coordonatelor GPS când nu există conexiune</li>
-              <li>Notificări vocale pentru evenimente importante (pornire, pauză, finalizare)</li>
-              <li>Detectare automată a direcției de deplasare din senzorii dispozitivului</li>
-              <li>Colectare date senzoriale complexe (altitudine, viteză, baterie, direcție)</li>
-              <li>Algoritm adaptiv pentru calculul distanței parcurse</li>
-              <li>Statistici detaliate în timp real (viteză medie, maximă, consum baterie)</li>
-              <li>Format JSON optimizat pentru comunicarea cu serverul</li>
-              <li>Header-e personalizate pentru autentificare și identificare transport</li>
+              <li>Autentificare securizată pentru șoferi</li>
+              <li>Gestionarea statusului cursei (pornire, pauză, reluare, finalizare)</li>
+              <li>Transmiterea automată a coordonatelor GPS din minut în minut</li>
+              <li>Monitorizarea locației în timp real</li>
+              <li>Informații despre UIT-uri (Unități de Transport) generate de ANAF</li>
+              <li>Optimizarea consumului de baterie</li>
             </ul>
             
             <h3 className="text-base font-medium text-secondary-800 mb-2">Cum funcționează</h3>
             <p className="mb-2">
-              La pornirea unei curse, aplicația începe să transmită automat coordonatele GPS către server la interval de 1 minut. Transmisia se întrerupe când șoferul activează pauza de odihnă sau finalizează transportul, și se reia la reluarea cursei. Sistemul utilizează headere HTTP personalizate (X-Vehicle-Number și X-UIT) pentru identificarea transportului.
+              La pornirea unei curse, aplicația va începe să transmită automat coordonatele GPS către server la fiecare minut. Transmisia se va întrerupe când șoferul activează pauza de odihnă și se va relua la reluarea cursei.
             </p>
             
             <p className="mb-3">
-              Aplicația funcționează în fundal chiar și când dispozitivul este blocat, asigurând continuitatea monitorizării. Conexiunea la internet este verificată constant, iar datele sunt stocate local atunci când rețeaua nu este disponibilă, pentru sincronizare ulterioară.
+              Starea curentă a transmisiei GPS este indicată în partea de sus a ecranului principal. Un indicator verde înseamnă că transmisia este activă.
             </p>
             
-            <h3 className="text-base font-medium text-secondary-800 mb-2">Tehnologii integrate</h3>
+            <h3 className="text-base font-medium text-secondary-800 mb-2">Date tehnice</h3>
             <p className="mb-3">
-              iTrack folosește tehnologii moderne precum Capacitor pentru funcționalități native pe Android și iOS, React pentru interfața utilizator, Leaflet pentru hărți interactive, și algoritmi specializați pentru managementul bateriei. Aplicația detectează automat direcția de deplasare folosind senzorul de orientare al dispozitivului și utilizează formula Haversine pentru calcularea precisă a distanțelor între coordonate GPS.
+              Aplicația utilizează servicii de localizare în fundal și optimizează consumul bateriei prin ajustarea frecvenței de actualizare a GPS-ului în funcție de viteza de deplasare și de starea cursei.
             </p>
             
             <h3 className="text-base font-medium text-secondary-800 mt-3 mb-2">Contact suport</h3>

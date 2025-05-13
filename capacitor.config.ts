@@ -7,7 +7,11 @@ const config = {
   appName: 'iTrack',
   webDir: 'dist/public',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    // Adăugăm URL-ul serverului pentru dezvoltare locală
+    // Aceasta va permite aplicației Android să se conecteze la serverul de dezvoltare
+    url: 'https://813298f8-355d-45c8-a208-8d8351cf88a4-00-2axpe8ckrdbyo.riker.replit.dev',
+    cleartext: true
   },
   plugins: {
     Geolocation: {

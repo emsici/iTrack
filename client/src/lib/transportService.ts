@@ -5,11 +5,24 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
   try {
     console.log("Trimitere date GPS către API:", JSON.stringify(data, null, 2));
     
-    // În mediul de dezvoltare, vom folosi API-ul proxy local
-    // În producție, vom folosi API-ul direct
-    const apiUrl = import.meta.env.DEV 
-      ? "/api/transport/gps" 
-      : "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
+    // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
+    const isNative = (window as any).Capacitor?.isNativePlatform?.() || false;
+    const isLocalDev = !!import.meta.env.DEV;
+    
+    // În mediul de dezvoltare local, folosim API-ul proxy local
+    // În aplicația nativă dar în dezvoltare, folosim URL-ul complet al serverului Replit
+    // În producție, folosim API-ul direct
+    let apiUrl;
+    if (isLocalDev && !isNative) {
+      // Browser local dev
+      apiUrl = "/api/transport/gps";
+    } else if (isLocalDev && isNative) {
+      // Android/iOS dev build dar cu server de dev
+      apiUrl = "https://813298f8-355d-45c8-a208-8d8351cf88a4-00-2axpe8ckrdbyo.riker.replit.dev/api/transport/gps";
+    } else {
+      // Producție
+      apiUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
+    }
     
     console.log("Folosim API URL:", apiUrl);
     

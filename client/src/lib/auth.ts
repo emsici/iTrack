@@ -8,10 +8,21 @@ export const loginUser = async (credentials: Login) => {
     // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
     const isNative = (window as any).Capacitor?.isNativePlatform?.() || false;
     
-    // În aplicația nativă folosim URL-ul direct, în browser folosim proxy-ul
-    const apiUrl = isNative
-      ? "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php"
-      : "/api/login";
+    // Verificăm dacă suntem în mod dezvoltare
+    const isLocalDev = !!import.meta.env.DEV;
+    
+    // În aplicația nativă folosim URL-ul corespunzător, în browser folosim proxy-ul
+    let apiUrl;
+    if (isNative && isLocalDev) {
+      // Aplicație nativă în dezvoltare - folosește serverul Replit
+      apiUrl = "https://813298f8-355d-45c8-a208-8d8351cf88a4-00-2axpe8ckrdbyo.riker.replit.dev/api/login";
+    } else if (isNative && !isLocalDev) {
+      // Aplicație nativă în producție - folosește API-ul direct
+      apiUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php";
+    } else {
+      // Browser - folosim întotdeauna proxy-ul
+      apiUrl = "/api/login";
+    }
     
     console.log("Folosim URL API:", apiUrl, "isNative:", isNative);
     
@@ -74,19 +85,41 @@ export const loginUser = async (credentials: Login) => {
 };
 
 export const getVehicleInfo = async (registrationNumber: string, token: string) => {
-  const response = await fetch(
-    `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`,
-    {
+  try {
+    // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
+    const isNative = (window as any).Capacitor?.isNativePlatform?.() || false;
+    // Verificăm dacă suntem în mod dezvoltare
+    const isLocalDev = !!import.meta.env.DEV;
+    
+    // Alegem URL-ul în funcție de mediu
+    let apiUrl;
+    if (isNative && isLocalDev) {
+      // Aplicație nativă în dezvoltare - folosește serverul Replit
+      apiUrl = `https://813298f8-355d-45c8-a208-8d8351cf88a4-00-2axpe8ckrdbyo.riker.replit.dev/api/vehicle?nr=${registrationNumber}`;
+    } else if (isNative && !isLocalDev) {
+      // Aplicație nativă în producție - folosește API-ul direct
+      apiUrl = `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`;
+    } else {
+      // Browser - folosim întotdeauna proxy-ul
+      apiUrl = `/api/vehicle?nr=${registrationNumber}`;
+    }
+    
+    console.log("Folosim URL API pentru vehicul:", apiUrl);
+    
+    const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`
       }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to get vehicle info: ${response.statusText}`);
     }
-  );
-  
-  if (!response.ok) {
-    throw new Error(`Failed to get vehicle info: ${response.statusText}`);
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Eroare la obținerea informațiilor vehiculului:", error);
+    throw error;
   }
-  
-  return await response.json();
 };
