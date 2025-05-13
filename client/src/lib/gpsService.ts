@@ -218,6 +218,7 @@ export const sendGpsUpdate = async (
             // Forțăm content-type application/json pentru a corecta problema de format
             "Content-Type": "application/json"
           }
+          // Nu includem params pentru a evita NullPointerException
         });
         
         console.log("Status răspuns Capacitor HTTP (GPS):", httpResponse.status);
