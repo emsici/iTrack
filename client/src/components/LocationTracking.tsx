@@ -1,10 +1,28 @@
 import { useTransport } from "@/context/TransportContext";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, Gauge, Navigation, Battery } from "lucide-react";
+import { MapPin, Clock, Gauge, Navigation, Battery, Wifi, WifiOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
 
 export default function LocationTracking() {
-  const { gpsCoordinates, isGpsActive, lastGpsUpdateTime, isBackgroundActive, battery } = useTransport();
+  const { gpsCoordinates, isGpsActive, lastGpsUpdateTime, isBackgroundActive, battery, transportStatus } = useTransport();
+  const [isConnected, setIsConnected] = useState(true);
+  
+  // Verificăm periodic conexiunea la internet
+  useEffect(() => {
+    const checkConnection = () => {
+      setIsConnected(navigator.onLine);
+    };
+    
+    window.addEventListener('online', checkConnection);
+    window.addEventListener('offline', checkConnection);
+    checkConnection();
+    
+    return () => {
+      window.removeEventListener('online', checkConnection);
+      window.removeEventListener('offline', checkConnection);
+    };
+  }, []);
   
   const formatTime = (timeString: string | null) => {
     if (!timeString) return "N/A";
@@ -16,28 +34,44 @@ export default function LocationTracking() {
     }
   };
 
+  // Pentru a face afișarea corectă a statusului GPS, trebuie să corelăm cu statusul transportului
+  // GPS-ul este activ doar când transportul este în starea "active"
+  const isGpsReallyActive = transportStatus === "active" && isGpsActive;
+
   return (
-    <Card className="mb-6 overflow-hidden border-0 shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 pb-2 pt-4">
+    <Card className="mb-6 overflow-hidden border-0 shadow-md rounded-lg">
+      <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-800 pb-3 pt-4">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-white flex items-center">
+          <CardTitle className="text-white flex items-center text-lg">
             <MapPin className="h-5 w-5 mr-2" />
             Localizare GPS
           </CardTitle>
           
-          <Badge 
-            variant="outline" 
-            className={isGpsActive 
-              ? "bg-green-600 text-white border-0" 
-              : "bg-red-600 text-white border-0"
-            }
-          >
-            GPS {isGpsActive ? "Activ" : "Inactiv"}
-          </Badge>
+          <div className="flex gap-2">
+            {!isConnected && (
+              <Badge variant="outline" className="bg-yellow-500 text-white border-0 animate-pulse">
+                <WifiOff className="h-3 w-3 mr-1" />
+                Offline
+              </Badge>
+            )}
+            
+            <Badge 
+              variant="outline" 
+              className={isGpsReallyActive 
+                ? "bg-gradient-to-r from-green-500 to-green-600 text-white border-0 shadow-sm" 
+                : "bg-gradient-to-r from-red-500 to-red-600 text-white border-0 shadow-sm"
+              }
+            >
+              <div className="flex items-center">
+                {isGpsReallyActive && <div className="h-2 w-2 bg-white rounded-full mr-1.5 animate-pulse"></div>}
+                GPS {isGpsReallyActive ? "Activ" : "Inactiv"}
+              </div>
+            </Badge>
+          </div>
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 pt-5 pb-5 bg-gradient-to-b from-blue-50 to-white">
+      <CardContent className="p-4 pt-5 pb-5 bg-gradient-to-b from-slate-50 to-white">
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="p-4 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center mb-2 text-blue-700">
@@ -45,7 +79,7 @@ export default function LocationTracking() {
               <p className="text-sm font-medium">Latitudine</p>
             </div>
             <p className="text-lg font-bold text-slate-800 tracking-tight">
-              {isGpsActive && gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}
+              {isGpsReallyActive && gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}
             </p>
           </div>
           
@@ -55,7 +89,7 @@ export default function LocationTracking() {
               <p className="text-sm font-medium">Longitudine</p>
             </div>
             <p className="text-lg font-bold text-slate-800 tracking-tight">
-              {isGpsActive && gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}
+              {isGpsReallyActive && gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}
             </p>
           </div>
         </div>
@@ -67,7 +101,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Viteză</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {isGpsActive && gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "-"}
+              {isGpsReallyActive && gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "-"}
             </p>
           </div>
           
@@ -77,7 +111,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Direcție</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {isGpsActive && gpsCoordinates?.directie !== undefined ? `${gpsCoordinates.directie}°` : "-"}
+              {isGpsReallyActive && gpsCoordinates?.directie !== undefined ? `${gpsCoordinates.directie}°` : "-"}
             </p>
           </div>
           
@@ -87,7 +121,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Baterie</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {isGpsActive ? `${battery}%` : "-"}
+              {isGpsReallyActive ? `${battery}%` : "-"}
             </p>
           </div>
         </div>
@@ -98,11 +132,11 @@ export default function LocationTracking() {
             <p className="text-sm font-medium">Ultima actualizare</p>
           </div>
           <p className="text-base font-semibold text-slate-800">
-            {isGpsActive && lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : "-"}
+            {isGpsReallyActive && lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : "-"}
           </p>
         </div>
       
-        {isGpsActive && isBackgroundActive && (
+        {isGpsReallyActive && isBackgroundActive && (
           <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-2 flex items-center justify-center">
             <div className="animate-pulse w-2 h-2 bg-green-500 rounded-full mr-2"></div>
             <p className="text-green-700 text-sm font-medium">Funcționează în background</p>
