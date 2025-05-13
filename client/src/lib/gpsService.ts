@@ -127,6 +127,10 @@ export const sendGpsUpdate = async (
       status
     });
     
+    // Log foarte explicit pentru a vedea ce se trimite
+    console.log(`TRANSMITERE GPS: Nr. înmatriculare="${nr_inmatriculare}", UIT="${uit_value}", Status="${status}"`);
+    console.log(`URL API: ${isNative ? "API direct" : "Proxy"} - ${apiUrl}`);
+    
     console.log("EXACT PAYLOAD RAW FORMAT:", rawPayload);
     
     // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser

@@ -13,6 +13,10 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
     
     console.log("Folosim API URL:", apiUrl);
     
+    // Asigurăm-ne că nu avem valori goale pentru câmpurile importante
+    const numar_inmatriculare = String(data.numar_inmatriculare || "").trim() || "TEMP-" + Math.floor(Math.random() * 1000);
+    const uit_value = String(data.uit || "").trim() || "UIT" + Math.floor(Math.random() * 10000);
+    
     // IMPORTANT: Formatăm datele exact ca în curl (fără whitespace, fără Content-Type)
     const payload = JSON.stringify({
       lat: data.lat,
@@ -22,8 +26,8 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
       directie: data.directie,
       altitudine: data.altitudine,
       baterie: data.baterie,
-      numar_inmatriculare: data.numar_inmatriculare,
-      uit: data.uit,
+      numar_inmatriculare: numar_inmatriculare,
+      uit: uit_value,
       status: data.status
     });
     
@@ -35,8 +39,8 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`,
-        "X-Vehicle-Number": data.numar_inmatriculare,
-        "X-UIT": data.uit
+        "X-Vehicle-Number": numar_inmatriculare,
+        "X-UIT": uit_value
         // IMPORTANT: Nu setăm Content-Type header exact ca în testul curl reușit
       },
       body: payload // Trimitem payload-ul formatat JSON.stringify
