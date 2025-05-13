@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { syncOfflineData } from "@/lib/connectivityService";
 import { useAuth } from "@/context/AuthContext";
+import { useTransport } from "@/context/TransportContext";
 
 export default function ConnectivityAlert() {
   const [isInternetConnected, setIsInternetConnected] = useState<boolean>(getInternetConnectivity());
@@ -15,6 +16,7 @@ export default function ConnectivityAlert() {
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const { toast } = useToast();
   const { token } = useAuth();
+  const { transportStatus } = useTransport();
 
   // Verificăm starea GPS și Internet și configurăm listeners
   useEffect(() => {
@@ -115,7 +117,7 @@ export default function ConnectivityAlert() {
         </Alert>
       )}
       
-      {!isGpsAvailable && (
+      {!isGpsAvailable && transportStatus === "active" && (
         <Alert variant="default" className="bg-yellow-50 border-yellow-200 mt-6">
           <AlertCircle className="h-4 w-4 text-yellow-500" />
           <AlertTitle className="flex items-center text-yellow-700">

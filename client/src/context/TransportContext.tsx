@@ -108,7 +108,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           // Format timestamp
           const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
           
-          // Actualizăm starea cu coordonatele inițiale
+          // Coordonatele GPS sunt stocate întotdeauna pentru referință,
+          // dar afișarea timpului ultimei actualizări și starea activă a GPS-ului
+          // depind de starea transportului
           setGpsCoordinates({
             lat: position.coords.latitude,
             lng: position.coords.longitude,
@@ -119,8 +121,13 @@ export function TransportProvider({ children }: { children: ReactNode }) {
             baterie: battery
           });
           
-          setLastGpsUpdateTime(timestamp);
-          setIsGpsActive(true);
+          // Actualizăm timestamp-ul ultimei actualizări DOAR dacă transportul este activ
+          if (transportStatus === "active") {
+            setLastGpsUpdateTime(timestamp);
+          }
+          
+          // GPS se consideră activ DOAR dacă transportul este activ
+          setIsGpsActive(transportStatus === "active");
           
           // Începem urmărirea poziției
           startWatchPosition();
@@ -311,7 +318,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       setGpsCoordinates(gpsData);
       setLastGpsUpdateTime(timestamp);
-      setIsGpsActive(true);
+      // GPS se consideră activ DOAR dacă transportul este activ
+      setIsGpsActive(transportStatus === "active");
       
       // Ne asigurăm că avem un UIT activ
       if (!currentActiveUit && selectedUits.length > 0) {
@@ -448,7 +456,11 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         
         // Actualizăm timpul ultimei actualizări
         setLastGpsUpdateTime(timestamp);
-        setIsGpsActive(true);
+        
+        // GPS se consideră activ DOAR dacă transportul este activ
+        // Aceasta este o schimbare majoră conform cerinței: GPS nu trebuie să apară activ
+        // până când nu se dă start la o cursă sau se reia o cursă
+        setIsGpsActive(transportStatus === "active");
       }, {
         enableHighAccuracy: true,
         timeout: 10000,
