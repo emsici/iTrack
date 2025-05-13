@@ -124,10 +124,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           // Actualizăm timestamp-ul ultimei actualizări
           setLastGpsUpdateTime(timestamp);
           
-          // GPS este activ dacă avem coordonate valide, indiferent de starea transportului
-          // Asta permite să afișăm coordonatele în UI, dar acestea vor fi trimise la server
-          // doar când transportul este activ
-          setIsGpsActive(true);
+          // GPS ar trebui să fie considerat activ doar când transportul este activ
+          // Acest lucru asigură coerența între UI și starea reală a transportului
+          setIsGpsActive(transportStatusRef.current === "active");
           
           // Începem urmărirea poziției
           startWatchPosition();
@@ -164,8 +163,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Actualizarea stării GPS depinde de mai mulți factori
       // GPS este considerat activ dacă:
       // 1. Hardware-ul GPS este disponibil ȘI
-      // 2. Avem coordonate GPS valide
-      const gpsIsReallyActive = isAvailable && !!gpsCoordinates;
+      // 2. Avem coordonate GPS valide ȘI
+      // 3. Transportul este activ (nu în pauză sau inactiv)
+      const gpsIsReallyActive = isAvailable && !!gpsCoordinates && transportStatus === "active";
       
       // Actualizăm starea dacă este diferită
       if (gpsIsReallyActive !== isGpsActive) {
@@ -308,8 +308,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       setGpsCoordinates(gpsData);
       setLastGpsUpdateTime(timestamp);
-      // Considerăm GPS-ul activ dacă avem coordonate valide, indiferent de starea transportului
-      setIsGpsActive(true);
+      // Considerăm GPS-ul activ doar dacă transportul este activ
+      setIsGpsActive(transportStatusRef.current === "active");
       
       // Ne asigurăm că avem un UIT activ
       if (!currentActiveUit && selectedUits.length > 0) {
