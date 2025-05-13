@@ -3,8 +3,11 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { loginSchema, gpsDataSchema } from "@shared/schema";
 import fetch from "node-fetch";
+import transportRoutes from "./routes/transportRoutes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Montează rutele pentru transport
+  app.use("/api/transport", transportRoutes);
   // Login endpoint - proxy to external API
   app.post("/api/login", async (req, res) => {
     try {

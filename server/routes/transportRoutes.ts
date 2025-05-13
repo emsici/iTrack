@@ -28,7 +28,13 @@ router.get("/transports/:vehicleId", async (req, res) => {
       return res.status(response.status).json({ message: "Failed to fetch transports" });
     }
     
-    const vehicleData = await response.json();
+    const vehicleData = await response.json() as {
+      nr: string;
+      uit: string;
+      start_locatie: string;
+      stop_locatie: string;
+      status: string;
+    };
     
     // Transformăm datele primite de la API extern într-un format potrivit pentru aplicația noastră
     const transports = [{
