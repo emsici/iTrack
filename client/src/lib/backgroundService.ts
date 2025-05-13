@@ -15,8 +15,10 @@ const DEBUG_UPDATE_INTERVAL = 10000; // 10 secunde pentru dezvoltare/testare
  * Această funcție trebuie apelată când utilizatorul pornește transportul
  */
 export const startBackgroundLocationTracking = async (
-  vehicleInfo: { nr: string; uit: string },
-  token: string
+  vehicleNumber: string,
+  uit: string,
+  token: string,
+  onPositionUpdate?: (position: any) => void
 ): Promise<boolean> => {
   // Dacă serviciul rulează deja, nu-l pornim din nou
   if (isBackgroundServiceRunning) {
@@ -64,7 +66,19 @@ export const startBackgroundLocationTracking = async (
           // IMPORTANT: Verificăm și în serviciul de background ca poziția să fie trimisă DOAR dacă
           // transportul este activ. Verificarea se face când pornim serviciul, dar facem dublă verificare aici.
           console.log("Background service: trimitere actualizare GPS - status in_progress");
-          const success = await sendGpsUpdate(position, vehicleInfo, token, "in_progress");
+          const success = await sendGpsUpdate(position, 
+            {
+              nr: vehicleNumber,
+              uit: uit
+            }, 
+            token, 
+            "in_progress"
+          );
+          
+          // Notificăm componenta părinte despre actualizare dacă este necesar
+          if (onPositionUpdate && position) {
+            onPositionUpdate(position);
+          }
           
           console.log('Background GPS update trimis:', success ? 'Succes' : 'Eșuat');
         } catch (error) {
