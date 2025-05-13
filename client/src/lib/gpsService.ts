@@ -1,4 +1,5 @@
 import { Position } from "@capacitor/geolocation";
+import { Capacitor } from '@capacitor/core';
 import { getInternetConnectivity } from "./connectivityService";
 import { saveGpsDataOffline } from "./offlineStorage";
 import { CapacitorGeoService } from "./capacitorService";
@@ -127,21 +128,19 @@ export const sendGpsUpdate = async (
       status
     });
     
+    // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
+    const isNative = Capacitor.isNativePlatform();
+    
+    // Determinăm URL-ul corect al API-ului
+    const apiUrl = isNative 
+      ? "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php" 
+      : "/api/transport/gps";
+    
     // Log foarte explicit pentru a vedea ce se trimite
     console.log(`TRANSMITERE GPS: Nr. înmatriculare="${nr_inmatriculare}", UIT="${uit_value}", Status="${status}"`);
     console.log(`URL API: ${isNative ? "API direct" : "Proxy"} - ${apiUrl}`);
     
     console.log("EXACT PAYLOAD RAW FORMAT:", rawPayload);
-    
-    // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
-    const isNative = !!(window as any).Capacitor?.isNativePlatform?.();
-    
-    // În aplicația nativă folosim URL-ul direct, în browser folosim proxy-ul
-    const apiUrl = isNative
-      ? "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php"
-      : "/api/transport/gps";
-    
-    console.log("Trimitem GPS către URL:", apiUrl, "isNative:", isNative);
     
     // IMPORTANT: Folosim exact formatul din Postman - nu includ niciun header de Content-Type
     const response = await fetch(apiUrl, {

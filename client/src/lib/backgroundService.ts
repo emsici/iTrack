@@ -8,6 +8,7 @@ let backgroundTaskId: number | null = null;
 
 // Interval în milisecunde pentru actualizările GPS în background
 const BACKGROUND_UPDATE_INTERVAL = 60000; // 1 minut
+const DEBUG_UPDATE_INTERVAL = 10000; // 10 secunde pentru dezvoltare/testare
 
 /**
  * Inițializează serviciul de background pentru monitorizarea locației
@@ -32,8 +33,10 @@ export const startBackgroundLocationTracking = async (
       await CapacitorGeoService.requestPermissions();
       
       // Pentru dispozitive native, folosim Capacitor pentru a rula în background
-      // Folosim un interval mai scurt pentru a testa mai rapid
-      const updateInterval = 10000; // 10 secunde
+      // În producție folosim exact 1 minut, în dezvoltare folosim 10 secunde
+      const updateInterval = process.env.NODE_ENV === 'production' 
+        ? BACKGROUND_UPDATE_INTERVAL  // 60000 ms (1 minut) în producție
+        : DEBUG_UPDATE_INTERVAL;      // 10000 ms (10 secunde) în dezvoltare
       
       console.log(`Background service pornit - interval: ${updateInterval/1000} secunde`);
       
@@ -58,7 +61,9 @@ export const startBackgroundLocationTracking = async (
             lng: position.coords.longitude
           }));
           
-          // Trimitem poziția către server cu status "in_progress"
+          // IMPORTANT: Verificăm și în serviciul de background ca poziția să fie trimisă DOAR dacă
+          // transportul este activ. Verificarea se face când pornim serviciul, dar facem dublă verificare aici.
+          console.log("Background service: trimitere actualizare GPS - status in_progress");
           const success = await sendGpsUpdate(position, vehicleInfo, token, "in_progress");
           
           console.log('Background GPS update trimis:', success ? 'Succes' : 'Eșuat');

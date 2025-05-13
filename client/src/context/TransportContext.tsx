@@ -296,13 +296,22 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       const success = await sendGpsData("in_progress");
       console.log("Trimitere inițială coordonate GPS (in_progress):", success ? "Succes" : "Eșuată");
       
-      // Configurăm trimiterea periodică a coordonatelor (la fiecare 10 secunde)
+      // Configurăm trimiterea periodică a coordonatelor în prim-plan la interval de 1 minut
+      // În producție este 60000 ms (1 minut), în dezvoltare 10000 ms (10 secunde)
+      const updateInterval = import.meta.env.PROD ? 60000 : 10000;
+      console.log(`Setăm timer trimitere periodică la ${updateInterval/1000} secunde`);
+      
       gpsTimerRef.current = setInterval(async () => {
+        // IMPORTANT: Verificăm cu strictețe că transportul este ACTIV
+        // Nu trimitem coordonate dacă transportul este în pauză sau finalizat
         if (transportStatus === "active") {
+          console.log("Timer declanșat - Transport ACTIV - Se trimit coordonate GPS");
           const sendSuccess = await sendGpsData("in_progress");
           console.log("Trimitere periodică coordonate GPS (in_progress):", sendSuccess ? "Succes" : "Eșuată");
+        } else {
+          console.log("Timer declanșat - Transport NU este activ (status: " + transportStatus + ") - NU se trimit coordonate GPS");
         }
-      }, 10000);
+      }, updateInterval);
       
       // Începem urmărirea poziției pentru actualizări UI în timp real
       await startWatchPosition();
