@@ -58,13 +58,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de autentificare cu:", credentials);
       
-      // Din captura de ecran, se pare că serverul așteaptă date în format raw JSON
-      // Am testat mai multe configurații pentru a vedea ce funcționează
+      // Conform informațiilor furnizate de utilizator, Postman funcționează 
+      // cu raw JSON fără headers specifice
       const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/login.php", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        // Nu adăugăm headers de Content-Type
         body: JSON.stringify({
           email: credentials.email,
           password: credentials.password
