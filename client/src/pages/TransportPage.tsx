@@ -9,6 +9,7 @@ import ConnectivityAlert from "@/components/ConnectivityAlert";
 import TransportMap from "@/components/TransportMap";
 import TransportStats from "@/components/TransportStats";
 import VoiceNotifications from "@/components/VoiceNotifications";
+import AudioTest from "@/components/AudioTest";
 import { TransportProvider } from "@/context/TransportContext";
 import { Capacitor } from "@capacitor/core";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -68,6 +69,7 @@ export default function TransportPage() {
             
             <TabsContent value="settings" className="space-y-4 pt-2">
               <VoiceNotifications />
+              <AudioTest />
             </TabsContent>
           </Tabs>
         </section>

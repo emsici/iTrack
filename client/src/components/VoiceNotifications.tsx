@@ -194,13 +194,54 @@ export default function VoiceNotifications() {
         description: unplayedNotification.message,
       });
       
-      // Anunță vocal mesajul cu o scurtă întârziere pentru a permite browser-ului să se pregătească
+      // Anunță vocal mesajul cu o întârziere mai mare pentru a permite browser-ului să se pregătească
       setTimeout(() => {
         if (speechSynthRef.current) {
+          // Verificăm din nou dacă poate fi încă în curs o pronunțare
+          if (speechSynthRef.current.speaking) {
+            speechSynthRef.current.cancel();
+          }
+          
+          // Adăugăm eveniment pentru a detecta când mesajul s-a terminat
+          utterance.onend = () => {
+            console.log("Mesaj vocal finalizat cu succes:", unplayedNotification.message);
+          };
+          
+          // Încearcă să pronunțe cu volum maxim și rată ușor mai lentă pentru claritate
+          utterance.volume = 1.0;
+          utterance.rate = 0.9;
+          
+          // Emitem mesajul
           speechSynthRef.current.speak(utterance);
-          console.log("Notificare vocală emisă:", unplayedNotification.message);
+          console.log("FORȚARE emitere notificare vocală:", unplayedNotification.message);
+          
+          // Adăugăm și un sunet de alertă discret pentru notificările importante
+          if (unplayedNotification.message.includes("Transport") || 
+              unplayedNotification.message.includes("Atenție") ||
+              unplayedNotification.message.includes("GPS")) {
+            try {
+              const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+              const oscillator = audioContext.createOscillator();
+              oscillator.type = 'sine';
+              oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+              
+              const gainNode = audioContext.createGain();
+              gainNode.gain.setValueAtTime(0.2, audioContext.currentTime); // Volume reduced
+              
+              oscillator.connect(gainNode);
+              gainNode.connect(audioContext.destination);
+              
+              // Redăm un sunet scurt de alertă
+              oscillator.start();
+              setTimeout(() => {
+                oscillator.stop();
+              }, 200);
+            } catch (audioError) {
+              console.error("Nu s-a putut genera sunetul de alertă:", audioError);
+            }
+          }
         }
-      }, 100);
+      }, 300);
     } catch (error) {
       console.error("Eroare la emiterea notificării vocale:", error);
     }
