@@ -38,59 +38,82 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const { token, vehicleInfo } = useAuth();
   const { toast } = useToast();
 
-  // Clean up timer on unmount
+  // Reference pentru a ține evidența watching position
+  const watchPositionRef = useRef<{ clearWatch: () => void } | null>(null);
+  
+  // Clean up timer și watch position la unmount
   useEffect(() => {
     return () => {
       if (gpsTimerRef.current) {
         clearInterval(gpsTimerRef.current);
       }
+      if (watchPositionRef.current) {
+        watchPositionRef.current.clearWatch();
+      }
     };
   }, []);
 
-  const getCurrentPosition = useCallback((): Promise<GeolocationPosition> => {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error("Geolocation is not supported by your browser"));
-        return;
-      }
+  // Import și folosește CapacitorGeoService
+  const { CapacitorGeoService } = require("@/lib/capacitorService");
+  
+  const getCurrentPosition = useCallback(async () => {
+    try {
+      // Cererea de permisiuni pentru geolocation
+      await CapacitorGeoService.requestPermissions();
       
-      navigator.geolocation.getCurrentPosition(resolve, reject, {
+      // Obținerea poziției prin Capacitor (funcționează atât pe mobile cât și web)
+      return await CapacitorGeoService.getCurrentPosition({
         enableHighAccuracy: true,
-        timeout: 5000,
+        timeout: 10000,
         maximumAge: 0
       });
-    });
+    } catch (error) {
+      console.error("Eroare la obținerea poziției:", error);
+      throw error;
+    }
   }, []);
 
   const sendGpsData = useCallback(async () => {
     if (!token || !vehicleInfo || !isGpsActive) return;
     
     try {
+      // Obține poziția folosind serviciul Capacitor
       const position = await getCurrentPosition();
+      
+      // Extrage și procesează coordonatele
       const { latitude, longitude, altitude } = position.coords;
-      const speed = position.coords.speed ? position.coords.speed * 3.6 : 0; // Convert m/s to km/h
+      
+      // Calculează viteza (verifică dacă e disponibilă și convert din m/s în km/h)
+      const speed = position.coords.speed ? position.coords.speed * 3.6 : 0;
+      
+      // Formatul de timestamp pentru server
       const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
       
-      // Simulate battery drain (decrease by 0.5% each minute)
+      // Obține direcția (heading) dacă e disponibilă
+      const heading = position.coords.heading || 0;
+      
+      // Simulează descărcarea bateriei (scade cu 0.5% pentru fiecare minut)
       const newBattery = Math.max(1, battery - 0.5);
       setBattery(newBattery);
       
+      // Construiește obiectul cu datele GPS pentru transmitere
       const gpsData = {
         lat: latitude,
         lng: longitude,
         timestamp,
         viteza: speed,
-        directie: 0, // We don't have a way to get direction, so set to 0
+        directie: heading,
         altitudine: altitude || 0,
         baterie: Math.round(newBattery),
         numar_inmatriculare: vehicleInfo.nr,
         uit: vehicleInfo.uit
       };
       
+      // Actualizează starea în aplicație
       setGpsCoordinates(gpsData);
       setLastGpsUpdateTime(timestamp);
       
-      // Send data to server
+      // Trimite datele către server
       const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
         method: "POST",
         headers: {
@@ -118,19 +141,63 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const startGpsTracking = useCallback(() => {
     setIsGpsActive(true);
     
-    // Send initial position immediately
+    // Trimite poziția inițială imediat
     sendGpsData();
     
-    // Set up timer to send GPS data every minute
-    gpsTimerRef.current = setInterval(sendGpsData, 60000); // 60000ms = 1 minute
+    // Configurează timer pentru a trimite date GPS la fiecare minut
+    gpsTimerRef.current = setInterval(sendGpsData, 60000); // 60000ms = 1 minut
+    
+    // Începe urmărirea poziției folosind Capacitor (pentru actualizări în timp real în interfață)
+    const startWatchPosition = async () => {
+      try {
+        // Cerere permisiuni
+        await CapacitorGeoService.requestPermissions();
+        
+        // Începe urmărirea poziției
+        const watchData = await CapacitorGeoService.watchPosition((position) => {
+          // Update UI cu poziția curentă (fără a trimite la server - doar pentru afișare)
+          const { latitude, longitude, altitude, speed, heading } = position.coords;
+          
+          setGpsCoordinates(prev => {
+            if (!prev) return prev;
+            
+            return {
+              ...prev,
+              lat: latitude,
+              lng: longitude,
+              viteza: speed ? speed * 3.6 : 0, // Convert m/s to km/h
+              directie: heading || 0,
+              altitudine: altitude || 0
+            };
+          });
+        }, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        });
+        
+        watchPositionRef.current = watchData;
+      } catch (error) {
+        console.error("Eroare la startWatchPosition:", error);
+      }
+    };
+    
+    startWatchPosition();
   }, [sendGpsData]);
 
   const stopGpsTracking = useCallback(() => {
     setIsGpsActive(false);
     
+    // Oprește timer-ul pentru trimiterea datelor
     if (gpsTimerRef.current) {
       clearInterval(gpsTimerRef.current);
       gpsTimerRef.current = null;
+    }
+    
+    // Oprește urmărirea poziției
+    if (watchPositionRef.current) {
+      watchPositionRef.current.clearWatch();
+      watchPositionRef.current = null;
     }
   }, []);
 
