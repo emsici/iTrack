@@ -58,11 +58,13 @@ export default function UitSelector() {
           
           console.log("Am adăugat UIT-ul din vehicleInfo:", vehicleInfo.uit);
         } else {
-          // Adăugăm UIT-uri implicite doar dacă nu avem informații despre vehicul
-          mockUits = [
-            { uit: "UIT56789", start_locatie: "", stop_locatie: "" },
-            { uit: "UIT23456", start_locatie: "", stop_locatie: "" }
-          ];
+          // Adăugăm un UIT generic bazat pe numărul de înmatriculare
+          const genericUit = {
+            uit: "UIT" + (vehicleInfo?.nr || "12345"),
+            start_locatie: "Depou",
+            stop_locatie: "Destinație"
+          };
+          mockUits = [genericUit];
         }
         
         // Simulăm un răspuns de la API
