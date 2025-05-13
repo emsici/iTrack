@@ -117,16 +117,18 @@ export const sendGpsUpdate = async (
       lat: latitude,
       lng: longitude,
       timestamp: timestamp,
-      viteza: speedKmh,
-      directie: headingValue, // Direcția din senzori sau GPS
-      altitudine: altitude || 0,
-      baterie: batteryLevel,
+      viteza: Math.max(0, Math.round(speedKmh * 10) / 10), // Rotunjim la o zecimală
+      directie: Math.round(headingValue) || 0, // Direcția din senzori sau GPS, rotunjită
+      altitudine: Math.round(altitude) || 0,
+      baterie: Math.round(batteryLevel),
       numar_inmatriculare: vehicleInfo.nr,
       uit: vehicleInfo.uit, // CRUCIAL: avem nevoie de UIT valid
       status: transportStatus, // Adăugăm status-ul transportului
-      hdop: hdopValue,         // Adăugăm HDOP (precizia poziției)
-      gsm_signal: gsmSignalValue  // Adăugăm puterea semnalului GSM
+      hdop: hdopValue || 5,         // Valoare default pentru HDOP dacă nu este disponibilă
+      gsm_signal: gsmSignalValue || 90  // Valoare default pentru puterea semnalului
     };
+    
+    console.log("GPS Data complet pregătit pentru transmisie:", gpsData);
     
     // Verificăm dacă există conexiune la internet
     const isConnected = getInternetConnectivity();
@@ -196,10 +198,12 @@ export const sendGpsUpdate = async (
           url: apiExternUrl,
           data: JSON.parse(rawPayload), // Pentru plugin, trebuie să trimitem un obiect, nu un string
           headers: {
-            "Authorization": `Bearer ${token}`,
+            // IMPORTANT: Token-ul poate veni deja cu prefixul Bearer, verificăm formatul
+            "Authorization": token.startsWith("Bearer ") ? token : `Bearer ${token}`,
             "X-Vehicle-Number": nr_inmatriculare,  // Adăugăm numărul de înmatriculare în headers
-            "X-UIT": uit_value  // Adăugăm UIT în headers
-            // FOARTE IMPORTANT: Nu setăm Content-Type pentru a asigura transmisia raw
+            "X-UIT": uit_value,  // Adăugăm UIT în headers
+            // Forțăm content-type application/json pentru a corecta problema de format
+            "Content-Type": "application/json"
           }
         });
         
@@ -222,10 +226,12 @@ export const sendGpsUpdate = async (
       response = await fetch(apiUrl, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          // IMPORTANT: Token-ul poate veni deja cu prefixul Bearer, verificăm formatul
+          "Authorization": token.startsWith("Bearer ") ? token : `Bearer ${token}`,
           "X-Vehicle-Number": nr_inmatriculare,  // Adăugăm numărul de înmatriculare în headers
-          "X-UIT": uit_value  // Adăugăm UIT în headers
-          // FOARTE IMPORTANT: Nu setăm Content-Type pentru a asigura transmisia raw
+          "X-UIT": uit_value,  // Adăugăm UIT în headers
+          // Forțăm content-type application/json pentru a corecta problema de format
+          "Content-Type": "application/json"
         },
         body: rawPayload // Folosim payload-ul raw generat mai sus
       });
