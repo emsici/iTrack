@@ -1,28 +1,20 @@
 import { GpsDataPayload } from "@shared/schema";
 import { apiRequest } from "./queryClient";
+import { Http } from '@capacitor-community/http';
+import { Capacitor } from '@capacitor/core';
 
 export const sendGpsData = async (data: GpsDataPayload, token: string) => {
   try {
     console.log("Trimitere date GPS către API:", JSON.stringify(data, null, 2));
     
-    // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
-    const isNative = (window as any).Capacitor?.isNativePlatform?.() || false;
+    // URL-ul API extern direct
+    const apiExternUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
+    
+    // În mediul de dezvoltare, folosim server-ul de dezvoltare
     const isLocalDev = !!import.meta.env.DEV;
     
-    // În mediul de dezvoltare local, folosim API-ul proxy local
-    // În aplicația nativă dar în dezvoltare, folosim URL-ul complet al serverului Replit
-    // În producție, folosim API-ul direct
-    let apiUrl;
-    if (isLocalDev && !isNative) {
-      // Browser local dev
-      apiUrl = "/api/transport/gps";
-    } else if (isLocalDev && isNative) {
-      // Android/iOS dev build dar cu server de dev
-      apiUrl = "https://813298f8-355d-45c8-a208-8d8351cf88a4-00-2axpe8ckrdbyo.riker.replit.dev/api/transport/gps";
-    } else {
-      // Producție
-      apiUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
-    }
+    // Folosim întotdeauna URL-ul direct către API-ul extern
+    const apiUrl = apiExternUrl;
     
     console.log("Folosim API URL:", apiUrl);
     
@@ -47,26 +39,35 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
     console.log("EXACT PAYLOAD CURL FORMAT:", payload);
     
     // VALIDAT: Acest format funcționează cu API-ul extern (testat cu curl)
-    // Adăugăm headerele custom pentru a transmite aceste date și în headers
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "X-Vehicle-Number": numar_inmatriculare,
-        "X-UIT": uit_value
-        // IMPORTANT: Nu setăm Content-Type header exact ca în testul curl reușit
-      },
-      body: payload // Trimitem payload-ul formatat JSON.stringify
-    });
-
-    // Verificăm dacă răspunsul este ok
-    if (!response.ok) {
-      throw new Error(`API a răspuns cu status: ${response.status}`);
+    // Folosim Capacitor HTTP pentru toate request-urile, nu doar pe platforme native
+    console.log("Folosim Capacitor HTTP pentru request GPS");
+    
+    let responseText = "";
+    try {
+      const httpResponse = await Http.request({
+        method: 'POST',
+        url: apiUrl,
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "X-Vehicle-Number": numar_inmatriculare,
+          "X-UIT": uit_value
+          // IMPORTANT: Nu setăm Content-Type header exact ca în testul curl reușit
+        },
+        data: JSON.parse(payload) // Trimitem ca obiect JavaScript, plugin-ul va converti la JSON
+      });
+      
+      console.log("Status răspuns HTTP GPS:", httpResponse.status);
+      responseText = typeof httpResponse.data === 'string' ? httpResponse.data : JSON.stringify(httpResponse.data);
+      console.log("Răspuns API GPS:", responseText);
+      
+      // Verificăm dacă răspunsul este ok
+      if (httpResponse.status < 200 || httpResponse.status >= 300) {
+        throw new Error(`API a răspuns cu status: ${httpResponse.status}`);
+      }
+    } catch (httpError) {
+      console.error("Eroare la request HTTP GPS:", httpError);
+      throw httpError;
     }
-
-    // Verificăm răspunsul
-    const responseText = await response.text();
-    console.log("Răspuns API GPS:", responseText);
     
     // În mediul de dezvoltare, acceptăm orice răspuns de succes
     if (import.meta.env.DEV && (response.status === 200 || response.status === 204)) {

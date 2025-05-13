@@ -32,13 +32,7 @@ export default function MobileHeader() {
             <MapPin className="h-4 w-4 text-blue-700" />
           </div>
           <div>
-            <h1 className="text-sm font-bold flex items-center">
-              iTrack
-              <span className="ml-2 text-xs bg-blue-800 px-2 py-0.5 rounded-full flex items-center">
-                <Battery className={`h-3 w-3 mr-0.5 ${battery > 50 ? "text-green-300" : battery > 20 ? "text-yellow-300" : "text-red-300"}`} />
-                {Math.round(battery)}%
-              </span>
-            </h1>
+            <h1 className="text-lg font-bold">iTrack</h1>
             <p className="text-xs text-blue-200">{vehicleInfo?.nr || ''}</p>
           </div>
         </div>

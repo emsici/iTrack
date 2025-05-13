@@ -161,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // În aplicația nativă folosim URL-ul direct, în browser folosim proxy-ul
       const apiUrl = isNative
         ? `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`
-        : `/api/vehicle/${registrationNumber}`;
+        : `/api/vehicle?nr=${registrationNumber}`; // Corectăm URL-ul pentru a folosi parametrul de query "nr" în loc de path parameter
       
       console.log("Folosim URL API vehicul:", apiUrl, "isNative:", isNative);
       
@@ -201,7 +201,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         });
         
-        data = await response.json();
+        // Verificăm tipul de conținut pentru a evita erori de parsare
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          data = await response.json();
+        } else {
+          console.error("Răspunsul nu este în format JSON:", await response.text());
+          throw new Error("Răspunsul de la server nu este în formatul așteptat");
+        }
       }
 
       if (data.status === "success") {
