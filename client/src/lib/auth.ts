@@ -41,8 +41,8 @@ export const loginUser = async (credentials: Login) => {
           data: payload,
           headers: {
             // Nu specificăm Content-Type pentru a fi conform cu cerințele API-ului
-          }
-          // Nu includem params pentru a evita NullPointerException
+          },
+          params: {} as any // FOARTE IMPORTANT: obiect gol transformat în any pentru a rezolva problema de tipuri
         });
         
         console.log("Răspuns login dispozitiv nativ:", response.status, response.data);
@@ -121,14 +121,15 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
     if (isNative) {
       try {
         // Folosim HTTP plugin de la Capacitor pentru dispozitive native
-        // Construim URL-ul fără params pentru a evita NullPointerException
+        // Fixăm NullPointerException setând explicit params și data ca null
         const response = await Http.request({
           method: 'GET',
           url: apiUrl,
           headers: {
             "Authorization": `Bearer ${token}`
-          }
-          // Nu includem params sau data deloc pentru a evita apelarea metodelor problematice
+          },
+          params: {} as any, // FOARTE IMPORTANT: obiect gol transformat în any pentru a rezolva problema de tipuri
+          data: {} as any  // FOARTE IMPORTANT: obiect gol transformat în any pentru a evita NullPointerException
         });
         
         console.log("Răspuns informații vehicul (native):", response.status, response.data);
