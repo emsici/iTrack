@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Login } from "@shared/schema";
+import { Http } from '@capacitor-community/http';
+import { Capacitor } from '@capacitor/core';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -59,33 +61,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log("Încercare de autentificare cu:", credentials);
       
       // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
-      const isNative = !!(window as any).Capacitor?.isNativePlatform?.();
+      const isNative = Capacitor.isNativePlatform();
       
-      // În aplicația nativă folosim URL-ul direct, în browser folosim proxy-ul
-      const apiUrl = isNative
-        ? "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php"
-        : "/api/login";
+      // URL-ul API extern
+      const apiExternUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php";
       
-      console.log("Folosim URL API:", apiUrl, "isNative:", isNative);
+      // În browser, folosim proxy-ul
+      const apiUrl = "/api/login";
       
-      // Construim requestOptions diferit pentru browser și aplicație nativă
-      const requestOptions: RequestInit = {
-        method: "POST",
-        body: JSON.stringify({
-          email: credentials.email,
-          password: credentials.password
-        })
-      };
+      console.log("Folosim URL API:", isNative ? apiExternUrl : apiUrl, "isNative:", isNative);
       
-      // În browser adăugăm Content-Type pentru a funcționa cu express
-      if (!isNative) {
-        requestOptions.headers = {
-          "Content-Type": "application/json"
+      let data;
+      
+      if (isNative) {
+        // Pe dispozitiv nativ folosim plugin-ul @capacitor-community/http pentru a evita problemele CORS
+        console.log("Folosim Capacitor HTTP plugin pentru login");
+        
+        try {
+          const httpResponse = await Http.request({
+            method: 'POST',
+            url: apiExternUrl,
+            data: {
+              email: credentials.email,
+              password: credentials.password
+            }
+          });
+          
+          console.log("Status răspuns Capacitor HTTP:", httpResponse.status);
+          console.log("Răspuns date:", JSON.stringify(httpResponse.data));
+          
+          if (httpResponse.status >= 200 && httpResponse.status < 300) {
+            data = httpResponse.data;
+          } else {
+            throw new Error(`Eroare la autentificare: ${httpResponse.status}`);
+          }
+        } catch (capacitorError) {
+          console.error("Eroare plugin Capacitor HTTP:", capacitorError);
+          throw capacitorError;
+        }
+      } else {
+        // În browser, folosim fetch normal
+        const requestOptions: RequestInit = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: credentials.email,
+            password: credentials.password
+          })
         };
+        
+        const response = await fetch(apiUrl, requestOptions);
+        data = await response.json();
       }
       
-      const response = await fetch(apiUrl, requestOptions);
-      const data = await response.json();
       console.log("Răspuns autentificare:", data);
 
       if (data.status === "success" && data.token) {
@@ -126,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log("Încercare de înregistrare vehicul:", registrationNumber);
       
       // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
-      const isNative = !!(window as any).Capacitor?.isNativePlatform?.();
+      const isNative = Capacitor.isNativePlatform();
       
       // În aplicația nativă folosim URL-ul direct, în browser folosim proxy-ul
       const apiUrl = isNative
@@ -135,14 +165,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       console.log("Folosim URL API vehicul:", apiUrl, "isNative:", isNative);
       
-      const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
+      let data;
       
-      const data = await response.json();
+      if (isNative) {
+        // Pe dispozitiv nativ folosim plugin-ul @capacitor-community/http pentru a evita problemele CORS
+        console.log("Folosim Capacitor HTTP plugin pentru informații vehicul");
+        
+        try {
+          const httpResponse = await Http.request({
+            method: 'GET',
+            url: apiUrl,
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          });
+          
+          console.log("Status răspuns Capacitor HTTP (vehicul):", httpResponse.status);
+          console.log("Răspuns date vehicul:", JSON.stringify(httpResponse.data));
+          
+          if (httpResponse.status >= 200 && httpResponse.status < 300) {
+            data = httpResponse.data;
+          } else {
+            throw new Error(`Eroare la obținerea informațiilor vehiculului: ${httpResponse.status}`);
+          }
+        } catch (capacitorError) {
+          console.error("Eroare plugin Capacitor HTTP (vehicul):", capacitorError);
+          throw capacitorError;
+        }
+      } else {
+        // În browser folosim fetch normal
+        const response = await fetch(apiUrl, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        
+        data = await response.json();
+      }
 
       if (data.status === "success") {
         setVehicleInfo(data);

@@ -82,6 +82,58 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   // Flag pentru a preveni afișarea multiplă a notificărilor vocale
   const notificationSentRef = useRef<boolean>(false);
   
+  // Activează GPS automat la pornirea aplicației
+  useEffect(() => {
+    // Încercăm să activăm GPS-ul imediat ce aplicația pornește
+    const initializeGps = async () => {
+      try {
+        console.log("Inițializare GPS automată la pornire");
+        // Solicităm permisiuni GPS
+        const permissions = await CapacitorGeoService.requestPermissions();
+        console.log("Permisiuni GPS obținute:", permissions);
+        
+        // Inițializăm GPS și stabilim poziția inițială
+        const position = await CapacitorGeoService.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        });
+        
+        if (position && position.coords) {
+          console.log("Poziție GPS inițială obținută:", {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          
+          // Format timestamp
+          const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
+          
+          // Actualizăm starea cu coordonatele inițiale
+          setGpsCoordinates({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            timestamp: timestamp,
+            viteza: position.coords.speed ? position.coords.speed * 3.6 : 0,
+            directie: position.coords.heading || 0,
+            altitudine: position.coords.altitude || 0,
+            baterie: battery
+          });
+          
+          setLastGpsUpdateTime(timestamp);
+          setIsGpsActive(true);
+          
+          // Începem urmărirea poziției
+          startWatchPosition();
+        }
+      } catch (error) {
+        console.error("Eroare la inițializarea automată GPS:", error);
+      }
+    };
+    
+    // Executăm inițializarea
+    initializeGps();
+  }, []);
+  
   // Inițializare monitorizare conectivitate la pornirea aplicației
   useEffect(() => {
     console.log("Inițializare monitorizare conectivitate");

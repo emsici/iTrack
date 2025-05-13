@@ -25,37 +25,47 @@ export default function MobileHeader() {
   };
 
   return (
-    <header className="bg-secondary-800 text-white p-3 shadow-md fixed top-0 left-0 right-0 z-50">
+    <header className="bg-blue-700 text-white p-3 shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
-          <div className="rounded-full bg-secondary-700 w-8 h-8 flex items-center justify-center mr-2">
-            <MapPin className="h-4 w-4 text-primary" />
+          <div className="rounded-full bg-white w-8 h-8 flex items-center justify-center mr-2">
+            <MapPin className="h-4 w-4 text-blue-700" />
           </div>
           <div>
-            <h1 className="text-sm font-bold">iTrack</h1>
-            <p className="text-xs text-secondary-300">{vehicleInfo?.nr || ''}</p>
+            <h1 className="text-sm font-bold flex items-center">
+              iTrack
+              <span className="ml-2 text-xs bg-blue-800 px-2 py-0.5 rounded-full flex items-center">
+                <Battery className={`h-3 w-3 mr-0.5 ${battery > 50 ? "text-green-300" : battery > 20 ? "text-yellow-300" : "text-red-300"}`} />
+                {Math.round(battery)}%
+              </span>
+            </h1>
+            <p className="text-xs text-blue-200">{vehicleInfo?.nr || ''}</p>
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Signal className={`h-4 w-4 ${getGpsIndicatorColor()}`} />
-          <Wifi className="h-4 w-4 text-secondary-300" />
+        <div className="flex items-center gap-3">
           <div className="flex items-center">
-            <Battery className={`h-4 w-4 ${getBatteryColor()}`} />
-            <span className="text-xs ml-1">{Math.round(battery)}%</span>
+            <Signal className={`h-4 w-4 ${isGpsActive ? "text-green-300" : "text-red-300"}`} />
+            <span className="text-xs ml-1 text-white">{isGpsActive ? "Activ" : "Inactiv"}</span>
           </div>
-          <button onClick={handleLogout} className="ml-2 text-secondary-300 hover:text-white">
+          
+          <div className="flex items-center">
+            <Battery className={`h-4 w-4 ${battery > 50 ? "text-green-300" : battery > 20 ? "text-yellow-300" : "text-red-300"}`} />
+            <span className="text-xs ml-1 text-white">{Math.round(battery)}%</span>
+          </div>
+          
+          <button onClick={handleLogout} className="ml-2 bg-blue-800 p-1.5 rounded-full hover:bg-blue-900">
             <LogOut className="h-4 w-4" />
           </button>
         </div>
       </div>
       
       {/* Sub-header with navigation */}
-      <nav className="flex justify-around mt-2 pt-2 border-t border-secondary-700">
-        <Link href="/transport" className="text-xs px-3 py-1.5 bg-primary text-white font-medium rounded-full hover:bg-primary-600">
+      <nav className="flex justify-around mt-2 pt-2 border-t border-blue-600">
+        <Link href="/transport" className="text-xs flex-1 mx-1 py-1.5 bg-white text-blue-700 font-medium rounded-md hover:bg-blue-50 text-center">
           Transport
         </Link>
-        <Link href="/about" className="text-xs px-3 py-1.5 bg-secondary-600 text-white font-medium rounded-full hover:bg-secondary-700">
+        <Link href="/about" className="text-xs flex-1 mx-1 py-1.5 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-500 text-center">
           Despre
         </Link>
       </nav>
