@@ -112,8 +112,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         watchPositionRef.current = null;
       }
       
-      // Curățăm listener-ul de conectivitate
-      if (cleanupListener) {
+      // Curățăm listener-ul de conectivitate dacă există
+      if (typeof cleanupListener === 'function') {
         cleanupListener();
       }
     };
@@ -365,13 +365,30 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         description: `Cursa a început. Coordonatele GPS se trimit acum${backgroundStarted ? ' și în background' : ''}.`,
       });
       
-      // Emitem un mesaj vocal - DOAR DACĂ ESTE PRIMUL
-      if (!notificationSentRef.current && window.speechSynthesis) {
-        console.log("Emitere notificare vocală pentru pornire transport");
+      // Emitem un mesaj vocal forțat pentru a ne asigura că utilizatorul aude notificarea
+      if (window.speechSynthesis) {
+        console.log("EMITERE FORȚATĂ notificare vocală pentru pornire transport");
+        
+        // Anulăm orice alt mesaj în curs
+        window.speechSynthesis.cancel();
+        
+        // Creăm un nou mesaj cu volum maxim
         const utterance = new SpeechSynthesisUtterance("Transport început. Deplasare în curs.");
         utterance.lang = 'ro-RO';
-        utterance.volume = 1;
-        window.speechSynthesis.speak(utterance);
+        utterance.volume = 1.0;
+        utterance.rate = 0.9;   // Încetinit ușor pentru claritate
+        utterance.pitch = 1.0;
+        
+        // Adăugăm delay pentru a permite browser-ului să se pregătească
+        setTimeout(() => {
+          try {
+            window.speechSynthesis.speak(utterance);
+            console.log("Notificare vocală emisă cu succes");
+          } catch (error) {
+            console.error("Eroare la emiterea notificării vocale:", error);
+          }
+        }, 300);
+        
         notificationSentRef.current = true;
       }
     } catch (error) {

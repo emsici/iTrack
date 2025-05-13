@@ -68,10 +68,10 @@ export const sendGpsUpdate = async (
     }
     
     // Trimite datele către server prin proxy-ul local
+    // IMPORTANT: Nu adăugăm Content-Type header - trimitem raw JSON conform cerințelor API-ului
     const response = await fetch("/api/transport/gps", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(gpsData)
