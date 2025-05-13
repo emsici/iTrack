@@ -480,50 +480,55 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Emitem un mesaj vocal forțat pentru a ne asigura că utilizatorul aude notificarea
       // Folosim o abordare alternativă pentru pornirea transportului
       try {
-        console.log("EMITERE CRITICĂ notificare vocală pentru pornire transport");
+        // Verificăm dacă notificările vocale sunt activate
+        const voiceNotificationsEnabled = localStorage.getItem('voice_notifications_enabled');
+        console.log("EMITERE CRITICĂ notificare vocală pentru pornire transport - Status:", voiceNotificationsEnabled === 'true' ? "ACTIVE" : "DEZACTIVATE");
         
-        // 1. Anulăm orice sinteză vocală în curs
-        if (window.speechSynthesis) {
-          window.speechSynthesis.cancel();
-        }
-        
-        // 2. Creăm un element audio pentru a forța un sunet inițial
-        // Acest lucru va "trezi" sistemul audio al dispozitivului
-        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // Notă mai înaltă pentru atenție
-        
-        const gainNode = audioContext.createGain();
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        // Redăm un sunet scurt
-        oscillator.start();
-        setTimeout(() => {
-          oscillator.stop();
-          
-          // 3. După oprirea sunetului, emitem mesajul vocal
+        // Doar dacă notificările vocale sunt activate, emitem sunetele și mesajele
+        if (voiceNotificationsEnabled === 'true') {
+          // 1. Anulăm orice sinteză vocală în curs
           if (window.speechSynthesis) {
-            // Creăm un nou mesaj cu volum maxim
-            const utterance = new SpeechSynthesisUtterance("Transport început. Deplasare în curs.");
-            utterance.lang = 'ro-RO';
-            utterance.volume = 1.0;
-            utterance.rate = 0.9;
-            utterance.pitch = 1.0;
-            
-            // Înregistrăm evenimentele pentru debug
-            utterance.onstart = () => console.log("Redare vocală pornită");
-            utterance.onend = () => console.log("Redare vocală terminată");
-            utterance.onerror = (e) => console.error("Eroare redare vocală:", e);
-            
-            // Emitem mesajul vocal
-            window.speechSynthesis.speak(utterance);
-            console.log("Notificare vocală la pornire emisă");
+            window.speechSynthesis.cancel();
           }
-        }, 200);
+          
+          // 2. Creăm un element audio pentru a forța un sunet inițial
+          // Acest lucru va "trezi" sistemul audio al dispozitivului
+          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const oscillator = audioContext.createOscillator();
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // Notă mai înaltă pentru atenție
+          
+          const gainNode = audioContext.createGain();
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          // Redăm un sunet scurt
+          oscillator.start();
+          setTimeout(() => {
+            oscillator.stop();
+            
+            // 3. După oprirea sunetului, emitem mesajul vocal
+            if (window.speechSynthesis) {
+              // Creăm un nou mesaj cu volum maxim
+              const utterance = new SpeechSynthesisUtterance("Transport început. Deplasare în curs.");
+              utterance.lang = 'ro-RO';
+              utterance.volume = 1.0;
+              utterance.rate = 0.9;
+              utterance.pitch = 1.0;
+              
+              // Înregistrăm evenimentele pentru debug
+              utterance.onstart = () => console.log("Redare vocală pornită");
+              utterance.onend = () => console.log("Redare vocală terminată");
+              utterance.onerror = (e) => console.error("Eroare redare vocală:", e);
+              
+              // Emitem mesajul vocal
+              window.speechSynthesis.speak(utterance);
+              console.log("Notificare vocală la pornire emisă");
+            }
+          }, 200);
+        }
         
         notificationSentRef.current = true;
       } catch (error) {
