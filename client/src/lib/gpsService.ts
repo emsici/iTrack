@@ -113,9 +113,18 @@ export const sendGpsUpdate = async (
     
     console.log("EXACT PAYLOAD RAW FORMAT:", rawPayload);
     
-    // Trimite datele către server prin proxy-ul local
+    // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
+    const isNative = !!(window as any).Capacitor?.isNativePlatform?.();
+    
+    // În aplicația nativă folosim URL-ul direct, în browser folosim proxy-ul
+    const apiUrl = isNative
+      ? "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php"
+      : "/api/transport/gps";
+    
+    console.log("Trimitem GPS către URL:", apiUrl, "isNative:", isNative);
+    
     // IMPORTANT: Folosim exact formatul din Postman - nu includ niciun header de Content-Type
-    const response = await fetch("/api/transport/gps", {
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`

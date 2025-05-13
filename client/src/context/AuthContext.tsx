@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Login } from "@shared/schema";
-import { loginUser, getVehicleInfo } from "@/lib/auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -59,8 +58,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de autentificare cu:", credentials);
       
-      // Folosim loginUser din auth.ts care va gestiona corect URL-urile în funcție de mediu
-      const data = await loginUser(credentials);
+      // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
+      const isNative = !!(window as any).Capacitor?.isNativePlatform?.();
+      
+      // În aplicația nativă folosim URL-ul direct, în browser folosim proxy-ul
+      const apiUrl = isNative
+        ? "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php"
+        : "/api/login";
+      
+      console.log("Folosim URL API:", apiUrl, "isNative:", isNative);
+      
+      // Construim requestOptions diferit pentru browser și aplicație nativă
+      const requestOptions: RequestInit = {
+        method: "POST",
+        body: JSON.stringify({
+          email: credentials.email,
+          password: credentials.password
+        })
+      };
+      
+      // În browser adăugăm Content-Type pentru a funcționa cu express
+      if (!isNative) {
+        requestOptions.headers = {
+          "Content-Type": "application/json"
+        };
+      }
+      
+      const response = await fetch(apiUrl, requestOptions);
+      const data = await response.json();
       console.log("Răspuns autentificare:", data);
 
       if (data.status === "success" && data.token) {
@@ -100,8 +125,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de înregistrare vehicul:", registrationNumber);
       
-      // Folosim getVehicleInfo din auth.ts care va gestiona corect URL-urile în funcție de mediu
-      const data = await getVehicleInfo(registrationNumber, token!);
+      // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
+      const isNative = !!(window as any).Capacitor?.isNativePlatform?.();
+      
+      // În aplicația nativă folosim URL-ul direct, în browser folosim proxy-ul
+      const apiUrl = isNative
+        ? `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`
+        : `/api/vehicle/${registrationNumber}`;
+      
+      console.log("Folosim URL API vehicul:", apiUrl, "isNative:", isNative);
+      
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      
+      const data = await response.json();
 
       if (data.status === "success") {
         setVehicleInfo(data);
