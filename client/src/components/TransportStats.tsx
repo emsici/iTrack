@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTransport } from '@/context/TransportContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -67,7 +67,8 @@ export default function TransportStats() {
   }, [transportStatus, battery]);
   
   // Actualizează statisticile când se primesc noi coordonate GPS
-  useEffect(() => {
+  // Funcție pentru procesarea statisticilor de transport
+  const processTransportStats = useCallback(() => {
     // IMPORTANT: Verificăm explicit că avem GPS coordonate și transportul este activ
     if (!gpsCoordinates || transportStatus !== 'active') return;
     
@@ -77,22 +78,22 @@ export default function TransportStats() {
     
     // Calculează distanța doar dacă avem coordonate anterioare
     let distanceToAdd = 0;
-    if (previousCoords) {
+    if (previousCoordsRef.current) {
       distanceToAdd = calculateDistance(
-        previousCoords.lat,
-        previousCoords.lng,
+        previousCoordsRef.current.lat,
+        previousCoordsRef.current.lng,
         newCoords.lat,
         newCoords.lng
       );
     }
     
     // Calculează timpul de călătorie
-    const travelTimeMinutes = startTime 
-      ? Math.floor((new Date().getTime() - startTime.getTime()) / (1000 * 60)) 
+    const travelTimeMinutes = startTimeRef.current 
+      ? Math.floor((new Date().getTime() - startTimeRef.current.getTime()) / (1000 * 60)) 
       : 0;
     
     // Construim noul istoric de viteză
-    const newSpeedHistoryArray = [...speedHistory, newSpeed];
+    const newSpeedHistoryArray = [...speedHistoryRef.current, newSpeed];
     
     // Calcul statistici
     const avgSpeed = newSpeedHistoryArray.length > 0 
@@ -103,11 +104,11 @@ export default function TransportStats() {
       ? Math.max(...newSpeedHistoryArray) 
       : 0;
     
-    // Actualizăm istoricul și coordonatele
-    setSpeedHistory(newSpeedHistoryArray);
-    setPreviousCoords(newCoords);
+    // Actualizăm valorile în referințe fără a declanșa re-renderări
+    speedHistoryRef.current = newSpeedHistoryArray;
+    previousCoordsRef.current = newCoords;
     
-    // Actualizăm statisticile - folosim un callback pentru a evita dependența circulară
+    // Actualizăm statisticile o singură dată
     setStats(prevStats => ({
       ...prevStats,
       distanceTraveled: prevStats.distanceTraveled + distanceToAdd,
@@ -118,7 +119,14 @@ export default function TransportStats() {
       status: transportStatus,
       speedHistory: newSpeedHistoryArray
     }));
-  }, [gpsCoordinates, transportStatus, startTime, previousCoords, speedHistory]);
+  }, [gpsCoordinates, transportStatus, calculateDistance]);
+  
+  // Efect pentru procesarea statisticilor când se schimbă coordonatele GPS
+  useEffect(() => {
+    if (gpsCoordinates && transportStatus === 'active') {
+      processTransportStats();
+    }
+  }, [gpsCoordinates, transportStatus, processTransportStats]);
   
   // Formatare timp de călătorie
   const formatTravelTime = (minutes: number) => {

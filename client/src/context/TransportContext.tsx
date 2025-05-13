@@ -749,6 +749,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Resetăm imediat starea transportului, fără întârziere
       console.log("Resetare completă stare transport");
       
+      // Salvăm temporar informațiile vehiculului pentru reîncărcare
+      const currentVehicleInfo = vehicleInfo;
+      
       // Resetăm toate valorile la starea inițială
       setTransportStatus("inactive");
       setGpsCoordinates(null);
@@ -757,8 +760,36 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setBattery(100);
       setIsGpsActive(false);
       
-      // Resetăm și UIT selectate pentru a forța utilizatorul să selecteze din nou
-      setSelectedUits([]);
+      // Reîncărcăm lista de transporturi disponibile
+      try {
+        // Notificare pentru utilizator
+        toast({
+          title: "Transport finalizat ✓",
+          description: "Noile transporturi disponibile au fost încărcate.",
+        });
+        
+        // Dacă vehicleInfo conține informațiile necesare, le folosim pentru a genera un nou UIT
+        if (currentVehicleInfo) {
+          console.log("Regenerare listă transporturi după finalizare:", currentVehicleInfo);
+          
+          // Recreăm opțiunea de transport
+          const newUit: UitOption = {
+            uit: currentVehicleInfo.uit,
+            start_locatie: currentVehicleInfo.start_locatie || "",
+            stop_locatie: currentVehicleInfo.stop_locatie || ""
+          };
+          
+          // Adăugăm noul UIT în lista de transporturi disponibile
+          setSelectedUits([newUit]);
+          console.log("Transport regenerat și disponibil pentru selecție:", newUit);
+        } else {
+          // Resetăm lista de UIT-uri pentru a forța utilizatorul să selecteze din nou
+          setSelectedUits([]);
+        }
+      } catch (error) {
+        console.error("Eroare la reîncărcarea listei de transporturi:", error);
+        setSelectedUits([]);
+      }
     } catch (error) {
       console.error("Eroare la finalizarea transportului:", error);
       
