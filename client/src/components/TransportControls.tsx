@@ -121,7 +121,7 @@ export default function TransportControls() {
       // Pornește GPS tracking în backend
       const result = await startTransport();
       
-      if (result === false) {
+      if (!result) {
         toast({
           variant: "destructive",
           title: "Eroare",

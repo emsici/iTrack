@@ -35,7 +35,7 @@ interface TransportContextType {
   setSelectedUits: (uits: UitOption[]) => void;
   currentActiveUit: UitOption | null;
   setCurrentActiveUit: (uit: UitOption | null) => void;
-  startTransport: () => Promise<void>;
+  startTransport: () => Promise<boolean>;
   pauseTransport: () => Promise<void>;
   resumeTransport: () => Promise<void>;
   finishTransport: () => Promise<void>;
@@ -801,6 +801,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Schimbăm starea transportului
       setTransportStatus("finished");
+      
+      // Dezactivăm explicit GPS-ul DUPĂ ce am finalizat transportul
+      setIsGpsActive(false);
+      console.log("GPS DEZACTIVAT explicit la finalizarea transportului");
       
       // Anunțăm utilizatorul
       toast({
