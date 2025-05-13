@@ -119,9 +119,10 @@ export default function MobileHeader() {
                   <input 
                     type="text" 
                     value={newRegistrationNumber} 
-                    onChange={(e) => setNewRegistrationNumber(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                    onChange={(e) => setNewRegistrationNumber(e.target.value.toUpperCase())}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base text-gray-900 bg-white font-medium"
                     autoFocus
+                    placeholder="Ex: B01AAA"
                   />
                   
                   <div className="flex justify-end space-x-3 mt-6">
