@@ -33,8 +33,8 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
       {/* Header specific pentru mobil */}
       <MobileHeader />
       
-      {/* Main content - am adăugat padding-top pentru a compensa header-ul sticky */}
-      <main className="flex-1 p-4 pt-24 max-w-lg mx-auto w-full">
+      {/* Main content - am adăugat padding-top pentru a compensa header-ul sticky și meniul cu tab-uri */}
+      <main className="flex-1 p-4 pt-28 max-w-lg mx-auto w-full">
         {children}
       </main>
       
