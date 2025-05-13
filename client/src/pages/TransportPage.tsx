@@ -5,6 +5,7 @@ import MainLayout from "@/components/MainLayout";
 import MobileLayout from "@/components/MobileLayout";
 import TransportControls from "@/components/TransportControls";
 import LocationTracking from "@/components/LocationTracking";
+import ConnectivityAlert from "@/components/ConnectivityAlert";
 import { TransportProvider } from "@/context/TransportContext";
 import { Capacitor } from "@capacitor/core";
 
@@ -41,6 +42,7 @@ export default function TransportPage() {
     <TransportProvider>
       <Layout>
         <section className="p-4">
+          <ConnectivityAlert />
           <TransportControls />
           <LocationTracking />
         </section>

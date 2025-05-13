@@ -1,4 +1,6 @@
 import { Position } from "@capacitor/geolocation";
+import { getInternetConnectivity } from "./connectivityService";
+import { saveGpsDataOffline } from "./offlineStorage";
 
 export type GpsDataPayload = {
   lat: number;
@@ -55,6 +57,16 @@ export const sendGpsUpdate = async (
       status: transportStatus // Adăugăm status-ul transportului
     };
     
+    // Verificăm dacă există conexiune la internet
+    const isConnected = getInternetConnectivity();
+    
+    if (!isConnected) {
+      console.log("Nu există conexiune la internet, datele GPS se salvează local");
+      // Salvăm datele local pentru sincronizare ulterioară
+      saveGpsDataOffline(gpsData, transportStatus);
+      return true; // Returnăm true pentru a nu întrerupe fluxul aplicației
+    }
+    
     // Trimite datele către server prin proxy-ul local
     const response = await fetch("/api/transport/gps", {
       method: "POST",
@@ -66,12 +78,37 @@ export const sendGpsUpdate = async (
     });
     
     if (!response.ok) {
+      // Dacă serverul returnează eroare, salvăm datele local
+      saveGpsDataOffline(gpsData, transportStatus);
       throw new Error(`Eroare la trimiterea datelor GPS: ${response.statusText}`);
     }
     
     return true;
   } catch (error) {
     console.error("Eroare la trimiterea coordonatelor GPS:", error);
+    
+    // În caz de eroare (conexiune, server, etc.), salvăm datele local
+    if (position && vehicleInfo) {
+      const { latitude, longitude, altitude, speed, heading } = position.coords;
+      const speedKmh = speed ? speed * 3.6 : 0;
+      const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
+      
+      const gpsData: GpsDataPayload = {
+        lat: latitude,
+        lng: longitude,
+        timestamp: timestamp,
+        viteza: speedKmh,
+        directie: heading || 0,
+        altitudine: altitude || 0,
+        baterie: 75, // Simulat
+        numar_inmatriculare: vehicleInfo.nr,
+        uit: vehicleInfo.uit,
+        status: transportStatus
+      };
+      
+      saveGpsDataOffline(gpsData, transportStatus);
+    }
+    
     return false;
   }
 };
