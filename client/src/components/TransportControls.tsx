@@ -279,49 +279,67 @@ export default function TransportControls() {
                 <div>
                   <h3 className="text-sm font-medium text-secondary-700 mb-2">Control transport</h3>
                   <div className="flex flex-wrap gap-2">
-                    <Button 
-                      variant="default"
-                      className={`flex-1 bg-green-600 text-white hover:bg-opacity-90 disabled:opacity-50 ${
-                        transport.status !== "inactive" ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                      onClick={() => handleStartTransport(transport.id)}
-                      disabled={transport.status !== "inactive"}
-                    >
-                      <Play className="h-4 w-4 mr-1" /> Start cursă
-                    </Button>
+                    {/* Afișăm butoanele în funcție de starea transportului */}
                     
-                    <Button 
-                      variant="default"
-                      className={`flex-1 bg-yellow-600 text-white hover:bg-opacity-90 disabled:opacity-50 ${
-                        transport.status !== "active" ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                      onClick={() => handlePauseTransport(transport.id)}
-                      disabled={transport.status !== "active"}
-                    >
-                      <Pause className="h-4 w-4 mr-1" /> Pauză de odihnă
-                    </Button>
+                    {/* Stare INACTIVĂ: Afișăm doar butonul de Start */}
+                    {transport.status === "inactive" && (
+                      <Button 
+                        variant="default"
+                        className="flex-1 bg-green-600 text-white hover:bg-green-700 shadow-md"
+                        onClick={() => handleStartTransport(transport.id)}
+                      >
+                        <Play className="h-4 w-4 mr-2" /> Start cursă
+                      </Button>
+                    )}
                     
-                    <Button 
-                      variant="default"
-                      className={`flex-1 bg-blue-600 text-white hover:bg-opacity-90 disabled:opacity-50 ${
-                        transport.status !== "paused" ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                      onClick={() => handleResumeTransport(transport.id)}
-                      disabled={transport.status !== "paused"}
-                    >
-                      <Play className="h-4 w-4 mr-1" /> Reluare cursă
-                    </Button>
+                    {/* Stare ACTIVĂ: Afișăm butonul de Pauză și Finalizare */}
+                    {transport.status === "active" && (
+                      <>
+                        <Button 
+                          variant="default"
+                          className="flex-1 bg-yellow-600 text-white hover:bg-yellow-700 shadow-md"
+                          onClick={() => handlePauseTransport(transport.id)}
+                        >
+                          <Pause className="h-4 w-4 mr-2" /> Pauză de odihnă
+                        </Button>
+                        
+                        <Button 
+                          variant="default"
+                          className="flex-1 bg-gray-600 text-white hover:bg-gray-700 shadow-md"
+                          onClick={() => handleFinishTransport(transport.id)}
+                        >
+                          <Check className="h-4 w-4 mr-2" /> Finalizare
+                        </Button>
+                      </>
+                    )}
                     
-                    <Button 
-                      variant="default"
-                      className={`flex-1 bg-gray-600 text-white hover:bg-opacity-90 disabled:opacity-50 ${
-                        (transport.status !== "active" && transport.status !== "paused") ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                      onClick={() => handleFinishTransport(transport.id)}
-                      disabled={transport.status !== "active" && transport.status !== "paused"}
-                    >
-                      <Check className="h-4 w-4 mr-1" /> Finalizare
-                    </Button>
+                    {/* Stare PAUZĂ: Afișăm butonul de Reluare și Finalizare */}
+                    {transport.status === "paused" && (
+                      <>
+                        <Button 
+                          variant="default"
+                          className="flex-1 bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+                          onClick={() => handleResumeTransport(transport.id)}
+                        >
+                          <Play className="h-4 w-4 mr-2" /> Reluare cursă
+                        </Button>
+                        
+                        <Button 
+                          variant="default"
+                          className="flex-1 bg-gray-600 text-white hover:bg-gray-700 shadow-md"
+                          onClick={() => handleFinishTransport(transport.id)}
+                        >
+                          <Check className="h-4 w-4 mr-2" /> Finalizare
+                        </Button>
+                      </>
+                    )}
+                    
+                    {/* Stare FINALIZAT: Nu afișăm niciun buton */}
+                    {transport.status === "finished" && (
+                      <div className="w-full p-3 bg-gray-100 rounded-md text-center text-gray-500">
+                        Transport finalizat
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
