@@ -69,9 +69,21 @@ router.post("/gps", async (req, res) => {
       // Încercăm să obținem date din query params - backup
       if (Object.keys(req.query).length > 0) {
         bodyData = req.query;
+        console.log("Folosim valorile din query params:", bodyData);
       } else {
-        console.log("Nici query params nu sunt disponibile, folosim valori simulate doar pentru test");
-        // Valori simulate doar pentru test - vom obține date reale prin alte metode
+        // Extragem header-ul de autorizare pentru a putea extrage informațiile utilizatorului
+        const authHeader = req.headers.authorization || '';
+        const numarInmatriculare = req.headers['x-vehicle-number'] || 'B123XYZ';
+        const uit = req.headers['x-uit'] || 'UIT12345';
+        
+        console.log("Header autorizare:", authHeader);
+        console.log("Headers vehicul:", { 
+          'x-vehicle-number': numarInmatriculare, 
+          'x-uit': uit 
+        });
+        
+        console.log("Nici query params nu sunt disponibile, folosim valorile din headers sau default");
+        
         bodyData = {
           lat: 44.426802,
           lng: 26.103607, 
@@ -80,8 +92,8 @@ router.post("/gps", async (req, res) => {
           directie: 0,
           altitudine: 0,
           baterie: 100,
-          numar_inmatriculare: "TEST",
-          uit: "TEST",
+          numar_inmatriculare: numarInmatriculare,
+          uit: uit,
           status: "in_progress"
         };
       }

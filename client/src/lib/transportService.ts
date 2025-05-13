@@ -30,10 +30,13 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
     console.log("EXACT PAYLOAD CURL FORMAT:", payload);
     
     // VALIDAT: Acest format funcționează cu API-ul extern (testat cu curl)
+    // Adăugăm headerele custom pentru a transmite aceste date și în headers
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`,
+        "X-Vehicle-Number": data.numar_inmatriculare,
+        "X-UIT": data.uit
         // IMPORTANT: Nu setăm Content-Type header exact ca în testul curl reușit
       },
       body: payload // Trimitem payload-ul formatat JSON.stringify

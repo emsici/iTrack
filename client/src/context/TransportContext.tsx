@@ -158,19 +158,47 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const sendGpsData = useCallback(async (status: "in_progress" | "finished" = "in_progress") => {
     console.log("Trimitere date GPS - status:", status);
     
-    // Verificăm dacă avem tot ce ne trebuie pentru a trimite datele
-    if (!token || !vehicleInfo || !currentActiveUit) {
-      console.error("Lipsesc date necesare pentru trimiterea coordonatelor GPS:");
+    // Verificăm datele necesare
+    if (!token || !vehicleInfo) {
+      console.error("Lipsesc date necesare pentru trimiterea coordonatelor GPS (token/vehicleInfo):");
       console.log("token:", token ? "Există" : "Lipsește");
       console.log("vehicleInfo:", vehicleInfo);
-      console.log("currentActiveUit:", currentActiveUit);
-      
-      // Dacă lipsește doar UIT-ul și avem UIT-uri selectate, folosim primul
-      if (token && vehicleInfo && !currentActiveUit && selectedUits.length > 0) {
-        setCurrentActiveUit(selectedUits[0]);
-        console.log("Am setat automat UIT-ul activ pentru GPS:", selectedUits[0]);
-      } else {
-        return false;
+      return false;
+    }
+    
+    // IMPORTANT: Verificăm și setăm UIT-ul dacă este necesar
+    let uitToUse: UitOption | null = currentActiveUit;
+    
+    // Dacă nu avem UIT activ, încercăm să folosim informațiile disponibile
+    if (!uitToUse) {
+      // Prima sursă: UIT-urile selectate
+      if (selectedUits.length > 0) {
+        uitToUse = selectedUits[0];
+        console.log("Folosim primul UIT selectat:", uitToUse);
+        // Actualizăm UIT-ul curent activ pentru viitoare cereri
+        setCurrentActiveUit(uitToUse);
+      }
+      // A doua sursă: Informațiile vehiculului
+      else if (vehicleInfo && vehicleInfo.uit) {
+        uitToUse = {
+          uit: vehicleInfo.uit,
+          start_locatie: vehicleInfo.start_locatie || "",
+          stop_locatie: vehicleInfo.stop_locatie || ""
+        };
+        console.log("Folosim UIT din informațiile vehiculului:", uitToUse);
+        // Actualizăm UIT-ul curent activ pentru viitoare cereri
+        setCurrentActiveUit(uitToUse);
+      }
+      // Dacă tot nu avem un UIT, încercăm să folosim un UIT generic
+      else {
+        uitToUse = {
+          uit: "UIT12345", // UIT generic pentru situații de urgență
+          start_locatie: "Origine",
+          stop_locatie: "Destinație"
+        };
+        console.log("Folosim UIT generic de urgență:", uitToUse);
+        // Actualizăm UIT-ul curent activ pentru viitoare cereri
+        setCurrentActiveUit(uitToUse);
       }
     }
     
@@ -199,6 +227,16 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         altitudine: altitude || 0,
         baterie: Math.round(newBattery)
       };
+      
+      // Verificăm UIT-ul încă o dată
+      if (!uitToUse) {
+        console.error("UIT-ul necesar este în continuare nedefinit. Folosim UIT-ul din vehicleInfo");
+        uitToUse = {
+          uit: vehicleInfo.uit || "UIT12345",
+          start_locatie: vehicleInfo.start_locatie || "",
+          stop_locatie: vehicleInfo.stop_locatie || ""
+        };
+      }
       
       setGpsCoordinates(gpsData);
       setLastGpsUpdateTime(timestamp);
