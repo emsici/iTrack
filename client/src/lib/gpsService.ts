@@ -60,6 +60,14 @@ export const sendGpsUpdate = async (
       console.warn("Nu s-a putut obține nivelul bateriei, se folosește valoarea implicită:", batteryError);
     }
     
+    // Verifică întai că avem toate datele necesare
+    if (!vehicleInfo || !vehicleInfo.nr || !vehicleInfo.uit) {
+      console.error("Lipsesc date necesare pentru trimiterea coordonatelor GPS:", {
+        "vehicleInfo": vehicleInfo
+      });
+      return false;
+    }
+    
     // Construiește payload-ul pentru API
     const gpsData: GpsDataPayload = {
       lat: latitude,
@@ -70,7 +78,7 @@ export const sendGpsUpdate = async (
       altitudine: altitude || 0,
       baterie: batteryLevel,
       numar_inmatriculare: vehicleInfo.nr,
-      uit: vehicleInfo.uit,
+      uit: vehicleInfo.uit, // CRUCIAL: avem nevoie de UIT valid
       status: transportStatus // Adăugăm status-ul transportului
     };
     

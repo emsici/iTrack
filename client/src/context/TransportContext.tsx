@@ -241,7 +241,20 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     setIsGpsActive(true);
     
     try {
+      // IMPORTANT: Verificăm și setăm UIT-ul înainte de a trimite date GPS
+      if (!currentActiveUit && vehicleInfo) {
+        // Creăm un UIT din vehicleInfo dacă nu avem deja unul
+        const newUit = {
+          uit: vehicleInfo.uit,
+          start_locatie: vehicleInfo.start_locatie,
+          stop_locatie: vehicleInfo.stop_locatie
+        };
+        console.log("Setăm UIT-ul din vehicleInfo înainte de a trimite coordonate:", newUit);
+        setCurrentActiveUit(newUit);
+      }
+      
       // Trimitem prima dată coordonatele cu status "in_progress"
+      console.log("Trimitem prima dată coordonatele cu vehicleInfo:", vehicleInfo);
       const success = await sendGpsData("in_progress");
       console.log("Trimitere inițială coordonate GPS (in_progress):", success ? "Succes" : "Eșuată");
       
