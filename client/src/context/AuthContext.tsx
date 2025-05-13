@@ -155,33 +155,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de înregistrare vehicul:", registrationNumber);
       
+      // Verificăm dacă avem un token valid
+      if (!token) {
+        console.error("Nu există token de autentificare pentru actualizarea vehiculului");
+        toast({
+          variant: "destructive",
+          title: "Eroare de autentificare",
+          description: "Sesiunea de autentificare a expirat. Reconectați-vă."
+        });
+        return false;
+      }
+      
       // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
       const isNative = Capacitor.isNativePlatform();
       
       // În aplicația nativă folosim URL-ul direct, în browser folosim proxy-ul
       const apiUrl = isNative
         ? `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`
-        : `/api/vehicle?nr=${registrationNumber}`; // Corectăm URL-ul pentru a folosi parametrul de query "nr" în loc de path parameter
+        : `/api/vehicle?nr=${registrationNumber}`;
       
       console.log("Folosim URL API vehicul:", apiUrl, "isNative:", isNative);
+      
+      // Obținem token-ul actualizat din localStorage pentru a ne asigura că folosim cea mai recentă versiune
+      const currentToken = localStorage.getItem("auth_token") || token;
+      console.log("Folosim token de autorizare:", currentToken ? "Token valid" : "Token lipsă");
       
       let data;
       
       if (isNative) {
         // Pe dispozitiv nativ folosim plugin-ul @capacitor-community/http pentru a evita problemele CORS
-        console.log("Folosim Capacitor HTTP plugin pentru informații vehicul");
-        
         try {
           const httpResponse = await Http.request({
             method: 'GET',
             url: apiUrl,
             headers: {
-              "Authorization": `Bearer ${token}`
+              "Authorization": `Bearer ${currentToken}`
             }
           });
           
           console.log("Status răspuns Capacitor HTTP (vehicul):", httpResponse.status);
-          console.log("Răspuns date vehicul:", JSON.stringify(httpResponse.data));
           
           if (httpResponse.status >= 200 && httpResponse.status < 300) {
             data = httpResponse.data;
@@ -194,50 +206,86 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } else {
         // În browser folosim fetch normal
+        console.log("Trimit cerere către server cu token:", !!currentToken);
+        
         const response = await fetch(apiUrl, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`
+            "Authorization": `Bearer ${currentToken}`
           }
         });
+        
+        console.log("Status răspuns HTTP:", response.status);
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error("Token invalid sau expirat. Reconectați-vă.");
+          }
+          throw new Error(`Răspuns server: ${response.status} ${response.statusText}`);
+        }
         
         // Verificăm tipul de conținut pentru a evita erori de parsare
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           data = await response.json();
         } else {
-          console.error("Răspunsul nu este în format JSON:", await response.text());
+          const textResponse = await response.text();
+          console.error("Răspunsul nu este în format JSON:", textResponse);
           throw new Error("Răspunsul de la server nu este în formatul așteptat");
         }
       }
 
-      if (data.status === "success") {
-        setVehicleInfo(data);
+      console.log("Răspuns date vehicul:", data);
+
+      if (data && data.status === "success") {
+        // Actualizăm informațiile vehiculului local
+        setVehicleInfo({
+          nr: registrationNumber,  // Folosim numărul de înmatriculare furnizat
+          uit: data.uit || "",
+          start_locatie: data.start_locatie || "",
+          stop_locatie: data.stop_locatie || ""
+        });
         setHasVehicle(true);
         
-        // Store in localStorage
-        localStorage.setItem("vehicle_info", JSON.stringify(data));
+        // Actualizăm localStorage
+        localStorage.setItem("vehicle_info", JSON.stringify({
+          nr: registrationNumber,
+          uit: data.uit || "",
+          start_locatie: data.start_locatie || "",
+          stop_locatie: data.stop_locatie || ""
+        }));
         
         toast({
-          title: "Vehicul înregistrat",
-          description: `Vehicul ${data.nr} înregistrat cu succes!`,
+          title: "Vehicul actualizat",
+          description: `Vehicul ${registrationNumber} actualizat cu succes!`,
         });
         return true;
       } else {
         toast({
           variant: "destructive",
-          title: "Înregistrare eșuată",
+          title: "Actualizare eșuată",
           description: "Numărul de înmatriculare nu este valid sau nu există în sistem.",
         });
         return false;
       }
     } catch (error) {
-      console.error("Vehicle registration error:", error);
+      console.error("Eroare la actualizarea vehiculului:", error);
+      
+      const errorMessage = (error as Error).message || "Nu s-a putut actualiza vehiculul";
+      
       toast({
         variant: "destructive",
         title: "Eroare",
-        description: "Nu s-a putut înregistra vehiculul. Verificați conexiunea la internet.",
+        description: errorMessage.includes("Token") 
+          ? "Sesiunea a expirat. Reconectați-vă." 
+          : "Nu s-a putut actualiza vehiculul. Verificați conexiunea la internet."
       });
+      
+      // Dacă avem o eroare de token, deconectăm utilizatorul
+      if (errorMessage.includes("Token")) {
+        logout();
+      }
+      
       return false;
     }
   };
