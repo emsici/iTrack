@@ -161,11 +161,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       console.log("Disponibilitate GPS inițială:", isAvailable ? "Disponibil" : "Indisponibil");
       
       // Actualizarea stării GPS depinde de mai mulți factori
-      // GPS este considerat activ dacă:
-      // 1. Hardware-ul GPS este disponibil ȘI
-      // 2. Avem coordonate GPS valide ȘI
-      // 3. Transportul este activ (nu în pauză sau inactiv)
-      const gpsIsReallyActive = isAvailable && !!gpsCoordinates && transportStatus === "active";
+      // GPS este considerat activ dacă transportul este activ, indiferent de hardware
+      // Simplificăm logica pentru a evita probleme de sincronizare
+      const gpsIsReallyActive = transportStatus === "active";
       
       // Actualizăm starea dacă este diferită
       if (gpsIsReallyActive !== isGpsActive) {
