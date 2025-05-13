@@ -5,7 +5,6 @@ import MainLayout from "@/components/MainLayout";
 import MobileLayout from "@/components/MobileLayout";
 import TransportControls from "@/components/TransportControls";
 import LocationTracking from "@/components/LocationTracking";
-import UitSelector from "@/components/UitSelector";
 import { TransportProvider } from "@/context/TransportContext";
 import { Capacitor } from "@capacitor/core";
 
@@ -45,8 +44,6 @@ export default function TransportPage() {
           <h1 className="text-2xl font-bold text-secondary-800 mb-4">
             Gestionare Transport
           </h1>
-          {/* Am adăugat UitSelector pentru a permite selectarea mai multor UIT-uri */}
-          <UitSelector />
           <TransportControls />
           <LocationTracking />
         </section>

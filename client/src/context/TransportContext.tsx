@@ -293,6 +293,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       value={{
         transportStatus,
         gpsCoordinates,
+        selectedUits,
+        setSelectedUits,
+        currentActiveUit,
+        setCurrentActiveUit,
         startTransport,
         pauseTransport,
         resumeTransport,
