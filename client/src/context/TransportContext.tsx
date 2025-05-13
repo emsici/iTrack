@@ -510,7 +510,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         title: "Eroare",
         description: "Nu s-a putut porni cursa. Lipsesc date despre vehicul.",
       });
-      return;
+      return false;
     }
     
     // Dacă nu avem UIT activ, creăm unul din informațiile vehiculului
@@ -538,7 +538,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           title: "Eroare",
           description: "Nu s-a putut porni cursa. Lipsesc date UIT.",
         });
-        return;
+        return false;
       }
     }
     
@@ -649,6 +649,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         title: "Eroare",
         description: "Nu s-a putut porni cursa. Încercați din nou.",
       });
+      
+      return false;
     }
   };
   
