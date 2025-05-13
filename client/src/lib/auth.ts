@@ -5,10 +5,15 @@ export const loginUser = async (credentials: Login) => {
   try {
     console.log("Încercare autentificare cu email:", credentials.email);
     
-    // În mediul de dezvoltare, folosim proxy-ul local
-    const apiUrl = import.meta.env.DEV 
-      ? "/api/login" 
-      : "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php";
+    // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
+    const isNative = (window as any).Capacitor?.isNativePlatform?.() || false;
+    
+    // În aplicația nativă folosim URL-ul direct, în browser folosim proxy-ul
+    const apiUrl = isNative
+      ? "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php"
+      : "/api/login";
+    
+    console.log("Folosim URL API:", apiUrl, "isNative:", isNative);
     
     // Construim payload-ul exact cum este în Postman
     const payload = JSON.stringify({
@@ -18,11 +23,21 @@ export const loginUser = async (credentials: Login) => {
     
     console.log("Payload autentificare:", payload);
     
-    // Facem cererea fără Content-Type, exact ca în Postman
-    const response = await fetch(apiUrl, {
+    // Pentru aplicația nativă, trimitem cererea fără Content-Type
+    // În browser, folosim standardul JSON
+    const requestOptions: RequestInit = {
       method: "POST",
       body: payload
-    });
+    };
+    
+    // În browser adăugăm header-ul Content-Type pentru a funcționa cu express
+    if (!isNative) {
+      requestOptions.headers = {
+        "Content-Type": "application/json"
+      };
+    }
+    
+    const response = await fetch(apiUrl, requestOptions);
     
     if (!response.ok) {
       console.error("Eroare răspuns API autentificare:", response.status, response.statusText);

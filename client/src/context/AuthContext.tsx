@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Login } from "@shared/schema";
+import { loginUser, getVehicleInfo } from "@/lib/auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -58,19 +59,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de autentificare cu:", credentials);
       
-      // Folosim proxy-ul nostru pentru a evita probleme de CORS
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email: credentials.email,
-          password: credentials.password
-        }),
-      });
-
-      const data = await response.json();
+      // Folosim loginUser din auth.ts care va gestiona corect URL-urile în funcție de mediu
+      const data = await loginUser(credentials);
       console.log("Răspuns autentificare:", data);
 
       if (data.status === "success" && data.token) {
@@ -110,18 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de înregistrare vehicul:", registrationNumber);
       
-      // Folosim proxy-ul nostru pentru a evita probleme de CORS
-      const response = await fetch(
-        `/api/vehicle/${registrationNumber}`,
-        {
-          method: "GET",
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
-        }
-      );
-
-      const data = await response.json();
+      // Folosim getVehicleInfo din auth.ts care va gestiona corect URL-urile în funcție de mediu
+      const data = await getVehicleInfo(registrationNumber, token!);
 
       if (data.status === "success") {
         setVehicleInfo(data);
