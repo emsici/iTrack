@@ -35,25 +35,47 @@ export default function UitSelector() {
   const [localSelectedUits, setLocalSelectedUits] = useState<UitOption[]>([]);
   const [currentUit, setCurrentUit] = useState<string>("");
 
-  // Simulăm obținerea listei de UIT-uri disponibile la încărcarea componentei
+  const { vehicleInfo } = useAuth();
+
+  // Obținem lista de UIT-uri disponibile la încărcarea componentei
   useEffect(() => {
     const fetchUits = async () => {
       setIsLoading(true);
       try {
         // În implementarea reală, aici ar trebui să faceți un apel API pentru a obține UIT-urile disponibile
-        // Simulăm o listă de UIT-uri disponibile
+        // Preluăm UIT-urile disponibile - ne asigurăm că UIT12345 este primul, pentru a se potrivi cu vehicleInfo
         const mockUits: UitOption[] = [
           { uit: "UIT12345", start_locatie: "București", stop_locatie: "Cluj" },
+          { uit: "UIT56789", start_locatie: "Oradea", stop_locatie: "Arad" },
           { uit: "UIT23456", start_locatie: "Cluj", stop_locatie: "Timișoara" },
           { uit: "UIT34567", start_locatie: "Iași", stop_locatie: "Constanța" },
-          { uit: "UIT45678", start_locatie: "Brașov", stop_locatie: "Sibiu" },
-          { uit: "UIT56789", start_locatie: "Oradea", stop_locatie: "Arad" }
+          { uit: "UIT45678", start_locatie: "Brașov", stop_locatie: "Sibiu" }
         ];
         
         // Simulăm un răspuns de la API
         setTimeout(() => {
           setAvailableUits(mockUits);
           setIsLoading(false);
+          
+          // Adăugăm automat UIT-ul din vehicleInfo dacă există
+          if (vehicleInfo && vehicleInfo.uit) {
+            const uitFromVehicle = mockUits.find(uit => uit.uit === vehicleInfo.uit);
+            if (uitFromVehicle) {
+              // Adăugăm în lista de selectate
+              setLocalSelectedUits([uitFromVehicle]);
+              setSelectedUits([uitFromVehicle]);
+              
+              // Setăm ca UIT activ
+              setCurrentActiveUit(uitFromVehicle);
+              
+              console.log("UIT setat automat din vehicleInfo:", uitFromVehicle);
+              
+              toast({
+                title: "UIT configurat automat",
+                description: `UIT ${uitFromVehicle.uit} a fost configurat automat din informațiile vehiculului.`
+              });
+            }
+          }
         }, 500);
       } catch (error) {
         console.error("Eroare la obținerea UIT-urilor:", error);

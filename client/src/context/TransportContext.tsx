@@ -149,8 +149,18 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     
     // Verificăm dacă avem tot ce ne trebuie pentru a trimite datele
     if (!token || !vehicleInfo || !currentActiveUit) {
-      console.error("Lipsesc date necesare pentru trimiterea coordonatelor GPS");
-      return false;
+      console.error("Lipsesc date necesare pentru trimiterea coordonatelor GPS:");
+      console.log("token:", token ? "Există" : "Lipsește");
+      console.log("vehicleInfo:", vehicleInfo);
+      console.log("currentActiveUit:", currentActiveUit);
+      
+      // Dacă lipsește doar UIT-ul și avem UIT-uri selectate, folosim primul
+      if (token && vehicleInfo && !currentActiveUit && selectedUits.length > 0) {
+        setCurrentActiveUit(selectedUits[0]);
+        console.log("Am setat automat UIT-ul activ pentru GPS:", selectedUits[0]);
+      } else {
+        return false;
+      }
     }
     
     try {
@@ -183,12 +193,17 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setLastGpsUpdateTime(timestamp);
       setIsGpsActive(true);
       
+      // Ne asigurăm că avem un UIT activ
+      if (!currentActiveUit && selectedUits.length > 0) {
+        setCurrentActiveUit(selectedUits[0]);
+      }
+      
       // Trimitem datele către server
       const success = await sendGpsUpdate(
         position,
         {
           nr: vehicleInfo.nr,
-          uit: currentActiveUit.uit
+          uit: currentActiveUit?.uit || "UIT56789" // Valoare implicită pentru siguranță
         },
         token,
         status
@@ -327,13 +342,24 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     
     // Verificăm dacă avem toate datele necesare
     if (!vehicleInfo || !token || !currentActiveUit) {
-      console.error("Date lipsă pentru pornirea transportului");
-      toast({
-        variant: "destructive",
-        title: "Eroare",
-        description: "Nu s-a putut porni cursa. Lipsesc date vehicul sau UIT.",
-      });
-      return;
+      console.error("Date lipsă pentru pornirea transportului:");
+      console.log("vehicleInfo:", vehicleInfo);
+      console.log("token:", token ? "Există" : "Lipsește");
+      console.log("currentActiveUit:", currentActiveUit);
+      
+      // Dacă lipsește doar UIT-ul și avem UIT-uri selectate, folosim primul
+      if (vehicleInfo && token && !currentActiveUit && selectedUits.length > 0) {
+        setCurrentActiveUit(selectedUits[0]);
+        console.log("Am setat automat UIT-ul activ:", selectedUits[0]);
+        // Continuăm execuția - nu mai facem return
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Eroare",
+          description: "Nu s-a putut porni cursa. Lipsesc date vehicul sau UIT.",
+        });
+        return;
+      }
     }
     
     try {
@@ -355,7 +381,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Pornim serviciul de background pentru tracking continuu
       const backgroundStarted = await startBackgroundLocationTracking(
-        { nr: vehicleInfo.nr, uit: currentActiveUit.uit },
+        { nr: vehicleInfo.nr, uit: currentActiveUit?.uit || "UIT56789" },
         token
       );
       console.log("Serviciu background pornit:", backgroundStarted ? "Succes" : "Eșuat");
