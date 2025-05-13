@@ -1,141 +1,135 @@
-# Instrucțiuni pentru construirea aplicației mobile iTrack
+# Instrucțiuni pentru aplicația mobilă iTrack
 
-Această aplicație a fost configurată pentru a putea fi rulată ca aplicație mobilă pe platformele Android și iOS folosind Capacitor.
+## Configurare și construire
 
-## Metoda 1: Descărcare directă a APK-ului
+### Pregătire mediu de dezvoltare
 
-Pentru a instala rapid aplicația pe un dispozitiv Android:
+1. Instalați Node.js (v20 sau mai recent) și npm
+2. Clonați repository-ul: `git clone <url_repository>`
+3. Instalați dependențele: `npm install`
 
-1. Descărcați APK-ul de la: https://github.com/eusc/itrack/releases/download/v1.0/itrack-v1.0.apk
-2. Pe dispozitivul Android, permiteți instalarea din surse necunoscute în setări
-3. Deschideți fișierul APK descărcat și instalați aplicația
-4. La prima pornire, acordați aplicației toate permisiunile solicitate (locație, etc.)
+### Configurare Capacitor
 
-🔴 Dacă link-ul de mai sus nu funcționează, folosiți Metoda 2 pentru a construi APK-ul local.
-
-## Pași pentru construirea aplicației mobile
-
-### Pasul 1: Construiți aplicația web
-```bash
-npm run build
-```
-
-### Pasul 2: Sincronizați proiectul cu Capacitor
-```bash
-npx cap sync
-```
-
-### Pasul 3: Adăugați platforma Android
-```bash
-npx cap add android
-```
-
-### Pasul 4: Deschideți proiectul în Android Studio
-```bash
-npx cap open android
-```
-
-### Pasul 5: Construiți și rulați aplicația pe un dispozitiv sau emulator
-Din Android Studio:
-1. Selectați un dispozitiv sau emulator din lista de dispozitive
-2. Apăsați butonul "Run" (triunghiul verde)
-
-## Modificări aduse pentru compatibilitate mobilă
-
-Am implementat următoarele modificări pentru a asigura funcționarea corectă a aplicației pe dispozitive mobile:
-
-1. **Integrare Capacitor**: Am adăugat Capacitor pentru a putea converti aplicația web într-o aplicație nativă.
-2. **Acces la Geolocation**: Am implementat un serviciu compatibil cross-platform pentru accesul la GPS.
-3. **Background tracking**: Aplicația poate continua să trimită coordonate GPS chiar și când rulează în fundal.
-4. **UI Adaptat**: Interfața a fost optimizată pentru experiența mobilă.
-
-## Permisiuni necesare
-
-Pe Android, aplicația va cere următoarele permisiuni:
-- Acces la locație precisă
-- Acces la locație în fundal
-- Acces la rețea
-
-## Notă pentru iOS
-
-Pentru a construi aplicația pentru iOS, urmați pași similari, doar că la pasul 3 și 4, înlocuiți "android" cu "ios":
-
-```bash
-npx cap add ios
-npx cap open ios
-```
-
-Veți avea nevoie de un Mac cu Xcode instalat pentru a construi versiunea iOS.
-
-## Troubleshooting
-
-Dacă întâmpinați probleme:
-
-1. Asigurați-vă că aveți Java JDK și Android SDK instalate
-2. Verificați că toate dependențele sunt instalate: `npm install`
-3. Curățați cache-ul: `npx cap clean`
-4. Reîncercați sincronizarea: `npx cap sync`
-
-### Probleme de conectivitate API
-
-Dacă aplicația nu se poate conecta la API-ul extern când rulează pe dispozitiv:
-
-1. Verificați permisiunile de rețea în aplicație
-2. Asigurați-vă că aplicația are acces la internet
-3. Verificați dacă API-ul extern acceptă solicitări de pe dispozitivul mobil (CORS)
-4. În Android Studio, verificați logurile de rețea pentru a vedea dacă există erori de conectivitate
-5. Verificați în fișierul `android/app/src/main/AndroidManifest.xml` că aveți permisiunile necesare și configurația pentru trafic necriptat:
-
-   ```xml
-   <uses-permission android:name="android.permission.INTERNET" />
-   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-   <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-   <uses-permission android:name="android.permission.WAKE_LOCK" />
-   
-   <!-- În secțiunea <application> -->
-   <application
-       android:usesCleartextTraffic="true"
-       android:networkSecurityConfig="@xml/network_security_config">
-   </application>
+1. Adăugați platformele Capacitor:
+   ```bash
+   npx cap add android
+   npx cap add ios  # Doar pentru dezvoltare pe Mac
    ```
 
-6. Creați un fișier `android/app/src/main/res/xml/network_security_config.xml` cu următorul conținut:
-   
-   ```xml
-   <?xml version="1.0" encoding="utf-8"?>
-   <network-security-config>
-       <base-config cleartextTrafficPermitted="true">
-           <trust-anchors>
-               <certificates src="system" />
-           </trust-anchors>
-       </base-config>
-       <domain-config cleartextTrafficPermitted="true">
-           <domain includeSubdomains="true">www.euscagency.com</domain>
-       </domain-config>
-   </network-security-config>
+2. Construiți aplicația web:
+   ```bash
+   npm run build
    ```
 
-7. Asigurați-vă că în `capacitor.config.ts` aveți configurația corectă:
-   ```typescript
-   server: {
-     androidScheme: 'https',
-     cleartext: true
-   },
-   android: {
-     allowMixedContent: true,
-     webContentsDebuggingEnabled: true,
-     // ...
-   }
+3. Copiați fișierele construite în proiectul Capacitor:
+   ```bash
+   npx cap sync
    ```
 
-### Probleme cu autentificarea
+### Construire APK Android
 
-Dacă autentificarea nu funcționează pe dispozitivul mobil:
+1. Deschideți proiectul Android în Android Studio:
+   ```bash
+   npx cap open android
+   ```
 
-1. Verificați în consola Android Studio dacă există erori la încercarea de autentificare
-2. Asigurați-vă că folosiți aceleași credențiale care funcționează în versiunea web
-3. Verificați că URL-ul API-ului extern este corect în configurație (`https://www.euscagency.com/etsm3/platforme/transport/apk/login.php`)
-4. Verificați dacă la apelarea API-ului de autentificare se trimit datele în format corect (fără Content-Type header)
+2. În Android Studio:
+   - Asigurați-vă că aveți SDK-ul Android instalat (API level 33 sau mai recent)
+   - Configurați un dispozitiv virtual sau conectați un dispozitiv fizic
+   - Click pe "Build" > "Build Bundle(s) / APK(s)" > "Build APK(s)"
+   - APK-ul va fi generat în `android/app/build/outputs/apk/debug/app-debug.apk`
+
+Alternativ, puteți folosi script-ul automatizat:
+```bash
+./build-apk.sh
+```
+
+## Configurații importante
+
+### AndroidManifest.xml
+
+Asigurați-vă că `android/app/src/main/AndroidManifest.xml` conține permisiunile necesare:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+```
+
+De asemenea, aplicația trebuie să permită traficul necriptat:
+
+```xml
+<application
+    android:usesCleartextTraffic="true"
+    android:networkSecurityConfig="@xml/network_security_config">
+    <!-- ... -->
+</application>
+```
+
+### Network Security Config
+
+Creați sau modificați `android/app/src/main/res/xml/network_security_config.xml`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">euscagency.com</domain>
+    </domain-config>
+</network-security-config>
+```
+
+### Capacitor Config
+
+În `capacitor.config.ts`:
+
+```typescript
+import { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.euscagency.itrack',
+  appName: 'iTrack',
+  webDir: 'dist',
+  server: {
+    androidScheme: 'https'
+  },
+  plugins: {
+    CapacitorHttp: {
+      enabled: true
+    }
+  }
+};
+
+export default config;
+```
+
+## Rezolvarea problemelor
+
+### Probleme CORS
+
+Dacă întâmpinați probleme CORS în aplicația mobilă, asigurați-vă că folosiți plugin-ul `@capacitor-community/http` pentru comunicarea cu API-ul extern. Verificați documentul `CORS_MOBILE_IMPLEMENTATION.md` pentru detalii complete.
+
+### Probleme de rețea
+
+1. Verificați că dispozitivul are conexiune la internet
+2. Verificați că aplicația are permisiunile necesare pentru a accesa internetul
+3. Verificați că serverul API este accesibil
+4. Asigurați-vă că configurația de securitate a rețelei permite traficul către domeniul API-ului
+5. Verificați logurile pentru a vedea erorile specifice
+
+### Probleme GPS și locație
+
+1. Asigurați-vă că serviciile de localizare sunt activate pe dispozitiv
+2. Verificați că aplicația are permisiunile necesare pentru a accesa locația
+3. Testați într-o zonă cu semnal GPS bun
+4. Verificați că timpul este sincronizat corect pe dispozitiv
+5. Verificați că aplicația are permisiunea de a rula în background, altfel tracking-ul se va opri când aplicația este minimizată

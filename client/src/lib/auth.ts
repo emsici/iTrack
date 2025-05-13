@@ -3,6 +3,11 @@ import { apiRequest } from "./queryClient";
 import { Http } from '@capacitor-community/http';
 import { Capacitor } from '@capacitor/core';
 
+// Helper pentru a verifica dacă suntem pe dispozitiv nativ
+export const isNativePlatform = (): boolean => {
+  return Capacitor.isNativePlatform();
+};
+
 export const loginUser = async (credentials: Login) => {
   try {
     console.log("Încercare autentificare cu email:", credentials.email);

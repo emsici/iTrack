@@ -11,6 +11,9 @@ const config = {
     cleartext: true
   },
   plugins: {
+    CapacitorHttp: {
+      enabled: true
+    },
     Geolocation: {
       // Geolocation permissions
       permissions: {
