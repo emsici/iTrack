@@ -1,6 +1,17 @@
-# Instrucțiuni pentru construirea aplicației mobile
+# Instrucțiuni pentru construirea aplicației mobile iTrack
 
 Această aplicație a fost configurată pentru a putea fi rulată ca aplicație mobilă pe platformele Android și iOS folosind Capacitor.
+
+## Metoda 1: Descărcare directă a APK-ului
+
+Pentru a instala rapid aplicația pe un dispozitiv Android:
+
+1. Descărcați APK-ul de la: https://github.com/eusc/itrack/releases/download/v1.0/itrack-v1.0.apk
+2. Pe dispozitivul Android, permiteți instalarea din surse necunoscute în setări
+3. Deschideți fișierul APK descărcat și instalați aplicația
+4. La prima pornire, acordați aplicației toate permisiunile solicitate (locație, etc.)
+
+🔴 Dacă link-ul de mai sus nu funcționează, folosiți Metoda 2 pentru a construi APK-ul local.
 
 ## Pași pentru construirea aplicației mobile
 
@@ -73,6 +84,24 @@ Dacă aplicația nu se poate conecta la API-ul extern când rulează pe dispozit
 2. Asigurați-vă că aplicația are acces la internet
 3. Verificați dacă API-ul extern acceptă solicitări de pe dispozitivul mobil (CORS)
 4. În Android Studio, verificați logurile de rețea pentru a vedea dacă există erori de conectivitate
+5. Verificați în fișierul `android/app/src/main/AndroidManifest.xml` că aveți permisiunile:
+   ```xml
+   <uses-permission android:name="android.permission.INTERNET" />
+   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+   <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+   <uses-permission android:name="android.permission.WAKE_LOCK" />
+   ```
+6. Asigurați-vă că în `capacitor.config.ts` aveți configurația corectă:
+   ```typescript
+   server: {
+     androidScheme: 'https',
+     url: '[URL-ul serverului de dezvoltare]',
+     cleartext: true
+   },
+   ```
 
 ### Probleme cu autentificarea
 
