@@ -15,7 +15,7 @@ export default function LocationTracking() {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-medium text-secondary-800 mb-4">Locație curentă</h3>
+      <h3 className="text-lg font-medium text-secondary-800 mb-4">iTrack</h3>
       
       <div className="bg-secondary-100 rounded-lg h-56 relative overflow-hidden mb-4">
         {/* Map placeholder - in a real implementation, this would be a proper map */}

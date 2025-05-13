@@ -3,6 +3,7 @@ import { useAuth } from "./AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { CapacitorGeoService } from "@/lib/capacitorService";
 import { sendGpsUpdate } from "@/lib/gpsService";
+import { startBackgroundLocationTracking, stopBackgroundLocationTracking, isBackgroundServiceActive } from "@/lib/backgroundService";
 
 type TransportStatus = "inactive" | "active" | "paused" | "finished";
 
@@ -37,6 +38,7 @@ interface TransportContextType {
   isGpsActive: boolean;
   lastGpsUpdateTime: string | null;
   battery: number;
+  isBackgroundActive: boolean; // Adăugăm indicator pentru serviciul de background
 }
 
 const TransportContext = createContext<TransportContextType | undefined>(undefined);
