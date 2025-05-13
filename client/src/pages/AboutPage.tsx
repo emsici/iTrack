@@ -35,7 +35,7 @@ export default function AboutPage() {
   return (
     <Layout>
       <section>
-        <div className="bg-white rounded-lg shadow-md p-4">
+        <div className="bg-white rounded-lg shadow-md p-4 mt-6">
           <h2 className="text-xl font-bold text-secondary-800 mb-4">Despre aplicație</h2>
           
           <div className="prose max-w-none text-sm">
@@ -69,7 +69,7 @@ export default function AboutPage() {
             
             <h3 className="text-base font-medium text-secondary-800 mt-3 mb-2">Contact suport</h3>
             <p>
-              Dacă întâmpinați probleme, contactați echipa de suport la adresa de email <a href="mailto:support@itrack.ro" className="text-primary-600 hover:underline">support@itrack.ro</a> sau la numărul de telefon <a href="tel:+40212345678" className="text-primary-600 hover:underline">021 234 5678</a>.
+              Dacă întâmpinați probleme, contactați echipa de suport la adresa de email <a href="mailto:support@itrack.ro" className="text-primary-600 hover:underline">support@transportgps.ro</a> sau la numărul de telefon <a href="tel:+40212345678" className="text-primary-600 hover:underline">021 234 5678</a>.
             </p>
           </div>
         </div>

@@ -1,12 +1,13 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useTransport } from "@/context/TransportContext";
 import { useAuth } from "@/context/AuthContext";
-import { Battery, Signal, Wifi, MapPin, LogOut } from "lucide-react";
-import { Link } from "wouter";
+import { Battery, Signal, Wifi, MapPin, LogOut, Truck, Info } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
 export default function MobileHeader() {
   const { isGpsActive, battery, gpsCoordinates } = useTransport();
   const { logout, vehicleInfo } = useAuth();
+  const [location] = useLocation();
   
   const getBatteryColor = useCallback(() => {
     if (battery > 50) return "text-success";
@@ -17,6 +18,10 @@ export default function MobileHeader() {
   const getGpsIndicatorColor = useCallback(() => {
     return isGpsActive ? "text-success" : "text-destructive";
   }, [isGpsActive]);
+  
+  const isActivePage = useCallback((path: string) => {
+    return location === path;
+  }, [location]);
   
   const handleLogout = () => {
     if (confirm("Sigur doriți să vă deconectați?")) {
@@ -54,14 +59,34 @@ export default function MobileHeader() {
         </div>
       </div>
       
-      {/* Sub-header with navigation */}
-      <nav className="flex justify-around mt-2 pt-2 border-t border-blue-600">
-        <Link href="/transport" className="text-xs flex-1 mx-1 py-1.5 bg-white text-blue-700 font-medium rounded-md hover:bg-blue-50 text-center">
-          Transport
-        </Link>
-        <Link href="/about" className="text-xs flex-1 mx-1 py-1.5 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-500 text-center">
-          Despre
-        </Link>
+      {/* Tab navigation menu */}
+      <nav className="mt-3 pt-2 border-t border-blue-600">
+        <div className="flex justify-around relative">
+          {/* Active Tab Indicator - se mișcă în funcție de tab-ul activ */}
+          <div className={`absolute bottom-0 h-1 bg-white rounded-t-md transition-all duration-300 w-1/2 ${
+            isActivePage('/transport') ? 'left-0' : 'left-1/2'
+          }`}></div>
+          
+          {/* Transport Tab */}
+          <Link href="/transport" className={`relative flex items-center justify-center py-2 flex-1 transition-colors ${
+            isActivePage('/transport') 
+              ? 'text-white font-medium' 
+              : 'text-blue-200 hover:text-white'
+          }`}>
+            <Truck className={`h-4 w-4 mr-1 ${isActivePage('/transport') ? 'text-white' : 'text-blue-200'}`} />
+            <span className="text-sm">Transport</span>
+          </Link>
+          
+          {/* Despre Tab */}
+          <Link href="/about" className={`relative flex items-center justify-center py-2 flex-1 transition-colors ${
+            isActivePage('/about') 
+              ? 'text-white font-medium' 
+              : 'text-blue-200 hover:text-white'
+          }`}>
+            <Info className={`h-4 w-4 mr-1 ${isActivePage('/about') ? 'text-white' : 'text-blue-200'}`} />
+            <span className="text-sm">Despre</span>
+          </Link>
+        </div>
       </nav>
     </header>
   );

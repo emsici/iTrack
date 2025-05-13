@@ -217,7 +217,7 @@ export default function TransportControls() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-4">
       <Card className="bg-white rounded-lg shadow-md">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center">
