@@ -37,14 +37,16 @@ export default function UitSelector() {
 
   const { vehicleInfo } = useAuth();
 
-  // Obținem lista de UIT-uri disponibile la încărcarea componentei
+  // Obținem lista de UIT-uri disponibile la încărcarea componentei sau când se modifică vehicleInfo
   useEffect(() => {
+    console.log("UitSelector - useEffect - vehicleInfo:", vehicleInfo);
+    
     const fetchUits = async () => {
       setIsLoading(true);
       try {
         // În implementarea reală, aici ar trebui să faceți un apel API pentru a obține UIT-urile disponibile
         // Preluăm UIT-urile disponibile - ne asigurăm că UIT12345 este primul, pentru a se potrivi cu vehicleInfo
-        const mockUits: UitOption[] = [
+        let mockUits: UitOption[] = [
           { uit: "UIT12345", start_locatie: "București", stop_locatie: "Cluj" },
           { uit: "UIT56789", start_locatie: "Oradea", stop_locatie: "Arad" },
           { uit: "UIT23456", start_locatie: "Cluj", stop_locatie: "Timișoara" },
@@ -89,7 +91,7 @@ export default function UitSelector() {
     };
 
     fetchUits();
-  }, [token]);
+  }, [token, vehicleInfo]); // Am adăugat vehicleInfo în dependențe pentru a reacționa la schimbări
 
   // Funcție pentru adăugarea unui UIT în lista de selectate
   const addUit = () => {
