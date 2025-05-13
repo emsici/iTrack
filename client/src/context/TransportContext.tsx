@@ -558,8 +558,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         throw new Error("Nu s-a putut iniția tracking-ul GPS");
       }
       
-      // Dacă tracking-ul GPS a pornit cu succes, schimbăm starea transportului
+      // Dacă tracking-ul GPS a pornit cu succes, schimbăm starea transportului și activăm GPS-ul
       setTransportStatus("active");
+      
+      // Activăm explicit GPS-ul DUPĂ ce am setat transportul activ
+      setIsGpsActive(true);
+      console.log("GPS ACTIVAT explicit la pornirea transportului");
       
       // Pornim serviciul de background pentru tracking continuu
       const backgroundStarted = await startBackgroundLocationTracking(
@@ -668,6 +672,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Schimbăm starea transportului
       setTransportStatus("paused");
       
+      // Dezactivăm explicit GPS-ul DUPĂ ce am setat transportul în pauză
+      setIsGpsActive(false);
+      console.log("GPS DEZACTIVAT explicit la punerea transportului în pauză");
+      
       // Anunțăm utilizatorul
       toast({
         title: "Transport în pauză",
@@ -723,6 +731,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Schimbăm starea transportului
       setTransportStatus("active");
+      
+      // Activăm explicit GPS-ul DUPĂ ce am setat transportul activ
+      setIsGpsActive(true);
+      console.log("GPS ACTIVAT explicit la reluarea transportului");
       
       // Repornim serviciul de background
       const backgroundStarted = await startBackgroundLocationTracking(
