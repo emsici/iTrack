@@ -52,6 +52,8 @@ const TransportContext = createContext<TransportContextType | undefined>(undefin
 export function TransportProvider({ children }: { children: ReactNode }) {
   // State pentru transport
   const [transportStatus, setTransportStatus] = useState<TransportStatus>("inactive");
+  // Referință pentru a urmări starea curentă a transportului în cadrul callback-urilor fără re-renderări
+  const transportStatusRef = useRef<TransportStatus>("inactive");
   
   // State pentru GPS și informații despre poziție
   const [gpsCoordinates, setGpsCoordinates] = useState<GpsCoordinates | null>(null);
@@ -67,6 +69,11 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   // Accesăm autentificarea și toast
   const { token, vehicleInfo } = useAuth();
   const { toast } = useToast();
+  
+  // Actualizăm referința ori de câte ori se modifică statusul transportului
+  useEffect(() => {
+    transportStatusRef.current = transportStatus;
+  }, [transportStatus]);
   
   // Referințe pentru timer și watcher
   const gpsTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -304,12 +311,21 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       gpsTimerRef.current = setInterval(async () => {
         // IMPORTANT: Verificăm cu strictețe că transportul este ACTIV
         // Nu trimitem coordonate dacă transportul este în pauză sau finalizat
-        if (transportStatus === "active") {
+        const currentTransportStatus = transportStatusRef.current;
+        
+        if (currentTransportStatus === "active") {
           console.log("Timer declanșat - Transport ACTIV - Se trimit coordonate GPS");
           const sendSuccess = await sendGpsData("in_progress");
           console.log("Trimitere periodică coordonate GPS (in_progress):", sendSuccess ? "Succes" : "Eșuată");
         } else {
-          console.log("Timer declanșat - Transport NU este activ (status: " + transportStatus + ") - NU se trimit coordonate GPS");
+          console.log("Timer declanșat - Transport NU este activ (status: " + currentTransportStatus + ") - NU se trimit coordonate GPS");
+          
+          // Ștergem timer-ul dacă transportul nu mai este activ pentru a evita trimiteri nedorite
+          if (gpsTimerRef.current && (currentTransportStatus === "paused" || currentTransportStatus === "finished" || currentTransportStatus === "inactive")) {
+            console.log("Oprire timer GPS - transport inactiv/pauză/finalizat");
+            clearInterval(gpsTimerRef.current);
+            gpsTimerRef.current = null;
+          }
         }
       }, updateInterval);
       
