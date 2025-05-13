@@ -171,10 +171,11 @@ export const sendGpsUpdate = async (
     // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
     const isNative = Capacitor.isNativePlatform();
     
-    // URL-ul API extern
+    // URL-ul API extern - pentru dispozitive native
     const apiExternUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
     
     // În browser, folosim proxy-ul pentru a evita problemele CORS
+    // IMPORTANT: Asigurăm-ne că URL-ul corespunde cu endpoint-ul definit în server/routes.ts și server/routes/transportRoutes.ts
     const apiUrl = "/api/transport/gps";
     
     // Log foarte explicit pentru a vedea ce se trimite

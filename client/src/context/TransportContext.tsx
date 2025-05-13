@@ -2,7 +2,7 @@ import { ReactNode, createContext, useCallback, useContext, useEffect, useRef, u
 import { useAuth } from './AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { CapacitorGeoService } from '@/lib/capacitorService';
-import { getCurrentPosition, sendGpsData } from "@/lib/transportService";
+import { getCurrentPosition } from "@/lib/transportService";
 import { sendGpsUpdate } from "@/lib/gpsService";
 import { startBackgroundLocationTracking, stopBackgroundLocationTracking, isBackgroundServiceActive } from "@/lib/backgroundService";
 import { setupConnectivityListeners, syncOfflineData, checkGpsAvailability } from "@/lib/connectivityService";
@@ -232,10 +232,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         
         // Trimite datele către server doar dacă transportul este activ
         if (transportStatusRef.current === "active") {
-          await sendGpsData(position, {
+          await sendGpsUpdate(position, {
             nr: vehicleInfo.nr,
             uit: currentActiveUit.uit
-          }, token);
+          }, token, "in_progress");
           console.log("Poziție GPS inițială trimisă");
         }
       } catch (error) {
