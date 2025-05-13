@@ -2,6 +2,7 @@ import { createContext, useContext, useState, ReactNode, useRef, useCallback, us
 import { useAuth } from "./AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { CapacitorGeoService } from "@/lib/capacitorService";
+import { sendGpsUpdate } from "@/lib/gpsService";
 
 type TransportStatus = "inactive" | "active" | "paused" | "finished";
 
@@ -88,61 +89,54 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const sendGpsData = useCallback(async () => {
+  const sendGpsData = useCallback(async (status: "in_progress" | "finished" = "in_progress") => {
     if (!token || !vehicleInfo || !isGpsActive || !currentActiveUit) return;
     
     try {
       // Obține poziția folosind serviciul Capacitor
       const position = await getCurrentPosition();
       
-      // Extrage și procesează coordonatele
-      const { latitude, longitude, altitude } = position.coords;
-      
-      // Calculează viteza (verifică dacă e disponibilă și convert din m/s în km/h)
-      const speed = position.coords.speed ? position.coords.speed * 3.6 : 0;
-      
-      // Formatul de timestamp pentru server
-      const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
-      
-      // Obține direcția (heading) dacă e disponibilă
-      const heading = position.coords.heading || 0;
-      
-      // Simulează descărcarea bateriei (scade cu 0.5% pentru fiecare minut)
+      // Scade bateria (simulare pentru test)
       const newBattery = Math.max(1, battery - 0.5);
       setBattery(newBattery);
       
-      // Construiește obiectul cu datele GPS pentru transmitere
-      const gpsData = {
-        lat: latitude,
-        lng: longitude,
-        timestamp,
-        viteza: speed,
-        directie: heading,
-        altitudine: altitude || 0,
-        baterie: Math.round(newBattery),
-        numar_inmatriculare: vehicleInfo.nr,
-        uit: currentActiveUit.uit  // Folosim UIT-ul activ selectat
-      };
-      
-      // Actualizează starea în aplicație
-      setGpsCoordinates(gpsData);
-      setLastGpsUpdateTime(timestamp);
-      
-      // Trimite datele către server (prin proxy local pentru a evita CORS)
-      const response = await fetch("/api/gps", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+      // Trimite datele GPS folosind serviciul dedicat
+      const success = await sendGpsUpdate(
+        position,
+        {
+          nr: vehicleInfo.nr,
+          uit: currentActiveUit.uit
         },
-        body: JSON.stringify(gpsData)
-      });
+        token,
+        status // Transmitem statusul transportului (in_progress sau finished)
+      );
       
-      if (!response.ok) {
-        throw new Error(`Failed to send GPS data: ${response.statusText}`);
+      if (success) {
+        // Formatăm timestamp-ul pentru a-l afișa în UI
+        const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
+        
+        // Actualizăm starea în UI cu datele de la senzori
+        const { latitude, longitude, altitude, speed, heading } = position.coords;
+        const speedKmh = speed ? speed * 3.6 : 0;
+        
+        const gpsData = {
+          lat: latitude,
+          lng: longitude,
+          timestamp,
+          viteza: speedKmh,
+          directie: heading || 0,
+          altitudine: altitude || 0,
+          baterie: Math.round(newBattery),
+          numar_inmatriculare: vehicleInfo.nr,
+          uit: currentActiveUit.uit
+        };
+        
+        // Actualizăm starea aplicației
+        setGpsCoordinates(gpsData);
+        setLastGpsUpdateTime(timestamp);
+      } else {
+        throw new Error("Nu s-a putut trimite actualizarea GPS");
       }
-      
-      // Optional: update UI with success indicator
     } catch (error) {
       console.error("Error sending GPS data:", error);
       toast({
@@ -156,11 +150,11 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const startGpsTracking = useCallback(() => {
     setIsGpsActive(true);
     
-    // Trimite poziția inițială imediat
-    sendGpsData();
+    // Trimite poziția inițială imediat cu status "in_progress"
+    sendGpsData("in_progress");
     
     // Configurează timer pentru a trimite date GPS la fiecare minut
-    gpsTimerRef.current = setInterval(sendGpsData, 60000); // 60000ms = 1 minut
+    gpsTimerRef.current = setInterval(() => sendGpsData("in_progress"), 60000); // 60000ms = 1 minut
     
     // Începe urmărirea poziției folosind Capacitor (pentru actualizări în timp real în interfață)
     const startWatchPosition = async () => {
@@ -272,8 +266,13 @@ export function TransportProvider({ children }: { children: ReactNode }) {
 
   const finishTransport = async () => {
     try {
+      // Trimitem datele GPS finale cu status "finished"
+      await sendGpsData("finished");
+      
+      // Actualizăm starea transportului
       setTransportStatus("finished");
       stopGpsTracking();
+      
       toast({
         title: "Transport finalizat",
         description: "Cursa a fost încheiată cu succes.",

@@ -41,9 +41,6 @@ export default function TransportPage() {
     <TransportProvider>
       <Layout>
         <section className="p-4">
-          <h1 className="text-2xl font-bold text-secondary-800 mb-4">
-            Gestionare Transport
-          </h1>
           <TransportControls />
           <LocationTracking />
         </section>

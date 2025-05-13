@@ -228,7 +228,6 @@ export default function TransportControls() {
                         {getStatusText(transport.status, transport.isTracking)}
                       </span>
                     </div>
-                    <span className="text-xs text-secondary-500">Baterie: {Math.round(battery)}%</span>
                   </div>
                 </div>
                 

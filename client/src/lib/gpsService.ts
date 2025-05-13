@@ -1,43 +1,77 @@
-import { GpsDataPayload } from "@shared/schema";
-import { apiRequest } from "./queryClient";
+import { Position } from "@capacitor/geolocation";
 
+export type GpsDataPayload = {
+  lat: number;
+  lng: number;
+  timestamp: string;
+  viteza: number;
+  directie: number;
+  altitudine: number;
+  baterie: number;
+  numar_inmatriculare: string;
+  uit: string;
+  status?: string; // Adăugăm statusul pentru a indica starea transportului
+};
+
+// Funcție pentru trimiterea datelor GPS către server
 export const sendGpsUpdate = async (
-  position: GeolocationPosition, 
-  vehicleNumber: string, 
-  uitNumber: string, 
-  batteryLevel: number,
-  token: string
-) => {
+  position: Position, 
+  vehicleInfo: { 
+    nr: string; 
+    uit: string 
+  }, 
+  token: string,
+  transportStatus: "in_progress" | "finished" = "in_progress"
+): Promise<boolean> => {
   try {
-    const { latitude, longitude, altitude } = position.coords;
-    const speed = position.coords.speed ? position.coords.speed * 3.6 : 0; // Convert m/s to km/h
+    if (!position || !vehicleInfo || !token) {
+      console.error("Date lipsă pentru trimiterea actualizării GPS");
+      return false;
+    }
+
+    // Formatează timestamp-ul pentru server
     const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
     
+    // Extrage și formatează coordonatele
+    const { latitude, longitude, altitude, speed, heading } = position.coords;
+    
+    // Calculează viteza (din m/s în km/h dacă e disponibilă)
+    const speedKmh = speed ? speed * 3.6 : 0;
+    
+    // Simulează nivelul bateriei (pentru demo)
+    const batteryLevel = 75; // Într-o implementare reală, am obține nivelul real al bateriei
+    
+    // Construiește payload-ul pentru API
     const gpsData: GpsDataPayload = {
       lat: latitude,
       lng: longitude,
-      timestamp,
-      viteza: speed,
-      directie: 0, // We don't have a way to get direction, so set to 0
+      timestamp: timestamp,
+      viteza: speedKmh,
+      directie: heading || 0,
       altitudine: altitude || 0,
-      baterie: Math.round(batteryLevel),
-      numar_inmatriculare: vehicleNumber,
-      uit: uitNumber
+      baterie: batteryLevel,
+      numar_inmatriculare: vehicleInfo.nr,
+      uit: vehicleInfo.uit,
+      status: transportStatus // Adăugăm status-ul transportului
     };
     
-    const response = await apiRequest(
-      "POST",
-      "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php",
-      gpsData
-    );
+    // Trimite datele către server prin proxy-ul local
+    const response = await fetch("/api/transport/gps", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(gpsData)
+    });
     
-    return {
-      success: response.ok,
-      data: gpsData,
-      response
-    };
+    if (!response.ok) {
+      throw new Error(`Eroare la trimiterea datelor GPS: ${response.statusText}`);
+    }
+    
+    return true;
   } catch (error) {
-    console.error("Error sending GPS update:", error);
-    throw error;
+    console.error("Eroare la trimiterea coordonatelor GPS:", error);
+    return false;
   }
 };

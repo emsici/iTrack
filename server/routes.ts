@@ -55,40 +55,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // GPS data endpoint - proxy to external API
+  // Redirecționează vechiul endpoint GPS către noul endpoint din transportRoutes
   app.post("/api/gps", async (req, res) => {
-    try {
-      const validatedData = gpsDataSchema.parse(req.body);
-      
-      // Store GPS data in local storage for tracking purposes
-      await storage.saveGpsData({
-        vehicleId: 1, // Placeholder since we don't have a real vehicle ID
-        uit: validatedData.uit,
-        registrationNumber: validatedData.numar_inmatriculare,
-        lat: validatedData.lat,
-        lng: validatedData.lng,
-        timestamp: new Date(validatedData.timestamp),
-        speed: validatedData.viteza,
-        direction: validatedData.directie,
-        altitude: validatedData.altitudine,
-        battery: validatedData.baterie
-      });
-      
-      // Forward request to the external API
-      const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": req.headers.authorization || ""
-        },
-        body: JSON.stringify(validatedData)
-      });
-      
-      const data = await response.json();
-      return res.status(response.status).json(data);
-    } catch (error) {
-      return res.status(400).json({ message: "Invalid GPS data" });
-    }
+    res.redirect(307, "/api/transport/gps"); // 307 păstrează metoda HTTP și body-ul
   });
 
   const httpServer = createServer(app);
