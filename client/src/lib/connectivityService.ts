@@ -105,7 +105,7 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
     }
     
     // Trimitem fiecare batch în serie, nu în paralel, pentru a evita supraîncărcarea serverului
-    let failedRecords = [];
+    let failedRecords: Array<any> = [];
     
     for (const batch of batches) {
       // Pentru fiecare înregistrare din batch, încercăm să o trimitem
@@ -159,7 +159,14 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
   }
 };
 
+// Define the type for stored GPS records
+export interface StoredGpsRecord {
+  data: any;
+  timestamp: number;
+  status: string;
+}
+
 // Function to get offline data with proper typing
-const getOfflineData = () => {
+const getOfflineData = (): StoredGpsRecord[] => {
   return getOfflineGpsData();
 };

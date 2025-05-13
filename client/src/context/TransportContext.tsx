@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CapacitorGeoService } from "@/lib/capacitorService";
 import { sendGpsUpdate } from "@/lib/gpsService";
 import { startBackgroundLocationTracking, stopBackgroundLocationTracking, isBackgroundServiceActive } from "@/lib/backgroundService";
+import { setupConnectivityListeners, syncOfflineData, checkGpsAvailability } from "@/lib/connectivityService";
 
 type TransportStatus = "inactive" | "active" | "paused" | "finished";
 
@@ -61,9 +62,27 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   // Reference pentru a ține evidența watching position
   const watchPositionRef = useRef<{ clearWatch: () => void } | null>(null);
   
-  // Clean up timer și watch position la unmount
+  // Inițializăm monitorizarea conectivității
   useEffect(() => {
+    // Setup listeners pentru conectivitate
+    setupConnectivityListeners((isConnected) => {
+      if (isConnected && transportStatus === "active") {
+        // Când conexiunea este restabilită, încercăm să sincronizăm datele
+        syncOfflineData(token || undefined).then((success) => {
+          if (success) {
+            console.log("Date offline sincronizate cu succes");
+          } else {
+            console.log("Sincronizare parțială a datelor offline");
+          }
+        });
+      }
+    });
+    
+    // Verifică GPS-ul inițial
+    checkGpsAvailability();
+    
     return () => {
+      // Clean up
       if (gpsTimerRef.current) {
         clearInterval(gpsTimerRef.current);
       }
@@ -71,7 +90,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         watchPositionRef.current.clearWatch();
       }
     };
-  }, []);
+  }, [token, transportStatus]);
 
   // Folosește CapacitorGeoService importat mai sus
   
