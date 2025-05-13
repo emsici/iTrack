@@ -1,6 +1,5 @@
 import { useTransport } from "@/context/TransportContext";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Activity, Clock, Navigation } from "lucide-react";
 
 export default function LocationTracking() {
   const { gpsCoordinates, isGpsActive, lastGpsUpdateTime, isBackgroundActive } = useTransport();
@@ -16,9 +15,30 @@ export default function LocationTracking() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-medium text-secondary-800">Monitorizare GPS</h3>
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-medium text-secondary-800">iTrack</h3>
+
+
+        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+            <div className="flex-1 p-3 bg-secondary-50 rounded-md">
+              <p className="text-xs text-secondary-500 mb-1">Latitudine</p>
+              <p className="font-medium">{gpsCoordinates?.lat.toFixed(6) || "-"}</p>
+            </div>
+            <div className="flex-1 p-3 bg-secondary-50 rounded-md">
+              <p className="text-xs text-secondary-500 mb-1">Longitudine</p>
+              <p className="font-medium">{gpsCoordinates?.lng.toFixed(6) || "-"}</p>
+            </div>
+            <div className="flex-1 p-3 bg-secondary-50 rounded-md">
+              <p className="text-xs text-secondary-500 mb-1">Viteză</p>
+              <p className="font-medium">{gpsCoordinates ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "0 km/h"}</p>
+            </div>
+            <div className="flex-1 p-3 bg-secondary-50 rounded-md">
+              <p className="text-xs text-secondary-500 mb-1">Ultima actualizare</p>
+              <p className="font-medium">{formatTime(lastGpsUpdateTime)}</p>
+            </div>
+          </div>
+        </div>
         {isGpsActive && isBackgroundActive && (
           <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
             Funcționează în background
@@ -26,39 +46,6 @@ export default function LocationTracking() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <div className="p-2 bg-blue-50 rounded-md">
-          <div className="flex items-center mb-1">
-            <MapPin className="h-3 w-3 mr-1 text-blue-500" />
-            <p className="text-xs text-secondary-500">Latitudine</p>
-          </div>
-          <p className="font-medium">{gpsCoordinates?.lat.toFixed(6) || "-"}</p>
-        </div>
-        
-        <div className="p-2 bg-blue-50 rounded-md">
-          <div className="flex items-center mb-1">
-            <MapPin className="h-3 w-3 mr-1 text-blue-500" />
-            <p className="text-xs text-secondary-500">Longitudine</p>
-          </div>
-          <p className="font-medium">{gpsCoordinates?.lng.toFixed(6) || "-"}</p>
-        </div>
-        
-        <div className="p-2 bg-blue-50 rounded-md">
-          <div className="flex items-center mb-1">
-            <Activity className="h-3 w-3 mr-1 text-green-500" />
-            <p className="text-xs text-secondary-500">Viteză</p>
-          </div>
-          <p className="font-medium">{gpsCoordinates ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "0.0 km/h"}</p>
-        </div>
-        
-        <div className="p-2 bg-blue-50 rounded-md">
-          <div className="flex items-center mb-1">
-            <Clock className="h-3 w-3 mr-1 text-orange-500" />
-            <p className="text-xs text-secondary-500">Ultima actualizare</p>
-          </div>
-          <p className="font-medium">{formatTime(lastGpsUpdateTime)}</p>
-        </div>
-      </div>
-    </div>
+  
   );
 }

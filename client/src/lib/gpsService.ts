@@ -143,21 +143,11 @@ export const sendGpsUpdate = async (
     
     // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
     const isNative = Capacitor.isNativePlatform();
-    // Verificăm dacă suntem în mod dezvoltare
-    const isLocalDev = !!import.meta.env.DEV;
     
-    // Alegem URL-ul în funcție de mediu
-    let apiUrl;
-    if (isNative && isLocalDev) {
-      // Aplicație nativă în dezvoltare - folosește serverul Replit
-      apiUrl = "https://813298f8-355d-45c8-a208-8d8351cf88a4-00-2axpe8ckrdbyo.riker.replit.dev/api/transport/gps";
-    } else if (isNative && !isLocalDev) {
-      // Aplicație nativă în producție - folosește API-ul direct
-      apiUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
-    } else {
-      // Browser - folosim întotdeauna proxy-ul
-      apiUrl = "/api/transport/gps";
-    }
+    // URL-ul API-ului diferă în funcție de mediu
+    const apiUrl = isNative 
+      ? "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php"
+      : "/api/transport/gps";
     
     // Log foarte explicit pentru a vedea ce se trimite
     console.log(`TRANSMITERE GPS: Nr. înmatriculare="${nr_inmatriculare}", UIT="${uit_value}", Status="${status}"`);

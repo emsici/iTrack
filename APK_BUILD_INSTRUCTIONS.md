@@ -30,8 +30,6 @@ Verificați fișierul `capacitor.config.ts` și asigurați-vă că are următoar
 // ...
 server: {
   androidScheme: 'https',
-  // Pentru versiunea de producție, comentați linia de mai jos:
-  // url: 'https://813298f8-355d-45c8-a208-8d8351cf88a4-00-2axpe8ckrdbyo.riker.replit.dev',
   cleartext: true
 },
 // ...
@@ -83,10 +81,12 @@ adb install android/app/build/outputs/apk/debug/app-debug.apk
 
 ## Configurarea pentru producție
 
-Pentru a configura aplicația pentru mediul de producție, modificați fișierele:
+Pentru a configura aplicația pentru mediul de producție:
 
-1. `client/src/lib/auth.ts` - Asigurați-vă că rutele API pentru producție sunt corecte
-2. `capacitor.config.ts` - Comentați linia `url` pentru a permite comunicarea directă cu API-ul extern
+1. Verificați că API URL-urile sunt setate corect în:
+   - `client/src/lib/auth.ts` - Pentru autentificare
+   - `client/src/lib/gpsService.ts` - Pentru trimiterea coordonatelor GPS
+2. Asigurați-vă că `capacitor.config.ts` are configurația corectă pentru server, fără URL-uri către Replit
 
 ## Rezolvarea problemelor comune
 
