@@ -46,86 +46,48 @@ export default function MobileHeader() {
     // Validăm numărul de înmatriculare (doar litere mari și cifre, fără caractere speciale)
     const trimmedValue = newRegistrationNumber.trim().toUpperCase();
     
-    if (trimmedValue !== '') {
-      // Validăm formatul (doar litere și cifre)
-      if (!/^[A-Z0-9]+$/.test(trimmedValue)) {
-        toast({
-          title: "Format invalid",
-          description: "Numărul de înmatriculare trebuie să conțină doar litere și cifre, fără spații sau caractere speciale.",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      try {
-        // În mediul de dezvoltare, tratăm special erorile
-        if (import.meta.env.DEV) {
-          try {
-            const result = await registerVehicle(trimmedValue);
-            if (result) {
-              toast({
-                title: "Vehicul actualizat",
-                description: `Numărul de înmatriculare a fost schimbat în ${trimmedValue}`,
-                variant: "default",
-              });
-              setIsEditingVehicle(false);
-            } else {
-              // În mediul de dezvoltare, simulăm succesul chiar dacă API-ul extern eșuează
-              console.log("Simulăm succes pentru actualizare număr înmatriculare în mediul de dezvoltare");
-              toast({
-                title: "Vehicul actualizat (DEV)",
-                description: `Numărul de înmatriculare a fost schimbat în ${trimmedValue} (simulat în dezvoltare)`,
-              });
-              setIsEditingVehicle(false);
-            }
-          } catch (error) {
-            console.log("Eroare în DEV, simulăm succes:", error);
-            toast({
-              title: "Vehicul actualizat (DEV)",
-              description: `Numărul de înmatriculare a fost schimbat în ${trimmedValue} (simulat în dezvoltare)`,
-            });
-            setIsEditingVehicle(false);
-          }
-        } else {
-          // În producție, comportament normal
-          const result = await registerVehicle(trimmedValue);
-          if (result) {
-            toast({
-              title: "Vehicul actualizat",
-              description: `Numărul de înmatriculare a fost schimbat în ${trimmedValue}`,
-              variant: "default",
-            });
-            setIsEditingVehicle(false);
-          } else {
-            toast({
-              title: "Actualizare eșuată",
-              description: "Nu s-a putut actualiza numărul de înmatriculare. Verificați dacă numărul este valid.",
-              variant: "destructive",
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Eroare la modificarea numărului de înmatriculare:", error);
-        
-        // În dezvoltare, tratăm eroarea ca succes simulat
-        if (import.meta.env.DEV) {
-          toast({
-            title: "Vehicul actualizat (DEV)",
-            description: `Numărul de înmatriculare a fost schimbat în ${trimmedValue} (simulat în dezvoltare)`,
-          });
-          setIsEditingVehicle(false);
-        } else {
-          toast({
-            title: "Eroare",
-            description: "A apărut o eroare la actualizarea vehiculului. Încercați din nou.",
-            variant: "destructive",
-          });
-        }
-      }
-    } else {
+    if (trimmedValue === '') {
       toast({
         title: "Eroare",
         description: "Numărul de înmatriculare nu poate fi gol.",
+        variant: "destructive",
+      });
+      return;
+    }
+      
+    // Validăm formatul (doar litere și cifre)
+    if (!/^[A-Z0-9]+$/.test(trimmedValue)) {
+      toast({
+        title: "Format invalid",
+        description: "Numărul de înmatriculare trebuie să conțină doar litere și cifre, fără spații sau caractere speciale.",
+        variant: "destructive",
+      });
+      return;
+    }
+      
+    try {
+      // Facem apelul API cu noul număr, fără simulare
+      const result = await registerVehicle(trimmedValue);
+        
+      if (result) {
+        toast({
+          title: "Vehicul actualizat",
+          description: `Numărul de înmatriculare a fost schimbat în ${trimmedValue}`,
+          variant: "default",
+        });
+        setIsEditingVehicle(false);
+      } else {
+        toast({
+          title: "Actualizare eșuată",
+          description: "Nu s-a putut actualiza numărul de înmatriculare. Verificați dacă numărul este valid.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Eroare la modificarea numărului de înmatriculare:", error);
+      toast({
+        title: "Eroare",
+        description: "A apărut o eroare la actualizarea vehiculului. Verificați conexiunea la internet și încercați din nou.",
         variant: "destructive",
       });
     }
