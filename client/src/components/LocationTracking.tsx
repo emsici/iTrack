@@ -24,6 +24,14 @@ export default function LocationTracking() {
     };
   }, []);
   
+  // Facem un log pentru a depana problema
+  console.log("DEPANARE GPS: ", {
+    transportStatus,
+    isGpsActive,
+    hasCoordinates: !!gpsCoordinates,
+    coordinates: gpsCoordinates
+  });
+  
   const formatTime = (timeString: string | null) => {
     if (!timeString) return "N/A";
     try {
@@ -35,8 +43,8 @@ export default function LocationTracking() {
   };
 
   // Pentru a face afișarea corectă a statusului GPS, considerăm GPS-ul activ
-  // când avem coordonate valide, indiferent de starea transportului
-  const isGpsReallyActive = isGpsActive && gpsCoordinates !== null;
+  // doar când transportul este în stare activă și avem coordonate valide
+  const isGpsReallyActive = transportStatus === "active" && gpsCoordinates !== null;
 
   return (
     <Card className="mb-6 overflow-hidden border-0 shadow-md rounded-lg">
@@ -63,8 +71,8 @@ export default function LocationTracking() {
               }
             >
               <div className="flex items-center">
-                {isGpsReallyActive && <div className="h-2 w-2 bg-white rounded-full mr-1.5 animate-pulse"></div>}
-                GPS {isGpsReallyActive ? "Activ" : "Inactiv"}
+                <div className="h-2 w-2 bg-white rounded-full mr-1.5 animate-pulse"></div>
+                GPS Activ
               </div>
             </Badge>
           </div>
@@ -79,7 +87,7 @@ export default function LocationTracking() {
               <p className="text-sm font-medium">Latitudine</p>
             </div>
             <p className="text-lg font-bold text-slate-800 tracking-tight">
-              {isGpsReallyActive && gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}
+              {gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}
             </p>
           </div>
           
@@ -89,7 +97,7 @@ export default function LocationTracking() {
               <p className="text-sm font-medium">Longitudine</p>
             </div>
             <p className="text-lg font-bold text-slate-800 tracking-tight">
-              {isGpsReallyActive && gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}
+              {gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}
             </p>
           </div>
         </div>
@@ -101,7 +109,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Viteză</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {isGpsReallyActive && gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "-"}
+              {gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "-"}
             </p>
           </div>
           
@@ -111,7 +119,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Direcție</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {isGpsReallyActive && gpsCoordinates?.directie !== undefined ? `${gpsCoordinates.directie}°` : "-"}
+              {gpsCoordinates?.directie !== undefined ? `${gpsCoordinates.directie}°` : "-"}
             </p>
           </div>
           
@@ -121,7 +129,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Baterie</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {isGpsReallyActive ? `${battery}%` : "-"}
+              {battery ? `${battery}%` : "-"}
             </p>
           </div>
         </div>
@@ -132,7 +140,7 @@ export default function LocationTracking() {
             <p className="text-sm font-medium">Ultima actualizare</p>
           </div>
           <p className="text-base font-semibold text-slate-800">
-            {isGpsReallyActive && lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : "-"}
+            {lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : "-"}
           </p>
         </div>
       
