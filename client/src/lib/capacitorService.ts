@@ -91,7 +91,11 @@ export const CapacitorGeoService = {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0
-      }, callback);
+      }, (position) => {
+        if (position) {
+          callback(position);
+        }
+      });
       return {
         watchId,
         clearWatch: () => Geolocation.clearWatch({ id: watchId })

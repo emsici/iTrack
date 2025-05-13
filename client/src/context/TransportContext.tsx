@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useRef, useCallback, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { CapacitorGeoService } from "@/lib/capacitorService";
 
 type TransportStatus = "inactive" | "active" | "paused" | "finished";
 
@@ -53,8 +54,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Import și folosește CapacitorGeoService
-  const { CapacitorGeoService } = require("@/lib/capacitorService");
+  // Folosește CapacitorGeoService importat mai sus
   
   const getCurrentPosition = useCallback(async () => {
     try {
@@ -113,8 +113,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setGpsCoordinates(gpsData);
       setLastGpsUpdateTime(timestamp);
       
-      // Trimite datele către server
-      const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
+      // Trimite datele către server (prin proxy local pentru a evita CORS)
+      const response = await fetch("/api/gps", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
