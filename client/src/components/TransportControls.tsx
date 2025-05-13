@@ -74,14 +74,14 @@ export default function TransportControls() {
 
   // Helper function pentru textul de stare
   const getStatusText = (status: string, isTracking: boolean) => {
-    if (status === "active" && isTracking) {
-      return "GPS Activ";
+    if (status === "active") {
+      return isTracking ? "GPS Activ" : "Transport Activ";
     } else if (status === "paused") {
-      return "GPS Pauză";
+      return "Transport în Pauză";
     } else if (status === "finished") {
       return "Transport Finalizat";
     } else {
-      return "GPS Inactiv";
+      return "Transport Inactiv";
     }
   };
 
