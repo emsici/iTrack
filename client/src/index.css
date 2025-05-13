@@ -54,5 +54,26 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    /* Adăugăm padding pentru safe area pe iOS */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Stiluri pentru compatibilitate cu afișaje mobile */
+@supports (padding: max(0px)) {
+  .safe-area-top {
+    padding-top: max(env(safe-area-inset-top), 1rem);
+  }
+  
+  .mobile-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    padding-top: env(safe-area-inset-top);
   }
 }
