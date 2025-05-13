@@ -47,11 +47,33 @@ export default function MobileHeader() {
       try {
         const result = await registerVehicle(newRegistrationNumber.trim());
         if (result) {
+          toast({
+            title: "Vehicul actualizat",
+            description: `Numărul de înmatriculare a fost schimbat în ${newRegistrationNumber}`,
+            variant: "default",
+          });
           setIsEditingVehicle(false);
+        } else {
+          toast({
+            title: "Actualizare eșuată",
+            description: "Nu s-a putut actualiza numărul de înmatriculare. Verificați dacă numărul este valid.",
+            variant: "destructive",
+          });
         }
       } catch (error) {
         console.error("Eroare la modificarea numărului de înmatriculare:", error);
+        toast({
+          title: "Eroare",
+          description: "A apărut o eroare la actualizarea vehiculului. Încercați din nou.",
+          variant: "destructive",
+        });
       }
+    } else {
+      toast({
+        title: "Eroare",
+        description: "Numărul de înmatriculare nu poate fi gol.",
+        variant: "destructive",
+      });
     }
   };
   
