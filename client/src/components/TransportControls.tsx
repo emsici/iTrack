@@ -55,9 +55,9 @@ export default function TransportControls() {
     setTransports(prev => prev.map(transport => ({
       ...transport,
       status: transportStatus,
-      isTracking: transportStatus === "active"
+      isTracking: transportStatus === "active" && isBackgroundActive
     })));
-  }, [transportStatus]);
+  }, [transportStatus, isBackgroundActive]);
 
   // Helper function pentru indicator de stare
   const getStatusIndicatorClass = (status: string, isTracking: boolean) => {
