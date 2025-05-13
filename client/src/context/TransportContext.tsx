@@ -243,20 +243,61 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     }
     
     try {
-      setTransportStatus("active");
-      startGpsTracking();
+      console.log("Pornire transport: Start tracking GPS și background service");
       
-      // Pornim și serviciul de background pentru tracked continuu
+      // Inițierea serviciilor GPS
+      await startGpsTracking();
+      
+      // Schimbăm starea transportului DUPĂ ce am inițiat serviciile GPS
+      // pentru a ne asigura că notificările sunt emise în ordinea corectă
+      setTransportStatus("active");
+      
+      // Pornim și serviciul de background pentru tracking continuu
       const backgroundStarted = await startBackgroundLocationTracking(
         { nr: vehicleInfo.nr, uit: currentActiveUit.uit },
         token
       );
       setIsBackgroundActive(backgroundStarted);
       
+      // Testăm imediat obținerea poziției pentru a verifica fluxul
+      try {
+        const position = await getCurrentPosition();
+        console.log("Poziție inițială obținută cu succes:", position);
+        
+        // Formatăm timestamp-ul pentru a-l afișa în UI
+        const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
+        
+        // Actualizăm starea în UI cu datele de la senzori
+        const { latitude, longitude, altitude, speed, heading } = position.coords;
+        const speedKmh = speed ? speed * 3.6 : 0;
+        
+        // Actualizăm starea aplicației direct pentru a avea date imediat
+        setGpsCoordinates({
+          lat: latitude,
+          lng: longitude,
+          timestamp,
+          viteza: speedKmh,
+          directie: heading || 0,
+          altitudine: altitude || 0,
+          baterie: battery
+        });
+        setLastGpsUpdateTime(timestamp);
+        setIsGpsActive(true);
+        
+      } catch (posError) {
+        console.error("Eroare la obținerea poziției inițiale:", posError);
+      }
+      
       toast({
         title: "Transport pornit",
         description: `Cursa a început. Coordonatele GPS se trimit acum${backgroundStarted ? ' și în background' : ''}.`,
       });
+      
+      // Forțăm afișarea unui mesaj vocal pentru confirmare
+      const utterance = new SpeechSynthesisUtterance("Transport început. Deplasare în curs.");
+      utterance.lang = 'ro-RO';
+      window.speechSynthesis?.speak(utterance);
+      
     } catch (error) {
       console.error("Error starting transport:", error);
       toast({

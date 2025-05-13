@@ -160,9 +160,11 @@ export default function VoiceNotifications() {
   useEffect(() => {
     if (!enabled || !speechSynthRef.current) return;
     
-    // Găsește prima notificare care nu a fost anunțată
+    // Verifică dacă avem vreo notificare neafișată
     const unplayedNotification = notifications.find(n => !n.played);
     if (!unplayedNotification) return;
+    
+    console.log("Procesare notificare vocală:", unplayedNotification.message);
     
     // Creează un nou obiect utterance
     const utterance = new SpeechSynthesisUtterance(unplayedNotification.message);
@@ -173,21 +175,35 @@ export default function VoiceNotifications() {
     utterance.rate = 1;
     utterance.pitch = 1;
     
-    // Marchează notificarea ca anunțată și eventual afișează un toast
+    // Marchează notificarea ca anunțată pentru a nu o mai repeta
     const updatedNotifications = notifications.map(n => 
       n.id === unplayedNotification.id ? { ...n, played: true } : n
     );
     setNotifications(updatedNotifications);
     
-    // Arată toast pentru notificare
-    toast({
-      title: "Notificare vocală",
-      description: unplayedNotification.message,
-    });
-    
     // Anunță vocal mesajul
-    speechSynthRef.current.speak(utterance);
-    
+    try {
+      // Fix pentru Firefox și unele browsere care nu anunță corect
+      if (speechSynthRef.current.speaking) {
+        speechSynthRef.current.cancel();
+      }
+      
+      // Arată toast pentru notificare
+      toast({
+        title: "Notificare vocală",
+        description: unplayedNotification.message,
+      });
+      
+      // Anunță vocal mesajul cu o scurtă întârziere pentru a permite browser-ului să se pregătească
+      setTimeout(() => {
+        if (speechSynthRef.current) {
+          speechSynthRef.current.speak(utterance);
+          console.log("Notificare vocală emisă:", unplayedNotification.message);
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Eroare la emiterea notificării vocale:", error);
+    }
   }, [notifications, enabled, toast]);
   
   // Curăță notificările vechi (păstrează doar ultimele 10)
