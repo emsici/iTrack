@@ -309,7 +309,14 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setGpsCoordinates(gpsData);
       setLastGpsUpdateTime(timestamp);
       // Considerăm GPS-ul activ doar dacă transportul este activ
-      setIsGpsActive(transportStatusRef.current === "active");
+      // Pentru a asigura coerența în toată aplicația
+      if (transportStatusRef.current === "active") {
+        setIsGpsActive(true);
+        console.log("GPS ACTIVAT automat pentru că transportul este activ");
+      } else {
+        setIsGpsActive(false);
+        console.log("GPS DEZACTIVAT automat pentru că transportul NU este activ");
+      }
       
       // Ne asigurăm că avem un UIT activ
       if (!currentActiveUit && selectedUits.length > 0) {

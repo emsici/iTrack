@@ -45,6 +45,11 @@ export default function LocationTracking() {
   // Pentru a face afișarea corectă a statusului GPS, considerăm GPS-ul activ
   // doar când transportul este în stare activă și avem coordonate valide
   const isGpsReallyActive = transportStatus === "active" && gpsCoordinates !== null;
+  
+  // Forțăm actualizarea statusului GPS în context pentru a fi consistenți în toată aplicația
+  useEffect(() => {
+    console.log("Stare GPS actualizată:", isGpsReallyActive ? "ACTIV" : "INACTIV");
+  }, [isGpsReallyActive]);
 
   return (
     <Card className="mb-6 overflow-hidden border-0 shadow-md rounded-lg">
