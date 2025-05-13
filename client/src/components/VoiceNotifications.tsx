@@ -41,6 +41,12 @@ export default function VoiceNotifications() {
         // Dacă nu există state salvat, scriem starea curentă în localStorage
         localStorage.setItem('voice_notifications_enabled', String(enabled));
       }
+      
+      // Forțăm dezactivarea sunetelor dacă enabled este false
+      if (savedState === 'false' && speechSynthRef.current) {
+        console.log("Forțăm anularea tuturor notificărilor vocale la inițializare - dezactivate în localStorage");
+        speechSynthRef.current.cancel();
+      }
     }
     
     // Cleanup
