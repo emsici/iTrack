@@ -576,11 +576,18 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         description: "Transmisia coordonatelor GPS este întreruptă temporar.",
       });
       
-      // Emitem un mesaj vocal
+      // Emitem un mesaj vocal doar dacă sunt activate
       if (window.speechSynthesis) {
-        const utterance = new SpeechSynthesisUtterance("Transport pus în pauză.");
-        utterance.lang = 'ro-RO';
-        window.speechSynthesis.speak(utterance);
+        // Verificăm dacă notificările vocale sunt activate
+        const voiceNotificationsEnabled = localStorage.getItem('voice_notifications_enabled');
+        if (voiceNotificationsEnabled === 'true') {
+          const utterance = new SpeechSynthesisUtterance("Transport pus în pauză.");
+          utterance.lang = 'ro-RO';
+          utterance.volume = 1.0;
+          utterance.rate = 0.9;
+          window.speechSynthesis.speak(utterance);
+          console.log("Notificare vocală pauză emisă");
+        }
       }
     } catch (error) {
       console.error("Eroare la întreruperea transportului:", error);
@@ -633,11 +640,18 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         description: "Transmisia coordonatelor GPS a fost reluată.",
       });
       
-      // Emitem un mesaj vocal
+      // Emitem un mesaj vocal doar dacă sunt activate
       if (window.speechSynthesis) {
-        const utterance = new SpeechSynthesisUtterance("Transport reluat. Deplasare în curs.");
-        utterance.lang = 'ro-RO';
-        window.speechSynthesis.speak(utterance);
+        // Verificăm dacă notificările vocale sunt activate
+        const voiceNotificationsEnabled = localStorage.getItem('voice_notifications_enabled');
+        if (voiceNotificationsEnabled === 'true') {
+          const utterance = new SpeechSynthesisUtterance("Transport reluat. Deplasare în curs.");
+          utterance.lang = 'ro-RO';
+          utterance.volume = 1.0;
+          utterance.rate = 0.9;
+          window.speechSynthesis.speak(utterance);
+          console.log("Notificare vocală reluare emisă");
+        }
       }
     } catch (error) {
       console.error("Eroare la reluarea transportului:", error);
