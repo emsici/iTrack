@@ -27,18 +27,35 @@ export interface UitOption {
   stop_locatie: string;
 }
 
+// Informații despre transportul activ specific unui vehicul
+interface ActiveTransport {
+  vehicleNumber: string;
+  status: TransportStatus;
+  uit: string;
+  startTime: string;
+  lastUpdateTime: string;
+}
+
 // Tipul contextului pentru transport
 interface TransportContextType {
-  transportStatus: TransportStatus;
+  transportStatus: TransportStatus;  // Starea transportului curent
   gpsCoordinates: GpsCoordinates | null;
   selectedUits: UitOption[];
   setSelectedUits: (uits: UitOption[]) => void;
   currentActiveUit: UitOption | null;
   setCurrentActiveUit: (uit: UitOption | null) => void;
+  
+  // Funcții pentru transportul curent
   startTransport: () => Promise<boolean>;
   pauseTransport: () => Promise<void>;
   resumeTransport: () => Promise<void>;
   finishTransport: () => Promise<void>;
+  
+  // Metode pentru a gestiona multiple transporturi
+  getActiveTransports: () => ActiveTransport[];
+  checkVehicleTransportStatus: (vehicleNumber: string) => TransportStatus;
+  
+  // Utilizat pentru afișare în UI
   isGpsActive: boolean;
   lastGpsUpdateTime: string | null;
   battery: number;
@@ -65,6 +82,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   // State pentru transporturile disponibile
   const [selectedUits, setSelectedUits] = useState<UitOption[]>([]);
   const [currentActiveUit, setCurrentActiveUit] = useState<UitOption | null>(null);
+  
+  // Registru cu transporturile active pentru toate vehiculele
+  const [activeTransports, setActiveTransports] = useState<ActiveTransport[]>([]);
   
   // Accesăm autentificarea și toast
   const { token, vehicleInfo } = useAuth();
@@ -93,8 +113,13 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         setSelectedUits(prev => [...prev, newUit]);
         console.log("UIT adăugat pentru vehiculul nou:", newUit);
       }
+      
+      // Când se schimbă vehiculul, setăm automat UIT-ul curent dacă nu există unul
+      if (!currentActiveUit) {
+        setCurrentActiveUit(newUit);
+      }
     }
-  }, [vehicleInfo?.nr, vehicleInfo?.uit, selectedUits]); // Verificăm doar schimbarea numărului și UIT-ului
+  }, [vehicleInfo?.nr, vehicleInfo?.uit, selectedUits, currentActiveUit]); // Verificăm doar schimbarea numărului și UIT-ului
   
   // Referințe pentru timer și watcher
   const gpsTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -886,6 +911,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Salvăm temporar informațiile vehiculului pentru reîncărcare
       const currentVehicleInfo = vehicleInfo;
       
+      // Eliminăm transportul din registrul de transporturi active
+      if (vehicleInfo && vehicleInfo.nr) {
+        setActiveTransports(prev => prev.filter(t => t.vehicleNumber !== vehicleInfo.nr));
+        console.log("Transport eliminat din registru pentru vehiculul:", vehicleInfo.nr);
+      }
+      
       // Resetăm toate valorile la starea inițială
       setTransportStatus("inactive");
       setGpsCoordinates(null);
@@ -935,6 +966,58 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     }
   };
   
+  // Metode pentru gestionarea transporturilor multiple
+  const getActiveTransports = useCallback((): ActiveTransport[] => {
+    return activeTransports;
+  }, [activeTransports]);
+
+  // Verifică statusul transportului pentru un vehicul specific
+  const checkVehicleTransportStatus = useCallback((vehicleNumber: string): TransportStatus => {
+    const transport = activeTransports.find(t => t.vehicleNumber === vehicleNumber);
+    return transport ? transport.status : "inactive";
+  }, [activeTransports]);
+
+  // Adaugă sau actualizează un transport în registru când se pornește, se pune în pauză sau se reia
+  useEffect(() => {
+    if (!vehicleInfo || !vehicleInfo.nr) return;
+    
+    // Nu facem nimic dacă transportul e inactiv sau finalizat
+    if (transportStatus === "inactive" || transportStatus === "finished") return;
+    
+    // Avem un transport activ sau în pauză, actualizăm registrul
+    const currentTime = new Date().toISOString().replace('T', ' ').substr(0, 19);
+    
+    // Verificăm dacă există deja un transport pentru acest vehicul
+    const existingTransportIndex = activeTransports.findIndex(
+      t => t.vehicleNumber === vehicleInfo.nr
+    );
+    
+    if (existingTransportIndex >= 0) {
+      // Actualizăm statusul transportului existent
+      const updatedTransports = [...activeTransports];
+      updatedTransports[existingTransportIndex] = {
+        ...updatedTransports[existingTransportIndex],
+        status: transportStatus,
+        lastUpdateTime: currentTime
+      };
+      setActiveTransports(updatedTransports);
+    } else {
+      // Adăugăm un nou transport în registru
+      if (currentActiveUit) {
+        setActiveTransports(prev => [
+          ...prev,
+          {
+            vehicleNumber: vehicleInfo.nr,
+            status: transportStatus,
+            uit: currentActiveUit.uit,
+            startTime: currentTime,
+            lastUpdateTime: currentTime
+          }
+        ]);
+      }
+    }
+  }, [transportStatus, vehicleInfo?.nr, currentActiveUit]);
+
   // Valoarea contextului
   const contextValue: TransportContextType = {
     transportStatus,
@@ -950,7 +1033,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     isGpsActive,
     lastGpsUpdateTime,
     battery,
-    isBackgroundActive
+    isBackgroundActive,
+    getActiveTransports,
+    checkVehicleTransportStatus
   };
   
   // Returnăm provider-ul cu valorile contextului
