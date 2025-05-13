@@ -26,10 +26,21 @@ export default function VoiceNotifications() {
   const prevGpsActiveRef = useRef(isGpsActive);
   const lastNotificationTimeRef = useRef<number>(0);
   
-  // Inițializare SpeechSynthesis
+  // Inițializare SpeechSynthesis și citirea state-ului din localStorage
   useEffect(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       speechSynthRef.current = window.speechSynthesis;
+      
+      // Citire stare din localStorage
+      const savedState = localStorage.getItem('voice_notifications_enabled');
+      if (savedState !== null) {
+        const isEnabled = savedState === 'true';
+        setEnabled(isEnabled);
+        console.log("Stare notificări vocale citită din localStorage:", isEnabled ? "ACTIVE" : "DEZACTIVATE");
+      } else {
+        // Dacă nu există state salvat, scriem starea curentă în localStorage
+        localStorage.setItem('voice_notifications_enabled', String(enabled));
+      }
     }
     
     // Cleanup
@@ -304,6 +315,8 @@ export default function VoiceNotifications() {
             checked={enabled} 
             onCheckedChange={(checked: boolean) => {
               console.log("SCHIMBARE STARE NOTIFICĂRI VOCALE:", checked ? "ACTIVE" : "DEZACTIVATE");
+              // Salvăm starea în localStorage pentru a o folosi în toată aplicația
+              localStorage.setItem('voice_notifications_enabled', String(checked));
               // Oprim orice citire vocală în curs
               if (!checked && speechSynthRef.current) {
                 speechSynthRef.current.cancel();

@@ -38,14 +38,6 @@ export default function AboutPage() {
         <div className="bg-white rounded-lg shadow-md p-4">
           <h2 className="text-xl font-bold text-secondary-800 mb-4">Despre aplicație</h2>
           
-          <div className="mb-4">
-            <img 
-              src="https://pixabay.com/get/gd1fcb71212a1ee0d9c91097f00a66c8bd807735b0965a5df048dfc573266dfe286d83e0a53ed10e48dd14ba90a56bc2f8c553609d46a9616d2a6b3f48929e145_1280.jpg" 
-              alt="Truck driver using app" 
-              className="w-full h-40 object-cover rounded-lg mb-3" 
-            />
-          </div>
-          
           <div className="prose max-w-none text-sm">
             <p className="mb-3">
               Aplicația <strong>iTrack</strong> permite șoferilor să gestioneze transporturile și să transmită coordonatele GPS în timp real către sistemul central.
