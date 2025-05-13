@@ -51,8 +51,8 @@ export const checkGpsAvailability = async (): Promise<boolean> => {
 export const setupConnectivityListeners = (
   onConnectivityChange?: (isConnected: boolean) => void
 ): (() => void) => {
-  // Adăugăm event listeners pentru schimbările de conectivitate
-  window.addEventListener('online', () => {
+  // Definim funcțiile handler pentru a le putea elimina ulterior
+  const handleOnline = () => {
     isInternetConnected = true;
     console.log('Conexiune la internet restabilită');
     
@@ -63,9 +63,9 @@ export const setupConnectivityListeners = (
     
     // Încercăm să trimitem datele stocate offline
     syncOfflineData();
-  });
+  };
   
-  window.addEventListener('offline', () => {
+  const handleOffline = () => {
     isInternetConnected = false;
     console.log('Conexiune la internet pierdută');
     
@@ -73,10 +73,20 @@ export const setupConnectivityListeners = (
     if (onConnectivityChange) {
       onConnectivityChange(false);
     }
-  });
+  };
+  
+  // Adăugăm event listeners
+  window.addEventListener('online', handleOnline);
+  window.addEventListener('offline', handleOffline);
   
   // Inițializăm starea
   isInternetConnected = navigator.onLine;
+  
+  // Returnăm funcția de cleanup pentru a fi apelată când componenta este demontată
+  return () => {
+    window.removeEventListener('online', handleOnline);
+    window.removeEventListener('offline', handleOffline);
+  };
 };
 
 // Funcție pentru a sincroniza datele offline când conexiunea la internet este restabilită

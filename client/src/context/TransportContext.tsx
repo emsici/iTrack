@@ -79,8 +79,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     console.log("Inițializare monitorizare conectivitate");
     
-    // Configurăm listener-ul pentru conectivitate
-    const cleanupListenerFn = setupConnectivityListeners((isConnected) => {
+    // Configurăm listener-ul pentru conectivitate și obținem funcția de cleanup
+    const cleanupListener = setupConnectivityListeners((isConnected) => {
       console.log("Stare conectivitate schimbată:", isConnected ? "Online" : "Offline");
       
       // Dacă suntem online și avem un transport activ, sincronizăm datele
@@ -90,9 +90,6 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         });
       }
     });
-    
-    // Stocăm o referință la funcția de cleanup
-    const cleanupListener = cleanupListenerFn;
     
     // Verificăm disponibilitatea GPS-ului
     checkGpsAvailability().then(isAvailable => {
@@ -655,7 +652,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
 }
 
 // Hook pentru a folosi contextul
-export function useTransport() {
+export const useTransport = () => {
   const context = useContext(TransportContext);
   
   if (context === undefined) {
