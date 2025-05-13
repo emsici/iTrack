@@ -66,6 +66,7 @@ export default function TransportMap() {
   // Istoric de coordonate pentru traseu
   const [routeHistory, setRouteHistory] = useState<GpsPoint[]>([]);
   const [center, setCenter] = useState<[number, number]>([44.4268, 26.1025]); // București default
+  const [showMap, setShowMap] = useState<boolean>(true);
   
   // Adaugă coordonatele curente la istoric
   useEffect(() => {
@@ -141,11 +142,19 @@ export default function TransportMap() {
           <h3 className="text-base font-medium text-gray-700">
             Traseu Transport
           </h3>
-          {currentActiveUit && (
-            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
-              UIT: {currentActiveUit.uit}
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {currentActiveUit && (
+              <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
+                UIT: {currentActiveUit.uit}
+              </span>
+            )}
+            <button
+              onClick={() => setShowMap(!showMap)}
+              className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded-full font-medium hover:bg-gray-200 transition-colors"
+            >
+              {showMap ? 'Ascunde harta' : 'Arată harta'}
+            </button>
+          </div>
         </div>
         
         {currentActiveUit && (
@@ -157,71 +166,74 @@ export default function TransportMap() {
         )}
       </div>
       
-      <MapContainer 
-        center={center} 
-        zoom={14} 
-        style={mapStyle}
-        scrollWheelZoom={true}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        
-        {/* Punctul curent */}
-        {gpsCoordinates && (
-          <Marker 
-            position={[gpsCoordinates.lat, gpsCoordinates.lng]} 
-            icon={customIcon}
-          >
-            <Popup className="custom-popup">
-              <div className="text-sm px-1">
-                <p className="font-bold text-blue-600">Poziție curentă</p>
-                <div className="grid grid-cols-2 gap-x-1 gap-y-0.5 my-1">
-                  <p className="text-gray-600">Vehicul:</p>
-                  <p className="font-medium">{vehicleInfo?.nr || 'N/A'}</p>
-                  <p className="text-gray-600">UIT:</p>
-                  <p className="font-medium">{currentActiveUit?.uit || 'N/A'}</p>
-                  <p className="text-gray-600">Viteză:</p>
-                  <p className="font-medium">{gpsCoordinates.viteza.toFixed(1)} km/h</p>
-                </div>
-                <p className="text-xs text-gray-500 mt-1 border-t pt-1">
-                  {new Date(gpsCoordinates.timestamp).toLocaleString()}
-                </p>
-              </div>
-            </Popup>
-          </Marker>
-        )}
-        
-        {/* Traseu - linie care conectează punctele */}
-        {routeHistory.length > 1 && (
-          <Polyline 
-            positions={routeHistory.map(point => [point.lat, point.lng])} 
-            color="#3b82f6" 
-            weight={4} 
-            opacity={0.7}
+      {showMap && (
+        <MapContainer 
+          center={center} 
+          zoom={14} 
+          style={mapStyle}
+          scrollWheelZoom={true}
+        >
+          <TileLayer
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-        )}
-        
-        {/* Punct de start (primul punct din istoric) */}
-        {routeHistory.length > 0 && (
-          <Marker 
-            position={[routeHistory[0].lat, routeHistory[0].lng]} 
-            icon={startIcon}
-          >
-            <Popup className="custom-popup">
-              <div className="text-sm">
-                <p className="font-bold text-green-600">Punct de plecare</p>
-                <p className="text-xs text-gray-600 mt-1">
-                  {new Date(routeHistory[0].timestamp).toLocaleString()}
-                </p>
-              </div>
-            </Popup>
-          </Marker>
-        )}
-      </MapContainer>
+          
+          {/* Marker pentru poziția curentă */}
+          {gpsCoordinates && (
+            <Marker 
+              position={[gpsCoordinates.lat, gpsCoordinates.lng]} 
+              icon={customIcon}
+            >
+              <Popup>
+                <div className="p-1">
+                  <p className="font-medium">Poziția curentă</p>
+                  <p className="text-xs text-gray-600">
+                    Lat: {gpsCoordinates.lat.toFixed(6)}, Lng: {gpsCoordinates.lng.toFixed(6)}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Viteză: {gpsCoordinates.viteza.toFixed(1)} km/h
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    {lastGpsUpdateTime}
+                  </p>
+                </div>
+              </Popup>
+            </Marker>
+          )}
+          
+          {/* Polyline pentru traseu */}
+          {routeHistory.length > 1 && (
+            <Polyline 
+              positions={routeHistory.map(point => [point.lat, point.lng])}
+              color="blue"
+              weight={3}
+              opacity={0.7}
+            />
+          )}
+          
+          {/* Marker pentru punctul de start */}
+          {routeHistory.length > 0 && (
+            <Marker 
+              position={[routeHistory[0].lat, routeHistory[0].lng]} 
+              icon={startIcon}
+            >
+              <Popup>
+                <div className="p-1">
+                  <p className="font-medium">Punct de start</p>
+                  <p className="text-xs text-gray-600">
+                    Lat: {routeHistory[0].lat.toFixed(6)}, Lng: {routeHistory[0].lng.toFixed(6)}
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    {new Date(routeHistory[0].timestamp).toLocaleString()}
+                  </p>
+                </div>
+              </Popup>
+            </Marker>
+          )}
+        </MapContainer>
+      )}
       
-      {gpsCoordinates && (
+      {showMap && gpsCoordinates && (
         <div className="mt-3 bg-gray-50 rounded-lg p-3 flex justify-between items-center text-sm">
           <span className="text-gray-600">
             <span className="font-medium">Ultima actualizare:</span> {lastGpsUpdateTime}
@@ -239,7 +251,7 @@ export default function TransportMap() {
         </div>
       )}
       
-      {routeHistory.length > 0 && (
+      {showMap && routeHistory.length > 0 && (
         <div className="mt-3 grid grid-cols-3 gap-3 text-center">
           <div className="bg-blue-50 p-2 rounded-lg">
             <p className="text-xs text-blue-700">Distanță</p>

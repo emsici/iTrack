@@ -16,6 +16,8 @@ export type GpsDataPayload = {
   numar_inmatriculare: string;
   uit: string;
   status: string; // "in_progress" sau "finished" conform cerințelor API
+  hdop?: number;    // Horizontal Dilution of Precision (precizia poziției GPS)
+  gsm_signal?: number; // Puterea semnalului GSM/celular (0-100%)
 };
 
 // Funcție pentru trimiterea datelor GPS către server
@@ -62,6 +64,24 @@ export const sendGpsUpdate = async (
       console.warn("Nu s-a putut obține nivelul bateriei, se folosește valoarea implicită:", batteryError);
     }
     
+    // Obținem HDOP (precizia GPS) și puterea semnalului GSM
+    let hdopValue = 2.0; // Valoare implicită
+    let gsmSignalValue = 90; // Valoare implicită
+    
+    try {
+      hdopValue = await CapacitorGeoService.getHDOP();
+      console.log("HDOP detectat:", hdopValue);
+    } catch (hdopError) {
+      console.warn("Nu s-a putut obține HDOP, se folosește valoarea implicită:", hdopError);
+    }
+    
+    try {
+      gsmSignalValue = await CapacitorGeoService.getGSMSignal();
+      console.log("Putere semnal GSM detectată:", gsmSignalValue + "%");
+    } catch (gsmError) {
+      console.warn("Nu s-a putut obține puterea semnalului GSM, se folosește valoarea implicită:", gsmError);
+    }
+    
     // Verifică întai că avem toate datele necesare - dar acceptăm și valori goale
     if (!vehicleInfo) {
       console.error("Lipsesc date necesare pentru trimiterea coordonatelor GPS:", {
@@ -103,7 +123,9 @@ export const sendGpsUpdate = async (
       baterie: batteryLevel,
       numar_inmatriculare: vehicleInfo.nr,
       uit: vehicleInfo.uit, // CRUCIAL: avem nevoie de UIT valid
-      status: transportStatus // Adăugăm status-ul transportului
+      status: transportStatus, // Adăugăm status-ul transportului
+      hdop: hdopValue,         // Adăugăm HDOP (precizia poziției)
+      gsm_signal: gsmSignalValue  // Adăugăm puterea semnalului GSM
     };
     
     // Verificăm dacă există conexiune la internet
@@ -126,6 +148,8 @@ export const sendGpsUpdate = async (
     const directie = Number(heading) || 0;
     const altitudine = Number(altitude) || 0;
     const baterie = Number(batteryLevel) || 100;
+    const hdop = Number(hdopValue) || 2.0;
+    const gsm_signal = Number(gsmSignalValue) || 85;
     const numar_inmatriculare = String(vehicleInfo.nr);
     const uit = String(vehicleInfo.uit);
     const status = transportStatus === "finished" ? "finished" : "in_progress";
@@ -139,7 +163,9 @@ export const sendGpsUpdate = async (
       lat, lng, timestamp, viteza, directie, altitudine, baterie, 
       numar_inmatriculare: nr_inmatriculare, 
       uit: uit_value, 
-      status
+      status,
+      hdop,
+      gsm_signal
     });
     
     // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser

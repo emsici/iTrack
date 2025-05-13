@@ -1,12 +1,211 @@
 import { Capacitor } from '@capacitor/core';
 import { Geolocation, Position, PositionOptions } from '@capacitor/geolocation';
 
+// Interfață pentru tipul navigator.connection extins
+interface NavigatorWithConnection extends Navigator {
+  connection?: {
+    signalStrength?: number;
+    effectiveType?: string;
+    downlink?: number;
+    rtt?: number;
+  };
+}
+
 // Verifică dacă aplicația rulează pe o platformă nativă (Android/iOS) sau în browser
 export const isNativePlatform = () => Capacitor.isNativePlatform();
 export const getPlatform = () => Capacitor.getPlatform();
 
 // Serviciu de geolocation folosind Capacitor
 export const CapacitorGeoService = {
+  // Obținerea valorii HDOP (Horizontal Dilution of Precision)
+  getHDOP: async (): Promise<number> => {
+    try {
+      // Android permite accesul la HDOP și alte metrici GPS avansate prin plugin-uri native
+      if (Capacitor.isNativePlatform()) {
+        if (Capacitor.getPlatform() === 'android') {
+          try {
+            // Încercăm să obținem poziția cu opțiuni avansate
+            // Capacitor Geolocation nu ne oferă direct HDOP, dar Android are acces intern
+            // Pentru a-l obține, am putea crea un plugin personalizat Capacitor
+            // Acest plugin ar putea accesa LocationManager și să extragă metricile GPS
+            
+            // Următoarea secțiune simulează apelul unui plugin personalizat
+            // Într-o implementare reală, am avea ceva de genul:
+            // const hdopResult = await HDOPPlugin.getValue();
+            
+            // Deocamdată, folosim o metodă mai indirectă, obținând o nouă poziție
+            // și inspectând proprietățile disponibile în poziție
+            const position = await Geolocation.getCurrentPosition({
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0
+            });
+            
+            // Convertim acuratețea în HDOP aproximativ
+            // Un HDOP de calitate este: 0-1 (excelent), 1-2 (bun), 2-5 (moderat), 5-10 (slab), 10+ (foarte slab)
+            // Aceasta este o aproximare, deoarece acuratețea este în metri și HDOP este un factor
+            if (position.coords.accuracy) {
+              // Formula aproximativă: HDOP ≈ accuracy / 5 (pentru valori GPS tipice)
+              // O acuratețe de 5m ≈ HDOP 1.0
+              // O acuratețe de 10m ≈ HDOP 2.0
+              const estimatedHDOP = position.coords.accuracy / 5;
+              console.log(`HDOP estimat din acuratețea GPS (${position.coords.accuracy}m): ${estimatedHDOP}`);
+              return Math.min(Math.max(estimatedHDOP, 0.5), 20); // Limităm între 0.5 și 20
+            }
+          } catch (err) {
+            console.warn('Eroare la accesarea HDOP nativ:', err);
+          }
+        }
+        
+        // Dacă metoda specifică platformei a eșuat sau suntem pe iOS
+        // Facem o estimare bazată pe acuratețea poziției actuale
+        try {
+          const position = await Geolocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 5000
+          });
+          
+          if (position.coords.accuracy) {
+            // Conversia acurateței în HDOP aproximativ
+            const estimatedHDOP = position.coords.accuracy / 5;
+            return Math.min(Math.max(estimatedHDOP, 0.5), 20); // Limităm între 0.5 și 20
+          }
+        } catch (posErr) {
+          console.warn('Nu se poate estima HDOP din poziție:', posErr);
+        }
+        
+        // Valoare de rezervă pentru dispozitivele native
+        return 1.5;
+      }
+      
+      // Pentru browser, nu avem acces direct la HDOP, returnăm o valoare implicită
+      return 2.0;
+    } catch (error) {
+      console.warn('Nu se poate obține HDOP:', error);
+      return 2.0; // Valoare implicită în caz de eroare
+    }
+  },
+  
+  // Obținerea puterii semnalului GSM (0-100%)
+  getGSMSignal: async (): Promise<number> => {
+    try {
+      // În mod normal, puterea semnalului GSM/Celular ar trebui obținută de la API-ul nativ
+      if (Capacitor.isNativePlatform()) {
+        // Pe Android, puterea semnalului poate fi obținută folosind un plugin personalizat
+        // care accesează TelephonyManager și obține valorile semnalului
+        if (Capacitor.getPlatform() === 'android') {
+          try {
+            // Aici ar trebui să fie un apel către un plugin nativ care obține informații celulare
+            // Pe un dispozitiv real, am crea un plugin Capacitor personalizat
+            // Exemplu: const signalInfo = await NetworkInfoPlugin.getSignalStrength();
+            
+            // Deocamdată, folosim o alternativă: verificarea calității conexiunii de rețea
+            // În Android, putem obține informații despre conexiune folosind API-ul NetworkInfo
+            // Într-o implementare reală, am avea un plugin dedicat
+
+            // Estimare bazată pe viteza de conexiune și tipul rețelei
+            // Poate fi implementat printr-un plugin Capacitor personalizat
+            // care accesează NetworkCapabilities sau ConnectivityManager din Android
+            
+            // În absența unui plugin, putem folosi API-uri web pentru a estima
+            // calitatea conexiunii indirectă prin teste de viteză sau latență
+            
+            // Testăm latența cu un ping simplu către un server cunoscut
+            const startTime = Date.now();
+            try {
+              const testResponse = await fetch('https://www.google.com', { 
+                method: 'HEAD',
+                mode: 'no-cors',
+                cache: 'no-store' 
+              });
+              const latency = Date.now() - startTime;
+              
+              // Convertim latența într-o estimare a puterii semnalului
+              // Latență mică = semnal puternic, latență mare = semnal slab
+              // 0-100ms: excelent, 100-300ms: bun, 300-600ms: mediu, 600ms+: slab
+              if (latency < 100) return 95;
+              if (latency < 300) return 85;
+              if (latency < 600) return 70;
+              if (latency < 1000) return 50;
+              return 30;
+            } catch (networkErr) {
+              console.warn('Eroare la testul de latență:', networkErr);
+              // Dacă testul de latență eșuează, încercăm să estimăm din tipul conexiunii
+            }
+          } catch (androidErr) {
+            console.warn('Eroare la obținerea informațiilor de semnal Android:', androidErr);
+          }
+        }
+        
+        // Pentru iOS sau dacă metodele Android au eșuat
+        // iOS restricționează accesul la informațiile despre semnal și rețea
+        // Putem estima din efectiveType sau informații despre conexiune
+        
+        // Verificăm NetworkInformation API dacă e disponibil
+        const nav = navigator as NavigatorWithConnection;
+        if (nav.connection) {
+          // Estimăm puterea semnalului din tipul conexiunii
+          const effectiveType = nav.connection.effectiveType;
+          if (effectiveType === '4g') return 90;
+          if (effectiveType === '3g') return 75;
+          if (effectiveType === '2g') return 50;
+          if (effectiveType === 'slow-2g') return 25;
+          
+          // Sau estimăm din viteza de descărcare (downlink)
+          if (nav.connection.downlink) {
+            const mbps = nav.connection.downlink; // în Mbps
+            if (mbps > 10) return 95;
+            if (mbps > 5) return 85;
+            if (mbps > 2) return 75;
+            if (mbps > 1) return 65;
+            if (mbps > 0.5) return 50;
+            return 40;
+          }
+          
+          // Sau estimăm din RTT (round-trip time)
+          if (nav.connection.rtt) {
+            const rtt = nav.connection.rtt; // în ms
+            if (rtt < 50) return 95;
+            if (rtt < 100) return 85;
+            if (rtt < 200) return 75;
+            if (rtt < 400) return 60;
+            if (rtt < 700) return 40;
+            return 30;
+          }
+        }
+        
+        // Dacă toate metodele eșuează, returnăm o valoare implicită
+        return 80;
+      }
+      
+      // Pentru browser, verificăm NetworkInformation API
+      const nav = navigator as NavigatorWithConnection;
+      if (nav.connection) {
+        // Folosim aceleași metode ca mai sus pentru estimare
+        const effectiveType = nav.connection.effectiveType;
+        if (effectiveType === '4g') return 90;
+        if (effectiveType === '3g') return 75;
+        if (effectiveType === '2g') return 50;
+        if (effectiveType === 'slow-2g') return 25;
+        
+        if (nav.connection.downlink) {
+          const mbps = nav.connection.downlink;
+          if (mbps > 10) return 95;
+          if (mbps > 5) return 85;
+          if (mbps > 2) return 75;
+          if (mbps > 1) return 65;
+          if (mbps > 0.5) return 50;
+          return 40;
+        }
+      }
+      
+      // Valoare implicită pentru browser dacă nu putem determina
+      return 85;
+    } catch (error) {
+      console.warn('Nu se poate obține puterea semnalului GSM:', error);
+      return 85; // Valoare implicită
+    }
+  },
   // Obținerea nivelului bateriei
   getBatteryLevel: async (): Promise<number> => {
     try {
