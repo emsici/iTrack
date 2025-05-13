@@ -161,12 +161,20 @@ router.post("/gps", async (req, res) => {
       // Conform testului nostru in curl care a funcționat, nu setăm Content-Type
       console.log("Trimitem request către API cu payload:", rawPayload);
       console.log("Folosim header Authorization:", req.headers.authorization);
+      console.log("Headers X-Vehicle-Number:", req.headers["x-vehicle-number"]);
+      console.log("Headers X-UIT:", req.headers["x-uit"]);
+      
+      // Folosim valorile din headers pentru a asigura că le transmitem mai departe
+      const vehicleNumber = req.headers["x-vehicle-number"] || validatedData.numar_inmatriculare;
+      const uit = req.headers["x-uit"] || validatedData.uit;
       
       // VALIDAT: Acest format funcționează (testat cu curl)
       const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
         method: "POST",
         headers: {
-          "Authorization": req.headers.authorization || ""
+          "Authorization": req.headers.authorization || "",
+          "X-Vehicle-Number": String(vehicleNumber),
+          "X-UIT": String(uit)
           // IMPORTANT: Nu setăm Content-Type pentru a fi same ca în curl (care a funcționat)
         },
         body: rawPayload // Trimitem payload-ul exact format JSON.stringify

@@ -143,10 +143,13 @@ export const sendGpsUpdate = async (
     console.log("EXACT PAYLOAD RAW FORMAT:", rawPayload);
     
     // IMPORTANT: Folosim exact formatul din Postman - nu includ niciun header de Content-Type
+    // Adăugăm headerele importante pentru transmiterea datelor vehiculului
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`,
+        "X-Vehicle-Number": nr_inmatriculare,  // Adăugăm numărul de înmatriculare în headers
+        "X-UIT": uit_value  // Adăugăm UIT în headers
         // FOARTE IMPORTANT: Nu setăm Content-Type pentru a asigura transmisia raw
       },
       body: rawPayload // Folosim payload-ul raw generat mai sus
