@@ -49,6 +49,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const [isGpsActive, setIsGpsActive] = useState(false);
   const [lastGpsUpdateTime, setLastGpsUpdateTime] = useState<string | null>(null);
   const [battery, setBattery] = useState(100);
+  const [isBackgroundActive, setIsBackgroundActive] = useState(false);
   // State pentru selecția de UIT-uri
   const [selectedUits, setSelectedUits] = useState<UitOption[]>([]);
   const [currentActiveUit, setCurrentActiveUit] = useState<UitOption | null>(null);
@@ -213,12 +214,29 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const startTransport = async () => {
+    if (!vehicleInfo || !token || !currentActiveUit) {
+      toast({
+        variant: "destructive",
+        title: "Eroare",
+        description: "Nu s-a putut porni cursa. Lipsesc date vehicul sau UIT.",
+      });
+      return;
+    }
+    
     try {
       setTransportStatus("active");
       startGpsTracking();
+      
+      // Pornim și serviciul de background pentru tracked continuu
+      const backgroundStarted = await startBackgroundLocationTracking(
+        { nr: vehicleInfo.nr, uit: currentActiveUit.uit },
+        token
+      );
+      setIsBackgroundActive(backgroundStarted);
+      
       toast({
         title: "Transport pornit",
-        description: "Cursa a început. Coordonatele GPS se trimit acum.",
+        description: `Cursa a început. Coordonatele GPS se trimit acum${backgroundStarted ? ' și în background' : ''}.`,
       });
     } catch (error) {
       console.error("Error starting transport:", error);
@@ -234,6 +252,13 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     try {
       setTransportStatus("paused");
       stopGpsTracking();
+      
+      // Oprim și serviciul de background dacă rulează
+      if (isBackgroundActive) {
+        stopBackgroundLocationTracking();
+        setIsBackgroundActive(false);
+      }
+      
       toast({
         title: "Pauză de odihnă",
         description: "Transmisia GPS este întreruptă temporar.",
@@ -249,12 +274,29 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   };
 
   const resumeTransport = async () => {
+    if (!vehicleInfo || !token || !currentActiveUit) {
+      toast({
+        variant: "destructive",
+        title: "Eroare",
+        description: "Nu s-a putut relua cursa. Lipsesc date vehicul sau UIT.",
+      });
+      return;
+    }
+    
     try {
       setTransportStatus("active");
       startGpsTracking();
+      
+      // Pornim serviciul de background pentru tracking continuu
+      const backgroundStarted = await startBackgroundLocationTracking(
+        { nr: vehicleInfo.nr, uit: currentActiveUit.uit },
+        token
+      );
+      setIsBackgroundActive(backgroundStarted);
+      
       toast({
         title: "Transport reluat",
-        description: "Transmisia GPS a fost reluată.",
+        description: `Transmisia GPS a fost reluată${backgroundStarted ? ' și în background' : ''}.`,
       });
     } catch (error) {
       console.error("Error resuming transport:", error);
@@ -274,6 +316,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Actualizăm starea transportului
       setTransportStatus("finished");
       stopGpsTracking();
+      
+      // Oprim și serviciul de background dacă rulează
+      if (isBackgroundActive) {
+        stopBackgroundLocationTracking();
+        setIsBackgroundActive(false);
+      }
       
       toast({
         title: "Transport finalizat",
@@ -304,7 +352,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         finishTransport,
         isGpsActive,
         lastGpsUpdateTime,
-        battery
+        battery,
+        isBackgroundActive
       }}
     >
       {children}
