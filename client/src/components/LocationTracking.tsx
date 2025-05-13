@@ -35,9 +35,9 @@ export default function LocationTracking() {
         />
         
         {/* Overlay that shows when GPS is inactive */}
-        {!isGpsActive && (
+        {!gpsCoordinates && (
           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
-            <span className="text-secondary-500 text-sm">Tracking GPS va apărea când cursa este activă</span>
+            <span className="text-secondary-500 text-sm">Tracking GPS va apărea când recepționăm coordonate</span>
           </div>
         )}
       </div>
