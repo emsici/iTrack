@@ -73,8 +73,9 @@ router.post("/gps", async (req, res) => {
       } else {
         // Extragem header-ul de autorizare pentru a putea extrage informațiile utilizatorului
         const authHeader = req.headers.authorization || '';
-        const numarInmatriculare = req.headers['x-vehicle-number'] || 'B123XYZ';
-        const uit = req.headers['x-uit'] || 'UIT12345';
+        // Nu mai folosim valori implicite hardcoded
+        const numarInmatriculare = req.headers['x-vehicle-number'] || '';
+        const uit = req.headers['x-uit'] || '';
         
         console.log("Header autorizare:", authHeader);
         console.log("Headers vehicul:", { 
@@ -145,8 +146,8 @@ router.post("/gps", async (req, res) => {
       directie: validatedData.directie || 0,
       altitudine: validatedData.altitudine || 0,
       baterie: validatedData.baterie || 100,
-      numar_inmatriculare: validatedData.numar_inmatriculare || "B123XYZ",
-      uit: validatedData.uit || "UIT12345",
+      numar_inmatriculare: validatedData.numar_inmatriculare,
+      uit: validatedData.uit,
       status: validatedData.status || "in_progress"
     };
     
