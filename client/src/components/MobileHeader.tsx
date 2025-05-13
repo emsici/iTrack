@@ -91,36 +91,57 @@ export default function MobileHeader() {
           </div>
           <div>
             <h1 className="text-lg font-bold">iTrack</h1>
-            {isEditingVehicle ? (
-              <div className="flex items-center">
-                <input 
-                  type="text" 
-                  value={newRegistrationNumber} 
-                  onChange={(e) => setNewRegistrationNumber(e.target.value)}
-                  className="text-xs bg-blue-600 text-white rounded px-1 py-0.5 w-24 border border-blue-400"
-                />
-                <button 
-                  onClick={handleSaveVehicle} 
-                  className="text-xs bg-green-600 rounded px-1 ml-1"
-                >
-                  ✓
-                </button>
-                <button 
-                  onClick={handleCancelEdit} 
-                  className="text-xs bg-red-600 rounded px-1 ml-1"
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
+            {!isEditingVehicle ? (
               <p 
-                className="text-xs text-blue-200 cursor-pointer hover:underline" 
+                className="text-xs text-blue-200 cursor-pointer hover:underline flex items-center" 
                 onClick={handleEditVehicle}
               >
-                {vehicleInfo?.nr || ''} (click pentru editare)
+                <span className="mr-1">{vehicleInfo?.nr || ''}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
               </p>
-            )}
+            ) : null}
           </div>
+          
+          {/* Modal de editare număr înmatriculare - apare doar când este în modul editare */}
+          {isEditingVehicle && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden">
+                <div className="bg-blue-700 p-4 text-white">
+                  <h3 className="text-lg font-medium">Modificare număr înmatriculare</h3>
+                </div>
+                
+                <div className="p-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Introduceți noul număr de înmatriculare:
+                  </label>
+                  <input 
+                    type="text" 
+                    value={newRegistrationNumber} 
+                    onChange={(e) => setNewRegistrationNumber(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                    autoFocus
+                  />
+                  
+                  <div className="flex justify-end space-x-3 mt-6">
+                    <button 
+                      onClick={handleCancelEdit}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                    >
+                      Anulare
+                    </button>
+                    <button 
+                      onClick={handleSaveVehicle}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
+                      Salvare
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="flex items-center gap-3">
