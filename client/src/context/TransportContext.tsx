@@ -541,11 +541,39 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         description: "Cursa a fost finalizată cu succes.",
       });
       
-      // Emitem un mesaj vocal
+      // Emitem un mesaj vocal pentru finalizare transport + trimitem ultima poziție cu status "finished"
       if (window.speechSynthesis) {
+        // Anulăm orice alt mesaj în curs
+        window.speechSynthesis.cancel();
+        
+        // Creem mesajul cu parametri optimi pentru a fi auzit
         const utterance = new SpeechSynthesisUtterance("Transport finalizat cu succes.");
         utterance.lang = 'ro-RO';
-        window.speechSynthesis.speak(utterance);
+        utterance.volume = 1.0;
+        utterance.rate = 0.9;
+        
+        // Pronunțăm mesajul cu o mică întârziere
+        setTimeout(() => {
+          window.speechSynthesis.speak(utterance);
+          console.log("EMITERE VOCALĂ: Transport finalizat");
+        }, 300);
+      }
+      
+      // Trimitem ultima poziție GPS cu status "finished" pentru a marca finalizarea transportului în sistem
+      if (gpsCoordinates && vehicleInfo && token && currentActiveUit) {
+        try {
+          // Obținem poziția curentă pentru a o trimite ca punct final
+          const position = await getCurrentPosition();
+          await sendGpsUpdate(
+            position,
+            { nr: vehicleInfo.nr, uit: currentActiveUit.uit },
+            token,
+            "finished"  // Marcăm explicit statusul ca finished
+          );
+          console.log("Ultima poziție GPS trimisă cu status 'finished'");
+        } catch (error) {
+          console.error("Eroare la trimiterea ultimei poziții GPS:", error);
+        }
       }
       
       // După 5 secunde, resetăm complet starea transportului

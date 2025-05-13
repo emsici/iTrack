@@ -23,7 +23,7 @@ export const sendGpsUpdate = async (
     uit: string 
   }, 
   token: string,
-  transportStatus: "in_progress" | "finished" = "in_progress"
+  transportStatus: "active" | "finished" = "active"
 ): Promise<boolean> => {
   try {
     if (!position || !vehicleInfo || !token) {
