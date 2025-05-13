@@ -56,15 +56,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (credentials: Login): Promise<boolean> => {
     try {
+      console.log("Încercare de autentificare cu:", credentials);
+      
+      // Din captura de ecran, se pare că serverul așteaptă date în format raw JSON
+      // Am testat mai multe configurații pentru a vedea ce funcționează
       const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/login.php", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(credentials),
+        body: JSON.stringify({
+          email: credentials.email,
+          password: credentials.password
+        }),
       });
 
       const data = await response.json();
+      console.log("Răspuns autentificare:", data);
 
       if (data.status === "success" && data.token) {
         setToken(data.token);

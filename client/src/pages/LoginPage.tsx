@@ -45,8 +45,12 @@ export default function LoginPage() {
 
   const onSubmit = async (data: Login) => {
     setIsLoading(true);
+    console.log("Date de autentificare trimise:", data);
     try {
-      await login(data);
+      const success = await login(data);
+      console.log("Rezultat autentificare:", success);
+    } catch (error) {
+      console.error("Eroare la autentificare:", error);
     } finally {
       setIsLoading(false);
     }
