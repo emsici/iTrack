@@ -18,7 +18,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center">
             <Truck className="h-5 w-5 text-primary mr-2" />
-            <h1 className="text-lg font-semibold text-primary-800">Transport GPS</h1>
+            <h1 className="text-lg font-semibold text-primary-800">iTrack</h1>
           </div>
           
           <nav>

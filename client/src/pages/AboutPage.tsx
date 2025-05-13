@@ -48,7 +48,7 @@ export default function AboutPage() {
           
           <div className="prose max-w-none text-sm">
             <p className="mb-3">
-              Aplicația <strong>Transport GPS Tracking</strong> permite șoferilor să gestioneze transporturile și să transmită coordonatele GPS în timp real către sistemul central.
+              Aplicația <strong>iTrack</strong> permite șoferilor să gestioneze transporturile și să transmită coordonatele GPS în timp real către sistemul central.
             </p>
             
             <h3 className="text-base font-medium text-secondary-800 mb-2">Funcționalități</h3>
@@ -77,7 +77,7 @@ export default function AboutPage() {
             
             <h3 className="text-base font-medium text-secondary-800 mt-3 mb-2">Contact suport</h3>
             <p>
-              Dacă întâmpinați probleme, contactați echipa de suport la adresa de email <a href="mailto:support@transportgps.ro" className="text-primary-600 hover:underline">support@transportgps.ro</a> sau la numărul de telefon <a href="tel:+40212345678" className="text-primary-600 hover:underline">021 234 5678</a>.
+              Dacă întâmpinați probleme, contactați echipa de suport la adresa de email <a href="mailto:support@itrack.ro" className="text-primary-600 hover:underline">support@transportgps.ro</a> sau la numărul de telefon <a href="tel:+40212345678" className="text-primary-600 hover:underline">021 234 5678</a>.
             </p>
           </div>
         </div>
