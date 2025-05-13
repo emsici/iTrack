@@ -15,9 +15,20 @@ interface GpsCoordinates {
   baterie: number;
 }
 
+// Interfață pentru un UIT
+export interface UitOption {
+  uit: string;
+  start_locatie: string;
+  stop_locatie: string;
+}
+
 interface TransportContextType {
   transportStatus: TransportStatus;
   gpsCoordinates: GpsCoordinates | null;
+  selectedUits: UitOption[];
+  setSelectedUits: (uits: UitOption[]) => void;
+  currentActiveUit: UitOption | null;
+  setCurrentActiveUit: (uit: UitOption | null) => void;
   startTransport: () => Promise<void>;
   pauseTransport: () => Promise<void>;
   resumeTransport: () => Promise<void>;
@@ -35,6 +46,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const [isGpsActive, setIsGpsActive] = useState(false);
   const [lastGpsUpdateTime, setLastGpsUpdateTime] = useState<string | null>(null);
   const [battery, setBattery] = useState(100);
+  // State pentru selecția de UIT-uri
+  const [selectedUits, setSelectedUits] = useState<UitOption[]>([]);
+  const [currentActiveUit, setCurrentActiveUit] = useState<UitOption | null>(null);
+  
   const gpsTimerRef = useRef<NodeJS.Timeout | null>(null);
   const { token, vehicleInfo } = useAuth();
   const { toast } = useToast();
@@ -74,7 +89,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const sendGpsData = useCallback(async () => {
-    if (!token || !vehicleInfo || !isGpsActive) return;
+    if (!token || !vehicleInfo || !isGpsActive || !currentActiveUit) return;
     
     try {
       // Obține poziția folosind serviciul Capacitor
@@ -106,7 +121,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         altitudine: altitude || 0,
         baterie: Math.round(newBattery),
         numar_inmatriculare: vehicleInfo.nr,
-        uit: vehicleInfo.uit
+        uit: currentActiveUit.uit  // Folosim UIT-ul activ selectat
       };
       
       // Actualizează starea în aplicație
@@ -136,7 +151,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         description: "Nu s-au putut trimite coordonatele GPS. Verificați permisiunile și conexiunea.",
       });
     }
-  }, [token, vehicleInfo, isGpsActive, battery, toast, getCurrentPosition]);
+  }, [token, vehicleInfo, isGpsActive, battery, toast, getCurrentPosition, currentActiveUit]);
 
   const startGpsTracking = useCallback(() => {
     setIsGpsActive(true);
