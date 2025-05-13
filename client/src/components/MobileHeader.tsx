@@ -25,14 +25,14 @@ export default function MobileHeader() {
   };
 
   return (
-    <header className="bg-secondary-800 text-white p-3 shadow-md">
+    <header className="bg-secondary-800 text-white p-3 shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <div className="rounded-full bg-secondary-700 w-8 h-8 flex items-center justify-center mr-2">
             <MapPin className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <h1 className="text-sm font-bold">Transport GPS</h1>
+            <h1 className="text-sm font-bold">iTrack</h1>
             <p className="text-xs text-secondary-300">{vehicleInfo?.nr || ''}</p>
           </div>
         </div>
