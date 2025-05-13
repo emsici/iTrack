@@ -99,7 +99,7 @@ export default function MobileHeader() {
   };
 
   return (
-    <header className="bg-blue-700 text-white p-3 shadow-md fixed top-0 left-0 right-0 z-50">
+    <header className="bg-blue-700 text-white p-3 shadow-md fixed left-0 right-0 z-50" style={{ top: 'env(safe-area-inset-top)', paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <div className="rounded-full bg-white w-8 h-8 flex items-center justify-center mr-2">
