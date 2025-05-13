@@ -58,23 +58,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de autentificare cu:", credentials);
       
-      // Determinăm URL-ul API-ului în funcție de mediul de rulare
-      const apiUrl = import.meta.env.DEV 
-        ? "/api/login" 
-        : "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php";
-      
-      console.log("Folosim API URL:", apiUrl);
-      
-      // Construim payload-ul exact ca în Postman
-      const rawPayload = JSON.stringify({
-        email: credentials.email,
-        password: credentials.password
-      });
-      
-      // Facem cererea fără Content-Type, exact ca în Postman
-      const response = await fetch(apiUrl, {
+      // Folosim proxy-ul nostru pentru a evita probleme de CORS
+      const response = await fetch("/api/login", {
         method: "POST",
-        body: rawPayload
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: credentials.email,
+          password: credentials.password
+        }),
       });
 
       const data = await response.json();
@@ -117,15 +110,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de înregistrare vehicul:", registrationNumber);
       
-      // Determinăm URL-ul API-ului în funcție de mediul de rulare
-      const apiUrl = import.meta.env.DEV 
-        ? `/api/vehicle/${registrationNumber}` 
-        : `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`;
-      
-      console.log("Folosim API URL:", apiUrl);
-        
+      // Folosim proxy-ul nostru pentru a evita probleme de CORS
       const response = await fetch(
-        apiUrl,
+        `/api/vehicle/${registrationNumber}`,
         {
           method: "GET",
           headers: {
