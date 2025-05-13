@@ -220,7 +220,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Trimite coordonatele GPS la un interval regulat (45 secunde)
       const interval = 45 * 1000; // 45 secunde
       
-      // Actualizăm starea GPS imediat
+      // Actualizăm starea GPS imediat la ACTIV
+      // Acest lucru este crucial pentru UI
+      console.log("Setare GPS activ în startGpsTracking");
       setIsGpsActive(true);
       
       // Inițial trimitem o poziție manual

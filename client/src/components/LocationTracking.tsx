@@ -42,14 +42,14 @@ export default function LocationTracking() {
     }
   };
 
-  // Pentru a face afișarea corectă a statusului GPS, considerăm GPS-ul activ
-  // doar când transportul este în stare activă și avem coordonate valide
-  const isGpsReallyActive = transportStatus === "active" && gpsCoordinates !== null;
+  // Pentru a face afișarea corectă a statusului GPS, îl considerăm activ
+  // când transportul este în stare activă sau când isGpsActive este true
+  const isGpsReallyActive = transportStatus === "active" || isGpsActive;
   
-  // Forțăm actualizarea statusului GPS în context pentru a fi consistenți în toată aplicația
+  // Afișăm starea actuală pentru debugging
   useEffect(() => {
     console.log("Stare GPS actualizată:", isGpsReallyActive ? "ACTIV" : "INACTIV");
-  }, [isGpsReallyActive]);
+  }, [isGpsReallyActive, transportStatus, isGpsActive]);
 
   return (
     <Card className="mb-6 overflow-hidden border-0 shadow-md rounded-lg">
@@ -92,7 +92,7 @@ export default function LocationTracking() {
               <p className="text-sm font-medium">Latitudine</p>
             </div>
             <p className="text-lg font-bold text-slate-800 tracking-tight">
-              {isGpsReallyActive && gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}
+              {transportStatus === "active" && gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}
             </p>
           </div>
           
@@ -102,7 +102,7 @@ export default function LocationTracking() {
               <p className="text-sm font-medium">Longitudine</p>
             </div>
             <p className="text-lg font-bold text-slate-800 tracking-tight">
-              {isGpsReallyActive && gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}
+              {transportStatus === "active" && gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}
             </p>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Viteză</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {isGpsReallyActive && gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "-"}
+              {transportStatus === "active" && gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "-"}
             </p>
           </div>
           
@@ -124,7 +124,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Direcție</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {isGpsReallyActive && gpsCoordinates?.directie !== undefined ? `${gpsCoordinates.directie}°` : "-"}
+              {transportStatus === "active" && gpsCoordinates?.directie !== undefined ? `${gpsCoordinates.directie}°` : "-"}
             </p>
           </div>
           
