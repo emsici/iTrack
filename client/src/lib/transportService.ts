@@ -3,8 +3,18 @@ import { apiRequest } from "./queryClient";
 
 export const sendGpsData = async (data: GpsDataPayload, token: string) => {
   try {
+    console.log("Trimitere date GPS către API:", JSON.stringify(data, null, 2));
+    
+    // În mediul de dezvoltare, vom folosi API-ul proxy local
+    // În producție, vom folosi API-ul direct
+    const apiUrl = import.meta.env.DEV 
+      ? "/api/transport/gps" 
+      : "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
+    
+    console.log("Folosim API URL:", apiUrl);
+    
     // Utilizăm fetch direct pentru a controla exact formatul și headerele
-    const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`
