@@ -13,7 +13,7 @@ export type GpsDataPayload = {
   baterie: number;
   numar_inmatriculare: string;
   uit: string;
-  status?: string; // Adăugăm statusul pentru a indica starea transportului
+  status: string; // "in_progress" sau "finished" conform cerințelor API
 };
 
 // Funcție pentru trimiterea datelor GPS către server

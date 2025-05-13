@@ -113,7 +113,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       }
       
       // Curățăm listener-ul de conectivitate dacă există
-      if (typeof cleanupListener === 'function') {
+      if (cleanupListener && typeof cleanupListener === 'function') {
         cleanupListener();
       }
     };
