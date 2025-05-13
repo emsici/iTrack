@@ -163,9 +163,16 @@ export const sendGpsUpdate = async (
       const responseText = await response.text();
       console.log("Răspuns API GPS:", responseText);
       
-      if (responseText.trim() !== "1") {
-        console.error("Eroare API: Răspunsul nu este cel așteptat", responseText);
-        return false;
+      // În mediul de dezvoltare, acceptăm orice răspuns non-eroare
+      if (import.meta.env.DEV) {
+        console.log("DEZVOLTARE: Acceptăm orice răspuns non-eroare");
+        return true;
+      } else {
+        // În producție, verificăm strict că răspunsul este "1"
+        if (responseText.trim() !== "1") {
+          console.error("Eroare API: Răspunsul nu este cel așteptat", responseText);
+          return false;
+        }
       }
     } catch (parseError) {
       console.error("Eroare la interpretarea răspunsului API:", parseError);

@@ -55,53 +55,56 @@ export default function TransportStats() {
   
   // Actualizează statisticile când se primesc noi coordonate GPS
   useEffect(() => {
+    // IMPORTANT: Verificăm explicit că avem GPS coordonate și transportul este activ
     if (!gpsCoordinates || transportStatus !== 'active') return;
     
-    // Actualizează istoricul de viteză și coordonatele anterioare
+    // Preluăm valorile necesare pentru calcule
     const newSpeed = gpsCoordinates.viteza;
     const newCoords = { lat: gpsCoordinates.lat, lng: gpsCoordinates.lng };
     
-    // Calculează distanța
+    // Calculează distanța doar dacă avem coordonate anterioare
     let distanceToAdd = 0;
     if (previousCoords) {
       distanceToAdd = calculateDistance(
         previousCoords.lat,
         previousCoords.lng,
-        gpsCoordinates.lat,
-        gpsCoordinates.lng
+        newCoords.lat,
+        newCoords.lng
       );
     }
     
-    // Calcul timp de călătorie
+    // Calculează timpul de călătorie
     const travelTimeMinutes = startTime 
       ? Math.floor((new Date().getTime() - startTime.getTime()) / (1000 * 60)) 
       : 0;
     
-    // Actualizează toate statele într-o singură actualizare pentru a evita bucla infinită
-    setSpeedHistory(prev => [...prev, newSpeed]);
-    setPreviousCoords(newCoords);
-    setStats(prev => {
-      // Calculează noile statistici
-      const newSpeedHistory = [...prev.speedHistory || [], newSpeed];
-      const avgSpeed = newSpeedHistory.length > 0 
-        ? newSpeedHistory.reduce((a, b) => a + b, 0) / newSpeedHistory.length 
-        : 0;
-      const maxSpeed = newSpeedHistory.length > 0 
-        ? Math.max(...newSpeedHistory) 
-        : 0;
-      
-      return {
-        ...prev,
-        distanceTraveled: prev.distanceTraveled + distanceToAdd,
-        averageSpeed: avgSpeed,
-        maxSpeed: maxSpeed,
-        travelTime: travelTimeMinutes,
-        batteryLevel: gpsCoordinates.baterie,
-        status: transportStatus,
-      };
-    });
+    // Construim noul istoric de viteză
+    const newSpeedHistoryArray = [...speedHistory, newSpeed];
     
-  }, [gpsCoordinates, transportStatus, previousCoords, startTime]);
+    // Calcul statistici
+    const avgSpeed = newSpeedHistoryArray.length > 0 
+      ? newSpeedHistoryArray.reduce((a, b) => a + b, 0) / newSpeedHistoryArray.length 
+      : 0;
+    
+    const maxSpeed = newSpeedHistoryArray.length > 0 
+      ? Math.max(...newSpeedHistoryArray) 
+      : 0;
+    
+    // Actualizăm istoricul și coordonatele
+    setSpeedHistory(newSpeedHistoryArray);
+    setPreviousCoords(newCoords);
+    
+    // Actualizăm statisticile
+    setStats({
+      distanceTraveled: stats.distanceTraveled + distanceToAdd,
+      averageSpeed: avgSpeed,
+      maxSpeed: maxSpeed,
+      travelTime: travelTimeMinutes,
+      batteryLevel: gpsCoordinates.baterie,
+      status: transportStatus,
+      speedHistory: newSpeedHistoryArray
+    });
+  }, [gpsCoordinates, transportStatus, startTime, previousCoords, speedHistory, stats.distanceTraveled]);
   
   // Formatare timp de călătorie
   const formatTravelTime = (minutes: number) => {

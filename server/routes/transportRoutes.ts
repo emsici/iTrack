@@ -191,7 +191,7 @@ router.post("/gps", async (req, res) => {
       
       // În mediul de dezvoltare, simulăm un răspuns de succes pentru testare
       if (process.env.NODE_ENV === 'development') {
-        console.log("Mediu de dezvoltare - simulăm răspuns de succes");
+        console.log("Mediu de dezvoltare - simulăm răspuns de succes '1'");
         return res.status(200).send("1");
       }
       
