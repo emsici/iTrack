@@ -5,6 +5,20 @@ import { useTransport } from '@/context/TransportContext';
 import { Icon, divIcon } from 'leaflet';
 import { useAuth } from '@/context/AuthContext';
 
+// Fixăm iconițele care nu se încarcă corect în Leaflet
+import L from 'leaflet';
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
 // Stiluri pentru hartă
 const mapStyle = {
   height: '400px',
@@ -44,7 +58,7 @@ type GpsPoint = {
 };
 
 export default function TransportMap() {
-  const { gpsCoordinates, transportStatus, currentActiveUit } = useTransport();
+  const { gpsCoordinates, transportStatus, currentActiveUit, lastGpsUpdateTime, isGpsActive } = useTransport();
   const { vehicleInfo } = useAuth();
   
   // Istoric de coordonate pentru traseu
@@ -91,12 +105,24 @@ export default function TransportMap() {
     }
   }, [transportStatus]);
   
-  // Nu afișăm harta dacă nu există un transport activ sau date GPS
-  if (transportStatus !== "active" && transportStatus !== "paused") {
+  // Afișăm un mesaj dacă nu există un transport activ sau date GPS
+  if ((transportStatus !== "active" && transportStatus !== "paused") || !gpsCoordinates) {
     return (
       <div className="p-4 bg-gray-100 rounded-lg shadow-sm text-center">
         <h3 className="text-lg font-medium">Hartă Transport</h3>
-        <p className="text-gray-500 mt-2">Începeți un transport pentru a vedea traseul pe hartă.</p>
+        <p className="text-gray-500 mt-2">
+          {transportStatus === "active" && !gpsCoordinates 
+            ? "Așteptăm primele coordonate GPS..." 
+            : "Începeți un transport pentru a vedea traseul pe hartă."}
+        </p>
+        
+        {/* Status transport și coordonate - debug info */}
+        <div className="mt-4 p-2 bg-gray-200 rounded text-xs text-left">
+          <p>Status transport: {transportStatus}</p>
+          <p>Ultima actualizare: {lastGpsUpdateTime || 'N/A'}</p>
+          <p>GPS activ: {isGpsActive ? 'Da' : 'Nu'}</p>
+          <p>Coordonate: {gpsCoordinates ? 'Disponibile' : 'Lipsă'}</p>
+        </div>
       </div>
     );
   }

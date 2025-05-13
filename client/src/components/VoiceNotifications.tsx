@@ -45,14 +45,16 @@ export default function VoiceNotifications() {
     if (!enabled) return;
     
     const currentTime = Date.now();
-    // Limitează notificările la cel mult o dată la 10 secunde pentru a evita spam-ul
+    // Limitează notificările la cel mult o dată la 5 secunde pentru a evita spam-ul
     const timeSinceLastNotification = currentTime - lastNotificationTimeRef.current;
-    if (timeSinceLastNotification < 10000) return;
+    if (timeSinceLastNotification < 5000) return;
     
     let newNotification: VoiceNotification | null = null;
     
     // Verifică schimbări în starea transportului
     if (transportStatus !== prevStatusRef.current) {
+      console.log(`Stare transport schimbată: ${prevStatusRef.current} -> ${transportStatus}`);
+      
       switch (transportStatus) {
         case 'active':
           newNotification = {
@@ -79,7 +81,31 @@ export default function VoiceNotifications() {
           };
           break;
       }
+      
       prevStatusRef.current = transportStatus;
+      
+      // Forțăm actualizarea notificării pentru schimbări de stare
+      if (newNotification) {
+        setNotifications(prev => [...prev, newNotification!]);
+        lastNotificationTimeRef.current = currentTime;
+        
+        // Anunță imediat notificarea
+        if (speechSynthRef.current && newNotification.message) {
+          const utterance = new SpeechSynthesisUtterance(newNotification.message);
+          utterance.lang = 'ro-RO';
+          utterance.volume = 1;
+          utterance.rate = 1;
+          
+          speechSynthRef.current.speak(utterance);
+          
+          toast({
+            title: "Notificare vocală",
+            description: newNotification.message,
+          });
+        }
+        
+        return;
+      }
     }
     
     // Verifică schimbări în starea GPS-ului
