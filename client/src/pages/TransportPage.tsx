@@ -50,26 +50,26 @@ export default function TransportPage() {
           <ConnectivityAlert />
           <TransportControls />
           
+          {/* Informații GPS afișate mereu */}
+          <LocationTracking />
+          
           {/* Folosim tabs pentru a organiza componentele noi în interfața mobilă */}
-          <Tabs defaultValue="tracking" className="w-full">
-            <TabsList className="w-full grid grid-cols-3">
-              <TabsTrigger value="tracking">Traseu</TabsTrigger>
+          <Tabs defaultValue="map" className="w-full">
+            <TabsList className="w-full grid grid-cols-2">
+              <TabsTrigger value="map">Hartă</TabsTrigger>
               <TabsTrigger value="stats">Statistici</TabsTrigger>
-              <TabsTrigger value="settings">Notificări</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="tracking" className="space-y-4 pt-2">
-              <LocationTracking />
+            <TabsContent value="map" className="space-y-4 pt-2">
               <TransportMap />
             </TabsContent>
             
             <TabsContent value="stats" className="space-y-4 pt-2">
               <TransportStats />
-            </TabsContent>
-            
-            <TabsContent value="settings" className="space-y-4 pt-2">
-              <VoiceNotifications />
-              <AudioTest />
+              <div className="mt-4">
+                <VoiceNotifications />
+                <AudioTest />
+              </div>
             </TabsContent>
           </Tabs>
         </section>
