@@ -20,6 +20,7 @@ export const checkGpsAvailability = async (): Promise<boolean> => {
   try {
     // Verificăm dacă API-ul de geolocație este disponibil
     if (!('geolocation' in navigator)) {
+      console.log("API-ul de geolocație nu este disponibil");
       isGpsAvailable = false;
       return false;
     }
@@ -33,10 +34,15 @@ export const checkGpsAvailability = async (): Promise<boolean> => {
       );
     });
     
-    if (position) {
+    if (position && position.coords) {
+      console.log("GPS disponibil, poziție obținută:", {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      });
       isGpsAvailable = true;
       return true;
     } else {
+      console.log("Poziție GPS invalidă sau incompletă");
       isGpsAvailable = false;
       return false;
     }

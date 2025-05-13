@@ -150,9 +150,21 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       }
     });
     
-    // Verificăm disponibilitatea GPS-ului
+    // Verificăm disponibilitatea GPS-ului și actualizăm starea
     checkGpsAvailability().then(isAvailable => {
       console.log("Disponibilitate GPS inițială:", isAvailable ? "Disponibil" : "Indisponibil");
+      
+      // Actualizarea stării GPS depinde de mai mulți factori
+      // GPS este considerat activ dacă:
+      // 1. Hardware-ul GPS este disponibil ȘI
+      // 2. Avem coordonate GPS valide
+      const gpsIsReallyActive = isAvailable && !!gpsCoordinates;
+      
+      // Actualizăm starea dacă este diferită
+      if (gpsIsReallyActive !== isGpsActive) {
+        setIsGpsActive(gpsIsReallyActive);
+        console.log("Stare GPS actualizată:", gpsIsReallyActive ? "ACTIV" : "INACTIV");
+      }
     });
     
     // Cleanup la demontarea componentei
