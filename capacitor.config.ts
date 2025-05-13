@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 // Extindem configurația pentru a avea suport pentru opțiunile personalizate
 // Aceasta este o abordare pentru a evita erorile de typeScript
 const config = {
-  appId: 'ro.itrack.app',
+  appId: 'com.euscagency.itrack',
   appName: 'iTrack',
   webDir: 'dist/public',
   server: {
