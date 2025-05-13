@@ -1,5 +1,6 @@
 import { Position } from "@capacitor/geolocation";
 import { Capacitor } from '@capacitor/core';
+import { Http } from '@capacitor-community/http';
 import { getInternetConnectivity } from "./connectivityService";
 import { saveGpsDataOffline } from "./offlineStorage";
 import { CapacitorGeoService } from "./capacitorService";
@@ -141,27 +142,67 @@ export const sendGpsUpdate = async (
       status
     });
     
-    // Folosim întotdeauna proxy-ul pentru a evita problemele CORS
+    // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
+    const isNative = Capacitor.isNativePlatform();
+    
+    // URL-ul API extern
+    const apiExternUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
+    
+    // În browser, folosim proxy-ul pentru a evita problemele CORS
     const apiUrl = "/api/transport/gps";
     
     // Log foarte explicit pentru a vedea ce se trimite
     console.log(`TRANSMITERE GPS: Nr. înmatriculare="${nr_inmatriculare}", UIT="${uit_value}", Status="${status}"`);
-    console.log(`URL API: ${apiUrl}`);
+    console.log(`URL API: ${isNative ? apiExternUrl : apiUrl}`);
     
     console.log("EXACT PAYLOAD RAW FORMAT:", rawPayload);
     
-    // IMPORTANT: Folosim exact formatul din Postman - nu includ niciun header de Content-Type
-    // Adăugăm headerele importante pentru transmiterea datelor vehiculului
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "X-Vehicle-Number": nr_inmatriculare,  // Adăugăm numărul de înmatriculare în headers
-        "X-UIT": uit_value  // Adăugăm UIT în headers
-        // FOARTE IMPORTANT: Nu setăm Content-Type pentru a asigura transmisia raw
-      },
-      body: rawPayload // Folosim payload-ul raw generat mai sus
-    });
+    let response;
+    
+    if (isNative) {
+      // Pe dispozitiv nativ folosim plugin-ul @capacitor-community/http pentru a evita problemele CORS
+      console.log("Folosim Capacitor HTTP plugin pentru trimiterea GPS");
+      
+      try {
+        const httpResponse = await Http.request({
+          method: 'POST',
+          url: apiExternUrl,
+          data: JSON.parse(rawPayload), // Pentru plugin, trebuie să trimitem un obiect, nu un string
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "X-Vehicle-Number": nr_inmatriculare,  // Adăugăm numărul de înmatriculare în headers
+            "X-UIT": uit_value  // Adăugăm UIT în headers
+            // FOARTE IMPORTANT: Nu setăm Content-Type pentru a asigura transmisia raw
+          }
+        });
+        
+        console.log("Status răspuns Capacitor HTTP (GPS):", httpResponse.status);
+        
+        // Simulăm răspunsul fetch
+        response = {
+          ok: httpResponse.status >= 200 && httpResponse.status < 300,
+          status: httpResponse.status,
+          statusText: httpResponse.status.toString(),
+          text: async () => httpResponse.data
+        } as unknown as Response;
+      } catch (capacitorError) {
+        console.error("Eroare plugin Capacitor HTTP (GPS):", capacitorError);
+        throw capacitorError;
+      }
+    } else {
+      // IMPORTANT: Folosim exact formatul din Postman - nu includ niciun header de Content-Type
+      // Adăugăm headerele importante pentru transmiterea datelor vehiculului
+      response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "X-Vehicle-Number": nr_inmatriculare,  // Adăugăm numărul de înmatriculare în headers
+          "X-UIT": uit_value  // Adăugăm UIT în headers
+          // FOARTE IMPORTANT: Nu setăm Content-Type pentru a asigura transmisia raw
+        },
+        body: rawPayload // Folosim payload-ul raw generat mai sus
+      });
+    }
     
     if (!response.ok) {
       // Dacă serverul returnează eroare, salvăm datele local

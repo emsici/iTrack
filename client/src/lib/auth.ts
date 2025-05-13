@@ -36,23 +36,27 @@ export const loginUser = async (credentials: Login) => {
         });
         
         console.log("Status răspuns Capacitor HTTP:", httpResponse.status);
+        console.log("Răspuns date:", JSON.stringify(httpResponse.data));
         
         if (httpResponse.status >= 200 && httpResponse.status < 300) {
-          // Simulăm un obiect Response similar cu cel returnat de fetch pentru a menține
-          // compatibilitatea cu restul codului
-          const response = {
-            ok: true,
-            status: httpResponse.status,
-            json: async () => httpResponse.data
-          } as unknown as Response;
-          
-          return response;
+          // Simulăm un răspuns standard
+          return {
+            success: true,
+            ...httpResponse.data
+          };
         } else {
-          throw new Error(`Eroare la autentificare: ${httpResponse.status}`);
+          console.error("Eroare răspuns API login: ", httpResponse.status);
+          return {
+            success: false,
+            message: `Eroare server: ${httpResponse.status}`
+          };
         }
       } catch (capacitorError) {
         console.error("Eroare plugin Capacitor HTTP:", capacitorError);
-        throw capacitorError;
+        return {
+          success: false,
+          message: "Eroare de rețea: " + (capacitorError as Error).message
+        };
       }
     } else {
       // În browser, folosim proxy-ul
@@ -69,31 +73,32 @@ export const loginUser = async (credentials: Login) => {
       };
       
       const response = await fetch(apiUrl, requestOptions);
-    
-    if (!response.ok) {
-      console.error("Eroare răspuns API autentificare:", response.status, response.statusText);
-      return {
-        success: false,
-        message: "Eroare de server la autentificare"
-      };
-    }
-    
-    const data = await response.json();
-    console.log("Răspuns API autentificare:", data);
-    
-    if (data.status === "success" && data.token) {
-      // Autentificare reușită
-      return {
-        success: true,
-        token: data.token,
-        user: { email: credentials.email }
-      };
-    } else {
-      // Autentificare eșuată
-      return {
-        success: false,
-        message: data.message || "Credențiale invalide"
-      };
+      
+      if (!response.ok) {
+        console.error("Eroare răspuns API autentificare:", response.status, response.statusText);
+        return {
+          success: false,
+          message: "Eroare de server la autentificare"
+        };
+      }
+      
+      const data = await response.json();
+      console.log("Răspuns API autentificare:", data);
+      
+      if (data.status === "success" && data.token) {
+        // Autentificare reușită
+        return {
+          success: true,
+          token: data.token,
+          user: { email: credentials.email }
+        };
+      } else {
+        // Autentificare eșuată
+        return {
+          success: false,
+          message: data.message || "Credențiale invalide"
+        };
+      }
     }
   } catch (error) {
     console.error("Eroare la autentificare:", error);
@@ -126,16 +131,10 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
         });
         
         console.log("Status răspuns Capacitor HTTP (vehicul):", httpResponse.status);
+        console.log("Răspuns date vehicul:", JSON.stringify(httpResponse.data));
         
         if (httpResponse.status >= 200 && httpResponse.status < 300) {
-          // Simulăm un obiect Response similar cu cel returnat de fetch
-          const response = {
-            ok: true,
-            status: httpResponse.status,
-            json: async () => httpResponse.data
-          } as unknown as Response;
-          
-          return response;
+          return httpResponse.data;
         } else {
           throw new Error(`Eroare la obținerea informațiilor vehiculului: ${httpResponse.status}`);
         }
@@ -154,12 +153,13 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
           "Authorization": `Bearer ${token}`
         }
       });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to get vehicle info: ${response.statusText}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to get vehicle info: ${response.statusText}`);
+      }
+      
+      return await response.json();
     }
-    
-    return await response.json();
   } catch (error) {
     console.error("Eroare la obținerea informațiilor vehiculului:", error);
     throw error;
