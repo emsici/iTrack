@@ -1,0 +1,33 @@
+Vreau o aplicatie care asigura accesul soferilor la aplicatia mobila care permite selectarea unui UIT sau a mai multor UIT-uri generate de ANAF, pentru care sa poate alege 4 stari (start cursa (1), pauza de odihna (2), reluare cursa (3) si finalizare transport (4). Pentru acestea, se vor transmite coordonatele GPS din minut in minut. 
+
+1.LOGIN: https://www.euscagency.com/etsm3/platforme/transport/apk/login.php (POST)
+REQUEST:
+{
+    "email":"test@exemplu.com",
+    "password":"parola123"
+}
+RESPONSE:
+{
+    "status": "success",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZXhlbXBsdS5jb20iLCJleHAiOjE3NDY0NzI4OTN9.ksQtvxJNEMHEDePvIGs5nnaGkMuoXXql9yz_clOOAuE"
+} Autentificarea se face cu email si password, iar daca sunt corecte, afisam un ecran unde utilizatorul introduce numarul sau de inmatriculare. Dupa ce introduce nr de inmatriculare faci request la REQUEST https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=B123XYZ (GET)
+RESPONSE :
+{
+    "nr": "B123XYZ",
+    "uit": "UIT12345",
+    "start_locatie": "București",
+    "stop_locatie": "Cluj",
+    "status": "success"
+} iar B123XYZ este exemplu cu ce a introdus. Este afisat acel raspuns, el alege cursa, iar apoi are posibilitatea pe fie/ cand da start sau reluare cursa se trimite 4: coordonate: https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php (POST)
+REQUEST:
+{
+  "lat": 44.4268,
+  "lng": 26.1025,
+  "timestamp": "2025-05-05 16:00:00",
+  "viteza": 53.4,
+  "directie": 180,
+  "altitudine": 87.5,
+  "baterie": 72,
+  "numar_inmatriculare": "B123XYZ",
+  "uit": "UIT56789"
+} (am dat exemplu cu acele dat, tu pui datele reale) - nu trimiti coordonatele daca este in pauza. Incepi sa trimiti coordonatele cand da start cursa sau reluare cursa si te opresti de trimis cand apasa pauza de odihna sau finalizare transport. am explicat si mai sus. ofera o solutie completa si nu ma intreba la fiecare pas. vreau sa compilez direct. vreau si o pagina despre unde scrii detalii despre apliatie, iar designeul vreau sa fie unul intutiv pentru toata aplicatia, simpla, dar si corporatista. vreau sa organizezi bine aplicatia, vreau sa o verifici inainte si sa faci legaturile dintre ea, vreau sa poata rula in background, cand e minimizata sau cand e telefon blocat. ia toate situatiile in calcul, de exemplu cand opreste gps sau internet. daca opreste internet  vreau sa salvezi coordonatele local, apoi cand activeaza internet, iar, trimiti catre server in batchuri pentru a nu flooda server. daca nu am scris ceva, ia tu in calcul, te rog. vreau aplicatia completa. Vreau si un ecran despre. Nu omite nimic. 
