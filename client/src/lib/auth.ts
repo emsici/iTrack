@@ -9,8 +9,11 @@ export const loginUser = async (credentials: Login) => {
     const isNative = (window as any).Capacitor?.isNativePlatform?.() || false;
     
     // În aplicația nativă folosim URL-ul API-ului direct, în browser folosim proxy-ul
+    // IMPORTANT: Verificăm ambele variante HTTP și HTTPS pentru API-ul extern
     const apiUrl = isNative
-      ? "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php"
+      ? window.location.protocol.startsWith('https') 
+        ? "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php"
+        : "http://www.euscagency.com/etsm3/platforme/transport/apk/login.php"
       : "/api/login";
     
     console.log("Folosim URL API:", apiUrl, "isNative:", isNative);
@@ -78,10 +81,14 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
     // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
     const isNative = (window as any).Capacitor?.isNativePlatform?.() || false;
     
-    // Alegem URL-ul în funcție de mediu
-    const apiUrl = isNative
-      ? `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`
-      : `/api/vehicle?nr=${registrationNumber}`;
+    // Alegem URL-ul în funcție de mediu, și verificăm ambele variante HTTP/HTTPS
+    let apiUrl;
+    if (isNative) {
+      const protocol = window.location.protocol.startsWith('https') ? 'https' : 'http';
+      apiUrl = `${protocol}://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`;
+    } else {
+      apiUrl = `/api/vehicle?nr=${registrationNumber}`;
+    }
     
     console.log("Folosim URL API pentru vehicul:", apiUrl);
     
