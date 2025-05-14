@@ -128,8 +128,15 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   
   // Efect pentru a inițializa starea din localStorage la montare
   useEffect(() => {
-    // Verificăm dacă am inițializat deja starea
-    if (initializationRef.current) return;
+    // Protecție împotriva inițializărilor multiple - verificăm atât referința cât și stocarea
+    if (initializationRef.current || isSessionInitialized()) {
+      console.log("[Transport] Sesiune deja inițializată, se omite restaurarea");
+      initializationRef.current = true;
+      markSessionInitialized();
+      return;
+    }
+    
+    console.log("[Transport] Inițializare nouă, se verifică starea salvată");
     
     // Verificăm dacă există date salvate
     const wasRestored = restoreAppState(
@@ -140,16 +147,23 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setBattery
     );
     
-    // Dacă am restaurat starea și transportul este activ, pornim GPS-ul
+    // Dacă am restaurat starea și transportul este activ, pornim GPS-ul cu întârziere
+    // pentru a permite UI-ului să se actualizeze mai întâi
     if (wasRestored && shouldStartGpsOnRestore()) {
       console.log("[Transport] Inițializare GPS după restaurarea stării");
+      
+      // Întârziere mai mare pentru a ne asigura că UI-ul e actualizat
       setTimeout(() => {
+        console.log("[Transport] Pornire GPS după întârziere");
         startGpsTracking();
-      }, 1000);
+      }, 2000);
+    } else {
+      console.log("[Transport] Nu este nevoie să pornim GPS la restaurare");
     }
     
-    // Marcăm că am inițializat starea
+    // Marcăm că am inițializat starea atât în referință cât și în localStorage
     initializationRef.current = true;
+    markSessionInitialized();
     
     // Actualizăm vehicleInfo în state (dacă este disponibil)
     if (vehicleInfo?.nr) {
@@ -197,6 +211,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     
     // Salvăm starea în localStorage
     if (transportStatus !== "inactive" || currentActiveUit) {
+      console.log(`[Transport] Salvare stare: Status=${transportStatus}, UIT=${currentActiveUit?.uit || "niciunul"}`);
+      
       saveAppState(
         transportStatus,
         currentActiveUit,
@@ -206,6 +222,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       );
     } else if (transportStatus === "inactive") {
       // Curățăm starea când suntem inactivi
+      console.log("[Transport] Ștergere stare salvată (transport inactiv)");
       clearAppState();
     }
   }, [transportStatus, gpsCoordinates, isGpsActive, isBackgroundActive, vehicleInfo?.nr, currentActiveUit]);
