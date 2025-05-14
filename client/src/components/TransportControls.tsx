@@ -130,7 +130,7 @@ export default function TransportControls() {
         toast({
           variant: "destructive", 
           title: "Eroare GPS",
-          description: "Nu s-a putut activa GPS-ul. Încercați să porniți transportul fără GPS."
+          description: "Nu s-a putut activa GPS-ul. Transportul nu poate fi pornit fără GPS activ."
         });
       }
     } catch (error) {

@@ -342,21 +342,56 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       return;
     }
     
-    // Relaxăm condiția pentru a nu bloca trimiterea coordonatelor GPS
-    if (!vehicleInfo?.nr) {
-      console.error("Lipsă informații vehicul");
+    // Verificăm dacă transportul este activ
+    if (transportStatus !== "active") {
+      console.log("Ignorăm actualizarea GPS - transportul nu este activ:", transportStatus);
       return;
     }
     
-    // Utilizăm valorile cu protecție la null
-    const vehicleNr = vehicleInfo.nr;
+    // Verificăm informațiile vehiculului
+    if (!vehicleInfo) {
+      console.error("Lipsă informații vehicul - nu putem trimite coordonate GPS");
+      return;
+    }
+    
+    // Verificăm formatul vehicleInfo.nr și corectăm dacă este necesar
+    let vehicleNr = "";
+    if (typeof vehicleInfo.nr === 'object' && vehicleInfo.nr !== null) {
+      console.log("Corectăm formatul vehicleInfo.nr care este obiect:", vehicleInfo.nr);
+      if ('nr' in vehicleInfo.nr) {
+        vehicleNr = (vehicleInfo.nr as any).nr;
+      }
+    } else {
+      vehicleNr = vehicleInfo.nr;
+    }
+    
+    if (!vehicleNr) {
+      console.error("Număr vehicul invalid după corecție:", vehicleNr);
+      return;
+    }
+    
+    // Verificăm UIT-ul
     const uit = currentActiveUit?.uit || '';
+    if (!uit) {
+      console.error("UIT lipsă sau invalid");
+      return;
+    }
     
     const coords = position.coords;
     const timestamp = new Date().toISOString();
     
-    // Simulăm nivelul bateriei (ar trebui înlocuit cu date reale pe dispozitive)
-    const batteryLevel = Math.max(20, Math.floor(100 - Math.random() * 30));
+    // Obținem nivelul bateriei real sau simulat
+    let batteryLevel = 100;
+    if (typeof navigator !== 'undefined' && 'getBattery' in navigator) {
+      try {
+        (navigator as any).getBattery().then((battery: any) => {
+          batteryLevel = Math.round(battery.level * 100);
+        });
+      } catch (e) {
+        // Folosim valoarea default
+        console.log("Nu s-a putut obține nivelul bateriei:", e);
+      }
+    }
     
     // Creăm obiectul cu coordonatele GPS
     const newCoords: GpsCoordinates = {
@@ -412,7 +447,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           vehicleInfoType: typeof vehicleInfo,
           vehicleInfoKeys: Object.keys(vehicleInfo),
           vehicleNr: vehicleInfo.nr,
-          vehicleNrType: typeof vehicleInfo.nr
+          vehicleNrType: typeof vehicleInfo.nr,
+          vehicleNrCorected: vehicleNr
         });
         
         sendGpsUpdate(
