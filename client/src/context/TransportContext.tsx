@@ -291,9 +291,75 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     }
   }, [vehicleInfo, token, currentActiveUit, startWatchPosition, stopGpsTracking]);
   
+  // Funcții pentru salvarea și restaurarea stării transportului în localStorage
+  const saveTransportState = useCallback(() => {
+    if (!isAuthenticated || !vehicleInfo?.nr) return;
+    
+    try {
+      const stateToSave = {
+        transportStatus,
+        currentActiveUit,
+        lastGpsUpdateTime,
+        battery,
+        timestamp: new Date().getTime()
+      };
+      
+      localStorage.setItem(`transport_state_${vehicleInfo.nr}`, JSON.stringify(stateToSave));
+      console.log("Stare transport salvată în localStorage");
+    } catch (error) {
+      console.error("Eroare la salvarea stării transportului:", error);
+    }
+  }, [transportStatus, currentActiveUit, lastGpsUpdateTime, battery, isAuthenticated, vehicleInfo]);
+  
+  // Funcție pentru restaurarea stării transportului din localStorage
+  const restoreTransportState = useCallback(() => {
+    if (!isAuthenticated || !vehicleInfo?.nr) return false;
+    
+    try {
+      const savedState = localStorage.getItem(`transport_state_${vehicleInfo.nr}`);
+      
+      if (savedState) {
+        const parsedState = JSON.parse(savedState);
+        
+        // Verificăm dacă starea salvată nu este mai veche de 24 de ore
+        const now = new Date().getTime();
+        const savedTime = parsedState.timestamp || 0;
+        const oneDay = 24 * 60 * 60 * 1000;
+        
+        if (now - savedTime > oneDay) {
+          console.log("Stare transport prea veche, nu o restaurăm");
+          localStorage.removeItem(`transport_state_${vehicleInfo.nr}`);
+          return false;
+        }
+        
+        // Restaurăm starea
+        setTransportStatus(parsedState.transportStatus || "inactive");
+        if (parsedState.currentActiveUit) setCurrentActiveUit(parsedState.currentActiveUit);
+        if (parsedState.lastGpsUpdateTime) setLastGpsUpdateTime(parsedState.lastGpsUpdateTime);
+        if (parsedState.battery) setBattery(parsedState.battery);
+        
+        console.log("Stare transport restaurată:", parsedState.transportStatus);
+        return true;
+      }
+    } catch (error) {
+      console.error("Eroare la restaurarea stării transportului:", error);
+    }
+    
+    return false;
+  }, [vehicleInfo, isAuthenticated]);
+  
+  // Salvăm starea transportului de fiecare dată când se modifică
+  useEffect(() => {
+    saveTransportState();
+  }, [transportStatus, currentActiveUit, lastGpsUpdateTime, battery, saveTransportState]);
+
   // Inițializare GPS condiționată de starea transportului și autentificării
   useEffect(() => {
     console.log("Inițializare GPS automată la pornire");
+    
+    // Verificare pentru sesiune existentă
+    console.log("Verificare sesiune existentă la pornirea aplicației");
+    const stateRestored = restoreTransportState();
     
     const initGps = async () => {
       // Verificăm dacă avem un transport activ - doar atunci inițializăm GPS-ul complet
