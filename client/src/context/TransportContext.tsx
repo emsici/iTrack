@@ -423,31 +423,33 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         
         // Restaurăm starea doar dacă este "active" sau "paused"
         const storedStatus = parsedState.transportStatus || "inactive";
-        if (storedStatus === "active" || storedStatus === "paused") {
+        
+        // Chiar dacă starea este "inactive", verificăm dacă avem o sesiune activă în registru
+        // Aceasta ne permite să menținem sesiunile active între navigări
+        const activeTransport = vehicleTransports.find(t => 
+          t.vehicleNumber === vehicleInfo.nr && 
+          (t.status === "active" || t.status === "paused")
+        );
+        
+        // Dacă avem o sesiune activă în registru, o folosim pe aceea
+        const finalStatus = activeTransport ? activeTransport.status : storedStatus;
+        
+        if (finalStatus === "active" || finalStatus === "paused") {
           // Restaurăm starea
           if (parsedState.currentActiveUit) setCurrentActiveUit(parsedState.currentActiveUit);
           if (parsedState.lastGpsUpdateTime) setLastGpsUpdateTime(parsedState.lastGpsUpdateTime);
           if (parsedState.battery) setBattery(parsedState.battery);
           
-          // Setăm transportStatus la final pentru a declanșa efectele care depind de el
-          setTransportStatus(storedStatus);
-          
-          // Marcăm GPS-ul ca activ și restartăm tracking-ul dacă transportul este activ
-          if (storedStatus === "active") {
+          // Marcăm GPS-ul ca activ dacă transportul este activ
+          if (finalStatus === "active") {
             setIsGpsActive(true);
             console.log("Stare GPS actualizată:", "ACTIV");
-            
-            // Restartăm tracking-ul GPS pentru a asigura că continuă să funcționeze
-            setTimeout(() => {
-              startWatchPosition().then(() => {
-                console.log("Tracking GPS restartat după restaurarea stării");
-              }).catch(error => {
-                console.error("Eroare la restartarea tracking-ului GPS:", error);
-              });
-            }, 500); // Adăugăm un mic delay pentru a permite stărilor să se actualizeze
           }
           
-          console.log("Stare transport restaurată:", storedStatus);
+          // Setăm transportStatus la final pentru a declanșa efectele care depind de el
+          setTransportStatus(finalStatus);
+          
+          console.log("Stare transport restaurată:", finalStatus);
           return true;
         } else {
           console.log("Nu restaurăm starea 'inactive' din localStorage");
@@ -459,7 +461,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     }
     
     return false;
-  }, [vehicleInfo, isAuthenticated]);
+  }, [vehicleInfo, isAuthenticated, vehicleTransports]);
   
   // Salvăm starea transportului de fiecare dată când se modifică
   useEffect(() => {
@@ -712,6 +714,33 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Actualizam starea transportului
       setTransportStatus("active");
+      
+      // Adăugăm un transport în registru pentru a asigura persistența între pagini
+      const currentTime = new Date().toISOString().replace('T', ' ').substr(0, 19);
+      const newTransport = {
+        vehicleNumber: vehicleInfo.nr,
+        uit: currentActiveUit.uit,
+        status: "active" as TransportStatus,
+        lastPosition: null,
+        startTime: currentTime,
+        lastUpdateTime: currentTime,
+        isGpsActive: true,
+        isBackgroundActive: false
+      };
+      
+      setVehicleTransports(prev => {
+        // Verificăm dacă există deja un transport pentru acest vehicul
+        const existingIndex = prev.findIndex(t => t.vehicleNumber === vehicleInfo.nr);
+        if (existingIndex >= 0) {
+          // Înlocuim transportul existent
+          const updatedTransports = [...prev];
+          updatedTransports[existingIndex] = newTransport;
+          return updatedTransports;
+        } else {
+          // Adăugăm un nou transport
+          return [...prev, newTransport];
+        }
+      });
       
       // Pornim GPS tracking
       const trackingStarted = await startGpsTracking();
