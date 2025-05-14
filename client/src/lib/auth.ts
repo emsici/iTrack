@@ -17,9 +17,11 @@ export const loginUser = async (credentials: Login) => {
     const isNative = Capacitor.isNativePlatform();
     
     // URL-ul API diferă între native și browser
+    // Folosim URL-ul exact furnizat de client pentru API extern
     const apiUrl = isNative 
       ? "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php" 
       : "/api/login";
+    console.log("URL autentificare:", apiUrl);
       
     console.log("Folosim URL API:", apiUrl, "isNative:", isNative);
     
@@ -35,12 +37,19 @@ export const loginUser = async (credentials: Login) => {
     if (isNative) {
       try {
         // Folosim HTTP plugin de la Capacitor pentru dispozitive native
+        // IMPORTANT: API-ul extern așteaptă formular URL-encoded, nu JSON
+        const formData = new URLSearchParams();
+        formData.append('email', credentials.email);
+        formData.append('password', credentials.password);
+        
+        console.log("Trimit date de autentificare în format form-urlencoded:", formData.toString());
+        
         const response = await Http.request({
           method: 'POST',
           url: apiUrl,
-          data: payload,
+          data: formData.toString(),
           headers: {
-            // Nu specificăm Content-Type pentru a fi conform cu cerințele API-ului
+            'Content-Type': 'application/x-www-form-urlencoded'
           },
           params: {} as any // FOARTE IMPORTANT: obiect gol transformat în any pentru a rezolva problema de tipuri
         });
@@ -78,20 +87,49 @@ export const loginUser = async (credentials: Login) => {
     // Procesăm răspunsul uniform, indiferent de platformă
     console.log("Răspuns autentificare:", responseData);
     
-    // Verificăm dacă autentificarea a fost reușită
-    if (responseData && (responseData.status === "success" || responseData.token)) {
-      console.log("Rezultat autentificare:", true);
-      return {
-        success: true,
-        token: responseData.token,
-        user: { email: credentials.email }
-      };
+    // Verificăm dacă autentificarea a fost reușită și tratăm diferit răspunsul în funcție de platformă
+    console.log("Rezultat autentificare:", responseData, apiUrl);
+    
+    if (isNative) {
+      // Pentru API extern: verificăm strict formatul de răspuns așteptat
+      // Depanare avansată pentru răspunsul API-ului
+      console.log("RĂSPUNS RAW API EXTERN:", typeof responseData, JSON.stringify(responseData));
+      
+      // API-ul poate returna un string cu token-ul direct sau un obiect cu proprietatea token
+      if ((typeof responseData === 'string' && responseData.length > 10) || 
+          (responseData && responseData.token)) {
+        
+        // Dacă răspunsul este string direct, îl folosim ca token
+        const tokenValue = typeof responseData === 'string' ? responseData : responseData.token;
+        console.log("Rezultat autentificare API extern:", true, "Token:", tokenValue);
+        return {
+          success: true,
+          token: tokenValue,
+          user: { email: credentials.email }
+        };
+      } else {
+        console.log("Rezultat autentificare API extern:", false, apiUrl);
+        return {
+          success: false,
+          message: responseData?.message || "Credențiale invalide"
+        };
+      }
     } else {
-      console.log("Rezultat autentificare:", false);
-      return {
-        success: false,
-        message: responseData?.message || "Credențiale invalide"
-      };
+      // Pentru API intern (dezvoltare): verificăm formatul de răspuns specific
+      if (responseData && (responseData.status === "success" || responseData.token)) {
+        console.log("Rezultat autentificare API intern:", true);
+        return {
+          success: true,
+          token: responseData.token,
+          user: { email: credentials.email }
+        };
+      } else {
+        console.log("Rezultat autentificare API intern:", false);
+        return {
+          success: false,
+          message: responseData?.message || "Credențiale invalide"
+        };
+      }
     }
   } catch (error) {
     console.error("Eroare la autentificare:", error);
