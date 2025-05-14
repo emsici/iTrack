@@ -8,7 +8,11 @@ import {
   ToastViewport,
 } from "@/components/ui/toast"
 
-export function Toaster() {
+interface ToasterProps {
+  position?: "top" | "bottom"
+}
+
+export function Toaster({ position = "top" }: ToasterProps) {
   const { toasts } = useToast()
 
   return (
@@ -27,7 +31,7 @@ export function Toaster() {
           </Toast>
         )
       })}
-      <ToastViewport />
+      <ToastViewport className={position === "bottom" ? "bottom-0" : "top-0"} />
     </ToastProvider>
   )
 }

@@ -28,6 +28,7 @@ function App() {
     <AuthProvider>
       <TransportProvider>
         <Router />
+        <Toaster position="bottom" />
       </TransportProvider>
     </AuthProvider>
   );
