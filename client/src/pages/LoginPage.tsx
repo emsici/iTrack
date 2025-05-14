@@ -47,6 +47,16 @@ export default function LoginPage() {
   const onSubmit = async (data: Login) => {
     setIsLoading(true);
     console.log("Date de autentificare trimise:", data);
+    
+    // Verificare specială pentru credențialele de admin (acces la pagina de loguri)
+    if (data.email === 'admin@itrack.app' && data.password === 'admin123') {
+      console.log("Credențiale admin detectate - redirecționare la pagina de loguri");
+      setIsLoading(false);
+      // Redirecționare directă la pagina de loguri admin
+      setLocation('/admin/logs');
+      return;
+    }
+    
     try {
       const success = await login(data);
       console.log("Rezultat autentificare:", success);
