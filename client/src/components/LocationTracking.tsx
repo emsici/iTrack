@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 export default function LocationTracking() {
   const { gpsCoordinates, isGpsActive, lastGpsUpdateTime, isBackgroundActive, battery, transportStatus } = useTransport();
   const [isConnected, setIsConnected] = useState(true);
+  const [deviceBattery, setDeviceBattery] = useState<number | null>(null);
   
   // Verificăm periodic conexiunea la internet
   useEffect(() => {
@@ -24,12 +25,36 @@ export default function LocationTracking() {
     };
   }, []);
   
+  // Obținem nivelul bateriei de la dispozitiv dacă API-ul este disponibil
+  useEffect(() => {
+    // Încercăm să obținem nivelul real al bateriei
+    const getBatteryLevel = async () => {
+      try {
+        // Pentru browsere care suportă Battery API
+        if ('getBattery' in navigator) {
+          const batteryManager = await (navigator as any).getBattery();
+          setDeviceBattery(Math.round(batteryManager.level * 100));
+          
+          // Ascultăm pentru schimbări în nivelul bateriei
+          batteryManager.addEventListener('levelchange', () => {
+            setDeviceBattery(Math.round(batteryManager.level * 100));
+          });
+        }
+      } catch (error) {
+        console.error('Eroare la obținerea nivelului bateriei:', error);
+      }
+    };
+    
+    getBatteryLevel();
+  }, []);
+  
   // Facem un log pentru a depana problema
   console.log("DEPANARE GPS (LocationTracking): ", {
     transportStatus,
     isGpsActive,
     hasCoordinates: !!gpsCoordinates,
     battery,
+    deviceBattery,
     lastUpdateTime: lastGpsUpdateTime
   });
   
@@ -43,18 +68,18 @@ export default function LocationTracking() {
     }
   };
 
-  // Pentru a face afișarea corectă a statusului GPS, îl considerăm activ
-  // DOAR când transportul este în stare activă ȘI când isGpsActive este true ȘI avem coordonate
-  const isGpsReallyActive = transportStatus === "active" && isGpsActive && !!gpsCoordinates;
+  // CORECȚIE: Considerăm GPS-ul activ și în starea de pauză dacă avem coordonate
+  // Acest lucru este important pentru a evita confuzia utilizatorului
+  const isGpsReallyActive = (transportStatus === "active" || transportStatus === "paused") && (isGpsActive || !!gpsCoordinates);
   
-  // Nu afișăm deloc componenta dacă transportul nu este activ
-  if (transportStatus !== "active") {
+  // CORECȚIE: Afișăm componenta și în starea de pauză pentru a oferi feedback utilizatorului
+  if (transportStatus !== "active" && transportStatus !== "paused") {
     return null;
   }
   
   // Afișăm starea actuală pentru debugging
   useEffect(() => {
-    console.log("Stare GPS actualizată:", isGpsReallyActive ? "ACTIV" : "INACTIV");
+    console.log("Stare GPS actualizată:", isGpsReallyActive ? "ACTIV" : "INACTIV", "Transport:", transportStatus);
   }, [isGpsReallyActive, transportStatus, isGpsActive]);
 
   return (
@@ -148,6 +173,30 @@ export default function LocationTracking() {
         
 
       
+        {/* Indicator baterie - folosim valoarea reală a dispozitivului dacă este disponibilă */}
+        <div className="mt-4 bg-white rounded-lg border border-blue-100 shadow-sm p-3">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center text-blue-700">
+              <Battery className="w-4 h-4 mr-2" />
+              <p className="text-sm font-medium">Baterie dispozitiv</p>
+            </div>
+            <div className="flex items-center">
+              <div className="h-2 w-20 bg-gray-200 rounded-full overflow-hidden mr-2">
+                <div 
+                  className={`h-full rounded-full ${
+                    (deviceBattery !== null ? deviceBattery : battery) > 20 
+                      ? 'bg-green-500' 
+                      : 'bg-red-500 animate-pulse'
+                  }`}
+                  style={{ width: `${deviceBattery !== null ? deviceBattery : battery}%` }}
+                ></div>
+              </div>
+              <span className="text-sm font-bold text-slate-700">
+                {deviceBattery !== null ? deviceBattery : battery}%
+              </span>
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

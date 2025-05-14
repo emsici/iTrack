@@ -26,17 +26,30 @@ export default function LogViewerPage() {
   useEffect(() => {
     addLog('Pagina de loguri accesată', 'info', 'admin-page');
     
-    // Auto-logare pentru admin dacă pagina a fost deschisă prin redirecționare de la login
-    // Verificăm localStorage pentru a vedea dacă au fost stocate credențialele admin
+    // CORECȚIE: Verificare mai robustă pentru autentificarea automată
+    // Verificăm acum atât sessionStorage cât și localStorage pentru a rezolva
+    // problema autentificării pe dispozitive mobile
     const fromLoginPage = sessionStorage.getItem('fromAdminLogin');
-    if (fromLoginPage === 'true') {
+    const hasAdminToken = localStorage.getItem('_admin_access_token') === 'true';
+    
+    // Auto-autentificare dacă avem token admin sau dacă venim de la pagina de login
+    if (fromLoginPage === 'true' || hasAdminToken) {
+      console.log('[admin-page] Auto-autentificare admin', { 
+        fromLoginPage: !!fromLoginPage, 
+        hasAdminToken
+      });
+      
       // Precompletăm credențialele de admin și autentificăm automat
       setEmail('admin@itrack.app');
       setPassword('admin123');
       setIsAuthenticated(true);
       refreshLogs();
-      // Ștergem flag-ul după utilizare
-      sessionStorage.removeItem('fromAdminLogin');
+      
+      // Ștergem flag-ul din sessionStorage după utilizare
+      if (fromLoginPage === 'true') {
+        sessionStorage.removeItem('fromAdminLogin');
+      }
+      
       addLog('Autentificare automată administrator', 'info', 'admin-page');
     }
   }, []);
@@ -47,8 +60,20 @@ export default function LogViewerPage() {
   // Autentificare - verifică local pentru admin, apoi eventual către API pentru alți utilizatori
   const handleLogin = async () => {
     try {
+      console.log('Încercare autentificare admin cu:', { email, passwordLength: password.length });
+      
+      // CORECTARE: Stocare temporară în localStorage a credențialelor de admin pentru transfer între pagini
+      // și pentru rezolvarea problemei pe telefoane mobile
+      if (email.trim() === 'admin@itrack.app' && password.trim() === 'admin123') {
+        localStorage.setItem('_admin_access_token', 'true');
+        console.log('Admin token setat în localStorage');
+      }
+      
       // Verificăm mai întâi dacă sunt credențialele de admin definite local
-      if (isAdminUser(email, password)) {
+      // sau dacă avem un token valid în localStorage
+      if (isAdminUser(email, password) || localStorage.getItem('_admin_access_token') === 'true') {
+        console.log('Credențiale de admin valide - autentificare directă');
+        
         // Dacă sunt creditențiale de admin, autentificăm direct fără a trimite la API
         setIsAuthenticated(true);
         refreshLogs();
@@ -59,6 +84,7 @@ export default function LogViewerPage() {
       
       // Dacă nu sunt creditențiale de admin, atunci respingem direct
       // (eventual aici am putea verifica și cu API-ul pentru alte credențiale)
+      console.log('Credențiale invalide pentru admin');
       setError('Credențiale invalide. Accesul este permis doar pentru utilizatorii administratori.');
       addLog('Încercare de autentificare eșuată', 'warn', 'admin-page', { email });
       
