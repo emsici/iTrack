@@ -121,10 +121,13 @@ export default function LocationTracking() {
   // Acest lucru va asigura că starea rămâne activă chiar și după restart
   useEffect(() => {
     if (transportStatus === "active") {
-      // Folosim metoda importată direct în loc de require
-      forceTransportActive();
-      console.log("[LocationTracking] Forțare actualizare stare transport activă");
-      
+      try {
+        // Folosim metoda importată direct în loc de require
+        forceTransportActive();
+        console.log("[LocationTracking] Forțare actualizare stare transport activă");
+      } catch (error) {
+        console.error("Eroare la forțarea transportului activ:", error);
+      }
       // Notificare utilizator despre starea GPS-ului
       if (isGpsActive && !gpsCoordinates) {
         toast({
