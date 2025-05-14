@@ -617,7 +617,15 @@ export function TransportProvider({ children }: { children: ReactNode }) {
             variant: "destructive"
           });
           return false;
-        } else if (!gpsStarted) {
+        } else if (!gpsStarted && !isNative) {
+          // În browser, afișăm un avertisment dar continuăm
+          console.warn("[Transport] Nu s-a putut porni GPS-ul în browser, dar continuăm");
+          toast({
+            title: "Avertisment GPS",
+            description: "Sistemul de urmărire a locației nu a putut fi pornit în browser. Funcționalitatea ar putea fi limitată.",
+            variant: "warning"
+          });
+          // Continuăm cu transportul chiar dacă GPS-ul nu a pornit (doar în browser)
           // În browser doar afișăm un avertisment
           console.warn("[Transport] Nu s-a putut porni GPS-ul în browser, dar continuăm");
           toast({
