@@ -31,25 +31,23 @@ export const loginUser = async (credentials: Login) => {
       password: credentials.password
     };
     
+    console.log("Payload autentificare:", JSON.stringify(payload));
+    
     let responseData;
     
     // Diferențiem între browser și dispozitiv nativ pentru metoda de request
     if (isNative) {
       try {
         // Folosim HTTP plugin de la Capacitor pentru dispozitive native
-        // IMPORTANT: API-ul extern așteaptă formular URL-encoded, nu JSON
-        const formData = new URLSearchParams();
-        formData.append('email', credentials.email);
-        formData.append('password', credentials.password);
-        
-        console.log("Trimit date de autentificare în format form-urlencoded:", formData.toString());
+        // Din exemplul clientului, API-ul extern așteaptă JSON, nu form-urlencoded
+        console.log("Trimit date de autentificare în format JSON:", JSON.stringify(payload));
         
         const response = await Http.request({
           method: 'POST',
           url: apiUrl,
-          data: formData.toString(),
+          data: payload,
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'
           },
           params: {} as any // FOARTE IMPORTANT: obiect gol transformat în any pentru a rezolva problema de tipuri
         });
@@ -96,8 +94,11 @@ export const loginUser = async (credentials: Login) => {
       console.log("RĂSPUNS RAW API EXTERN:", typeof responseData, JSON.stringify(responseData));
       
       // API-ul poate returna un string cu token-ul direct sau un obiect cu proprietatea token
-      if ((typeof responseData === 'string' && responseData.length > 10) || 
-          (responseData && responseData.token)) {
+      // Conform exemplului de la client, răspunsul are format:
+      // { "status": "success", "token": "..." }
+      if (responseData && 
+          ((responseData.status === "success" && responseData.token) ||
+           (typeof responseData === 'string' && responseData.length > 10))) {
         
         // Dacă răspunsul este string direct, îl folosim ca token
         const tokenValue = typeof responseData === 'string' ? responseData : responseData.token;
