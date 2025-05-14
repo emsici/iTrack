@@ -77,6 +77,7 @@ export const getSavedAppState = (): SavedAppState | null => {
   try {
     // Verificăm dacă există o stare de transport salvată
     const transportStatus = localStorage.getItem(TRANSPORT_STATE_KEY);
+    console.log("[State Manager] Verificare stare salvată:", transportStatus || "Nu există");
     if (!transportStatus) return null;
     
     // Obținem UIT-ul activ
@@ -214,7 +215,14 @@ export const shouldStartGpsOnRestore = (): boolean => {
     const savedState = getSavedAppState();
     if (!savedState) return false;
     
-    return savedState.transportStatus === "active" && !!savedState.currentActiveUit;
+    const shouldStart = savedState.transportStatus === "active" && !!savedState.currentActiveUit;
+    console.log(
+      `[State Manager] Verificare pornire GPS la restaurare:`,
+      `Status=${savedState.transportStatus}`,
+      `UIT=${savedState.currentActiveUit?.uit || "niciunul"}`,
+      `Rezultat=${shouldStart ? "DA" : "NU"}`
+    );
+    return shouldStart;
   } catch (error) {
     console.error("[State Manager] Eroare la verificarea stării pentru GPS:", error);
     return false;
