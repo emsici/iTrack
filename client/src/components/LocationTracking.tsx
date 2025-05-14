@@ -25,11 +25,12 @@ export default function LocationTracking() {
   }, []);
   
   // Facem un log pentru a depana problema
-  console.log("DEPANARE GPS: ", {
+  console.log("DEPANARE GPS (LocationTracking): ", {
     transportStatus,
     isGpsActive,
     hasCoordinates: !!gpsCoordinates,
-    coordinates: gpsCoordinates
+    battery,
+    lastUpdateTime: lastGpsUpdateTime
   });
   
   const formatTime = (timeString: string | null) => {

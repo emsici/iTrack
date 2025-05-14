@@ -362,7 +362,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     );
     
     // Inițializează GPS doar când utilizatorul este autentificat
+    console.log("Verificare GPS - StatusAuth:", isAuthenticated, "StatusTransport:", transportStatus);
     if (isAuthenticated) {
+      console.log("Utilizator autentificat, inițializare GPS");
       initGps();
     } else {
       // Resetăm starea pentru utilizatorii neautentificați
