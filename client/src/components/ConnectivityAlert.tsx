@@ -139,17 +139,26 @@ export default function ConnectivityAlert() {
         <Alert variant="default" className="bg-yellow-50 border-yellow-200 mt-6">
           <AlertCircle className="h-4 w-4 text-yellow-500" />
           <AlertTitle className="flex items-center text-yellow-700">
-            <Map className="h-4 w-4 mr-2" /> GPS inactiv
+            <Map className="h-4 w-4 mr-2" /> Locație dezactivată
           </AlertTitle>
           <AlertDescription>
-            <p>GPS-ul este dezactivat sau nu are semnal. Vă rugăm să:</p>
+            <p>Serviciul de locație este dezactivat sau aplicația nu are permisiuni. Vă rugăm să:</p>
             
             <ul className="list-disc pl-5 mt-2 text-yellow-700 text-sm">
-              <li>Verificați dacă locația (GPS) este activată în setările telefonului</li>
-              <li>Verificați dacă aplicația are permisiunile necesare pentru accesarea locației</li>
-              <li>Încercați să ieșiți în aer liber sau aproape de o fereastră pentru semnal GPS mai bun</li>
-              <li>Reporniți aplicația dacă problema persistă</li>
+              <li>Activați <strong>Locația</strong> în meniul de setări rapide al telefonului (glisați în jos din partea de sus a ecranului)</li>
+              <li>În setările telefonului, activați permisiunile de locație pentru aplicația iTrack</li>
+              <li>Selectați opțiunea <strong>"Permite tot timpul"</strong> pentru locație</li>
+              <li>Ieșiți în aer liber pentru un semnal de locație mai bun</li>
             </ul>
+            
+            <Button 
+              onClick={() => window.location.reload()}
+              size="sm" 
+              variant="outline"
+              className="self-start mt-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-700"
+            >
+              Reîncarcă aplicația
+            </Button>
           </AlertDescription>
         </Alert>
       )}

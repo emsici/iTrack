@@ -126,10 +126,10 @@ function App() {
         <Dialog open={showPermissionsDialog} onOpenChange={setShowPermissionsDialog}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Permisiuni de localizare</DialogTitle>
+              <DialogTitle>Activare serviciu de locație</DialogTitle>
               <DialogDescription>
-                Aplicația iTrack necesită acces la locația dvs. pentru a urmări transporturile și a transmite 
-                coordonatele GPS. Veți avea control deplin asupra momentului în care GPS-ul este activ.
+                Aplicația iTrack necesită activarea serviciului de locație pentru a urmări transporturile. 
+                Fără acces la locație, aplicația nu va putea înregistra traseul parcurs.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -163,7 +163,7 @@ function App() {
                 onClick={requestGpsPermissionsNow}
                 className="bg-green-600 hover:bg-green-700"
               >
-                Activează GPS
+                Activează locația
               </Button>
             </DialogFooter>
           </DialogContent>
