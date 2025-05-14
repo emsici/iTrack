@@ -211,32 +211,54 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
             console.log("Sincronizare: Trimitere date GPS arhivate către API:", payload);
             
             try {
-              const httpResponse = await Http.request({
-                method: 'POST',
-                url: apiExternUrl,
-                headers: {
-                  "Authorization": `Bearer ${token || ''}`,
-                  "X-Vehicle-Number": numar_inmatriculare,
-                  "X-UIT": uit_value
-                },
-                // Nu folosim JSON.parse pentru data deoarece vrem să trimitem JSON ca string
-              data: payload
-              });
+              // În browser, folosim proxy-ul pentru a evita problemele CORS
+              const apiUrl = "/api/transport/gps";
+              // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
+              const isNative = false; // Pentru simplitate, dezactivăm modul nativ în browser
               
-              console.log("Sincronizare: Status răspuns HTTP GPS:", httpResponse.status);
-              
-              const responseText = typeof httpResponse.data === 'string' ? httpResponse.data : JSON.stringify(httpResponse.data);
-              console.log("Sincronizare: Răspuns API GPS:", responseText);
-              
-              // Verificăm dacă răspunsul este ok
-              if (httpResponse.status < 200 || httpResponse.status >= 300) {
-                throw new Error(`API a răspuns cu status: ${httpResponse.status}`);
+              if (isNative) {
+                // Pentru dispozitive native, folosim HTTP plugin
+                const httpResponse = await Http.request({
+                  method: 'POST',
+                  url: apiExternUrl,
+                  headers: {
+                    "Authorization": `Bearer ${token || ''}`,
+                    "X-Vehicle-Number": numar_inmatriculare,
+                    "X-UIT": uit_value,
+                    "Content-Type": "application/json"
+                  },
+                  data: payload
+                });
+                
+                console.log("Sincronizare: Status răspuns Capacitor HTTP (GPS):", httpResponse.status);
+                return { record, success: httpResponse.status >= 200 && httpResponse.status < 300 };
+              } else {
+                // În browser, folosim fetch cu proxy-ul nostru
+                const response = await fetch(apiUrl, {
+                  method: "POST",
+                  headers: {
+                    "Authorization": token?.startsWith("Bearer ") ? token : `Bearer ${token || ''}`,
+                    "X-Vehicle-Number": numar_inmatriculare,
+                    "X-UIT": uit_value,
+                    "Content-Type": "application/json"
+                  },
+                  body: payload
+                });
+                
+                console.log("Sincronizare: Status răspuns HTTP GPS:", response.status);
+                
+                if (!response.ok) {
+                  throw new Error(`API a răspuns cu status: ${response.status}`);
+                }
+                
+                const responseText = await response.text();
+                console.log("Sincronizare: Răspuns API GPS:", responseText);
+                
+                return { record, success: true };
               }
-              
-              return { record, success: true };
             } catch (httpError) {
               console.error("Sincronizare: Eroare la request HTTP GPS:", httpError);
-              throw httpError;
+              return { record, success: false };
             }
           } catch (error) {
             console.error("Eroare la sincronizarea înregistrării:", error);
