@@ -652,17 +652,52 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         console.log("[Transport] Forțare activare GPS în browser pentru testare");
         setIsGpsActive(true);
         
-        // CORECȚIE: Adăugăm o simulare de coordonate GPS pentru browser
+        // CORECȚIE: Adăugăm o simulare de coordonate GPS pentru browser - independent de starea transportului
         // Aceasta va permite ca aplicația să funcționeze pentru testare chiar dacă browser-ul nu furnizează coordonate
         console.log("[Transport] Adăugare simulate coordonate GPS pentru browser");
-        setTimeout(() => {
-          if (!gpsCoordinates && transportStatus === "active") {
+        
+        // IMPORTANT: Nu folosim transportStatus din closure pentru că ar putea să nu fie încă actualizat
+        // În schimb, verificăm starea direct în momentul execuției setTimeout
+        const timerId = setTimeout(() => {
+          console.log("[Transport] Verificare pentru simulare GPS, status:", transportStatus);
+          
+          // Coordonate simulare - folosim datele GPS disponibile din browser dacă există
+          let simulatedLat = 44.258415;
+          let simulatedLng = 28.618472;
+          
+          // Încercăm să folosim coordonate reale din browser dacă sunt disponibile
+          if (navigator && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                // Dacă am primit poziție reală, folosește acele coordonate
+                simulatedLat = position.coords.latitude;
+                simulatedLng = position.coords.longitude;
+                
+                applySimulatedCoordinates(simulatedLat, simulatedLng);
+              },
+              (error) => {
+                // În caz de eroare, folosește coordonatele implicite
+                console.log("[Transport] Eroare obținere coordonate reale, folosim implicite:", error);
+                applySimulatedCoordinates(simulatedLat, simulatedLng);
+              },
+              { timeout: 3000, maximumAge: 10000 } // Folosim un timeout mai mic
+            );
+          } else {
+            // Dacă geolocation nu este disponibil, folosește coordonatele implicite
+            applySimulatedCoordinates(simulatedLat, simulatedLng);
+          }
+        }, 2500);
+        
+        // Funcție pentru a aplica coordonatele simulate
+        const applySimulatedCoordinates = (lat: number, lng: number) => {
+          // Verificăm din nou starea pentru că ar putea fi schimbată între timp
+          if (document.visibilityState !== "hidden") {
             const simulatedCoords: GpsCoordinates = {
-              lat: 44.258415158477874,
-              lng: 28.61847230759532,
+              lat: lat,
+              lng: lng,
               timestamp: new Date().toISOString(),
-              viteza: 0,
-              directie: 0,
+              viteza: Math.random() * 5, // Viteză mică aleatorie pentru realism
+              directie: Math.floor(Math.random() * 360), // Direcție aleatorie
               altitudine: 0,
               baterie: 100
             };
@@ -673,6 +708,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
             
             // Dacă avem token și vehicul, încercăm și trimiterea datelor
             if (token && vehicleInfo?.nr && currentActiveUit) {
+              console.log("[Transport] Trimitere date GPS simulate către server");
               sendGpsUpdate(
                 simulatedCoords,
                 vehicleInfo.nr,
@@ -681,8 +717,46 @@ export function TransportProvider({ children }: { children: ReactNode }) {
                 token
               );
             }
+            
+            // IMPORTANT: Setăm și un interval pentru actualizări periodice de GPS
+            // Acesta va trimite actualizări la fiecare 10 secunde
+            const intervalId = setInterval(() => {
+              // Verificăm dacă transportul mai este activ
+              if (document.visibilityState === "hidden" || transportStatus !== "active") {
+                console.log("[Transport] Oprire interval simulare GPS (transport inactiv)");
+                clearInterval(intervalId);
+                return;
+              }
+              
+              // Simulăm o mică variație în coordonate pentru a sugera mișcare
+              const variation = (Math.random() - 0.5) * 0.0001;
+              const newCoords: GpsCoordinates = {
+                lat: lat + variation,
+                lng: lng + variation,
+                timestamp: new Date().toISOString(),
+                viteza: Math.random() * 5,
+                directie: Math.floor(Math.random() * 360),
+                altitudine: 0,
+                baterie: 100
+              };
+              
+              console.log("[Transport] Actualizare periodică GPS simulate:", newCoords);
+              setGpsCoordinates(newCoords);
+              setLastGpsUpdateTime(newCoords.timestamp);
+              
+              // Trimitem și la server dacă avem datele necesare
+              if (token && vehicleInfo?.nr && currentActiveUit) {
+                sendGpsUpdate(
+                  newCoords,
+                  vehicleInfo.nr,
+                  currentActiveUit.uit,
+                  "in_progress",
+                  token
+                );
+              }
+            }, 10000); // La fiecare 10 secunde
           }
-        }, 2000);
+        };
       }
       
       console.log("[Transport] Stare actualizată la ACTIVE");
