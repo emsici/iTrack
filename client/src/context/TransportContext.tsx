@@ -19,6 +19,7 @@ import {
 } from "@/lib/stateManager";
 import { Capacitor } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
+import { forceTransportActive, updateTransportState } from '@/lib/transportHelper';
 
 // Import tipul GpsCoordinates din gpsService pentru a evita dependențele circulare
 import { GpsCoordinates } from "../lib/gpsService";
@@ -334,10 +335,22 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   
   // Handler pentru actualizare GPS din foreground
   const onGpsUpdate = useCallback((position: GeolocationPosition) => {
-    if (!vehicleInfo?.nr || !currentActiveUit || !token) {
-      console.error("Ignorare actualizare GPS - lipsesc date necesare");
+    console.log("onGpsUpdate: Am primit poziție GPS", position);
+    // Verificăm dacă poziția este validă
+    if (!position || !position.coords) {
+      console.error("Poziție GPS invalidă", position);
       return;
     }
+    
+    // Relaxăm condiția pentru a nu bloca trimiterea coordonatelor GPS
+    if (!vehicleInfo?.nr) {
+      console.error("Lipsă informații vehicul");
+      return;
+    }
+    
+    // Utilizăm valorile cu protecție la null
+    const vehicleNr = vehicleInfo.nr;
+    const uit = currentActiveUit?.uit || '';
     
     const coords = position.coords;
     const timestamp = new Date().toISOString();
@@ -356,6 +369,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       baterie: batteryLevel
     };
     
+    console.log("onGpsUpdate: Date GPS după conversie", newCoords);
+    
     // Actualizăm starea
     setBattery(batteryLevel);
     setGpsCoordinates(newCoords);
@@ -363,14 +378,16 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     
     // Forțăm starea de transport active pentru a preveni resetarea stării
     try {
-      const { updateTransportState, forceTransportActive } = require('@/lib/transportHelper');
+      // Folosim importurile la nivel de modul, nu require dinamic
       forceTransportActive();
       updateTransportState('active', true, newCoords);
       
       // Actualizăm starea în localStorage
+      const safeCurrentActiveUit = currentActiveUit || { uit, start_locatie: '', stop_locatie: '' };
+      
       saveAppState(
-        transportStatus,
-        currentActiveUit,
+        'active', // Forțăm starea activă indiferent de starea curentă
+        safeCurrentActiveUit,
         selectedUits,
         timestamp,
         batteryLevel
