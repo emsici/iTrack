@@ -4,6 +4,8 @@ import { Http } from '@capacitor-community/http';
 import { getInternetConnectivity } from "./connectivityService";
 import { saveGpsDataOffline } from "./offlineStorage";
 import { CapacitorGeoService } from "./capacitorService";
+import { saveAppState } from "./stateManager";
+import { forceTransportActive, updateTransportState } from "./transportHelper";
 
 export type GpsDataPayload = {
   lat: number;
@@ -95,22 +97,21 @@ export const sendGpsUpdate = async (
     // Înregistrăm starea transportului ca fiind activă pentru
     // a asigura că nu va reveni la inactiv după transmitere
     if (transportStatus === "in_progress") {
-      // Importăm funcțiile din transportHelper pentru menținerea stării
-      const { forceTransportActive, updateTransportState } = require('./transportHelper');
+      // Funcțiile sunt importate direct la nivelul modulului
       forceTransportActive();
       
       // Actualizăm starea în referință cu coordonatele actuale
       updateTransportState('active', true, gpsCoords);
       
       // Salvăm starea în localStorage pentru persistență
-      // Folosim saveAppState importat direct la nivelul modulului
       // Definim obiectul UIT cu datele primite
       const uitInfo = { 
-        uit,                      // Preluăm codul UIT din parametrul funcției
+        uit: uit,                 // Preluăm codul UIT din parametrul funcției
         start_locatie: '',        // Nu avem informații, dar trebuie să respectăm structura
         stop_locatie: ''          // Nu avem informații, dar trebuie să respectăm structura 
       };
       
+      // Folosim saveAppState importat direct la nivelul modulului
       saveAppState(
         'active',                 // Forțăm starea activă 
         uitInfo,                  // Informații minime necesare
