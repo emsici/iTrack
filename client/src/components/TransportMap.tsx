@@ -161,8 +161,8 @@ export default function TransportMap() {
         )}
       </div>
 
-      {/* Forțăm afișarea hărții pe mobil */}
-      {true && (
+      {/* Afișăm harta conform stării showMap */}
+      {showMap && (
         <MapContainer
           center={center}
           zoom={14}

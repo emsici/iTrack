@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Battery, Signal, Wifi, MapPin, LogOut, Truck, Info, AlertCircle } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { requestGpsPermissions } from "@/lib/capacitorService";
+import { getGpsAvailability } from "@/lib/connectivityService";
 import { useToast } from "@/hooks/use-toast";
 
 export default function MobileHeader() {
@@ -14,6 +15,7 @@ export default function MobileHeader() {
   const [isEditingVehicle, setIsEditingVehicle] = useState<boolean>(false);
   const [newRegistrationNumber, setNewRegistrationNumber] = useState<string>('');
   const [requestingGps, setRequestingGps] = useState<boolean>(false);
+  const [gpsPermissionsAvailable, setGpsPermissionsAvailable] = useState<boolean>(true);
   
   const getBatteryColor = useCallback(() => {
     if (battery > 50) return "text-success";
@@ -148,8 +150,8 @@ export default function MobileHeader() {
           <div>
             <h1 className="text-lg font-bold">iTrack</h1>
             
-            {/* Indicator GPS inactiv cu buton pentru a solicita permisiuni */}
-            {!isGpsActive && (
+            {/* Indicator GPS inactiv cu buton pentru a solicita permisiuni doar când e problema cu permisiunile */}
+            {!gpsPermissionsAvailable && (
               <button 
                 onClick={handleRequestGpsPermissions}
                 disabled={requestingGps}
