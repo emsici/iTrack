@@ -181,9 +181,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Pornim urmărirea poziției după un scurt delay pentru a permite componentei să se inițializeze complet
       setTimeout(() => {
-        startWatchPosition().then(() => {
-          console.log("Tracking GPS pornit automat la încărcarea componentei");
-          setIsGpsActive(true);
+        startWatchPosition().then(success => {
+          console.log("Tracking GPS pornit automat la încărcarea componentei:", success ? "SUCCES" : "EȘUAT");
+          // Dacă startWatchPosition a reușit, va seta isGpsActive la true doar când sunt disponibile coordonate
+          // NU setăm isGpsActive aici pentru a evita afișarea prematură a stării active
         }).catch(error => {
           console.error("Eroare la pornirea automată a tracking-ului GPS:", error);
         });
@@ -272,8 +273,14 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         // Actualizăm timpul ultimei actualizări
         setLastGpsUpdateTime(timestamp);
         
-        // GPS se consideră activ DOAR dacă transportul este activ
-        setIsGpsActive(transportStatus === "active");
+        // GPS se consideră activ DOAR dacă transportul este activ ȘI avem coordonate valide
+        if (transportStatus === "active" && latitude && longitude) {
+          console.log("GPS disponibil, poziție obținută:", { lat: latitude, lng: longitude });
+          setIsGpsActive(true);
+        } else {
+          // Nu setăm explicit la false aici deoarece s-ar putea să avem un transport activ care așteaptă coordonate
+          console.log("Coordonate GPS disponibile, dar transport inactiv:", transportStatus);
+        }
       }, {
         enableHighAccuracy: true,
         timeout: 10000,
@@ -447,11 +454,11 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           if (parsedState.lastGpsUpdateTime) setLastGpsUpdateTime(parsedState.lastGpsUpdateTime);
           if (parsedState.battery) setBattery(parsedState.battery);
           
-          // Marcăm GPS-ul ca activ dacă transportul este activ
-          if (finalStatus === "active") {
-            setIsGpsActive(true);
-            console.log("Stare GPS actualizată:", "ACTIV");
-          }
+          // NU setăm GPS-ul ca activ automat aici
+          // Vom lăsa startWatchPosition să actualizeze acest flag
+          // când va obține cu succes coordonate GPS
+          // GPS-ul va fi marcat ca activ doar când confirmăm că avem coordonate reale
+          console.log("Restaurare transport - așteptăm coordonate GPS pentru activare indicator");
           
           // Setăm transportStatus la final pentru a declanșa efectele care depind de el
           setTransportStatus(finalStatus);
