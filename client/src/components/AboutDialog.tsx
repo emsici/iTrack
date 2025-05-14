@@ -4,9 +4,15 @@ import { X } from "lucide-react";
 export function AboutDialog() {
   // Funcție pentru închiderea dialogului
   const closeAboutDialog = () => {
-    const dialog = document.getElementById('aboutDialog') as HTMLDialogElement;
-    if (dialog) {
-      dialog.close();
+    try {
+      const dialog = document.getElementById('aboutDialog');
+      if (dialog && 'close' in dialog) {
+        (dialog as HTMLDialogElement).close();
+      } else {
+        console.error("Elementul dialog nu are metoda close");
+      }
+    } catch (error) {
+      console.error("Eroare la închiderea dialogului:", error);
     }
   };
   

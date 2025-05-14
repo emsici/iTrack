@@ -231,8 +231,16 @@ export default function MobileHeader() {
               <button 
                 className="flex items-center text-white hover:text-blue-200 transition-colors"
                 onClick={() => {
-                  const dialog = document.getElementById('aboutDialog') as HTMLDialogElement;
-                  if (dialog) dialog.showModal();
+                  try {
+                    const dialog = document.getElementById('aboutDialog');
+                    if (dialog && 'showModal' in dialog) {
+                      (dialog as HTMLDialogElement).showModal();
+                    } else {
+                      console.error("Elementul dialog nu are metoda showModal");
+                    }
+                  } catch (error) {
+                    console.error("Eroare la deschiderea dialogului:", error);
+                  }
                 }}
               >
                 <Info className="h-4 w-4" />

@@ -57,10 +57,16 @@ export default function TransportPage() {
           id="aboutDialog" 
           className="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center overflow-hidden p-0 m-0 border-none outline-none"
           onClick={(e) => {
-            const target = e.target as HTMLElement;
-            if (target.id === 'aboutDialog') {
-              const dialog = document.getElementById('aboutDialog') as HTMLDialogElement;
-              if (dialog) dialog.close();
+            try {
+              const target = e.target as HTMLElement;
+              if (target.id === 'aboutDialog') {
+                const dialog = document.getElementById('aboutDialog');
+                if (dialog && 'close' in dialog) {
+                  (dialog as HTMLDialogElement).close();
+                }
+              }
+            } catch (error) {
+              console.error("Eroare la închiderea dialogului prin click exterior:", error);
             }
           }}
         >
