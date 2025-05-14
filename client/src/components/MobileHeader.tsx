@@ -35,6 +35,44 @@ export default function MobileHeader() {
     }
   };
   
+  // Funcție pentru solicitarea manuală a permisiunilor GPS
+  const handleRequestGpsPermissions = async () => {
+    if (requestingGps) return;
+    
+    setRequestingGps(true);
+    try {
+      toast({
+        title: "Solicitare permisiuni GPS",
+        description: "Se solicită acces la localizare...",
+      });
+      
+      const result = await requestGpsPermissions();
+      
+      if (result) {
+        toast({
+          title: "Permisiuni acordate",
+          description: "Permisiunile GPS au fost acordate cu succes!",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Permisiuni refuzate",
+          description: "Pentru a utiliza aplicația, vă rugăm să activați localizarea în setările dispozitivului.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Eroare la solicitarea permisiunilor GPS:", error);
+      toast({
+        title: "Eroare",
+        description: "A apărut o eroare la solicitarea permisiunilor GPS. Verificați setările dispozitivului.",
+        variant: "destructive",
+      });
+    } finally {
+      setRequestingGps(false);
+    }
+  };
+  
   // Funcție pentru a începe editarea numărului de înmatriculare
   const handleEditVehicle = () => {
     if (vehicleInfo?.nr) {
@@ -109,6 +147,18 @@ export default function MobileHeader() {
           </div>
           <div>
             <h1 className="text-lg font-bold">iTrack</h1>
+            
+            {/* Indicator GPS inactiv cu buton pentru a solicita permisiuni */}
+            {!isGpsActive && (
+              <button 
+                onClick={handleRequestGpsPermissions}
+                disabled={requestingGps}
+                className="flex items-center text-xs bg-red-700 text-white px-2 py-0.5 rounded-full mt-0.5 hover:bg-red-600 transition-colors"
+              >
+                <AlertCircle className="h-3 w-3 mr-1" />
+                GPS inactiv
+              </button>
+            )}
             {!isEditingVehicle ? (
               <p 
                 className="text-xs text-blue-200 cursor-pointer hover:underline flex items-center" 
