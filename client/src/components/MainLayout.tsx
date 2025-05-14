@@ -33,13 +33,24 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/about" 
-                  className={`flex items-center ${location === "/about" ? "text-primary font-medium" : "text-secondary-600 hover:text-secondary-800 font-medium"}`}
+                <button 
+                  onClick={() => {
+                    try {
+                      const dialog = document.getElementById('aboutDialog');
+                      if (dialog && 'showModal' in dialog) {
+                        (dialog as HTMLDialogElement).showModal();
+                      } else {
+                        console.error("Elementul dialog nu are metoda showModal");
+                      }
+                    } catch (error) {
+                      console.error("Eroare la deschiderea dialogului:", error);
+                    }
+                  }}
+                  className="flex items-center text-secondary-600 hover:text-secondary-800 font-medium"
                 >
                   <Info className="h-4 w-4 mr-1" />
                   <span>Despre</span>
-                </Link>
+                </button>
               </li>
               <li>
                 <button 
