@@ -47,13 +47,26 @@ function App() {
   // Solicită permisiunile GPS la pornirea aplicației, dar doar pe platforme native (Android/iOS)
   useEffect(() => {
     const requestPermissions = async () => {
-      // Solicităm permisiunile doar dacă suntem pe platformă nativă și nu le-am solicitat anterior
-      if (isNativePlatform() && !permissionsRequested) {
+      // Solicităm permisiunile indiferent dacă le-am solicitat anterior
+      // Acest lucru asigură că pe dispozitivele reale cererea este făcută la fiecare pornire
+      if (isNativePlatform()) {
         console.log("Solicitare permisiuni GPS la pornirea aplicației...");
         
-        // Verificăm dacă suntem pe Android și afișăm dialogul personalizat
-        // sau cerem direct permisiunile pe iOS
+        // Pe Android afișăm dialogul personalizat, pe iOS cerem direct permisiunile
         try {
+          // Verificăm starea permisiunilor actuale
+          const permStatus = await Geolocation.checkPermissions();
+          console.log("Stare permisiuni la pornirea aplicației:", permStatus.location);
+          
+          // Dacă permisiunile sunt deja acordate, nu mai facem nimic
+          if (permStatus.location === 'granted') {
+            console.log("Permisiunile GPS sunt deja acordate");
+            setPermissionsRequested(true);
+            localStorage.setItem('permissions_requested', 'true');
+            return;
+          }
+          
+          // Altfel, solicităm permisiunile în funcție de platformă
           if (Capacitor.getPlatform() === 'android') {
             setShowPermissionsDialog(true);
           } else {
@@ -68,8 +81,13 @@ function App() {
       }
     };
     
-    requestPermissions();
-  }, [toast, permissionsRequested]);
+    // Întârziem puțin solicitarea permisiunilor pentru a permite aplicației să se încarce complet
+    const timer = setTimeout(() => {
+      requestPermissions();
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
   
   // Funcție pentru solicitarea efectivă a permisiunilor
   const requestGpsPermissionsNow = async () => {
