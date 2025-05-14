@@ -2,7 +2,7 @@ import { ReactNode, createContext, useCallback, useContext, useEffect, useRef, u
 import { useAuth } from './AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { CapacitorGeoService } from '@/lib/capacitorService';
-import { getCurrentPosition } from "@/lib/transportService";
+import { getCurrentPosition, setGpsAccessControl } from "@/lib/transportService";
 import { sendGpsUpdate } from "@/lib/gpsService";
 import { startBackgroundLocationTracking, stopBackgroundLocationTracking, isBackgroundServiceActive } from "@/lib/backgroundService";
 import { setupConnectivityListeners, syncOfflineData, checkGpsAvailability } from "@/lib/connectivityService";
@@ -107,7 +107,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   // Actualizăm referința ori de câte ori se modifică statusul transportului
   useEffect(() => {
     transportStatusRef.current = transportStatus;
-  }, [transportStatus]);
+    
+    // Actualizăm controlul de acces GPS cu starea curentă de autentificare și transport
+    const isTransportActive = transportStatus === "active";
+    setGpsAccessControl(isAuthenticated, isTransportActive);
+    console.log(`Control acces GPS actualizat: Auth=${isAuthenticated}, Transport=${isTransportActive}`);
+  }, [transportStatus, isAuthenticated]);
   
   // Oprire tracking GPS - definit înainte pentru a fi folosit de alte funcții
   const stopGpsTracking = useCallback(() => {
@@ -127,6 +132,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     
     // Marcăm GPS-ul ca inactiv
     setIsGpsActive(false);
+    
+    // Actualizăm controlul de acces GPS pentru a bloca accesul
+    setGpsAccessControl(isAuthenticated, false);
     
     return true;
   }, []);

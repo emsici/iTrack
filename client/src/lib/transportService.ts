@@ -88,8 +88,34 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
   }
 };
 
+// Variabile pentru a controla accesul la GPS
+let authCheck: boolean = false;
+let transportCheck: boolean = false;
+
+// Funcție pentru verificarea accesului la GPS
+export const setGpsAccessControl = (isAuthenticated: boolean, isTransportActive: boolean) => {
+  console.log(`Setare control acces GPS: Auth=${isAuthenticated}, Transport=${isTransportActive}`);
+  authCheck = isAuthenticated;
+  transportCheck = isTransportActive;
+};
+
 export const getCurrentPosition = (): Promise<GeolocationPosition> => {
   return new Promise((resolve, reject) => {
+    // Verificăm dacă utilizatorul este autentificat și există un transport activ
+    if (!authCheck) {
+      console.log("GPS blocat - utilizator neautentificat");
+      reject(new Error("Utilizator neautentificat. GPS dezactivat."));
+      return;
+    }
+    
+    if (!transportCheck) {
+      console.log("GPS blocat - transport inactiv");
+      reject(new Error("Transport inactiv. GPS dezactivat."));
+      return;
+    }
+    
+    console.log("Acces GPS autorizat - citire coordonate");
+    
     if (!navigator.geolocation) {
       reject(new Error("Geolocation is not supported by your browser"));
       return;
