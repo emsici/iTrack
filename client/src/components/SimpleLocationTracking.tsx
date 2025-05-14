@@ -132,66 +132,53 @@ export default function SimpleLocationTracking() {
         </CardHeader>
         
         <CardContent className="pt-2 pb-3">
-          <div className="grid grid-cols-2 gap-2 mb-2">
+          <div className="grid grid-cols-3 gap-2 mb-2">
+            {/* Coloana 1: Latitudine și Longitudine */}
             <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
               <div className="flex items-center text-gray-500 mb-1">
                 <MapPin className="w-4 h-4 mr-1" />
-                <p className="text-xs font-medium">Latitudine</p>
+                <p className="text-xs font-medium">Coordonate</p>
               </div>
-              <p className="text-base font-bold text-slate-800">
-                {gpsCoordinates?.lat ? 
+              <p className="text-sm font-bold text-slate-800">
+                Lat: {gpsCoordinates?.lat ? 
                   gpsCoordinates.lat.toFixed(6) : localCoordinates?.lat ? 
                   localCoordinates.lat.toFixed(6) : "-"}
               </p>
-            </div>
-            
-            <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
-              <div className="flex items-center text-gray-500 mb-1">
-                <MapPin className="w-4 h-4 mr-1" />
-                <p className="text-xs font-medium">Longitudine</p>
-              </div>
-              <p className="text-base font-bold text-slate-800">
-                {gpsCoordinates?.lng ? 
+              <p className="text-sm font-bold text-slate-800 mt-1">
+                Lng: {gpsCoordinates?.lng ? 
                   gpsCoordinates.lng.toFixed(6) : localCoordinates?.lng ? 
                   localCoordinates.lng.toFixed(6) : "-"}
               </p>
             </div>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-2">
-            <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
-              <div className="flex items-center text-gray-500 mb-1">
-                <Clock className="w-4 h-4 mr-1" />
-                <p className="text-xs font-medium">Ultima actualizare</p>
-              </div>
-              <p className="text-base font-bold text-slate-800">
-                {lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : formatTime(localCoordinates?.timestamp)}
-              </p>
-            </div>
             
+            {/* Coloana 2: Viteză și Direcție */}
             <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
               <div className="flex items-center text-gray-500 mb-1">
                 <Gauge className="w-4 h-4 mr-1" />
-                <p className="text-xs font-medium">Viteză</p>
+                <p className="text-xs font-medium">Deplasare</p>
               </div>
-              <p className="text-base font-bold text-slate-800">
+              <p className="text-sm font-bold text-slate-800">
                 {gpsCoordinates?.viteza !== undefined ? 
                   `${Math.round(gpsCoordinates.viteza)} km/h` : 
                   localCoordinates?.viteza !== undefined ?
                   `${Math.round(localCoordinates.viteza)} km/h` : "-"}
               </p>
-            </div>
-            
-            <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
-              <div className="flex items-center text-gray-500 mb-1">
-                <Navigation className="w-4 h-4 mr-1" />
-                <p className="text-xs font-medium">Direcție</p>
-              </div>
-              <p className="text-base font-bold text-slate-800">
+              <p className="text-sm font-bold text-slate-800 mt-1">
                 {gpsCoordinates?.directie !== undefined ? 
                   `${Math.round(gpsCoordinates.directie % 360)}°` : 
                   localCoordinates?.directie !== undefined ?
                   `${Math.round(localCoordinates.directie % 360)}°` : "-"}
+              </p>
+            </div>
+            
+            {/* Coloana 3: Ultima actualizare */}
+            <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
+              <div className="flex items-center text-gray-500 mb-1">
+                <Clock className="w-4 h-4 mr-1" />
+                <p className="text-xs font-medium">Ultima actualizare</p>
+              </div>
+              <p className="text-sm font-bold text-slate-800 mt-1">
+                {lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : formatTime(localCoordinates?.timestamp)}
               </p>
             </div>
             
