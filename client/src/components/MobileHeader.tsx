@@ -7,7 +7,11 @@ import { requestGpsPermissions } from "@/lib/capacitorService";
 import { getGpsAvailability } from "@/lib/connectivityService";
 import { useToast } from "@/hooks/use-toast";
 
-export default function MobileHeader() {
+interface MobileHeaderProps {
+  onInfoClick?: () => void;
+}
+
+export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
   const { isGpsActive, battery, gpsCoordinates, transportStatus } = useTransport();
   const { logout, vehicleInfo, registerVehicle } = useAuth();
   const { toast } = useToast();
@@ -230,18 +234,7 @@ export default function MobileHeader() {
             <div className="relative inline-block">
               <button 
                 className="flex items-center text-white hover:text-blue-200 transition-colors"
-                onClick={() => {
-                  try {
-                    const dialog = document.getElementById('aboutDialog');
-                    if (dialog && 'showModal' in dialog) {
-                      (dialog as HTMLDialogElement).showModal();
-                    } else {
-                      console.error("Elementul dialog nu are metoda showModal");
-                    }
-                  } catch (error) {
-                    console.error("Eroare la deschiderea dialogului:", error);
-                  }
-                }}
+                onClick={onInfoClick}
               >
                 <Info className="h-4 w-4" />
               </button>

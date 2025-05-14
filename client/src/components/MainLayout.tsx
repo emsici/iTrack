@@ -1,7 +1,8 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/context/AuthContext";
 import { Truck, Route, Info, LogOut } from "lucide-react";
+import { AboutDialog } from "./AboutDialog";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -10,6 +11,7 @@ interface MainLayoutProps {
 export default function MainLayout({ children }: MainLayoutProps) {
   const [location] = useLocation();
   const { logout } = useAuth();
+  const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -34,18 +36,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
               </li>
               <li>
                 <button 
-                  onClick={() => {
-                    try {
-                      const dialog = document.getElementById('aboutDialog');
-                      if (dialog && 'showModal' in dialog) {
-                        (dialog as HTMLDialogElement).showModal();
-                      } else {
-                        console.error("Elementul dialog nu are metoda showModal");
-                      }
-                    } catch (error) {
-                      console.error("Eroare la deschiderea dialogului:", error);
-                    }
-                  }}
+                  onClick={() => setIsAboutDialogOpen(true)}
                   className="flex items-center text-secondary-600 hover:text-secondary-800 font-medium"
                 >
                   <Info className="h-4 w-4 mr-1" />
@@ -70,6 +61,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {children}
       </main>
+      
+      {/* About Dialog */}
+      <AboutDialog isOpen={isAboutDialogOpen} onClose={() => setIsAboutDialogOpen(false)} />
     </div>
   );
 }

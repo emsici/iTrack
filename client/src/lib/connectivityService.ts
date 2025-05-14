@@ -192,7 +192,7 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
             const numar_inmatriculare = String(record.data.numar_inmatriculare || "").trim() || "TEMP-" + Math.floor(Math.random() * 1000);
             const uit_value = String(record.data.uit || "").trim() || "UIT" + Math.floor(Math.random() * 10000);
             
-            // Formatăm datele exact cum o face funcția sendGpsData
+            // Formatăm datele exact cum o face funcția sendGpsData din gpsService.ts
             const payload = JSON.stringify({
               lat: record.data.lat,
               lng: record.data.lng,
@@ -203,7 +203,9 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
               baterie: record.data.baterie,
               numar_inmatriculare: numar_inmatriculare,
               uit: uit_value,
-              status: record.data.status
+              status: record.data.status,
+              hdop: record.data.hdop || 5,         // Adăugăm HDOP cu valoare default dacă nu există
+              gsm_signal: record.data.gsm_signal || 90  // Adăugăm puterea semnalului GSM cu valoare default
             });
             
             console.log("Sincronizare: Trimitere date GPS arhivate către API:", payload);
@@ -217,7 +219,8 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
                   "X-Vehicle-Number": numar_inmatriculare,
                   "X-UIT": uit_value
                 },
-                data: JSON.parse(payload)
+                // Nu folosim JSON.parse pentru data deoarece vrem să trimitem JSON ca string
+              data: payload
               });
               
               console.log("Sincronizare: Status răspuns HTTP GPS:", httpResponse.status);
