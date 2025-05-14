@@ -329,6 +329,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Eroare la procesul de logout:", error);
     } finally {
+      // Oprim sincronizarea, dar PĂSTRĂM datele GPS în storage pentru o eventuală reconectare
+      // Salvăm email-ul utilizatorului înainte de logout pentru a-l putea verifica la login ulterior
+      const currentUserEmail = userInfo?.email;
+      if (currentUserEmail) {
+        localStorage.setItem("last_logged_user", currentUserEmail);
+        console.log("Salvat ultimul utilizator logat pentru verificare la reconectare:", currentUserEmail);
+      }
+      
       // Indiferent de rezultatul API-ului, curățăm starea locală
       setToken(null);
       setIsAuthenticated(false);
