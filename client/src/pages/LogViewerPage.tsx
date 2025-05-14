@@ -211,71 +211,85 @@ export default function LogViewerPage() {
           </p>
         </div>
       ) : (
-        <>
+        <div>
           <div className="bg-white shadow-md rounded-lg p-6 mb-6">
             <div className="flex flex-wrap gap-4 items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold">Filtre</h2>
               </div>
               
-              <div className="flex flex-wrap gap-3">
-                <select
-                  value={filterLevel}
-                  onChange={(e) => setFilterLevel(e.target.value as any)}
-                  className="p-2 border rounded-md"
-                >
-                  <option value="all">Toate nivelurile</option>
-                  <option value="debug">Debug</option>
-                  <option value="info">Info</option>
-                  <option value="warn">Warning</option>
-                  <option value="error">Error</option>
-                </select>
+              <div className="flex flex-wrap gap-2 md:gap-3">
+                <div className="w-full sm:w-auto mb-2 sm:mb-0">
+                  <label htmlFor="filterLevel" className="block text-xs text-gray-500 mb-1">
+                    Nivel
+                  </label>
+                  <select
+                    id="filterLevel"
+                    value={filterLevel}
+                    onChange={(e) => setFilterLevel(e.target.value as any)}
+                    className="w-full sm:w-auto p-2 border rounded-md text-sm"
+                  >
+                    <option value="all">Toate nivelurile</option>
+                    <option value="debug">Debug</option>
+                    <option value="info">Info</option>
+                    <option value="warn">Warning</option>
+                    <option value="error">Error</option>
+                  </select>
+                </div>
                 
-                <select
-                  value={filterSource}
-                  onChange={(e) => setFilterSource(e.target.value)}
-                  className="p-2 border rounded-md"
-                >
-                  <option value="">Toate sursele</option>
-                  {uniqueSources.map(source => (
-                    <option key={source} value={source}>{source}</option>
-                  ))}
-                </select>
+                <div className="w-full sm:w-auto mb-2 sm:mb-0">
+                  <label htmlFor="filterSource" className="block text-xs text-gray-500 mb-1">
+                    Sursă
+                  </label>
+                  <select
+                    id="filterSource"
+                    value={filterSource}
+                    onChange={(e) => setFilterSource(e.target.value)}
+                    className="w-full sm:w-auto p-2 border rounded-md text-sm"
+                  >
+                    <option value="">Toate sursele</option>
+                    {uniqueSources.map(source => (
+                      <option key={source} value={source}>{source}</option>
+                    ))}
+                  </select>
+                </div>
                 
-                <button
-                  onClick={refreshLogs}
-                  className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
-                >
-                  Reîmprospătează
-                </button>
-                
-                <button
-                  onClick={() => setShowMobileLogImport(!showMobileLogImport)}
-                  className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                >
-                  {showMobileLogImport ? 'Ascunde Import' : 'Import Loguri Mobile'}
-                </button>
-                
-                <button
-                  onClick={handleExport}
-                  className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
-                >
-                  Export JSON
-                </button>
-                
-                <button
-                  onClick={handleClearLogs}
-                  className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"
-                >
-                  Șterge Loguri
-                </button>
-                
-                <button
-                  onClick={() => setIsAuthenticated(false)}
-                  className="bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700"
-                >
-                  Deconectare
-                </button>
+                <div className="flex flex-wrap gap-2 mt-2 sm:mt-0 w-full sm:w-auto sm:self-end">
+                  <button
+                    onClick={refreshLogs}
+                    className="text-sm bg-blue-600 text-white py-2 px-3 rounded-md hover:bg-blue-700"
+                  >
+                    Reîmprospătează
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowMobileLogImport(!showMobileLogImport)}
+                    className="text-sm bg-blue-500 text-white py-2 px-3 rounded-md hover:bg-blue-600"
+                  >
+                    {showMobileLogImport ? 'Ascunde Import' : 'Import Loguri'}
+                  </button>
+                  
+                  <button
+                    onClick={handleExport}
+                    className="text-sm bg-green-600 text-white py-2 px-3 rounded-md hover:bg-green-700"
+                  >
+                    Export
+                  </button>
+                  
+                  <button
+                    onClick={handleClearLogs}
+                    className="text-sm bg-red-600 text-white py-2 px-3 rounded-md hover:bg-red-700"
+                  >
+                    Șterge Loguri
+                  </button>
+                  
+                  <button
+                    onClick={() => setIsAuthenticated(false)}
+                    className="text-sm bg-gray-600 text-white py-2 px-3 rounded-md hover:bg-gray-700"
+                  >
+                    Deconectare
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -316,68 +330,70 @@ export default function LogViewerPage() {
             </div>
           )}
           
-          {/* Tabel pentru afișarea logurilor */}
-          <div className="bg-white shadow-md rounded-lg overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Timestamp
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Nivel
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Sursă
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Mesaj
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {logs.length === 0 ? (
+          {/* Tabel pentru afișarea logurilor - design responsive */}
+          <div className="bg-white shadow-md rounded-lg overflow-x-auto">
+            <div className="min-w-full">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                   <tr>
-                    <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
-                      Nu există loguri disponibile cu filtrele selectate
-                    </td>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6">
+                      Timestamp
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6">
+                      Nivel
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6">
+                      Sursă
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sm:px-6">
+                      Mesaj
+                    </th>
                   </tr>
-                ) : (
-                  logs.map((log, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatTimestamp(log.timestamp)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getLogLevelClass(log.level)}`}>
-                          {log.level.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {log.source}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        <div className="max-w-md break-words">{log.message}</div>
-                        {log.details && (
-                          <details className="mt-1">
-                            <summary className="text-blue-600 cursor-pointer text-xs">Detalii</summary>
-                            <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-x-auto">
-                              {log.details}
-                            </pre>
-                          </details>
-                        )}
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {logs.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-3 py-4 text-center text-gray-500 sm:px-6">
+                        Nu există loguri disponibile cu filtrele selectate
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    logs.map((log, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-3 py-3 text-sm text-gray-500 sm:px-6 md:whitespace-nowrap">
+                          {formatTimestamp(log.timestamp)}
+                        </td>
+                        <td className="px-3 py-3 sm:px-6">
+                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getLogLevelClass(log.level)}`}>
+                            {log.level.toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 text-sm text-gray-500 sm:px-6 md:whitespace-nowrap">
+                          {log.source}
+                        </td>
+                        <td className="px-3 py-3 text-sm text-gray-500 sm:px-6">
+                          <div className="break-words">{log.message}</div>
+                          {log.details && (
+                            <details className="mt-1">
+                              <summary className="text-blue-600 cursor-pointer text-xs">Detalii</summary>
+                              <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-x-auto">
+                                {log.details}
+                              </pre>
+                            </details>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
           
           <div className="mt-4 text-sm text-gray-600">
             Total loguri: <span className="font-semibold">{logs.length}</span>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
