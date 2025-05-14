@@ -581,13 +581,33 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         
         // Verificăm doar dacă avem un UIT valid și datele necesare pentru transport
         if (!currentActiveUit && !vehicleInfo?.uit) {
-          console.error("Nu se poate porni GPS-ul - lipsesc date necesare");
+          console.error("Nu se poate porni GPS-ul - lipsesc date necesare", { 
+            currentActiveUit, 
+            vehicleInfo 
+          });
           toast({
             title: "Date insuficiente",
             description: "Selectați un UIT valid înainte de a porni transportul.",
             variant: "destructive"
           });
           return false;
+        }
+        
+        // Verificăm și corectăm vehicleInfo dacă nr este un obiect
+        let correctedVehicleInfo = vehicleInfo;
+        if (vehicleInfo && typeof vehicleInfo.nr === 'object' && vehicleInfo.nr !== null) {
+          console.log("Corectare vehicleInfo.nr în startTransport - era obiect");
+          
+          // Extragem numărul din obiect
+          const fixedNr = vehicleInfo.nr.nr || 'TEST';
+          
+          // Creăm un nou obiect corectat (nu modificăm originalul care e const)
+          correctedVehicleInfo = {
+            ...vehicleInfo,
+            nr: fixedNr
+          };
+          
+          console.log("vehicleInfo corectat:", correctedVehicleInfo);
         }
         
         if (isNative) {
@@ -668,8 +688,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         }
         
         // Pornim serviciul GPS indiferent de platformă
-        // Pornim GPS tracking
-        const gpsStarted = await startGpsTracking();
+        // Folosim vehicleInfo corectat dacă a fost necesar
+        const gpsStarted = await startGpsTracking(correctedVehicleInfo);
         console.log("[Transport] Rezultat pornire GPS:", gpsStarted);
         
         if (!gpsStarted && isNative) {
