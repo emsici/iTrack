@@ -383,7 +383,14 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     if (!isAuthenticated || !vehicleInfo?.nr) return;
     
     try {
-      // Salvăm starea curentă INDIFERENT dacă este active, paused sau inactive
+      // Pentru stările inactive, ștergem starea din localStorage pentru a preveni salvarea greșită
+      if (transportStatus === "inactive" || transportStatus === "finished") {
+        localStorage.removeItem(`transport_state_${vehicleInfo.nr}`);
+        console.log("Stare inactivă - șters starea transportului din localStorage");
+        return;
+      }
+      
+      // Salvăm starea curentă doar dacă este active sau paused
       // Acest lucru asigură persistența stării între navigări
       const stateToSave = {
         transportStatus,
