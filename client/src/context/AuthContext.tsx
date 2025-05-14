@@ -2,6 +2,8 @@ import { createContext, useContext, useState, ReactNode, useEffect } from "react
 import { useToast } from "@/hooks/use-toast";
 import { Login } from "@shared/schema";
 import { loginUser, getVehicleInfo } from "@/lib/auth";
+import { Capacitor } from "@capacitor/core";
+import { Http } from "@capacitor-community/http";
 
 interface AuthContextType {
   isAuthenticated: boolean;
