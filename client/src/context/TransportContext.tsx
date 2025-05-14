@@ -431,33 +431,97 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   
   // Funcție pentru a pune în pauză un transport
   const pauseTransport = useCallback(async (): Promise<void> => {
-    // Oprim GPS-ul
-    await stopGpsTracking();
-    
-    // Actualizăm starea
-    setTransportStatus("paused");
-    
-    toast({
-      title: "Transport în pauză",
-      description: "Transportul a fost pus în pauză. Locația nu mai este urmărită."
-    });
-  }, [stopGpsTracking]);
+    try {
+      console.log("[Transport] Începere pauză transport");
+      
+      // Salvăm starea înainte de a opri GPS-ul pentru a preveni pierderea datelor
+      if (currentActiveUit) {
+        saveAppState(
+          "paused", // Salvăm explicit starea ca pauză înainte de a opri GPS-ul
+          currentActiveUit,
+          selectedUits,
+          lastGpsUpdateTime,
+          battery
+        );
+        console.log("[Transport] Stare salvată înainte de pauză");
+      }
+      
+      // Oprim GPS-ul
+      const stopped = await stopGpsTracking();
+      console.log("[Transport] GPS oprit cu succes:", stopped);
+      
+      // Actualizăm starea
+      setTransportStatus("paused");
+      
+      toast({
+        title: "Transport în pauză",
+        description: "Transportul a fost pus în pauză. Locația nu mai este urmărită."
+      });
+    } catch (error) {
+      console.error("[Transport] Eroare la pauză transport:", error);
+      
+      // Actualizăm oricum starea pentru a evita blocarea UI-ului
+      setTransportStatus("paused");
+      
+      toast({
+        title: "Transport în pauză",
+        description: "Transportul a fost pus în pauză, dar cu unele erori de localizare.",
+        variant: "destructive"
+      });
+    }
+  }, [stopGpsTracking, currentActiveUit, selectedUits, lastGpsUpdateTime, battery]);
   
   // Funcție pentru a relua un transport
   const resumeTransport = useCallback(async (): Promise<void> => {
-    // Pornim GPS-ul
-    const gpsStarted = await startGpsTracking();
-    
-    if (gpsStarted) {
-      // Actualizăm starea
+    try {
+      console.log("[Transport] Începere reluare transport");
+      
+      // Pornim GPS-ul
+      const gpsStarted = await startGpsTracking();
+      console.log("[Transport] GPS pornit la reluare:", gpsStarted);
+      
+      // Actualizăm starea chiar dacă GPS-ul nu a pornit
+      // pentru a evita blocarea UI și a permite utilizatorului să continue
+      setTransportStatus("active");
+      
+      if (gpsStarted) {
+        toast({
+          title: "Transport reluat",
+          description: "Transportul a fost reluat. Locația este din nou urmărită."
+        });
+      } else {
+        // Notificăm utilizatorul că GPS-ul nu a pornit, dar transportul continuă
+        toast({
+          title: "Transport reluat",
+          description: "Transportul a fost reluat, dar urmărirea GPS nu funcționează. Verificați setările dispozitivului.",
+          variant: "warning"
+        });
+      }
+      
+      // Salvăm starea curentă pentru a preveni pierderea datelor
+      if (currentActiveUit) {
+        saveAppState(
+          "active",
+          currentActiveUit,
+          selectedUits,
+          lastGpsUpdateTime,
+          battery
+        );
+        console.log("[Transport] Stare salvată după reluare transport");
+      }
+    } catch (error) {
+      console.error("[Transport] Eroare la reluarea transportului:", error);
+      
+      // Actualizăm oricum starea pentru a evita blocarea UI-ului
       setTransportStatus("active");
       
       toast({
         title: "Transport reluat",
-        description: "Transportul a fost reluat. Locația este din nou urmărită."
+        description: "Transportul a fost reluat cu erori. Unele funcții ar putea fi limitate.",
+        variant: "destructive"
       });
     }
-  }, [startGpsTracking]);
+  }, [startGpsTracking, currentActiveUit, selectedUits, lastGpsUpdateTime, battery]);
   
   // Funcție pentru a finaliza un transport
   const finishTransport = useCallback(async (): Promise<void> => {
