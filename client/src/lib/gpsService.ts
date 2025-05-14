@@ -103,9 +103,10 @@ export const sendGpsUpdate = async (
       updateTransportState('active', true, gpsCoords);
       
       // Salvăm starea în localStorage pentru persistență
-      const { saveAppState } = require('./stateManager');
+      // Folosim saveAppState importat direct la nivelul modulului
+      // Definim obiectul UIT cu datele primite
       const uitInfo = { 
-        uit: uit,                 // Preluăm codul UIT din parametrul funcției
+        uit,                      // Preluăm codul UIT din parametrul funcției
         start_locatie: '',        // Nu avem informații, dar trebuie să respectăm structura
         stop_locatie: ''          // Nu avem informații, dar trebuie să respectăm structura 
       };

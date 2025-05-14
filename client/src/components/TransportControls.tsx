@@ -40,51 +40,7 @@ export default function TransportControls() {
   // care va verifica periodic dacă transportul este activ și va forța starea activă
   useForceTransportActive(transportStatus);
   
-  // Funcție pentru pornirea transportului direct, fără a aștepta GPS
-  const startTransportWithoutGps = async (transportId: string) => {
-    try {
-      console.log("Pornire transport fără GPS...");
-      
-      toast({
-        title: "Se procesează...",
-        description: "Se pornește transportul fără poziție GPS inițială..."
-      });
-      
-      // Pornim transportul direct, forțând ignorarea verificărilor GPS
-      const result = await startTransport();
-      console.log("Rezultat pornire transport fără GPS:", result);
-      
-      if (result) {
-        // Actualizăm starea transportului în UI
-        setTransports(prevTransports => 
-          prevTransports.map(transport => 
-            transport.id === transportId 
-              ? { ...transport, status: "active", isTracking: true } 
-              : transport
-          )
-        );
-        
-        toast({
-          title: "Transport pornit",
-          description: "Cursa a început. Coordonatele GPS se vor trimite când vor fi disponibile."
-        });
-      } else {
-        console.error("Pornire transport fără GPS eșuată");
-        toast({
-          variant: "destructive", 
-          title: "Eroare",
-          description: "Nu s-a putut porni transportul. Verificați conexiunea și datele vehiculului."
-        });
-      }
-    } catch (error) {
-      console.error("Eroare la pornirea transportului fără GPS:", error);
-      toast({
-        variant: "destructive",
-        title: "Eroare",
-        description: "A apărut o eroare la pornirea transportului. Verificați conexiunea la internet."
-      });
-    }
-  };
+  // Eliminată funcția pentru pornirea transportului fără GPS
 
   // Încarcă transporturile disponibile pentru vehicul 
   useEffect(() => {
@@ -349,23 +305,13 @@ export default function TransportControls() {
                   <div className="flex flex-col space-y-2 mt-2">
                     {/* Stare INACTIVĂ: Afișăm doar butonul de pornire */}
                     {transport.status === "inactive" && (
-                      <>
-                        <Button 
-                          variant="default"
-                          className="w-full bg-green-600 text-white hover:bg-green-700 shadow-md"
-                          onClick={() => handleStartTransport(transport.id)}
-                        >
-                          <Play className="h-4 w-4 mr-2" /> Pornire Transport
-                        </Button>
-                        
-                        <Button 
-                          variant="outline"
-                          className="w-full text-yellow-600 hover:text-yellow-700"
-                          onClick={() => startTransportWithoutGps(transport.id)}
-                        >
-                          <AlertTriangle className="h-4 w-4 mr-2" /> Pornire fără GPS
-                        </Button>
-                      </>
+                      <Button 
+                        variant="default"
+                        className="w-full bg-green-600 text-white hover:bg-green-700 shadow-md"
+                        onClick={() => handleStartTransport(transport.id)}
+                      >
+                        <Play className="h-4 w-4 mr-2" /> Pornire Transport
+                      </Button>
                     )}
                     
                     {/* Stare ACTIVĂ: Afișăm butoanele de Pauză și Finalizare */}

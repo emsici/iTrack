@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { MapPin, Clock, Gauge, Navigation, Battery, Wifi, WifiOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
+import { forceTransportActive } from "@/lib/transportHelper";
 
 export default function LocationTracking() {
   const { gpsCoordinates, isGpsActive, lastGpsUpdateTime, isBackgroundActive, battery, transportStatus } = useTransport();
@@ -79,7 +80,7 @@ export default function LocationTracking() {
   // Acest lucru va asigura că starea rămâne activă chiar și după restart
   useEffect(() => {
     if (transportStatus === "active" && !gpsCoordinates) {
-      const { forceTransportActive } = require('@/lib/transportHelper');
+      // Folosim metoda importată direct în loc de require
       forceTransportActive();
       console.log("[LocationTracking] Forțare actualizare stare transport activă");
     }
