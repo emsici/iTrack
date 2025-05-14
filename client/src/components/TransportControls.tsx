@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTransport } from "@/context/TransportContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Play, Pause, Check, AlertTriangle, Truck, Clock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { isTransportActive, forceTransportActive } from "@/lib/transportHelper";
 
 // Interfață pentru un transport
 interface Transport {
@@ -148,10 +149,15 @@ export default function TransportControls() {
   // Funcții pentru gestionarea transporturilor
   const handleStartTransport = async (transportId: string) => {
     try {
+      // Forțăm starea activă a transportului - aceasta va persista
+      // chiar și între actualizări
+      forceTransportActive();
+      
       console.log("Verificare UIT și date transport:", { 
         vehicleInfo,
         currentActiveUit,
-        transportId
+        transportId,
+        isAlreadyActive: isTransportActive()
       });
       
       // Verificăm dacă transportId este valid
