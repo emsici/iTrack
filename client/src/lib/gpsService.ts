@@ -20,6 +20,39 @@ export type GpsDataPayload = {
   gsm_signal?: number; // Puterea semnalului GSM/celular (0-100%)
 };
 
+// Cache pentru ultima poziție trimisă
+let lastSentPosition = {
+  coords: { latitude: 0, longitude: 0 },
+  timestamp: 0
+};
+
+// Funcție pentru a verifica dacă poziția s-a schimbat semnificativ
+const isPositionDifferent = (position: Position, lastPosition: any): boolean => {
+  // Dacă nu avem o poziție anterioară, considerăm că poziția s-a schimbat
+  if (!lastPosition || !lastPosition.coords) return true;
+  
+  // Calculăm distanța în metri între cele două poziții
+  const lat1 = position.coords.latitude;
+  const lon1 = position.coords.longitude;
+  const lat2 = lastPosition.coords.latitude;
+  const lon2 = lastPosition.coords.longitude;
+  
+  const R = 6371e3; // raza pământului în metri
+  const φ1 = lat1 * Math.PI/180; // φ, λ în radiani
+  const φ2 = lat2 * Math.PI/180;
+  const Δφ = (lat2-lat1) * Math.PI/180;
+  const Δλ = (lon2-lon1) * Math.PI/180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+          Math.cos(φ1) * Math.cos(φ2) *
+          Math.sin(Δλ/2) * Math.sin(Δλ/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const distance = R * c; // în metri
+  
+  // Dacă distanța este mai mare de 10m, considerăm că poziția s-a schimbat
+  return distance > 10;
+};
+
 // Funcție pentru trimiterea datelor GPS către server
 export const sendGpsUpdate = async (
   position: Position, 
@@ -41,6 +74,22 @@ export const sendGpsUpdate = async (
     if (!position || !vehicleInfo || !token) {
       console.error("Date lipsă pentru trimiterea actualizării GPS");
       return false;
+    }
+    
+    // Verificăm dacă poziția s-a schimbat semnificativ
+    const hasMoved = isPositionDifferent(position, lastSentPosition);
+    
+    // Verificăm timpul scurs de la ultima actualizare (minim 30 secunde)
+    const timeElapsed = position.timestamp - lastSentPosition.timestamp;
+    const MIN_UPDATE_INTERVAL = 30000; // 30 secunde
+    
+    if (!hasMoved && timeElapsed < MIN_UPDATE_INTERVAL && transportStatus !== "finished") {
+      console.log("Poziție neschimbată sau timp insuficient, nu trimitem actualizare GPS", {
+        hasMoved,
+        timeElapsed: `${timeElapsed/1000} secunde`,
+        minRequired: `${MIN_UPDATE_INTERVAL/1000} secunde`
+      });
+      return true; // Returnăm true pentru a nu considera o eroare
     }
 
     // Formatează timestamp-ul pentru server
@@ -277,6 +326,15 @@ export const sendGpsUpdate = async (
       console.error("Eroare la interpretarea răspunsului API:", parseError);
       return false;
     }
+    
+    // Actualizăm ultima poziție trimisă - doar dacă transmisia a reușit
+    lastSentPosition = {
+      coords: { 
+        latitude: position.coords.latitude, 
+        longitude: position.coords.longitude 
+      },
+      timestamp: position.timestamp
+    };
     
     return true;
   } catch (error) {

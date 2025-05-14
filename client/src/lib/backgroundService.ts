@@ -5,10 +5,12 @@ import { sendGpsUpdate } from './gpsService';
 // Stare globală pentru serviciul de background
 let isBackgroundServiceRunning = false;
 let backgroundTaskId: number | null = null;
+let lastSentBackgroundPosition: any = null;
 
 // Interval în milisecunde pentru actualizările GPS în background
 const BACKGROUND_UPDATE_INTERVAL = 60000; // 1 minut
 const DEBUG_UPDATE_INTERVAL = 10000; // 10 secunde pentru dezvoltare/testare
+const MIN_DISTANCE_CHANGE = 10; // minim 10 metri pentru a considera o schimbare de poziție
 
 /**
  * Inițializează serviciul de background pentru monitorizarea locației
