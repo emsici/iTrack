@@ -651,6 +651,38 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       if (!Capacitor.isNativePlatform()) {
         console.log("[Transport] Forțare activare GPS în browser pentru testare");
         setIsGpsActive(true);
+        
+        // CORECȚIE: Adăugăm o simulare de coordonate GPS pentru browser
+        // Aceasta va permite ca aplicația să funcționeze pentru testare chiar dacă browser-ul nu furnizează coordonate
+        console.log("[Transport] Adăugare simulate coordonate GPS pentru browser");
+        setTimeout(() => {
+          if (!gpsCoordinates && transportStatus === "active") {
+            const simulatedCoords: GpsCoordinates = {
+              lat: 44.258415158477874,
+              lng: 28.61847230759532,
+              timestamp: new Date().toISOString(),
+              viteza: 0,
+              directie: 0,
+              altitudine: 0,
+              baterie: 100
+            };
+            
+            console.log("[Transport] Setare coordonate GPS simulate:", simulatedCoords);
+            setGpsCoordinates(simulatedCoords);
+            setLastGpsUpdateTime(simulatedCoords.timestamp);
+            
+            // Dacă avem token și vehicul, încercăm și trimiterea datelor
+            if (token && vehicleInfo?.nr && currentActiveUit) {
+              sendGpsUpdate(
+                simulatedCoords,
+                vehicleInfo.nr,
+                currentActiveUit.uit,
+                "in_progress",
+                token
+              );
+            }
+          }
+        }, 2000);
       }
       
       console.log("[Transport] Stare actualizată la ACTIVE");
