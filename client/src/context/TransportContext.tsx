@@ -342,11 +342,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       return;
     }
     
-    // Verificăm dacă transportul este activ
-    if (transportStatus !== "active") {
-      console.log("Ignorăm actualizarea GPS - transportul nu este activ:", transportStatus);
-      return;
-    }
+    // ATENȚIE: Actualizăm coordonatele indiferent de starea transportului
+    // Dar trimitem la server doar dacă transportul este activ
+    console.log("Actualizăm coordonatele GPS indiferent de starea transportului:", transportStatus);
     
     // Verificăm informațiile vehiculului
     if (!vehicleInfo) {
