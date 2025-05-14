@@ -7,9 +7,10 @@ import { forceTransportActive } from "@/lib/transportHelper";
 import { toast } from "@/hooks/use-toast";
 
 export default function LocationTracking() {
-  const { gpsCoordinates, isGpsActive, lastGpsUpdateTime, isBackgroundActive, battery, transportStatus } = useTransport();
+  const { gpsCoordinates, isGpsActive, lastGpsUpdateTime, isBackgroundActive, battery, transportStatus, setGpsCoordinates, setLastGpsUpdateTime } = useTransport();
   const [isConnected, setIsConnected] = useState(true);
   const [deviceBattery, setDeviceBattery] = useState<number | null>(null);
+  const [localGpsCoords, setLocalGpsCoords] = useState<any>(null);
   
   // Debug pentru starea GPS
   useEffect(() => {
@@ -19,9 +20,48 @@ export default function LocationTracking() {
       hasCoordinates: !!gpsCoordinates,
       battery,
       deviceBattery,
-      lastUpdateTime: lastGpsUpdateTime
+      lastUpdateTime: lastGpsUpdateTime,
+      coords: gpsCoordinates,
+      localCoords: localGpsCoords
     });
-  }, [transportStatus, isGpsActive, gpsCoordinates, battery, deviceBattery, lastGpsUpdateTime]);
+  }, [transportStatus, isGpsActive, gpsCoordinates, battery, deviceBattery, lastGpsUpdateTime, localGpsCoords]);
+  
+  // Încercăm să obținem coordonatele GPS la fiecare 5 secunde
+  useEffect(() => {
+    if (!gpsCoordinates) {
+      const timer = setInterval(() => {
+        if (navigator && navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const timestamp = new Date().toISOString();
+              const coords = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+                timestamp: timestamp,
+                viteza: position.coords.speed || 0,
+                directie: position.coords.heading || 0,
+                altitudine: position.coords.altitude || 0,
+                baterie: battery
+              };
+              
+              console.log("[LocationTracking] Coordonate obținute periodic:", coords);
+              setLocalGpsCoords(coords);
+              
+              // Actualizăm direct context-ul
+              setGpsCoordinates(coords);
+              setLastGpsUpdateTime(timestamp);
+            },
+            (error) => {
+              console.error("[LocationTracking] Eroare la obținerea coordonatelor periodice:", error);
+            },
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+          );
+        }
+      }, 5000); // La fiecare 5 secunde
+      
+      return () => clearInterval(timer);
+    }
+  }, [gpsCoordinates, battery, setGpsCoordinates, setLastGpsUpdateTime]);
   
   // Verificăm periodic conexiunea la internet
   useEffect(() => {
@@ -108,6 +148,38 @@ export default function LocationTracking() {
               // Data este disponibilă în browser, dar nu se transmite către state
               if (!gpsCoordinates) {
                 console.log("[LocationTracking] Coordonatele GPS sunt disponibile în browser, dar nu în state.");
+                
+                // Vom actualiza direct state-ul cu aceste coordonate
+                const manualGpsCoords = {
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude,
+                  timestamp: new Date().toISOString(),
+                  viteza: position.coords.speed || 0,
+                  directie: position.coords.heading || 0,
+                  altitudine: position.coords.altitude || 0,
+                  baterie: deviceBattery || 100
+                };
+                
+                console.log("[LocationTracking] Actualizăm manual coordonatele GPS:", manualGpsCoords);
+                
+                // Importăm funcțiile necesare
+                import('../lib/gpsService').then(({ sendGpsUpdate }) => {
+                  // Trimitem coordonatele către API
+                  sendGpsUpdate(
+                    manualGpsCoords,
+                    { 
+                      nr: "TEST123", 
+                      uit: "UIT12345",
+                      start_locatie: "Start",
+                      stop_locatie: "Stop"
+                    },
+                    "UIT12345",
+                    localStorage.getItem("token") || "",
+                    "active"
+                  ).then(result => {
+                    console.log("[LocationTracking] Rezultat trimitere manuală coordonate:", result);
+                  });
+                });
               }
             },
             (error) => {

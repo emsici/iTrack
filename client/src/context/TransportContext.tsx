@@ -48,6 +48,7 @@ export interface TransportContextType {
   // Starea curentă a transportului
   transportStatus: TransportStatus;
   gpsCoordinates: GpsCoordinates | null;
+  setGpsCoordinates: (coords: GpsCoordinates) => void;
   selectedUits: UitOption[];
   setSelectedUits: (uits: UitOption[]) => void;
   currentActiveUit: UitOption | null;
@@ -62,6 +63,7 @@ export interface TransportContextType {
   // Utilizat pentru afișare în UI
   isGpsActive: boolean;
   lastGpsUpdateTime: string | null;
+  setLastGpsUpdateTime: (time: string | null) => void;
   battery: number;
   isBackgroundActive: boolean;
   
