@@ -27,7 +27,9 @@ export default function TransportControls() {
     resumeTransport, 
     finishTransport,
     isBackgroundActive, // Adăugăm informație despre serviciul de background
-    transportStatus
+    transportStatus,
+    currentActiveUit, // Adăugăm acces la UIT-ul curent activ din context
+    selectedUits // Adăugăm acces la lista de UIT-uri selectate
   } = useTransport();
 
   // Încarcă transporturile disponibile pentru vehicul 
@@ -103,11 +105,28 @@ export default function TransportControls() {
     try {
       console.log("Verificare UIT și date transport:", { 
         vehicleInfo,
-        currentActiveUit
+        currentActiveUit,
+        transportId
       });
       
-      // Verificăm dacă avem UIT valid configurat în TransportContext
-      if (!currentActiveUit) {
+      // Verificăm dacă transportId este valid
+      const targetTransport = transports.find(t => t.id === transportId);
+      if (!targetTransport) {
+        console.error("Transport ID invalid:", transportId);
+        toast({
+          variant: "destructive",
+          title: "Eroare",
+          description: "ID transport invalid. Reîncărcați pagina și încercați din nou."
+        });
+        return;
+      }
+      
+      // Verificăm mai întâi dacă avem UIT valid configurat
+      // INDIFERENT dacă este în TransportContext sau din transport local
+      const uit = currentActiveUit?.uit || targetTransport.uit;
+      
+      if (!uit) {
+        console.error("Lipsă UIT pentru transport");
         toast({
           variant: "destructive",
           title: "Eroare UIT",
@@ -123,10 +142,9 @@ export default function TransportControls() {
       });
       
       // Cererea permisiunilor de locație înainte de pornirea transportului
-      // Forțăm cererea permisiunilor direct de aici, când utilizatorul încearcă să pornească transportul
       try {
-        // Folosim API native pentru a solicita permisiunile de locație
-        if (navigator.geolocation) {
+        // Folosim API nativ pentru a solicita permisiunile de locație
+        if (typeof navigator !== 'undefined' && navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             async (position) => {
               console.log("Permisiuni locație acordate, pornire transport...");
@@ -137,66 +155,85 @@ export default function TransportControls() {
                 description: "Permisiuni acordate, se pornește transportul..."
               });
               
-              // Pornește GPS tracking în backend
-              const result = await startTransport();
-              
-              if (result) {
-                // Actualizează starea transportului în UI DOAR după ce s-a pornit cu succes
-                setTransports(transports.map(transport => 
-                  transport.id === transportId 
-                    ? { ...transport, status: "active", isTracking: true } 
-                    : transport
-                ));
-              } else {
+              try {
+                // Pornește GPS tracking în backend
+                const result = await startTransport();
+                console.log("Rezultat pornire transport:", result);
+                
+                if (result) {
+                  // Actualizează starea transportului în UI DOAR după ce s-a pornit cu succes
+                  setTransports(prevTransports => 
+                    prevTransports.map(transport => 
+                      transport.id === transportId 
+                        ? { ...transport, status: "active", isTracking: true } 
+                        : transport
+                    )
+                  );
+                  
+                  toast({
+                    title: "Transport pornit",
+                    description: "Cursa a început. Coordonatele GPS se trimit acum."
+                  });
+                } else {
+                  console.error("Pornire transport eșuată, rezultat fals");
+                  toast({
+                    variant: "destructive",
+                    title: "Eroare",
+                    description: "Nu s-a putut porni transportul. Verificați conexiunea și datele vehiculului."
+                  });
+                }
+              } catch (startError) {
+                console.error("Eroare la pornirea transportului din context:", startError);
                 toast({
                   variant: "destructive",
-                  title: "Eroare",
-                  description: "Nu s-a putut porni transportul. Verificați conexiunea și datele vehiculului."
+                  title: "Eroare de sistem",
+                  description: "A apărut o eroare la pornirea transportului. Încercați din nou."
                 });
-                
-                // Resetăm UI-ul înapoi la inactiv (deși nu l-am modificat încă)
-                setTransports(transports.map(transport => 
-                  transport.id === transportId 
-                    ? { ...transport, status: "inactive", isTracking: false } 
-                    : transport
-                ));
               }
             },
-            (error) => {
-              console.error("Eroare permisiuni locație:", error);
+            (geoError) => {
+              console.error("Eroare permisiuni locație:", geoError);
               toast({
                 variant: "destructive",
                 title: "Permisiuni de locație necesare",
                 description: "Pentru a porni transportul, trebuie să activați serviciul de locație. Verificați setările telefonului."
               });
-              
-              // Resetăm UI-ul înapoi la inactiv
-              setTransports(transports.map(transport => 
-                transport.id === transportId 
-                  ? { ...transport, status: "inactive", isTracking: false } 
-                  : transport
-              ));
             },
-            { timeout: 5000, enableHighAccuracy: true }
+            { timeout: 10000, enableHighAccuracy: true }
           );
         } else {
-          // Dacă nu există navigator.geolocation, încercăm direct startTransport
-          const result = await startTransport();
-          
-          if (!result) {
+          console.error("API Geolocation nu este disponibil în acest browser");
+          // Încercăm direct startTransport fără verificare permisiuni
+          try {
+            const result = await startTransport();
+            
+            if (result) {
+              setTransports(prevTransports => 
+                prevTransports.map(transport => 
+                  transport.id === transportId 
+                    ? { ...transport, status: "active", isTracking: true } 
+                    : transport
+                )
+              );
+              
+              toast({
+                title: "Transport pornit",
+                description: "Cursa a început. Coordonatele GPS se trimit acum."
+              });
+            } else {
+              toast({
+                variant: "destructive",
+                title: "Eroare",
+                description: "Nu s-a putut porni transportul fără acces la serviciile de localizare."
+              });
+            }
+          } catch (directStartError) {
+            console.error("Eroare la pornirea directă a transportului:", directStartError);
             toast({
               variant: "destructive",
               title: "Eroare",
-              description: "Nu s-a putut porni transportul. Verificați conexiunea la internet și datele vehiculului."
+              description: "Nu s-a putut porni transportul. Verificați conexiunea la internet și setările dispozitivului."
             });
-            
-            // Resetăm UI-ul înapoi la inactiv
-            setTransports(transports.map(transport => 
-              transport.id === transportId 
-                ? { ...transport, status: "inactive", isTracking: false } 
-                : transport
-            ));
-            return;
           }
         }
       } catch (permError) {
@@ -206,34 +243,14 @@ export default function TransportControls() {
           title: "Eroare permisiuni",
           description: "Nu s-au putut obține permisiunile de locație necesare."
         });
-        
-        // Resetăm UI-ul înapoi la inactiv
-        setTransports(transports.map(transport => 
-          transport.id === transportId 
-            ? { ...transport, status: "inactive", isTracking: false } 
-            : transport
-        ));
-        return;
       }
-      
-      toast({
-        title: "Transport pornit",
-        description: "Cursa a început. Coordonatele GPS se trimit acum."
-      });
-    } catch (error) {
-      console.error("Error starting transport:", error);
+    } catch (generalError) {
+      console.error("Eroare generală la pornirea transportului:", generalError);
       toast({
         variant: "destructive",
         title: "Eroare",
-        description: "Nu s-a putut porni cursa. Încercați din nou."
+        description: "A apărut o eroare neașteptată. Încercați din nou."
       });
-      
-      // Resetăm UI-ul înapoi la inactiv
-      setTransports(transports.map(transport => 
-        transport.id === transportId 
-          ? { ...transport, status: "inactive", isTracking: false } 
-          : transport
-      ));
     }
   };
 

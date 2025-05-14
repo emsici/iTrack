@@ -1,6 +1,9 @@
 // Manager central pentru gestionarea stării aplicației
 
-import type { TransportStatus } from "@/context/TransportContext";
+// Definim TransportStatus direct aici pentru a evita importul circular
+export type TransportStatus = "inactive" | "active" | "paused" | "finished";
+
+// Importăm tipul UitOption pentru starea aplicației
 import type { UitOption } from "@/context/TransportContext";
 import { addLog } from "./logService";
 

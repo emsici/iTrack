@@ -15,7 +15,7 @@ import {
   shouldStartGpsOnRestore,
   isSessionInitialized,
   markSessionInitialized,
-  TransportStatus
+  type TransportStatus
 } from "@/lib/stateManager";
 
 // Interfață pentru coordonatele GPS
