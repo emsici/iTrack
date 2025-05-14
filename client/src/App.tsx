@@ -5,6 +5,7 @@ import { TransportProvider } from "@/context/TransportContext";
 import LoginPage from "@/pages/LoginPage";
 import VehicleInputPage from "@/pages/VehicleInputPage";
 import TransportPage from "@/pages/TransportPage";
+import LogViewerPage from "@/pages/LogViewerPage";
 import NotFound from "@/pages/not-found";
 import { Toaster } from "@/components/ui/toaster";
 import { requestGpsPermissions, isNativePlatform, CapacitorGeoService } from "@/lib/capacitorService";
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/" component={LoginPage} />
       <Route path="/vehicle" component={VehicleInputPage} />
       <Route path="/transport" component={TransportPage} />
+      <Route path="/admin/logs" component={LogViewerPage} />
       <Route component={NotFound} />
     </Switch>
   );

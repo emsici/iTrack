@@ -1,154 +1,70 @@
-import { UitOption } from "@/context/TransportContext";
-import { toast } from "@/hooks/use-toast";
+// Manager central pentru gestionarea stării aplicației
 
-// Chei pentru stocarea în localStorage
-const TRANSPORT_STATE_KEY = 'itrack_transport_state';
-const ACTIVE_UIT_KEY = 'itrack_active_uit';
-const SELECTED_UITS_KEY = 'itrack_selected_uits';
-const LAST_GPS_UPDATE_KEY = 'itrack_last_gps_update';
-const BATTERY_KEY = 'itrack_battery_level';
+import type { TransportStatus } from "@/context/TransportContext";
+import type { UitOption } from "@/context/TransportContext";
+import { addLog } from "./logService";
+
+// Cheile pentru stocarea datelor în localStorage
+const APP_STATE_KEY = 'itrack_app_state';
 const SESSION_INITIALIZED_KEY = 'itrack_session_initialized';
 
-// Tipuri de status pentru transport
-export type TransportStatus = "inactive" | "active" | "paused" | "finished";
-
-// Interfață pentru toate datele stocate
-export interface SavedAppState {
+// Interfață pentru starea aplicației
+export interface AppState {
   transportStatus: TransportStatus;
   currentActiveUit: UitOption | null;
   selectedUits: UitOption[];
   lastGpsUpdateTime: string | null;
   battery: number;
-  sessionInitialized: boolean;
 }
 
 /**
  * Salvează starea aplicației în localStorage
- * Toate datele sunt stocate separat pentru a permite actualizări parțiale
  */
 export const saveAppState = (
   transportStatus: TransportStatus,
   currentActiveUit: UitOption | null,
   selectedUits: UitOption[],
-  lastGpsUpdateTime: string | null = null,
-  battery: number = 100
+  lastGpsUpdateTime: string | null,
+  battery: number
 ): void => {
   try {
-    // Salvăm starea transportului doar dacă avem un UIT activ sau suntem inactivi
-    if (currentActiveUit || transportStatus === "inactive" as TransportStatus) {
-      localStorage.setItem(TRANSPORT_STATE_KEY, transportStatus);
-      localStorage.setItem(SESSION_INITIALIZED_KEY, 'true');
-      
-      if (lastGpsUpdateTime) {
-        localStorage.setItem(LAST_GPS_UPDATE_KEY, lastGpsUpdateTime);
-      }
-      
-      localStorage.setItem(BATTERY_KEY, battery.toString());
-      
-      // Salvăm UIT-ul activ
-      if (currentActiveUit) {
-        localStorage.setItem(ACTIVE_UIT_KEY, JSON.stringify(currentActiveUit));
-      } else {
-        localStorage.removeItem(ACTIVE_UIT_KEY);
-      }
-      
-      // Salvăm lista de UIT-uri selectate
-      if (selectedUits.length > 0) {
-        localStorage.setItem(SELECTED_UITS_KEY, JSON.stringify(selectedUits));
-      } else {
-        localStorage.removeItem(SELECTED_UITS_KEY);
-      }
-      
-      console.log(`[State Manager] Starea aplicației salvată. Transport: ${transportStatus}`);
-    } else if (transportStatus === "inactive") {
-      // Ștergem starea când suntem inactivi
-      clearAppState();
-    }
+    const appState: AppState = {
+      transportStatus,
+      currentActiveUit,
+      selectedUits,
+      lastGpsUpdateTime,
+      battery
+    };
+    
+    localStorage.setItem(APP_STATE_KEY, JSON.stringify(appState));
+    addLog('Stare aplicație salvată', 'info', 'stateManager', appState);
   } catch (error) {
     console.error("[State Manager] Eroare la salvarea stării:", error);
+    addLog('Eroare la salvarea stării aplicației', 'error', 'stateManager', { error: String(error) });
   }
 };
 
 /**
- * Obține starea salvată din localStorage
- * Returnează null dacă nu există stare salvată
+ * Obține starea aplicației din localStorage
  */
-export const getSavedAppState = (): SavedAppState | null => {
+export const getSavedAppState = (): AppState | null => {
   try {
-    // Verificăm dacă există o stare de transport salvată
-    const transportStatus = localStorage.getItem(TRANSPORT_STATE_KEY);
-    console.log("[State Manager] Verificare stare salvată:", transportStatus || "Nu există");
-    if (!transportStatus) return null;
-    
-    // Obținem UIT-ul activ
-    let currentActiveUit = null;
-    const activeUitStr = localStorage.getItem(ACTIVE_UIT_KEY);
-    if (activeUitStr) {
-      try {
-        currentActiveUit = JSON.parse(activeUitStr);
-      } catch (error) {
-        console.error("[State Manager] Eroare la parsarea UIT-ului activ:", error);
-      }
+    const savedState = localStorage.getItem(APP_STATE_KEY);
+    if (!savedState) {
+      return null;
     }
     
-    // Obținem lista de UIT-uri selectate
-    let selectedUits: UitOption[] = [];
-    const selectedUitsStr = localStorage.getItem(SELECTED_UITS_KEY);
-    if (selectedUitsStr) {
-      try {
-        selectedUits = JSON.parse(selectedUitsStr);
-      } catch (error) {
-        console.error("[State Manager] Eroare la parsarea listei de UIT-uri:", error);
-      }
-    }
-    
-    // Obținem timestamp-ul ultimei actualizări GPS
-    const lastGpsUpdateTime = localStorage.getItem(LAST_GPS_UPDATE_KEY);
-    
-    // Obținem nivelul bateriei
-    let battery = 100;
-    const batteryStr = localStorage.getItem(BATTERY_KEY);
-    if (batteryStr) {
-      battery = parseInt(batteryStr, 10);
-      if (isNaN(battery)) battery = 100;
-    }
-    
-    // Verificăm dacă sesiunea a fost deja inițializată
-    const sessionInitialized = localStorage.getItem(SESSION_INITIALIZED_KEY) === 'true';
-    
-    return {
-      transportStatus: transportStatus as TransportStatus,
-      currentActiveUit,
-      selectedUits,
-      lastGpsUpdateTime,
-      battery,
-      sessionInitialized
-    };
+    return JSON.parse(savedState) as AppState;
   } catch (error) {
-    console.error("[State Manager] Eroare la obținerea stării salvate:", error);
+    console.error("[State Manager] Eroare la obținerea stării:", error);
+    addLog('Eroare la obținerea stării salvate', 'error', 'stateManager', { error: String(error) });
     return null;
   }
 };
 
 /**
- * Șterge starea salvată din localStorage
- */
-export const clearAppState = (): void => {
-  try {
-    localStorage.removeItem(TRANSPORT_STATE_KEY);
-    localStorage.removeItem(ACTIVE_UIT_KEY);
-    localStorage.removeItem(SELECTED_UITS_KEY);
-    localStorage.removeItem(LAST_GPS_UPDATE_KEY);
-    localStorage.removeItem(BATTERY_KEY);
-    console.log("[State Manager] Starea aplicației a fost ștearsă");
-  } catch (error) {
-    console.error("[State Manager] Eroare la ștergerea stării:", error);
-  }
-};
-
-/**
- * Verifică și restaurează starea aplicației
- * Această funcție ar trebui apelată o singură dată la pornirea aplicației
+ * Restaurează starea aplicației din localStorage
+ * @returns true dacă starea a fost restaurată cu succes, false altfel
  */
 export const restoreAppState = (
   setTransportStatus: (status: TransportStatus) => void,
@@ -158,51 +74,79 @@ export const restoreAppState = (
   setBattery: (level: number) => void
 ): boolean => {
   try {
-    // Obținem starea salvată
     const savedState = getSavedAppState();
-    if (!savedState) return false;
-    
-    // Verificăm dacă avem o stare activă
-    const hasActiveState = savedState.transportStatus === "active" || savedState.transportStatus === "paused";
-    
-    // Restaurăm starea doar dacă avem un UIT activ și starea nu este inactivă
-    if (hasActiveState && savedState.currentActiveUit) {
-      console.log(`[State Manager] Restaurare stare: ${savedState.transportStatus} pentru UIT: ${savedState.currentActiveUit.uit}`);
-      
-      // Setăm UIT-urile
-      if (savedState.selectedUits.length > 0) {
-        setSelectedUits(savedState.selectedUits);
-      }
-      
-      // Setăm UIT-ul activ
-      setCurrentActiveUit(savedState.currentActiveUit);
-      
-      // Setăm timestamp-ul ultimei actualizări GPS
-      if (savedState.lastGpsUpdateTime) {
-        setLastGpsUpdateTime(savedState.lastGpsUpdateTime);
-      }
-      
-      // Setăm nivelul bateriei
-      setBattery(savedState.battery);
-      
-      // Setăm starea transportului la final pentru a declanșa efectele dependente
-      setTransportStatus(savedState.transportStatus);
-      
-      // Notificăm utilizatorul
-      setTimeout(() => {
-        toast({
-          title: "Sesiune restaurată",
-          description: `Transport ${savedState.transportStatus} restaurat pentru UIT: ${savedState.currentActiveUit?.uit}`,
-        });
-      }, 1000);
-      
-      return true;
+    if (!savedState) {
+      console.log("[State Manager] Nu există stare salvată pentru restaurare");
+      addLog('Nu există stare salvată pentru restaurare', 'info', 'stateManager');
+      return false;
     }
     
-    return false;
+    // Restaurăm fiecare stare în parte
+    setTransportStatus(savedState.transportStatus);
+    setCurrentActiveUit(savedState.currentActiveUit);
+    setSelectedUits(savedState.selectedUits || []);
+    setLastGpsUpdateTime(savedState.lastGpsUpdateTime);
+    setBattery(savedState.battery || 100);
+    
+    console.log("[State Manager] Stare restaurată cu succes");
+    addLog('Stare aplicație restaurată cu succes', 'info', 'stateManager', savedState);
+    
+    return true;
   } catch (error) {
     console.error("[State Manager] Eroare la restaurarea stării:", error);
+    addLog('Eroare la restaurarea stării aplicației', 'error', 'stateManager', { error: String(error) });
     return false;
+  }
+};
+
+/**
+ * Șterge starea aplicației din localStorage
+ */
+export const clearAppState = (): void => {
+  try {
+    localStorage.removeItem(APP_STATE_KEY);
+    console.log("[State Manager] Stare ștearsă");
+    addLog('Stare aplicație ștearsă', 'info', 'stateManager');
+  } catch (error) {
+    console.error("[State Manager] Eroare la ștergerea stării:", error);
+    addLog('Eroare la ștergerea stării aplicației', 'error', 'stateManager', { error: String(error) });
+  }
+};
+
+/**
+ * Marchează sesiunea ca fiind inițializată pentru a preveni inițializările multiple
+ */
+export const markSessionInitialized = (): void => {
+  try {
+    localStorage.setItem(SESSION_INITIALIZED_KEY, 'true');
+    addLog('Sesiune marcată ca inițializată', 'debug', 'stateManager');
+  } catch (error) {
+    console.error("[State Manager] Eroare la marcarea sesiunii ca inițializată:", error);
+  }
+};
+
+/**
+ * Verifică dacă sesiunea a fost deja inițializată
+ */
+export const isSessionInitialized = (): boolean => {
+  try {
+    return localStorage.getItem(SESSION_INITIALIZED_KEY) === 'true';
+  } catch (error) {
+    console.error("[State Manager] Eroare la verificarea inițializării sesiunii:", error);
+    return false;
+  }
+};
+
+/**
+ * Resetează starea de inițializare a sesiunii
+ * Trebuie apelat la deconectare pentru a permite reinițializarea la următoarea autentificare
+ */
+export const resetSessionInitialization = (): void => {
+  try {
+    localStorage.removeItem(SESSION_INITIALIZED_KEY);
+    addLog('Inițializare sesiune resetată', 'debug', 'stateManager');
+  } catch (error) {
+    console.error("[State Manager] Eroare la resetarea inițializării sesiunii:", error);
   }
 };
 
@@ -227,18 +171,4 @@ export const shouldStartGpsOnRestore = (): boolean => {
     console.error("[State Manager] Eroare la verificarea stării pentru GPS:", error);
     return false;
   }
-};
-
-/**
- * Verifică dacă sesiunea a fost deja inițializată, pentru a evita inițializări multiple
- */
-export const isSessionInitialized = (): boolean => {
-  return localStorage.getItem(SESSION_INITIALIZED_KEY) === 'true';
-};
-
-/**
- * Marchează sesiunea ca inițializată
- */
-export const markSessionInitialized = (): void => {
-  localStorage.setItem(SESSION_INITIALIZED_KEY, 'true');
 };
