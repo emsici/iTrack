@@ -209,8 +209,21 @@ export default function TransportControls() {
         description: "Se întrerupe transmisia GPS, vă rugăm așteptați..."
       });
       
+      // Găsim transportul curent din lista de transporturi
+      const currentTransport = transports.find(t => t.id === transportId);
+      if (!currentTransport) {
+        throw new Error("Transport negăsit");
+      }
+      
+      // Construim obiectul UIT pentru a-l transmite funcției pauseTransport
+      const currentUit = {
+        uit: currentTransport.uit,
+        start_locatie: currentTransport.start_locatie,
+        stop_locatie: currentTransport.stop_locatie
+      };
+      
       // Apelăm funcția din context
-      await pauseTransport();
+      await pauseTransport(currentUit);
       
       // Actualizăm starea transportului în UI
       setTransports(prevTransports => 
@@ -223,7 +236,7 @@ export default function TransportControls() {
       
       toast({
         title: "Transport în pauză",
-        description: "Cursa a fost pusă în pauză, transmisia GPS este întreruptă."
+        description: `Cursa ${currentTransport.uit} a fost pusă în pauză, transmisia GPS este întreruptă.`
       });
     } catch (error) {
       console.error("Eroare la întreruperea transportului:", error);
@@ -245,8 +258,21 @@ export default function TransportControls() {
         description: "Se reia transmisia GPS, vă rugăm așteptați..."
       });
       
+      // Găsim transportul curent din lista de transporturi
+      const currentTransport = transports.find(t => t.id === transportId);
+      if (!currentTransport) {
+        throw new Error("Transport negăsit");
+      }
+      
+      // Construim obiectul UIT pentru a-l transmite funcției resumeTransport
+      const currentUit = {
+        uit: currentTransport.uit,
+        start_locatie: currentTransport.start_locatie,
+        stop_locatie: currentTransport.stop_locatie
+      };
+      
       // Apelăm funcția din context
-      await resumeTransport();
+      await resumeTransport(currentUit);
       
       // Actualizăm starea transportului în UI
       setTransports(prevTransports => 
@@ -262,7 +288,7 @@ export default function TransportControls() {
       
       toast({
         title: "Transport reluat",
-        description: "Cursa a fost reluată, transmisia GPS este activă."
+        description: `Cursa ${currentTransport.uit} a fost reluată, transmisia GPS este activă.`
       });
     } catch (error) {
       console.error("Eroare la reluarea transportului:", error);
@@ -278,6 +304,19 @@ export default function TransportControls() {
   const handleFinishTransport = async (transportId: string) => {
     try {
       console.log("Se finalizează transportul:", transportId);
+      
+      // Găsim transportul curent din lista de transporturi
+      const currentTransport = transports.find(t => t.id === transportId);
+      if (!currentTransport) {
+        throw new Error("Transport negăsit");
+      }
+      
+      // Construim obiectul UIT pentru a-l transmite funcției finishTransport
+      const currentUit = {
+        uit: currentTransport.uit,
+        start_locatie: currentTransport.start_locatie,
+        stop_locatie: currentTransport.stop_locatie
+      };
       
       // Marcare imediată ca "în curs de finalizare" pentru feedback vizual
       setTransports(prevTransports => 
@@ -311,12 +350,12 @@ export default function TransportControls() {
       // Notificăm utilizatorul
       toast({
         title: "Se procesează...",
-        description: "Se finalizează transportul, vă rugăm așteptați..."
+        description: `Se finalizează transportul ${currentTransport.uit}, vă rugăm așteptați...`
       });
       
       // Apelăm funcția din context
       try {
-        await finishTransport();
+        await finishTransport(currentUit);
         console.log("[TransportControls] Transport finalizat cu succes");
         
         // După finalizare, forțăm setarea statusului din nou în localStorage
@@ -324,7 +363,7 @@ export default function TransportControls() {
         
         toast({
           title: "Transport finalizat",
-          description: "Cursa a fost finalizată cu succes.",
+          description: `Cursa ${currentTransport.uit} a fost finalizată cu succes.`,
           variant: "default"
         });
       } catch (finishError) {
@@ -339,7 +378,7 @@ export default function TransportControls() {
         
         toast({
           title: "Transport finalizat",
-          description: "Cursa a fost finalizată, dar a apărut o mică eroare la sincronizare.",
+          description: `Cursa ${currentTransport.uit} a fost finalizată, dar a apărut o mică eroare la sincronizare.`,
           variant: "default"
         });
       }
