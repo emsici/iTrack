@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/context/AuthContext";
+import { useTransport } from "@/context/TransportContext";
 import MainLayout from "@/components/MainLayout";
 import MobileLayout from "@/components/MobileLayout";
 import TransportControls from "@/components/TransportControls";
