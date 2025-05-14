@@ -304,9 +304,9 @@ export const CapacitorGeoService = {
           },
           (error) => reject(error),
           {
-            enableHighAccuracy: options?.enableHighAccuracy || true,
-            timeout: options?.timeout || 10000,
-            maximumAge: options?.maximumAge || 0
+            enableHighAccuracy: options?.enableHighAccuracy !== undefined ? options.enableHighAccuracy : true,
+            timeout: options?.timeout || 30000, // Mărim timeout-ul la 30 secunde
+            maximumAge: options?.maximumAge || 10000 // Acceptăm poziții cu vechimea de până la 10 secunde
           }
         );
       });
@@ -338,9 +338,9 @@ export const CapacitorGeoService = {
         },
         (error) => console.error('Eroare la watchPosition:', error),
         {
-          enableHighAccuracy: options?.enableHighAccuracy || true,
-          timeout: options?.timeout || 10000,
-          maximumAge: options?.maximumAge || 0
+          enableHighAccuracy: options?.enableHighAccuracy !== undefined ? options.enableHighAccuracy : true,
+          timeout: options?.timeout || 30000, // Mărirea timeout-ului la 30 secunde pentru a reduce erorile
+          maximumAge: options?.maximumAge || 10000 // Acceptăm poziții cu vechimea de până la 10 secunde
         }
       );
       
@@ -353,9 +353,9 @@ export const CapacitorGeoService = {
     // Folosim Capacitor pentru platforme native
     const startWatch = async () => {
       const watchId = await Geolocation.watchPosition(options || {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
+        enableHighAccuracy: options?.enableHighAccuracy !== undefined ? options.enableHighAccuracy : true,
+        timeout: options?.timeout || 30000, // Mărim timeout-ul la 30 secunde
+        maximumAge: options?.maximumAge || 10000 // Acceptăm poziții cu vechimea de până la 10 secunde
       }, (position) => {
         if (position) {
           callback(position);
