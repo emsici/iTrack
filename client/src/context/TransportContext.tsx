@@ -210,7 +210,15 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       });
       
       // Salvăm referința pentru a putea opri watching-ul mai târziu
-      watchPositionRef.current = { clearWatch: watchResult.clearWatch };
+      if (watchHandler) {
+        watchPositionRef.current = { 
+          clearWatch: () => {
+            if (watchHandler.clearWatch) {
+              watchHandler.clearWatch();
+            }
+          } 
+        };
+      }
       
       return true;
     } catch (error) {
