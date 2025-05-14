@@ -1,6 +1,6 @@
 // Helper pentru transport și GPS
 import type { GpsCoordinates } from "./gpsService";
-import { saveAppState } from "./stateManager";
+import { saveAppState, getSavedAppState } from "./stateManager";
 import type { UitOption } from "@/context/TransportContext";
 
 // Referință la starea transportului pentru stabilitate între re-randări
@@ -94,9 +94,8 @@ export const forceTransportActive = (): void => {
   transportStateRef.transportStatus = 'active';
   transportStateRef.isGpsActive = true;
   
-  // Obținem starea salvată pentru a verifica consistența
+  // Folosim funcțiile importate la nivel de modul
   try {
-    const { getSavedAppState, saveAppState } = require('./stateManager');
     const savedState = getSavedAppState();
     
     // Dacă starea salvată nu este activă, o actualizăm forțat

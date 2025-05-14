@@ -106,7 +106,7 @@ export const sendGpsUpdate = async (
       // Salvăm starea în localStorage pentru persistență
       // Definim obiectul UIT cu datele primite
       const uitInfo = { 
-        uit: uit,                 // Preluăm codul UIT din parametrul funcției
+        uit: transportUit || '',  // Preluăm codul UIT din parametrul funcției cu valoare default
         start_locatie: '',        // Nu avem informații, dar trebuie să respectăm structura
         stop_locatie: ''          // Nu avem informații, dar trebuie să respectăm structura 
       };
