@@ -20,6 +20,18 @@ else
     echo "Pasul 3/6: Platforma Android deja existentă, continuăm..."
 fi
 
+# Pasul 3.1: Verificăm și actualizăm AndroidManifest.xml
+echo "Pasul 3.1/6: Verificăm Manifestul Android pentru permisiuni corecte..."
+# Copiem șablonul de manifest peste cel generat
+if [ -f "AndroidManifest-template.xml" ]; then
+    echo "Aplicăm șablonul de manifest personalizat pentru permisiuni corecte..."
+    cp AndroidManifest-template.xml android/app/src/main/AndroidManifest.xml
+    echo "Manifest actualizat cu succes!"
+else
+    echo "AVERTISMENT: Nu s-a găsit șablonul AndroidManifest-template.xml!"
+    echo "Permisiunile pentru locație ar putea să nu funcționeze corect."
+fi
+
 # Pasul 4: Verificăm că Android SDK este instalat
 echo "Pasul 4/6: Verificăm Android SDK..."
 if [ -z "$ANDROID_SDK_ROOT" ]; then

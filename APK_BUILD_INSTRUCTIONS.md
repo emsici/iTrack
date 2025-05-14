@@ -50,10 +50,14 @@ După adăugarea platformei Android dar înainte de a genera APK-ul, trebuie să
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
-    <!-- Permisiuni pentru localizare GPS -->
+    <!-- Permisiuni pentru localizare GPS - FOARTE IMPORTANTE! -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    
+    <!-- Hardware necesar pentru funcționare - FOARTE IMPORTANT! -->
+    <uses-feature android:name="android.hardware.location" android:required="true" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="true" />
     
     <!-- Permisiuni pentru funcționare în fundal -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
