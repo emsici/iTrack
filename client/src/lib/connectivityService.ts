@@ -193,8 +193,10 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
     const uniqueRecords: StoredGpsRecord[] = [];
     const seenEntries = new Set<string>();
     let duplicateCount = 0;
+    const duplicateIndices: number[] = []; // Indexurile înregistrărilor duplicate
     
-    for (const record of offlineData) {
+    for (let i = 0; i < offlineData.length; i++) {
+      const record = offlineData[i];
       // Creăm un identificator unic pentru această înregistrare bazat pe coordonate și timestamp
       const recordId = `${record.data.lat}-${record.data.lng}-${record.data.timestamp}`;
       
@@ -204,24 +206,37 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
       } else {
         console.log('Ignorăm înregistrare duplicată la sincronizare:', recordId);
         duplicateCount++;
+        duplicateIndices.push(i); // Salvăm indexul pentru eliminare ulterioară
       }
     }
     
     console.log(`După eliminarea duplicatelor: ${uniqueRecords.length} înregistrări unice, ${duplicateCount} duplicate eliminate`);
     
-    // Adăugăm și o notificare Toast pentru utilizator
+    // Dacă am găsit duplicate, le eliminăm definitiv din localStorage
     if (duplicateCount > 0) {
       try {
+        // Obținem toate datele din localStorage
+        const allStoredData = getOfflineGpsData();
+        
+        // Filtrăm datele pentru a elimina duplicatele
+        const cleanedData = allStoredData.filter((_, index) => !duplicateIndices.includes(index));
+        
+        // Salvăm datele înapoi în localStorage
+        localStorage.setItem('itrack_offline_gps_data', JSON.stringify(cleanedData));
+        
+        console.log(`Am eliminat definitiv ${duplicateCount} duplicate din localStorage.`);
+        
+        // Adăugăm și o notificare Toast pentru utilizator
         if (window?.document) {
           const event = new CustomEvent('toast-message', { 
             detail: { 
-              message: `Sincronizare: ${uniqueRecords.length} înregistrări unice, ${duplicateCount} duplicate eliminate` 
+              message: `Sincronizare: ${uniqueRecords.length} înregistrări unice, ${duplicateCount} duplicate eliminate definitiv` 
             } 
           });
           window.document.dispatchEvent(event);
         }
       } catch (e) {
-        console.error('Eroare la afișare toast:', e);
+        console.error('Eroare la eliminarea duplicatelor din localStorage:', e);
       }
     }
     
