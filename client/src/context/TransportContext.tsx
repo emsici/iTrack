@@ -698,6 +698,19 @@ export function TransportProvider({ children }: { children: ReactNode }) {
             };
             
             // Implementăm un mecanism pentru verificarea stării GPS și notificarea utilizatorului
+            // CRUCIAL: Folosim stateRef pentru a păstra referință la starea REALĂ a transportului
+            // și pentru a ne asigura că nu avem race conditions între diferite efecte
+            const stateRef = useRef({
+              transportStatus: transportStatus,
+              isGpsActive: isGpsActive
+            });
+            
+            // Actualizăm valoarea de referință atunci când starea se schimbă
+            useEffect(() => {
+              stateRef.current.transportStatus = transportStatus;
+              stateRef.current.isGpsActive = isGpsActive;
+            }, [transportStatus, isGpsActive]);
+            
             const safetyInterval = setInterval(() => {
               // IMPORTANT: Verificăm și actualizăm starea chiar dacă pagina nu este vizibilă
               // pentru a menține starea corectă a transportului
@@ -706,21 +719,25 @@ export function TransportProvider({ children }: { children: ReactNode }) {
               // Verificăm dacă avem o stare salvată și o restaurăm
               if (appState && appState.transportStatus === "active") {
                 // Dacă starea locală este activă dar starea în memorie nu este, o actualizăm
-                if (transportStatus !== "active") {
+                if (stateRef.current.transportStatus !== "active") {
                   console.log("[Transport] Restaurare stare transport activ din localStorage");
                   setTransportStatus("active");
                   setIsGpsActive(true);
+                  
+                  // Actualizăm și referința
+                  stateRef.current.transportStatus = "active";
+                  stateRef.current.isGpsActive = true;
                 }
               }
               
               console.log("[Transport] Verificare status transport [Interval de siguranță]:", 
-                transportStatus, 
-                "GPS:", isGpsActive ? "activ" : "inactiv",
+                stateRef.current.transportStatus, 
+                "GPS:", stateRef.current.isGpsActive ? "activ" : "inactiv",
                 "Coordonate:", gpsCoordinates ? "disponibile" : "indisponibile"
               );
               
               // Verificăm doar dacă transportul este activ
-              if (transportStatus === "active") {
+              if (stateRef.current.transportStatus === "active") {
                 // Verificăm dacă avem GPS activ și coordonate disponibile
                 if (!gpsCoordinates && document.visibilityState === "visible") {
                   console.log("[Transport] Nu avem coordonate GPS disponibile");
