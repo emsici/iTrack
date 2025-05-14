@@ -24,7 +24,10 @@ iTrack este o aplicație mobilă profesională pentru șoferi care permite monit
 - Sincronizarea automată a datelor când conexiunea este restaurată
 - Trimiterea coordonatelor GPS la fiecare minut către serverul API
 - Eliminarea datelor duplicate pentru eficiență rețea (verificare coordonate și timestamp)
+- Afișarea numărului de duplicate detectate și eliminate în timpul sincronizării
+- Verificarea și filtrarea triplă a duplicatelor: la salvare, înainte de sincronizare și la trimitere
 - Păstrarea datelor offline pentru reconectări ale aceluiași utilizator
+- Control inteligent al sincronizării: activare automată la login, dezactivare la logout
 
 ### Interfață Utilizator
 - Interfață mobilă optimizată cu design responsive
@@ -75,3 +78,26 @@ iTrack este o aplicație mobilă profesională pentru șoferi care permite monit
 - WebSocket pentru comunicare în timp real
 - React Query pentru management avansat al stării
 - LocalStorage pentru persistența datelor între sesiuni
+
+## Optimizări pentru gestionarea datelor
+
+### Strategii de eliminare a duplicatelor GPS
+Aplicația implementează o strategie în trei etape pentru a preveni transmiterea datelor GPS duplicate:
+
+1. **La salvare locală:** 
+   - Verificare dacă coordonatele GPS au aceleași valori lat/lng și timestamp înainte de a fi salvate
+   - Calculul diferenței minime între coordonate pentru a considera două puncte distincte
+
+2. **Înainte de sincronizare:**
+   - Filtrare suplimentară a datelor din localStorage folosind un Set() pentru a elimina înregistrările cu aceleași coordonate și timestamp
+   - Numărarea și raportarea duplicatelor identificate
+
+3. **La trimitere către API:**
+   - Verificare finală pentru a preveni trimiterea datelor redundante către server
+   - Trimiterea doar a datelor unice pentru a optimiza transferul de date și spațiul de stocare
+
+### Managementul sesiunii și controlul sincronizării
+- Activarea automată a sincronizării la autentificare
+- Dezactivarea sincronizării la deconectare pentru a preveni trimiterea neintenționată a datelor
+- Păstrarea contextuală a datelor GPS: menținerea între sesiuni pentru același utilizator, ștergerea pentru utilizatori diferiți
+- Mecanisme avansate de protecție împotriva expirării token-urilor și reautentificare
