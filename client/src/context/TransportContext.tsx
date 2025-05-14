@@ -249,6 +249,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       return false;
     }
     
+    // IMPORTANT: Activăm controlul GPS înainte de a încerca să pornim serviciul!
+    // Aceasta este cauza pentru care GPS-ul nu pornește - flag-urile de control sunt false
+    setGpsAccessControl(true, true);
+    
     try {
       // Verificăm permisiunile GPS
       const hasPermissions = await requestGpsPermissions();
