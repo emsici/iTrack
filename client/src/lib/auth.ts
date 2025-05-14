@@ -39,20 +39,24 @@ export const loginUser = async (credentials: Login) => {
     if (isNative) {
       try {
         // Folosim HTTP plugin de la Capacitor pentru dispozitive native
-        // API-ul extern așteaptă valorile raw, nu JSON sau form-urlencoded
-        // Trebuie să trimitem direct câmpurile email și password
-        const rawData = {
-          email: credentials.email,
-          password: credentials.password
-        };
+        // API-ul extern așteaptă JSON în exact formatul din Postman
+        // Formatul exact din exemplu: {"email":"test@exemplu.com", "password":"parola123"}
         
-        console.log("Trimit date de autentificare în format raw:", rawData);
+        // Construim JSON exact în formatul așteptat
+        const jsonData = JSON.stringify({
+          "email": credentials.email,
+          "password": credentials.password
+        });
+        
+        console.log("Trimit date de autentificare în format JSON EXACT:", jsonData);
         
         const response = await Http.request({
           method: 'POST',
           url: apiUrl,
-          data: rawData, // Capacitor va trimite valorile direct, fără formatare
-          headers: {}, // Nu specificăm Content-Type
+          data: jsonData, // Trimitem string JSON deja formatat
+          headers: {
+            'Content-Type': 'application/json'
+          },
           params: {} as any // FOARTE IMPORTANT: obiect gol transformat în any pentru a rezolva problema de tipuri
         });
         
