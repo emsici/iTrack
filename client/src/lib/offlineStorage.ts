@@ -1,7 +1,11 @@
 import { GpsDataPayload } from "./gpsService";
+import { UitOption } from "@/context/TransportContext";
 
-// Cheie pentru stocarea locală a datelor GPS
+// Chei pentru stocarea locală a datelor
 const OFFLINE_GPS_DATA_KEY = 'itrack_offline_gps_data';
+const TRANSPORT_STATE_KEY = 'itrack_transport_state';
+const ACTIVE_UIT_KEY = 'itrack_active_uit';
+const SELECTED_UITS_KEY = 'itrack_selected_uits';
 
 /**
  * Interfață pentru înregistrările stocate local
@@ -130,5 +134,92 @@ export const removeOfflineGpsRecords = (recordsToRemove: StoredGpsRecord[]): voi
     }
   } catch (error) {
     console.error("[Offline Storage] Eroare la eliminarea înregistrărilor GPS offline:", error);
+  }
+};
+
+/**
+ * Funcții pentru persistența stării transportului între sesiuni
+ */
+
+/**
+ * Salvează starea transportului în localStorage
+ */
+export const saveTransportState = (state: string): void => {
+  try {
+    localStorage.setItem(TRANSPORT_STATE_KEY, state);
+    console.log(`[Offline Storage] Starea transportului salvată: ${state}`);
+  } catch (error) {
+    console.error("[Offline Storage] Eroare la salvarea stării transportului:", error);
+  }
+};
+
+/**
+ * Obține starea transportului din localStorage
+ */
+export const getTransportState = (): string | null => {
+  try {
+    return localStorage.getItem(TRANSPORT_STATE_KEY);
+  } catch (error) {
+    console.error("[Offline Storage] Eroare la citirea stării transportului:", error);
+    return null;
+  }
+};
+
+/**
+ * Salvează UIT-ul activ în localStorage
+ */
+export const saveActiveUit = (uit: UitOption | null): void => {
+  try {
+    if (uit) {
+      localStorage.setItem(ACTIVE_UIT_KEY, JSON.stringify(uit));
+      console.log(`[Offline Storage] UIT activ salvat: ${uit.uit}`);
+    } else {
+      localStorage.removeItem(ACTIVE_UIT_KEY);
+      console.log(`[Offline Storage] UIT activ șters`);
+    }
+  } catch (error) {
+    console.error("[Offline Storage] Eroare la salvarea UIT-ului activ:", error);
+  }
+};
+
+/**
+ * Obține UIT-ul activ din localStorage
+ */
+export const getActiveUit = (): UitOption | null => {
+  try {
+    const storedUit = localStorage.getItem(ACTIVE_UIT_KEY);
+    if (!storedUit) return null;
+    
+    return JSON.parse(storedUit) as UitOption;
+  } catch (error) {
+    console.error("[Offline Storage] Eroare la citirea UIT-ului activ:", error);
+    return null;
+  }
+};
+
+/**
+ * Salvează lista de UIT-uri selectate în localStorage
+ */
+export const saveSelectedUits = (uits: UitOption[]): void => {
+  try {
+    localStorage.setItem(SELECTED_UITS_KEY, JSON.stringify(uits));
+    console.log(`[Offline Storage] Lista de UIT-uri salvată, ${uits.length} elemente`);
+  } catch (error) {
+    console.error("[Offline Storage] Eroare la salvarea listei de UIT-uri:", error);
+  }
+};
+
+/**
+ * Obține lista de UIT-uri selectate din localStorage
+ */
+export const getSelectedUits = (): UitOption[] => {
+  try {
+    const storedUits = localStorage.getItem(SELECTED_UITS_KEY);
+    if (!storedUits) return [];
+    
+    return JSON.parse(storedUits) as UitOption[];
+  } catch (error) {
+    console.error("[Offline Storage] Eroare la citirea listei de UIT-uri:", error);
+    return [];
   }
 };

@@ -6,6 +6,14 @@ import { getCurrentPosition, setGpsAccessControl } from "@/lib/transportService"
 import { sendGpsUpdate } from "@/lib/gpsService";
 import { startBackgroundLocationTracking, stopBackgroundLocationTracking, isBackgroundServiceActive } from "@/lib/backgroundService";
 import { setupConnectivityListeners, syncOfflineData, checkGpsAvailability } from "@/lib/connectivityService";
+import { 
+  saveTransportState, 
+  getTransportState, 
+  saveActiveUit,
+  getActiveUit,
+  saveSelectedUits,
+  getSelectedUits
+} from "@/lib/offlineStorage";
 
 // Tipuri de status pentru transport
 type TransportStatus = "inactive" | "active" | "paused" | "finished";
@@ -104,6 +112,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   // Accesăm autentificarea și toast
   const { token, vehicleInfo, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  
+
   
   // Referință la starea de inițializare 
   const initializedRef = useRef(false);
