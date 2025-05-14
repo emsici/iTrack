@@ -4,6 +4,7 @@ import { MapPin, Clock, Gauge, Navigation, Battery, Wifi, WifiOff } from "lucide
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { forceTransportActive } from "@/lib/transportHelper";
+import { toast } from "@/hooks/use-toast";
 
 export default function LocationTracking() {
   const { gpsCoordinates, isGpsActive, lastGpsUpdateTime, isBackgroundActive, battery, transportStatus } = useTransport();
@@ -79,12 +80,21 @@ export default function LocationTracking() {
   // Forțăm starea activă dacă suntem activi dar nu avem coordonate
   // Acest lucru va asigura că starea rămâne activă chiar și după restart
   useEffect(() => {
-    if (transportStatus === "active" && !gpsCoordinates) {
+    if (transportStatus === "active") {
       // Folosim metoda importată direct în loc de require
       forceTransportActive();
       console.log("[LocationTracking] Forțare actualizare stare transport activă");
+      
+      // Notificare utilizator despre starea GPS-ului
+      if (isGpsActive && !gpsCoordinates) {
+        toast({
+          title: "GPS activ",
+          description: "Se așteaptă coordonatele GPS. Vă rugăm așteptați...",
+          duration: 3000,
+        });
+      }
     }
-  }, [transportStatus, gpsCoordinates]);
+  }, [transportStatus, isGpsActive, gpsCoordinates]);
   
   const formatTime = (timeString: string | null) => {
     if (!timeString) return "N/A";

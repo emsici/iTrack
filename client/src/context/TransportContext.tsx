@@ -399,12 +399,19 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     // Trimitem actualizarea la server dacă transportul este activ
     if (transportStatus === "active") {
       try {
+        console.log("Trimit coordonate GPS către server:", {
+          coords: newCoords,
+          vehicleNr: vehicleInfo.nr,
+          uit: uit,
+          status: "in_progress"
+        });
+        
         sendGpsUpdate(
           newCoords, 
           vehicleInfo.nr, 
-          currentActiveUit.uit, 
+          uit, // Folosim variabila uit deja verificată mai sus
           "in_progress",
-          token
+          token || ''
         ).then(success => {
           if (success) {
             // Salvăm starea din nou după trimitere pentru a asigura persistența
