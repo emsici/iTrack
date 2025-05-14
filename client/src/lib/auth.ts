@@ -68,6 +68,15 @@ export const isNativePlatform = (): boolean => {
 
 export const loginUser = async (credentials: Login) => {
   try {
+    // Verificare specială pentru utilizatorul admin (pagina de loguri)
+    if (credentials.email === 'admin@itrack.app' && credentials.password === 'admin123') {
+      console.log("Credențiale admin detectate - nu se face apel la API");
+      return {
+        success: false,
+        message: "Credențiale admin - autentificarea se face local"
+      };
+    }
+    
     console.log("Date de autentificare trimise:", credentials);
     console.log("Încercare de autentificare cu:", credentials);
     

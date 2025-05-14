@@ -146,6 +146,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de autentificare cu:", credentials);
       
+      // Verificare specială pentru utilizatorul admin (pagina de loguri)
+      if (credentials.email === 'admin@itrack.app' && credentials.password === 'admin123') {
+        console.log("Credențiale admin detectate - autentificare specială pentru admin");
+        return false; // Returnăm false pentru ca pagina LogViewerPage să gestioneze autentificarea local
+      }
+      
       // Verificăm dacă acest utilizator este ultimul care a fost logat
       // pentru a decide dacă păstrăm datele GPS stocate sau le ștergem
       const lastLoggedUser = localStorage.getItem("last_logged_user");
