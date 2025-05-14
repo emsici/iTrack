@@ -17,6 +17,8 @@ import {
   markSessionInitialized,
   type TransportStatus
 } from "@/lib/stateManager";
+import { Capacitor } from "@capacitor/core";
+import { Geolocation } from "@capacitor/geolocation";
 
 // Interfață pentru coordonatele GPS
 export interface GpsCoordinates {
@@ -486,63 +488,155 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       console.log("[Transport] Pornire GPS tracking...");
       
-      // Verificăm dacă avem acces la GPS - IMPORTANT: fără GPS nu putem porni transportul
+      // Verificăm dacă avem acces la GPS - dar diferențiat pe platforme
+      // Pe telefon cerem strict GPS, în browser suntem mai permisivi (pentru testare)
       try {
-        // Obținem poziția curentă pentru a verifica dacă GPS-ul funcționează
-        if (navigator && navigator.geolocation) {
-          // Promisiune pentru a obține poziția curentă cu timeout de 10 secunde
-          const positionPromise = new Promise<GeolocationPosition>((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(
-              (position) => resolve(position),
-              (error) => reject(error),
-              { timeout: 10000, maximumAge: 0, enableHighAccuracy: true }
-            );
-          });
-          
+        // Pornim verificarea GPS-ului diferit în funcție de platformă
+        const isNative = Capacitor.isNativePlatform();
+        console.log("[Transport] Verificare GPS pe platformă:", isNative ? "mobilă" : "browser");
+        
+        if (isNative) {
+          // PE PLATFORMĂ MOBILĂ - Verificarea GPS trebuie să fie strictă
           try {
-            // Așteptăm să obținem poziția
-            await positionPromise;
-            console.log("[Transport] Poziție GPS obținută cu succes");
-            
-            // Pornim GPS tracking
-            const gpsStarted = await startGpsTracking();
-            console.log("[Transport] Rezultat pornire GPS:", gpsStarted);
-            
-            if (!gpsStarted) {
-              console.error("[Transport] Nu s-a putut porni GPS-ul");
+            // Verificăm permisiunile GPS
+            const hasPermissions = await requestGpsPermissions();
+            if (!hasPermissions) {
+              console.error("[Transport] Permisiuni GPS insuficiente pe dispozitiv mobil");
               toast({
-                title: "Eroare GPS",
-                description: "Nu s-a putut porni sistemul de urmărire a locației. Verificați setările și încercați din nou.",
+                title: "Permisiuni GPS necesare",
+                description: "Activați serviciul de localizare pentru a putea urmări transportul.",
                 variant: "destructive"
               });
               return false;
             }
-          } catch (positionError) {
-            console.error("[Transport] Eroare la obținerea poziției GPS:", positionError);
+            
+            // Încercăm să obținem o poziție GPS cu timeout mai mare
+            console.log("[Transport] Încercăm obținerea poziției GPS pe dispozitiv mobil");
+            // Folosim Capacitor pentru dispozitive mobile
+            try {
+              // Folosim plugin-ul Geolocation din Capacitor
+              const position = await Geolocation.getCurrentPosition({
+                enableHighAccuracy: true,
+                timeout: 15000
+              });
+              
+              console.log("[Transport] Poziție GPS obținută cu succes pe mobil");
+            } catch (mobileGpsError) {
+              console.error("[Transport] Eroare la obținerea poziției GPS pe mobil:", mobileGpsError);
+              toast({
+                title: "Eroare GPS",
+                description: "Nu se poate obține poziția GPS. Verificați dacă localizarea este activată.",
+                variant: "destructive"
+              });
+              return false;
+            }
+          } catch (mobileError) {
+            console.error("[Transport] Eroare la verificarea GPS pe mobil:", mobileError);
             toast({
               title: "Eroare GPS",
-              description: "Poziția GPS nu poate fi obținută. Verificați permisiunile de locație și încercați din nou.",
+              description: "Serviciul de localizare nu poate fi accesat. Verificați setările dispozitivului.",
               variant: "destructive"
             });
             return false;
           }
         } else {
-          console.error("[Transport] Serviciul de geolocation nu este disponibil");
+          // ÎN BROWSER - Facem o verificare mai permisivă (pentru testare)
+          try {
+            console.log("[Transport] Verificare GPS în browser - permitem și timeout-uri");
+            // În browser, facem o verificare simplă, dar acceptăm și timeout-uri
+            if (navigator && navigator.geolocation) {
+              // Încercăm să obținem poziția, dar cu un timeout redus
+              const browserCheckPromise = new Promise<boolean>((resolve) => {
+                // Încercăm să obținem poziția, dar setăm și un timeout manual
+                const positionTimeout = setTimeout(() => {
+                  console.log("[Transport] Timeout la verificarea GPS în browser, dar continuăm");
+                  resolve(true); // Permitem continuarea chiar și cu timeout
+                }, 3000);
+                
+                // Încercăm să obținem poziția
+                navigator.geolocation.getCurrentPosition(
+                  (position) => {
+                    clearTimeout(positionTimeout);
+                    console.log("[Transport] Poziție GPS obținută cu succes în browser");
+                    resolve(true);
+                  },
+                  (error) => {
+                    clearTimeout(positionTimeout);
+                    // Doar pentru PERMISSION_DENIED blocăm transportul
+                    if (error.code === 1) { // PERMISSION_DENIED
+                      console.error("[Transport] Permisiuni GPS refuzate explicit în browser");
+                      resolve(false);
+                    } else {
+                      console.warn("[Transport] Eroare GPS în browser, dar continuăm:", error);
+                      resolve(true); // Pentru timeout sau indisponibilitate, continuăm
+                    }
+                  },
+                  { timeout: 5000, maximumAge: 10000, enableHighAccuracy: false }
+                );
+              });
+              
+              // Așteptăm rezultatul verificării
+              const canContinue = await browserCheckPromise;
+              if (!canContinue) {
+                toast({
+                  title: "Permisiuni refuzate",
+                  description: "Permisiunile de localizare au fost refuzate. Transportul nu poate fi pornit.",
+                  variant: "destructive"
+                });
+                return false;
+              }
+              
+              // În browser permitem continuarea chiar dacă GPS-ul nu este perfect
+              console.log("[Transport] Verificare GPS în browser completă, continuăm");
+            }
+          } catch (browserError) {
+            console.warn("[Transport] Eroare la verificarea GPS în browser, dar continuăm:", browserError);
+            // În browser, continuăm chiar și cu erori pentru testare
+          }
+        }
+        
+        // Pornim serviciul GPS indiferent de platformă
+        // Pornim GPS tracking
+        const gpsStarted = await startGpsTracking();
+        console.log("[Transport] Rezultat pornire GPS:", gpsStarted);
+        
+        if (!gpsStarted && isNative) {
+          // Doar pe platformă mobilă blocăm transportul când GPS-ul nu pornește
+          console.error("[Transport] Nu s-a putut porni GPS-ul pe platformă mobilă");
           toast({
             title: "Eroare GPS",
-            description: "Serviciul de localizare nu este disponibil pe acest dispozitiv. Transportul nu poate fi pornit.",
+            description: "Nu s-a putut porni sistemul de urmărire a locației. Verificați setările și încercați din nou.",
             variant: "destructive"
           });
           return false;
+        } else if (!gpsStarted) {
+          // În browser doar afișăm un avertisment
+          console.warn("[Transport] Nu s-a putut porni GPS-ul în browser, dar continuăm");
+          toast({
+            title: "Atenție GPS",
+            description: "Serviciul GPS nu funcționează optim. Unele funcționalități pot fi limitate.",
+          });
+          // Continuăm transportul chiar și fără GPS în browser pentru testare
         }
       } catch (gpsError) {
-        console.error("[Transport] Eroare la inițializarea GPS-ului:", gpsError);
-        toast({
-          title: "Eroare GPS",
-          description: "A apărut o eroare la inițializarea serviciului de localizare. Transportul nu poate fi pornit.",
-          variant: "destructive"
-        });
-        return false;
+        console.error("[Transport] Eroare generală la inițializarea GPS-ului:", gpsError);
+        
+        // Pe platformă mobilă blocăm pornirea, în browser continuăm
+        if (Capacitor.isNativePlatform()) {
+          toast({
+            title: "Eroare GPS",
+            description: "A apărut o eroare la inițializarea serviciului de localizare. Transportul nu poate fi pornit.",
+            variant: "destructive"
+          });
+          return false;
+        } else {
+          // În browser doar afișăm un avertisment și continuăm
+          toast({
+            title: "Atenție GPS",
+            description: "Serviciul GPS nu funcționează optim în browser. Unele funcționalități pot fi limitate.",
+          });
+          // Continuăm transportul în browser pentru testare
+        }
       }
       
       // Actualizăm starea
