@@ -132,88 +132,102 @@ export default function SimpleLocationTracking() {
         </CardHeader>
         
         <CardContent className="pt-2 pb-3">
-          <div className="grid grid-cols-3 gap-2 mb-2">
-            {/* Coloana 1: Latitudine și Longitudine */}
-            <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
-              <div className="flex items-center text-gray-500 mb-1">
-                <MapPin className="w-4 h-4 mr-1" />
-                <p className="text-xs font-medium">Coordonate</p>
+          <div className="flex flex-col gap-2 mb-2">
+            {/* Rând 1: Latitudine și Longitudine */}
+            <div className="grid grid-cols-2 gap-2">
+              {/* Latitudine */}
+              <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center text-gray-500 mb-1">
+                  <MapPin className="w-4 h-4 mr-1" />
+                  <p className="text-xs font-medium">Latitudine</p>
+                </div>
+                <p className="text-sm font-bold text-slate-800">
+                  {gpsCoordinates?.lat ? 
+                    gpsCoordinates.lat.toFixed(6) : localCoordinates?.lat ? 
+                    localCoordinates.lat.toFixed(6) : "-"}
+                </p>
               </div>
-              <p className="text-sm font-bold text-slate-800">
-                Lat: {gpsCoordinates?.lat ? 
-                  gpsCoordinates.lat.toFixed(6) : localCoordinates?.lat ? 
-                  localCoordinates.lat.toFixed(6) : "-"}
-              </p>
-              <p className="text-sm font-bold text-slate-800 mt-1">
-                Lng: {gpsCoordinates?.lng ? 
-                  gpsCoordinates.lng.toFixed(6) : localCoordinates?.lng ? 
-                  localCoordinates.lng.toFixed(6) : "-"}
-              </p>
+              
+              {/* Longitudine */}
+              <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center text-gray-500 mb-1">
+                  <MapPin className="w-4 h-4 mr-1" />
+                  <p className="text-xs font-medium">Longitudine</p>
+                </div>
+                <p className="text-sm font-bold text-slate-800">
+                  {gpsCoordinates?.lng ? 
+                    gpsCoordinates.lng.toFixed(6) : localCoordinates?.lng ? 
+                    localCoordinates.lng.toFixed(6) : "-"}
+                </p>
+              </div>
             </div>
             
-            {/* Coloana 2: Viteză și Direcție */}
-            <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
-              <div className="flex items-center text-gray-500 mb-1">
-                <Gauge className="w-4 h-4 mr-1" />
-                <p className="text-xs font-medium">Deplasare</p>
+            {/* Rând 2: Viteză și Direcție */}
+            <div className="grid grid-cols-2 gap-2">
+              {/* Viteză */}
+              <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center text-gray-500 mb-1">
+                  <Gauge className="w-4 h-4 mr-1" />
+                  <p className="text-xs font-medium">Viteză</p>
+                </div>
+                <p className="text-sm font-bold text-slate-800">
+                  {gpsCoordinates?.viteza !== undefined ? 
+                    `${Math.round(gpsCoordinates.viteza)} km/h` : 
+                    localCoordinates?.viteza !== undefined ?
+                    `${Math.round(localCoordinates.viteza)} km/h` : "-"}
+                </p>
               </div>
-              <p className="text-sm font-bold text-slate-800">
-                {gpsCoordinates?.viteza !== undefined ? 
-                  `${Math.round(gpsCoordinates.viteza)} km/h` : 
-                  localCoordinates?.viteza !== undefined ?
-                  `${Math.round(localCoordinates.viteza)} km/h` : "-"}
-              </p>
-              <p className="text-sm font-bold text-slate-800 mt-1">
-                {gpsCoordinates?.directie !== undefined ? 
-                  `${Math.round(gpsCoordinates.directie % 360)}°` : 
-                  localCoordinates?.directie !== undefined ?
-                  `${Math.round(localCoordinates.directie % 360)}°` : "-"}
-              </p>
+              
+              {/* Direcție */}
+              <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center text-gray-500 mb-1">
+                  <Navigation className="w-4 h-4 mr-1" />
+                  <p className="text-xs font-medium">Direcție</p>
+                </div>
+                <p className="text-sm font-bold text-slate-800">
+                  {gpsCoordinates?.directie !== undefined ? 
+                    `${Math.round(gpsCoordinates.directie % 360)}°` : 
+                    localCoordinates?.directie !== undefined ?
+                    `${Math.round(localCoordinates.directie % 360)}°` : "-"}
+                </p>
+              </div>
             </div>
             
-            {/* Coloana 3: Ultima actualizare */}
+            {/* Rând 3: Ultima actualizare */}
             <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
               <div className="flex items-center text-gray-500 mb-1">
                 <Clock className="w-4 h-4 mr-1" />
                 <p className="text-xs font-medium">Ultima actualizare</p>
               </div>
-              <p className="text-sm font-bold text-slate-800 mt-1">
+              <p className="text-sm font-bold text-slate-800">
                 {lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : formatTime(localCoordinates?.timestamp)}
               </p>
             </div>
             
+            {/* Informații suplimentare */}
             <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
-              <div className="flex items-center text-gray-500 mb-1">
-                <Battery className="w-4 h-4 mr-1" />
-                <p className="text-xs font-medium">Baterie</p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-gray-500">
+                  <Battery className="w-4 h-4 mr-1" />
+                  <p className="text-xs font-medium">Baterie: </p>
+                  <p className="text-xs font-bold ml-1">
+                    {deviceBattery ? `${deviceBattery}%` : "-"}
+                  </p>
+                </div>
+                
+                <div className="flex items-center">
+                  {isConnected ? 
+                    <Wifi className="w-4 h-4 mr-1 text-green-600" /> : 
+                    <WifiOff className="w-4 h-4 mr-1 text-red-600" />
+                  }
+                  <Badge 
+                    variant={isBackgroundActive ? "outline" : "secondary"}
+                    className="px-2 py-0 h-5 text-xs flex items-center"
+                  >
+                    {isBackgroundActive ? "Fundal activ" : "Fundal inactiv"}
+                  </Badge>
+                </div>
               </div>
-              <p className="text-base font-bold text-slate-800">
-                {deviceBattery ? `${deviceBattery}%` : "-"}
-              </p>
-            </div>
-            
-            <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md col-span-2">
-              <div className="flex items-center text-gray-500 mb-1">
-                {isConnected ? 
-                  <Wifi className="w-4 h-4 mr-1 text-green-600" /> : 
-                  <WifiOff className="w-4 h-4 mr-1 text-red-600" />
-                }
-                <p className="text-xs font-medium flex-1">
-                  {isConnected ? "Conectat" : "Deconectat"}
-                </p>
-                <Badge 
-                  variant={isBackgroundActive ? "outline" : "secondary"}
-                  className="px-2 py-0 h-5 text-xs flex items-center"
-                >
-                  {isBackgroundActive ? "Fundal activ" : "Fundal inactiv"}
-                </Badge>
-              </div>
-              <p className="text-sm">
-                {isConnected ? 
-                  "Datele sunt transmise în timp real." : 
-                  "Datele vor fi transmise când internetul va fi disponibil."
-                }
-              </p>
             </div>
           </div>
         </CardContent>
