@@ -494,7 +494,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         toast({
           title: "Transport reluat",
           description: "Transportul a fost reluat, dar urmărirea GPS nu funcționează. Verificați setările dispozitivului.",
-          variant: "warning"
+          variant: "destructive"
         });
       }
       
@@ -525,73 +525,120 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   
   // Funcție pentru a finaliza un transport
   const finishTransport = useCallback(async (): Promise<void> => {
-    // Oprim GPS-ul
-    await stopGpsTracking();
-    
-    // Verificăm dacă avem date offline pentru a le sincroniza
-    if (hasOfflineGpsData() && token) {
-      try {
-        await syncOfflineData(token);
-      } catch (error) {
-        console.error("Eroare la sincronizarea datelor offline:", error);
+    try {
+      console.log("[Transport] Începere finalizare transport");
+      
+      // Salvăm datele înainte de a opri GPS-ul pentru a evita pierderea datelor
+      if (currentActiveUit) {
+        // Marcăm explicit ca finalizat pentru a evita confuziile în caz de eroare
+        saveAppState(
+          "finished", 
+          currentActiveUit,
+          selectedUits,
+          lastGpsUpdateTime,
+          battery
+        );
+        console.log("[Transport] Stare temporară salvată înainte de finalizare");
       }
-    }
-    
-    // Trimitem ultima actualizare cu status "finished"
-    if (vehicleInfo?.nr && currentActiveUit && token && gpsCoordinates) {
-      try {
-        await getCurrentPosition(async (position) => {
-          const coords = position.coords;
-          const timestamp = new Date().toISOString();
+      
+      // Oprim GPS-ul
+      await stopGpsTracking();
+      console.log("[Transport] GPS oprit înainte de finalizare");
+      
+      // Verificăm dacă avem date offline pentru a le sincroniza
+      if (hasOfflineGpsData() && token) {
+        try {
+          await syncOfflineData(token);
+          console.log("[Transport] Date offline sincronizate");
+        } catch (error) {
+          console.error("[Transport] Eroare la sincronizarea datelor offline:", error);
+        }
+      }
+      
+      // Trimitem ultima actualizare cu status "finished"
+      if (vehicleInfo?.nr && currentActiveUit && token) {
+        try {
+          // Încercăm să obținem poziția curentă pentru ultima actualizare
+          // dar continuăm chiar dacă eșuează (nu e blocher)
+          console.log("[Transport] Încercare obținere poziție finală");
           
-          // Creăm obiectul cu coordonatele GPS
-          const finalCoords: GpsCoordinates = {
-            lat: coords.latitude,
-            lng: coords.longitude,
-            timestamp,
-            viteza: coords.speed || 0,
-            directie: coords.heading || 0,
-            altitudine: coords.altitude || 0,
-            baterie: battery
-          };
-          
-          // Trimitem actualizarea finală cu status "finished"
-          await sendGpsUpdate(
-            finalCoords, 
-            vehicleInfo.nr, 
-            currentActiveUit.uit, 
-            "finished",
-            token
-          );
+          try {
+            await getCurrentPosition(async (position) => {
+              const coords = position.coords;
+              const timestamp = new Date().toISOString();
+              
+              // Creăm obiectul cu coordonatele GPS
+              const finalCoords: GpsCoordinates = {
+                lat: coords.latitude,
+                lng: coords.longitude,
+                timestamp,
+                viteza: coords.speed || 0,
+                directie: coords.heading || 0,
+                altitudine: coords.altitude || 0,
+                baterie: battery
+              };
+              
+              // Trimitem actualizarea finală cu status "finished"
+              await sendGpsUpdate(
+                finalCoords, 
+                vehicleInfo.nr, 
+                currentActiveUit.uit, 
+                "finished",
+                token
+              );
+              console.log("[Transport] Ultima actualizare GPS trimisă cu succes");
+            });
+          } catch (posError) {
+            console.error("[Transport] Nu s-a putut obține poziția finală:", posError);
+          }
+        } catch (error) {
+          console.error("[Transport] Eroare la trimiterea coordonatelor finale:", error);
+        }
+      }
+      
+      // Actualizăm transporturile vehiculelor
+      if (vehicleInfo?.nr) {
+        setVehicleTransports(prev => {
+          console.log("[Transport] Actualizare listă transporturi după finalizare");
+          return prev.filter(t => t.vehicleNumber !== vehicleInfo.nr);
         });
-      } catch (error) {
-        console.error("Eroare la trimiterea coordonatelor finale:", error);
       }
-    }
-    
-    // Actualizăm transporturile vehiculelor
-    if (vehicleInfo?.nr) {
-      setVehicleTransports(prev => {
-        return prev.filter(t => t.vehicleNumber !== vehicleInfo.nr);
+      
+      // Resetăm starea
+      setTransportStatus("inactive");
+      setGpsCoordinates(null);
+      setCurrentActiveUit(null);
+      setLastGpsUpdateTime(null);
+      setBattery(100);
+      setIsGpsActive(false);
+      
+      // Curățăm starea salvată
+      clearAppState();
+      console.log("[Transport] Stare curățată după finalizare");
+      
+      toast({
+        title: "Transport finalizat",
+        description: "Transportul a fost finalizat cu succes."
+      });
+    } catch (error) {
+      console.error("[Transport] Eroare la finalizarea transportului:", error);
+      
+      // Actualizăm oricum starea pentru a permite utilizatorului să continue
+      setTransportStatus("inactive");
+      setGpsCoordinates(null);
+      setCurrentActiveUit(null);
+      setLastGpsUpdateTime(null);
+      setBattery(100);
+      setIsGpsActive(false);
+      clearAppState();
+      
+      toast({
+        title: "Transport finalizat",
+        description: "Transportul a fost finalizat, dar cu unele erori de sincronizare.",
+        variant: "destructive"
       });
     }
-    
-    // Resetăm starea
-    setTransportStatus("inactive");
-    setGpsCoordinates(null);
-    setCurrentActiveUit(null);
-    setLastGpsUpdateTime(null);
-    setBattery(100);
-    setIsGpsActive(false);
-    
-    // Curățăm starea salvată
-    clearAppState();
-    
-    toast({
-      title: "Transport finalizat",
-      description: "Transportul a fost finalizat cu succes."
-    });
-  }, [vehicleInfo?.nr, currentActiveUit, token, gpsCoordinates, battery, stopGpsTracking]);
+  }, [vehicleInfo?.nr, currentActiveUit, token, gpsCoordinates, battery, stopGpsTracking, selectedUits, lastGpsUpdateTime]);
   
   // Funcție pentru a obține toate transporturile vehiculelor
   const getAllVehicleTransports = useCallback((): VehicleTransport[] => {
