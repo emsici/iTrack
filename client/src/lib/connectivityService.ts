@@ -1,9 +1,11 @@
 import { saveGpsDataOffline, getOfflineGpsData, clearOfflineGpsData, removeOfflineGpsRecords } from './offlineStorage';
 import { sendGpsData } from './transportService';
+import { requestGpsPermissions } from './capacitorService';
 
 // Inițializăm starea de conectivitate
 let isInternetConnected = navigator.onLine;
 let isGpsAvailable = true;
+let isCheckingGps = false;
 
 // Funcția pentru a obține starea actuală a conexiunii la internet
 export const getInternetConnectivity = (): boolean => {
@@ -17,38 +19,92 @@ export const getGpsAvailability = (): boolean => {
 
 // Funcția care verifică disponibilitatea GPS
 export const checkGpsAvailability = async (): Promise<boolean> => {
+  // Prevenim verificări multiple simultane
+  if (isCheckingGps) {
+    return isGpsAvailable;
+  }
+  
+  isCheckingGps = true;
+  
   try {
     // Verificăm dacă API-ul de geolocație este disponibil
     if (!('geolocation' in navigator)) {
       console.log("API-ul de geolocație nu este disponibil");
       isGpsAvailable = false;
+      isCheckingGps = false;
       return false;
     }
     
     // Încercăm să obținem poziția curentă cu un timeout scurt
-    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => resolve(pos),
-        (err) => reject(err),
-        { timeout: 5000, maximumAge: 0, enableHighAccuracy: true }
-      );
-    });
-    
-    if (position && position.coords) {
-      console.log("GPS disponibil, poziție obținută:", {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve(pos),
+          (err) => reject(err),
+          { timeout: 5000, maximumAge: 0, enableHighAccuracy: true }
+        );
       });
-      isGpsAvailable = true;
-      return true;
-    } else {
-      console.log("Poziție GPS invalidă sau incompletă");
+      
+      if (position && position.coords) {
+        console.log("GPS disponibil, poziție obținută:", {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        });
+        isGpsAvailable = true;
+        isCheckingGps = false;
+        return true;
+      } else {
+        console.log("Poziție GPS invalidă sau incompletă");
+        isGpsAvailable = false;
+        isCheckingGps = false;
+        return false;
+      }
+    } catch (gpsError) {
+      console.log("Eroare la obținerea poziției GPS:", gpsError);
+      
+      // Verificăm dacă eroarea indică lipsa permisiunilor și solicităm permisiuni
+      const gpsErrorObj = gpsError as GeolocationPositionError;
+      if (gpsErrorObj.code === 1) { // 1 = PERMISSION_DENIED
+        console.log("Permisiune GPS lipsă, încercăm să solicităm permisiunile");
+        try {
+          const permissionGranted = await requestGpsPermissions();
+          console.log("Rezultatul solicitării permisiunilor:", permissionGranted);
+          
+          // Verificăm din nou GPS-ul după ce utilizatorul a acordat permisiuni
+          if (permissionGranted) {
+            try {
+              // O nouă încercare de a obține poziția
+              const newPosition = await new Promise<GeolocationPosition>((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(
+                  (pos) => resolve(pos),
+                  (err) => reject(err),
+                  { timeout: 5000, maximumAge: 0, enableHighAccuracy: true }
+                );
+              });
+              
+              if (newPosition && newPosition.coords) {
+                console.log("GPS disponibil după acordarea permisiunilor");
+                isGpsAvailable = true;
+                isCheckingGps = false;
+                return true;
+              }
+            } catch (retryError) {
+              console.log("GPS inaccesibil chiar și după acordarea permisiunilor:", retryError);
+            }
+          }
+        } catch (permissionError) {
+          console.error("Eroare la solicitarea permisiunilor GPS:", permissionError);
+        }
+      }
+      
       isGpsAvailable = false;
+      isCheckingGps = false;
       return false;
     }
   } catch (error) {
     console.error("Eroare la verificarea GPS:", error);
     isGpsAvailable = false;
+    isCheckingGps = false;
     return false;
   }
 };

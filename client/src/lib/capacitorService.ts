@@ -23,27 +23,47 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
     const permissionStatus = await Geolocation.checkPermissions();
     console.log("Stare permisiuni GPS:", permissionStatus.location);
     
-    // Dacă permisiunea nu este încă acordată, o solicităm explicit
+    // Dacă permisiunea nu este încă acordată sau este în starea "prompt", o solicităm explicit
     if (permissionStatus.location !== 'granted') {
       console.log("Permisiune GPS neacordată, solicităm explicit");
       const requestResult = await Geolocation.requestPermissions();
       console.log("Rezultat solicitare permisiuni GPS:", requestResult.location);
       
-      // Pentru a verifica dacă permisiunea este acordată, încercăm să obținem poziția o dată
-      if (requestResult.location === 'granted' || requestResult.location === 'prompt') {
+      // Pentru a verifica dacă permisiunea este acordată sau în starea 'prompt', 
+      // încercăm să obținem poziția o dată
+      const permissionGrantedOrPrompt = 
+        requestResult.location === 'granted' || 
+        requestResult.location === 'prompt' ||
+        requestResult.location === 'prompt-with-rationale';
+        
+      if (permissionGrantedOrPrompt) {
         try {
+          // Folosim un timeout mai mare pentru a da timp utilizatorului să răspundă la prompt
           await Geolocation.getCurrentPosition({
             enableHighAccuracy: true,
-            timeout: 5000
+            timeout: 10000
           });
           console.log("Poziție GPS inițială obținută cu succes");
           return true;
         } catch (posErr) {
           console.error("Eroare la obținerea poziției inițiale după acordarea permisiunii:", posErr);
-          return false;
+          // Încercăm încă o dată, utilizatorul ar fi putut accepta permisiunea, 
+          // dar prima citire poate eșua
+          try {
+            await Geolocation.getCurrentPosition({
+              enableHighAccuracy: true,
+              timeout: 5000
+            });
+            console.log("Poziție GPS obținută cu succes la a doua încercare");
+            return true;
+          } catch (retryErr) {
+            console.error("Eroare și la a doua încercare:", retryErr);
+            return false;
+          }
         }
       }
-      return requestResult.location === 'granted' || requestResult.location === 'prompt';
+      
+      return permissionGrantedOrPrompt;
     }
     
     // Permisiunea este deja acordată
