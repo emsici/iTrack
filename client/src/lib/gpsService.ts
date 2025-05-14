@@ -159,10 +159,13 @@ export const sendGpsUpdate = async (
     const effectiveVehicleInfo = correctedVehicleInfo;
     
     // Verificăm din nou vehicleInfo și token după corecții
-    if (!vehicleInfo || !token) {
+    if (!effectiveVehicleInfo || !token) {
       console.error("Date lipsă pentru trimiterea actualizării GPS: vehicleInfo sau token lipsă");
       return false;
     }
+    
+    // Pentru debugging, afișăm vehicleInfo efectiv ce va fi utilizat
+    console.log("VehicleInfo efectiv ce va fi utilizat:", effectiveVehicleInfo);
     
     // Verificăm dacă poziția s-a schimbat semnificativ
     const hasMoved = isPositionDifferent(position, lastSentPosition);
@@ -258,8 +261,8 @@ export const sendGpsUpdate = async (
       directie: Math.round(headingValue) || 0, // Direcția din senzori sau GPS, rotunjită
       altitudine: Math.round(altitude || 0),
       baterie: Math.round(batteryLevel),
-      numar_inmatriculare: vehicleInfo.nr,
-      uit: vehicleInfo.uit, // CRUCIAL: avem nevoie de UIT valid
+      numar_inmatriculare: effectiveVehicleInfo.nr, // Folosim vehicleInfo corectat
+      uit: effectiveVehicleInfo.uit, // CRUCIAL: avem nevoie de UIT valid
       status: transportStatus, // Adăugăm status-ul transportului
       hdop: hdopValue || 5,         // Valoare default pentru HDOP dacă nu este disponibilă
       gsm_signal: gsmSignalValue || 90  // Valoare default pentru puterea semnalului
@@ -294,11 +297,18 @@ export const sendGpsUpdate = async (
     const status = transportStatus === "finished" ? "finished" : "in_progress";
     
     // Asigurăm-ne că avem valori pentru toate câmpurile - nu acceptăm text gol sau undefined
-    const nr_inmatriculare = String(numar_inmatriculare || "").trim() || "TEMP-" + Math.floor(Math.random() * 1000);
-    const uit_value = String(uit || "").trim() || "UIT" + Math.floor(Math.random() * 10000);
+    // Folosim valorile din effectiveVehicleInfo
+    const nr_inmatriculare = String(effectiveVehicleInfo.nr || "").trim() || "TEST";
+    const uit_value = String(effectiveVehicleInfo.uit || "").trim() || "UIT12345";
     
     // Construim exact cum e în Postman - cu valori GARANTATE că nu sunt goale
     // IMPORTANT: Asigurăm-ne că toate valorile sunt de tipul corect
+    // Log pentru debugging
+    console.log("Valori GPS pentru payload final:", {
+      lat, lng, timestamp, viteza, directie, altitudine, baterie,
+      nr_inmatriculare, uit_value, status 
+    });
+    
     const gpsDataFinal = {
       lat, 
       lng, 
