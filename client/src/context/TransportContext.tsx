@@ -414,6 +414,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
 
   // Inițializare GPS condiționată de starea transportului și autentificării
   useEffect(() => {
+    // Prevenim reinițializări multiple care pot cauza buclă infinită
+    if (initializedRef.current) {
+      return;
+    }
+    initializedRef.current = true;
+    
     console.log("Inițializare GPS automată la pornire");
     
     // Verificare pentru sesiune existentă
@@ -432,11 +438,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       const shouldStartGps = transportStatus === "active";
       
       try {
-        // Solicită permisiuni GPS (doar o dată, indiferent de starea transportului)
-        const permissions = await CapacitorGeoService.requestPermissions();
-        console.log("Permisiuni GPS obținute:", permissions);
+        // NU solicităm permisiuni GPS în acest moment
+        // Le vom solicita DOAR atunci când utilizatorul pornește o cursă
         
-        // Verifică disponibilitatea GPS-ului inițial
+        // Verifică disponibilitatea GPS-ului inițial - fără să solicite permisiuni
         const isGpsAvailable = await checkGpsAvailability();
         console.log("Disponibilitate GPS inițială:", isGpsAvailable ? "Disponibil" : "Indisponibil");
         
