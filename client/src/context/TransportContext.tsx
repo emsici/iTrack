@@ -318,12 +318,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         } catch (error) {
           console.error("Eroare la obținerea poziției inițiale:", error);
           
-          // Afișăm un toast pentru a informa utilizatorul despre problema GPS
-          toast({
-            variant: "destructive",
-            title: "Eroare GPS",
-            description: "Nu s-a putut obține poziția GPS. Verificați dacă GPS-ul este activat și permisiunile acordate.",
-          });
+          // Nu mai afișăm toast, folosim doar alerta permanentă din ConnectivityAlert
+          // pentru a evita dublarea mesajelor de eroare
           
           // Setăm coordonate implicite pentru a evita erori de afișare
           // Acest lucru nu va trimite date false către server, ci doar ajută interfața
