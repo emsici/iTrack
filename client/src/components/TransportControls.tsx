@@ -21,6 +21,7 @@ interface Transport {
 
 export default function TransportControls() {
   const [transports, setTransports] = useState<Transport[]>([]);
+  const [battery, setBattery] = useState(100);
   const transportIdRef = useRef<string>("");
   const { 
     transportStatus, 
@@ -84,10 +85,6 @@ export default function TransportControls() {
       });
     }
   };
-    const [battery, setBattery] = useState(100);
-  
-  // Folosim hook-ul custom pentru a forța starea activă a transportului
-  useForceTransportActive(transportStatus);
 
   // Încarcă transporturile disponibile pentru vehicul 
   useEffect(() => {
@@ -120,458 +117,258 @@ export default function TransportControls() {
 
   // Helper function pentru indicator de stare
   const getStatusIndicatorClass = (status: string, isTracking: boolean) => {
-    if (status === "active") {
-      return "bg-green-500 shadow-[0_0_0_3px_rgba(16,185,129,0.2)]";
-    } else if (status === "paused") {
-      return "bg-warning shadow-[0_0_0_3px_rgba(245,158,11,0.2)]";
-    } else if (status === "finished") {
-      return "bg-secondary-500 shadow-[0_0_0_3px_rgba(107,114,128,0.2)]";
-    } else {
-      return "bg-destructive shadow-[0_0_0_3px_rgba(239,68,68,0.2)]";
+    switch(status) {
+      case "inactive": return "bg-gray-400";
+      case "active": return isTracking ? "bg-green-500 animate-pulse" : "bg-green-500";
+      case "paused": return "bg-yellow-500";
+      case "finished": return "bg-blue-500";
+      default: return "bg-gray-400";
     }
   };
-
-  // Helper function pentru textul de stare
+  
+  // Obține textul de stare pentru afișare
   const getStatusText = (status: string, isTracking: boolean) => {
-    if (status === "active") {
-      return "Transport Activ";
-    } else if (status === "paused") {
-      return "Transport în Pauză";
-    } else if (status === "finished") {
-      return "Transport Finalizat";
-    } else {
-      return "Transport Inactiv";
+    switch(status) {
+      case "inactive": return "Inactiv";
+      case "active": return isTracking ? "Activ (GPS pornit)" : "Activ (fără GPS)";
+      case "paused": return "În pauză";
+      case "finished": return "Finalizat";
+      default: return "Necunoscut";
     }
   };
-
-  // Helper function pentru clasa de culoare a textului
-  const getStatusTextClass = (status: string, isTracking: boolean) => {
-    if (status === "active") {
-      return "text-green-600";
-    } else if (status === "paused") {
-      return "text-warning";
-    } else if (status === "finished") {
-      return "text-secondary-500";
-    } else {
-      return "text-destructive";
-    }
-  };
-
-  // Funcții pentru gestionarea transporturilor
+  
+  // Handler pentru pornirea unui transport
   const handleStartTransport = async (transportId: string) => {
     try {
-      // Forțăm starea activă a transportului - aceasta va persista
-      // chiar și între actualizări
-      forceTransportActive();
+      transportIdRef.current = transportId;
+      console.log("Se începe transportul:", transportId);
       
-      console.log("Verificare UIT și date transport:", { 
-        vehicleInfo,
-        currentActiveUit,
-        transportId,
-        isAlreadyActive: isTransportActive()
-      });
-      
-      // Verificăm dacă transportId este valid
-      const targetTransport = transports.find(t => t.id === transportId);
-      if (!targetTransport) {
-        console.error("Transport ID invalid:", transportId);
-        toast({
-          variant: "destructive",
-          title: "Eroare",
-          description: "ID transport invalid. Reîncărcați pagina și încercați din nou."
-        });
-        return;
-      }
-      
-      // Verificăm mai întâi dacă avem UIT valid configurat
-      // INDIFERENT dacă este în TransportContext sau din transport local
-      const uit = currentActiveUit?.uit || targetTransport.uit;
-      
-      if (!uit) {
-        console.error("Lipsă UIT pentru transport");
-        toast({
-          variant: "destructive",
-          title: "Eroare UIT",
-          description: "Nu există un UIT selectat pentru transport. Selectați un UIT înainte de a porni transportul."
-        });
-        return;
-      }
-      
-      // Afișăm un indicator de încărcare
       toast({
         title: "Se procesează...",
-        description: "Se verifică permisiunile de locație..."
+        description: "Se inițiază transportul, vă rugăm așteptați..."
       });
       
-      // Cererea permisiunilor de locație înainte de pornirea transportului
-      try {
-        // Folosim API nativ pentru a solicita permisiunile de locație
-        if (typeof navigator !== 'undefined' && navigator.geolocation) {
-          
-          // Forțăm pornirea unui indicator de încărcare pentru a informa utilizatorul
-          toast({
-            title: "Se procesează...",
-            description: "Se așteaptă accesul la serviciul de locație..."
-          });
-          
-          // Folosim try/catch când solicităm permisiunile de locație
-          try {
-            // Reducem timeout-ul pentru a evita blocarea utilizatorului și tratăm separat erorile de timeout
-            navigator.geolocation.getCurrentPosition(
-              async (position) => {
-                console.log("Permisiuni locație acordate, pornire transport...");
-                
-                // Actualizăm UI-ul pentru a arăta că procesăm cererea
-                toast({
-                  title: "Se procesează...",
-                  description: "Permisiuni acordate, se pornește transportul..."
-                });
-                
-                try {
-                  // Pornește GPS tracking în backend
-                  const result = await startTransport();
-                  console.log("Rezultat pornire transport:", result);
-                  
-                  if (result) {
-                    // Actualizează starea transportului în UI DOAR după ce s-a pornit cu succes
-                    setTransports(prevTransports => 
-                      prevTransports.map(transport => 
-                        transport.id === transportId 
-                          ? { ...transport, status: "active", isTracking: true } 
-                          : transport
-                      )
-                    );
-                    
-                    toast({
-                      title: "Transport pornit",
-                      description: "Cursa a început. Coordonatele GPS se trimit acum."
-                    });
-                  } else {
-                    console.error("Pornire transport eșuată, rezultat fals");
-                    toast({
-                      variant: "destructive",
-                      title: "Eroare",
-                      description: "Nu s-a putut porni transportul. Verificați conexiunea și datele vehiculului."
-                    });
-                  }
-                } catch (startError) {
-                  console.error("Eroare la pornirea transportului din context:", startError);
-                  toast({
-                    variant: "destructive",
-                    title: "Eroare de sistem",
-                    description: "A apărut o eroare la pornirea transportului. Încercați din nou."
-                  });
-                }
-              },
-              (geoError) => {
-                console.error("Eroare permisiuni locație:", geoError);
-                
-                // Tratăm separat eroarea de timeout pentru a da un mesaj mai clar utilizatorului
-                if (geoError.code === 3) { // 3 = TIMEOUT
-                  console.log("Timeout la obținerea poziției GPS, încercăm să pornm transportul direct...");
-                  toast({
-                    title: "Timeout GPS",
-                    description: "Pozițiile GPS vor fi obținute când sunt disponibile."
-                  });
-                  
-                  // IMPORTANT: Încercăm să pornim transportul chiar și când poziția GPS nu este disponibilă
-                  // Vom sări peste verificarea inițială, dar vom încerca să obținem locația ulterior
-                  startTransportWithoutGps(transportId);
-                } else {
-                  toast({
-                    variant: "destructive",
-                    title: "Permisiuni de locație necesare",
-                    description: "Pentru a porni transportul, trebuie să activați serviciul de locație. Verificați setările telefonului."
-                  });
-                }
-              },
-              // Reducem timeout-ul la 5 secunde pentru un răspuns mai rapid al UI-ului
-              { timeout: 5000, enableHighAccuracy: true, maximumAge: 10000 }
-            );
-          } catch (geoInitError) {
-            console.error("Eroare la inițializarea serviciului de locație:", geoInitError);
-            // Încercăm să pornim transportul direct când avem o eroare la inițializarea GPS
-            startTransportWithoutGps(transportId);
-          }
-        } else {
-          console.error("API Geolocation nu este disponibil în acest browser");
-          // Încercăm direct startTransport fără verificare permisiuni
-          try {
-            const result = await startTransport();
-            
-            if (result) {
-              setTransports(prevTransports => 
-                prevTransports.map(transport => 
-                  transport.id === transportId 
-                    ? { ...transport, status: "active", isTracking: true } 
-                    : transport
-                )
-              );
-              
-              toast({
-                title: "Transport pornit",
-                description: "Cursa a început. Coordonatele GPS se trimit acum."
-              });
-            } else {
-              toast({
-                variant: "destructive",
-                title: "Eroare",
-                description: "Nu s-a putut porni transportul fără acces la serviciile de localizare."
-              });
-            }
-          } catch (directStartError) {
-            console.error("Eroare la pornirea directă a transportului:", directStartError);
-            toast({
-              variant: "destructive",
-              title: "Eroare",
-              description: "Nu s-a putut porni transportul. Verificați conexiunea la internet și setările dispozitivului."
-            });
-          }
-        }
-      } catch (permError) {
-        console.error("Eroare la solicitarea permisiunilor:", permError);
+      // Pornim transportul
+      const result = await startTransport();
+      console.log("Rezultat pornire transport:", result);
+      
+      if (result) {
+        // Actualizăm starea transportului în UI
+        setTransports(prevTransports => 
+          prevTransports.map(transport => 
+            transport.id === transportId 
+              ? { ...transport, status: "active", isTracking: true } 
+              : transport
+          )
+        );
+        
+        // Forțăm starea activă
+        forceTransportActive();
+        
         toast({
-          variant: "destructive",
-          title: "Eroare permisiuni",
-          description: "Nu s-au putut obține permisiunile de locație necesare."
+          title: "Transport pornit",
+          description: "Cursa a început, coordonatele GPS sunt transmise în timp real."
+        });
+      } else {
+        console.error("Pornire transport eșuată");
+        toast({
+          variant: "destructive", 
+          title: "Eroare GPS",
+          description: "Nu s-a putut activa GPS-ul. Încercați să porniți transportul fără GPS."
         });
       }
-    } catch (generalError) {
-      console.error("Eroare generală la pornirea transportului:", generalError);
+    } catch (error) {
+      console.error("Eroare la pornirea transportului:", error);
       toast({
         variant: "destructive",
         title: "Eroare",
-        description: "A apărut o eroare neașteptată. Încercați din nou."
+        description: "A apărut o eroare la pornirea transportului. Verificați conexiunea la internet."
       });
     }
   };
-
+  
+  // Handler pentru pausarea unui transport
   const handlePauseTransport = async (transportId: string) => {
     try {
-      // Afișăm un indicator de încărcare
+      console.log("Se pune în pauză transportul:", transportId);
+      
       toast({
         title: "Se procesează...",
-        description: "Așteptați până se întrerupe transmisia GPS."
+        description: "Se întrerupe transmisia GPS, vă rugăm așteptați..."
       });
       
-      // Oprește GPS tracking în backend - ÎNAINTE de a actualiza UI
-      console.log("Oprire tracking GPS");
+      // Apelăm funcția din context
       await pauseTransport();
       
-      // Doar după ce tracking-ul a fost oprit, actualizăm UI-ul
-      console.log("Tracking GPS oprit, actualizez UI");
-      setTransports(transports.map(transport => 
-        transport.id === transportId 
-          ? { ...transport, status: "paused", isTracking: false } 
-          : transport
-      ));
-      
-      toast({
-        title: "Pauză de odihnă",
-        description: "Transmisia GPS este întreruptă temporar."
-      });
-    } catch (error) {
-      console.error("Error pausing transport:", error);
-      
-      // La eroare, revenim la starea anterioară
-      const currentTransport = transports.find(t => t.id === transportId);
-      if (currentTransport && currentTransport.status === "active") {
-        // Revenim la starea activă dacă acea stare a fost activă înainte
-        setTransports(transports.map(transport => 
-          transport.id === transportId 
-            ? { ...transport, status: "active", isTracking: true } 
-            : transport
-        ));
-      }
-      
-      toast({
-        variant: "destructive",
-        title: "Eroare",
-        description: "Nu s-a putut întrerupe cursa. Încercați din nou."
-      });
-    }
-  };
-
-  const handleResumeTransport = async (transportId: string) => {
-    try {
-      // Afișăm un indicator de încărcare
-      toast({
-        title: "Se procesează...",
-        description: "Așteptați până se reactivează GPS-ul."
-      });
-      
-      // Repornește GPS tracking în backend - ÎNAINTE de a actualiza UI
-      console.log("Repornire tracking GPS");
-      await resumeTransport();
-      
-      // Apoi actualizăm UI-ul
-      console.log("Tracking GPS repornit, actualizez UI");
-      setTransports(transports.map(transport => 
-        transport.id === transportId 
-          ? { ...transport, status: "active", isTracking: true } 
-          : transport
-      ));
-      
-      toast({
-        title: "Transport reluat",
-        description: "Transmisia GPS a fost reactivată."
-      });
-    } catch (error) {
-      console.error("Error resuming transport:", error);
-      
-      // La eroare, revenim la starea anterioară
-      const currentTransport = transports.find(t => t.id === transportId);
-      if (currentTransport && currentTransport.status === "paused") {
-        // Revenim la starea întreruptă dacă acea stare a fost întreruptă înainte
-        setTransports(transports.map(transport => 
+      // Actualizăm starea transportului în UI
+      setTransports(prevTransports => 
+        prevTransports.map(transport => 
           transport.id === transportId 
             ? { ...transport, status: "paused", isTracking: false } 
             : transport
-        ));
-      }
+        )
+      );
       
+      toast({
+        title: "Transport în pauză",
+        description: "Cursa a fost pusă în pauză, transmisia GPS este întreruptă."
+      });
+    } catch (error) {
+      console.error("Eroare la întreruperea transportului:", error);
       toast({
         variant: "destructive",
         title: "Eroare",
-        description: "Nu s-a putut relua cursa. Încercați din nou."
+        description: "A apărut o eroare la întreruperea transportului."
       });
     }
   };
-
-  const handleFinishTransport = async (transportId: string) => {
+  
+  // Handler pentru reluarea unui transport
+  const handleResumeTransport = async (transportId: string) => {
     try {
-      // Afișăm un indicator de încărcare
+      console.log("Se reia transportul:", transportId);
+      
       toast({
         title: "Se procesează...",
-        description: "Așteptați finalizarea transportului."
+        description: "Se reia transmisia GPS, vă rugăm așteptați..."
       });
       
-      // Finalizează GPS tracking în backend - ÎNAINTE de a actualiza UI
-      console.log("Finalizare transport și oprire tracking GPS");
+      // Apelăm funcția din context
+      await resumeTransport();
+      
+      // Actualizăm starea transportului în UI
+      setTransports(prevTransports => 
+        prevTransports.map(transport => 
+          transport.id === transportId 
+            ? { ...transport, status: "active", isTracking: true } 
+            : transport
+        )
+      );
+      
+      // Forțăm starea activă
+      forceTransportActive();
+      
+      toast({
+        title: "Transport reluat",
+        description: "Cursa a fost reluată, transmisia GPS este activă."
+      });
+    } catch (error) {
+      console.error("Eroare la reluarea transportului:", error);
+      toast({
+        variant: "destructive",
+        title: "Eroare",
+        description: "A apărut o eroare la reluarea transportului."
+      });
+    }
+  };
+  
+  // Handler pentru finalizarea unui transport
+  const handleFinishTransport = async (transportId: string) => {
+    try {
+      console.log("Se finalizează transportul:", transportId);
+      
+      toast({
+        title: "Se procesează...",
+        description: "Se finalizează transportul, vă rugăm așteptați..."
+      });
+      
+      // Apelăm funcția din context
       await finishTransport();
       
-      // Apoi actualizăm UI-ul
-      console.log("Transport finalizat, actualizez UI");
-      setTransports(transports.map(transport => 
-        transport.id === transportId 
-          ? { ...transport, status: "finished", isTracking: false } 
-          : transport
-      ));
+      // Actualizăm starea transportului în UI
+      setTransports(prevTransports => 
+        prevTransports.map(transport => 
+          transport.id === transportId 
+            ? { ...transport, status: "finished", isTracking: false } 
+            : transport
+        )
+      );
       
       toast({
         title: "Transport finalizat",
-        description: "Cursa a fost încheiată cu succes."
+        description: "Cursa a fost finalizată cu succes."
       });
     } catch (error) {
-      console.error("Error finishing transport:", error);
-      
-      // La eroare, revenim la starea anterioară
-      const currentTransport = transports.find(t => t.id === transportId);
-      if (currentTransport) {
-        // Revenim la starea anterioară (fie activă, fie în pauză)
-        setTransports(transports.map(transport => 
-          transport.id === transportId 
-            ? { ...transport, 
-                status: currentTransport.status, 
-                isTracking: currentTransport.status === "active" 
-              } 
-            : transport
-        ));
-      }
-      
+      console.error("Eroare la finalizarea transportului:", error);
       toast({
         variant: "destructive",
         title: "Eroare",
-        description: "Nu s-a putut finaliza cursa. Încercați din nou."
+        description: "A apărut o eroare la finalizarea transportului."
       });
     }
   };
 
-  if (transports.length === 0) {
-    return (
-      <Card className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <CardContent className="flex flex-col items-center justify-center pt-6 pb-6">
-          <AlertTriangle className="h-12 w-12 text-warning mb-4" />
-          <p className="text-center text-secondary-600">
-            Nu există transporturi disponibile pentru acest vehicul.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <div className="space-y-6 mt-4">
-      <Card className="bg-white rounded-lg shadow-md">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg flex items-center">
-            <Truck className="mr-2 h-5 w-5 text-primary" />
-            Transporturi disponibile
+    <div className="w-full mb-6">
+      <Card className="shadow-md">
+        <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+          <CardTitle className="text-xl flex items-center">
+            <Truck className="mr-2 h-6 w-6" />
+            Control Transport
           </CardTitle>
         </CardHeader>
-        
-        <CardContent>
-          <div className="space-y-6">
+        <CardContent className="pt-4">
+          <div className="space-y-4">
             {transports.map(transport => (
-              <div 
-                key={transport.id}
-                className="border rounded-lg p-4 bg-secondary-50"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h2 className="text-md font-bold text-secondary-800">{vehicleInfo?.nr}</h2>
-                    <p className="text-sm text-secondary-500">UIT: <span className="font-medium">{transport.uit}</span></p>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <div className="flex items-center mb-1">
-                      <span 
-                        className={`w-3 h-3 rounded-full mr-2 ${getStatusIndicatorClass(transport.status, transport.isTracking)}`} 
-                        aria-hidden="true"
-                      />
-                      <span className={`text-sm font-medium ${getStatusTextClass(transport.status, transport.isTracking)}`}>
+              <div key={transport.id} className="bg-white rounded-lg border p-4 shadow-sm">
+                <div className="flex flex-col space-y-3">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center">
+                      <div 
+                        className={`h-3 w-3 rounded-full mr-2 ${getStatusIndicatorClass(transport.status, transport.isTracking)}`}
+                      ></div>
+                      <span className="font-medium">
                         {getStatusText(transport.status, transport.isTracking)}
                       </span>
                     </div>
-                    
-                    {/* Indicator pentru serviciul de background a fost eliminat */}
+                    <Badge variant="outline" className="ml-2 bg-blue-50">
+                      <Clock className="h-3 w-3 mr-1" />
+                      UIT: {transport.uit}
+                    </Badge>
                   </div>
-                </div>
-                
-                <div className="border-t border-b border-secondary-200 py-4 mb-4">
-                  <div className="flex flex-col sm:flex-row sm:justify-between">
-                    <div className="mb-3 sm:mb-0">
-                      <p className="text-sm text-secondary-500">Plecare</p>
-                      <p className="font-medium">{transport.start_locatie}</p>
+                  
+                  <div className="flex flex-col space-y-1 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-500">Traseu:</span>
+                      <span className="font-medium">{transport.start_locatie} → {transport.stop_locatie}</span>
                     </div>
-                    <div className="hidden sm:flex items-center">
-                      <svg className="h-5 w-5 text-secondary-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="text-sm text-secondary-500">Destinație</p>
-                      <p className="font-medium">{transport.stop_locatie}</p>
+                    {isGpsActive !== undefined && (
+                      <div className="flex items-center space-x-2">
+                        <span className="text-gray-500">GPS:</span>
+                        <span className={`font-medium ${isGpsActive ? 'text-green-600' : 'text-red-600'}`}>
+                          {isGpsActive ? 'Activ' : 'Inactiv'}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-500">Baterie:</span>
+                      <span className="font-medium">{battery}%</span>
                     </div>
                   </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-sm font-medium text-secondary-700 mb-2">Control transport</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {/* Afișăm butoanele în funcție de starea transportului */}
-                    
-                    {/* Stare INACTIVĂ: Afișăm doar butonul de Start */}
+                  
+                  <div className="flex flex-col space-y-2 mt-2">
+                    {/* Stare INACTIVĂ: Afișăm doar butonul de pornire */}
                     {transport.status === "inactive" && (
-                      <Button 
-                        variant="default"
-                        className="flex-1 bg-green-600 text-white hover:bg-green-700 shadow-md"
-                        onClick={() => handleStartTransport(transport.id)}
-                      >
-                        <Play className="h-4 w-4 mr-2" /> Start cursă
-                      </Button>
+                      <>
+                        <Button 
+                          variant="default"
+                          className="w-full bg-green-600 text-white hover:bg-green-700 shadow-md"
+                          onClick={() => handleStartTransport(transport.id)}
+                        >
+                          <Play className="h-4 w-4 mr-2" /> Pornire Transport
+                        </Button>
+                        
+                        <Button 
+                          variant="outline"
+                          className="w-full text-yellow-600 hover:text-yellow-700"
+                          onClick={() => startTransportWithoutGps(transport.id)}
+                        >
+                          <AlertTriangle className="h-4 w-4 mr-2" /> Pornire fără GPS
+                        </Button>
+                      </>
                     )}
                     
-                    {/* Stare ACTIVĂ: Afișăm butonul de Pauză și Finalizare */}
+                    {/* Stare ACTIVĂ: Afișăm butoanele de Pauză și Finalizare */}
                     {transport.status === "active" && (
                       <>
                         <Button 
