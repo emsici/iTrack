@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Login } from "@shared/schema";
-import { loginUser, getVehicleInfo } from "@/lib/auth";
+import { loginUser, getVehicleInfo, isValidToken, isTokenExpired, decodeToken } from "@/lib/auth";
 import { Capacitor } from "@capacitor/core";
 import { Http } from "@capacitor-community/http";
 
@@ -38,22 +38,83 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } | null>(null);
   const { toast } = useToast();
 
+  // Funcție pentru a salva starea sesiunii
+  const saveSessionState = (tokenValue: string, userInfoValue: any, vehicleInfoValue: any) => {
+    try {
+      console.log("Salvez starea sesiunii în stocare permanentă");
+      
+      // Memorăm token-ul și informațiile conexe
+      localStorage.setItem("auth_token", tokenValue);
+      
+      if (userInfoValue) {
+        localStorage.setItem("user_info", JSON.stringify(userInfoValue));
+      }
+      
+      if (vehicleInfoValue) {
+        localStorage.setItem("vehicle_info", JSON.stringify(vehicleInfoValue));
+      }
+      
+      // Pentru aplicații native, adăugăm date și în sessionStorage ca backup
+      if (Capacitor.isNativePlatform()) {
+        console.log("Salvare backup în sessionStorage pentru dispozitiv nativ");
+        sessionStorage.setItem("auth_token", tokenValue);
+        
+        if (userInfoValue) {
+          sessionStorage.setItem("user_info", JSON.stringify(userInfoValue));
+        }
+        
+        if (vehicleInfoValue) {
+          sessionStorage.setItem("vehicle_info", JSON.stringify(vehicleInfoValue));
+        }
+      }
+    } catch (error) {
+      console.error("Eroare la salvarea stării sesiunii:", error);
+    }
+  };
+  
   // Check for existing session on mount
   useEffect(() => {
-    const storedToken = localStorage.getItem("auth_token");
-    const storedUserInfo = localStorage.getItem("user_info");
-    const storedVehicleInfo = localStorage.getItem("vehicle_info");
-
-    if (storedToken) {
-      setToken(storedToken);
-      setIsAuthenticated(true);
-      if (storedUserInfo) {
-        setUserInfo(JSON.parse(storedUserInfo));
+    try {
+      console.log("Verificare sesiune existentă la pornirea aplicației");
+      
+      // Folosim localStorage ca sursă primară
+      let storedToken = localStorage.getItem("auth_token");
+      let storedUserInfo = localStorage.getItem("user_info");
+      let storedVehicleInfo = localStorage.getItem("vehicle_info");
+      
+      // Pe dispozitive native, verificăm și sessionStorage dacă localStorage e gol
+      if (Capacitor.isNativePlatform() && !storedToken) {
+        console.log("Pe dispozitiv nativ, verificăm și backup-ul din sessionStorage");
+        storedToken = sessionStorage.getItem("auth_token");
+        storedUserInfo = sessionStorage.getItem("user_info");
+        storedVehicleInfo = sessionStorage.getItem("vehicle_info");
       }
-      if (storedVehicleInfo) {
-        setVehicleInfo(JSON.parse(storedVehicleInfo));
-        setHasVehicle(true);
+      
+      if (storedToken) {
+        console.log("Sesiune găsită, restaurez starea autentificării");
+        setToken(storedToken);
+        setIsAuthenticated(true);
+        
+        if (storedUserInfo) {
+          setUserInfo(JSON.parse(storedUserInfo));
+        }
+        
+        if (storedVehicleInfo) {
+          setVehicleInfo(JSON.parse(storedVehicleInfo));
+          setHasVehicle(true);
+        }
+      } else {
+        console.log("Nu s-a găsit nicio sesiune salvată");
       }
+    } catch (error) {
+      console.error("Eroare la restaurarea sesiunii:", error);
+      // În caz de eroare, ștergem datele potențial corupte
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("user_info");
+      localStorage.removeItem("vehicle_info");
+      sessionStorage.removeItem("auth_token");
+      sessionStorage.removeItem("user_info");
+      sessionStorage.removeItem("vehicle_info");
     }
   }, []);
 

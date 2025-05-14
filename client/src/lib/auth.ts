@@ -3,6 +3,64 @@ import { apiRequest } from "./queryClient";
 import { Http } from '@capacitor-community/http';
 import { Capacitor } from '@capacitor/core';
 
+/**
+ * Decodează un token JWT și returnează payload-ul
+ * @param token Token JWT
+ * @returns Payload decodat sau null dacă tokenul este invalid
+ */
+export const decodeToken = (token: string): any | null => {
+  try {
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Eroare la decodarea token-ului:", error);
+    return null;
+  }
+};
+
+/**
+ * Verifică dacă un token JWT este expirat
+ * @param token Token JWT
+ * @returns true dacă tokenul este expirat, false altfel
+ */
+export const isTokenExpired = (token: string): boolean => {
+  if (!token) return true;
+  
+  try {
+    const payload = decodeToken(token);
+    if (!payload || !payload.exp) return true;
+    
+    const currentTime = Math.floor(Date.now() / 1000);
+    return currentTime > payload.exp;
+  } catch (error) {
+    console.error("Eroare la verificarea expirării token-ului:", error);
+    return true;
+  }
+};
+
+/**
+ * Verifică validitatea unui token JWT
+ * @param token Token JWT
+ * @returns true dacă tokenul este valid, false altfel
+ */
+export const isValidToken = (token: string): boolean => {
+  if (!token) return false;
+  
+  // Verifică dacă tokenul are formatul corect (header.payload.signature)
+  const tokenParts = token.split('.');
+  if (tokenParts.length !== 3) return false;
+  
+  // Verifică dacă tokenul este expirat
+  return !isTokenExpired(token);
+};
+
 // Helper pentru a verifica dacă suntem pe dispozitiv nativ
 export const isNativePlatform = (): boolean => {
   return Capacitor.isNativePlatform();
