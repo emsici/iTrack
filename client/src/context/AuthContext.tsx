@@ -336,6 +336,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setVehicleInfo(null);
       setHasVehicle(false);
       
+      // Actualizăm controlul de acces GPS - utilizator deautentificat
+      setGpsAccessControl(false, false);
+      
       // Ștergem toate datele de sesiune din toate locațiile posibile
       localStorage.removeItem("auth_token");
       localStorage.removeItem("user_info");
