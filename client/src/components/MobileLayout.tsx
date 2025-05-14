@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import MobileHeader from "./MobileHeader";
 import { Capacitor } from "@capacitor/core";
+import { AboutDialog } from "./AboutDialog";
 
 interface MobileLayoutProps {
   children: ReactNode;
@@ -8,6 +9,7 @@ interface MobileLayoutProps {
 
 export default function MobileLayout({ children }: MobileLayoutProps) {
   const [isMobile, setIsMobile] = useState(false);
+  const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
   
   // Detectam daca rulam pe un dispozitiv mobil sau in browser
   useEffect(() => {
@@ -31,7 +33,7 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
   return (
     <div className={`flex flex-col min-h-screen ${isMobile ? 'bg-gray-50' : 'bg-gray-100'}`}>
       {/* Header specific pentru mobil */}
-      <MobileHeader />
+      <MobileHeader onInfoClick={() => setIsAboutDialogOpen(true)} />
       
       {/* Main content - actualizat pentru a asigura compatibilitatea cu header-ul */}
       <main className="flex-1 p-4 max-w-lg mx-auto w-full" style={{ 
@@ -45,6 +47,9 @@ export default function MobileLayout({ children }: MobileLayoutProps) {
       <footer className="bg-secondary-800 text-white p-2 text-center text-xs">
         <p>iTrack v1.0</p>
       </footer>
+      
+      {/* Dialog Despre Aplicație */}
+      <AboutDialog isOpen={isAboutDialogOpen} onClose={() => setIsAboutDialogOpen(false)} />
     </div>
   );
 }

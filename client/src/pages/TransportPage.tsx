@@ -20,6 +20,7 @@ export default function TransportPage() {
   const [, setLocation] = useLocation();
   const [isMobile, setIsMobile] = useState(false);
   const [activeTab, setActiveTab] = useState("map");
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   
   // Detectăm dacă rulăm pe mobil sau pe desktop
   useEffect(() => {
