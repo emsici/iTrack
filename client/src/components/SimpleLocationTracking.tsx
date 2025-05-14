@@ -59,6 +59,10 @@ export default function SimpleLocationTracking() {
     return () => clearInterval(resetTimer);
   }, [lastGpsErrorTime]);
   
+  // Stocăm ultimele coordonate valide pentru a le folosi ca fallback
+  const [lastValidCoordinates, setLastValidCoordinates] = useState<any>(null);
+  const [retryAttempt, setRetryAttempt] = useState(0);
+  
   // Efect pentru obținerea coordonatelor
   useEffect(() => {
     // Creăm o funcție pentru obținerea coordonatelor
@@ -83,11 +87,15 @@ export default function SimpleLocationTracking() {
             // Actualizăm și ultimul timp de actualizare
             setLastGpsUpdateTime(new Date().toISOString());
             
+            // Salvăm ultimele coordonate valide
+            setLastValidCoordinates(coords);
+            
             console.log("Coordonate obținute direct și actualizate în context:", coords);
             
             // Resetăm contorul de erori când obținem coordonate cu succes
             if (gpsErrorCount > 0) {
               setGpsErrorCount(0);
+              setRetryAttempt(0); // resetăm și numărul de încercări
             }
           },
           (error) => {
@@ -97,16 +105,42 @@ export default function SimpleLocationTracking() {
             setGpsErrorCount(prev => prev + 1);
             setLastGpsErrorTime(new Date());
             
+            // Incrementăm numărul de încercări pentru exponential backoff
+            setRetryAttempt(prev => prev + 1);
+            
             // Emitem un eveniment de eroare GPS pentru a putea reacționa în alte componente
             const errorEvent = new CustomEvent('gps-timeout-error', { 
               detail: { error, timestamp: new Date() } 
             });
             window.dispatchEvent(errorEvent);
             
-            // Dacă avem timeout, încercăm din nou cu un timeout mai mare
-            if (error.code === 3) { // TIMEOUT
-              console.log("Timeout GPS, reîncercăm cu un timeout mai mare");
-              // Reîncercăm cu un timeout mai mare
+            // Dacă avem timeout sau altă eroare, încercăm din nou cu o strategie de backoff exponențial
+            if (error.code === 3 || error.code === 2) { // TIMEOUT sau POSITION_UNAVAILABLE
+              // Calculăm timpul de așteptare cu backoff exponențial (max 10 secunde)
+              const backoffTime = Math.min(500 * Math.pow(1.5, retryAttempt), 10000);
+              const timeoutValue = Math.min(5000 * Math.pow(1.2, retryAttempt), 20000);
+              
+              console.log(`Timeout GPS, reîncercăm în ${backoffTime}ms cu timeout ${timeoutValue}ms (încercarea ${retryAttempt})`);
+              
+              // Folosim coordonatele anterioare dacă există, pentru a menține un nivel de continuitate
+              if (lastValidCoordinates && transportStatus === 'active') {
+                const updatedCoords = {
+                  ...lastValidCoordinates,
+                  timestamp: new Date().toISOString(),
+                  // Adăugăm un marker că acestea sunt coordonate estimative
+                  isEstimated: true
+                };
+                
+                console.log("Folosim coordonate anterioare în timpul problemelor GPS:", updatedCoords);
+                
+                // Nu actualizăm direct UI-ul, dar putem folosi aceste coordonate pentru a menține transportul activ
+                if (gpsErrorCount > 5) {
+                  setGpsCoordinates(updatedCoords);
+                  setLastGpsUpdateTime(new Date().toISOString());
+                }
+              }
+              
+              // Reîncercăm cu un timeout mai mare după perioada de backoff
               setTimeout(() => {
                 navigator.geolocation.getCurrentPosition(
                   (position) => {
@@ -123,15 +157,20 @@ export default function SimpleLocationTracking() {
                     setLocalCoordinates(coords);
                     setGpsCoordinates(coords);
                     setLastGpsUpdateTime(new Date().toISOString());
+                    setLastValidCoordinates(coords);
                     console.log("Coordonate obținute după reîncercare:", coords);
+                    
+                    // Resetăm contorul de erori și încercări
+                    setGpsErrorCount(0);
+                    setRetryAttempt(0);
                   },
                   (retryError) => {
                     console.error("Eroare la reîncercarea obținerii coordonatelor:", retryError);
                   },
-                  // Dublăm timeout-ul pentru reîncercare
-                  { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                  // Folosim timeout-ul calculat pentru reîncercare
+                  { enableHighAccuracy: true, timeout: timeoutValue, maximumAge: 1000 }
                 );
-              }, 500); // Așteptăm puțin înainte de reîncercare
+              }, backoffTime);
             }
           },
           { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
@@ -143,10 +182,11 @@ export default function SimpleLocationTracking() {
     getCurrentLocation();
     
     // Setăm un interval pentru actualizări periodice
-    const timer = setInterval(getCurrentLocation, 2000);
+    // Mărim intervalul la 3 secunde pentru a reduce presiunea pe baterie și pentru a da mai mult timp GPS-ului
+    const timer = setInterval(getCurrentLocation, 3000);
     
     return () => clearInterval(timer);
-  }, [setGpsCoordinates, setLastGpsUpdateTime, gpsErrorCount]);
+  }, [setGpsCoordinates, setLastGpsUpdateTime, gpsErrorCount, retryAttempt, lastValidCoordinates, transportStatus]);
   
   // Verificăm periodic conexiunea la internet
   useEffect(() => {
@@ -224,21 +264,33 @@ export default function SimpleLocationTracking() {
     
     // Afișăm un mesaj de avertizare pentru semnalul GPS slab dacă sunt multe erori
     if (gpsErrorCount > 3) {
+      const messageColor = gpsErrorCount > 10 ? "orange" : "blue";
+      const bgColor = gpsErrorCount > 10 ? "bg-orange-50" : "bg-blue-50";
+      const borderColor = gpsErrorCount > 10 ? "border-orange-300" : "border-blue-300";
+      const textColor = gpsErrorCount > 10 ? "text-orange-700" : "text-blue-700";
+      const textListColor = gpsErrorCount > 10 ? "text-orange-700" : "text-blue-700";
+      
       return (
-        <div className="p-3 my-2 bg-blue-50 border border-blue-300 rounded-md">
-          <h4 className="font-medium text-blue-700 flex items-center">
-            <AlertTriangle className="h-4 w-4 mr-1" /> Semnal GPS slab
+        <div className={`p-3 my-2 ${bgColor} border ${borderColor} rounded-md`}>
+          <h4 className={`font-medium ${textColor} flex items-center`}>
+            <AlertTriangle className="h-4 w-4 mr-1" /> 
+            {gpsErrorCount > 10 ? "Semnal GPS foarte slab" : "Semnal GPS slab"}
           </h4>
-          <p className="text-xs text-blue-700 mt-1">
-            S-au detectat întreruperi ale semnalului GPS. Pentru îmbunătățirea preciziei:
+          <p className={`text-xs ${textColor} mt-1`}>
+            {gpsErrorCount > 10 
+              ? "Întreruperi repetate ale semnalului GPS. Transportul continuă cu ultimele coordonate valide."
+              : "S-au detectat întreruperi ale semnalului GPS. Pentru îmbunătățirea preciziei:"}
           </p>
-          <ul className="text-xs text-blue-700 mt-1 list-disc pl-5">
+          <ul className={`text-xs ${textListColor} mt-1 list-disc pl-5`}>
             <li>Ieșiți în aer liber, departe de clădiri înalte</li>
             <li>Poziționați telefonul cu ecranul în sus, fără obstrucții</li>
             <li>Verificați că funcția de locație a telefonului este activată</li>
+            {gpsErrorCount > 10 && <li>Reporniți aplicația dacă problema persistă</li>}
           </ul>
-          <p className="text-xs text-blue-700 mt-1">
-            Datele GPS vor fi actualizate automat când semnalul se îmbunătățește.
+          <p className={`text-xs ${textColor} mt-1`}>
+            {gpsErrorCount > 20 
+              ? "Sistem în modul de rezistență. Transportul este menținut activ, dar coordonatele sunt estimative."
+              : "Datele GPS vor fi actualizate automat când semnalul se îmbunătățește."}
           </p>
         </div>
       );

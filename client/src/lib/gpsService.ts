@@ -64,6 +64,7 @@ export type GpsCoordinates = {
   directie: number;
   altitudine: number;
   baterie: number;
+  isEstimated?: boolean; // Marker pentru coordonate estimate în timpul problemelor de semnal
 };
 
 // Funcție pentru trimiterea datelor GPS către server
