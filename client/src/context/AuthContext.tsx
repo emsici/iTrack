@@ -349,6 +349,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       sessionStorage.removeItem("user_info");
       sessionStorage.removeItem("vehicle_info");
       
+      // Ștergem și starea transportului din localStorage dacă există
+      if (vehicleInfo?.nr) {
+        localStorage.removeItem(`transport_state_${vehicleInfo.nr}`);
+        console.log("Stare transport ștearsă din localStorage la deconectare");
+      }
+      
       toast({
         title: "Deconectare reușită",
         description: "Ați fost deconectat cu succes.",

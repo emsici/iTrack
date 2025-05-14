@@ -345,10 +345,19 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           // Setăm transportStatus la final pentru a declanșa efectele care depind de el
           setTransportStatus(storedStatus);
           
-          // Marcăm GPS-ul ca activ dacă transportul este activ
+          // Marcăm GPS-ul ca activ și restartăm tracking-ul dacă transportul este activ
           if (storedStatus === "active") {
             setIsGpsActive(true);
             console.log("Stare GPS actualizată:", "ACTIV");
+            
+            // Restartăm tracking-ul GPS pentru a asigura că continuă să funcționeze
+            setTimeout(() => {
+              startWatchPosition().then(() => {
+                console.log("Tracking GPS restartat după restaurarea stării");
+              }).catch(error => {
+                console.error("Eroare la restartarea tracking-ului GPS:", error);
+              });
+            }, 500); // Adăugăm un mic delay pentru a permite stărilor să se actualizeze
           }
           
           console.log("Stare transport restaurată:", storedStatus);
