@@ -75,83 +75,22 @@ const TransportContext = createContext<TransportContextType | undefined>(undefin
 
 // Provider-ul pentru context
 export function TransportProvider({ children }: { children: ReactNode }) {
-  // State pentru transport - inițializăm cu valoarea din localStorage dacă există
-  const [transportStatus, setTransportStatus] = useState<TransportStatus>(() => {
-    // Verificăm dacă există vreo stare salvată pentru un vehicul
-    if (typeof window !== 'undefined') {
-      try {
-        // Obținem numărul vehiculului din localStorage
-        const vehicleInfoStr = localStorage.getItem("vehicle_info");
-        if (vehicleInfoStr) {
-          const vehicleInfo = JSON.parse(vehicleInfoStr);
-          if (vehicleInfo?.nr) {
-            // Verificăm dacă există o stare pentru acest vehicul
-            const savedStateStr = localStorage.getItem(`transport_state_${vehicleInfo.nr}`);
-            if (savedStateStr) {
-              const savedState = JSON.parse(savedStateStr);
-              // Folosim starea salvată doar dacă este "active" sau "paused"
-              if (savedState?.transportStatus === "active" || savedState?.transportStatus === "paused") {
-                console.log("Inițializare status transport din localStorage:", savedState.transportStatus);
-                return savedState.transportStatus;
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Eroare la inițializarea stării din localStorage:", error);
-      }
-    }
-    return "inactive";
-  });
+  // State pentru transport
+  const [transportStatus, setTransportStatus] = useState<TransportStatus>("inactive");
+  
   // Referință pentru a urmări starea curentă a transportului în cadrul callback-urilor
   const transportStatusRef = useRef<TransportStatus>("inactive");
   
-  // Funcție utilitară pentru restaurarea datelor din localStorage
-  const getSavedState = () => {
-    if (typeof window !== 'undefined') {
-      try {
-        const vehicleInfoStr = localStorage.getItem("vehicle_info");
-        if (vehicleInfoStr) {
-          const vehicleInfo = JSON.parse(vehicleInfoStr);
-          if (vehicleInfo?.nr) {
-            const savedStateStr = localStorage.getItem(`transport_state_${vehicleInfo.nr}`);
-            if (savedStateStr) {
-              return JSON.parse(savedStateStr);
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Eroare la obținerea stării salvate:", error);
-      }
-    }
-    return null;
-  };
-
-  // Obținem starea salvată pentru a inițializa componentele
-  const savedState = getSavedState();
+  // State pentru GPS și transport
+  const [gpsCoordinates, setGpsCoordinates] = useState<GpsCoordinates | null>(null);
+  const [isGpsActive, setIsGpsActive] = useState<boolean>(false);
+  const [lastGpsUpdateTime, setLastGpsUpdateTime] = useState<string | null>(null);
+  const [battery, setBattery] = useState<number>(100);
+  const [isBackgroundActive, setIsBackgroundActive] = useState<boolean>(false);
   
-  // State pentru GPS și informații despre poziție - inițializate din localStorage dacă există
-  const [gpsCoordinates, setGpsCoordinates] = useState<GpsCoordinates | null>(
-    savedState?.gpsCoordinates || null
-  );
-  const [isGpsActive, setIsGpsActive] = useState<boolean>(
-    savedState?.transportStatus === "active" || false
-  );
-  const [lastGpsUpdateTime, setLastGpsUpdateTime] = useState<string | null>(
-    savedState?.lastGpsUpdateTime || null
-  );
-  const [battery, setBattery] = useState<number>(
-    savedState?.battery || 100
-  );
-  const [isBackgroundActive, setIsBackgroundActive] = useState<boolean>(
-    savedState?.isBackgroundActive || false
-  );
-  
-  // State pentru transporturile disponibile
+  // State pentru UIT-uri
   const [selectedUits, setSelectedUits] = useState<UitOption[]>([]);
-  const [currentActiveUit, setCurrentActiveUit] = useState<UitOption | null>(
-    savedState?.currentActiveUit || null
-  );
+  const [currentActiveUit, setCurrentActiveUit] = useState<UitOption | null>(null);
   
   // State pentru vehiculul curent și registrul de transporturi
   const [currentVehicle, setCurrentVehicle] = useState<string | null>(null);
@@ -168,29 +107,6 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   
   // Referință la starea de inițializare 
   const initializedRef = useRef(false);
-  
-  // Repornire automată a tracking-ului la încărcarea componentei dacă starea este activă
-  useEffect(() => {
-    // Evităm repornirea multiplă prin verificarea referinței
-    if (initializedRef.current) return;
-    
-    // Verificăm dacă transportul este activ la încărcarea componentei
-    if (transportStatus === "active" && isAuthenticated && token) {
-      console.log("Restaurare automată a tracking-ului GPS - transport activ");
-      initializedRef.current = true;
-      
-      // Pornim urmărirea poziției după un scurt delay pentru a permite componentei să se inițializeze complet
-      setTimeout(() => {
-        startWatchPosition().then(success => {
-          console.log("Tracking GPS pornit automat la încărcarea componentei:", success ? "SUCCES" : "EȘUAT");
-          // Dacă startWatchPosition a reușit, va seta isGpsActive la true doar când sunt disponibile coordonate
-          // NU setăm isGpsActive aici pentru a evita afișarea prematură a stării active
-        }).catch(error => {
-          console.error("Eroare la pornirea automată a tracking-ului GPS:", error);
-        });
-      }, 300);
-    }
-  }, [transportStatus, isAuthenticated, token]);
   
   // Actualizăm referința ori de câte ori se modifică statusul transportului
   useEffect(() => {
@@ -235,8 +151,14 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Solicităm permisiuni pentru geolocație
       await CapacitorGeoService.requestPermissions();
       
-      // Începem urmărirea poziției
-      const watchData = await CapacitorGeoService.watchPosition((position) => {
+      // Oprim orice watching existent
+      if (watchPositionRef.current) {
+        watchPositionRef.current.clearWatch();
+        watchPositionRef.current = null;
+      }
+      
+      // Pornește un nou watch
+      const { watchId, clearWatch } = CapacitorGeoService.watchPosition((position) => {
         // Actualizăm UI-ul cu noile coordonate
         const { latitude, longitude, altitude, speed, heading } = position.coords;
         const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
@@ -287,12 +209,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         maximumAge: 0
       });
       
-      // Salvăm referința pentru a putea opri urmărirea mai târziu
-      watchPositionRef.current = watchData;
+      // Salvăm referința pentru a putea opri watching-ul mai târziu
+      watchPositionRef.current = { clearWatch };
       
       return true;
     } catch (error) {
-      console.error("Eroare la watchPosition:", error);
+      console.error("Eroare la pornirea watchPosition:", error);
       return false;
     }
   }, [battery, transportStatus]);
@@ -475,7 +397,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     }
     
     return false;
-  }, [vehicleInfo, isAuthenticated, vehicleTransports]);
+  }, [isAuthenticated, vehicleInfo, vehicleTransports]);
   
   // Salvăm starea transportului de fiecare dată când se modifică
   useEffect(() => {
@@ -510,62 +432,41 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         const isGpsAvailable = await checkGpsAvailability();
         console.log("Disponibilitate GPS inițială:", isGpsAvailable ? "Disponibil" : "Indisponibil");
         
-        // Obține poziția inițială pentru a popula harta, doar dacă transportul este activ
         if (shouldStartGps) {
-          try {
-            const position = await getCurrentPosition();
-            console.log("Poziție GPS inițială obținută:", {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            });
+          console.log("Verificare GPS - StatusAuth:", isAuthenticated, "StatusTransport:", transportStatus);
+          
+          // Pornire tracking GPS pentru transport activ
+          if (isAuthenticated && transportStatus === "active") {
+            console.log("Acces GPS autorizat - citire coordonate");
             
-            // Actualizează starea cu poziția inițială, dar nu activăm GPS-ul!
-            // GPS-ul va fi marcat ca activ doar când un transport este activ
-            setGpsCoordinates({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-              timestamp: new Date().toISOString().replace('T', ' ').substr(0, 19),
-              viteza: 0,
-              directie: 0,
-              altitudine: 0,
-              baterie: 100 // Valoare implicită
-            });
-            
-            // Pornește urmărirea poziției pentru UI (nu pentru trimitere periodică)
+            // Pornește watchPosition pentru a obține actualizări de poziție
             await startWatchPosition();
-          } catch (error) {
-            console.error("Eroare la obținerea poziției inițiale:", error);
+            
+            // Doar dacă suntem autentificați și avem un transport activ,
+            // pornim tracking-ul complet cu trimitere periodică de coordonate
+            await startGpsTracking();
           }
-        } else {
-          console.log("Nu se inițializează GPS complet - transport inactiv");
         }
       } catch (error) {
-        console.error("Eroare la inițializarea GPS:", error);
-        
-        // Nu mai afișăm toast, folosim doar alerta permanentă din ConnectivityAlert
-        // pentru a evita dublarea mesajelor de eroare
-        
-        // Setăm coordonate implicite doar dacă transportul este activ și nu avem coordonate
-        if (shouldStartGps && !gpsCoordinates) {
-          setGpsCoordinates({
-            lat: 44.4268, // Coordonate generice pentru București (doar pentru UI)
-            lng: 26.1025,
-            timestamp: new Date().toISOString().replace('T', ' ').substr(0, 19),
-            viteza: 0,
-            directie: 0,
-            altitudine: 0,
-            baterie: 100 // Valoare implicită
-          });
-        }
+        console.error("Eroare la inițializarea GPS-ului:", error);
       }
     };
     
-    // Inițializează monitorizarea conectivității
+    // Inițializează GPS doar când utilizatorul este autentificat
+    if (isAuthenticated) {
+      console.log("Utilizator autentificat, inițializare GPS");
+      initGps();
+    } else {
+      console.log("GPS neactivat - utilizator neautentificat");
+    }
+    
+    // Configurăm listeners pentru conectivitate
     console.log("Inițializare monitorizare conectivitate");
-    setupConnectivityListeners(
-      // Callback pentru când conectivitatea este restaurată
+    const cleanup = setupConnectivityListeners(
+      // Callback pentru când conexiunea este restaurată
       async () => {
-        console.log("Conectivitate restaurată, sincronizare date offline");
+        console.log("Conexiune restaurată, sincronizez date offline");
+        
         // Verificăm dacă avem token pentru a sincroniza date
         if (token) {
           await syncOfflineData(token);
@@ -575,189 +476,155 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       }
     );
     
-    // Inițializează GPS doar când utilizatorul este autentificat
-    console.log("Verificare GPS - StatusAuth:", isAuthenticated, "StatusTransport:", transportStatus);
-    if (isAuthenticated) {
-      console.log("Utilizator autentificat, inițializare GPS");
-      initGps();
-    } else {
-      // Resetăm starea pentru utilizatorii neautentificați
-      setIsGpsActive(false);
-      setGpsCoordinates(null);
-      console.log("GPS neactivat - utilizator neautentificat");
-    }
-    
     // Cleanup la unmount
     return () => {
       console.log("Cleanup monitorizare conectivitate");
+      cleanup();
       stopGpsTracking();
     };
-  }, [startWatchPosition, stopGpsTracking, token, isAuthenticated, transportStatus]);
+  }, [
+    transportStatus, isAuthenticated, token, restoreTransportState, 
+    startWatchPosition, startGpsTracking, stopGpsTracking
+  ]);
   
-  // Actualizăm UIT-urile disponibile când se schimbă vehiculul
+  // Repornire automată a tracking-ului la încărcarea componentei dacă starea este activă
   useEffect(() => {
-    if (vehicleInfo && vehicleInfo.uit) {
-      // Setăm vehiculul curent
-      setCurrentVehicle(vehicleInfo.nr);
+    // Evităm repornirea multiplă prin verificarea referinței
+    if (initializedRef.current) return;
+    
+    // Verificăm dacă transportul este activ la încărcarea componentei
+    if (transportStatus === "active" && isAuthenticated && token) {
+      console.log("Restaurare automată a tracking-ului GPS - transport activ");
+      initializedRef.current = true;
       
-      // Actualizăm UIT-urile disponibile
+      // Pornim urmărirea poziției după un scurt delay pentru a permite componentei să se inițializeze complet
+      setTimeout(() => {
+        startWatchPosition().then(success => {
+          console.log("Tracking GPS pornit automat la încărcarea componentei:", success ? "SUCCES" : "EȘUAT");
+          // Dacă startWatchPosition a reușit, va seta isGpsActive la true doar când sunt disponibile coordonate
+          // NU setăm isGpsActive aici pentru a evita afișarea prematură a stării active
+        }).catch(error => {
+          console.error("Eroare la pornirea automată a tracking-ului GPS:", error);
+        });
+      }, 300);
+    }
+  }, [transportStatus, isAuthenticated, token, startWatchPosition]);
+  
+  // Inițializare UIT-uri la încărcarea componentei dacă există informații despre vehicul
+  useEffect(() => {
+    if (vehicleInfo && vehicleInfo.uit && (selectedUits.length === 0 || !currentActiveUit)) {
+      // Creăm UIT-ul implicit
       const newUit: UitOption = {
         uit: vehicleInfo.uit,
         start_locatie: vehicleInfo.start_locatie || "",
         stop_locatie: vehicleInfo.stop_locatie || ""
       };
       
-      // Verificăm dacă UIT-ul există deja
-      const uitExists = selectedUits.some(uit => uit.uit === newUit.uit);
-      
-      if (!uitExists) {
-        setSelectedUits(prev => [...prev, newUit]);
+      // Setăm UIT-ul doar dacă nu există deja
+      if (selectedUits.length === 0) {
+        setSelectedUits([newUit]);
         console.log("UIT adăugat pentru vehiculul nou:", newUit);
       }
       
-      // Setăm UIT-ul curent dacă nu există unul
+      // Setăm UIT-ul activ dacă nu există deja
       if (!currentActiveUit) {
         setCurrentActiveUit(newUit);
       }
-    }
-  }, [vehicleInfo?.nr, vehicleInfo?.uit, selectedUits, currentActiveUit]);
-  
-  // Implementare pentru a prelua toate transporturile active
-  const getAllVehicleTransports = useCallback((): VehicleTransport[] => {
-    return vehicleTransports;
-  }, [vehicleTransports]);
-  
-  // Implementare pentru a obține un transport specific
-  const getVehicleTransport = useCallback((vehicleNumber: string): VehicleTransport | undefined => {
-    return vehicleTransports.find(t => t.vehicleNumber === vehicleNumber);
-  }, [vehicleTransports]);
-  
-  // Actualizarea registrului de transporturi când se schimbă starea transportului
-  useEffect(() => {
-    if (!vehicleInfo || !vehicleInfo.nr || !currentActiveUit) return;
-    
-    // Dacă transportul este inactiv sau finalizat, nu facem nimic
-    if (transportStatus === "inactive" || transportStatus === "finished") return;
-    
-    const currentTime = new Date().toISOString().replace('T', ' ').substr(0, 19);
-    const vehicleNumber = vehicleInfo.nr;
-    
-    // Verificăm dacă există deja un transport pentru acest vehicul
-    const existingIndex = vehicleTransports.findIndex(t => t.vehicleNumber === vehicleNumber);
-    
-    if (existingIndex >= 0) {
-      // Actualizăm informațiile pentru transportul existent
-      const updatedTransports = [...vehicleTransports];
-      updatedTransports[existingIndex] = {
-        ...updatedTransports[existingIndex],
-        status: transportStatus,
-        lastPosition: gpsCoordinates,
-        lastUpdateTime: currentTime,
-        isGpsActive: isGpsActive,
-        isBackgroundActive: isBackgroundActive
-      };
-      setVehicleTransports(updatedTransports);
-    } else if (transportStatus === "active" || transportStatus === "paused") {
-      // Adăugăm un nou transport în registru
-      setVehicleTransports(prev => [
-        ...prev,
-        {
-          vehicleNumber,
-          uit: currentActiveUit.uit,
-          status: transportStatus,
-          lastPosition: gpsCoordinates,
-          startTime: currentTime,
-          lastUpdateTime: currentTime,
-          isGpsActive,
-          isBackgroundActive
+      
+      // Adăugăm vehiculul la registrul de transporturi dacă nu există deja
+      if (vehicleInfo.nr && !currentVehicle) {
+        setCurrentVehicle(vehicleInfo.nr);
+        
+        // Verificăm dacă există deja în registru
+        const existingTransport = vehicleTransports.find(t => t.vehicleNumber === vehicleInfo.nr);
+        if (!existingTransport) {
+          setVehicleTransports(prev => [...prev, {
+            vehicleNumber: vehicleInfo.nr,
+            uit: vehicleInfo.uit,
+            status: transportStatus,
+            lastPosition: gpsCoordinates,
+            startTime: new Date().toISOString().replace('T', ' ').substr(0, 19),
+            lastUpdateTime: new Date().toISOString().replace('T', ' ').substr(0, 19),
+            isGpsActive,
+            isBackgroundActive
+          }]);
         }
-      ]);
+      }
     }
-  }, [transportStatus, vehicleInfo?.nr, currentActiveUit, gpsCoordinates, isGpsActive, isBackgroundActive]);
+  }, [vehicleInfo, selectedUits, currentActiveUit, vehicleTransports, transportStatus, gpsCoordinates, isGpsActive, isBackgroundActive, currentVehicle]);
   
   // Pornire transport
   const startTransport = async (): Promise<boolean> => {
     console.log("Pornire transport - Verificare condiții");
     
-    // Verificăm dacă avem toate datele necesare
-    if (!vehicleInfo || !token) {
-      console.error("Date lipsă pentru pornirea transportului:");
-      console.log("vehicleInfo:", vehicleInfo);
-      console.log("token:", token ? "Există" : "Lipsă");
-      
-      toast({
-        variant: "destructive",
-        title: "Eroare",
-        description: "Lipsesc date de autentificare. Vă rugăm reconectați-vă.",
-      });
-      
-      return false;
-    }
-    
-    // Verificăm dacă este selectat un UIT
-    if (!currentActiveUit) {
-      console.error("Niciun UIT selectat pentru transport");
-      
-      toast({
-        variant: "destructive",
-        title: "Eroare",
-        description: "Vă rugăm selectați un UIT pentru a începe transportul.",
-      });
-      
-      return false;
-    }
-    
     try {
-      // Validăm UIT-ul (trebuie să existe în lista de UIT-uri disponibile)
-      const isValidUit = selectedUits.some(uit => uit.uit === currentActiveUit.uit);
-      if (!isValidUit) {
-        console.error("UIT invalid selectat:", currentActiveUit);
+      // Verificăm dacă avem toate informațiile necesare
+      if (!vehicleInfo || !token || !currentActiveUit) {
+        console.error("Lipsesc date necesare pentru pornirea transportului");
         
         toast({
           variant: "destructive",
           title: "Eroare",
-          description: "UIT invalid. Vă rugăm selectați un UIT valid.",
+          description: "Lipsesc date necesare pentru pornirea transportului.",
         });
         
         return false;
       }
       
-      // Actualizam starea transportului
+      // Verificăm dacă transportul este deja activ
+      if (transportStatus === "active") {
+        console.log("Transportul este deja activ");
+        
+        toast({
+          title: "Transport activ",
+          description: "Transportul este deja în desfășurare.",
+        });
+        
+        return true;
+      }
+      
+      // Schimbăm starea transportului
       setTransportStatus("active");
       
-      // Adăugăm un transport în registru pentru a asigura persistența între pagini
-      const currentTime = new Date().toISOString().replace('T', ' ').substr(0, 19);
-      const newTransport = {
-        vehicleNumber: vehicleInfo.nr,
-        uit: currentActiveUit.uit,
-        status: "active" as TransportStatus,
-        lastPosition: null,
-        startTime: currentTime,
-        lastUpdateTime: currentTime,
-        isGpsActive: true,
-        isBackgroundActive: false
-      };
+      // Actualizăm registrul de transporturi
+      if (vehicleInfo && vehicleInfo.nr) {
+        setVehicleTransports(prev => {
+          const existingIndex = prev.findIndex(t => t.vehicleNumber === vehicleInfo.nr);
+          if (existingIndex >= 0) {
+            const updatedTransports = [...prev];
+            updatedTransports[existingIndex] = {
+              ...updatedTransports[existingIndex],
+              status: "active",
+              isGpsActive: true,
+              startTime: new Date().toISOString().replace('T', ' ').substr(0, 19),
+              lastUpdateTime: new Date().toISOString().replace('T', ' ').substr(0, 19)
+            };
+            return updatedTransports;
+          } else {
+            // Adăugăm un nou transport în registru
+            return [...prev, {
+              vehicleNumber: vehicleInfo.nr,
+              uit: currentActiveUit.uit,
+              status: "active",
+              lastPosition: null,
+              startTime: new Date().toISOString().replace('T', ' ').substr(0, 19),
+              lastUpdateTime: new Date().toISOString().replace('T', ' ').substr(0, 19),
+              isGpsActive: true,
+              isBackgroundActive: false
+            }];
+          }
+        });
+      }
       
-      setVehicleTransports(prev => {
-        // Verificăm dacă există deja un transport pentru acest vehicul
-        const existingIndex = prev.findIndex(t => t.vehicleNumber === vehicleInfo.nr);
-        if (existingIndex >= 0) {
-          // Înlocuim transportul existent
-          const updatedTransports = [...prev];
-          updatedTransports[existingIndex] = newTransport;
-          return updatedTransports;
-        } else {
-          // Adăugăm un nou transport
-          return [...prev, newTransport];
-        }
-      });
-      
-      // Pornim GPS tracking
+      // Pornire tracking GPS
       const trackingStarted = await startGpsTracking();
       if (!trackingStarted) {
         console.error("Nu s-a putut porni tracking-ul GPS");
+        
+        // Revenim la starea inactivă
         setTransportStatus("inactive");
         
+        // Anunțăm utilizatorul
         toast({
           variant: "destructive",
           title: "Eroare",
@@ -940,13 +807,13 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       console.log("Transport pus în pauză cu succes");
     } catch (error) {
-      console.error("Eroare la punerea în pauză a transportului:", error);
+      console.error("Eroare la pauza transportului:", error);
       
       // Notificare utilizator
       toast({
         variant: "destructive",
         title: "Eroare",
-        description: "Nu s-a putut întrerupe temporar cursa.",
+        description: "Nu s-a putut pune în pauză cursa.",
       });
     }
   };
@@ -956,23 +823,18 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     console.log("Reluare transport");
     
     try {
-      // Verificăm dacă transportul este în pauză
-      if (transportStatus !== "paused") {
-        console.error("Nu se poate relua un transport care nu este în pauză");
-        return;
-      }
-      
       // Schimbăm starea transportului
       setTransportStatus("active");
       
-      // Pornim tracking-ul GPS
+      // Pornim tracking-ul GPS din nou
       const trackingStarted = await startGpsTracking();
       if (!trackingStarted) {
-        console.error("Nu s-a putut reporni tracking-ul GPS");
+        console.error("Nu s-a putut porni tracking-ul GPS la reluare");
         
         // Revenim la starea de pauză
         setTransportStatus("paused");
         
+        // Anunțăm utilizatorul
         toast({
           variant: "destructive",
           title: "Eroare",
@@ -982,7 +844,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         return;
       }
       
-      // Pornim serviciul de background
+      // Pornește serviciul de background pentru urmărire continuă
+      console.log("Reluare serviciu de background pentru tracking continuu");
       try {
         // Funcția callback-ului pentru actualizări din background
         const onGpsUpdateFromBackground = (position: GeolocationPosition) => {
@@ -1083,19 +946,26 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         setIsBackgroundActive(false);
       }
       
-      // Trimitem ultima poziție GPS cu status "finished"
-      if (gpsCoordinates && vehicleInfo && currentActiveUit && token) {
+      // Trimitem coordonatele finale cu statusul "finished"
+      if (vehicleInfo && vehicleInfo.nr && currentActiveUit && token && gpsCoordinates) {
         try {
+          // Obține poziția curentă pentru trimiterea finală
           const position = await getCurrentPosition();
-          await sendGpsUpdate(
-            position,
-            { nr: vehicleInfo.nr, uit: currentActiveUit.uit },
-            token,
-            "finished"  // Marcăm explicit statusul ca finished
-          );
-          console.log("Ultima poziție GPS trimisă cu status 'finished'");
+          
+          // Trimite datele către server cu status "finished"
+          await sendGpsUpdate(position, {
+            nr: vehicleInfo.nr,
+            uit: currentActiveUit.uit
+          }, token, "finished");
+          
+          console.log("Coordonate finale trimise cu status finished");
+          
+          // Verifică și sincronizează datele offline dacă există
+          if (token) {
+            await syncOfflineData(token);
+          }
         } catch (error) {
-          console.error("Eroare la trimiterea ultimei poziții GPS:", error);
+          console.error("Eroare la trimiterea coordonatelor finale:", error);
         }
       }
       
@@ -1148,12 +1018,22 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       toast({
         variant: "destructive",
         title: "Eroare",
-        description: "Nu s-a putut finaliza cursa. Încercați din nou.",
+        description: "Nu s-a putut finaliza transportul. Încercați din nou.",
       });
     }
   };
+
+  // Funcție pentru a obține lista completă de transporturi active
+  const getAllVehicleTransports = useCallback(() => {
+    return vehicleTransports;
+  }, [vehicleTransports]);
   
-  // Valoarea contextului
+  // Funcție pentru a obține un transport specific
+  const getVehicleTransport = useCallback((vehicleNumber: string) => {
+    return vehicleTransports.find(t => t.vehicleNumber === vehicleNumber);
+  }, [vehicleTransports]);
+  
+  // Construire context
   const contextValue: TransportContextType = {
     transportStatus,
     gpsCoordinates,
