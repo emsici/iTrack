@@ -1,0 +1,51 @@
+[console] Coordonate obținute direct și actualizate în context: {"lat":44.25838633238401,"lng":28.618466716247745,"timestamp":"2025-05-14T14:08:19.812Z","viteza":0,"directie":0,"altitudine":0,"baterie":100} 
+onGpsUpdate: Am primit poziție GPS 
+Object {coords: {…}, timestamp: 1747231699807}
+[console] onGpsUpdate: Am primit poziție GPS {"coords":{"latitude":44.25838633238401,"longitude":28.618466716247745,"accuracy":153,"altitude":null,"altitudeAccuracy":null,"heading":null,"speed":null},"timestamp":1747231699807} 
+Actualizăm coordonatele GPS indiferent de starea transportului: inactive
+[console] Actualizăm coordonatele GPS indiferent de starea transportului: inactive 
+UIT lipsă sau invalid, folosim valoare default
+[console] UIT lipsă sau invalid, folosim valoare default 
+Am setat un UIT de test: UIT12345
+[console] Am setat un UIT de test: UIT12345 
+onGpsUpdate: Date GPS după conversie 
+Object {lat: 44.25838633238401, lng: 28.618466716247745, timestamp: "2025-05-14T14:08:19.828Z", viteza: 0, directie: 0, …}
+[console] onGpsUpdate: Date GPS după conversie {"lat":44.25838633238401,"lng":28.618466716247745,"timestamp":"2025-05-14T14:08:19.828Z","viteza":0,"directie":0,"altitudine":0,"baterie":100} 
+[TransportHelper] Forțare stare transport: ACTIVE
+[console] [TransportHelper] Forțare stare transport: ACTIVE 
+[TransportHelper] Stare actualizată: status=active, gpsActive=true, hasCoords=true
+[console] [TransportHelper] Stare actualizată: status=active, gpsActive=true, hasCoords=true 
+[stateManager] Stare aplicație salvată 
+Object {transportStatus: "active", currentActiveUit: {…}, selectedUits: Array(0), lastGpsUpdateTime: "2025-05-14T14:08:19.828Z", battery: 100}
+MobileHeader: Actualizare stare GPS: 
+Object {transportStatus: "active", isGpsActive: true, hasCoordinates: true}
+[console] MobileHeader: Actualizare stare GPS: {"transportStatus":"active","isGpsActive":true,"hasCoordinates":true} 
+DEPANARE GPS (LocationTracking):  
+Object {transportStatus: "active", isGpsActive: true, hasCoordinates: true, battery: 100, deviceBattery: 100, …}
+[console] DEPANARE GPS (LocationTracking):  {"transportStatus":"active","isGpsActive":true,"hasCoordinates":true,"battery":100,"deviceBattery":100,"lastUpdateTime":"2025-05-14T14:08:19.828Z","coords":{"lat":44.25838633238401,"lng":28.618466716247745,"timestamp":"2025-05-14T14:08:19.828Z","viteza":0,"directie":0,"altitudine":0,"baterie":100},"localCoords":{"lat":44.25838633238401,"lng":28.618466716247745,"timestamp":"2025-05-14T14:08:19.812Z","viteza":0,"directie":0,"altitudine":0,"baterie":100}} 
+Eroare la forțarea transportului activ: 
+ReferenceError {}
+
+[console] Eroare la forțarea transportului activ: {} 
+[Transport] Salvare stare: Status=active, UIT=UIT12345
+[console] [Transport] Salvare stare: Status=active, UIT=UIT12345 
+[stateManager] Stare aplicație salvată 
+Object {transportStatus: "active", currentActiveUit: {…}, selectedUits: Array(1), lastGpsUpdateTime: "2025-05-14T14:08:19.828Z", battery: 100}
+battery: 100
+currentActiveUit: Object
+lastGpsUpdateTime: "2025-05-14T14:08:19.828Z"
+selectedUits: Array(1)
+transportStatus: "active"
+[[Prototype]]: Object
+Se finalizează transportul: 1
+[console] Se finalizează transportul: 1 
+[Transport] Începere finalizare transport
+[console] [Transport] Începere finalizare transport 
+[stateManager] Stare aplicație salvată 
+Object {transportStatus: "finished", currentActiveUit: {…}, selectedUits: Array(1), lastGpsUpdateTime: "2025-05-14T14:08:19.828Z", battery: 100}
+[Transport] Stare temporară salvată înainte de finalizare
+[console] [Transport] Stare temporară salvată înainte de finalizare 
+[Transport] GPS tracking oprit
+[console] [Transport] GPS tracking oprit 
+MobileHeader: Actualizare stare GPS: 
+Object {transportStatus: "active",

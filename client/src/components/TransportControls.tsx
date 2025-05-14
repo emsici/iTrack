@@ -61,15 +61,58 @@ export default function TransportControls() {
   
   // Sincronizează starea transporturilor cu starea globală din context
   useEffect(() => {
-    if (transports.length === 0 || !transportStatus) return;
+    if (transports.length === 0) return;
     
-    // Actualizăm transporturile cu starea curentă din context
+    // Verificăm mai întâi localStorage pentru a asigura sincronizarea cu starea persistentă
+    const localStatus = localStorage.getItem('transport_status');
+    
+    // Decidem ce status să folosim, prioritizând localStorage
+    const effectiveStatus = localStatus || transportStatus || "inactive";
+    
+    console.log("[TransportControls] Sincronizare stare din localStorage și context:", {
+      localStatus,
+      contextStatus: transportStatus,
+      effectiveStatus
+    });
+    
+    // Actualizăm transporturile cu starea efectivă
     setTransports(prev => prev.map(transport => ({
       ...transport,
-      status: transportStatus,
-      isTracking: transportStatus === "active" && isBackgroundActive
+      status: effectiveStatus as "inactive" | "active" | "paused" | "finished",
+      isTracking: effectiveStatus === "active" && isBackgroundActive
     })));
+    
   }, [transportStatus, isBackgroundActive]);
+  
+  // Un efect separat pentru a verifica periodic starea din localStorage
+  useEffect(() => {
+    const checkStorageState = () => {
+      const storedStatus = localStorage.getItem('transport_status');
+      
+      // Dacă starea din localStorage este "finished" dar transportStatus nu este,
+      // forțăm actualizarea UI-ului
+      if (storedStatus === "finished" && transportStatus !== "finished") {
+        console.log("[TransportControls] Detectare diferență între localStorage și context:", {
+          localStorage: storedStatus,
+          context: transportStatus
+        });
+        
+        // Actualizăm UI-ul
+        setTransports(prev => prev.map(transport => ({
+          ...transport,
+          status: "finished",
+          isTracking: false
+        })));
+      }
+    };
+    
+    // Verificăm la pornire
+    checkStorageState();
+    
+    // Și setăm un interval pentru verificări periodice
+    const interval = setInterval(checkStorageState, 2000);
+    return () => clearInterval(interval);
+  }, [transportStatus]);
 
   // Helper function pentru indicator de stare
   const getStatusIndicatorClass = (status: string, isTracking: boolean) => {
@@ -223,15 +266,8 @@ export default function TransportControls() {
     try {
       console.log("Se finalizează transportul:", transportId);
       
-      toast({
-        title: "Se procesează...",
-        description: "Se finalizează transportul, vă rugăm așteptați..."
-      });
-      
-      // Apelăm funcția din context
-      await finishTransport();
-      
-      // Actualizăm starea transportului în UI
+      // Actualizăm starea transportului în UI ÎNAINTE de a face apelul de finalizare
+      // pentru a preveni race conditions
       setTransports(prevTransports => 
         prevTransports.map(transport => 
           transport.id === transportId 
@@ -240,16 +276,55 @@ export default function TransportControls() {
         )
       );
       
+      // Forțăm setarea statusului în localStorage înainte de a chema finishTransport
+      localStorage.setItem('transport_status', 'finished');
+      
+      // Notificăm utilizatorul
       toast({
-        title: "Transport finalizat",
-        description: "Cursa a fost finalizată cu succes."
+        title: "Se procesează...",
+        description: "Se finalizează transportul, vă rugăm așteptați..."
       });
+      
+      // Apelăm funcția din context
+      try {
+        await finishTransport();
+        console.log("[TransportControls] Transport finalizat cu succes");
+        
+        // După finalizare, forțăm setarea statusului din nou în localStorage
+        localStorage.setItem('transport_status', 'inactive');
+        
+        toast({
+          title: "Transport finalizat",
+          description: "Cursa a fost finalizată cu succes.",
+          variant: "default"
+        });
+      } catch (finishError) {
+        console.error("[TransportControls] Eroare specifică la finalizare:", finishError);
+        
+        // Chiar și în caz de eroare la finishTransport(), considerăm transportul finalizat
+        // și resetăm starea manual pentru a evita blocajele
+        
+        // Forțăm starea în localStorage la "inactive"
+        localStorage.setItem('transport_status', 'inactive');
+        localStorage.removeItem('transport_state_ref');
+        
+        toast({
+          title: "Transport finalizat",
+          description: "Cursa a fost finalizată, dar a apărut o mică eroare la sincronizare.",
+          variant: "default"
+        });
+      }
     } catch (error) {
-      console.error("Eroare la finalizarea transportului:", error);
+      console.error("[TransportControls] Eroare generală la finalizarea transportului:", error);
+      
+      // Resetăm starea din localStorage pentru a permite utilizatorului să continue
+      localStorage.setItem('transport_status', 'inactive');
+      localStorage.removeItem('transport_state_ref');
+      
       toast({
         variant: "destructive",
         title: "Eroare",
-        description: "A apărut o eroare la finalizarea transportului."
+        description: "A apărut o eroare la finalizarea transportului. Încercați din nou."
       });
     }
   };

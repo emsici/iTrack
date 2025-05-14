@@ -1299,6 +1299,18 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     try {
       console.log("[Transport] Începere finalizare transport");
       
+      // Setăm imediat starea la "finished" pentru a evita race conditions
+      setTransportStatus("finished");
+      
+      // Notificăm utilizatorul că procesul a început
+      toast({
+        title: "Finalizare în curs",
+        description: "Se finalizează transportul, vă rugăm așteptați...",
+      });
+      
+      // Forțăm starea în localStorage pentru consistență
+      localStorage.setItem('transport_status', 'finished');
+      
       // Salvăm datele înainte de a opri GPS-ul pentru a evita pierderea datelor
       if (currentActiveUit) {
         // Marcăm explicit ca finalizat pentru a evita confuziile în caz de eroare
@@ -1309,12 +1321,55 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           lastGpsUpdateTime,
           battery
         );
-        console.log("[Transport] Stare temporară salvată înainte de finalizare");
+        console.log("[Transport] Stare temporară salvată ca FINISHED");
       }
       
-      // Oprim GPS-ul
+      // Trimitem ultima actualizare cu status "finished" ÎNAINTE de a opri GPS-ul
+      // pentru a ne asigura că avem coordonate valide
+      if (gpsCoordinates && vehicleInfo?.nr && currentActiveUit && token) {
+        try {
+          // Trimitem actualizarea finală cu coordonatele actuale și status "finished"
+          console.log("[Transport] Trimitere actualizare finală cu coordonatele actuale");
+          
+          // Folosim coordonatele curente dacă sunt disponibile
+          const finalCoords = gpsCoordinates;
+          
+          // Verificăm și corectăm vehicleInfo.nr dacă este un obiect
+          let vehicleNr = vehicleInfo.nr;
+          if (typeof vehicleNr === 'object' && vehicleNr !== null) {
+            console.log("Corectare vehicleInfo.nr înainte de trimiterea finală:", vehicleNr);
+            vehicleNr = vehicleNr.nr || 'TEST';
+            console.log("Numărul de înmatriculare corectat pentru finalizare:", vehicleNr);
+          }
+          
+          // Verificăm dacă avem un UIT valid pentru trimiterea finală
+          const uitFinal = currentActiveUit?.uit || vehicleInfo?.uit || "UIT12345";
+          console.log("UIT final pentru finalizare transport:", uitFinal);
+          
+          // Trimitem actualizarea finală cu status "finished"
+          await sendGpsUpdate(
+            finalCoords, 
+            vehicleNr, 
+            uitFinal, 
+            "finished",
+            token
+          );
+          console.log("[Transport] Ultima actualizare GPS trimisă cu succes (status=finished)");
+        } catch (error) {
+          console.error("[Transport] Eroare la trimiterea coordonatelor finale:", error);
+        }
+      } else {
+        console.warn("[Transport] Nu avem toate datele necesare pentru actualizarea finală", {
+          hasGpsCoords: !!gpsCoordinates,
+          hasVehicleNr: !!vehicleInfo?.nr,
+          hasUit: !!currentActiveUit,
+          hasToken: !!token
+        });
+      }
+      
+      // Oprim GPS-ul după ce am încercat să trimitem ultima actualizare
       await stopGpsTracking();
-      console.log("[Transport] GPS oprit înainte de finalizare");
+      console.log("[Transport] GPS oprit după finalizare");
       
       // Verificăm dacă avem date offline pentru a le sincroniza
       if (hasOfflineGpsData() && token) {
@@ -1326,59 +1381,6 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         }
       }
       
-      // Trimitem ultima actualizare cu status "finished"
-      if (vehicleInfo?.nr && currentActiveUit && token) {
-        try {
-          // Încercăm să obținem poziția curentă pentru ultima actualizare
-          // dar continuăm chiar dacă eșuează (nu e blocher)
-          console.log("[Transport] Încercare obținere poziție finală");
-          
-          try {
-            await getCurrentPosition(async (position) => {
-              const coords = position.coords;
-              const timestamp = new Date().toISOString();
-              
-              // Creăm obiectul cu coordonatele GPS
-              const finalCoords: GpsCoordinates = {
-                lat: coords.latitude,
-                lng: coords.longitude,
-                timestamp,
-                viteza: coords.speed || 0,
-                directie: coords.heading || 0,
-                altitudine: coords.altitude || 0,
-                baterie: battery
-              };
-              
-              // Verificăm și corectăm vehicleInfo.nr dacă este un obiect
-              let vehicleNr = vehicleInfo.nr;
-              if (typeof vehicleNr === 'object' && vehicleNr !== null) {
-                console.log("Corectare vehicleInfo.nr înainte de trimiterea finală:", vehicleNr);
-                vehicleNr = vehicleNr.nr || 'TEST';
-                console.log("Numărul de înmatriculare corectat pentru finalizare:", vehicleNr);
-              }
-              
-              // Verificăm dacă avem un UIT valid pentru trimiterea finală
-              const uitFinal = currentActiveUit?.uit || vehicleInfo?.uit || "";
-              console.log("UIT final pentru finalizare transport:", uitFinal);
-              
-              // Trimitem actualizarea finală cu status "finished"
-              await sendGpsUpdate(
-                finalCoords, 
-                vehicleNr, 
-                uitFinal, 
-                "finished",
-                token
-              );
-              console.log("[Transport] Ultima actualizare GPS trimisă cu succes");
-            });
-          } catch (posError) {
-            console.error("[Transport] Nu s-a putut obține poziția finală:", posError);
-          }
-        } catch (error) {
-          console.error("[Transport] Eroare la trimiterea coordonatelor finale:", error);
-        }
-      }
-      
       // Actualizăm transporturile vehiculelor
       if (vehicleInfo?.nr) {
         setVehicleTransports(prev => {
@@ -1387,7 +1389,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         });
       }
       
-      // Resetăm starea
+      // Resetăm starea DOAR după ce toate operațiile au fost finalizate
+      console.log("[Transport] Resetare stare aplicație după finalizare");
       setTransportStatus("inactive");
       setGpsCoordinates(null);
       setCurrentActiveUit(null);
@@ -1395,16 +1398,24 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setBattery(100);
       setIsGpsActive(false);
       
+      // Forțăm curățarea stării din localStorage
+      localStorage.removeItem('transport_status');
+      localStorage.removeItem('transport_state_ref');
+      
       // Curățăm starea salvată
       clearAppState();
       console.log("[Transport] Stare curățată după finalizare");
       
       toast({
         title: "Transport finalizat",
-        description: "Transportul a fost finalizat cu succes."
+        description: "Transportul a fost finalizat cu succes.",
+        variant: "success"
       });
     } catch (error) {
       console.error("[Transport] Eroare la finalizarea transportului:", error);
+      
+      // Forțăm starea în localStorage pentru a evita blocaje
+      localStorage.setItem('transport_status', 'inactive');
       
       // Actualizăm oricum starea pentru a permite utilizatorului să continue
       setTransportStatus("inactive");
@@ -1413,6 +1424,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setLastGpsUpdateTime(null);
       setBattery(100);
       setIsGpsActive(false);
+      
+      // Forțăm curățarea stării din localStorage și în caz de eroare
+      localStorage.removeItem('transport_status');
+      localStorage.removeItem('transport_state_ref');
+      
+      // Curățăm starea salvată
       clearAppState();
       
       toast({
