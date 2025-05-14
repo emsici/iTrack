@@ -209,7 +209,7 @@ export const sendGpsUpdate = async (
         const httpResponse = await Http.request({
           method: 'POST',
           url: apiExternUrl,
-          data: JSON.parse(rawPayload), // Pentru plugin, trebuie să trimitem un obiect, nu un string
+          data: rawPayload, // Trimitem string JSON raw conform specificațiilor API-ului
           headers: {
             // IMPORTANT: Token-ul poate veni deja cu prefixul Bearer, verificăm formatul
             "Authorization": token.startsWith("Bearer ") ? token : `Bearer ${token}`,

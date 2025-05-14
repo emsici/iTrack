@@ -203,22 +203,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setToken(null);
-    setIsAuthenticated(false);
-    setUserInfo(null);
-    setVehicleInfo(null);
-    setHasVehicle(false);
-    
-    // Clear localStorage
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_info");
-    localStorage.removeItem("vehicle_info");
-    
-    toast({
-      title: "Deconectare reușită",
-      description: "Ați fost deconectat cu succes.",
-    });
+  const logout = async () => {
+    try {
+      // Dacă avem token, trimitem request de logout către API-ul extern
+      if (token && Capacitor.isNativePlatform()) {
+        const logoutApiUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php";
+        console.log("Trimit cerere de logout către API extern:", logoutApiUrl);
+        
+        // Folosim format JSON raw ca la autentificare
+        const rawData = JSON.stringify({
+          "logout": true
+        });
+        
+        try {
+          // Pentru dispozitive native folosim HTTP plugin
+          const response = await Http.request({
+            method: 'POST',
+            url: logoutApiUrl,
+            data: rawData,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': token.startsWith("Bearer ") ? token : `Bearer ${token}`
+            },
+            params: {} as any
+          });
+          
+          console.log("Răspuns logout de la API extern:", response.status, response.data);
+        } catch (error) {
+          console.error("Eroare la logout API extern:", error);
+          // Continuăm cu logout local chiar dacă API-ul extern eșuează
+        }
+      }
+    } catch (error) {
+      console.error("Eroare la procesul de logout:", error);
+    } finally {
+      // Indiferent de rezultatul API-ului, curățăm starea locală
+      setToken(null);
+      setIsAuthenticated(false);
+      setUserInfo(null);
+      setVehicleInfo(null);
+      setHasVehicle(false);
+      
+      // Clear localStorage
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("user_info");
+      localStorage.removeItem("vehicle_info");
+      
+      toast({
+        title: "Deconectare reușită",
+        description: "Ați fost deconectat cu succes.",
+      });
+    }
   };
 
   return (
