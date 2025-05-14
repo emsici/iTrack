@@ -426,6 +426,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     try {
       console.log("[Transport] Începere pornire transport");
       
+      // Salvăm explicit starea transportului în localStorage pentru a o face disponibilă
+      // între componente și pentru watchPosition
+      localStorage.setItem('transport_status', 'active');
+      
       // Logăm starea UIT-ului curent pentru a diagnostica problemele
       console.log("[Transport] Verificare UIT pentru pornire transport:", { 
         currentActiveUit, 
@@ -728,14 +732,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
             watchId = navigator.geolocation.watchPosition(
               // Callback pentru succes
               (position) => {
-                // CORECȚIE: Verificăm transportStatus în timp real, nu din closure
-                const currentTransportStatus = localStorage.getItem('transport_status') || transportStatus;
-                console.log("[Transport] Status curent la primire coordonate:", currentTransportStatus);
-                
-                if (currentTransportStatus !== "active") {
-                  console.log("[Transport] Ignorăm poziția GPS (transportul nu este activ)");
-                  return;
-                }
+                // CORECȚIE SIMPLĂ: Nu mai facem nicio verificare de status aici
+                // Citim coordonatele GPS mereu când sunt disponibile
+                console.log("[Transport] Coordonate GPS disponibile:", {
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude
+                });
                 
                 // Obținem poziția reală din senzori
                 const coords = position.coords;
@@ -759,8 +761,39 @@ export function TransportProvider({ children }: { children: ReactNode }) {
                 
                 // Trimitem datele către server cu verificări mai robuste
                 if (token && vehicleInfo?.nr) {
-                  // CORECȚIE: Folosim UIT din multiple surse pentru robustețe
-                  const transportUit = currentActiveUit?.uit || vehicleInfo.uit;
+                  // CORECȚIE CRITICĂ: Verificăm toate sursele posibile pentru UIT:
+                  // 1. currentActiveUit din context
+                  // 2. localStorage pentru a asigura persistența între actualizări
+                  // 3. vehicleInfo.uit ca ultimă opțiune
+                  
+                  let transportUit = null;
+                  
+                  // Prima sursă: verificăm contextul React
+                  if (currentActiveUit?.uit) {
+                    transportUit = currentActiveUit.uit;
+                    console.log("[Transport] UIT găsit în context:", transportUit);
+                  } 
+                  // A doua sursă: verificăm localStorage
+                  else {
+                    try {
+                      const storedUit = localStorage.getItem('current_uit');
+                      if (storedUit) {
+                        const parsedUit = JSON.parse(storedUit);
+                        transportUit = parsedUit.uit;
+                        console.log("[Transport] UIT găsit în localStorage:", transportUit);
+                      }
+                    } catch (e) {
+                      console.error("[Transport] Eroare la citirea UIT din localStorage:", e);
+                    }
+                  }
+                  
+                  // A treia sursă: vehicleInfo.uit
+                  if (!transportUit && vehicleInfo?.uit) {
+                    transportUit = vehicleInfo.uit;
+                    console.log("[Transport] UIT luat din vehicleInfo:", transportUit);
+                  }
+                  
+                  // Verificăm dacă am găsit un UIT valid
                   if (transportUit) {
                     console.log("[Transport] Trimitere date GPS reale către server cu UIT:", transportUit);
                     sendGpsUpdate(
@@ -770,8 +803,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
                       "in_progress",
                       token
                     );
+                    
+                    // CRUCIAL: Actualizăm starea cu coordonatele noi
+                    setGpsCoordinates(newCoords);
+                    setLastGpsUpdateTime(newCoords.timestamp);
                   } else {
-                    console.error("[Transport] Lipsă UIT pentru trimitere date GPS");
+                    console.error("[Transport] Lipsă UIT pentru trimitere date GPS - nu s-a găsit în nicio sursă");
                   }
                 }
               },
