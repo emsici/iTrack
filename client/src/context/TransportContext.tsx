@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { CapacitorGeoService, requestGpsPermissions } from '@/lib/capacitorService';
+import { CapacitorGeoService, requestGpsPermissions, convertGeolocationPosition } from '@/lib/capacitorService';
 import { getCurrentPosition, setGpsAccessControl } from "@/lib/transportService";
 import { sendGpsUpdate } from "@/lib/gpsService";
 import { startBackgroundLocationTracking, stopBackgroundLocationTracking, isBackgroundServiceActive } from "@/lib/backgroundService";
@@ -271,7 +271,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       if (!backgroundStarted) {
         // Încercăm să folosim watchPosition dacă serviciul de background nu poate fi pornit
         const watchStarted = await capacitorGeoService.watchPosition(
-          (position) => onGpsUpdate(position)
+          (position: GeolocationPosition) => {
+            const convertedPosition = convertGeolocationPosition(position);
+            onGpsUpdate(convertedPosition);
+          }
         );
         
         if (!watchStarted) {
