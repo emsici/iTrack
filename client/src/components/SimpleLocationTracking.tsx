@@ -1,6 +1,6 @@
 import { useTransport } from "@/context/TransportContext";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, Gauge, Navigation, Battery, Wifi, WifiOff } from "lucide-react";
+import { MapPin, Clock, Gauge, Navigation, Battery, Wifi, WifiOff, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -10,6 +10,11 @@ export default function SimpleLocationTracking() {
   const [isConnected, setIsConnected] = useState(true);
   const [deviceBattery, setDeviceBattery] = useState<number | null>(null);
   const [localCoordinates, setLocalCoordinates] = useState<any>(null);
+  const [gpsErrorCount, setGpsErrorCount] = useState(0);
+  const [lastGpsErrorTime, setLastGpsErrorTime] = useState<Date | null>(null);
+  
+  // Obținem coordonatele direct și le propagăm în context
+  const { setGpsCoordinates, setLastGpsUpdateTime } = useTransport();
   
   // Debug pentru starea GPS
   useEffect(() => {
@@ -21,15 +26,43 @@ export default function SimpleLocationTracking() {
       deviceBattery,
       lastUpdateTime: lastGpsUpdateTime,
       coords: gpsCoordinates,
-      localCoords: localCoordinates
+      localCoords: localCoordinates,
+      gpsErrorCount
     });
-  }, [transportStatus, isGpsActive, gpsCoordinates, battery, deviceBattery, lastGpsUpdateTime, localCoordinates]);
+  }, [transportStatus, isGpsActive, gpsCoordinates, battery, deviceBattery, lastGpsUpdateTime, localCoordinates, gpsErrorCount]);
   
-  // Obținem coordonatele direct și le propagăm în context
-  const { setGpsCoordinates, setLastGpsUpdateTime } = useTransport();
-  
+  // Actualizăm erorile GPS când sunt detectate
   useEffect(() => {
-    const timer = setInterval(() => {
+    // Creăm un handler pentru erorile de geolocație
+    const handleGpsError = () => {
+      setGpsErrorCount(prev => prev + 1);
+      setLastGpsErrorTime(new Date());
+    };
+    
+    // Adăugăm un listener global pentru evenimentele personalizate
+    window.addEventListener('gps-timeout-error', handleGpsError);
+    
+    return () => {
+      window.removeEventListener('gps-timeout-error', handleGpsError);
+    };
+  }, []);
+  
+  // Resetăm contorul de erori după un interval
+  useEffect(() => {
+    const resetTimer = setInterval(() => {
+      // Dacă au trecut mai mult de 30 secunde de la ultima eroare, resetăm contorul
+      if (lastGpsErrorTime && (new Date().getTime() - lastGpsErrorTime.getTime()) > 30000) {
+        setGpsErrorCount(0);
+      }
+    }, 10000);
+    
+    return () => clearInterval(resetTimer);
+  }, [lastGpsErrorTime]);
+  
+  // Efect pentru obținerea coordonatelor
+  useEffect(() => {
+    // Creăm o funcție pentru obținerea coordonatelor
+    const getCurrentLocation = () => {
       if (navigator && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
@@ -51,17 +84,69 @@ export default function SimpleLocationTracking() {
             setLastGpsUpdateTime(new Date().toISOString());
             
             console.log("Coordonate obținute direct și actualizate în context:", coords);
+            
+            // Resetăm contorul de erori când obținem coordonate cu succes
+            if (gpsErrorCount > 0) {
+              setGpsErrorCount(0);
+            }
           },
           (error) => {
             console.error("Eroare obținere coordonate:", error);
+            
+            // Incrementăm contorul de erori și actualizăm timpul
+            setGpsErrorCount(prev => prev + 1);
+            setLastGpsErrorTime(new Date());
+            
+            // Emitem un eveniment de eroare GPS pentru a putea reacționa în alte componente
+            const errorEvent = new CustomEvent('gps-timeout-error', { 
+              detail: { error, timestamp: new Date() } 
+            });
+            window.dispatchEvent(errorEvent);
+            
+            // Dacă avem timeout, încercăm din nou cu un timeout mai mare
+            if (error.code === 3) { // TIMEOUT
+              console.log("Timeout GPS, reîncercăm cu un timeout mai mare");
+              // Reîncercăm cu un timeout mai mare
+              setTimeout(() => {
+                navigator.geolocation.getCurrentPosition(
+                  (position) => {
+                    // Procesăm poziția la fel ca mai sus
+                    const coords = {
+                      lat: position.coords.latitude,
+                      lng: position.coords.longitude,
+                      timestamp: new Date().toISOString(),
+                      viteza: position.coords.speed || 0,
+                      directie: position.coords.heading || 0,
+                      altitudine: position.coords.altitude || 0,
+                      baterie: 100
+                    };
+                    setLocalCoordinates(coords);
+                    setGpsCoordinates(coords);
+                    setLastGpsUpdateTime(new Date().toISOString());
+                    console.log("Coordonate obținute după reîncercare:", coords);
+                  },
+                  (retryError) => {
+                    console.error("Eroare la reîncercarea obținerii coordonatelor:", retryError);
+                  },
+                  // Dublăm timeout-ul pentru reîncercare
+                  { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+              }, 500); // Așteptăm puțin înainte de reîncercare
+            }
           },
           { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
         );
       }
-    }, 2000);
+    };
+    
+    // Apelăm imediat pentru a obține coordonatele inițiale
+    getCurrentLocation();
+    
+    // Setăm un interval pentru actualizări periodice
+    const timer = setInterval(getCurrentLocation, 2000);
     
     return () => clearInterval(timer);
-  }, [setGpsCoordinates]);
+  }, [setGpsCoordinates, setLastGpsUpdateTime, gpsErrorCount]);
   
   // Verificăm periodic conexiunea la internet
   useEffect(() => {
@@ -112,8 +197,9 @@ export default function SimpleLocationTracking() {
     }
   };
   
-  // Mesaj pentru permisiunile GPS
+  // Mesaj pentru permisiunile GPS și probleme de semnal
   const renderGPSPermissionMessage = () => {
+    // Afișăm mesajul pentru permisiuni lipsă
     if (!isGpsActive && !localCoordinates) {
       return (
         <div className="p-3 my-2 bg-yellow-50 border border-yellow-300 rounded-md">
@@ -135,6 +221,29 @@ export default function SimpleLocationTracking() {
         </div>
       );
     }
+    
+    // Afișăm un mesaj de avertizare pentru semnalul GPS slab dacă sunt multe erori
+    if (gpsErrorCount > 3) {
+      return (
+        <div className="p-3 my-2 bg-blue-50 border border-blue-300 rounded-md">
+          <h4 className="font-medium text-blue-700 flex items-center">
+            <AlertTriangle className="h-4 w-4 mr-1" /> Semnal GPS slab
+          </h4>
+          <p className="text-xs text-blue-700 mt-1">
+            S-au detectat întreruperi ale semnalului GPS. Pentru îmbunătățirea preciziei:
+          </p>
+          <ul className="text-xs text-blue-700 mt-1 list-disc pl-5">
+            <li>Ieșiți în aer liber, departe de clădiri înalte</li>
+            <li>Poziționați telefonul cu ecranul în sus, fără obstrucții</li>
+            <li>Verificați că funcția de locație a telefonului este activată</li>
+          </ul>
+          <p className="text-xs text-blue-700 mt-1">
+            Datele GPS vor fi actualizate automat când semnalul se îmbunătățește.
+          </p>
+        </div>
+      );
+    }
+    
     return null;
   };
 
