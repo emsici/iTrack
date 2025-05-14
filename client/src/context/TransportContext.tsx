@@ -347,7 +347,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Callback pentru când conectivitatea este restaurată
       async () => {
         console.log("Conectivitate restaurată, sincronizare date offline");
-        await syncOfflineData(token);
+        // Verificăm dacă avem token pentru a sincroniza date
+        if (token) {
+          await syncOfflineData(token);
+        } else {
+          console.warn("Nu se pot sincroniza datele offline - token lipsă");
+        }
       }
     );
     
@@ -745,13 +750,19 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           console.log("Actualizare GPS din background (reluare):", gpsData);
         };
         
-        // Pornirea serviciului de background
-        await startBackgroundLocationTracking(
-          vehicleInfo.nr, 
-          currentActiveUit.uit, 
-          token,
-          onGpsUpdateFromBackground
-        );
+        // Pornirea serviciului de background - verificăm toate datele necesare
+        if (vehicleInfo && vehicleInfo.nr && currentActiveUit && currentActiveUit.uit && token) {
+          await startBackgroundLocationTracking(
+            vehicleInfo.nr, 
+            currentActiveUit.uit, 
+            token,
+            onGpsUpdateFromBackground
+          );
+        } else {
+          console.error("Date lipsă pentru startBackgroundLocationTracking:", 
+            { hasVehicle: !!vehicleInfo?.nr, hasUit: !!currentActiveUit?.uit, hasToken: !!token });
+          throw new Error("Date insuficiente pentru pornirea serviciului de tracking în fundal");
+        }
         
         // Marcăm serviciul ca activ
         setIsBackgroundActive(true);
