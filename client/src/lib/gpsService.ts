@@ -350,25 +350,31 @@ export const sendGpsUpdate = async (
     console.error("Eroare la trimiterea coordonatelor GPS:", error);
     
     // În caz de eroare (conexiune, server, etc.), salvăm datele local
-    if (position && vehicleInfo) {
-      const { latitude, longitude, altitude, speed, heading } = position.coords;
-      const speedKmh = speed ? speed * 3.6 : 0;
-      const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
-      
-      const gpsData: GpsDataPayload = {
-        lat: latitude,
-        lng: longitude,
-        timestamp: timestamp,
-        viteza: speedKmh,
-        directie: heading || 0,
-        altitudine: altitude || 0,
-        baterie: 75, // Simulat
-        numar_inmatriculare: vehicleInfo.nr,
-        uit: vehicleInfo.uit,
-        status: transportStatus
-      };
-      
-      saveGpsDataOffline(gpsData, transportStatus);
+    if (position && position.coords && vehicleInfo) {
+      try {
+        // Verificăm explicit că avem toate datele necesare
+        const { latitude, longitude, altitude, speed, heading } = position.coords;
+        const speedKmh = speed ? speed * 3.6 : 0;
+        const timestamp = new Date().toISOString();
+        
+        const gpsData: GpsDataPayload = {
+          lat: latitude,
+          lng: longitude,
+          timestamp: timestamp,
+          viteza: speedKmh,
+          directie: heading || 0,
+          altitudine: altitude || 0,
+          baterie: 100,
+          numar_inmatriculare: vehicleInfo.nr,
+          uit: vehicleInfo.uit,
+          status: transportStatus
+        };
+        
+        // Salvăm datele offline
+        saveGpsDataOffline(gpsData, transportStatus);
+      } catch (err) {
+        console.error("Eroare la procesarea datelor GPS pentru salvare offline:", err);
+      }
     }
     
     return false;
