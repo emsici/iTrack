@@ -20,16 +20,8 @@ import {
 import { Capacitor } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
 
-// Interfață pentru coordonatele GPS
-export interface GpsCoordinates {
-  lat: number;
-  lng: number;
-  timestamp: string;
-  viteza: number;
-  directie: number;
-  altitudine: number;
-  baterie: number;
-}
+// Import tipul GpsCoordinates din gpsService pentru a evita dependențele circulare
+import { GpsCoordinates } from "../lib/gpsService";
 
 // Interfață pentru opțiunile UIT
 export interface UitOption {
@@ -622,8 +614,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           console.warn("[Transport] Nu s-a putut porni GPS-ul în browser, dar continuăm");
           toast({
             title: "Avertisment GPS",
-            description: "Sistemul de urmărire a locației nu a putut fi pornit în browser. Funcționalitatea ar putea fi limitată.",
-            variant: "warning"
+            description: "Sistemul de urmărire a locației nu a putut fi pornit în browser. Funcționalitatea ar putea fi limitată."
           });
           // Continuăm cu transportul chiar dacă GPS-ul nu a pornit (doar în browser)
           // În browser doar afișăm un avertisment

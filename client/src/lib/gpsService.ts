@@ -53,16 +53,44 @@ const isPositionDifferent = (position: Position, lastPosition: any): boolean => 
   return distance > 10;
 };
 
+// Definim tipul GpsCoordinates direct aici pentru a evita dependențele circulare
+export type GpsCoordinates = {
+  lat: number;
+  lng: number;
+  timestamp: string;
+  viteza: number;
+  directie: number;
+  altitudine: number;
+  baterie: number;
+};
+
 // Funcție pentru trimiterea datelor GPS către server
 export const sendGpsUpdate = async (
-  position: Position, 
-  vehicleInfo: { 
-    nr: string; 
-    uit: string 
-  }, 
-  token: string,
-  transportStatus: "in_progress" | "finished" = "in_progress"
+  gpsCoords: GpsCoordinates,
+  vehicleNumber: string,
+  uit: string,
+  transportStatus: "in_progress" | "finished" = "in_progress",
+  token: string
 ): Promise<boolean> => {
+  // Construim obiectul vehicleInfo pentru compatibilitate cu restul funcției
+  const vehicleInfo = {
+    nr: vehicleNumber,
+    uit: uit
+  };
+  
+  // Creăm un obiect position compatibil din gpsCoords pentru partea de cod existentă
+  const position = {
+    coords: {
+      latitude: gpsCoords.lat,
+      longitude: gpsCoords.lng,
+      altitude: gpsCoords.altitudine,
+      speed: gpsCoords.viteza / 3.6, // Convertim înapoi din km/h la m/s
+      heading: gpsCoords.directie,
+      accuracy: 10, // Valoare default pentru compatibilitate
+      altitudeAccuracy: null
+    },
+    timestamp: new Date(gpsCoords.timestamp).getTime()
+  } as Position;
   try {
     console.log("sendGpsUpdate - date primite:", {
       hasPosition: !!position,
