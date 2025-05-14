@@ -84,19 +84,7 @@ export default function TransportControls() {
       });
     }
   };
-  const { vehicleInfo, token } = useAuth();
-  const [transports, setTransports] = useState<Transport[]>([]);
-  const [battery, setBattery] = useState(100);
-  const { 
-    startTransport, 
-    pauseTransport, 
-    resumeTransport, 
-    finishTransport,
-    isBackgroundActive, // Adăugăm informație despre serviciul de background
-    transportStatus,
-    currentActiveUit, // Adăugăm acces la UIT-ul curent activ din context
-    selectedUits // Adăugăm acces la lista de UIT-uri selectate
-  } = useTransport();
+    const [battery, setBattery] = useState(100);
   
   // Folosim hook-ul custom pentru a forța starea activă a transportului
   useForceTransportActive(transportStatus);
