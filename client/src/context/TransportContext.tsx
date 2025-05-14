@@ -296,25 +296,18 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     if (!isAuthenticated || !vehicleInfo?.nr) return;
     
     try {
-      // Salvăm doar dacă transportul nu este "inactive"
-      if (transportStatus !== "inactive") {
-        const stateToSave = {
-          transportStatus,
-          currentActiveUit,
-          lastGpsUpdateTime,
-          battery,
-          timestamp: new Date().getTime()
-        };
-        
-        localStorage.setItem(`transport_state_${vehicleInfo.nr}`, JSON.stringify(stateToSave));
-        console.log("Stare transport salvată în localStorage:", transportStatus);
-      } else {
-        // Dacă starea este "inactive", ștergem starea salvată (dacă există)
-        if (localStorage.getItem(`transport_state_${vehicleInfo.nr}`)) {
-          localStorage.removeItem(`transport_state_${vehicleInfo.nr}`);
-          console.log("Stare transport ștearsă din localStorage (transport inactiv)");
-        }
-      }
+      // Salvăm starea curentă INDIFERENT dacă este active, paused sau inactive
+      // Acest lucru asigură persistența stării între navigări
+      const stateToSave = {
+        transportStatus,
+        currentActiveUit,
+        lastGpsUpdateTime,
+        battery,
+        timestamp: new Date().getTime()
+      };
+      
+      localStorage.setItem(`transport_state_${vehicleInfo.nr}`, JSON.stringify(stateToSave));
+      console.log("Stare transport salvată în localStorage:", transportStatus);
     } catch (error) {
       console.error("Eroare la salvarea stării transportului:", error);
     }
@@ -984,6 +977,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setLastGpsUpdateTime(null);
       setBattery(100);
       setIsGpsActive(false);
+      
+      // Ștergem explicit starea transportului din localStorage la finalizare
+      if (vehicleInfo?.nr) {
+        localStorage.removeItem(`transport_state_${vehicleInfo.nr}`);
+        console.log("Stare transport ștearsă din localStorage la finalizare");
+      }
       
       // Notificare utilizator
       toast({
