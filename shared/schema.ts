@@ -85,7 +85,9 @@ export const gpsDataSchema = z.object({
   baterie: z.number(),
   numar_inmatriculare: z.string(),
   uit: z.string(),
-  status: z.string() // Adăugăm câmpul status care poate fi "in_progress" sau "finished"
+  status: z.string(), // "in_progress" sau "finished"
+  hdop: z.number().optional(), // Horizontal Dilution of Precision (precizia poziției GPS)
+  gsm_signal: z.number().optional() // Puterea semnalului GSM/celular (0-100%)
 });
 
 export type User = typeof users.$inferSelect;
