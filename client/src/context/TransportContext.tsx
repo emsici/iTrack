@@ -75,21 +75,83 @@ const TransportContext = createContext<TransportContextType | undefined>(undefin
 
 // Provider-ul pentru context
 export function TransportProvider({ children }: { children: ReactNode }) {
-  // State pentru transport
-  const [transportStatus, setTransportStatus] = useState<TransportStatus>("inactive");
+  // State pentru transport - inițializăm cu valoarea din localStorage dacă există
+  const [transportStatus, setTransportStatus] = useState<TransportStatus>(() => {
+    // Verificăm dacă există vreo stare salvată pentru un vehicul
+    if (typeof window !== 'undefined') {
+      try {
+        // Obținem numărul vehiculului din localStorage
+        const vehicleInfoStr = localStorage.getItem("vehicle_info");
+        if (vehicleInfoStr) {
+          const vehicleInfo = JSON.parse(vehicleInfoStr);
+          if (vehicleInfo?.nr) {
+            // Verificăm dacă există o stare pentru acest vehicul
+            const savedStateStr = localStorage.getItem(`transport_state_${vehicleInfo.nr}`);
+            if (savedStateStr) {
+              const savedState = JSON.parse(savedStateStr);
+              // Folosim starea salvată doar dacă este "active" sau "paused"
+              if (savedState?.transportStatus === "active" || savedState?.transportStatus === "paused") {
+                console.log("Inițializare status transport din localStorage:", savedState.transportStatus);
+                return savedState.transportStatus;
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Eroare la inițializarea stării din localStorage:", error);
+      }
+    }
+    return "inactive";
+  });
   // Referință pentru a urmări starea curentă a transportului în cadrul callback-urilor
   const transportStatusRef = useRef<TransportStatus>("inactive");
   
-  // State pentru GPS și informații despre poziție
-  const [gpsCoordinates, setGpsCoordinates] = useState<GpsCoordinates | null>(null);
-  const [isGpsActive, setIsGpsActive] = useState<boolean>(false);
-  const [lastGpsUpdateTime, setLastGpsUpdateTime] = useState<string | null>(null);
-  const [battery, setBattery] = useState<number>(100);
-  const [isBackgroundActive, setIsBackgroundActive] = useState<boolean>(false);
+  // Funcție utilitară pentru restaurarea datelor din localStorage
+  const getSavedState = () => {
+    if (typeof window !== 'undefined') {
+      try {
+        const vehicleInfoStr = localStorage.getItem("vehicle_info");
+        if (vehicleInfoStr) {
+          const vehicleInfo = JSON.parse(vehicleInfoStr);
+          if (vehicleInfo?.nr) {
+            const savedStateStr = localStorage.getItem(`transport_state_${vehicleInfo.nr}`);
+            if (savedStateStr) {
+              return JSON.parse(savedStateStr);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Eroare la obținerea stării salvate:", error);
+      }
+    }
+    return null;
+  };
+
+  // Obținem starea salvată pentru a inițializa componentele
+  const savedState = getSavedState();
+  
+  // State pentru GPS și informații despre poziție - inițializate din localStorage dacă există
+  const [gpsCoordinates, setGpsCoordinates] = useState<GpsCoordinates | null>(
+    savedState?.gpsCoordinates || null
+  );
+  const [isGpsActive, setIsGpsActive] = useState<boolean>(
+    savedState?.transportStatus === "active" || false
+  );
+  const [lastGpsUpdateTime, setLastGpsUpdateTime] = useState<string | null>(
+    savedState?.lastGpsUpdateTime || null
+  );
+  const [battery, setBattery] = useState<number>(
+    savedState?.battery || 100
+  );
+  const [isBackgroundActive, setIsBackgroundActive] = useState<boolean>(
+    savedState?.isBackgroundActive || false
+  );
   
   // State pentru transporturile disponibile
   const [selectedUits, setSelectedUits] = useState<UitOption[]>([]);
-  const [currentActiveUit, setCurrentActiveUit] = useState<UitOption | null>(null);
+  const [currentActiveUit, setCurrentActiveUit] = useState<UitOption | null>(
+    savedState?.currentActiveUit || null
+  );
   
   // State pentru vehiculul curent și registrul de transporturi
   const [currentVehicle, setCurrentVehicle] = useState<string | null>(null);
@@ -103,6 +165,31 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   // Accesăm autentificarea și toast
   const { token, vehicleInfo, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  
+  // Referință la starea de inițializare 
+  const initializedRef = useRef(false);
+  
+  // Repornire automată a tracking-ului la încărcarea componentei dacă starea este activă
+  useEffect(() => {
+    // Evităm repornirea multiplă prin verificarea referinței
+    if (initializedRef.current) return;
+    
+    // Verificăm dacă transportul este activ la încărcarea componentei
+    if (transportStatus === "active" && isAuthenticated && token) {
+      console.log("Restaurare automată a tracking-ului GPS - transport activ");
+      initializedRef.current = true;
+      
+      // Pornim urmărirea poziției după un scurt delay pentru a permite componentei să se inițializeze complet
+      setTimeout(() => {
+        startWatchPosition().then(() => {
+          console.log("Tracking GPS pornit automat la încărcarea componentei");
+          setIsGpsActive(true);
+        }).catch(error => {
+          console.error("Eroare la pornirea automată a tracking-ului GPS:", error);
+        });
+      }, 300);
+    }
+  }, [transportStatus, isAuthenticated, token]);
   
   // Actualizăm referința ori de câte ori se modifică statusul transportului
   useEffect(() => {
