@@ -286,18 +286,27 @@ export const sendGpsUpdate = async (
     } else {
       // IMPORTANT: Folosim exact formatul din Postman - nu includ niciun header de Content-Type
       // Adăugăm headerele importante pentru transmiterea datelor vehiculului
-      response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          // IMPORTANT: Token-ul poate veni deja cu prefixul Bearer, verificăm formatul
-          "Authorization": token.startsWith("Bearer ") ? token : `Bearer ${token}`,
-          "X-Vehicle-Number": nr_inmatriculare,  // Adăugăm numărul de înmatriculare în headers
-          "X-UIT": uit_value,  // Adăugăm UIT în headers
-          // Forțăm content-type application/json pentru a corecta problema de format
-          "Content-Type": "application/json"
-        },
-        body: rawPayload // Folosim payload-ul raw generat mai sus
-      });
+      try {
+        response = await fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            // IMPORTANT: Token-ul poate veni deja cu prefixul Bearer, verificăm formatul
+            "Authorization": token.startsWith("Bearer ") ? token : `Bearer ${token}`,
+            "X-Vehicle-Number": nr_inmatriculare,  // Adăugăm numărul de înmatriculare în headers
+            "X-UIT": uit_value,  // Adăugăm UIT în headers
+            // Forțăm content-type application/json pentru a corecta problema de format
+            "Content-Type": "application/json"
+          },
+          body: rawPayload // Folosim payload-ul raw generat mai sus
+        });
+        
+        console.log("Răspuns API GPS:", response.status, response.statusText);
+      } catch (error) {
+        console.error("Eroare la fetch GPS (salvăm offline):", error);
+        // Salvăm local și considerăm ca tranzacția a eșuat
+        saveGpsDataOffline(gpsData, transportStatus);
+        throw error;
+      }
     }
     
     if (!response.ok) {
