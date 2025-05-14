@@ -20,9 +20,28 @@ export function useForceTransportActive(transportStatus: TransportStatus) {
       return;
     }
     
-    // Forțăm starea activă imediat
+    // Forțăm starea activă imediat - implementare directă pentru evitarea referințelor circulare
     try {
-      forceTransportActive();
+      // Implementare alternativă pentru evitarea dependențelor circulare
+      try {
+        // Actualizăm localStorage direct
+        const savedStateJson = localStorage.getItem('itrack_app_state');
+        if (savedStateJson) {
+          const savedState = JSON.parse(savedStateJson);
+          
+          // Forțăm starea activă
+          const updatedState = {
+            ...savedState,
+            transportStatus: 'active'
+          };
+          
+          localStorage.setItem('itrack_app_state', JSON.stringify(updatedState));
+          localStorage.setItem('transport_status', 'active');
+        }
+      } catch (storageError) {
+        console.error("[useForceTransportActive] Eroare la accesarea localStorage:", storageError);
+      }
+      
       console.log("[useForceTransportActive] Forțare inițială stare transport activ");
     } catch (error) {
       console.error("Eroare la forțarea inițială a transportului activ:", error);
@@ -32,7 +51,26 @@ export function useForceTransportActive(transportStatus: TransportStatus) {
     const intervalId = setInterval(() => {
       if (transportStatus === 'active') {
         try {
-          forceTransportActive();
+          // Implementare alternativă directă, evitând dependența de forceTransportActive
+          try {
+            // Actualizăm localStorage direct
+            const savedStateJson = localStorage.getItem('itrack_app_state');
+            if (savedStateJson) {
+              const savedState = JSON.parse(savedStateJson);
+              
+              // Forțăm starea activă
+              const updatedState = {
+                ...savedState,
+                transportStatus: 'active'
+              };
+              
+              localStorage.setItem('itrack_app_state', JSON.stringify(updatedState));
+              localStorage.setItem('transport_status', 'active');
+            }
+          } catch (storageError) {
+            console.error("[useForceTransportActive] Eroare la accesarea localStorage:", storageError);
+          }
+          
           console.log("[useForceTransportActive] Forțare periodică stare transport activ");
         } catch (error) {
           console.error("Eroare la forțarea periodică a transportului activ:", error);
