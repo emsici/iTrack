@@ -25,12 +25,9 @@ let permissionsRequested = false;
 export const requestGpsPermissions = async (): Promise<boolean> => {
   console.log("Solicitare permisiuni GPS la pornirea aplicației");
   
-  // Dacă am solicitat deja permisiunile și suntem pe dispozitiv nativ, 
-  // nu mai solicităm din nou pentru a evita blocarea aplicației
-  if (permissionsRequested && Capacitor.isNativePlatform()) {
-    console.log("Permisiunile au fost deja solicitate anterior, nu mai solicităm");
-    return true;
-  }
+  // Nu mai verificăm dacă am solicitat deja permisiunile - pe device real
+  // vrem să forțăm cererea lor la fiecare pornire până sunt acordate
+  console.log("Forțăm solicitarea permisiunilor GPS la fiecare pornire");
   
   // Prevenim multiple solicitări simultane care ar putea bloca aplicația
   if (isRequestingPermissions) {

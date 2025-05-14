@@ -54,17 +54,11 @@ function App() {
         
         // Pe Android afișăm dialogul personalizat, pe iOS cerem direct permisiunile
         try {
-          // Verificăm starea permisiunilor actuale
-          const permStatus = await Geolocation.checkPermissions();
-          console.log("Stare permisiuni la pornirea aplicației:", permStatus.location);
+          // Nu mai verificăm starea permisiunilor, forțăm cererea lor
+          console.log("Forțăm cererea permisiunilor la pornirea aplicației");
           
-          // Dacă permisiunile sunt deja acordate, nu mai facem nimic
-          if (permStatus.location === 'granted') {
-            console.log("Permisiunile GPS sunt deja acordate");
-            setPermissionsRequested(true);
-            localStorage.setItem('permissions_requested', 'true');
-            return;
-          }
+          // Pentru device-uri reale, vrem să cerem permisiunile la fiecare pornire
+          // până când sunt acordate, astfel încât aplicația să funcționeze corect
           
           // Altfel, solicităm permisiunile în funcție de platformă
           if (Capacitor.getPlatform() === 'android') {
