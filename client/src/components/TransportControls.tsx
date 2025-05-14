@@ -20,6 +20,25 @@ interface Transport {
 }
 
 export default function TransportControls() {
+  const [transports, setTransports] = useState<Transport[]>([]);
+  const transportIdRef = useRef<string>("");
+  const { 
+    transportStatus, 
+    selectedUits,
+    currentActiveUit, 
+    startTransport, 
+    pauseTransport, 
+    resumeTransport, 
+    finishTransport,
+    isGpsActive,
+    isBackgroundActive,
+  } = useTransport();
+  const { vehicleInfo } = useAuth();
+  
+  // Activăm hook-ul pentru forțarea stării de transport activ
+  // care va verifica periodic dacă transportul este activ și va forța starea activă
+  useForceTransportActive(transportStatus);
+  
   // Funcție pentru pornirea transportului direct, fără a aștepta GPS
   const startTransportWithoutGps = async (transportId: string) => {
     try {

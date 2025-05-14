@@ -104,10 +104,16 @@ export const sendGpsUpdate = async (
       
       // Salvăm starea în localStorage pentru persistență
       const { saveAppState } = require('./stateManager');
+      const uitInfo = { 
+        uit: uit,                 // Preluăm codul UIT din parametrul funcției
+        start_locatie: '',        // Nu avem informații, dar trebuie să respectăm structura
+        stop_locatie: ''          // Nu avem informații, dar trebuie să respectăm structura 
+      };
+      
       saveAppState(
-        'active', // Forțăm starea activă
-        { uit, start_locatie: '', stop_locatie: '' }, // Informații minime necesare
-        [], // selectedUits nu este esențial aici
+        'active',                 // Forțăm starea activă 
+        uitInfo,                  // Informații minime necesare
+        [uitInfo],                // Un singur UIT disponibil
         gpsCoords.timestamp,
         gpsCoords.baterie
       );
