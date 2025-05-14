@@ -112,6 +112,32 @@ export default function SimpleLocationTracking() {
     }
   };
   
+  // Mesaj pentru permisiunile GPS
+  const renderGPSPermissionMessage = () => {
+    if (!isGpsActive && !localCoordinates) {
+      return (
+        <div className="p-3 my-2 bg-yellow-50 border border-yellow-300 rounded-md">
+          <h4 className="font-medium text-amber-700 flex items-center">
+            <MapPin className="h-4 w-4 mr-1" /> Locație dezactivată
+          </h4>
+          <p className="text-sm text-amber-700 mt-1">
+            Serviciul de locație este dezactivat sau aplicația nu are permisiuni. Vă rugăm să:
+          </p>
+          <ul className="text-xs text-amber-700 mt-1 list-disc pl-5">
+            <li>Activați <strong>Locația</strong> în meniul de setări rapide al telefonului</li>
+            <li>În setările telefonului, activați permisiunile de locație pentru aplicația iTrack</li>
+            <li>Selectați opțiunea <strong>"Permite tot timpul"</strong> pentru locație</li>
+            <li>Țineți telefonul în aer liber pentru un semnal GPS mai bun</li>
+          </ul>
+          <p className="text-xs font-bold text-amber-800 mt-2">
+            IMPORTANT: Transportul nu poate porni sau funcționa corect fără permisiuni GPS!
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   // Componenta vizuală
   return (
     <div className="w-full mt-1 p-2">
@@ -130,6 +156,8 @@ export default function SimpleLocationTracking() {
             </Badge>
           </CardTitle>
         </CardHeader>
+        
+        {renderGPSPermissionMessage()}
         
         <CardContent className="pt-2 pb-3">
           <div className="flex flex-col gap-2 mb-2">
