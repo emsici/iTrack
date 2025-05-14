@@ -476,15 +476,11 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     console.log("Verificare sesiune existentă la pornirea aplicației");
     const stateRestored = restoreTransportState();
     
-    // Dacă starea a fost restaurată ca "active", trebuie să pornim tracking-ul GPS
+    // Dacă starea a fost restaurată ca "active", actualizăm starea UI fără a reporni tracking-ul
     if (stateRestored && transportStatus === "active") {
-      console.log("Sesiune găsită, restaurez starea transportului - pornesc tracking GPS");
-      // Vom începe tracking-ul GPS imediat
-      setTimeout(() => {
-        startGpsTracking()
-          .then(() => console.log("Tracking GPS restartat din starea salvată"))
-          .catch(err => console.error("Eroare la repornirea tracking-ului GPS:", err));
-      }, 1000);
+      console.log("Sesiune găsită, restaurez starea transportului - NU repornesc tracking GPS");
+      // Nu repornin tracking-ul GPS deoarece acesta deja rulează în background
+      setIsGpsActive(true); // Doar actualizăm starea UI
     }
     
     const initGps = async () => {

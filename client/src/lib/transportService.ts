@@ -94,9 +94,24 @@ let transportCheck: boolean = false;
 
 // Funcție pentru verificarea accesului la GPS
 export const setGpsAccessControl = (isAuthenticated: boolean, isTransportActive: boolean) => {
-  console.log(`Setare control acces GPS: Auth=${isAuthenticated}, Transport=${isTransportActive}`);
+  // Verificăm dacă statusul se schimbă - pentru a evita loguri inutile
+  if (authCheck !== isAuthenticated || transportCheck !== isTransportActive) {
+    console.log(`Setare control acces GPS: Auth=${isAuthenticated}, Transport=${isTransportActive}`);
+  }
+  
   authCheck = isAuthenticated;
   transportCheck = isTransportActive;
+  
+  // Adăugăm o variabilă de control în storage pentru a verifica starea între refresh-uri
+  try {
+    localStorage.setItem('gps_control_status', JSON.stringify({
+      auth: isAuthenticated,
+      transport: isTransportActive,
+      timestamp: new Date().getTime()
+    }));
+  } catch (error) {
+    console.error("Eroare la salvarea statusului GPS în storage:", error);
+  }
 };
 
 export const getCurrentPosition = (): Promise<GeolocationPosition> => {
