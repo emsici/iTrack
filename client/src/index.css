@@ -2,6 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Clase pentru safe-area-inset pentru dispozitive mobile */
+.pt-safe {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+}
+
+.pb-safe {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+.pl-safe {
+  padding-left: max(0.5rem, env(safe-area-inset-left));
+}
+
+.pr-safe {
+  padding-right: max(0.5rem, env(safe-area-inset-right));
+}
+
 :root {
       --background: 0 0% 100%;
 --foreground: 20 14.3% 4.1%;

@@ -73,7 +73,7 @@ export default function VehicleInputPage() {
     <div className={`min-h-screen flex flex-col items-center justify-center px-4 ${isMobile ? 'bg-gray-50' : 'bg-gray-100'}`}>
       {/* Mobile Status Bar (for mobile app) */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 bg-blue-700 text-white p-2 flex justify-between items-center">
+        <div className="fixed top-0 left-0 right-0 bg-blue-700 text-white p-2 flex justify-between items-center pt-safe">
           <div className="flex items-center">
             <button onClick={handleBack} className="mr-2 p-1">
               <ArrowLeft className="h-4 w-4" />

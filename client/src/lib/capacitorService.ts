@@ -15,6 +15,45 @@ interface NavigatorWithConnection extends Navigator {
 export const isNativePlatform = () => Capacitor.isNativePlatform();
 export const getPlatform = () => Capacitor.getPlatform();
 
+// Funcție pentru solicitarea permisiunilor GPS la pornirea aplicației
+export const requestGpsPermissions = async (): Promise<boolean> => {
+  console.log("Solicitare permisiuni GPS la pornirea aplicației");
+  try {
+    // Verificăm mai întâi starea permisiunii
+    const permissionStatus = await Geolocation.checkPermissions();
+    console.log("Stare permisiuni GPS:", permissionStatus.location);
+    
+    // Dacă permisiunea nu este încă acordată, o solicităm explicit
+    if (permissionStatus.location !== 'granted') {
+      console.log("Permisiune GPS neacordată, solicităm explicit");
+      const requestResult = await Geolocation.requestPermissions();
+      console.log("Rezultat solicitare permisiuni GPS:", requestResult.location);
+      
+      // Pentru a verifica dacă permisiunea este acordată, încercăm să obținem poziția o dată
+      if (requestResult.location === 'granted') {
+        try {
+          await Geolocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 5000
+          });
+          console.log("Poziție GPS inițială obținută cu succes");
+          return true;
+        } catch (posErr) {
+          console.error("Eroare la obținerea poziției inițiale după acordarea permisiunii:", posErr);
+          return false;
+        }
+      }
+      return requestResult.location === 'granted';
+    }
+    
+    // Permisiunea este deja acordată
+    return true;
+  } catch (err) {
+    console.error("Eroare la solicitarea permisiunilor GPS:", err);
+    return false;
+  }
+};
+
 // Serviciu de geolocation folosind Capacitor
 export const CapacitorGeoService = {
   // Obținerea valorii HDOP (Horizontal Dilution of Precision)
