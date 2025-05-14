@@ -261,10 +261,15 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       console.log("Setare GPS activ în startGpsTracking");
       setIsGpsActive(true);
       
-      // Inițial trimitem o poziție manual
+      // Inițial încercăm să obținem o poziție și să o trimitem, dar nu blocăm activarea transportului
+      // pentru că unele dispozitive pot avea nevoie de mai mult timp pentru a obține prima poziție GPS
       try {
-        // Obține poziția curentă
-        const position = await getCurrentPosition();
+        // Obține poziția curentă cu un timeout mai lung de 20 secunde
+        const position = await getCurrentPosition({
+          timeout: 20000,
+          maximumAge: 0,
+          enableHighAccuracy: true
+        });
         
         // Trimite datele către server doar dacă transportul este activ
         if (transportStatusRef.current === "active") {
@@ -272,11 +277,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
             nr: vehicleInfo.nr,
             uit: currentActiveUit.uit
           }, token, "in_progress");
-          console.log("Poziție GPS inițială trimisă");
+          console.log("Poziție GPS inițială trimisă cu succes");
         }
       } catch (error) {
-        console.error("Eroare la trimiterea poziției inițiale:", error);
-        // Continuăm oricum, poate următoarea poziție va fi trimisă cu succes
+        console.warn("Nu s-a putut obține poziția GPS inițială:", error);
+        console.log("Vom încerca din nou să obținem poziția în cadrul intervalului regulat");
+        // Nu oprim transportul din cauza asta, încercăm mai târziu în intervalul regulat
       }
       
       // Setăm timer-ul pentru trimitere periodică
