@@ -1479,6 +1479,15 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     return vehicleTransports.find(t => t.vehicleNumber === vehicleNumber);
   }, [vehicleTransports]);
   
+  // Funcții pentru gestionarea transporturilor active multiple
+  const getActiveTransports = useCallback((): UitOption[] => {
+    return activeTransports;
+  }, [activeTransports]);
+  
+  const hasActiveTransport = useCallback((uit: string): boolean => {
+    return activeTransports.some(t => t.uit === uit);
+  }, [activeTransports]);
+  
   // Valoarea contextului
   const contextValue: TransportContextType = {
     transportStatus,
@@ -1502,7 +1511,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     currentVehicle,
     
     getAllVehicleTransports,
-    getVehicleTransport
+    getVehicleTransport,
+    getActiveTransports,
+    hasActiveTransport
   };
   
   return (

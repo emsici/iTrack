@@ -147,8 +147,21 @@ export default function TransportControls() {
         description: "Se inițiază transportul, vă rugăm așteptați..."
       });
       
+      // Găsim transportul curent din lista de transporturi
+      const currentTransport = transports.find(t => t.id === transportId);
+      if (!currentTransport) {
+        throw new Error("Transport negăsit");
+      }
+      
+      // Construim obiectul UIT pentru a-l transmite funcției startTransport
+      const currentUit = {
+        uit: currentTransport.uit,
+        start_locatie: currentTransport.start_locatie,
+        stop_locatie: currentTransport.stop_locatie
+      };
+      
       // Pornim transportul
-      const result = await startTransport();
+      const result = await startTransport(currentUit);
       console.log("Rezultat pornire transport:", result);
       
       if (result) {
@@ -166,7 +179,7 @@ export default function TransportControls() {
         
         toast({
           title: "Transport pornit",
-          description: "Cursa a început, coordonatele GPS sunt transmise în timp real."
+          description: `Cursa ${currentTransport.uit} a început, coordonatele GPS sunt transmise în timp real.`
         });
       } else {
         console.error("Pornire transport eșuată");
