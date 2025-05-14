@@ -85,6 +85,18 @@ export default function UitSelector() {
         mockUits = [genericUit];
       }
       
+      // Sortăm UIT-urile în ordine descrescătoare înainte de a le afișa
+      mockUits.sort((a, b) => {
+        // Extragem părțile numerice din UIT (presupunând formatul "UIT" + număr)
+        const numA = parseInt(a.uit.replace(/\D/g, '') || '0', 10);
+        const numB = parseInt(b.uit.replace(/\D/g, '') || '0', 10);
+        
+        // Sortare descrescătoare
+        return numB - numA;
+      });
+      
+      console.log("UIT-uri sortate descrescător:", mockUits.map(u => u.uit));
+      
       // Simulăm un răspuns de la API (delay redus pentru actualizări periodice)
       const delay = showLoading ? 500 : 200;
       setTimeout(() => {
@@ -94,8 +106,15 @@ export default function UitSelector() {
         
         // Pentru actualizări periodice, adăugăm noile UIT-uri la sfârșitul listei existente
         if (!showLoading && newUits.length > 0) {
-          // Păstrăm lista existentă și adăugăm noile UIT-uri la sfârșit
-          setAvailableUits(prevUits => [...prevUits, ...newUits]);
+          // Adăugăm noile UIT-uri și sortăm întreaga listă în ordine descrescătoare
+          setAvailableUits(prevUits => {
+            const combinedUits = [...prevUits, ...newUits];
+            return combinedUits.sort((a, b) => {
+              const numA = parseInt(a.uit.replace(/\D/g, '') || '0', 10);
+              const numB = parseInt(b.uit.replace(/\D/g, '') || '0', 10);
+              return numB - numA;  // Sortare descrescătoare
+            });
+          });
           
           // Afișăm notificare pentru utilizator
           const newUitsCount = newUits.length;
@@ -109,6 +128,7 @@ export default function UitSelector() {
           console.log(`${newUitsCount} transporturi noi adăugate la lista existentă`);
         } else {
           // La prima încărcare sau când nu există UIT-uri noi, înlocuim toată lista
+          // cu cea sortată descrescător
           setAvailableUits(mockUits);
         }
         

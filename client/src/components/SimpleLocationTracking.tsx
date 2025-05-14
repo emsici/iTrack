@@ -282,7 +282,6 @@ export default function SimpleLocationTracking() {
               : "S-au detectat întreruperi ale semnalului GPS. Pentru îmbunătățirea preciziei:"}
           </p>
           <ul className={`text-xs ${textListColor} mt-1 list-disc pl-5`}>
-            <li>Ieșiți în aer liber, departe de clădiri înalte</li>
             <li>Poziționați telefonul cu ecranul în sus, fără obstrucții</li>
             <li>Verificați că funcția de locație a telefonului este activată</li>
             {gpsErrorCount > 10 && <li>Reporniți aplicația dacă problema persistă</li>}

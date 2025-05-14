@@ -55,10 +55,10 @@ export interface TransportContextType {
   setCurrentActiveUit: (uit: UitOption | null) => void;
   
   // Funcții pentru transportul curent
-  startTransport: () => Promise<boolean>;
-  pauseTransport: () => Promise<void>;
-  resumeTransport: () => Promise<void>;
-  finishTransport: () => Promise<void>;
+  startTransport: (uit?: UitOption) => Promise<boolean>;
+  pauseTransport: (uit?: UitOption) => Promise<void>;
+  resumeTransport: (uit?: UitOption) => Promise<void>;
+  finishTransport: (uit?: UitOption) => Promise<void>;
   
   // Utilizat pentru afișare în UI
   isGpsActive: boolean;
@@ -73,6 +73,8 @@ export interface TransportContextType {
   // Funcționalități pentru gestionarea mai multor transporturi
   getAllVehicleTransports: () => VehicleTransport[];
   getVehicleTransport: (vehicleNumber: string) => VehicleTransport | undefined;
+  getActiveTransports: () => UitOption[];
+  hasActiveTransport: (uit: string) => boolean;
 }
 
 // Creăm contextul
@@ -94,6 +96,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const [isBackgroundActive, setIsBackgroundActive] = useState(false);
   const [currentVehicle, setCurrentVehicle] = useState<string | null>(null);
   const [vehicleTransports, setVehicleTransports] = useState<VehicleTransport[]>([]);
+  
+  // State pentru a gestiona multiple transporturi active simultan
+  const [activeTransports, setActiveTransports] = useState<UitOption[]>([]);
   
   // Referință pentru a evita inițializarea multiplă
   const initializationRef = useRef<boolean>(false);
