@@ -296,51 +296,53 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         const isGpsAvailable = await checkGpsAvailability();
         console.log("Disponibilitate GPS inițială:", isGpsAvailable ? "Disponibil" : "Indisponibil");
         
-        // Obține poziția inițială pentru a popula harta
-        try {
-          const position = await getCurrentPosition();
-          console.log("Poziție GPS inițială obținută:", {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-          
-          // Actualizează starea cu poziția inițială, dar nu activăm GPS-ul!
-          // GPS-ul va fi marcat ca activ doar când un transport este activ
-          setGpsCoordinates({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-            timestamp: new Date().toISOString().replace('T', ' ').substr(0, 19),
-            viteza: 0,
-            directie: 0,
-            altitudine: 0,
-            baterie: 100
-          });
-          
-          // Pornește urmărirea poziției pentru UI (nu pentru trimitere periodică)
-          await startWatchPosition();
-        } catch (error) {
-          console.error("Eroare la obținerea poziției inițiale:", error);
-          
-          // Nu mai afișăm toast, folosim doar alerta permanentă din ConnectivityAlert
-          // pentru a evita dublarea mesajelor de eroare
-          
-          // Setăm coordonate implicite pentru a evita erori de afișare
-          // Acest lucru nu va trimite date false către server, ci doar ajută interfața
-          // să nu se blocheze când nu există date GPS reale
-          if (!gpsCoordinates) {
+        // Obține poziția inițială pentru a popula harta, doar dacă transportul este activ
+        if (shouldStartGps) {
+          try {
+            const position = await getCurrentPosition();
+            console.log("Poziție GPS inițială obținută:", {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            });
+            
+            // Actualizează starea cu poziția inițială, dar nu activăm GPS-ul!
+            // GPS-ul va fi marcat ca activ doar când un transport este activ
             setGpsCoordinates({
-              lat: 44.4268, // Coordonate generice pentru București (doar pentru UI)
-              lng: 26.1025,
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
               timestamp: new Date().toISOString().replace('T', ' ').substr(0, 19),
               viteza: 0,
               directie: 0,
               altitudine: 0,
-              baterie: 100
+              baterie: 100 // Valoare implicită
             });
+            
+            // Pornește urmărirea poziției pentru UI (nu pentru trimitere periodică)
+            await startWatchPosition();
+          } catch (error) {
+            console.error("Eroare la obținerea poziției inițiale:", error);
           }
+        } else {
+          console.log("Nu se inițializează GPS complet - transport inactiv");
         }
       } catch (error) {
         console.error("Eroare la inițializarea GPS:", error);
+        
+        // Nu mai afișăm toast, folosim doar alerta permanentă din ConnectivityAlert
+        // pentru a evita dublarea mesajelor de eroare
+        
+        // Setăm coordonate implicite doar dacă transportul este activ și nu avem coordonate
+        if (shouldStartGps && !gpsCoordinates) {
+          setGpsCoordinates({
+            lat: 44.4268, // Coordonate generice pentru București (doar pentru UI)
+            lng: 26.1025,
+            timestamp: new Date().toISOString().replace('T', ' ').substr(0, 19),
+            viteza: 0,
+            directie: 0,
+            altitudine: 0,
+            baterie: 100 // Valoare implicită
+          });
+        }
       }
     };
     
