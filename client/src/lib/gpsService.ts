@@ -95,9 +95,22 @@ export const sendGpsUpdate = async (
     // Înregistrăm starea transportului ca fiind activă pentru
     // a asigura că nu va reveni la inactiv după transmitere
     if (transportStatus === "in_progress") {
-      // Importăm funcția forceTransportActive din transportHelper
-      const { forceTransportActive } = require('./transportHelper');
+      // Importăm funcțiile din transportHelper pentru menținerea stării
+      const { forceTransportActive, updateTransportState } = require('./transportHelper');
       forceTransportActive();
+      
+      // Actualizăm starea în referință cu coordonatele actuale
+      updateTransportState('active', true, gpsCoords);
+      
+      // Salvăm starea în localStorage pentru persistență
+      const { saveAppState } = require('./stateManager');
+      saveAppState(
+        'active', // Forțăm starea activă
+        { uit, start_locatie: '', stop_locatie: '' }, // Informații minime necesare
+        [], // selectedUits nu este esențial aici
+        gpsCoords.timestamp,
+        gpsCoords.baterie
+      );
     }
     
     console.log("sendGpsUpdate - date primite:", {
