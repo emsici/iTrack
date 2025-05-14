@@ -162,24 +162,10 @@ export default function LocationTracking() {
                 
                 console.log("[LocationTracking] Actualizăm manual coordonatele GPS:", manualGpsCoords);
                 
-                // Importăm funcțiile necesare
-                import('../lib/gpsService').then(({ sendGpsUpdate }) => {
-                  // Trimitem coordonatele către API
-                  sendGpsUpdate(
-                    manualGpsCoords,
-                    { 
-                      nr: "TEST123", 
-                      uit: "UIT12345",
-                      start_locatie: "Start",
-                      stop_locatie: "Stop"
-                    },
-                    "UIT12345",
-                    localStorage.getItem("token") || "",
-                    "active"
-                  ).then(result => {
-                    console.log("[LocationTracking] Rezultat trimitere manuală coordonate:", result);
-                  });
-                });
+                // Actualizăm direct state-ul fără a trimite la API
+                setGpsCoordinates(manualGpsCoords);
+                setLastGpsUpdateTime(new Date().toISOString());
+                console.log("[LocationTracking] Actualizat starea direct cu coordonatele GPS:", manualGpsCoords);
               }
             },
             (error) => {

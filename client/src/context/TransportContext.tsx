@@ -1324,6 +1324,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const contextValue: TransportContextType = {
     transportStatus,
     gpsCoordinates,
+    setGpsCoordinates,
     selectedUits,
     setSelectedUits,
     currentActiveUit,
@@ -1336,6 +1337,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     
     isGpsActive,
     lastGpsUpdateTime,
+    setLastGpsUpdateTime,
     battery,
     isBackgroundActive,
     currentVehicle,

@@ -106,7 +106,7 @@ export const sendGpsUpdate = async (
       // Salvăm starea în localStorage pentru persistență
       // Definim obiectul UIT cu datele primite
       const uitInfo = { 
-        uit: uit || '',           // Preluăm codul UIT din parametrul funcției cu valoare default
+        uit: vehicleUit || '',    // Preluăm codul UIT din parametrul funcției cu valoare default
         start_locatie: '',        // Nu avem informații, dar trebuie să respectăm structura
         stop_locatie: ''          // Nu avem informații, dar trebuie să respectăm structura 
       };
@@ -271,10 +271,11 @@ export const sendGpsUpdate = async (
     }
     
     // Verificăm UIT-ul
+    // Folosim vehicleUit direct
     if (effectiveVehicleInfo && effectiveVehicleInfo.uit) {
       uitValue = effectiveVehicleInfo.uit;
-    } else if (uit) {
-      uitValue = uit;
+    } else if (vehicleUit) {
+      uitValue = vehicleUit;
     }
     
     console.log("După verificare și corectare:", {
@@ -326,8 +327,6 @@ export const sendGpsUpdate = async (
     const baterie = Number(batteryLevel) || 100;
     const hdop = Number(hdopValue) || 2.0;
     const gsm_signal = Number(gsmSignalValue) || 85;
-    const numar_inmatriculare = String(vehicleInfo.nr);
-    const uit = String(vehicleInfo.uit);
     const status = transportStatus === "finished" ? "finished" : "in_progress";
     
     // Asigurăm-ne că avem valori pentru toate câmpurile - nu acceptăm text gol sau undefined

@@ -5,7 +5,7 @@ import { useTransport } from "@/context/TransportContext";
 import MainLayout from "@/components/MainLayout";
 import MobileLayout from "@/components/MobileLayout";
 import TransportControls from "@/components/TransportControls";
-import LocationTracking from "@/components/LocationTracking";
+import SimpleLocationTracking from "@/components/SimpleLocationTracking";
 import ConnectivityAlert from "@/components/ConnectivityAlert";
 import TransportMap from "@/components/TransportMap";
 import TransportStats from "@/components/TransportStats";
