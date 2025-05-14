@@ -816,6 +816,25 @@ export function TransportProvider({ children }: { children: ReactNode }) {
                   // Verificăm dacă am găsit un UIT valid
                   if (transportUit) {
                     console.log("[Transport] Trimitere date GPS reale către server cu UIT:", transportUit);
+                    
+                    // CORECȚIE IMPORTANTĂ: Înainte de trimiterea datelor, ne asigurăm că statusul transportului este "active"
+                    // Acest lucru va preveni schimbarea stării la "inactive"
+                    if (transportStatus !== "active") {
+                      console.log("[Transport] Forțăm statusul transportului înapoi la 'active' înainte de trimiterea datelor");
+                      setTransportStatus("active");
+                      setIsGpsActive(true);
+                      
+                      // Salvăm starea activă în localStorage pentru persistență
+                      saveAppState(
+                        "active",
+                        currentActiveUit || { uit: transportUit, start_locatie: "", stop_locatie: "" },
+                        selectedUits,
+                        new Date().toISOString(),
+                        100
+                      );
+                    }
+                    
+                    // Trimitem datele GPS
                     sendGpsUpdate(
                       newCoords,
                       vehicleInfo.nr,
@@ -827,6 +846,17 @@ export function TransportProvider({ children }: { children: ReactNode }) {
                     // CRUCIAL: Actualizăm starea cu coordonatele noi
                     setGpsCoordinates(newCoords);
                     setLastGpsUpdateTime(newCoords.timestamp);
+                    
+                    // Actualizăm din nou starea pentru a asigura persistența și după trimiterea datelor
+                    if (currentActiveUit === null && transportUit) {
+                      // Recreăm un obiect UIT dacă lipsește
+                      const uit: UitOption = {
+                        uit: transportUit,
+                        start_locatie: vehicleInfo?.start_locatie || "",
+                        stop_locatie: vehicleInfo?.stop_locatie || ""
+                      };
+                      setCurrentActiveUit(uit);
+                    }
                   } else {
                     console.error("[Transport] Lipsă UIT pentru trimitere date GPS - nu s-a găsit în nicio sursă");
                   }
