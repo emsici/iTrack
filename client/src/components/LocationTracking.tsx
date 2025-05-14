@@ -131,11 +131,11 @@ export default function LocationTracking() {
           
           <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center mb-1 text-blue-700">
-              <Battery className="w-4 h-4 mr-1" />
-              <p className="text-xs font-medium">Baterie</p>
+              <Clock className="w-4 h-4 mr-1" />
+              <p className="text-xs font-medium">Actualizare</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {isGpsReallyActive && battery ? `${battery}%` : "-"}
+              {transportStatus === "active" && lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : "-"}
             </p>
           </div>
         </div>

@@ -213,7 +213,7 @@ export default function MobileHeader() {
         
         <div className="flex items-center gap-3">
           <div className="flex items-center">
-            <Signal className={`h-4 w-4 ${isGpsActive ? "text-green-300" : "text-red-300"}`} />
+            <div className={`h-3 w-3 rounded-full ${isGpsActive ? "bg-green-500" : "bg-red-500"}`}></div>
           </div>
           
           <button onClick={handleLogout} className="ml-2 bg-blue-800 p-1.5 rounded-full hover:bg-blue-900">
