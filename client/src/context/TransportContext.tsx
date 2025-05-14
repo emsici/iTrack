@@ -296,16 +296,25 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     if (!isAuthenticated || !vehicleInfo?.nr) return;
     
     try {
-      const stateToSave = {
-        transportStatus,
-        currentActiveUit,
-        lastGpsUpdateTime,
-        battery,
-        timestamp: new Date().getTime()
-      };
-      
-      localStorage.setItem(`transport_state_${vehicleInfo.nr}`, JSON.stringify(stateToSave));
-      console.log("Stare transport salvată în localStorage");
+      // Salvăm doar dacă transportul nu este "inactive"
+      if (transportStatus !== "inactive") {
+        const stateToSave = {
+          transportStatus,
+          currentActiveUit,
+          lastGpsUpdateTime,
+          battery,
+          timestamp: new Date().getTime()
+        };
+        
+        localStorage.setItem(`transport_state_${vehicleInfo.nr}`, JSON.stringify(stateToSave));
+        console.log("Stare transport salvată în localStorage:", transportStatus);
+      } else {
+        // Dacă starea este "inactive", ștergem starea salvată (dacă există)
+        if (localStorage.getItem(`transport_state_${vehicleInfo.nr}`)) {
+          localStorage.removeItem(`transport_state_${vehicleInfo.nr}`);
+          console.log("Stare transport ștearsă din localStorage (transport inactiv)");
+        }
+      }
     } catch (error) {
       console.error("Eroare la salvarea stării transportului:", error);
     }
@@ -332,14 +341,29 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           return false;
         }
         
-        // Restaurăm starea
-        setTransportStatus(parsedState.transportStatus || "inactive");
-        if (parsedState.currentActiveUit) setCurrentActiveUit(parsedState.currentActiveUit);
-        if (parsedState.lastGpsUpdateTime) setLastGpsUpdateTime(parsedState.lastGpsUpdateTime);
-        if (parsedState.battery) setBattery(parsedState.battery);
-        
-        console.log("Stare transport restaurată:", parsedState.transportStatus);
-        return true;
+        // Restaurăm starea doar dacă este "active" sau "paused"
+        const storedStatus = parsedState.transportStatus || "inactive";
+        if (storedStatus === "active" || storedStatus === "paused") {
+          // Restaurăm starea
+          if (parsedState.currentActiveUit) setCurrentActiveUit(parsedState.currentActiveUit);
+          if (parsedState.lastGpsUpdateTime) setLastGpsUpdateTime(parsedState.lastGpsUpdateTime);
+          if (parsedState.battery) setBattery(parsedState.battery);
+          
+          // Setăm transportStatus la final pentru a declanșa efectele care depind de el
+          setTransportStatus(storedStatus);
+          
+          // Marcăm GPS-ul ca activ dacă transportul este activ
+          if (storedStatus === "active") {
+            setIsGpsActive(true);
+            console.log("Stare GPS actualizată:", "ACTIV");
+          }
+          
+          console.log("Stare transport restaurată:", storedStatus);
+          return true;
+        } else {
+          console.log("Nu restaurăm starea 'inactive' din localStorage");
+          return false;
+        }
       }
     } catch (error) {
       console.error("Eroare la restaurarea stării transportului:", error);
@@ -360,6 +384,17 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     // Verificare pentru sesiune existentă
     console.log("Verificare sesiune existentă la pornirea aplicației");
     const stateRestored = restoreTransportState();
+    
+    // Dacă starea a fost restaurată ca "active", trebuie să pornim tracking-ul GPS
+    if (stateRestored && transportStatus === "active") {
+      console.log("Sesiune găsită, restaurez starea transportului - pornesc tracking GPS");
+      // Vom începe tracking-ul GPS imediat
+      setTimeout(() => {
+        startGpsTracking()
+          .then(() => console.log("Tracking GPS restartat din starea salvată"))
+          .catch(err => console.error("Eroare la repornirea tracking-ului GPS:", err));
+      }, 1000);
+    }
     
     const initGps = async () => {
       // Verificăm dacă avem un transport activ - doar atunci inițializăm GPS-ul complet
