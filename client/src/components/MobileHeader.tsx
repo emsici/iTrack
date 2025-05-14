@@ -17,11 +17,7 @@ export default function MobileHeader() {
   const [requestingGps, setRequestingGps] = useState<boolean>(false);
   const [gpsPermissionsAvailable, setGpsPermissionsAvailable] = useState<boolean>(true);
   
-  const getBatteryColor = useCallback(() => {
-    if (battery > 50) return "text-success";
-    if (battery > 20) return "text-warning";
-    return "text-destructive";
-  }, [battery]);
+  // Eliminat funcția getBatteryColor care nu mai este necesară
   
   const getGpsIndicatorColor = useCallback(() => {
     return isGpsActive ? "text-success" : "text-destructive";
@@ -219,11 +215,6 @@ export default function MobileHeader() {
           <div className="flex items-center">
             <Signal className={`h-4 w-4 ${transportStatus === "active" ? "text-green-300" : "text-red-300"}`} />
             <span className="text-xs ml-1 text-white">{transportStatus === "active" ? "Activ" : "Inactiv"}</span>
-          </div>
-          
-          <div className="flex items-center">
-            <Battery className={`h-4 w-4 ${battery > 50 ? "text-green-300" : battery > 20 ? "text-yellow-300" : "text-red-300"}`} />
-            <span className="text-xs ml-1 text-white">{Math.round(battery)}%</span>
           </div>
           
           <button onClick={handleLogout} className="ml-2 bg-blue-800 p-1.5 rounded-full hover:bg-blue-900">
