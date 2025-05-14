@@ -130,7 +130,8 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Direcție</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {transportStatus === "active" && gpsCoordinates?.directie !== undefined ? `${gpsCoordinates.directie}°` : "-"}
+              {transportStatus === "active" && gpsCoordinates?.directie !== undefined ? 
+                `${Math.round(gpsCoordinates.directie % 360)}°` : "-"}
             </p>
           </div>
           

@@ -221,15 +221,23 @@ export default function TransportControls() {
 
   const handlePauseTransport = async (transportId: string) => {
     try {
-      // Actualizează starea transportului în UI
+      // Afișăm un indicator de încărcare
+      toast({
+        title: "Se procesează...",
+        description: "Așteptați până se întrerupe transmisia GPS."
+      });
+      
+      // Oprește GPS tracking în backend - ÎNAINTE de a actualiza UI
+      console.log("Oprire tracking GPS");
+      await pauseTransport();
+      
+      // Doar după ce tracking-ul a fost oprit, actualizăm UI-ul
+      console.log("Tracking GPS oprit, actualizez UI");
       setTransports(transports.map(transport => 
         transport.id === transportId 
           ? { ...transport, status: "paused", isTracking: false } 
           : transport
       ));
-      
-      // Oprește GPS tracking în backend
-      await pauseTransport();
       
       toast({
         title: "Pauză de odihnă",
@@ -237,6 +245,18 @@ export default function TransportControls() {
       });
     } catch (error) {
       console.error("Error pausing transport:", error);
+      
+      // La eroare, revenim la starea anterioară
+      const currentTransport = transports.find(t => t.id === transportId);
+      if (currentTransport && currentTransport.status === "active") {
+        // Revenim la starea activă dacă acea stare a fost activă înainte
+        setTransports(transports.map(transport => 
+          transport.id === transportId 
+            ? { ...transport, status: "active", isTracking: true } 
+            : transport
+        ));
+      }
+      
       toast({
         variant: "destructive",
         title: "Eroare",
