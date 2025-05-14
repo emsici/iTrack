@@ -88,32 +88,55 @@ export const isGpsActive = (): boolean => {
  * Forțează actualizarea stării transportului
  * Acest mecanism este esențial pentru a menține starea transportului
  * între actualizări și pentru a preveni resetarea stării
+ * Implementare robustă pentru a evita dependențele circulare și erorile de referință
  */
 export const forceTransportActive = (): void => {
-  // Setăm starea de referință
-  transportStateRef.transportStatus = 'active';
-  transportStateRef.isGpsActive = true;
-  
-  // Folosim funcțiile importate la nivel de modul
   try {
-    const savedState = getSavedAppState();
+    // Setăm starea de referință
+    transportStateRef.transportStatus = 'active';
+    transportStateRef.isGpsActive = true;
     
-    // Dacă starea salvată nu este activă, o actualizăm forțat
-    if (savedState && savedState.transportStatus !== 'active') {
-      console.log("[TransportHelper] Detectată inconsistență în stare salvată, actualizare forțată");
-      
-      // Folosim valorile existente dar actualizăm statusul
-      saveAppState(
-        'active',
-        savedState.currentActiveUit,
-        savedState.selectedUits || [],
-        savedState.lastGpsUpdateTime,
-        savedState.battery || 100
-      );
+    // Încercăm să accesăm localStorage direct în loc să folosim funcții importate
+    // care ar putea cauza dependențe circulare
+    try {
+      const savedStateJson = localStorage.getItem('itrack_app_state');
+      if (savedStateJson) {
+        const savedState = JSON.parse(savedStateJson);
+        
+        // Dacă starea salvată nu este activă, o actualizăm forțat
+        if (savedState && savedState.transportStatus !== 'active') {
+          console.log("[TransportHelper] Detectată inconsistență în stare salvată, actualizare forțată");
+          
+          // Creăm un obiect nou cu proprietățile originale dar cu status 'active'
+          const updatedState = {
+            ...savedState,
+            transportStatus: 'active'
+          };
+          
+          // Salvăm direct în localStorage
+          localStorage.setItem('itrack_app_state', JSON.stringify(updatedState));
+        }
+      } else {
+        // Nu există stare salvată, creăm una minimală
+        const minimumState = {
+          transportStatus: 'active',
+          currentActiveUit: null,
+          selectedUits: [],
+          lastGpsUpdateTime: new Date().toISOString(),
+          battery: 100
+        };
+        
+        localStorage.setItem('itrack_app_state', JSON.stringify(minimumState));
+      }
+    } catch (storageError) {
+      // Eroare la accesarea sau parsarea localStorage - o prindem separat
+      // pentru a nu împiedica actualizarea stării de referință
+      console.error("[TransportHelper] Eroare la accesarea localStorage:", storageError);
     }
-  } catch (e) {
-    console.error("[TransportHelper] Eroare la verificarea stării salvate:", e);
+    
+    console.log("[TransportHelper] Forțare stare transport: ACTIVE");
+  } catch (generalError) {
+    // Prinde orice eroare neașteptată
+    console.error("[TransportHelper] Eroare generală la forțarea stării active:", generalError);
   }
-  
-  console.log("[TransportHelper] Forțare stare transport: ACTIVE");
 };

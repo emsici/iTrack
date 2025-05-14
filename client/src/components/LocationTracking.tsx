@@ -122,12 +122,37 @@ export default function LocationTracking() {
   useEffect(() => {
     if (transportStatus === "active") {
       try {
-        // Folosim metoda importată direct în loc de require
-        forceTransportActive();
+        // Implementăm direct aici funcționalitatea forceTransportActive pentru a evita erori
+        // de import circular sau referințe lipsă
+        try {
+          // Actualizăm starea direct în localStorage
+          const savedStateJson = localStorage.getItem('itrack_app_state');
+          if (savedStateJson) {
+            const savedState = JSON.parse(savedStateJson);
+            
+            // Dacă starea salvată nu este activă, o actualizăm forțat
+            if (savedState && savedState.transportStatus !== 'active') {
+              console.log("[LocationTracking] Detectată inconsistență în stare salvată, actualizare forțată");
+              
+              // Creăm un obiect nou cu proprietățile originale dar cu status 'active'
+              const updatedState = {
+                ...savedState,
+                transportStatus: 'active'
+              };
+              
+              // Salvăm direct în localStorage
+              localStorage.setItem('itrack_app_state', JSON.stringify(updatedState));
+            }
+          }
+        } catch (storageError) {
+          console.warn("[LocationTracking] Eroare la accesarea localStorage:", storageError);
+        }
+        
         console.log("[LocationTracking] Forțare actualizare stare transport activă");
       } catch (error) {
         console.error("Eroare la forțarea transportului activ:", error);
       }
+      
       // Notificare utilizator despre starea GPS-ului
       if (isGpsActive && !gpsCoordinates) {
         toast({
@@ -239,29 +264,31 @@ export default function LocationTracking() {
       </CardHeader>
 
       <CardContent className="p-4 pt-5 pb-5 bg-gradient-to-b from-slate-50 to-white">
+        {/* Primul rând: Coordonate (lat, lng) în două carduri separate */}
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="p-4 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
-            <div className="flex items-center mb-2 text-blue-700">
-              <MapPin className="w-4 h-4 mr-2" />
-              <p className="text-sm font-medium">Latitudine</p>
+          <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
+            <div className="flex items-center mb-1 text-blue-700">
+              <MapPin className="w-4 h-4 mr-1" />
+              <p className="text-xs font-medium">Latitudine</p>
             </div>
-            <p className="text-lg font-bold text-slate-800 tracking-tight">
+            <p className="text-base font-bold text-slate-800 tracking-tight">
               {gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}
             </p>
           </div>
           
-          <div className="p-4 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
-            <div className="flex items-center mb-2 text-blue-700">
-              <MapPin className="w-4 h-4 mr-2" />
-              <p className="text-sm font-medium">Longitudine</p>
+          <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
+            <div className="flex items-center mb-1 text-blue-700">
+              <MapPin className="w-4 h-4 mr-1" />
+              <p className="text-xs font-medium">Longitudine</p>
             </div>
-            <p className="text-lg font-bold text-slate-800 tracking-tight">
+            <p className="text-base font-bold text-slate-800 tracking-tight">
               {gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        {/* Al doilea rând: Viteză și Direcție */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center mb-1 text-blue-700">
               <Gauge className="w-4 h-4 mr-1" />
@@ -282,26 +309,14 @@ export default function LocationTracking() {
                 `${Math.round(gpsCoordinates.directie % 360)}°` : "-"}
             </p>
           </div>
-          
-          <div className="p-3 bg-white rounded-lg border border-blue-100 shadow-sm transition-all hover:shadow-md">
-            <div className="flex items-center mb-1 text-blue-700">
-              <Clock className="w-4 h-4 mr-1" />
-              <p className="text-xs font-medium">Actualizare</p>
-            </div>
-            <p className="text-base font-bold text-slate-800">
-              {transportStatus === "active" && lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : "-"}
-            </p>
-          </div>
         </div>
         
-
-      
-        {/* Indicator baterie - folosim valoarea reală a dispozitivului dacă este disponibilă */}
-        <div className="mt-4 bg-white rounded-lg border border-blue-100 shadow-sm p-3">
+        {/* Al treilea rând: Baterie */}
+        <div className="bg-white rounded-lg border border-blue-100 shadow-sm p-3 mb-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center text-blue-700">
               <Battery className="w-4 h-4 mr-2" />
-              <p className="text-sm font-medium">Baterie dispozitiv</p>
+              <p className="text-xs font-medium">Baterie dispozitiv</p>
             </div>
             <div className="flex items-center">
               <div className="h-2 w-20 bg-gray-200 rounded-full overflow-hidden mr-2">
@@ -318,6 +333,19 @@ export default function LocationTracking() {
                 {deviceBattery !== null ? deviceBattery : battery}%
               </span>
             </div>
+          </div>
+        </div>
+        
+        {/* Al patrulea rând: Ultima actualizare */}
+        <div className="bg-white rounded-lg border border-blue-100 shadow-sm p-3">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center text-blue-700">
+              <Clock className="w-4 h-4 mr-2" />
+              <p className="text-xs font-medium">Ultima actualizare</p>
+            </div>
+            <span className="text-sm font-bold text-slate-700">
+              {transportStatus === "active" && lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : "-"}
+            </span>
           </div>
         </div>
       </CardContent>
