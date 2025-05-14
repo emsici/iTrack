@@ -168,9 +168,24 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     // Actualizăm vehicleInfo în state (dacă este disponibil)
     if (vehicleInfo?.nr) {
       setCurrentVehicle(vehicleInfo.nr);
+      
+      // IMPORTANT: Dacă avem informații vehicul cu UIT, actualizăm și UIT-ul din context
+      if (vehicleInfo.uit) {
+        console.log("[Transport] Actualizare UIT din vehicleInfo:", vehicleInfo.uit);
+        
+        const uit: UitOption = {
+          uit: vehicleInfo.uit,
+          start_locatie: vehicleInfo.start_locatie || "Locație start",
+          stop_locatie: vehicleInfo.stop_locatie || "Locație destinație"
+        };
+        
+        // Setăm UIT-ul direct din informațiile vehiculului
+        setSelectedUits([uit]);
+        setCurrentActiveUit(uit);
+      }
     }
     
-  }, [isAuthenticated]);
+  }, [isAuthenticated, vehicleInfo]);
   
   // Efect pentru a actualiza vehiculTransports când se schimbă statusul transportului
   useEffect(() => {
@@ -405,11 +420,38 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     try {
       console.log("[Transport] Începere pornire transport");
       
-      // Verificăm dacă avem UIT selectat
-      if (!currentActiveUit) {
-        console.error("[Transport] Nu se poate porni transportul - lipsește UIT");
+      // Logăm starea UIT-ului curent pentru a diagnostica problemele
+      console.log("[Transport] Verificare UIT pentru pornire transport:", { 
+        currentActiveUit, 
+        vehicleInfoUit: vehicleInfo?.uit,
+        selectedUits 
+      });
+      
+      // IMPORTANT: Verificăm dacă avem un UIT selectat
+      // Dacă nu există currentActiveUit, încercăm să folosim direct vehicleInfo.uit
+      if (!currentActiveUit && vehicleInfo?.uit) {
+        console.log("[Transport] Încercare de generare UIT din vehicleInfo:", vehicleInfo.uit);
+        
+        const uit: UitOption = {
+          uit: vehicleInfo.uit,
+          start_locatie: vehicleInfo.start_locatie || "Locație start",
+          stop_locatie: vehicleInfo.stop_locatie || "Locație destinație"
+        };
+        
+        // Actualizăm UIT-ul în context
+        setCurrentActiveUit(uit);
+        setSelectedUits([uit]);
+        
+        // Folosim UIT-ul nou generat direct pentru operațiunile următoare
+        console.log("[Transport] UIT generat și setat din vehicleInfo:", uit);
+        
+        // Nu mai facem return false - continuăm cu UIT-ul nou setat
+      }
+      // Verificăm din nou dacă avem un UIT valid (fie cel inițial, fie cel generat)
+      else if (!currentActiveUit) {
+        console.error("[Transport] Nu se poate porni transportul - lipsește UIT și nu există nici în vehicleInfo");
         toast({
-          title: "Eroare",
+          title: "Eroare UIT",
           description: "Selectați un UIT pentru a începe transportul.",
           variant: "destructive"
         });
