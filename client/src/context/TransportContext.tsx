@@ -1347,13 +1347,20 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           console.log("UIT final pentru finalizare transport:", uitFinal);
           
           // Trimitem actualizarea finală cu status "finished"
-          await sendGpsUpdate(
-            finalCoords, 
-            vehicleNr, 
-            uitFinal, 
-            "finished",
-            token
-          );
+          try {
+            await sendGpsUpdate(
+              finalCoords, 
+              vehicleNr, 
+              uitFinal, 
+              "finished",
+              token
+            );
+            console.log("Actualizare finală GPS trimisă cu succes");
+          } catch (sendError) {
+            console.error("Eroare la trimiterea actualizării finale GPS:", sendError);
+            // Continuăm execuția chiar dacă trimiterea GPS eșuează - prioritizăm finalizarea transportului 
+            // în aplicație chiar dacă avem probleme de conectivitate
+          }
           console.log("[Transport] Ultima actualizare GPS trimisă cu succes (status=finished)");
         } catch (error) {
           console.error("[Transport] Eroare la trimiterea coordonatelor finale:", error);
@@ -1426,7 +1433,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       toast({
         title: "Transport finalizat",
         description: "Transportul a fost finalizat cu succes.",
-        variant: "success"
+        variant: "default"
       });
     } catch (error) {
       console.error("[Transport] Eroare la finalizarea transportului:", error);
