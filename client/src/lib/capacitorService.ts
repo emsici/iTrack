@@ -302,7 +302,28 @@ export const CapacitorGeoService = {
             };
             resolve(position);
           },
-          (error) => reject(error),
+          (error) => {
+            console.error('Eroare la getCurrentPosition:', error);
+            
+            // Adăugăm informații despre eroare pentru depanare mai bună
+            if (error instanceof GeolocationPositionError) {
+              switch(error.code) {
+                case error.PERMISSION_DENIED:
+                  console.warn('GPS Error: Utilizatorul a refuzat permisiunea de geolocalizare');
+                  break;
+                case error.POSITION_UNAVAILABLE:
+                  console.warn('GPS Error: Poziția nu este disponibilă în acest moment');
+                  break;
+                case error.TIMEOUT:
+                  console.warn('GPS Error: Timp expirat pentru obținerea poziției');
+                  break;
+                default:
+                  console.warn('GPS Error: Eroare necunoscută', error.message);
+              }
+            }
+            
+            reject(error);
+          },
           {
             enableHighAccuracy: options?.enableHighAccuracy !== undefined ? options.enableHighAccuracy : true,
             timeout: options?.timeout || 30000, // Mărim timeout-ul la 30 secunde
@@ -336,7 +357,26 @@ export const CapacitorGeoService = {
           };
           callback(position);
         },
-        (error) => console.error('Eroare la watchPosition:', error),
+        (error) => {
+          console.error('Eroare la watchPosition:', error);
+          
+          // Adăugăm informații despre eroare pentru o depanare mai bună
+          if (error instanceof GeolocationPositionError) {
+            switch(error.code) {
+              case error.PERMISSION_DENIED:
+                console.warn('GPS Error: Utilizatorul a refuzat permisiunea de geolocalizare');
+                break;
+              case error.POSITION_UNAVAILABLE:
+                console.warn('GPS Error: Poziția nu este disponibilă în acest moment');
+                break;
+              case error.TIMEOUT:
+                console.warn('GPS Error: Timp expirat pentru obținerea poziției');
+                break;
+              default:
+                console.warn('GPS Error: Eroare necunoscută', error.message);
+            }
+          }
+        },
         {
           enableHighAccuracy: options?.enableHighAccuracy !== undefined ? options.enableHighAccuracy : true,
           timeout: options?.timeout || 30000, // Mărirea timeout-ului la 30 secunde pentru a reduce erorile
@@ -352,11 +392,13 @@ export const CapacitorGeoService = {
     
     // Folosim Capacitor pentru platforme native
     const startWatch = async () => {
-      const watchId = await Geolocation.watchPosition(options || {
-        enableHighAccuracy: options?.enableHighAccuracy !== undefined ? options.enableHighAccuracy : true,
-        timeout: options?.timeout || 30000, // Mărim timeout-ul la 30 secunde
-        maximumAge: options?.maximumAge || 10000 // Acceptăm poziții cu vechimea de până la 10 secunde
-      }, (position) => {
+      const defaultOptions = {
+        enableHighAccuracy: true,
+        timeout: 30000,
+        maximumAge: 10000
+      };
+      
+      const watchId = await Geolocation.watchPosition(options || defaultOptions, (position) => {
         if (position) {
           callback(position);
         }

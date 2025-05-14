@@ -317,6 +317,28 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           await startWatchPosition();
         } catch (error) {
           console.error("Eroare la obținerea poziției inițiale:", error);
+          
+          // Afișăm un toast pentru a informa utilizatorul despre problema GPS
+          toast({
+            variant: "destructive",
+            title: "Eroare GPS",
+            description: "Nu s-a putut obține poziția GPS. Verificați dacă GPS-ul este activat și permisiunile acordate.",
+          });
+          
+          // Setăm coordonate implicite pentru a evita erori de afișare
+          // Acest lucru nu va trimite date false către server, ci doar ajută interfața
+          // să nu se blocheze când nu există date GPS reale
+          if (!gpsCoordinates) {
+            setGpsCoordinates({
+              lat: 44.4268, // Coordonate generice pentru București (doar pentru UI)
+              lng: 26.1025,
+              timestamp: new Date().toISOString().replace('T', ' ').substr(0, 19),
+              viteza: 0,
+              directie: 0,
+              altitudine: 0,
+              baterie: 100
+            });
+          }
         }
       } catch (error) {
         console.error("Eroare la inițializarea GPS:", error);
