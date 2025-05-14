@@ -20,10 +20,17 @@ export default function ConnectivityAlert() {
 
   // Verificăm starea GPS și Internet și configurăm listeners
   useEffect(() => {
-    // Verifică GPS-ul la intervale regulate
+    // Verifică GPS-ul la intervale regulate - doar dacă transportul este activ
     const checkGps = async () => {
-      const gpsStatus = await checkGpsAvailability();
-      setIsGpsAvailable(gpsStatus);
+      // Verificăm starea GPS-ului doar dacă transportul este activ
+      if (transportStatus === "active") {
+        const gpsStatus = await checkGpsAvailability();
+        setIsGpsAvailable(gpsStatus);
+      } else {
+        // Dacă transportul nu este activ, considerăm GPS-ul disponibil
+        // pentru a nu afișa alerte inutile
+        setIsGpsAvailable(true);
+      }
     };
     
     // Verifică datele offline
@@ -55,7 +62,7 @@ export default function ConnectivityAlert() {
     return () => {
       clearInterval(intervalId);
     };
-  }, []);
+  }, [transportStatus]); // Adăugăm transportStatus ca dependență pentru a reacționa la schimbări
   
   // Funcție pentru sincronizarea manuală a datelor
   const handleSyncData = async () => {
@@ -117,23 +124,22 @@ export default function ConnectivityAlert() {
         </Alert>
       )}
       
-      {!isGpsAvailable && (
+      {/* Afișăm alerta GPS doar când transportul este activ */}
+      {!isGpsAvailable && transportStatus === "active" && (
         <Alert variant="default" className="bg-yellow-50 border-yellow-200 mt-6">
           <AlertCircle className="h-4 w-4 text-yellow-500" />
           <AlertTitle className="flex items-center text-yellow-700">
             <Map className="h-4 w-4 mr-2" /> GPS inactiv
           </AlertTitle>
           <AlertDescription>
-            <p>GPS-ul este dezactivat sau nu are semnal. {transportStatus === "active" ? "Vă rugăm să:" : ""}</p>
+            <p>GPS-ul este dezactivat sau nu are semnal. Vă rugăm să:</p>
             
-            {transportStatus === "active" && (
-              <ul className="list-disc pl-5 mt-2 text-yellow-700 text-sm">
-                <li>Verificați dacă locația (GPS) este activată în setările telefonului</li>
-                <li>Verificați dacă aplicația are permisiunile necesare pentru accesarea locației</li>
-                <li>Încercați să ieșiți în aer liber sau aproape de o fereastră pentru semnal GPS mai bun</li>
-                <li>Reporniți aplicația dacă problema persistă</li>
-              </ul>
-            )}
+            <ul className="list-disc pl-5 mt-2 text-yellow-700 text-sm">
+              <li>Verificați dacă locația (GPS) este activată în setările telefonului</li>
+              <li>Verificați dacă aplicația are permisiunile necesare pentru accesarea locației</li>
+              <li>Încercați să ieșiți în aer liber sau aproape de o fereastră pentru semnal GPS mai bun</li>
+              <li>Reporniți aplicația dacă problema persistă</li>
+            </ul>
           </AlertDescription>
         </Alert>
       )}
