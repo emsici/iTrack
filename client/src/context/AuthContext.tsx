@@ -133,9 +133,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUserInfo({ email: credentials.email });
         setIsAuthenticated(true);
         
-        // Store in localStorage
-        localStorage.setItem("auth_token", result.token);
-        localStorage.setItem("user_info", JSON.stringify({ email: credentials.email }));
+        // Folosim funcția noastră pentru a salva sesiunea în toate tipurile de stocare
+        saveSessionState(
+          result.token, 
+          { email: credentials.email },
+          null // Vehicleinfo va fi adăugat după ce obținem informațiile vehiculului
+        );
         
         toast({
           title: "Autentificare reușită",
@@ -225,8 +228,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setVehicleInfo(vehicleData);
           setHasVehicle(true);
           
-          // Actualizăm localStorage
-          localStorage.setItem("vehicle_info", JSON.stringify(vehicleData));
+          // Folosim funcția noastră pentru a salva în toate locurile
+          saveSessionState(token, userInfo, vehicleData);
           
           toast({
             title: "Vehicul actualizat",
@@ -307,10 +310,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setVehicleInfo(null);
       setHasVehicle(false);
       
-      // Clear localStorage
+      // Ștergem toate datele de sesiune din toate locațiile posibile
       localStorage.removeItem("auth_token");
       localStorage.removeItem("user_info");
       localStorage.removeItem("vehicle_info");
+      
+      // Ștergem și din sessionStorage pentru dispozitive native
+      sessionStorage.removeItem("auth_token");
+      sessionStorage.removeItem("user_info");
+      sessionStorage.removeItem("vehicle_info");
       
       toast({
         title: "Deconectare reușită",
