@@ -23,11 +23,11 @@ let permissionsRequested = false;
 
 // Funcție pentru solicitarea permisiunilor GPS
 export const requestGpsPermissions = async (): Promise<boolean> => {
-  console.log("Solicitare permisiuni GPS la pornirea aplicației");
+  console.log("Solicitare permisiuni locație la pornirea aplicației");
   
   // Nu mai verificăm dacă am solicitat deja permisiunile - pe device real
   // vrem să forțăm cererea lor la fiecare pornire până sunt acordate
-  console.log("Forțăm solicitarea permisiunilor GPS la fiecare pornire");
+  console.log("Forțăm solicitarea permisiunilor de locație la fiecare pornire");
   
   // Prevenim multiple solicitări simultane care ar putea bloca aplicația
   if (isRequestingPermissions) {
@@ -36,6 +36,22 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
     return new Promise((resolve) => {
       setTimeout(() => resolve(true), 1000);
     });
+  }
+  
+  // Pentru Android, încercăm să determinăm versiunea Android pentru a adapta comportamentul
+  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+    try {
+      // Pe Android, verificăm mai întâi dacă locația este activată în setările dispozitivului
+      const locationEnabled = await checkIfLocationIsEnabled();
+      if (!locationEnabled) {
+        console.warn("Serviciile de locație sunt dezactivate în setările dispozitivului Android!");
+        // Returnăm true și lăsăm aplicația să continue, dar vom afișa un mesaj în UI
+        return true;
+      }
+    } catch (e) {
+      console.error("Eroare la verificarea stării locației:", e);
+      // Continuăm oricum
+    }
   }
   
   try {

@@ -285,6 +285,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         // Nu oprim transportul din cauza asta, încercăm mai târziu în intervalul regulat
       }
       
+      // Variabilă pentru numărarea eșecurilor consecutive
+      let consecutiveFailures = 0;
+      const MAX_FAILURES = 5; // Numărul maxim de eșecuri consecutive înainte de a anunța utilizatorul
+      
       // Setăm timer-ul pentru trimitere periodică
       gpsTimerRef.current = setInterval(async () => {
         try {
@@ -303,6 +307,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
             enableHighAccuracy: true
           });
           
+          // Poziție obținută cu succes, resetăm contorul de eșecuri
+          consecutiveFailures = 0;
+          
+          // Actualizăm UI-ul pentru a indica funcționarea corectă a GPS-ului
+          setIsGpsActive(true);
+          
           // Trimite datele către server
           await sendGpsUpdate(position, {
             nr: vehicleInfo.nr,
@@ -315,6 +325,27 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           await syncOfflineData(token);
         } catch (error) {
           console.error("Eroare la trimiterea coordonatelor GPS:", error);
+          
+          // Incrementăm contorul de eșecuri consecutive
+          consecutiveFailures++;
+          
+          // Verificăm dacă am depășit numărul maxim de eșecuri consecutive
+          if (consecutiveFailures >= MAX_FAILURES) {
+            // Nu oprim transportul, doar notificăm utilizatorul
+            console.warn(`Atenție: ${consecutiveFailures} încercări consecutive de obținere GPS au eșuat`);
+            
+            // Marcăm GPS-ul ca inactiv în UI, dar continuăm să încercăm
+            setIsGpsActive(false);
+            
+            // Notificăm utilizatorul doar o dată, nu la fiecare eșec
+            if (consecutiveFailures === MAX_FAILURES) {
+              toast({
+                variant: "destructive",
+                title: "Atenție",
+                description: "Nu se poate obține poziția GPS. Transportul continuă, dar verificați semnalul GPS.",
+              });
+            }
+          }
         }
       }, interval);
       
