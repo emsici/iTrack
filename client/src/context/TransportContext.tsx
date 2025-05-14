@@ -699,38 +699,59 @@ export function TransportProvider({ children }: { children: ReactNode }) {
             
             // Implementăm un mecanism pentru verificarea stării GPS și notificarea utilizatorului
             const safetyInterval = setInterval(() => {
-              if (document.visibilityState === "visible") {
-                console.log("[Transport] Verificare status transport și GPS:", transportStatus);
-                
-                // Verificăm doar dacă transportul este activ
-                if (transportStatus === "active") {
-                  // Verificăm dacă avem GPS activ
-                  if (!gpsCoordinates) {
-                    console.log("[Transport] Nu avem coordonate GPS disponibile");
+              // IMPORTANT: Verificăm și actualizăm starea chiar dacă pagina nu este vizibilă
+              // pentru a menține starea corectă a transportului
+              const appState = getSavedAppState();
+              
+              // Verificăm dacă avem o stare salvată și o restaurăm
+              if (appState && appState.transportStatus === "active") {
+                // Dacă starea locală este activă dar starea în memorie nu este, o actualizăm
+                if (transportStatus !== "active") {
+                  console.log("[Transport] Restaurare stare transport activ din localStorage");
+                  setTransportStatus("active");
+                  setIsGpsActive(true);
+                }
+              }
+              
+              console.log("[Transport] Verificare status transport [Interval de siguranță]:", 
+                transportStatus, 
+                "GPS:", isGpsActive ? "activ" : "inactiv",
+                "Coordonate:", gpsCoordinates ? "disponibile" : "indisponibile"
+              );
+              
+              // Verificăm doar dacă transportul este activ
+              if (transportStatus === "active") {
+                // Verificăm dacă avem GPS activ și coordonate disponibile
+                if (!gpsCoordinates && document.visibilityState === "visible") {
+                  console.log("[Transport] Nu avem coordonate GPS disponibile");
+                  
+                  // Notificăm utilizatorul doar o dată la 30 de secunde (pentru a evita spam-ul)
+                  const lastNotification = localStorage.getItem('gps_notification');
+                  const now = new Date().getTime();
+                  if (!lastNotification || (now - JSON.parse(lastNotification).timestamp) > 30000) {
+                    toast({
+                      title: "Atenție",
+                      description: "Nu s-au putut obține coordonatele GPS. Verificați permisiunile de localizare.",
+                      variant: "destructive"
+                    });
                     
-                    // Notificăm utilizatorul doar o dată la 30 de secunde (pentru a evita spam-ul)
-                    const lastNotification = localStorage.getItem('gps_notification');
-                    const now = new Date().getTime();
-                    if (!lastNotification || (now - JSON.parse(lastNotification).timestamp) > 30000) {
-                      toast({
-                        title: "Atenție",
-                        description: "Nu s-au putut obține coordonatele GPS. Verificați permisiunile de localizare.",
-                        variant: "destructive"
-                      });
-                      
-                      localStorage.setItem('gps_notification', JSON.stringify({
-                        timestamp: now
-                      }));
-                    }
+                    localStorage.setItem('gps_notification', JSON.stringify({
+                      timestamp: now
+                    }));
                   }
                 }
               }
-            }, 15000); // La fiecare 15 secunde
+            }, 5000); // La fiecare 5 secunde - reducem intervalul pentru actualizări mai frecvente
             
             // Înregistrăm un watcher care va obține poziția periodic
             watchId = navigator.geolocation.watchPosition(
               // Callback pentru succes
               (position) => {
+                // Setăm explicit că GPS-ul este activ când primim coordonate
+                if (!isGpsActive) {
+                  setIsGpsActive(true);
+                }
+                
                 // CORECȚIE SIMPLĂ: Nu mai facem nicio verificare de status aici
                 // Citim coordonatele GPS mereu când sunt disponibile
                 console.log("[Transport] Coordonate GPS disponibile:", {
