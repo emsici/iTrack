@@ -449,77 +449,219 @@ export const CapacitorGeoService = {
   
   // Urmărirea poziției (watch)
   watchPosition: (callback: (position: Position) => void, options?: PositionOptions) => {
-    if (!isNativePlatform()) {
-      // Folosim navigatorul browser pentru web
-      const watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          const position: Position = {
-            coords: {
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
-              accuracy: pos.coords.accuracy,
-              altitude: pos.coords.altitude,
-              altitudeAccuracy: pos.coords.altitudeAccuracy,
-              heading: pos.coords.heading,
-              speed: pos.coords.speed
-            },
-            timestamp: pos.timestamp
-          };
-          callback(position);
-        },
-        (error) => {
-          console.error('Eroare la watchPosition:', error);
-          
-          // Adăugăm informații despre eroare pentru o depanare mai bună
-          if (error instanceof GeolocationPositionError) {
-            switch(error.code) {
-              case error.PERMISSION_DENIED:
-                console.warn('GPS Error: Utilizatorul a refuzat permisiunea de geolocalizare');
-                break;
-              case error.POSITION_UNAVAILABLE:
-                console.warn('GPS Error: Poziția nu este disponibilă în acest moment');
-                break;
-              case error.TIMEOUT:
-                console.warn('GPS Error: Timp expirat pentru obținerea poziției');
-                break;
-              default:
-                console.warn('GPS Error: Eroare necunoscută', error.message);
-            }
-          }
-        },
-        {
-          enableHighAccuracy: options?.enableHighAccuracy !== undefined ? options.enableHighAccuracy : true,
-          timeout: options?.timeout || 30000, // Mărirea timeout-ului la 30 secunde pentru a reduce erorile
-          maximumAge: options?.maximumAge || 10000 // Acceptăm poziții cu vechimea de până la 10 secunde
-        }
-      );
-      
+    // Verificăm dacă funcția callback este validă
+    if (!callback || typeof callback !== 'function') {
+      console.error('Eroare: callback invalid pentru watchPosition');
       return {
-        watchId,
-        clearWatch: () => navigator.geolocation.clearWatch(watchId)
+        watchId: null,
+        clearWatch: () => console.log('Nicio urmărire de anulat - callback invalid')
       };
     }
     
-    // Folosim Capacitor pentru platforme native
-    const startWatch = async () => {
-      const defaultOptions = {
-        enableHighAccuracy: true,
-        timeout: 30000,
-        maximumAge: 10000
-      };
-      
-      const watchId = await Geolocation.watchPosition(options || defaultOptions, (position) => {
-        if (position) {
-          callback(position);
-        }
-      });
-      return {
-        watchId,
-        clearWatch: () => Geolocation.clearWatch({ id: watchId })
-      };
+    // Folosim un wrapper pentru callback pentru a capta erorile
+    const safeCallback = (pos: Position) => {
+      try {
+        callback(pos);
+      } catch (callbackError) {
+        console.error('Eroare în callback-ul watchPosition:', callbackError);
+      }
     };
     
-    return startWatch();
+    // Opțiuni GPS sigure
+    const safeOptions = {
+      enableHighAccuracy: options?.enableHighAccuracy !== undefined ? options.enableHighAccuracy : true,
+      timeout: options?.timeout || 30000, // 30 secunde timeout
+      maximumAge: options?.maximumAge || 10000 // 10 secunde vechime maximă
+    };
+    
+    // Gestionează erorile GPS într-un mod sigur
+    const handleError = (error: any) => {
+      console.error('Eroare la watchPosition:', error);
+      
+      // Adăugăm informații despre eroare pentru o depanare mai bună
+      if (error instanceof GeolocationPositionError) {
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            console.warn('GPS Error: Utilizatorul a refuzat permisiunea de geolocalizare');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            console.warn('GPS Error: Poziția nu este disponibilă în acest moment');
+            break;
+          case error.TIMEOUT:
+            console.warn('GPS Error: Timp expirat pentru obținerea poziției');
+            break;
+          default:
+            console.warn('GPS Error: Eroare necunoscută', error.message);
+        }
+      }
+    };
+    
+    if (!isNativePlatform()) {
+      try {
+        // Verificăm dacă API-ul de geolocalizare este disponibil în browser
+        if (!navigator.geolocation) {
+          console.error('Geolocalizarea nu este suportată de acest browser');
+          return {
+            watchId: null,
+            clearWatch: () => console.log('Nicio urmărire de anulat - geolocation indisponibil')
+          };
+        }
+        
+        // Folosim navigatorul browser pentru web
+        console.log('Inițializare urmărire poziție în browser');
+        const watchId = navigator.geolocation.watchPosition(
+          (pos) => {
+            try {
+              const position: Position = {
+                coords: {
+                  latitude: pos.coords.latitude,
+                  longitude: pos.coords.longitude,
+                  accuracy: pos.coords.accuracy,
+                  altitude: pos.coords.altitude,
+                  altitudeAccuracy: pos.coords.altitudeAccuracy,
+                  heading: pos.coords.heading,
+                  speed: pos.coords.speed
+                },
+                timestamp: pos.timestamp
+              };
+              safeCallback(position);
+            } catch (posConversionError) {
+              console.error('Eroare la conversia poziției:', posConversionError);
+            }
+          },
+          handleError,
+          safeOptions
+        );
+        
+        console.log('Urmărire GPS browser inițiată cu ID:', watchId);
+        
+        return {
+          watchId,
+          clearWatch: () => {
+            try {
+              navigator.geolocation.clearWatch(watchId);
+              console.log('Urmărire GPS browser oprită cu succes');
+            } catch (clearError) {
+              console.error('Eroare la oprirea urmăririi GPS browser:', clearError);
+            }
+          }
+        };
+      } catch (browserError) {
+        console.error('Eroare la inițializarea urmăririi GPS browser:', browserError);
+        return {
+          watchId: null,
+          clearWatch: () => console.log('Nicio urmărire de anulat - eroare la inițializare browser')
+        };
+      }
+    }
+    
+    // Pentru platformele native (Android/iOS), folosim API-urile Capacitor
+    console.log('Inițializare urmărire poziție pe platformă nativă');
+    
+    const startWatch = async () => {
+      try {
+        console.log('Verificare permisiuni GPS înainte de urmărire');
+        
+        try {
+          const permStatus = await Geolocation.checkPermissions();
+          console.log('Status permisiuni GPS pentru urmărire:', permStatus.location);
+          
+          if (permStatus.location !== 'granted') {
+            console.warn('Permisiunile GPS nu sunt acordate pentru urmărire. Solicităm explicit.');
+            
+            const requestResult = await Promise.race([
+              Geolocation.requestPermissions(),
+              new Promise<any>(resolve => {
+                setTimeout(() => {
+                  console.log('Timeout la solicitarea permisiunilor pentru urmărire');
+                  resolve({ location: 'timeout' });
+                }, 5000);
+              })
+            ]);
+            
+            console.log('Rezultat solicitare permisiuni pentru urmărire:', requestResult.location);
+            
+            if (requestResult.location !== 'granted') {
+              console.warn('Utilizatorul nu a acordat permisiunile GPS necesare pentru urmărire');
+              // Continuăm totuși, dar ar putea eșua. Utilizatorul va vedea un avertisment în UI.
+            }
+          }
+        } catch (permError) {
+          console.error('Eroare la verificarea/solicitarea permisiunilor:', permError);
+          // Continuăm oricum pentru a nu bloca utilizatorul
+        }
+        
+        const defaultOptions = {
+          enableHighAccuracy: true,
+          timeout: 30000,
+          maximumAge: 10000
+        };
+        
+        console.log('Pornire urmărire poziție Capacitor cu opțiuni:', JSON.stringify(options || defaultOptions));
+        
+        // Adăugăm un timeout pentru a evita blocarea în cazul unei erori în Capacitor.watchPosition
+        const watchPromise = Geolocation.watchPosition(options || defaultOptions, (position) => {
+          try {
+            if (position) {
+              console.log('Poziție GPS primită în Capacitor');
+              safeCallback(position);
+            } else {
+              console.warn('Poziție invalidă primită în urmărirea Capacitor');
+            }
+          } catch (posError) {
+            console.error('Eroare la procesarea poziției în Capacitor:', posError);
+          }
+        });
+        
+        const timeoutPromise = new Promise<null>((resolve) => {
+          setTimeout(() => {
+            console.warn('Timeout la inițializarea urmăririi Capacitor');
+            resolve(null);
+          }, 5000);
+        });
+        
+        const watchId = await Promise.race([watchPromise, timeoutPromise]);
+        
+        if (watchId === null) {
+          console.error('Nu s-a putut inițializa urmărirea GPS în Capacitor');
+          return {
+            watchId: null,
+            clearWatch: () => console.log('Nicio urmărire de anulat - timeout la inițializare')
+          };
+        }
+        
+        console.log('Urmărire GPS Capacitor inițiată cu succes, ID:', watchId);
+        
+        return {
+          watchId,
+          clearWatch: () => {
+            try {
+              Geolocation.clearWatch({ id: watchId });
+              console.log('Urmărire GPS Capacitor oprită cu succes');
+            } catch (clearError) {
+              console.error('Eroare la oprirea urmăririi GPS Capacitor:', clearError);
+            }
+          }
+        };
+      } catch (capacitorError) {
+        console.error('Eroare la inițializarea urmăririi GPS Capacitor:', capacitorError);
+        return {
+          watchId: null,
+          clearWatch: () => console.log('Nicio urmărire de anulat - eroare Capacitor')
+        };
+      }
+    };
+    
+    // Returnam promisiunea, dar adăugăm un tratament pentru excepții neașteptate
+    try {
+      return startWatch();
+    } catch (unexpectedError) {
+      console.error('Eroare neașteptată la pornirea urmăririi GPS:', unexpectedError);
+      return {
+        watchId: null,
+        clearWatch: () => console.log('Nicio urmărire de anulat - eroare neașteptată')
+      };
+    }
   }
 };
 
