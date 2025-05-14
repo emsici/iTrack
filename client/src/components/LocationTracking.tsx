@@ -92,6 +92,30 @@ export default function LocationTracking() {
           description: "Se așteaptă coordonatele GPS. Vă rugăm așteptați...",
           duration: 3000,
         });
+        
+        // Verificăm coordonatele actuale din navigator.geolocation
+        if (navigator && navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              // Afișăm datele pentru debugging
+              console.log("[LocationTracking] Coordonate obținute direct:", {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                timestamp: new Date(position.timestamp).toISOString()
+              });
+              
+              // Data este disponibilă în browser, dar nu se transmite către state
+              if (!gpsCoordinates) {
+                console.log("[LocationTracking] Coordonatele GPS sunt disponibile în browser, dar nu în state.");
+              }
+            },
+            (error) => {
+              console.error("[LocationTracking] Eroare la obținerea coordonatelor direct:", error);
+            },
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+          );
+        }
       }
     }
   }, [transportStatus, isGpsActive, gpsCoordinates]);
