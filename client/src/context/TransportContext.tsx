@@ -943,10 +943,24 @@ export function TransportProvider({ children }: { children: ReactNode }) {
                       );
                     }
                     
-                    // Trimitem datele GPS
+                    // Verificăm dacă vehicleInfo.nr este un obiect și îl corectăm
+                    let vehicleNr = vehicleInfo.nr;
+                    if (typeof vehicleNr === 'object' && vehicleNr !== null) {
+                      console.log("Corectare vehicleInfo.nr înainte de sendGpsUpdate:", vehicleNr);
+                      vehicleNr = vehicleNr.nr || 'TEST';
+                      console.log("Numărul de înmatriculare corectat:", vehicleNr);
+                    }
+                    
+                    // Trimitem datele GPS cu numărul de înmatriculare corectat
+                    console.log("Trimit date GPS cu:", { 
+                      coordonate: newCoords,
+                      vehicleNr: vehicleNr, 
+                      transportUit: transportUit 
+                    });
+                    
                     sendGpsUpdate(
                       newCoords,
-                      vehicleInfo.nr,
+                      vehicleNr,
                       transportUit,
                       "in_progress",
                       token
@@ -1183,11 +1197,23 @@ export function TransportProvider({ children }: { children: ReactNode }) {
                 baterie: battery
               };
               
+              // Verificăm și corectăm vehicleInfo.nr dacă este un obiect
+              let vehicleNr = vehicleInfo.nr;
+              if (typeof vehicleNr === 'object' && vehicleNr !== null) {
+                console.log("Corectare vehicleInfo.nr înainte de trimiterea finală:", vehicleNr);
+                vehicleNr = vehicleNr.nr || 'TEST';
+                console.log("Numărul de înmatriculare corectat pentru finalizare:", vehicleNr);
+              }
+              
+              // Verificăm dacă avem un UIT valid pentru trimiterea finală
+              const uitFinal = currentActiveUit?.uit || vehicleInfo?.uit || "";
+              console.log("UIT final pentru finalizare transport:", uitFinal);
+              
               // Trimitem actualizarea finală cu status "finished"
               await sendGpsUpdate(
                 finalCoords, 
-                vehicleInfo.nr, 
-                currentActiveUit.uit, 
+                vehicleNr, 
+                uitFinal, 
                 "finished",
                 token
               );
