@@ -240,6 +240,23 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
       }
     }
     
+    // Dacă după eliminarea duplicatelor nu mai avem date de sincronizat, terminăm aici
+    if (uniqueRecords.length === 0) {
+      console.log(`Nu mai există date de sincronizat după eliminarea duplicatelor. Total duplicate eliminate: ${duplicateCount}`);
+      
+      // Adăugăm o notificare pentru utilizator
+      if (window?.document) {
+        const event = new CustomEvent('toast-message', { 
+          detail: { 
+            message: `Sincronizare: 0 înregistrări trimise, ${duplicateCount} duplicate eliminate definitiv` 
+          } 
+        });
+        window.document.dispatchEvent(event);
+      }
+      
+      return true;
+    }
+
     // Grupăm datele în batch-uri pentru a nu supraîncărca serverul
     const BATCH_SIZE = 5;
     const batches = [];
@@ -250,12 +267,24 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
     
     // Trimitem fiecare batch în serie, nu în paralel, pentru a evita supraîncărcarea serverului
     let failedRecords: Array<any> = [];
+    let successCount = 0;
     
     for (const batch of batches) {
       // Pentru fiecare înregistrare din batch, încercăm să o trimitem
       const results = await Promise.allSettled(
         batch.map(async (record) => {
           try {
+            // Verificăm dacă coordonatele sunt valide (nu sunt 0,0 sau valori invalide)
+            if (record.data.lat === 0 && record.data.lng === 0) {
+              console.log('Ignorăm înregistrare cu coordonate invalide (0,0)');
+              return { record, success: false, reason: 'invalid_coordinates' };
+            }
+            
+            if (isNaN(record.data.lat) || isNaN(record.data.lng)) {
+              console.log('Ignorăm înregistrare cu coordonate NaN');
+              return { record, success: false, reason: 'invalid_coordinates' };
+            }
+            
             // Folosim exact același mecanism de trimitere ca în sendGpsData pentru consistență
             const apiExternUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
             
@@ -269,7 +298,7 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
                 numar_inmatriculare, 
                 uit: uit_value
               });
-              return null;
+              return { record, success: false, reason: 'missing_data' };
             }
             
             // Formatăm datele exact cum o face funcția sendGpsData din gpsService.ts
@@ -375,9 +404,22 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
     
-    console.log(`Sincronizare finalizată. Reușite: ${offlineData.length - failedRecords.length}, Eșuate: ${failedRecords.length}, Duplicate eliminate: ${duplicateCount}`);
+    // Calculăm numărul de înregistrări sincronizate cu succes
+    successCount = offlineData.length - failedRecords.length - duplicateCount;
     
-    // Returnăm și informații despre sincronizare pentru a putea afișa utilizatorului
+    console.log(`Sincronizare finalizată. Reușite: ${successCount}, Eșuate: ${failedRecords.length}, Duplicate eliminate: ${duplicateCount}`);
+    
+    // Adăugăm o notificare pentru utilizator cu statistici complete
+    if (window?.document) {
+      const event = new CustomEvent('toast-message', { 
+        detail: { 
+          message: `Sincronizare completă: ${successCount} transmise, ${failedRecords.length} eșuate, ${duplicateCount} duplicate eliminate` 
+        } 
+      });
+      window.document.dispatchEvent(event);
+    }
+    
+    // Returnam true daca nu exista inregistrari esuate (toate au fost trimise sau eliminate)
     return failedRecords.length === 0;
   } catch (error) {
     console.error("Eroare la sincronizarea datelor offline:", error);
