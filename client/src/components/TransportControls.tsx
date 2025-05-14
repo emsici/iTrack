@@ -7,6 +7,7 @@ import { Play, Pause, Check, AlertTriangle, Truck, Clock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { isTransportActive, forceTransportActive } from "@/lib/transportHelper";
+import { useForceTransportActive } from "@/hooks/useForceTransportActive";
 
 // Interfață pentru un transport
 interface Transport {
@@ -77,6 +78,9 @@ export default function TransportControls() {
     currentActiveUit, // Adăugăm acces la UIT-ul curent activ din context
     selectedUits // Adăugăm acces la lista de UIT-uri selectate
   } = useTransport();
+  
+  // Folosim hook-ul custom pentru a forța starea activă a transportului
+  useForceTransportActive(transportStatus);
 
   // Încarcă transporturile disponibile pentru vehicul 
   useEffect(() => {

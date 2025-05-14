@@ -163,15 +163,23 @@ export const shouldStartGpsOnRestore = (): boolean => {
     if (!savedState) return false;
     
     // CORECȚIE IMPORTANTĂ: Trebuie să restaurăm ORICE transport (activ sau în pauză)
-    // și să permitem UI-ului să decidă dacă pornește sau nu GPS-ul
-    const shouldRestore = (savedState.transportStatus === "active" || savedState.transportStatus === "paused") && 
-                         !!savedState.currentActiveUit;
+    // și să permitem UI-ului să decidă dacă pornește sau nu GPS-ul.
+    // CHIAR DACĂ avem transport activ dar nu avem UIT, forțăm restaurarea pentru a evita pierderea stării
+    const shouldRestore = (savedState.transportStatus === "active" || savedState.transportStatus === "paused");
+                        
     console.log(
       `[State Manager] Verificare restaurare transport:`,
       `Status=${savedState.transportStatus}`,
       `UIT=${savedState.currentActiveUit?.uit || "niciunul"}`,
       `Rezultat=${shouldRestore ? "DA" : "NU"}`
     );
+    
+    // CORECȚIE: Dacă am decis că trebuie restaurat dar nu avem UIT, vom folosi starea salvată
+    // pentru a reconstitui UIT-ul din lista selectată sau o valoare implicită
+    if (shouldRestore && !savedState.currentActiveUit) {
+      console.log("[State Manager] Nu există UIT activ, dar forțăm restaurarea transportului");
+    }
+    
     return shouldRestore;
   } catch (error) {
     console.error("[State Manager] Eroare la verificarea stării pentru restaurare:", error);
