@@ -282,12 +282,7 @@ export default function TransportControls() {
                       </span>
                     </div>
                     
-                    {/* Afișează indicator pentru serviciul de background când este activ */}
-                    {transport.status === "active" && transport.isTracking && isBackgroundActive && (
-                      <Badge variant="outline" className="mt-1 bg-green-50 text-green-700 border-green-200 text-xs">
-                        <Clock className="w-3 h-3 mr-1" /> Tracking în background
-                      </Badge>
-                    )}
+                    {/* Indicator pentru serviciul de background a fost eliminat */}
                   </div>
                 </div>
                 
