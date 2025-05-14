@@ -18,6 +18,51 @@ interface Transport {
 }
 
 export default function TransportControls() {
+  // Funcție pentru pornirea transportului direct, fără a aștepta GPS
+  const startTransportWithoutGps = async (transportId: string) => {
+    try {
+      console.log("Pornire transport fără GPS...");
+      
+      toast({
+        title: "Se procesează...",
+        description: "Se pornește transportul fără poziție GPS inițială..."
+      });
+      
+      // Pornim transportul direct, forțând ignorarea verificărilor GPS
+      const result = await startTransport();
+      console.log("Rezultat pornire transport fără GPS:", result);
+      
+      if (result) {
+        // Actualizăm starea transportului în UI
+        setTransports(prevTransports => 
+          prevTransports.map(transport => 
+            transport.id === transportId 
+              ? { ...transport, status: "active", isTracking: true } 
+              : transport
+          )
+        );
+        
+        toast({
+          title: "Transport pornit",
+          description: "Cursa a început. Coordonatele GPS se vor trimite când vor fi disponibile."
+        });
+      } else {
+        console.error("Pornire transport fără GPS eșuată");
+        toast({
+          variant: "destructive", 
+          title: "Eroare",
+          description: "Nu s-a putut porni transportul. Verificați conexiunea și datele vehiculului."
+        });
+      }
+    } catch (error) {
+      console.error("Eroare la pornirea transportului fără GPS:", error);
+      toast({
+        variant: "destructive",
+        title: "Eroare",
+        description: "A apărut o eroare la pornirea transportului. Verificați conexiunea la internet."
+      });
+    }
+  };
   const { vehicleInfo, token } = useAuth();
   const [transports, setTransports] = useState<Transport[]>([]);
   const [battery, setBattery] = useState(100);
@@ -145,62 +190,92 @@ export default function TransportControls() {
       try {
         // Folosim API nativ pentru a solicita permisiunile de locație
         if (typeof navigator !== 'undefined' && navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            async (position) => {
-              console.log("Permisiuni locație acordate, pornire transport...");
-              
-              // Actualizăm UI-ul pentru a arăta că procesăm cererea
-              toast({
-                title: "Se procesează...",
-                description: "Permisiuni acordate, se pornește transportul..."
-              });
-              
-              try {
-                // Pornește GPS tracking în backend
-                const result = await startTransport();
-                console.log("Rezultat pornire transport:", result);
+          
+          // Forțăm pornirea unui indicator de încărcare pentru a informa utilizatorul
+          toast({
+            title: "Se procesează...",
+            description: "Se așteaptă accesul la serviciul de locație..."
+          });
+          
+          // Folosim try/catch când solicităm permisiunile de locație
+          try {
+            // Reducem timeout-ul pentru a evita blocarea utilizatorului și tratăm separat erorile de timeout
+            navigator.geolocation.getCurrentPosition(
+              async (position) => {
+                console.log("Permisiuni locație acordate, pornire transport...");
                 
-                if (result) {
-                  // Actualizează starea transportului în UI DOAR după ce s-a pornit cu succes
-                  setTransports(prevTransports => 
-                    prevTransports.map(transport => 
-                      transport.id === transportId 
-                        ? { ...transport, status: "active", isTracking: true } 
-                        : transport
-                    )
-                  );
+                // Actualizăm UI-ul pentru a arăta că procesăm cererea
+                toast({
+                  title: "Se procesează...",
+                  description: "Permisiuni acordate, se pornește transportul..."
+                });
+                
+                try {
+                  // Pornește GPS tracking în backend
+                  const result = await startTransport();
+                  console.log("Rezultat pornire transport:", result);
                   
-                  toast({
-                    title: "Transport pornit",
-                    description: "Cursa a început. Coordonatele GPS se trimit acum."
-                  });
-                } else {
-                  console.error("Pornire transport eșuată, rezultat fals");
+                  if (result) {
+                    // Actualizează starea transportului în UI DOAR după ce s-a pornit cu succes
+                    setTransports(prevTransports => 
+                      prevTransports.map(transport => 
+                        transport.id === transportId 
+                          ? { ...transport, status: "active", isTracking: true } 
+                          : transport
+                      )
+                    );
+                    
+                    toast({
+                      title: "Transport pornit",
+                      description: "Cursa a început. Coordonatele GPS se trimit acum."
+                    });
+                  } else {
+                    console.error("Pornire transport eșuată, rezultat fals");
+                    toast({
+                      variant: "destructive",
+                      title: "Eroare",
+                      description: "Nu s-a putut porni transportul. Verificați conexiunea și datele vehiculului."
+                    });
+                  }
+                } catch (startError) {
+                  console.error("Eroare la pornirea transportului din context:", startError);
                   toast({
                     variant: "destructive",
-                    title: "Eroare",
-                    description: "Nu s-a putut porni transportul. Verificați conexiunea și datele vehiculului."
+                    title: "Eroare de sistem",
+                    description: "A apărut o eroare la pornirea transportului. Încercați din nou."
                   });
                 }
-              } catch (startError) {
-                console.error("Eroare la pornirea transportului din context:", startError);
-                toast({
-                  variant: "destructive",
-                  title: "Eroare de sistem",
-                  description: "A apărut o eroare la pornirea transportului. Încercați din nou."
-                });
-              }
-            },
-            (geoError) => {
-              console.error("Eroare permisiuni locație:", geoError);
-              toast({
-                variant: "destructive",
-                title: "Permisiuni de locație necesare",
-                description: "Pentru a porni transportul, trebuie să activați serviciul de locație. Verificați setările telefonului."
-              });
-            },
-            { timeout: 10000, enableHighAccuracy: true }
-          );
+              },
+              (geoError) => {
+                console.error("Eroare permisiuni locație:", geoError);
+                
+                // Tratăm separat eroarea de timeout pentru a da un mesaj mai clar utilizatorului
+                if (geoError.code === 3) { // 3 = TIMEOUT
+                  console.log("Timeout la obținerea poziției GPS, încercăm să pornm transportul direct...");
+                  toast({
+                    title: "Timeout GPS",
+                    description: "Pozițiile GPS vor fi obținute când sunt disponibile."
+                  });
+                  
+                  // IMPORTANT: Încercăm să pornim transportul chiar și când poziția GPS nu este disponibilă
+                  // Vom sări peste verificarea inițială, dar vom încerca să obținem locația ulterior
+                  startTransportWithoutGps(transportId);
+                } else {
+                  toast({
+                    variant: "destructive",
+                    title: "Permisiuni de locație necesare",
+                    description: "Pentru a porni transportul, trebuie să activați serviciul de locație. Verificați setările telefonului."
+                  });
+                }
+              },
+              // Reducem timeout-ul la 5 secunde pentru un răspuns mai rapid al UI-ului
+              { timeout: 5000, enableHighAccuracy: true, maximumAge: 10000 }
+            );
+          } catch (geoInitError) {
+            console.error("Eroare la inițializarea serviciului de locație:", geoInitError);
+            // Încercăm să pornim transportul direct când avem o eroare la inițializarea GPS
+            startTransportWithoutGps(transportId);
+          }
         } else {
           console.error("API Geolocation nu este disponibil în acest browser");
           // Încercăm direct startTransport fără verificare permisiuni

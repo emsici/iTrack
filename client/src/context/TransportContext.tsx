@@ -482,18 +482,27 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       console.log("[Transport] Pornire GPS tracking...");
       
-      // Pornim GPS-ul
-      const gpsStarted = await startGpsTracking();
-      console.log("[Transport] Rezultat pornire GPS:", gpsStarted);
-      
-      if (!gpsStarted) {
-        console.error("[Transport] Nu s-a putut porni GPS-ul");
+      try {
+        // Pornim GPS-ul - acum cu try/catch pentru a permite continuarea chiar dacă GPS-ul eșuează
+        const gpsStarted = await startGpsTracking();
+        console.log("[Transport] Rezultat pornire GPS:", gpsStarted);
+        
+        // Afișăm doar un avertisment când GPS-ul nu pornește, dar NU blocăm transportul
+        if (!gpsStarted) {
+          console.warn("[Transport] GPS-ul nu a pornit, dar vom continua transportul");
+          toast({
+            title: "Atenție",
+            description: "Locația GPS nu este disponibilă momentan. Transportul va continua.",
+          });
+          // Continuăm transportul chiar și fără GPS
+        }
+      } catch (gpsError) {
+        console.error("[Transport] Eroare la pornirea GPS-ului:", gpsError);
         toast({
-          title: "Eroare GPS",
-          description: "Nu s-a putut porni sistemul de urmărire a locației. Verificați setările.",
-          variant: "destructive"
+          title: "Atenție GPS",
+          description: "Serviciul de localizare este temporar indisponibil. Transportul va continua.",
         });
-        return false;
+        // Continuăm transportul chiar și cu eroare de GPS
       }
       
       // Actualizăm starea
