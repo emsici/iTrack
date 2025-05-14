@@ -128,8 +128,39 @@ export const sendGpsUpdate = async (
       transportStatus
     });
     
-    if (!position || !vehicleInfo || !token) {
-      console.error("Date lipsă pentru trimiterea actualizării GPS");
+    if (!position) {
+      console.error("Date lipsă pentru trimiterea actualizării GPS: position lipsă");
+      return false;
+    }
+    
+    // Verificăm și afișăm formatul exact al vehicleInfo pentru debugging
+    console.log("Format vehicleInfo în sendGpsUpdate:", {
+      vehicleInfo,
+      vehicleInfoType: typeof vehicleInfo,
+      hasNr: vehicleInfo && 'nr' in vehicleInfo,
+      vehicleNr: vehicleInfo?.nr,
+      vehicleNrType: typeof vehicleInfo?.nr
+    });
+    
+    // Verificăm dacă vehicleInfo.nr este un obiect în loc de string
+    let correctedVehicleInfo = vehicleInfo;
+    if (vehicleInfo && typeof vehicleInfo.nr === 'object' && vehicleInfo.nr !== null) {
+      console.log("Corectăm formatul vehicleInfo.nr care este obiect în loc de string");
+      // Extragem numărul real din obiect
+      const fixedNr = vehicleInfo.nr.nr || '';
+      // Creăm un nou obiect cu valoarea corectată (nu modificăm originalul care e const)
+      correctedVehicleInfo = {
+        ...vehicleInfo,
+        nr: fixedNr
+      };
+    }
+    
+    // Actualizăm vehicleInfo pentru a folosi versiunea corectată
+    const effectiveVehicleInfo = correctedVehicleInfo;
+    
+    // Verificăm din nou vehicleInfo și token după corecții
+    if (!vehicleInfo || !token) {
+      console.error("Date lipsă pentru trimiterea actualizării GPS: vehicleInfo sau token lipsă");
       return false;
     }
     
@@ -298,6 +329,9 @@ export const sendGpsUpdate = async (
     // În browser, folosim proxy-ul pentru a evita problemele CORS
     // IMPORTANT: Asigurăm-ne că URL-ul corespunde cu endpoint-ul definit în server/routes.ts și server/routes/transportRoutes.ts
     const apiUrl = "/api/transport/gps";
+    
+    // Pentru depanare: forțăm calea nativă și în browser temporar
+    // const isNative = true;
     
     // Log foarte explicit pentru a vedea ce se trimite
     console.log(`TRANSMITERE GPS: Nr. înmatriculare="${nr_inmatriculare}", UIT="${uit_value}", Status="${status}"`);

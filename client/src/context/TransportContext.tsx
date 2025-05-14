@@ -406,6 +406,15 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           status: "in_progress"
         });
         
+        // Verificare și debugging pentru vehicleInfo
+        console.log("Verificare format vehicleInfo:", {
+          vehicleInfo,
+          vehicleInfoType: typeof vehicleInfo,
+          vehicleInfoKeys: Object.keys(vehicleInfo),
+          vehicleNr: vehicleInfo.nr,
+          vehicleNrType: typeof vehicleInfo.nr
+        });
+        
         sendGpsUpdate(
           newCoords, 
           vehicleInfo.nr, 
