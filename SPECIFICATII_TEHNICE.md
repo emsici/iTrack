@@ -2,22 +2,24 @@
 
 ## 1. Prezentare Generală
 
-iTrack este o aplicație mobilă cross-platform care permite șoferilor profesionisti monitorizarea transporturilor și raportarea coordonatelor GPS. Aplicația oferă un sistem complet pentru înregistrarea, gestionarea și raportarea în timp real a locațiilor vehiculelor pe tot parcursul transporturilor, cu funcționalități de lucru în fundal și offline.
+iTrack este o aplicație mobilă cross-platform care permite șoferilor profesioniști monitorizarea transporturilor și raportarea coordonatelor GPS. Aplicația oferă un sistem complet pentru înregistrarea, gestionarea și raportarea în timp real a locațiilor vehiculelor pe tot parcursul transporturilor, cu funcționalități de lucru în fundal și offline.
 
 ### Scopul aplicației
 - Urmărirea în timp real a vehiculelor prin GPS
-- Gestionarea transporturilor (pornire, pauză, oprire)
+- Gestionarea transporturilor (pornire, pauză, reluare, finalizare)
 - Raportarea datelor către un server central
-- Funcționare continuă în medii cu conectivitate limitată
+- Funcționare continuă în medii cu conectivitate limitată și când telefonul este blocat
+- Persistența stării transportului între sesiuni și navigări în aplicație
 
 ## 2. Arhitectura Tehnică
 
 ### Stack tehnologic
 - **Frontend**: React/TypeScript (Single Page Application)
 - **Conversia mobilă**: Capacitor (pentru iOS/Android)
-- **Backend**: Node.js cu Express
-- **Bază de date**: PostgreSQL pentru stocarea internă
-- **API Extern**: Comunicare cu API-ul existent al companiei pentru autentificare și raportare date
+- **UI**: Tailwind CSS cu componente ShahCN personalizate
+- **Hartă**: Integrare cu Leaflet pentru vizualizarea locației
+- **API Extern**: Comunicare directă cu API-ul existent al companiei pentru autentificare și raportare date GPS
+- **Stocare locală**: LocalStorage și IndexedDB pentru persistența datelor între sesiuni
 
 ### Structura aplicației
 ```

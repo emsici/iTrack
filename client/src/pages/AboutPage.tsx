@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/context/AuthContext";
+import { useTransport } from "@/context/TransportContext";
 import MainLayout from "@/components/MainLayout";
 import MobileLayout from "@/components/MobileLayout";
 import { Capacitor } from "@capacitor/core";
 
 export default function AboutPage() {
   const { isAuthenticated } = useAuth();
+  const { transportStatus } = useTransport();
   const [, setLocation] = useLocation();
   const [isMobile, setIsMobile] = useState(false);
   
@@ -31,6 +33,12 @@ export default function AboutPage() {
   
   // Folosim layout-ul potrivit în funcție de platformă
   const Layout = isMobile ? MobileLayout : MainLayout;
+  
+  // Asigurăm-ne că pagina About are acces la starea completă a transportului
+  // Acest lucru va permite ca iconița GPS să fie verde când transportul este activ
+  useEffect(() => {
+    console.log("Stare transport în pagina About:", transportStatus);
+  }, [transportStatus]);
 
   return (
     <Layout>

@@ -17,6 +17,16 @@ export default function MobileHeader() {
   const [requestingGps, setRequestingGps] = useState<boolean>(false);
   const [gpsPermissionsAvailable, setGpsPermissionsAvailable] = useState<boolean>(true);
   
+  // Calculăm starea GPS în funcție de starea transportului
+  const [showGpsActive, setShowGpsActive] = useState<boolean>(false);
+  
+  useEffect(() => {
+    // Dacă transportul este activ, indicatorul GPS ar trebui să fie verde
+    // indiferent de pagina în care ne aflăm
+    setShowGpsActive(transportStatus === "active" && isGpsActive);
+    console.log("MobileHeader: Actualizare stare GPS:", transportStatus, isGpsActive);
+  }, [transportStatus, isGpsActive, location]);
+  
   // Eliminat funcția getBatteryColor care nu mai este necesară
   
   const getGpsIndicatorColor = useCallback(() => {
