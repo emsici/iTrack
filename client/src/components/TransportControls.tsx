@@ -101,12 +101,17 @@ export default function TransportControls() {
   // Funcții pentru gestionarea transporturilor
   const handleStartTransport = async (transportId: string) => {
     try {
-      // Verificăm dacă avem UIT valid în vehicleInfo
-      if (!vehicleInfo?.uit) {
+      console.log("Verificare UIT și date transport:", { 
+        vehicleInfo,
+        currentActiveUit
+      });
+      
+      // Verificăm dacă avem UIT valid configurat în TransportContext
+      if (!currentActiveUit) {
         toast({
           variant: "destructive",
-          title: "Eroare",
-          description: "UIT invalid. Verificați informațiile vehiculului."
+          title: "Eroare UIT",
+          description: "Nu există un UIT selectat pentru transport. Selectați un UIT înainte de a porni transportul."
         });
         return;
       }

@@ -155,6 +155,34 @@ export default function UitSelector() {
   // Obținem lista de UIT-uri disponibile la încărcarea componentei sau când se modifică vehicleInfo
   useEffect(() => {
     console.log("UitSelector - useEffect - vehicleInfo:", vehicleInfo);
+    
+    // Dacă avem deja vehicleInfo, forțăm selecția UIT-ului direct
+    if (vehicleInfo && vehicleInfo.uit) {
+      console.log("Setăm direct UIT-ul din vehicleInfo:", vehicleInfo.uit);
+      
+      // Creăm un UIT direct din vehicleInfo pentru a evita problemele de sincronizare
+      const directUit = {
+        uit: vehicleInfo.uit,
+        start_locatie: vehicleInfo.start_locatie || "Locație start",
+        stop_locatie: vehicleInfo.stop_locatie || "Locație destinație"
+      };
+      
+      // IMPORTANT: Actualizăm starea globală direct, nu prin intermediul stării locale
+      // Aceasta asigură că UIT-ul este disponibil imediat pentru pornirea transportului
+      setSelectedUits([directUit]);
+      setCurrentActiveUit(directUit);
+      
+      // Actualizăm și starea locală pentru UI
+      setLocalSelectedUits([directUit]);
+      
+      toast({
+        title: "UIT setat",
+        description: `UIT ${directUit.uit} configurat automat.`,
+        duration: 3000
+      });
+    }
+    
+    // Continuăm cu încărcarea normală a UIT-urilor
     fetchUits(true);
   }, [token, vehicleInfo, setSelectedUits, setCurrentActiveUit]); // Adăugăm toate dependențele necesare
   
