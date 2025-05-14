@@ -296,8 +296,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
             return;
           }
           
-          // Obține poziția curentă
-          const position = await getCurrentPosition();
+          // Obține poziția curentă cu timeout extins
+          const position = await getCurrentPosition({
+            timeout: 30000, // Timeout 30 secunde pentru localizare
+            maximumAge: 0,
+            enableHighAccuracy: true
+          });
           
           // Trimite datele către server
           await sendGpsUpdate(position, {

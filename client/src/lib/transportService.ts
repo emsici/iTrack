@@ -2,6 +2,7 @@ import { GpsDataPayload } from "@shared/schema";
 import { apiRequest } from "./queryClient";
 import { Http } from '@capacitor-community/http';
 import { Capacitor } from '@capacitor/core';
+import { PositionOptions } from '@capacitor/geolocation';
 
 export const sendGpsData = async (data: GpsDataPayload, token: string) => {
   try {
@@ -126,7 +127,7 @@ export const setGpsAccessControl = (isAuthenticated: boolean, isTransportActive:
   }
 };
 
-export const getCurrentPosition = (): Promise<GeolocationPosition> => {
+export const getCurrentPosition = (options?: PositionOptions): Promise<GeolocationPosition> => {
   return new Promise((resolve, reject) => {
     // Verificăm dacă utilizatorul este autentificat și există un transport activ
     if (!authCheck) {
@@ -148,10 +149,25 @@ export const getCurrentPosition = (): Promise<GeolocationPosition> => {
       return;
     }
     
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      enableHighAccuracy: true,
-      timeout: 5000,
-      maximumAge: 0
-    });
+    // Folosim opțiunile primite sau valorile implicite
+    const gpsOptions: PositionOptions = {
+      enableHighAccuracy: options?.enableHighAccuracy !== undefined ? options.enableHighAccuracy : true,
+      timeout: options?.timeout || 20000, // Implicit 20 secunde
+      maximumAge: options?.maximumAge !== undefined ? options.maximumAge : 0
+    };
+    
+    console.log("Obținere poziție GPS cu opțiunile:", gpsOptions);
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log("Poziție GPS obținută cu succes");
+        resolve(position);
+      }, 
+      (error) => {
+        console.error("Eroare obținere poziție GPS:", error.message);
+        reject(error);
+      }, 
+      gpsOptions
+    );
   });
 };
