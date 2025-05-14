@@ -8,9 +8,12 @@ import { Capacitor } from "@capacitor/core";
 
 export default function AboutPage() {
   const { isAuthenticated } = useAuth();
-  const { transportStatus } = useTransport();
+  const { transportStatus, gpsCoordinates, isGpsActive } = useTransport();
   const [, setLocation] = useLocation();
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Calculăm starea reală a GPS-ului utilizând aceeași logică ca în LocationTracking
+  const isGpsReallyActive = transportStatus === "active" && isGpsActive && !!gpsCoordinates;
   
   // Detectăm dacă rulăm pe mobil sau pe desktop
   useEffect(() => {
@@ -35,10 +38,15 @@ export default function AboutPage() {
   const Layout = isMobile ? MobileLayout : MainLayout;
   
   // Asigurăm-ne că pagina About are acces la starea completă a transportului
-  // Acest lucru va permite ca iconița GPS să fie verde când transportul este activ
+  // Calculăm starea reală a GPS-ului pentru a afișa corect iconița
   useEffect(() => {
-    console.log("Stare transport în pagina About:", transportStatus);
-  }, [transportStatus]);
+    console.log("Stare transport în pagina About:", {
+      transportStatus,
+      isGpsActive,
+      hasCoordinates: !!gpsCoordinates,
+      isGpsReallyActive
+    });
+  }, [transportStatus, isGpsActive, gpsCoordinates, isGpsReallyActive]);
 
   return (
     <Layout>

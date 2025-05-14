@@ -44,8 +44,8 @@ export default function LocationTracking() {
   };
 
   // Pentru a face afișarea corectă a statusului GPS, îl considerăm activ
-  // când transportul este în stare activă sau când isGpsActive este true
-  const isGpsReallyActive = transportStatus === "active" || isGpsActive;
+  // DOAR când transportul este în stare activă ȘI când isGpsActive este true ȘI avem coordonate
+  const isGpsReallyActive = transportStatus === "active" && isGpsActive && !!gpsCoordinates;
   
   // Afișăm starea actuală pentru debugging
   useEffect(() => {
