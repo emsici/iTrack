@@ -266,18 +266,34 @@ export default function TransportControls() {
     try {
       console.log("Se finalizează transportul:", transportId);
       
-      // Actualizăm starea transportului în UI ÎNAINTE de a face apelul de finalizare
-      // pentru a preveni race conditions
+      // Marcare imediată ca "în curs de finalizare" pentru feedback vizual
       setTransports(prevTransports => 
         prevTransports.map(transport => 
           transport.id === transportId 
-            ? { ...transport, status: "finished", isTracking: false } 
+            ? { 
+                ...transport, 
+                status: "finished", 
+                isTracking: false 
+              } 
             : transport
         )
       );
       
+      // IMPORTANT: Prevenim resetarea stării imediat după finalizare
+      localStorage.setItem('persist_finished_state', 'true');
+      
       // Forțăm setarea statusului în localStorage înainte de a chema finishTransport
       localStorage.setItem('transport_status', 'finished');
+      
+      // Asigurăm că starea persistă cel puțin 10 secunde
+      setTimeout(() => {
+        // Verificăm din nou dacă utilizatorul a repornit deja transportul
+        const currentStatus = localStorage.getItem('transport_status');
+        if (currentStatus === 'finished') {
+          console.log("[TransportControls] Curățare setări după perioada de afișare finalizat");
+          localStorage.removeItem('persist_finished_state');
+        }
+      }, 10000);
       
       // Notificăm utilizatorul
       toast({

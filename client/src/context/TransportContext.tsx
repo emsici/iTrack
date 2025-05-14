@@ -1389,22 +1389,39 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         });
       }
       
-      // Resetăm starea DOAR după ce toate operațiile au fost finalizate
-      console.log("[Transport] Resetare stare aplicație după finalizare");
-      setTransportStatus("inactive");
-      setGpsCoordinates(null);
-      setCurrentActiveUit(null);
-      setLastGpsUpdateTime(null);
-      setBattery(100);
-      setIsGpsActive(false);
+      // Păstrăm starea "finished" pentru o scurtă perioadă înainte de a reveni la "inactive"
+      // pentru a permite UI-ului să afișeze corect starea finalizată
+      console.log("[Transport] Setare stare finală finished");
       
-      // Forțăm curățarea stării din localStorage
-      localStorage.removeItem('transport_status');
-      localStorage.removeItem('transport_state_ref');
+      // Păstrăm starea "finished" în localStorage pentru a asigura că UI-ul o poate citi
+      localStorage.setItem('transport_status', 'finished');
       
-      // Curățăm starea salvată
-      clearAppState();
-      console.log("[Transport] Stare curățată după finalizare");
+      // După o întârziere, resetăm toate stările
+      setTimeout(() => {
+        // Verificăm dacă avem un flag de persistență - dacă da, nu resetăm starea
+        const shouldPersist = localStorage.getItem('persist_finished_state') === 'true';
+        
+        if (shouldPersist) {
+          console.log("[Transport] Se menține starea finalizată datorită flagului de persistență");
+          return; // Ieșim fără să resetăm starea
+        }
+        
+        console.log("[Transport] Resetare stare aplicație după finalizare (cu întârziere)");
+        setTransportStatus("inactive");
+        setGpsCoordinates(null);
+        setCurrentActiveUit(null);
+        setLastGpsUpdateTime(null);
+        setBattery(100);
+        setIsGpsActive(false);
+        
+        // Forțăm curățarea stării din localStorage
+        localStorage.removeItem('transport_status');
+        localStorage.removeItem('transport_state_ref');
+        
+        // Curățăm starea salvată
+        clearAppState();
+        console.log("[Transport] Stare curățată după finalizare");
+      }, 8000); // Întârziere de 8 secunde pentru a permite UI-ului să afișeze starea "finished"
       
       toast({
         title: "Transport finalizat",
