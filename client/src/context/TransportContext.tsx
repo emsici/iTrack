@@ -482,27 +482,63 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       console.log("[Transport] Pornire GPS tracking...");
       
+      // Verificăm dacă avem acces la GPS - IMPORTANT: fără GPS nu putem porni transportul
       try {
-        // Pornim GPS-ul - acum cu try/catch pentru a permite continuarea chiar dacă GPS-ul eșuează
-        const gpsStarted = await startGpsTracking();
-        console.log("[Transport] Rezultat pornire GPS:", gpsStarted);
-        
-        // Afișăm doar un avertisment când GPS-ul nu pornește, dar NU blocăm transportul
-        if (!gpsStarted) {
-          console.warn("[Transport] GPS-ul nu a pornit, dar vom continua transportul");
-          toast({
-            title: "Atenție",
-            description: "Locația GPS nu este disponibilă momentan. Transportul va continua.",
+        // Obținem poziția curentă pentru a verifica dacă GPS-ul funcționează
+        if (navigator && navigator.geolocation) {
+          // Promisiune pentru a obține poziția curentă cu timeout de 10 secunde
+          const positionPromise = new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+              (position) => resolve(position),
+              (error) => reject(error),
+              { timeout: 10000, maximumAge: 0, enableHighAccuracy: true }
+            );
           });
-          // Continuăm transportul chiar și fără GPS
+          
+          try {
+            // Așteptăm să obținem poziția
+            await positionPromise;
+            console.log("[Transport] Poziție GPS obținută cu succes");
+            
+            // Pornim GPS tracking
+            const gpsStarted = await startGpsTracking();
+            console.log("[Transport] Rezultat pornire GPS:", gpsStarted);
+            
+            if (!gpsStarted) {
+              console.error("[Transport] Nu s-a putut porni GPS-ul");
+              toast({
+                title: "Eroare GPS",
+                description: "Nu s-a putut porni sistemul de urmărire a locației. Verificați setările și încercați din nou.",
+                variant: "destructive"
+              });
+              return false;
+            }
+          } catch (positionError) {
+            console.error("[Transport] Eroare la obținerea poziției GPS:", positionError);
+            toast({
+              title: "Eroare GPS",
+              description: "Poziția GPS nu poate fi obținută. Verificați permisiunile de locație și încercați din nou.",
+              variant: "destructive"
+            });
+            return false;
+          }
+        } else {
+          console.error("[Transport] Serviciul de geolocation nu este disponibil");
+          toast({
+            title: "Eroare GPS",
+            description: "Serviciul de localizare nu este disponibil pe acest dispozitiv. Transportul nu poate fi pornit.",
+            variant: "destructive"
+          });
+          return false;
         }
       } catch (gpsError) {
-        console.error("[Transport] Eroare la pornirea GPS-ului:", gpsError);
+        console.error("[Transport] Eroare la inițializarea GPS-ului:", gpsError);
         toast({
-          title: "Atenție GPS",
-          description: "Serviciul de localizare este temporar indisponibil. Transportul va continua.",
+          title: "Eroare GPS",
+          description: "A apărut o eroare la inițializarea serviciului de localizare. Transportul nu poate fi pornit.",
+          variant: "destructive"
         });
-        // Continuăm transportul chiar și cu eroare de GPS
+        return false;
       }
       
       // Actualizăm starea
