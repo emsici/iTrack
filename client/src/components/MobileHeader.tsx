@@ -21,17 +21,20 @@ export default function MobileHeader() {
   const [showGpsActive, setShowGpsActive] = useState<boolean>(false);
   
   useEffect(() => {
-    // Dacă transportul este activ, indicatorul GPS ar trebui să fie verde
-    // indiferent de pagina în care ne aflăm
-    setShowGpsActive(transportStatus === "active" && isGpsActive);
-    console.log("MobileHeader: Actualizare stare GPS:", transportStatus, isGpsActive);
-  }, [transportStatus, isGpsActive, location]);
+    // Indicatorul GPS ar trebui să fie verde DOAR dacă:
+    // 1. Transportul este activ (nu inactive, nu paused, nu finished)
+    // 2. GPS-ul este activ (are permisiuni și funcționează)
+    // 3. Avem coordonate GPS (hasCoordinates)
+    const isTransportActive = transportStatus === "active";
+    setShowGpsActive(isTransportActive && isGpsActive && gpsCoordinates !== null);
+    console.log("MobileHeader: Actualizare stare GPS:", {transportStatus, isGpsActive, hasCoordinates: !!gpsCoordinates});
+  }, [transportStatus, isGpsActive, gpsCoordinates, location]);
   
   // Eliminat funcția getBatteryColor care nu mai este necesară
   
   const getGpsIndicatorColor = useCallback(() => {
-    return isGpsActive ? "text-success" : "text-destructive";
-  }, [isGpsActive]);
+    return showGpsActive ? "text-success" : "text-destructive";
+  }, [showGpsActive]);
   
   const isActivePage = useCallback((path: string) => {
     return location === path;

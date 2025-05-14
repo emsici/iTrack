@@ -44,67 +44,96 @@ shared/            - Cod partajat între frontend și backend
 - **Persistența sesiunii**: Sesiunea utilizatorului este păstrată între restartările aplicației
 
 ### 3.2 Modulul de Transport
-- **Selectare transport**: Șoferii pot alege transportul (UIT) dorit
-- **Fluxul de transport**: Interfață pentru gestionarea stărilor unui transport:
-  - Pornire transport
-  - Pauză transport
-  - Reluare transport
-  - Finalizare transport
-- **Validare date**: Verificarea completitudinii și corectitudinii datelor
+- **Selectare transport**: Șoferii pot alege transportul (UIT) dorit, cu actualizări periodice la fiecare 30 secunde
+- **Fluxul de transport**: Interfață intuitivă pentru gestionarea stărilor unui transport:
+  - Pornire transport - începe transmisia GPS și afișează butoane de control relevante
+  - Pauză transport - întrerupe temporar transmisia GPS, păstrând însă sesiunea activă
+  - Reluare transport - reactivează transmisia GPS după o pauză
+  - Finalizare transport - încheie complet transportul și trimite status "finished" către server
+- **Persistența între pagini**: Transportul rămâne activ când utilizatorul navighează între ecranele aplicației
+- **Registru transporturi**: Sistem de gestionare a stării transporturilor pentru mai multe vehicule simultan
+- **Validare date**: Verificarea completitudinii și corectitudinii datelor înainte de trimitere
 
 ### 3.3 Sistem GPS și Geolocalizare
-- **Serviciu Geolocation**: Colectarea poziției precise GPS
-- **Tracking continuu**: Urmărire în timp real cu actualizare la intervale regulate (60 secunde)
-- **Procesare date senzori**: Colectarea informațiilor despre:
-  - Viteză
-  - Direcție (heading)
+- **Serviciu Geolocation**: Colectarea poziției precise GPS cu suport nativ pentru platforme mobile
+- **Tracking continuu**: Urmărire în timp real cu transmitere la intervale de 60 secunde
+- **Funcționare în fundal**: Continuă urmărirea GPS chiar și când aplicația este minimizată sau telefonul blocat
+- **Procesare date senzori**: Colectarea și transmiterea informațiilor despre:
+  - Latitudine și longitudine (poziție exactă)
+  - Viteză instantanee
+  - Direcție (heading) din senzori giroscopici
   - Altitudine
   - Nivel baterie
-- **Afișare pe hartă**: Vizualizarea traseului și poziției curente prin integrare cu Leaflet
+  - HDOP (precizia GPS)
+  - Puterea semnalului GSM/mobil
+- **Afișare pe hartă**: Vizualizarea poziției curente pe hartă interactivă Leaflet
 
 ### 3.4 Monitorizare și Statistici
 - **Statistici în timp real**:
-  - Distanță parcursă
-  - Viteză medie
-  - Viteză maximă
-  - Timp de deplasare
-  - Nivel baterie
-- **Istoric traseu**: Afișarea traseului parcurs pe hartă
-- **Exportare date**: Posibilitatea de a exporta datele pentru analiză ulterioară
+  - Distanță parcursă calculată din coordonatele GPS
+  - Viteză medie determinată pe baza distanței și timpului
+  - Viteză maximă înregistrată în timpul transportului
+  - Timp total de deplasare, inclusiv pauzele
+  - Indicator GPS activ/inactiv în header-ul aplicației
+- **Afișare hartă**: Vizualizarea poziției curente cu actualizare în timp real
+- **Indicator stare GPS**: Indicator vizual (verde când e activ, roșu când e inactiv) persistent între pagini
 
 ### 3.5 Funcționare în Background
-- **Serviciu background**: Continuă colectarea și transmiterea datelor chiar și când aplicația este minimizată
-- **Notificări vocale**: Anunțuri vocale pentru:
+- **Serviciu background Capacitor**: Continuă colectarea și transmiterea coordonatelor GPS chiar și când:
+  - Aplicația este minimizată de utilizator
+  - Telefonul este blocat
+  - Utilizatorul navighează între pagini
+- **Notificări vocale**: Anunțuri vocale configurabile pentru:
   - Pornirea transportului
-  - Pauză
-  - Reluare
-  - Finalizare
-  - Pierderea/regăsirea GPS
+  - Pauză transport
+  - Reluare transport
+  - Finalizare transport
+  - Pierderea/regăsirea semnalului GPS
   - Pierderea/regăsirea conexiunii la internet
 
 ### 3.6 Operare Offline
-- **Stocarea datelor locale**: În cazul lipsei conexiunii la internet, datele sunt stocate local
-- **Sincronizare automată**: Trimiterea datelor stocate când conexiunea este restabilită
-- **Gestionarea timpului**: Asigurarea că timestamp-urile sunt corecte și în ordine
+- **Stocarea locală a coordonatelor GPS**: Salvare în localStorage când conexiunea la internet este indisponibilă
+- **Sincronizare automată batch**: Trimiterea coordonatelor stocate în batch când conexiunea este restabilită
+- **Timestamping corect**: Asigurarea că timestamp-urile sunt corecte, chiar și pentru datele stocate offline
+- **Gestionarea stării de conectivitate**: Monitorizare automată a disponibilității internetului
 
 ### 3.7 Alerte și Notificări
-- **Monitorizare conectivitate**: Detectarea și notificarea pierderii conexiunii
-- **Monitorizare GPS**: Detectarea și notificarea pierderii semnalului GPS
-- **Notificări de sistem**: Menținerea utilizatorului informat despre starea aplicației
+- **Alerte de conectivitate**: Notificare imediată când conexiunea la internet este pierdută sau restabilită
+- **Alerte GPS**: Notificare când semnalul GPS este pierdut sau indisponibil
+- **Toast notifications**: Alerte vizuale non-intruzive pentru toate evenimentele importante
+- **Persistența stării între sesiuni**: Starea transportului și configurațiile sunt păstrate între sesiuni și restartări
 
 ## 4. Integrări și API
 
 ### 4.1 Integrare API extern
-- **Autentificare**: `/api/login` - Gestionare autentificare
-- **Informații vehicul**: `/api/vehicle` - Obținere detalii vehicul și UIT-uri disponibile
-- **Raportare GPS**: `/api/transport/gps` - Transmitere coordonate GPS
-- **Managementul transportului**: `/api/transport/{id}/status` - Actualizare status transport
+- **Autentificare**: `POST /api/login` - Autentificare securizată cu token JWT
+- **Informații vehicul**: `GET /api/vehicle/:nr` - Obținere detalii vehicul și UIT-uri disponibile
+- **Raportare GPS**: `POST /api/transport/gps` - Transmitere coordonate GPS în format JSON brut
+- **Managementul transportului**: `PUT /api/transport/:id/status` - Actualizare status transport (în progres/finalizat)
+- **Structură date GPS**: Format JSON specific pentru trimiterea coordonatelor:
+  ```json
+  {
+    "lat": 44.26,
+    "lng": 28.62,
+    "timestamp": "2025-05-14T03:23:24Z",
+    "viteza": 45.8,
+    "directie": 180,
+    "altitudine": 120.5,
+    "baterie": 85,
+    "numar_inmatriculare": "B123ABC",
+    "uit": "UIT12345",
+    "status": "in_progress",
+    "hdop": 1.2,
+    "gsm_signal": 70
+  }
+  ```
 
-### 4.2 Integrare senzori mobilă
-- **GPS**: Acces la localizarea precisă
-- **Accelerometru**: Detectare mișcare
-- **Gyroskop**: Determinare orientare
+### 4.2 Integrare senzori mobilă prin Capacitor
+- **GPS/Geolocation**: Acces la localizarea precisă cu permisiuni explicite
+- **DeviceOrientation**: Obținerea direcției (heading) din senzori giroscopici
 - **Baterie**: Monitorizare nivel baterie
+- **Network**: Detectarea stării conexiunii la internet
+- **App state**: Detecție când aplicația rulează în background
 
 ## 5. Securitate și Performanță
 
