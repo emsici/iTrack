@@ -83,7 +83,7 @@ export default function SimpleLocationTracking() {
               <span>Localizare GPS</span>
             </div>
             <Badge 
-              variant={isGpsActive ? "success" : "destructive"}
+              variant={isGpsActive ? "default" : "destructive"}
               className="px-2 py-0 h-5 text-xs flex items-center"
             >
               {isGpsActive ? "Activ" : "Inactiv"}

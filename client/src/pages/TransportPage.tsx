@@ -81,7 +81,7 @@ function TransportComponentsWrapper({ activeTab, onTabChange }: { activeTab: str
   return (
     <>
       {/* Informații GPS afișate doar când există un transport activ */}
-      <LocationTracking />
+      <SimpleLocationTracking />
       
       {/* Înlocuim tabs cu propriul nostru sistem de navigare */}
       <div className="w-full">

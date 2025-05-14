@@ -106,7 +106,7 @@ export const sendGpsUpdate = async (
       // Salvăm starea în localStorage pentru persistență
       // Definim obiectul UIT cu datele primite
       const uitInfo = { 
-        uit: vehicleUit || '',    // Preluăm codul UIT din parametrul funcției cu valoare default
+        uit: '',    // Valoare default
         start_locatie: '',        // Nu avem informații, dar trebuie să respectăm structura
         stop_locatie: ''          // Nu avem informații, dar trebuie să respectăm structura 
       };
@@ -271,11 +271,8 @@ export const sendGpsUpdate = async (
     }
     
     // Verificăm UIT-ul
-    // Folosim vehicleUit direct
     if (effectiveVehicleInfo && effectiveVehicleInfo.uit) {
       uitValue = effectiveVehicleInfo.uit;
-    } else if (vehicleUit) {
-      uitValue = vehicleUit;
     }
     
     console.log("După verificare și corectare:", {
