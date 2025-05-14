@@ -93,17 +93,34 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
 let authCheck: boolean = false;
 let transportCheck: boolean = false;
 
-// Resetăm starea controlului GPS la pornire pentru a evita activarea accidentală
-// În felul acesta aplicația va trebui să decidă explicit când să pornească GPS-ul
+// CORECȚIE - Nu mai resetăm starea controlului GPS la pornire pentru a evita probleme
+// Vom seta aceste flag-uri direct din interfață când este nevoie
+// Valorile implicite sunt false - dar vor fi true când controlul este activat explicit
 authCheck = false;
 transportCheck = false;
 
-// Ștergem orice stare salvată anterior pentru a preveni probleme
+// CORECȚIE - Restabilim starea din localStorage dacă există
 try {
-  localStorage.removeItem('gps_control_status');
+  const savedControl = localStorage.getItem('gps_control_status');
+  if (savedControl) {
+    const control = JSON.parse(savedControl);
+    if (control.auth && control.transport) {
+      console.log("Restabilire control GPS din localStorage");
+      authCheck = control.auth;
+      transportCheck = control.transport;
+    }
+  }
 } catch (error) {
-  console.error("Eroare la ștergerea stării controlului GPS:", error);
+  console.error("Eroare la restabilirea stării controlului GPS:", error);
 }
+
+// NU mai ștergem starea salvată - aceasta ar cauza probleme cu restaurarea stării
+// Starea trebuie să persiste între refresh-uri, deci nu mai facem acest lucru:
+// try {
+//   localStorage.removeItem('gps_control_status');
+// } catch (error) {
+//   console.error("Eroare la ștergerea stării controlului GPS:", error);
+// }
 
 // Funcție pentru verificarea accesului la GPS
 export const setGpsAccessControl = (isAuthenticated: boolean, isTransportActive: boolean) => {

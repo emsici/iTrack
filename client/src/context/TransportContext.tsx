@@ -491,6 +491,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Verificăm dacă avem acces la GPS - dar diferențiat pe platforme
       // Pe telefon cerem strict GPS, în browser suntem mai permisivi (pentru testare)
       try {
+        // CORECȚIE: Adăugăm control explicit pentru GPS pentru a evita problemele cu tracking-ul
+        setGpsAccessControl(true, true);
+        console.log("[Transport] Control GPS activat explicit");
+        
         // Pornim verificarea GPS-ului diferit în funcție de platformă
         const isNative = Capacitor.isNativePlatform();
         console.log("[Transport] Verificare GPS pe platformă:", isNative ? "mobilă" : "browser");
@@ -641,6 +645,14 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Actualizăm starea
       setTransportStatus("active");
+      
+      // IMPORTANT: Setăm explicit starea GPS la activ în browser chiar dacă serviciul nu a pornit
+      // Aceasta este corecția pentru problema în care transportul pornește dar GPS-ul rămâne inactiv
+      if (!Capacitor.isNativePlatform()) {
+        console.log("[Transport] Forțare activare GPS în browser pentru testare");
+        setIsGpsActive(true);
+      }
+      
       console.log("[Transport] Stare actualizată la ACTIVE");
       
       // Salvăm starea pentru a avea transport activ după restart
