@@ -9,6 +9,18 @@ export default function LocationTracking() {
   const [isConnected, setIsConnected] = useState(true);
   const [deviceBattery, setDeviceBattery] = useState<number | null>(null);
   
+  // Debug pentru starea GPS
+  useEffect(() => {
+    console.log("DEPANARE GPS (LocationTracking): ", {
+      transportStatus,
+      isGpsActive,
+      hasCoordinates: !!gpsCoordinates,
+      battery,
+      deviceBattery,
+      lastUpdateTime: lastGpsUpdateTime
+    });
+  }, [transportStatus, isGpsActive, gpsCoordinates, battery, deviceBattery, lastGpsUpdateTime]);
+  
   // Verificăm periodic conexiunea la internet
   useEffect(() => {
     const checkConnection = () => {

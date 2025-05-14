@@ -491,9 +491,31 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         setGpsAccessControl(true, true);
         console.log("[Transport] Control GPS activat explicit");
         
+        // Înainte de orice verificare, salvăm UIT-ul în localStorage
+        // FOARTE IMPORTANT: Asigurăm-ne că UIT-ul este disponibil întotdeauna
+        if (currentActiveUit) {
+          try {
+            localStorage.setItem('current_uit', JSON.stringify(currentActiveUit));
+            console.log("[Transport] UIT salvat în localStorage:", currentActiveUit.uit);
+          } catch (e) {
+            console.error("[Transport] Eroare la salvarea UIT în localStorage:", e);
+          }
+        }
+        
         // Pornim verificarea GPS-ului diferit în funcție de platformă
         const isNative = Capacitor.isNativePlatform();
         console.log("[Transport] Verificare GPS pe platformă:", isNative ? "mobilă" : "browser");
+        
+        // Verificăm doar dacă avem un UIT valid și datele necesare pentru transport
+        if (!currentActiveUit && !vehicleInfo?.uit) {
+          console.error("Nu se poate porni GPS-ul - lipsesc date necesare");
+          toast({
+            title: "Date insuficiente",
+            description: "Selectați un UIT valid înainte de a porni transportul.",
+            variant: "destructive"
+          });
+          return false;
+        }
         
         if (isNative) {
           // PE PLATFORMĂ MOBILĂ - Verificarea GPS trebuie să fie strictă
@@ -512,31 +534,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
             
             // Încercăm să obținem o poziție GPS cu timeout mai mare
             console.log("[Transport] Încercăm obținerea poziției GPS pe dispozitiv mobil");
-            // Folosim Capacitor pentru dispozitive mobile
-            try {
-              // Folosim plugin-ul Geolocation din Capacitor
-              const position = await Geolocation.getCurrentPosition({
-                enableHighAccuracy: true,
-                timeout: 15000
-              });
-              
-              console.log("[Transport] Poziție GPS obținută cu succes pe mobil");
-            } catch (mobileGpsError) {
-              console.error("[Transport] Eroare la obținerea poziției GPS pe mobil:", mobileGpsError);
-              toast({
-                title: "Eroare GPS",
-                description: "Nu se poate obține poziția GPS. Verificați dacă localizarea este activată.",
-                variant: "destructive"
-              });
-              return false;
-            }
           } catch (mobileError) {
             console.error("[Transport] Eroare la verificarea GPS pe mobil:", mobileError);
-            toast({
-              title: "Eroare GPS",
-              description: "Serviciul de localizare nu poate fi accesat. Verificați setările dispozitivului.",
-              variant: "destructive"
-            });
             return false;
           }
         } else {

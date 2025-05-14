@@ -92,6 +92,14 @@ export const sendGpsUpdate = async (
     timestamp: new Date(gpsCoords.timestamp).getTime()
   } as Position;
   try {
+    // Înregistrăm starea transportului ca fiind activă pentru
+    // a asigura că nu va reveni la inactiv după transmitere
+    if (transportStatus === "in_progress") {
+      // Importăm funcția forceTransportActive din transportHelper
+      const { forceTransportActive } = require('./transportHelper');
+      forceTransportActive();
+    }
+    
     console.log("sendGpsUpdate - date primite:", {
       hasPosition: !!position,
       vehicleInfo,
