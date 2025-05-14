@@ -22,9 +22,23 @@ export default function LogViewerPage() {
   const [mobileLogContent, setMobileLogContent] = useState('');
   const [showMobileLogImport, setShowMobileLogImport] = useState(false);
   
-  // Efect pentru a adăuga un log când pagina este accesată
+  // Efect pentru a adăuga un log când pagina este accesată și pentru a auto-logare dacă venim de la pagina de login
   useEffect(() => {
     addLog('Pagina de loguri accesată', 'info', 'admin-page');
+    
+    // Auto-logare pentru admin dacă pagina a fost deschisă prin redirecționare de la login
+    // Verificăm localStorage pentru a vedea dacă au fost stocate credențialele admin
+    const fromLoginPage = sessionStorage.getItem('fromAdminLogin');
+    if (fromLoginPage === 'true') {
+      // Precompletăm credențialele de admin și autentificăm automat
+      setEmail('admin@itrack.app');
+      setPassword('admin123');
+      setIsAuthenticated(true);
+      refreshLogs();
+      // Ștergem flag-ul după utilizare
+      sessionStorage.removeItem('fromAdminLogin');
+      addLog('Autentificare automată administrator', 'info', 'admin-page');
+    }
   }, []);
 
   // Sursele unice din loguri

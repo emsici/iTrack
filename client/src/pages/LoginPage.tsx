@@ -51,6 +51,8 @@ export default function LoginPage() {
     // Verificare specială pentru credențialele de admin (acces la pagina de loguri)
     if (data.email === 'admin@itrack.app' && data.password === 'admin123') {
       console.log("Credențiale admin detectate - redirecționare la pagina de loguri");
+      // Setăm un flag în sessionStorage pentru a indica autentificarea automată pe pagina de loguri
+      sessionStorage.setItem('fromAdminLogin', 'true');
       setIsLoading(false);
       // Redirecționare directă la pagina de loguri admin
       setLocation('/admin/logs');
