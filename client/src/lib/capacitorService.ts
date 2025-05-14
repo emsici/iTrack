@@ -18,16 +18,26 @@ export const getPlatform = () => Capacitor.getPlatform();
 // Flag pentru a evita solicitări multiple simultane
 let isRequestingPermissions = false;
 
+// Flag pentru a ține evidența dacă am solicitat deja permisiunile
+let permissionsRequested = false;
+
 // Funcție pentru solicitarea permisiunilor GPS
 export const requestGpsPermissions = async (): Promise<boolean> => {
   console.log("Solicitare permisiuni GPS la pornirea aplicației");
+  
+  // Dacă am solicitat deja permisiunile și suntem pe dispozitiv nativ, 
+  // nu mai solicităm din nou pentru a evita blocarea aplicației
+  if (permissionsRequested && Capacitor.isNativePlatform()) {
+    console.log("Permisiunile au fost deja solicitate anterior, nu mai solicităm");
+    return true;
+  }
   
   // Prevenim multiple solicitări simultane care ar putea bloca aplicația
   if (isRequestingPermissions) {
     console.log("Solicitarea permisiunilor este deja în curs, așteptăm");
     // Așteptăm puțin și returnăm true pentru a permite fluxul să continue
     return new Promise((resolve) => {
-      setTimeout(() => resolve(true), 2000);
+      setTimeout(() => resolve(true), 1000);
     });
   }
   
@@ -42,6 +52,7 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
           const result = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
           if (result.state === 'granted') {
             isRequestingPermissions = false;
+            permissionsRequested = true;
             return true;
           }
         } catch (browserPermError) {
@@ -56,70 +67,98 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
           () => {
             console.log("Permisiuni browser acordate");
             isRequestingPermissions = false;
+            permissionsRequested = true;
             resolve(true);
           },
           (err) => {
             console.error("Permisiuni browser respinse:", err);
             isRequestingPermissions = false;
+            permissionsRequested = true;
             resolve(false);
           },
-          { timeout: 5000, enableHighAccuracy: true }
+          { timeout: 3000, enableHighAccuracy: true }
         );
       });
     }
     
     // Gestionăm platforma nativă (Android/iOS)
     // Verificăm starea permisiunii
-    const permissionStatus = await Geolocation.checkPermissions();
-    console.log("Stare permisiuni GPS:", permissionStatus.location);
-    
-    // Dacă permisiunea este deja acordată, returnam direct true
-    if (permissionStatus.location === 'granted') {
-      console.log("Permisiune GPS deja acordată");
-      isRequestingPermissions = false;
-      return true;
-    }
-    
-    // Dacă permisiunea nu este acordată, o solicităm explicit
-    console.log("Permisiune GPS neacordată, solicităm explicit");
-    
-    // Punem solicitarea într-un timeout pentru a preveni blocarea aplicației
-    const requestPromise = new Promise<boolean>(async (resolve) => {
+    try {
+      const permissionStatus = await Geolocation.checkPermissions();
+      console.log("Stare permisiuni GPS:", permissionStatus.location);
+      
+      // Dacă permisiunea este deja acordată, returnam direct true
+      if (permissionStatus.location === 'granted') {
+        console.log("Permisiune GPS deja acordată");
+        isRequestingPermissions = false;
+        permissionsRequested = true;
+        return true;
+      }
+      
+      // Pentru Android 10+ (API 29+), gestionare specială pentru ACCESS_BACKGROUND_LOCATION
+      // Această permisiune trebuie solicitată separat și doar după ce utilizatorul a acordat permisiunile de bază
+      if (Capacitor.getPlatform() === 'android') {
+        // Prima dată solicităm doar permisiunile de bază (FINE și COARSE location)
+        console.log("Solicităm permisiuni de localizare de bază pentru Android");
+        
+        try {
+          // Marcăm faptul că am solicitat permisiunile pentru a nu le solicita din nou
+          permissionsRequested = true;
+          
+          // Solicităm permisiunile cu un timeout pentru a preveni blocarea
+          const requestPromise = Geolocation.requestPermissions();
+          const timeoutPromise = new Promise<any>((resolve) => {
+            setTimeout(() => {
+              console.log("Timeout la solicitarea permisiunilor de bază");
+              resolve({ location: 'timeout' });
+            }, 2000);
+          });
+          
+          const requestResult = await Promise.race([requestPromise, timeoutPromise]);
+          console.log("Rezultat solicitare permisiuni de bază:", requestResult.location);
+          
+          // Chiar dacă permisiunea este refuzată, continuăm fluxul aplicației pentru a nu o bloca
+          isRequestingPermissions = false;
+          
+          // Returnează true pentru a permite continuarea fluxului, chiar dacă permisiunile nu sunt acordate
+          // Utilizatorul va fi notificat în UI că sunt necesare permisiunile
+          return true;
+        } catch (error) {
+          console.error("Eroare la solicitarea permisiunilor Android:", error);
+          isRequestingPermissions = false;
+          permissionsRequested = true;
+          return true; // Continuăm fluxul chiar și în caz de eroare
+        }
+      }
+      
+      // Pentru iOS și alte platforme
+      console.log("Solicităm permisiuni GPS (non-Android)");
       try {
-        // Solicităm permisiunile
         const requestResult = await Geolocation.requestPermissions();
         console.log("Rezultat solicitare permisiuni GPS:", requestResult.location);
         
-        if (requestResult.location === 'granted') {
-          resolve(true);
-        } else if (requestResult.location === 'denied') {
-          resolve(false);
-        } else {
-          // Pentru 'prompt' sau alte stări, considerăm că utilizatorul poate încerca să folosească aplicația
-          resolve(true);
-        }
+        isRequestingPermissions = false;
+        permissionsRequested = true;
+        
+        // Chiar dacă permisiunea este refuzată, continuăm pentru a nu bloca aplicația
+        // Utilizatorul va fi notificat în UI că sunt necesare permisiunile
+        return true;
       } catch (error) {
-        console.error("Eroare la solicitarea permisiunilor Capacitor:", error);
-        // Permitem continuarea fluxului chiar și în caz de eroare
-        resolve(true);
+        console.error("Eroare la solicitarea permisiunilor non-Android:", error);
+        isRequestingPermissions = false;
+        permissionsRequested = true;
+        return true;
       }
-    });
-    
-    // Adăugăm un timeout pentru a evita blocarea aplicației
-    const timeoutPromise = new Promise<boolean>((resolve) => {
-      setTimeout(() => {
-        console.log("Timeout la solicitarea permisiunilor GPS - permitem continuarea");
-        resolve(true);
-      }, 5000);
-    });
-    
-    // Așteptăm oricare dintre cele două promisiuni (solicitare sau timeout)
-    const result = await Promise.race([requestPromise, timeoutPromise]);
-    isRequestingPermissions = false;
-    return result;
+    } catch (checkError) {
+      console.error("Eroare la verificarea permisiunilor:", checkError);
+      isRequestingPermissions = false;
+      permissionsRequested = true;
+      return true; // Continuăm fluxul chiar și în caz de eroare
+    }
   } catch (err) {
-    console.error("Eroare la solicitarea permisiunilor GPS:", err);
+    console.error("Eroare generală la solicitarea permisiunilor GPS:", err);
     isRequestingPermissions = false;
+    permissionsRequested = true;
     // Returnăm true în caz de eroare pentru a permite continuarea fluxului aplicației
     return true;
   }
