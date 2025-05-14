@@ -361,22 +361,59 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     setGpsCoordinates(newCoords);
     setLastGpsUpdateTime(timestamp);
     
+    // Forțăm starea de transport active pentru a preveni resetarea stării
+    try {
+      const { updateTransportState, forceTransportActive } = require('@/lib/transportHelper');
+      forceTransportActive();
+      updateTransportState('active', true, newCoords);
+      
+      // Actualizăm starea în localStorage
+      saveAppState(
+        transportStatus,
+        currentActiveUit,
+        selectedUits,
+        timestamp,
+        batteryLevel
+      );
+    } catch (e) {
+      console.error("Eroare la forțarea stării active de transport:", e);
+    }
+    
     // Trimitem actualizarea la server dacă transportul este activ
     if (transportStatus === "active") {
-      sendGpsUpdate(
-        newCoords, 
-        vehicleInfo.nr, 
-        currentActiveUit.uit, 
-        "in_progress",
-        token
-      );
+      try {
+        sendGpsUpdate(
+          newCoords, 
+          vehicleInfo.nr, 
+          currentActiveUit.uit, 
+          "in_progress",
+          token
+        ).then(success => {
+          if (success) {
+            // Salvăm starea din nou după trimitere pentru a asigura persistența
+            saveAppState(
+              'active', // Forțăm starea activă 
+              currentActiveUit,
+              selectedUits,
+              timestamp,
+              batteryLevel
+            );
+            console.log("[Transport] Stare salvată după transmisia coordonatelor GPS");
+          }
+        }).catch(e => {
+          console.error("Eroare la trimiterea coordonatelor GPS:", e);
+        });
+      } catch (e) {
+        console.error("Excepție la trimiterea coordonatelor GPS:", e);
+      }
     }
   }, [vehicleInfo?.nr, currentActiveUit, token, transportStatus]);
   
   // Handler pentru actualizare GPS din background
   const onGpsUpdateFromBackground = useCallback((position: GeolocationPosition) => {
-    if (!vehicleInfo?.nr || !currentActiveUit || !token) {
-      console.error("Ignorare actualizare GPS din background - lipsesc date necesare");
+    // CORECȚIE: Permitem actualizarea GPS chiar dacă UIT sau token lipsesc temporar
+    if (!vehicleInfo?.nr) {
+      console.error("Ignorare actualizare GPS din background - lipsă date vehicul");
       return;
     }
     
