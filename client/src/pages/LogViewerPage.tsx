@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   getLogs, 
   clearLogs, 
@@ -6,8 +6,10 @@ import {
   filterLogsBySource, 
   exportLogsAsJson,
   isAdminUser,
+  addLog,
   type LogEntry
 } from '../lib/logService';
+import { processMobileLogFile } from '../lib/mobileLogService';
 
 export default function LogViewerPage() {
   const [email, setEmail] = useState('');
@@ -17,6 +19,13 @@ export default function LogViewerPage() {
   const [filterLevel, setFilterLevel] = useState<'all' | 'debug' | 'info' | 'warn' | 'error'>('all');
   const [filterSource, setFilterSource] = useState('');
   const [error, setError] = useState('');
+  const [mobileLogContent, setMobileLogContent] = useState('');
+  const [showMobileLogImport, setShowMobileLogImport] = useState(false);
+  
+  // Efect pentru a adăuga un log când pagina este accesată
+  useEffect(() => {
+    addLog('Pagina de loguri accesată', 'info', 'admin-page');
+  }, []);
 
   // Sursele unice din loguri
   const uniqueSources = Array.from(new Set(getLogs().map(log => log.source)));
@@ -74,6 +83,31 @@ export default function LogViewerPage() {
     if (window.confirm('Sigur doriți să ștergeți toate logurile? Această acțiune nu poate fi anulată.')) {
       clearLogs();
       refreshLogs();
+      addLog('Toate logurile au fost șterse', 'info', 'admin-page');
+    }
+  };
+  
+  // Procesează loguri mobile din text paste
+  const handleMobileLogImport = () => {
+    if (!mobileLogContent.trim()) {
+      setError('Introduceți conținutul logurilor mobile');
+      return;
+    }
+    
+    try {
+      // Procesăm conținutul și extragem logurile
+      const importedLogs = processMobileLogFile(mobileLogContent);
+      
+      // Notificăm utilizatorul
+      addLog(`Import ${importedLogs.length} loguri mobile`, 'info', 'admin-page');
+      
+      // Resetăm conținutul și reîmprospătăm lista
+      setMobileLogContent('');
+      refreshLogs();
+      setShowMobileLogImport(false);
+    } catch (error) {
+      console.error('Eroare la importul logurilor mobile:', error);
+      setError('Eroare la procesarea logurilor. Verificați formatul.');
     }
   };
 

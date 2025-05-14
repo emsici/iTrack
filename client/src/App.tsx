@@ -14,6 +14,7 @@ import { Capacitor } from "@capacitor/core";
 import { Dialog } from "@/components/ui/dialog";
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { setupConsoleInterceptor, addLog } from "@/lib/logService";
 
 function Router() {
   const [location] = useLocation();
@@ -33,6 +34,23 @@ function App() {
   const { toast } = useToast();
   const [permissionsRequested, setPermissionsRequested] = useState(false);
   const [showPermissionsDialog, setShowPermissionsDialog] = useState(false);
+  
+  // Inițializăm interceptorul pentru console.log și alte mesaje
+  useEffect(() => {
+    // Configurăm interceptorul pentru consolă
+    setupConsoleInterceptor();
+    
+    // Adăugăm un log de pornire a aplicației
+    addLog('Aplicație pornită', 'info', 'system', {
+      platform: isNativePlatform() ? Capacitor.getPlatform() : 'browser',
+      timestamp: new Date().toISOString()
+    });
+    
+    return () => {
+      // Adăugăm un log de închidere a aplicației
+      addLog('Aplicație închisă', 'info', 'system');
+    };
+  }, []);
   
   // Verificăm dacă permisiunile au fost cerute anterior
   useEffect(() => {
