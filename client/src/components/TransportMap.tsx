@@ -120,29 +120,12 @@ export default function TransportMap() {
     }
   }, [transportStatus]);
 
-  // Afișăm un mesaj dacă nu există un transport activ sau date GPS
+  // Dacă nu există un transport activ sau date GPS, nu afișăm nimic
   if (
     (transportStatus !== "active" && transportStatus !== "paused") ||
     !gpsCoordinates
   ) {
-    return (
-      <div className="p-4 bg-gray-100 rounded-lg shadow-sm text-center">
-        <h3 className="text-lg font-medium">Hartă Transport</h3>
-        <p className="text-gray-500 mt-2">
-          {transportStatus === "active" && !gpsCoordinates
-            ? "Așteptăm primele coordonate GPS..."
-            : "Începeți un transport pentru a vedea traseul pe hartă."}
-        </p>
-
-        {/* Status transport și coordonate - debug info */}
-        <div className="mt-4 p-2 bg-gray-200 rounded text-xs text-left">
-          <p>Status transport: {transportStatus}</p>
-          <p>Ultima actualizare: {lastGpsUpdateTime || "N/A"}</p>
-          <p>GPS activ: {isGpsActive ? "Da" : "Nu"}</p>
-          <p>Coordonate: {gpsCoordinates ? "Disponibile" : "Lipsă"}</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (

@@ -166,13 +166,7 @@ export default function TransportStats() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {transportStatus === 'inactive' ? (
-          <div className="text-center py-6 text-gray-500">
-            <Truck className="mx-auto h-12 w-12 mb-3 text-gray-400" />
-            <p>Nu există un transport activ.</p>
-            <p className="text-sm">Începeți un transport pentru a vedea statisticile.</p>
-          </div>
-        ) : (
+        {(
           <Tabs defaultValue="overview">
             <TabsList className="w-full mb-4">
               <TabsTrigger value="overview" className="flex-1">Sumar</TabsTrigger>

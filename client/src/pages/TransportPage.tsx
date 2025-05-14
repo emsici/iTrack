@@ -64,18 +64,9 @@ function TransportComponentsWrapper() {
   const { transportStatus } = useTransport();
   const isTransportActive = transportStatus === "active" || transportStatus === "paused";
   
-  // Dacă nu există un transport activ, afișăm doar un mesaj
+  // Dacă nu există un transport activ, nu afișăm nimic
   if (!isTransportActive) {
-    return (
-      <div className="bg-white rounded-xl shadow-md p-6 text-center">
-        <h3 className="text-lg font-medium text-gray-800 mb-2">
-          Transport inactiv
-        </h3>
-        <p className="text-gray-600">
-          Începeți un transport pentru a vedea traseul pe hartă și informațiile GPS.
-        </p>
-      </div>
-    );
+    return null;
   }
   
   // Dacă există un transport activ, afișăm toate componentele
