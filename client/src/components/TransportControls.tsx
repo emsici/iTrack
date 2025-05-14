@@ -111,12 +111,11 @@ export default function TransportControls() {
         return;
       }
       
-      // Actualizează starea transportului în UI
-      setTransports(transports.map(transport => 
-        transport.id === transportId 
-          ? { ...transport, status: "active", isTracking: true } 
-          : transport
-      ));
+      // Afișăm un indicator de încărcare
+      toast({
+        title: "Se procesează...",
+        description: "Se verifică permisiunile de locație..."
+      });
       
       // Cererea permisiunilor de locație înainte de pornirea transportului
       // Forțăm cererea permisiunilor direct de aici, când utilizatorul încearcă să pornească transportul
@@ -126,17 +125,31 @@ export default function TransportControls() {
           navigator.geolocation.getCurrentPosition(
             async (position) => {
               console.log("Permisiuni locație acordate, pornire transport...");
+              
+              // Actualizăm UI-ul pentru a arăta că procesăm cererea
+              toast({
+                title: "Se procesează...",
+                description: "Permisiuni acordate, se pornește transportul..."
+              });
+              
               // Pornește GPS tracking în backend
               const result = await startTransport();
               
-              if (!result) {
+              if (result) {
+                // Actualizează starea transportului în UI DOAR după ce s-a pornit cu succes
+                setTransports(transports.map(transport => 
+                  transport.id === transportId 
+                    ? { ...transport, status: "active", isTracking: true } 
+                    : transport
+                ));
+              } else {
                 toast({
                   variant: "destructive",
                   title: "Eroare",
                   description: "Nu s-a putut porni transportul. Verificați conexiunea și datele vehiculului."
                 });
                 
-                // Resetăm UI-ul înapoi la inactiv
+                // Resetăm UI-ul înapoi la inactiv (deși nu l-am modificat încă)
                 setTransports(transports.map(transport => 
                   transport.id === transportId 
                     ? { ...transport, status: "inactive", isTracking: false } 
@@ -267,22 +280,42 @@ export default function TransportControls() {
 
   const handleResumeTransport = async (transportId: string) => {
     try {
-      // Actualizează starea transportului în UI
+      // Afișăm un indicator de încărcare
+      toast({
+        title: "Se procesează...",
+        description: "Așteptați până se reactivează GPS-ul."
+      });
+      
+      // Repornește GPS tracking în backend - ÎNAINTE de a actualiza UI
+      console.log("Repornire tracking GPS");
+      await resumeTransport();
+      
+      // Apoi actualizăm UI-ul
+      console.log("Tracking GPS repornit, actualizez UI");
       setTransports(transports.map(transport => 
         transport.id === transportId 
           ? { ...transport, status: "active", isTracking: true } 
           : transport
       ));
       
-      // Repornește GPS tracking în backend
-      await resumeTransport();
-      
       toast({
         title: "Transport reluat",
-        description: "Transmisia GPS a fost reluată."
+        description: "Transmisia GPS a fost reactivată."
       });
     } catch (error) {
       console.error("Error resuming transport:", error);
+      
+      // La eroare, revenim la starea anterioară
+      const currentTransport = transports.find(t => t.id === transportId);
+      if (currentTransport && currentTransport.status === "paused") {
+        // Revenim la starea întreruptă dacă acea stare a fost întreruptă înainte
+        setTransports(transports.map(transport => 
+          transport.id === transportId 
+            ? { ...transport, status: "paused", isTracking: false } 
+            : transport
+        ));
+      }
+      
       toast({
         variant: "destructive",
         title: "Eroare",
@@ -293,15 +326,23 @@ export default function TransportControls() {
 
   const handleFinishTransport = async (transportId: string) => {
     try {
-      // Actualizează starea transportului în UI
+      // Afișăm un indicator de încărcare
+      toast({
+        title: "Se procesează...",
+        description: "Așteptați finalizarea transportului."
+      });
+      
+      // Finalizează GPS tracking în backend - ÎNAINTE de a actualiza UI
+      console.log("Finalizare transport și oprire tracking GPS");
+      await finishTransport();
+      
+      // Apoi actualizăm UI-ul
+      console.log("Transport finalizat, actualizez UI");
       setTransports(transports.map(transport => 
         transport.id === transportId 
           ? { ...transport, status: "finished", isTracking: false } 
           : transport
       ));
-      
-      // Finalizează GPS tracking în backend
-      await finishTransport();
       
       toast({
         title: "Transport finalizat",
@@ -309,6 +350,21 @@ export default function TransportControls() {
       });
     } catch (error) {
       console.error("Error finishing transport:", error);
+      
+      // La eroare, revenim la starea anterioară
+      const currentTransport = transports.find(t => t.id === transportId);
+      if (currentTransport) {
+        // Revenim la starea anterioară (fie activă, fie în pauză)
+        setTransports(transports.map(transport => 
+          transport.id === transportId 
+            ? { ...transport, 
+                status: currentTransport.status, 
+                isTracking: currentTransport.status === "active" 
+              } 
+            : transport
+        ));
+      }
+      
       toast({
         variant: "destructive",
         title: "Eroare",
