@@ -53,7 +53,9 @@ export default function TransportPage() {
   return (
     <TransportProvider>
       <Layout>
-        <dialog id="aboutDialog" className="modal fixed inset-0 bg-black bg-opacity-50 z-50 p-4 flex items-center justify-center"
+        <dialog 
+          id="aboutDialog" 
+          className="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center overflow-hidden p-0 m-0 border-none outline-none"
           onClick={(e) => {
             const target = e.target as HTMLElement;
             if (target.id === 'aboutDialog') {
@@ -62,7 +64,7 @@ export default function TransportPage() {
             }
           }}
         >
-          <div className="modal-content bg-white rounded-lg shadow-xl w-full max-w-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content bg-white rounded-lg shadow-xl w-full max-w-xl max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
             <AboutDialog />
           </div>
         </dialog>

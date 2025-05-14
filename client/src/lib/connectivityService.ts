@@ -1,6 +1,7 @@
 import { saveGpsDataOffline, getOfflineGpsData, clearOfflineGpsData, removeOfflineGpsRecords } from './offlineStorage';
 import { sendGpsData } from './transportService';
 import { requestGpsPermissions } from './capacitorService';
+import { Http } from '@capacitor-community/http';
 
 // Inițializăm starea de conectivitate
 let isInternetConnected = navigator.onLine;
@@ -169,7 +170,7 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
     console.log(`Sincronizare date offline: ${offlineData.length} înregistrări`);
     
     // Grupăm datele în batch-uri pentru a nu supraîncărca serverul
-    const BATCH_SIZE = 10;
+    const BATCH_SIZE = 5;
     const batches = [];
     
     for (let i = 0; i < offlineData.length; i += BATCH_SIZE) {
@@ -184,9 +185,56 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
       const results = await Promise.allSettled(
         batch.map(async (record) => {
           try {
-            // Folosim token-ul furnizat sau, dacă nu există, presupunem că există în contextul autentificării
-            const success = await sendGpsData(record.data, token || '');
-            return { record, success };
+            // Folosim exact același mecanism de trimitere ca în sendGpsData pentru consistență
+            const apiExternUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
+            
+            // Asigurăm-ne că nu avem valori goale pentru câmpurile importante
+            const numar_inmatriculare = String(record.data.numar_inmatriculare || "").trim() || "TEMP-" + Math.floor(Math.random() * 1000);
+            const uit_value = String(record.data.uit || "").trim() || "UIT" + Math.floor(Math.random() * 10000);
+            
+            // Formatăm datele exact cum o face funcția sendGpsData
+            const payload = JSON.stringify({
+              lat: record.data.lat,
+              lng: record.data.lng,
+              timestamp: record.data.timestamp,
+              viteza: record.data.viteza,
+              directie: record.data.directie,
+              altitudine: record.data.altitudine,
+              baterie: record.data.baterie,
+              numar_inmatriculare: numar_inmatriculare,
+              uit: uit_value,
+              status: record.data.status
+            });
+            
+            console.log("Sincronizare: Trimitere date GPS arhivate către API:", payload);
+            
+            try {
+              const httpResponse = await Http.request({
+                method: 'POST',
+                url: apiExternUrl,
+                headers: {
+                  "Authorization": `Bearer ${token || ''}`,
+                  "X-Vehicle-Number": numar_inmatriculare,
+                  "X-UIT": uit_value
+                },
+                data: JSON.parse(payload)
+              });
+              
+              console.log("Sincronizare: Status răspuns HTTP GPS:", httpResponse.status);
+              
+              const responseText = typeof httpResponse.data === 'string' ? httpResponse.data : JSON.stringify(httpResponse.data);
+              console.log("Sincronizare: Răspuns API GPS:", responseText);
+              
+              // Verificăm dacă răspunsul este ok
+              if (httpResponse.status < 200 || httpResponse.status >= 300) {
+                throw new Error(`API a răspuns cu status: ${httpResponse.status}`);
+              }
+              
+              return { record, success: true };
+            } catch (httpError) {
+              console.error("Sincronizare: Eroare la request HTTP GPS:", httpError);
+              throw httpError;
+            }
           } catch (error) {
             console.error("Eroare la sincronizarea înregistrării:", error);
             return { record, success: false };
