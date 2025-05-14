@@ -225,6 +225,21 @@ export default function MobileHeader() {
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Popup despre aplicație */}
+          <div className="flex">
+            <div className="relative inline-block">
+              <button 
+                className="flex items-center text-white hover:text-blue-200 transition-colors"
+                onClick={() => {
+                  const dialog = document.getElementById('aboutDialog') as HTMLDialogElement;
+                  if (dialog) dialog.showModal();
+                }}
+              >
+                <Info className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+          
           <div className="flex items-center">
             <div className={`h-3 w-3 rounded-full ${isGpsActive ? "bg-green-500" : "bg-red-500"}`}></div>
           </div>
@@ -234,36 +249,6 @@ export default function MobileHeader() {
           </button>
         </div>
       </div>
-      
-      {/* Tab navigation menu */}
-      <nav className="mt-3 pt-2 border-t border-blue-600">
-        <div className="flex justify-around relative">
-          {/* Active Tab Indicator - se mișcă în funcție de tab-ul activ */}
-          <div className={`absolute bottom-0 h-1 bg-white rounded-t-md transition-all duration-300 w-1/2 ${
-            isActivePage('/transport') ? 'left-0' : 'left-1/2'
-          }`}></div>
-          
-          {/* Transport Tab */}
-          <Link href="/transport" className={`relative flex items-center justify-center py-2 flex-1 transition-colors ${
-            isActivePage('/transport') 
-              ? 'text-white font-medium' 
-              : 'text-blue-200 hover:text-white'
-          }`}>
-            <Truck className={`h-4 w-4 mr-1 ${isActivePage('/transport') ? 'text-white' : 'text-blue-200'}`} />
-            <span className="text-sm">Transport</span>
-          </Link>
-          
-          {/* Despre Tab */}
-          <Link href="/about" className={`relative flex items-center justify-center py-2 flex-1 transition-colors ${
-            isActivePage('/about') 
-              ? 'text-white font-medium' 
-              : 'text-blue-200 hover:text-white'
-          }`}>
-            <Info className={`h-4 w-4 mr-1 ${isActivePage('/about') ? 'text-white' : 'text-blue-200'}`} />
-            <span className="text-sm">Despre</span>
-          </Link>
-        </div>
-      </nav>
     </header>
   );
 }

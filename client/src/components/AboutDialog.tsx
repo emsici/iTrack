@@ -1,30 +1,46 @@
 import React from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { InfoIcon } from "lucide-react";
+import { Info, X } from "lucide-react";
 
 export function AboutDialog() {
+  // Funcție pentru deschiderea dialogului
+  const openAboutDialog = () => {
+    const dialog = document.getElementById('aboutDialog') as HTMLDialogElement;
+    if (dialog) {
+      dialog.showModal();
+    }
+  };
+  
+  // Funcție pentru închiderea dialogului
+  const closeAboutDialog = () => {
+    const dialog = document.getElementById('aboutDialog') as HTMLDialogElement;
+    if (dialog) {
+      dialog.close();
+    }
+  };
+  
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="flex items-center gap-1 text-gray-600 hover:text-blue-600">
-          <InfoIcon className="h-4 w-4" />
-          <span>Despre</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-secondary-800">Despre aplicație</DialogTitle>
-        </DialogHeader>
-        
-        <div className="prose max-w-none text-sm mt-4">
+    <div className="flex items-center h-full">
+      <button 
+        onClick={openAboutDialog}
+        className="flex items-center gap-1 text-white hover:text-blue-200"
+        aria-label="Despre aplicație"
+      >
+        <Info className="h-4 w-4" />
+      </button>
+      
+      <div className="bg-blue-600 p-4 text-white flex justify-between items-center w-full">
+        <h3 className="text-lg font-bold">Despre aplicație</h3>
+        <button 
+          onClick={closeAboutDialog}
+          className="text-white opacity-70 hover:opacity-100 transition-opacity"
+          aria-label="Închide"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+      
+      <div className="p-6 overflow-y-auto max-h-[70vh]">
+        <div className="prose max-w-none text-sm">
           <p className="mb-3">
             Aplicația <strong>iTrack</strong> permite șoferilor să gestioneze transporturile și să transmită coordonatele GPS în timp real către sistemul central.
           </p>
@@ -55,10 +71,19 @@ export function AboutDialog() {
           
           <h3 className="text-base font-medium text-secondary-800 mt-3 mb-2">Contact suport</h3>
           <p>
-            Dacă întâmpinați probleme, contactați echipa de suport la adresa de email <a href="mailto:support@itrack.ro" className="text-primary-600 hover:underline">support@transportgps.ro</a> sau la numărul de telefon <a href="tel:+40212345678" className="text-primary-600 hover:underline">021 234 5678</a>.
+            Dacă întâmpinați probleme, contactați echipa de suport la adresa de email <a href="mailto:support@transportgps.ro" className="text-primary-600 hover:underline">support@transportgps.ro</a> sau la numărul de telefon <a href="tel:+40212345678" className="text-primary-600 hover:underline">021 234 5678</a>.
           </p>
         </div>
-      </DialogContent>
-    </Dialog>
+        
+        <div className="mt-6 flex justify-end">
+          <button 
+            onClick={closeAboutDialog}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Închide
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

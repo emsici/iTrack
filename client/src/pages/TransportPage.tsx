@@ -12,13 +12,14 @@ import TransportStats from "@/components/TransportStats";
 import VoiceNotifications from "@/components/VoiceNotifications";
 import AudioTest from "@/components/AudioTest";
 import { TransportProvider } from "@/context/TransportContext";
+import { AboutDialog } from "@/components/AboutDialog";
 import { Capacitor } from "@capacitor/core";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function TransportPage() {
   const { isAuthenticated, hasVehicle } = useAuth();
   const [, setLocation] = useLocation();
   const [isMobile, setIsMobile] = useState(false);
+  const [activeTab, setActiveTab] = useState("map");
   
   // Detectăm dacă rulăm pe mobil sau pe desktop
   useEffect(() => {
@@ -44,15 +45,33 @@ export default function TransportPage() {
   // Folosim layout-ul potrivit în funcție de platformă
   const Layout = isMobile ? MobileLayout : MainLayout;
 
+  // Funcțiile pentru a schimba între tab-uri
+  const handleTabChange = (tabName: string) => {
+    setActiveTab(tabName);
+  };
+
   return (
     <TransportProvider>
       <Layout>
+        <dialog id="aboutDialog" className="modal fixed inset-0 bg-black bg-opacity-50 z-50 p-4 flex items-center justify-center"
+          onClick={(e) => {
+            const target = e.target as HTMLElement;
+            if (target.id === 'aboutDialog') {
+              const dialog = document.getElementById('aboutDialog') as HTMLDialogElement;
+              if (dialog) dialog.close();
+            }
+          }}
+        >
+          <div className="modal-content bg-white rounded-lg shadow-xl w-full max-w-xl" onClick={(e) => e.stopPropagation()}>
+            <AboutDialog />
+          </div>
+        </dialog>
         <section className="p-4 space-y-4">
           <ConnectivityAlert />
           <TransportControls />
           
           {/* Obținem starea transportului pentru a decide ce componente să afișăm */}
-          <TransportComponentsWrapper />
+          <TransportComponentsWrapper activeTab={activeTab} onTabChange={handleTabChange} />
         </section>
       </Layout>
     </TransportProvider>
@@ -60,7 +79,7 @@ export default function TransportPage() {
 }
 
 // Componentă nouă pentru a gestiona afișarea condițională a componentelor de transport
-function TransportComponentsWrapper() {
+function TransportComponentsWrapper({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) {
   const { transportStatus } = useTransport();
   const isTransportActive = transportStatus === "active" || transportStatus === "paused";
   
@@ -75,33 +94,52 @@ function TransportComponentsWrapper() {
       {/* Informații GPS afișate doar când există un transport activ */}
       <LocationTracking />
       
-      {/* Folosim tabs pentru a organiza componentele noi într-o interfață îmbunătățită */}
-      <Tabs defaultValue="map" className="w-full">
-        <TabsList className="w-full grid grid-cols-2 rounded-xl bg-gray-100 p-1">
-          <TabsTrigger value="map" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-gray-600 font-medium">
+      {/* Înlocuim tabs cu propriul nostru sistem de navigare */}
+      <div className="w-full">
+        <div className="w-full grid grid-cols-2 rounded-xl bg-gray-100 p-1">
+          <button 
+            onClick={() => onTabChange("map")} 
+            className={`rounded-lg py-2 px-4 font-medium transition-colors ${
+              activeTab === "map" 
+                ? "bg-white text-blue-600 shadow-sm" 
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
             Hartă
-          </TabsTrigger>
-          <TabsTrigger value="stats" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm text-gray-600 font-medium">
+          </button>
+          <button 
+            onClick={() => onTabChange("stats")} 
+            className={`rounded-lg py-2 px-4 font-medium transition-colors ${
+              activeTab === "stats" 
+                ? "bg-white text-blue-600 shadow-sm" 
+                : "text-gray-600 hover:text-gray-800"
+            }`}
+          >
             Statistici
-          </TabsTrigger>
-        </TabsList>
+          </button>
+        </div>
         
-        <TabsContent value="map" className="space-y-4 pt-4 animate-in fade-in-50">
-          <div className="bg-white rounded-xl shadow-md p-4 transition-all">
-            <TransportMap />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="stats" className="space-y-4 pt-4 animate-in fade-in-50">
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <TransportStats />
-          </div>
-          <div className="mt-6 space-y-4">
-            <VoiceNotifications />
-            <AudioTest />
-          </div>
-        </TabsContent>
-      </Tabs>
+        {/* Conținutul tab-ului activ */}
+        <div className="space-y-4 pt-4 animate-in fade-in-50">
+          {activeTab === "map" && (
+            <div className="bg-white rounded-xl shadow-md p-4 transition-all">
+              <TransportMap />
+            </div>
+          )}
+          
+          {activeTab === "stats" && (
+            <>
+              <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <TransportStats />
+              </div>
+              <div className="mt-6 space-y-4">
+                <VoiceNotifications />
+                <AudioTest />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </>
   );
 }
