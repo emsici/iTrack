@@ -583,6 +583,37 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         return true;
       }
       
+      // Solicităm permisiunile GPS ÎNAINTE de a schimba starea transportului
+      // Acest lucru previne blocarea UI-ului în cazul eșecului permisiunilor GPS
+      console.log("Verificare permisiuni GPS înainte de pornirea transportului");
+      try {
+        // Adăugăm un timeout pentru a preveni blocarea aplicației la solicitarea permisiunilor
+        const permissionPromise = requestGpsPermissions();
+        const timeoutPromise = new Promise<boolean>(resolve => {
+          setTimeout(() => {
+            console.log("Timeout la solicitarea permisiunilor GPS, continuăm");
+            resolve(true);
+          }, 5000); // 5 secunde timeout
+        });
+        
+        // Așteptăm care dintre promisiuni se rezolvă prima
+        const permissionsGranted = await Promise.race([permissionPromise, timeoutPromise]);
+        
+        console.log("Rezultat solicitare permisiuni GPS:", permissionsGranted ? "Acordate" : "Refuzate");
+        
+        // Chiar dacă permisiunile nu sunt acordate, continuăm, dar afișăm un avertisment
+        if (!permissionsGranted) {
+          toast({
+            variant: "warning",
+            title: "Atenție",
+            description: "Permisiunile GPS sunt necesare pentru urmărirea transportului.",
+          });
+        }
+      } catch (permError) {
+        console.error("Eroare la verificarea permisiunilor GPS:", permError);
+        // Continuăm și în caz de eroare, dar logăm problema
+      }
+      
       // Schimbăm starea transportului
       setTransportStatus("active");
       
