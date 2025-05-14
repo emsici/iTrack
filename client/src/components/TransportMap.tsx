@@ -128,6 +128,8 @@ export default function TransportMap() {
     return null;
   }
 
+  // Eliminăm variabila nefolosită
+  
   return (
     <div className="relative">
       <div className="mb-2 px-1">
@@ -159,12 +161,13 @@ export default function TransportMap() {
         )}
       </div>
 
-      {showMap && (
+      {/* Forțăm afișarea hărții pe mobil */}
+      {true && (
         <MapContainer
           center={center}
           zoom={14}
-          style={mapStyle}
-          scrollWheelZoom={true}
+          style={{...mapStyle, minHeight: "400px"}}
+          scrollWheelZoom={false}
         >
           <TileLayer
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
