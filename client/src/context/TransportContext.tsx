@@ -402,32 +402,88 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   
   // Funcție pentru a porni un transport
   const startTransport = useCallback(async (): Promise<boolean> => {
-    if (!currentActiveUit) {
+    try {
+      console.log("[Transport] Începere pornire transport");
+      
+      // Verificăm dacă avem UIT selectat
+      if (!currentActiveUit) {
+        console.error("[Transport] Nu se poate porni transportul - lipsește UIT");
+        toast({
+          title: "Eroare",
+          description: "Selectați un UIT pentru a începe transportul.",
+          variant: "destructive"
+        });
+        return false;
+      }
+      
+      // Verificăm dacă avem vehicul selectat
+      if (!vehicleInfo?.nr) {
+        console.error("[Transport] Nu se poate porni transportul - lipsesc datele vehiculului");
+        toast({
+          title: "Eroare", 
+          description: "Nu sunt disponibile informațiile vehiculului. Înregistrați vehiculul.",
+          variant: "destructive"
+        });
+        return false;
+      }
+      
+      // Verificăm dacă suntem autentificați
+      if (!isAuthenticated || !token) {
+        console.error("[Transport] Nu se poate porni transportul - utilizator neautentificat");
+        toast({
+          title: "Eroare de autentificare",
+          description: "Utilizator neautentificat. Vă rugăm să vă autentificați din nou.",
+          variant: "destructive"
+        });
+        return false;
+      }
+      
+      console.log("[Transport] Pornire GPS tracking...");
+      
+      // Pornim GPS-ul
+      const gpsStarted = await startGpsTracking();
+      console.log("[Transport] Rezultat pornire GPS:", gpsStarted);
+      
+      if (!gpsStarted) {
+        console.error("[Transport] Nu s-a putut porni GPS-ul");
+        toast({
+          title: "Eroare GPS",
+          description: "Nu s-a putut porni sistemul de urmărire a locației. Verificați setările.",
+          variant: "destructive"
+        });
+        return false;
+      }
+      
+      // Actualizăm starea
+      setTransportStatus("active");
+      console.log("[Transport] Stare actualizată la ACTIVE");
+      
+      // Salvăm starea pentru a avea transport activ după restart
+      saveAppState(
+        "active",
+        currentActiveUit,
+        selectedUits,
+        lastGpsUpdateTime,
+        battery
+      );
+      console.log("[Transport] Stare salvată după pornire");
+      
+      toast({
+        title: "Transport pornit",
+        description: `Transportul pentru UIT ${currentActiveUit.uit} a fost pornit cu succes.`
+      });
+      
+      return true;
+    } catch (error) {
+      console.error("[Transport] Eroare la pornirea transportului:", error);
       toast({
         title: "Eroare",
-        description: "Selectați un UIT pentru a începe transportul.",
+        description: "A apărut o eroare la pornirea transportului. Încercați din nou.",
         variant: "destructive"
       });
       return false;
     }
-    
-    // Pornim GPS-ul
-    const gpsStarted = await startGpsTracking();
-    
-    if (!gpsStarted) {
-      return false;
-    }
-    
-    // Actualizăm starea
-    setTransportStatus("active");
-    
-    toast({
-      title: "Transport pornit",
-      description: `Transportul pentru UIT ${currentActiveUit.uit} a fost pornit cu succes.`
-    });
-    
-    return true;
-  }, [currentActiveUit, startGpsTracking]);
+  }, [currentActiveUit, vehicleInfo, isAuthenticated, token, startGpsTracking, selectedUits, lastGpsUpdateTime, battery]);
   
   // Funcție pentru a pune în pauză un transport
   const pauseTransport = useCallback(async (): Promise<void> => {
