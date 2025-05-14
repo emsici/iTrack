@@ -7,6 +7,7 @@ import VehicleInputPage from "@/pages/VehicleInputPage";
 import TransportPage from "@/pages/TransportPage";
 import AboutPage from "@/pages/AboutPage";
 import NotFound from "@/pages/not-found";
+import { Toaster } from "@/components/ui/toaster";
 
 function Router() {
   const [location] = useLocation();

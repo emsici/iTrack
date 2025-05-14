@@ -137,7 +137,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     setGpsAccessControl(isAuthenticated, false);
     
     return true;
-  }, []);
+  }, [isAuthenticated]);
   
   // Urmărirea poziției în timp real
   const startWatchPosition = useCallback(async () => {
@@ -210,6 +210,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         console.error("Lipsesc informații necesare pentru tracking GPS");
         return false;
       }
+      
+      // Actualizăm controlul de acces GPS pentru a permite citirea coordonatelor
+      setGpsAccessControl(true, true);
+      console.log("Control acces GPS activat pentru tracking");
       
       // Pornește watchPosition pentru actualizări UI dacă nu rulează deja
       if (!watchPositionRef.current) {
