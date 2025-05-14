@@ -98,10 +98,15 @@ export const sendGpsUpdate = async (
     // a asigura că nu va reveni la inactiv după transmitere
     if (transportStatus === "in_progress") {
       // Funcțiile sunt importate direct la nivelul modulului
-      forceTransportActive();
-      
-      // Actualizăm starea în referință cu coordonatele actuale
-      updateTransportState('active', true, gpsCoords);
+      try {
+        forceTransportActive();
+        
+        // Actualizăm starea în referință cu coordonatele actuale
+        updateTransportState('active', true, gpsCoords);
+      } catch (e) {
+        console.error("Eroare la forțarea transportului activ în gpsService:", e);
+        // Continuăm procesul chiar dacă apare o eroare
+      }
       
       // Salvăm starea în localStorage pentru persistență
       // Definim obiectul UIT cu datele primite

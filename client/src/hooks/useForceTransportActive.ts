@@ -21,14 +21,22 @@ export function useForceTransportActive(transportStatus: TransportStatus) {
     }
     
     // Forțăm starea activă imediat
-    forceTransportActive();
-    console.log("[useForceTransportActive] Forțare inițială stare transport activ");
+    try {
+      forceTransportActive();
+      console.log("[useForceTransportActive] Forțare inițială stare transport activ");
+    } catch (error) {
+      console.error("Eroare la forțarea inițială a transportului activ:", error);
+    }
     
     // Setăm un interval pentru a menține starea activă
     const intervalId = setInterval(() => {
       if (transportStatus === 'active') {
-        forceTransportActive();
-        console.log("[useForceTransportActive] Forțare periodică stare transport activ");
+        try {
+          forceTransportActive();
+          console.log("[useForceTransportActive] Forțare periodică stare transport activ");
+        } catch (error) {
+          console.error("Eroare la forțarea periodică a transportului activ:", error);
+        }
       }
     }, 10000); // La fiecare 10 secunde
     
