@@ -252,7 +252,41 @@ export const sendGpsUpdate = async (
       console.warn("Nu s-a putut obține direcția din senzor, se folosește valoarea GPS:", headingError);
     }
     
-    // Construiește payload-ul pentru API
+    // Verificăm formatul datelor pentru a preveni erori
+    let vehicleNr = '';
+    let uitValue = '';
+    
+    // Verifică și corectează formatul nr (număr înmatriculare)
+    if (effectiveVehicleInfo && effectiveVehicleInfo.nr) {
+      if (typeof effectiveVehicleInfo.nr === 'object' && effectiveVehicleInfo.nr !== null) {
+        console.log("Format incorect pentru număr înmatriculare, se corectează:", effectiveVehicleInfo.nr);
+        // Încercăm să extragem proprietatea 'nr' din obiect dacă există
+        if ('nr' in effectiveVehicleInfo.nr) {
+          vehicleNr = (effectiveVehicleInfo.nr as any).nr || '';
+        }
+      } else {
+        // Dacă este string, îl folosim direct
+        vehicleNr = effectiveVehicleInfo.nr;
+      }
+    }
+    
+    // Verificăm UIT-ul
+    if (effectiveVehicleInfo && effectiveVehicleInfo.uit) {
+      uitValue = effectiveVehicleInfo.uit;
+    } else if (uit) {
+      uitValue = uit;
+    }
+    
+    console.log("După verificare și corectare:", {
+      vehicleNr,
+      uitValue,
+      original: {
+        nr: effectiveVehicleInfo?.nr,
+        uit: effectiveVehicleInfo?.uit
+      }
+    });
+    
+    // Construiește payload-ul pentru API cu valorile verificate și corectate
     const gpsData: GpsDataPayload = {
       lat: latitude,
       lng: longitude,
@@ -261,9 +295,9 @@ export const sendGpsUpdate = async (
       directie: Math.round(headingValue) || 0, // Direcția din senzori sau GPS, rotunjită
       altitudine: Math.round(altitude || 0),
       baterie: Math.round(batteryLevel),
-      numar_inmatriculare: effectiveVehicleInfo.nr, // Folosim vehicleInfo corectat
-      uit: effectiveVehicleInfo.uit, // CRUCIAL: avem nevoie de UIT valid
-      status: transportStatus, // Adăugăm status-ul transportului
+      numar_inmatriculare: vehicleNr, // Folosim valoarea corectată
+      uit: uitValue, // Folosim valoarea verificată
+      status: transportStatus === "finished" ? "finished" : "in_progress", // Format corect pentru API
       hdop: hdopValue || 5,         // Valoare default pentru HDOP dacă nu este disponibilă
       gsm_signal: gsmSignalValue || 90  // Valoare default pentru puterea semnalului
     };
