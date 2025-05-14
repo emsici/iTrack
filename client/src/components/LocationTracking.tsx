@@ -185,7 +185,7 @@ export default function LocationTracking() {
               <p className="text-sm font-medium">Latitudine</p>
             </div>
             <p className="text-lg font-bold text-slate-800 tracking-tight">
-              {transportStatus === "active" && gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}
+              {gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : "-"}
             </p>
           </div>
           
@@ -195,7 +195,7 @@ export default function LocationTracking() {
               <p className="text-sm font-medium">Longitudine</p>
             </div>
             <p className="text-lg font-bold text-slate-800 tracking-tight">
-              {transportStatus === "active" && gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}
+              {gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : "-"}
             </p>
           </div>
         </div>
@@ -207,7 +207,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Viteză</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {transportStatus === "active" && gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "-"}
+              {gpsCoordinates?.viteza !== undefined ? `${gpsCoordinates.viteza.toFixed(1)} km/h` : "-"}
             </p>
           </div>
           
@@ -217,7 +217,7 @@ export default function LocationTracking() {
               <p className="text-xs font-medium">Direcție</p>
             </div>
             <p className="text-base font-bold text-slate-800">
-              {transportStatus === "active" && gpsCoordinates?.directie !== undefined ? 
+              {gpsCoordinates?.directie !== undefined ? 
                 `${Math.round(gpsCoordinates.directie % 360)}°` : "-"}
             </p>
           </div>
