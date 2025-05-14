@@ -67,8 +67,23 @@ export default function LocationTracking() {
     hasCoordinates: !!gpsCoordinates,
     battery,
     deviceBattery,
-    lastUpdateTime: lastGpsUpdateTime
+    lastUpdateTime: lastGpsUpdateTime,
+    coords: gpsCoordinates ? {
+      lat: gpsCoordinates.lat,
+      lng: gpsCoordinates.lng,
+      timestamp: gpsCoordinates.timestamp
+    } : null
   });
+  
+  // Forțăm starea activă dacă suntem activi dar nu avem coordonate
+  // Acest lucru va asigura că starea rămâne activă chiar și după restart
+  useEffect(() => {
+    if (transportStatus === "active" && !gpsCoordinates) {
+      const { forceTransportActive } = require('@/lib/transportHelper');
+      forceTransportActive();
+      console.log("[LocationTracking] Forțare actualizare stare transport activă");
+    }
+  }, [transportStatus, gpsCoordinates]);
   
   const formatTime = (timeString: string | null) => {
     if (!timeString) return "N/A";

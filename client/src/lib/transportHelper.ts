@@ -86,9 +86,35 @@ export const isGpsActive = (): boolean => {
 
 /**
  * Forțează actualizarea stării transportului
+ * Acest mecanism este esențial pentru a menține starea transportului
+ * între actualizări și pentru a preveni resetarea stării
  */
 export const forceTransportActive = (): void => {
+  // Setăm starea de referință
   transportStateRef.transportStatus = 'active';
   transportStateRef.isGpsActive = true;
+  
+  // Obținem starea salvată pentru a verifica consistența
+  try {
+    const { getSavedAppState, saveAppState } = require('./stateManager');
+    const savedState = getSavedAppState();
+    
+    // Dacă starea salvată nu este activă, o actualizăm forțat
+    if (savedState && savedState.transportStatus !== 'active') {
+      console.log("[TransportHelper] Detectată inconsistență în stare salvată, actualizare forțată");
+      
+      // Folosim valorile existente dar actualizăm statusul
+      saveAppState(
+        'active',
+        savedState.currentActiveUit,
+        savedState.selectedUits || [],
+        savedState.lastGpsUpdateTime,
+        savedState.battery || 100
+      );
+    }
+  } catch (e) {
+    console.error("[TransportHelper] Eroare la verificarea stării salvate:", e);
+  }
+  
   console.log("[TransportHelper] Forțare stare transport: ACTIVE");
 };

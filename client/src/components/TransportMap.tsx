@@ -82,7 +82,19 @@ export default function TransportMap() {
 
   // Adaugă coordonatele curente la istoric
   useEffect(() => {
-    if (gpsCoordinates && transportStatus === "active") {
+    // Considerăm coordonatele chiar dacă transportul este în pauză
+    // Acest lucru ne permite să menținem o urmărire continuă
+    if (gpsCoordinates && (transportStatus === "active" || transportStatus === "paused")) {
+      // Forțăm persistența transportului activ dacă avem coordonate
+      if (transportStatus === "active") {
+        try {
+          const { forceTransportActive } = require('@/lib/transportHelper');
+          forceTransportActive();
+        } catch (e) {
+          console.error("Eroare la forțarea transportului activ:", e);
+        }
+      }
+      
       setRouteHistory((prev) => {
         // Adăugăm noul punct numai dacă este diferit de ultimul
         const lastPoint = prev[prev.length - 1];
