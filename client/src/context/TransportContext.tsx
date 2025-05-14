@@ -101,7 +101,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const notificationSentRef = useRef<boolean>(false);
   
   // Accesăm autentificarea și toast
-  const { token, vehicleInfo } = useAuth();
+  const { token, vehicleInfo, isAuthenticated } = useAuth();
   const { toast } = useToast();
   
   // Actualizăm referința ori de câte ori se modifică statusul transportului
@@ -279,13 +279,16 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     }
   }, [vehicleInfo, token, currentActiveUit, startWatchPosition, stopGpsTracking]);
   
-  // Inițializare GPS automată la pornire
+  // Inițializare GPS condiționată de starea transportului și autentificării
   useEffect(() => {
     console.log("Inițializare GPS automată la pornire");
     
     const initGps = async () => {
+      // Verificăm dacă avem un transport activ - doar atunci inițializăm GPS-ul complet
+      const shouldStartGps = transportStatus === "active";
+      
       try {
-        // Solicită permisiuni GPS
+        // Solicită permisiuni GPS (doar o dată, indiferent de starea transportului)
         const permissions = await CapacitorGeoService.requestPermissions();
         console.log("Permisiuni GPS obținute:", permissions);
         
@@ -356,15 +359,22 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       }
     );
     
-    // Inițializează GPS
-    initGps();
+    // Inițializează GPS doar când utilizatorul este autentificat
+    if (isAuthenticated) {
+      initGps();
+    } else {
+      // Resetăm starea pentru utilizatorii neautentificați
+      setIsGpsActive(false);
+      setGpsCoordinates(null);
+      console.log("GPS neactivat - utilizator neautentificat");
+    }
     
     // Cleanup la unmount
     return () => {
       console.log("Cleanup monitorizare conectivitate");
       stopGpsTracking();
     };
-  }, [startWatchPosition, stopGpsTracking, token]);
+  }, [startWatchPosition, stopGpsTracking, token, isAuthenticated, transportStatus]);
   
   // Actualizăm UIT-urile disponibile când se schimbă vehiculul
   useEffect(() => {
