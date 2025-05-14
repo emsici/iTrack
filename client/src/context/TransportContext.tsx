@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { CapacitorGeoService } from '@/lib/capacitorService';
+import { CapacitorGeoService, requestGpsPermissions } from '@/lib/capacitorService';
 import { getCurrentPosition, setGpsAccessControl } from "@/lib/transportService";
 import { sendGpsUpdate } from "@/lib/gpsService";
 import { startBackgroundLocationTracking, stopBackgroundLocationTracking, isBackgroundServiceActive } from "@/lib/backgroundService";
@@ -157,8 +157,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         watchPositionRef.current = null;
       }
       
-      // Pornește un nou watch
-      const { watchId, clearWatch } = CapacitorGeoService.watchPosition((position) => {
+      // Pornește un nou watch - primim rezultatul
+      const watchHandler = await CapacitorGeoService.watchPosition((position) => {
         // Actualizăm UI-ul cu noile coordonate
         const { latitude, longitude, altitude, speed, heading } = position.coords;
         const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
@@ -210,7 +210,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       });
       
       // Salvăm referința pentru a putea opri watching-ul mai târziu
-      watchPositionRef.current = { clearWatch };
+      watchPositionRef.current = { clearWatch: watchResult.clearWatch };
       
       return true;
     } catch (error) {
@@ -604,7 +604,6 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         // Chiar dacă permisiunile nu sunt acordate, continuăm, dar afișăm un avertisment
         if (!permissionsGranted) {
           toast({
-            variant: "warning",
             title: "Atenție",
             description: "Permisiunile GPS sunt necesare pentru urmărirea transportului.",
           });
