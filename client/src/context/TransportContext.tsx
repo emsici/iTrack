@@ -240,10 +240,32 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   }, [transportStatus, gpsCoordinates, isGpsActive, isBackgroundActive, vehicleInfo?.nr, currentActiveUit]);
   
   // Funcție pentru a porni urmărirea GPS
-  const startGpsTracking = useCallback(async () => {
-    if (!isAuthenticated || !token || !currentActiveUit) {
-      console.error("Nu se poate porni GPS-ul - lipsesc date necesare");
+  const startGpsTracking = useCallback(async (overrideVehicleInfo?: any) => {
+    // Folosim vehicleInfo override dacă este furnizat (util pentru corecții)
+    const effectiveVehicleInfo = overrideVehicleInfo || vehicleInfo;
+    
+    console.log("[Transport] Pornire GPS cu date:", {
+      isAuthenticated,
+      hasToken: !!token,
+      hasVehicleInfo: !!effectiveVehicleInfo,
+      hasCurrentActiveUit: !!currentActiveUit
+    });
+    
+    // Condiții mai permisive pentru a porni GPS-ul - pentru browser
+    // Verificăm minimum tokenul și isAuthenticated
+    if (!isAuthenticated || !token) {
+      console.error("Nu se poate porni GPS-ul - utilizator neautentificat", {
+        isAuthenticated,
+        hasToken: !!token
+      });
       return false;
+    }
+    
+    // MODIFICARE: Semnalăm lipsa UIT-ului dar nu blocăm pornirea GPS-ului (va fi generat mai târziu)
+    if (!currentActiveUit) {
+      console.warn("UIT lipsă la pornirea GPS-ului, dar continuăm", {
+        effectiveVehicleInfo
+      });
     }
     
     // IMPORTANT: Activăm controlul GPS înainte de a încerca să pornim serviciul!
@@ -263,10 +285,14 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         return false;
       }
       
-      // Pornim serviciul de background
+      // Pornim serviciul de background, verificând că avem currentActiveUit
+      // sau folosind un string gol ca fallback
+      const uitValue = currentActiveUit?.uit || effectiveVehicleInfo?.uit || "";
+      console.log("[Transport] Pornire background cu UIT:", uitValue);
+      
       const backgroundStarted = await startBackgroundLocationTracking(
-        vehicleInfo?.nr || "",
-        currentActiveUit.uit,
+        effectiveVehicleInfo?.nr || "",
+        uitValue,
         token,
         (position) => onGpsUpdateFromBackground(position)
       );
