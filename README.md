@@ -9,24 +9,29 @@ iTrack este o aplicație mobilă profesională pentru șoferi care permite monit
 - Autentificare securizată cu JWT
 - Gestionarea informațiilor despre vehicul și număr de înmatriculare
 - Salvarea sesiunii autentificate până la expirarea token-ului
+- Persistența stării între sesiunile utilizatorului pentru aceeași identitate
 
 ### Monitorizare Transport
 - Selectarea UIT-urilor disponibile cu actualizare automată la fiecare 30 secunde
 - Control complet al stării transportului (pornire, pauză, reluare, finalizare)
 - Afișarea stării GPS și informațiilor despre locație în timp real
 - Afișarea statisticilor de transport (distanță, viteză, timp)
+- Suport pentru gestionarea mai multor transporturi simultan de către manageri
 
 ### Tracking GPS
 - Tracking GPS continuu în fundal, chiar și când aplicația este minimizată sau telefonul blocat
 - Salvarea coordonatelor offline când nu există conexiune la internet
 - Sincronizarea automată a datelor când conexiunea este restaurată
 - Trimiterea coordonatelor GPS la fiecare minut către serverul API
+- Eliminarea datelor duplicate pentru eficiență rețea (verificare coordonate și timestamp)
+- Păstrarea datelor offline pentru reconectări ale aceluiași utilizator
 
 ### Interfață Utilizator
 - Interfață mobilă optimizată cu design responsive
 - Indicator de stare GPS (verde când este activ, roșu când este inactiv)
 - Hartă interactivă cu poziția curentă
 - Alerte pentru pierderea conexiunii GPS sau internet
+- Dialog About cu informații despre aplicație accesibil din meniu
 
 ## Workflow Transport
 

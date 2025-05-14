@@ -110,6 +110,16 @@ export const checkGpsAvailability = async (): Promise<boolean> => {
   }
 };
 
+// Flag pentru a controla procesul de sincronizare
+let isSyncEnabled = true;
+
+// Funcția pentru a activa/dezactiva sincronizarea 
+// Se folosește la logout (dezactivare) și la login (activare)
+export const setSyncEnabled = (enabled: boolean): void => {
+  isSyncEnabled = enabled;
+  console.log(`Sincronizare ${isSyncEnabled ? 'activată' : 'dezactivată'}`);
+};
+
 // Setup listeners pentru monitorizarea stării conexiunii la internet
 export const setupConnectivityListeners = (
   onConnectivityChange?: (isConnected: boolean) => void
@@ -124,8 +134,13 @@ export const setupConnectivityListeners = (
       onConnectivityChange(true);
     }
     
-    // Încercăm să trimitem datele stocate offline
-    syncOfflineData();
+    // Încercăm să trimitem datele stocate offline DOAR dacă sincronizarea este activată
+    if (isSyncEnabled) {
+      console.log('Sincronizare automată activată, începe trimiterea datelor offline');
+      syncOfflineData();
+    } else {
+      console.log('Sincronizare automată dezactivată, datele offline nu se trimit');
+    }
   };
   
   const handleOffline = () => {

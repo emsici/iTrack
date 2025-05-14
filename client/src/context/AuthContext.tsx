@@ -145,6 +145,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log("Încercare de autentificare cu:", credentials);
       
+      // Verificăm dacă acest utilizator este ultimul care a fost logat
+      // pentru a decide dacă păstrăm datele GPS stocate sau le ștergem
+      const lastLoggedUser = localStorage.getItem("last_logged_user");
+      const isSameUser = lastLoggedUser === credentials.email;
+      
+      console.log("Verificare utilizator anterior:", 
+        isSameUser ? "Este același utilizator, păstrăm datele GPS" : "Utilizator diferit, vom șterge datele GPS vechi");
+      
+      // Dacă nu este același utilizator, ștergem datele GPS din localStorage
+      if (!isSameUser) {
+        console.log("Ștergem datele GPS ale utilizatorului anterior");
+        localStorage.removeItem("itrack_offline_gps_data");
+      }
+      
       // Folosim funcția din lib/auth.ts pentru autentificare uniformă
       const result = await loginUser(credentials);
       
@@ -165,6 +179,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           { email: credentials.email },
           null // Vehicleinfo va fi adăugat după ce obținem informațiile vehiculului
         );
+        
+        // Actualizăm și înregistrarea ultimului utilizator logat
+        localStorage.setItem("last_logged_user", credentials.email);
         
         toast({
           title: "Autentificare reușită",

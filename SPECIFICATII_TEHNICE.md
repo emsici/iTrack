@@ -96,6 +96,9 @@ shared/            - Cod partajat între frontend și backend
 - **Sincronizare automată batch**: Trimiterea coordonatelor stocate în batch când conexiunea este restabilită
 - **Timestamping corect**: Asigurarea că timestamp-urile sunt corecte, chiar și pentru datele stocate offline
 - **Gestionarea stării de conectivitate**: Monitorizare automată a disponibilității internetului
+- **Eliminare date duplicate**: Verificarea coordonatelor și timestamp-urilor pentru a evita duplicarea datelor
+- **Păstrarea datelor între sesiuni**: Datele GPS sunt păstrate la logout pentru același utilizator
+- **Control avansat al sincronizării**: Activare/dezactivare inteligentă a sincronizării în funcție de starea sesiunii
 
 ### 3.7 Alerte și Notificări
 - **Alerte de conectivitate**: Notificare imediată când conexiunea la internet este pierdută sau restabilită
