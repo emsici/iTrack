@@ -5,6 +5,7 @@ import { loginUser, getVehicleInfo, isValidToken, isTokenExpired, decodeToken } 
 import { Capacitor } from "@capacitor/core";
 import { Http } from "@capacitor-community/http";
 import { setGpsAccessControl } from "@/lib/transportService";
+import { setSyncEnabled } from "@/lib/connectivityService";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -157,6 +158,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!isSameUser) {
         console.log("Ștergem datele GPS ale utilizatorului anterior");
         localStorage.removeItem("itrack_offline_gps_data");
+      } else {
+        // Dacă este același utilizator, activăm sincronizarea automată a datelor GPS
+        console.log("Activăm sincronizarea automată pentru utilizatorul care se reconectează");
+        setSyncEnabled(true);
       }
       
       // Folosim funcția din lib/auth.ts pentru autentificare uniformă
@@ -172,6 +177,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Actualizăm controlul de acces GPS pentru utilizator autentificat
         setGpsAccessControl(true, false);
+        
+        // Activăm sincronizarea pentru datele GPS stocate
+        setSyncEnabled(true);
         
         // Folosim funcția noastră pentru a salva sesiunea în toate tipurile de stocare
         saveSessionState(
@@ -314,6 +322,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
+      // Dezactivăm sincronizarea automată a datelor GPS offline la logout
+      // Acest lucru previne trimiterea datelor când utilizatorul nu este autentificat
+      setSyncEnabled(false);
+      
       // Dacă avem token, trimitem request de logout către API-ul extern
       if (token && Capacitor.isNativePlatform()) {
         const logoutApiUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php";

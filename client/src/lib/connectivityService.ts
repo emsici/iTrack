@@ -192,6 +192,7 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
     // Eliminăm duplicatele înainte de sincronizare
     const uniqueRecords: StoredGpsRecord[] = [];
     const seenEntries = new Set<string>();
+    let duplicateCount = 0;
     
     for (const record of offlineData) {
       // Creăm un identificator unic pentru această înregistrare bazat pe coordonate și timestamp
@@ -202,10 +203,27 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
         uniqueRecords.push(record);
       } else {
         console.log('Ignorăm înregistrare duplicată la sincronizare:', recordId);
+        duplicateCount++;
       }
     }
     
-    console.log(`După eliminarea duplicatelor: ${uniqueRecords.length} înregistrări unice`);
+    console.log(`După eliminarea duplicatelor: ${uniqueRecords.length} înregistrări unice, ${duplicateCount} duplicate eliminate`);
+    
+    // Adăugăm și o notificare Toast pentru utilizator
+    if (duplicateCount > 0) {
+      try {
+        if (window?.document) {
+          const event = new CustomEvent('toast-message', { 
+            detail: { 
+              message: `Sincronizare: ${uniqueRecords.length} înregistrări unice, ${duplicateCount} duplicate eliminate` 
+            } 
+          });
+          window.document.dispatchEvent(event);
+        }
+      } catch (e) {
+        console.error('Eroare la afișare toast:', e);
+      }
+    }
     
     // Grupăm datele în batch-uri pentru a nu supraîncărca serverul
     const BATCH_SIZE = 5;

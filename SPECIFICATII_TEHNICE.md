@@ -42,6 +42,7 @@ shared/            - Cod partajat între frontend și backend
 - **Autentificare securizată**: Implementare bazată pe JWT
 - **Proxy API**: Sistem de proxy pentru API-ul extern care previne problemele de CORS
 - **Persistența sesiunii**: Sesiunea utilizatorului este păstrată între restartările aplicației
+- **Păstrarea contextuală a datelor**: Datele GPS sunt păstrate între sesiuni pentru același utilizator și șterse pentru utilizatori diferiți
 
 ### 3.2 Modulul de Transport
 - **Selectare transport**: Șoferii pot alege transportul (UIT) dorit, cu actualizări periodice la fiecare 30 secunde
