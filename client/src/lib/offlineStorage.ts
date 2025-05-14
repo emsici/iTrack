@@ -111,6 +111,23 @@ export const removeOfflineGpsRecords = (recordsToRemove: StoredGpsRecord[]): voi
     localStorage.setItem(OFFLINE_GPS_DATA_KEY, JSON.stringify(remainingData));
     
     console.log(`[Offline Storage] S-au eliminat ${recordsToRemove.length} înregistrări. Rămase: ${remainingData.length}`);
+    
+    // Verificăm dacă există duplicate în datele rămase
+    const coordinatesMap = new Map();
+    let duplicatesFound = 0;
+    
+    remainingData.forEach(record => {
+      const key = `${record.data.lat}-${record.data.lng}-${record.data.timestamp}`;
+      if (coordinatesMap.has(key)) {
+        duplicatesFound++;
+      } else {
+        coordinatesMap.set(key, true);
+      }
+    });
+    
+    if (duplicatesFound > 0) {
+      console.log(`[Offline Storage] ATENȚIE: Încă există ${duplicatesFound} duplicate în datele rămase!`);
+    }
   } catch (error) {
     console.error("[Offline Storage] Eroare la eliminarea înregistrărilor GPS offline:", error);
   }

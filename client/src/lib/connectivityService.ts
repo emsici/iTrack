@@ -375,8 +375,9 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
     
-    console.log(`Sincronizare finalizată. Reușite: ${offlineData.length - failedRecords.length}, Eșuate: ${failedRecords.length}`);
+    console.log(`Sincronizare finalizată. Reușite: ${offlineData.length - failedRecords.length}, Eșuate: ${failedRecords.length}, Duplicate eliminate: ${duplicateCount}`);
     
+    // Returnăm și informații despre sincronizare pentru a putea afișa utilizatorului
     return failedRecords.length === 0;
   } catch (error) {
     console.error("Eroare la sincronizarea datelor offline:", error);
