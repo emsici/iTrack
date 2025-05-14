@@ -113,6 +113,80 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const { token, vehicleInfo, isAuthenticated } = useAuth();
   const { toast } = useToast();
   
+  // Persistența stării aplicației între reîncărcări
+  useEffect(() => {
+    if (isAuthenticated) {
+      try {
+        // Încercăm să restaurăm starea salvată din localStorage
+        const savedTransportState = localStorage.getItem('itrack_transport_state');
+        if (savedTransportState) {
+          if (
+            savedTransportState === 'active' || 
+            savedTransportState === 'paused' || 
+            savedTransportState === 'inactive' || 
+            savedTransportState === 'finished'
+          ) {
+            console.log(`Restaurare stare transport: ${savedTransportState}`);
+            setTransportStatus(savedTransportState as TransportStatus);
+            transportStatusRef.current = savedTransportState as TransportStatus;
+          }
+        }
+
+        // Încercăm să restaurăm UIT-ul activ
+        const savedActiveUit = localStorage.getItem('itrack_active_uit');
+        if (savedActiveUit) {
+          try {
+            const parsedUit = JSON.parse(savedActiveUit);
+            console.log(`Restaurare UIT activ: ${parsedUit.uit}`);
+            setCurrentActiveUit(parsedUit);
+          } catch (e) {
+            console.error('Eroare la parsarea UIT-ului activ salvat:', e);
+          }
+        }
+
+        // Încercăm să restaurăm lista de UIT-uri
+        const savedUits = localStorage.getItem('itrack_selected_uits');
+        if (savedUits) {
+          try {
+            const parsedUits = JSON.parse(savedUits);
+            if (Array.isArray(parsedUits) && parsedUits.length > 0) {
+              console.log(`Restaurare ${parsedUits.length} UIT-uri salvate`);
+              setSelectedUits(parsedUits);
+            }
+          } catch (e) {
+            console.error('Eroare la parsarea listei de UIT-uri salvate:', e);
+          }
+        }
+      } catch (error) {
+        console.error('Eroare la restaurarea stării din localStorage:', error);
+      }
+    }
+  }, [isAuthenticated]);
+
+  // Salvare stare transport când se modifică
+  useEffect(() => {
+    if (isAuthenticated) {
+      localStorage.setItem('itrack_transport_state', transportStatus);
+      console.log(`Salvare stare transport: ${transportStatus}`);
+    }
+  }, [transportStatus, isAuthenticated]);
+
+  // Salvare UIT activ când se modifică
+  useEffect(() => {
+    if (isAuthenticated && currentActiveUit) {
+      localStorage.setItem('itrack_active_uit', JSON.stringify(currentActiveUit));
+      console.log(`Salvare UIT activ: ${currentActiveUit.uit}`);
+    }
+  }, [currentActiveUit, isAuthenticated]);
+
+  // Salvare lista UIT-uri când se modifică
+  useEffect(() => {
+    if (isAuthenticated && selectedUits.length > 0) {
+      localStorage.setItem('itrack_selected_uits', JSON.stringify(selectedUits));
+      console.log(`Salvare ${selectedUits.length} UIT-uri`);
+    }
+  }, [selectedUits, isAuthenticated]);
+  
 
   
   // Referință la starea de inițializare 
@@ -475,13 +549,33 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     
     // Verificare pentru sesiune existentă
     console.log("Verificare sesiune existentă la pornirea aplicației");
-    const stateRestored = restoreTransportState();
     
-    // Dacă starea a fost restaurată ca "active", actualizăm starea UI fără a reporni tracking-ul
-    if (stateRestored && transportStatus === "active") {
-      console.log("Sesiune găsită, restaurez starea transportului - NU repornesc tracking GPS");
-      // Nu repornin tracking-ul GPS deoarece acesta deja rulează în background
-      setIsGpsActive(true); // Doar actualizăm starea UI
+    // Verificăm dacă avem stare salvată în localStorage
+    const savedTransportState = localStorage.getItem('itrack_transport_state');
+    const savedUitStr = localStorage.getItem('itrack_active_uit');
+    
+    if (savedTransportState === 'active' && savedUitStr) {
+      console.log("Sesiune salvată găsită în localStorage, restaurez starea transportului");
+      try {
+        const savedUit = JSON.parse(savedUitStr);
+        // Actualizăm starea UI
+        setTransportStatus('active');
+        transportStatusRef.current = 'active';
+        setCurrentActiveUit(savedUit);
+        setIsGpsActive(true);
+        
+        // Notificăm utilizatorul
+        setTimeout(() => {
+          toast({
+            title: "Sesiune restaurată",
+            description: `Transport activ restaurat pentru UIT: ${savedUit.uit}`,
+          });
+        }, 1000);
+      } catch (e) {
+        console.error('Eroare la restaurarea sesiunii din localStorage:', e);
+      }
+    } else {
+      console.log("Nu s-a găsit nicio sesiune salvată");
     }
     
     const initGps = async () => {
