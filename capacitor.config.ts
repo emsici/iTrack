@@ -15,11 +15,25 @@ const config = {
       enabled: true
     },
     Geolocation: {
-      // Geolocation permissions
+      // Geolocation permissions - solicită permisiunea la pornirea aplicației
       permissions: {
         ios: [
           'Accesul la locație este necesar pentru a urmări poziția GPS în timpul transportului.'
-        ]
+        ],
+        android: {
+          fineLocation: {
+            title: "Permisiune locație GPS",
+            message: "Aplicația necesită acces la locația dvs. pentru a urmări cursele de transport."
+          },
+          coarseLocation: {
+            title: "Permisiune locație",
+            message: "Aplicația necesită acces la locația dvs. pentru a funcționa corect."
+          },
+          backgroundLocation: {
+            title: "Permisiune locație în fundal",
+            message: "Aplicația necesită acces la locația dvs. în fundal pentru a continua urmărirea transportului chiar și atunci când aplicația este minimizată."
+          }
+        }
       }
     },
     // Permite utilizarea locației în background
@@ -35,7 +49,10 @@ const config = {
       interval: 60000, // 1 minut
       fastestInterval: 30000, // 30 secunde
       activitiesInterval: 60000,
-      stopOnStillActivity: false
+      stopOnStillActivity: false,
+      notificationTitle: "iTrack GPS activat",
+      notificationText: "Monitorizare GPS pentru transport activă",
+      notificationIconColor: "#3880ff"
     }
   },
   android: {
