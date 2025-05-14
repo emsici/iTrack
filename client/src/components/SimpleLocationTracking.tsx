@@ -9,6 +9,7 @@ export default function SimpleLocationTracking() {
   const { gpsCoordinates, isGpsActive, lastGpsUpdateTime, isBackgroundActive, battery, transportStatus } = useTransport();
   const [isConnected, setIsConnected] = useState(true);
   const [deviceBattery, setDeviceBattery] = useState<number | null>(null);
+  const [localCoordinates, setLocalCoordinates] = useState<any>(null);
   
   // Debug pentru starea GPS
   useEffect(() => {
@@ -19,9 +20,48 @@ export default function SimpleLocationTracking() {
       battery,
       deviceBattery,
       lastUpdateTime: lastGpsUpdateTime,
-      coords: gpsCoordinates
+      coords: gpsCoordinates,
+      localCoords: localCoordinates
     });
-  }, [transportStatus, isGpsActive, gpsCoordinates, battery, deviceBattery, lastGpsUpdateTime]);
+  }, [transportStatus, isGpsActive, gpsCoordinates, battery, deviceBattery, lastGpsUpdateTime, localCoordinates]);
+  
+  // Obținem coordonatele direct și le propagăm în context
+  const { setGpsCoordinates } = useTransport();
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (navigator && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const coords = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+              timestamp: new Date().toISOString(),
+              viteza: position.coords.speed || 0,
+              directie: position.coords.heading || 0,
+              altitudine: position.coords.altitude || 0,
+              baterie: 100
+            };
+            setLocalCoordinates(coords);
+            
+            // Actualizăm și în contextul global pentru a fi disponibile în alte componente
+            setGpsCoordinates(coords);
+            
+            // Actualizăm și ultimul timp de actualizare
+            transport.setLastGpsUpdateTime(new Date().toISOString());
+            
+            console.log("Coordonate obținute direct și actualizate în context:", coords);
+          },
+          (error) => {
+            console.error("Eroare obținere coordonate:", error);
+          },
+          { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        );
+      }
+    }, 2000);
+    
+    return () => clearInterval(timer);
+  }, [setGpsCoordinates]);
   
   // Verificăm periodic conexiunea la internet
   useEffect(() => {
@@ -100,7 +140,8 @@ export default function SimpleLocationTracking() {
               </div>
               <p className="text-base font-bold text-slate-800">
                 {gpsCoordinates?.lat ? 
-                  gpsCoordinates.lat.toFixed(6) : "-"}
+                  gpsCoordinates.lat.toFixed(6) : localCoordinates?.lat ? 
+                  localCoordinates.lat.toFixed(6) : "-"}
               </p>
             </div>
             
@@ -111,7 +152,8 @@ export default function SimpleLocationTracking() {
               </div>
               <p className="text-base font-bold text-slate-800">
                 {gpsCoordinates?.lng ? 
-                  gpsCoordinates.lng.toFixed(6) : "-"}
+                  gpsCoordinates.lng.toFixed(6) : localCoordinates?.lng ? 
+                  localCoordinates.lng.toFixed(6) : "-"}
               </p>
             </div>
           </div>
