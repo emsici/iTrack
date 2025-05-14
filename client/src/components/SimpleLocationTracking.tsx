@@ -26,7 +26,7 @@ export default function SimpleLocationTracking() {
   }, [transportStatus, isGpsActive, gpsCoordinates, battery, deviceBattery, lastGpsUpdateTime, localCoordinates]);
   
   // Obținem coordonatele direct și le propagăm în context
-  const { setGpsCoordinates } = useTransport();
+  const { setGpsCoordinates, setLastGpsUpdateTime } = useTransport();
   
   useEffect(() => {
     const timer = setInterval(() => {
@@ -48,7 +48,7 @@ export default function SimpleLocationTracking() {
             setGpsCoordinates(coords);
             
             // Actualizăm și ultimul timp de actualizare
-            transport.setLastGpsUpdateTime(new Date().toISOString());
+            setLastGpsUpdateTime(new Date().toISOString());
             
             console.log("Coordonate obținute direct și actualizate în context:", coords);
           },
@@ -165,7 +165,7 @@ export default function SimpleLocationTracking() {
                 <p className="text-xs font-medium">Ultima actualizare</p>
               </div>
               <p className="text-base font-bold text-slate-800">
-                {formatTime(lastGpsUpdateTime)}
+                {lastGpsUpdateTime ? formatTime(lastGpsUpdateTime) : formatTime(localCoordinates?.timestamp)}
               </p>
             </div>
             
@@ -176,7 +176,9 @@ export default function SimpleLocationTracking() {
               </div>
               <p className="text-base font-bold text-slate-800">
                 {gpsCoordinates?.viteza !== undefined ? 
-                  `${Math.round(gpsCoordinates.viteza)} km/h` : "-"}
+                  `${Math.round(gpsCoordinates.viteza)} km/h` : 
+                  localCoordinates?.viteza !== undefined ?
+                  `${Math.round(localCoordinates.viteza)} km/h` : "-"}
               </p>
             </div>
             
@@ -187,7 +189,9 @@ export default function SimpleLocationTracking() {
               </div>
               <p className="text-base font-bold text-slate-800">
                 {gpsCoordinates?.directie !== undefined ? 
-                  `${Math.round(gpsCoordinates.directie % 360)}°` : "-"}
+                  `${Math.round(gpsCoordinates.directie % 360)}°` : 
+                  localCoordinates?.directie !== undefined ?
+                  `${Math.round(localCoordinates.directie % 360)}°` : "-"}
               </p>
             </div>
             
