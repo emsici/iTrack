@@ -30,7 +30,7 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
       console.log("Rezultat solicitare permisiuni GPS:", requestResult.location);
       
       // Pentru a verifica dacă permisiunea este acordată, încercăm să obținem poziția o dată
-      if (requestResult.location === 'granted') {
+      if (requestResult.location === 'granted' || requestResult.location === 'prompt') {
         try {
           await Geolocation.getCurrentPosition({
             enableHighAccuracy: true,
@@ -43,7 +43,7 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
           return false;
         }
       }
-      return requestResult.location === 'granted';
+      return requestResult.location === 'granted' || requestResult.location === 'prompt';
     }
     
     // Permisiunea este deja acordată

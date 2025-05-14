@@ -1,8 +1,9 @@
 import { useCallback, useState, useEffect } from "react";
 import { useTransport } from "@/context/TransportContext";
 import { useAuth } from "@/context/AuthContext";
-import { Battery, Signal, Wifi, MapPin, LogOut, Truck, Info } from "lucide-react";
+import { Battery, Signal, Wifi, MapPin, LogOut, Truck, Info, AlertCircle } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { requestGpsPermissions } from "@/lib/capacitorService";
 import { useToast } from "@/hooks/use-toast";
 
 export default function MobileHeader() {
@@ -12,6 +13,7 @@ export default function MobileHeader() {
   const [location] = useLocation();
   const [isEditingVehicle, setIsEditingVehicle] = useState<boolean>(false);
   const [newRegistrationNumber, setNewRegistrationNumber] = useState<string>('');
+  const [requestingGps, setRequestingGps] = useState<boolean>(false);
   
   const getBatteryColor = useCallback(() => {
     if (battery > 50) return "text-success";
