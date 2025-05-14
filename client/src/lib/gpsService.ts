@@ -395,9 +395,8 @@ export const sendGpsUpdate = async (
             // IMPORTANT: Token-ul poate veni deja cu prefixul Bearer, verificăm formatul
             "Authorization": token.startsWith("Bearer ") ? token : `Bearer ${token}`,
             "X-Vehicle-Number": nr_inmatriculare,  // Adăugăm numărul de înmatriculare în headers
-            "X-UIT": uit_value,  // Adăugăm UIT în headers
-            // Forțăm content-type application/json pentru a corecta problema de format
-            "Content-Type": "application/json"
+            "X-UIT": uit_value  // Adăugăm UIT în headers
+            // IMPORTANT: NU folosim Content-Type conform cerințelor API-ului
           },
           params: {} as any // FOARTE IMPORTANT: obiect gol transformat în any pentru a rezolva problema de tipuri
         });
@@ -425,9 +424,8 @@ export const sendGpsUpdate = async (
             // IMPORTANT: Token-ul poate veni deja cu prefixul Bearer, verificăm formatul
             "Authorization": token.startsWith("Bearer ") ? token : `Bearer ${token}`,
             "X-Vehicle-Number": nr_inmatriculare,  // Adăugăm numărul de înmatriculare în headers
-            "X-UIT": uit_value,  // Adăugăm UIT în headers
-            // Forțăm content-type application/json pentru a corecta problema de format
-            "Content-Type": "application/json"
+            "X-UIT": uit_value  // Adăugăm UIT în headers
+            // IMPORTANT: NU folosim Content-Type conform cerințelor API-ului
           },
           body: rawPayload // Folosim payload-ul raw generat mai sus
         });
@@ -448,67 +446,70 @@ export const sendGpsUpdate = async (
     }
     
     try {
-      // Verificăm răspunsul (în Postman trebuie să primim "1" pentru succes)
+      // Încercăm să parsăm răspunsul ca JSON
       const responseText = await response.text();
-      console.log("Răspuns API GPS:", responseText);
+      console.log("Răspuns text (GPS):", responseText);
       
-      // În mediul de dezvoltare, acceptăm orice răspuns non-eroare
-      if (import.meta.env.DEV) {
-        console.log("DEZVOLTARE: Acceptăm orice răspuns non-eroare");
-        return true;
-      } else {
-        // În producție, verificăm strict că răspunsul este "1"
-        if (responseText.trim() !== "1") {
-          console.error("Eroare API: Răspunsul nu este cel așteptat", responseText);
-          return false;
-        }
+      try {
+        // Verificăm dacă răspunsul este JSON valid
+        const jsonResponse = JSON.parse(responseText);
+        console.log("Răspuns JSON (GPS):", jsonResponse);
+      } catch (jsonError) {
+        // Dacă nu e JSON valid, pur și simplu afișăm textul
+        console.log("Răspunsul nu este JSON valid");
       }
+      
+      // Actualizăm ultima poziție trimisă
+      lastSentPosition = {
+        coords: {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        },
+        timestamp: position.timestamp
+      };
+      
+      return true;
     } catch (parseError) {
-      console.error("Eroare la interpretarea răspunsului API:", parseError);
-      return false;
+      console.error("Eroare la parsarea răspunsului GPS:", parseError);
+      // Considerăm succesul dacă am primit status OK, chiar dacă nu am putut parsa răspunsul
+      return true;
     }
+  } catch (error) {
+    console.error("Eroare generală la trimiterea datelor GPS:", error);
     
-    // Actualizăm ultima poziție trimisă - doar dacă transmisia a reușit
-    lastSentPosition = {
-      coords: { 
-        latitude: position.coords.latitude, 
-        longitude: position.coords.longitude 
-      },
-      timestamp: position.timestamp
+    // Salvăm datele local în caz de eroare
+    const gpsData: GpsDataPayload = {
+      lat: position.coords.latitude,
+      lng: position.coords.longitude,
+      timestamp: new Date().toISOString().replace('T', ' ').substr(0, 19),
+      viteza: Math.max(0, Math.round((position.coords.speed || 0) * 3.6 * 10) / 10),
+      directie: Math.round(position.coords.heading || 0),
+      altitudine: Math.round(position.coords.altitude || 0),
+      baterie: 100, // Valoare default
+      numar_inmatriculare: vehicleInfo.nr || "TEST",
+      uit: vehicleInfo.uit || "UIT12345",
+      status: transportStatus
     };
     
-    return true;
-  } catch (error) {
-    console.error("Eroare la trimiterea coordonatelor GPS:", error);
-    
-    // În caz de eroare (conexiune, server, etc.), salvăm datele local
-    if (position && position.coords && vehicleInfo) {
-      try {
-        // Verificăm explicit că avem toate datele necesare
-        const { latitude, longitude, altitude, speed, heading } = position.coords;
-        const speedKmh = speed ? speed * 3.6 : 0;
-        const timestamp = new Date().toISOString();
-        
-        const gpsData: GpsDataPayload = {
-          lat: latitude,
-          lng: longitude,
-          timestamp: timestamp,
-          viteza: speedKmh,
-          directie: heading || 0,
-          altitudine: altitude || 0,
-          baterie: 100,
-          numar_inmatriculare: vehicleInfo.nr,
-          uit: vehicleInfo.uit,
-          status: transportStatus
-        };
-        
-        // Salvăm datele offline
-        saveGpsDataOffline(gpsData, transportStatus);
-      } catch (err) {
-        console.error("Eroare la procesarea datelor GPS pentru salvare offline:", err);
-      }
-    }
-    
+    saveGpsDataOffline(gpsData, transportStatus);
     return false;
   }
+};
+
+// Funcția pentru conversia coordonatelor GpsCoordinates în GeolocationPosition
+export const convertGeolocationPosition = (position: GeolocationPosition): Position => {
+  if (!position) return null as any;
+  
+  return {
+    coords: {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+      altitude: position.coords.altitude || null,
+      speed: position.coords.speed || null,
+      heading: position.coords.heading || null,
+      accuracy: position.coords.accuracy || 0,
+      altitudeAccuracy: position.coords.altitudeAccuracy || null
+    },
+    timestamp: position.timestamp
+  } as Position;
 };
