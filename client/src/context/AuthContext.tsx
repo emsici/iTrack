@@ -4,6 +4,7 @@ import { Login } from "@shared/schema";
 import { loginUser, getVehicleInfo, isValidToken, isTokenExpired, decodeToken } from "@/lib/auth";
 import { Capacitor } from "@capacitor/core";
 import { Http } from "@capacitor-community/http";
+import { setGpsAccessControl } from "@/lib/transportService";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -91,9 +92,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       if (storedToken) {
+        // Verificare token expirat
+        if (isTokenExpired(storedToken)) {
+          console.log("Token expirat, ștergem sesiunea");
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("user_info");
+          localStorage.removeItem("vehicle_info");
+          sessionStorage.removeItem("auth_token");
+          sessionStorage.removeItem("user_info");
+          sessionStorage.removeItem("vehicle_info");
+          
+          // Actualizăm controlul de acces GPS
+          setGpsAccessControl(false, false);
+          
+          return;
+        }
+        
         console.log("Sesiune găsită, restaurez starea autentificării");
         setToken(storedToken);
         setIsAuthenticated(true);
+        
+        // Actualizăm controlul de acces GPS - utilizator autentificat, transport încă necunoscut
+        setGpsAccessControl(true, false);
         
         if (storedUserInfo) {
           setUserInfo(JSON.parse(storedUserInfo));
@@ -105,6 +125,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } else {
         console.log("Nu s-a găsit nicio sesiune salvată");
+        
+        // Actualizăm controlul de acces GPS - utilizator neautentificat
+        setGpsAccessControl(false, false);
       }
     } catch (error) {
       console.error("Eroare la restaurarea sesiunii:", error);
@@ -132,6 +155,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(result.token);
         setUserInfo({ email: credentials.email });
         setIsAuthenticated(true);
+        
+        // Actualizăm controlul de acces GPS pentru utilizator autentificat
+        setGpsAccessControl(true, false);
         
         // Folosim funcția noastră pentru a salva sesiunea în toate tipurile de stocare
         saveSessionState(
