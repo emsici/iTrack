@@ -15,6 +15,7 @@ interface StoredGpsRecord {
 
 /**
  * Salvează datele GPS în localStorage când nu există conexiune la internet
+ * Verifică dacă există deja o înregistrare cu aceleași coordonate și timestamp înainte de a o adăuga
  */
 export const saveGpsDataOffline = (
   data: GpsDataPayload, 
@@ -23,6 +24,22 @@ export const saveGpsDataOffline = (
   try {
     // Obținem datele existente sau inițializăm un array gol
     const existingData: StoredGpsRecord[] = getOfflineGpsData();
+    
+    // Verificăm dacă există deja o înregistrare cu aceleași coordonate și timestamp
+    const isDuplicate = existingData.some(record => 
+      record.data.lat === data.lat && 
+      record.data.lng === data.lng && 
+      record.data.timestamp === data.timestamp
+    );
+    
+    if (isDuplicate) {
+      console.log('[Offline Storage] Date duplicate detectate, nu se salvează:', {
+        lat: data.lat, 
+        lng: data.lng, 
+        timestamp: data.timestamp
+      });
+      return;
+    }
     
     // Adăugăm noua înregistrare
     existingData.push({

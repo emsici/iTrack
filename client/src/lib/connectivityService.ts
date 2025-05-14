@@ -174,9 +174,14 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
     return false;
   }
   
+  if (!isSyncEnabled) {
+    console.log('Sincronizarea este dezactivată, se ignoră datele offline');
+    return false;
+  }
+  
   try {
     // Obținem datele GPS salvate local
-    const offlineData = getOfflineData();
+    const offlineData = getOfflineGpsData();
     if (offlineData.length === 0) {
       console.log('Nu există date offline pentru sincronizare');
       return true;
@@ -184,12 +189,30 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
     
     console.log(`Sincronizare date offline: ${offlineData.length} înregistrări`);
     
+    // Eliminăm duplicatele înainte de sincronizare
+    const uniqueRecords: StoredGpsRecord[] = [];
+    const seenEntries = new Set<string>();
+    
+    for (const record of offlineData) {
+      // Creăm un identificator unic pentru această înregistrare bazat pe coordonate și timestamp
+      const recordId = `${record.data.lat}-${record.data.lng}-${record.data.timestamp}`;
+      
+      if (!seenEntries.has(recordId)) {
+        seenEntries.add(recordId);
+        uniqueRecords.push(record);
+      } else {
+        console.log('Ignorăm înregistrare duplicată la sincronizare:', recordId);
+      }
+    }
+    
+    console.log(`După eliminarea duplicatelor: ${uniqueRecords.length} înregistrări unice`);
+    
     // Grupăm datele în batch-uri pentru a nu supraîncărca serverul
     const BATCH_SIZE = 5;
     const batches = [];
     
-    for (let i = 0; i < offlineData.length; i += BATCH_SIZE) {
-      batches.push(offlineData.slice(i, i + BATCH_SIZE));
+    for (let i = 0; i < uniqueRecords.length; i += BATCH_SIZE) {
+      batches.push(uniqueRecords.slice(i, i + BATCH_SIZE));
     }
     
     // Trimitem fiecare batch în serie, nu în paralel, pentru a evita supraîncărcarea serverului
@@ -204,8 +227,17 @@ export const syncOfflineData = async (token?: string): Promise<boolean> => {
             const apiExternUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
             
             // Asigurăm-ne că nu avem valori goale pentru câmpurile importante
-            const numar_inmatriculare = String(record.data.numar_inmatriculare || "").trim() || "TEMP-" + Math.floor(Math.random() * 1000);
-            const uit_value = String(record.data.uit || "").trim() || "UIT" + Math.floor(Math.random() * 10000);
+            const numar_inmatriculare = String(record.data.numar_inmatriculare || "").trim();
+            const uit_value = String(record.data.uit || "").trim();
+            
+            // Dacă lipsesc informațiile esențiale, ignorăm această înregistrare
+            if (!numar_inmatriculare || !uit_value) {
+              console.log('Ignorăm înregistrare cu date incomplete:', {
+                numar_inmatriculare, 
+                uit: uit_value
+              });
+              return null;
+            }
             
             // Formatăm datele exact cum o face funcția sendGpsData din gpsService.ts
             const payload = JSON.stringify({
