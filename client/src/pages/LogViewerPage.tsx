@@ -30,14 +30,27 @@ export default function LogViewerPage() {
   // Sursele unice din loguri
   const uniqueSources = Array.from(new Set(getLogs().map(log => log.source)));
 
-  // Autentificare utilizator suprem
-  const handleLogin = () => {
-    if (isAdminUser(email, password)) {
-      setIsAuthenticated(true);
-      refreshLogs();
-      setError('');
-    } else {
+  // Autentificare - verifică local pentru admin, apoi eventual către API pentru alți utilizatori
+  const handleLogin = async () => {
+    try {
+      // Verificăm mai întâi dacă sunt credențialele de admin definite local
+      if (isAdminUser(email, password)) {
+        // Dacă sunt creditențiale de admin, autentificăm direct fără a trimite la API
+        setIsAuthenticated(true);
+        refreshLogs();
+        setError('');
+        addLog('Autentificare administrator reușită', 'info', 'admin-page');
+        return; // Important - ieșim din funcție, nu mai trimitem date la API
+      }
+      
+      // Dacă nu sunt creditențiale de admin, atunci respingem direct
+      // (eventual aici am putea verifica și cu API-ul pentru alte credențiale)
       setError('Credențiale invalide. Accesul este permis doar pentru utilizatorii administratori.');
+      addLog('Încercare de autentificare eșuată', 'warn', 'admin-page', { email });
+      
+    } catch (error) {
+      console.error('Eroare la autentificare:', error);
+      setError('Eroare la procesarea autentificării. Încercați din nou.');
     }
   };
 
@@ -223,6 +236,13 @@ export default function LogViewerPage() {
                 </button>
                 
                 <button
+                  onClick={() => setShowMobileLogImport(!showMobileLogImport)}
+                  className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+                >
+                  {showMobileLogImport ? 'Ascunde Import' : 'Import Loguri Mobile'}
+                </button>
+                
+                <button
                   onClick={handleExport}
                   className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
                 >
@@ -246,6 +266,43 @@ export default function LogViewerPage() {
             </div>
           </div>
           
+          {/* Secțiune pentru importul logurilor mobile */}
+          {showMobileLogImport && (
+            <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+              <h3 className="text-lg font-semibold mb-3">Import Loguri Mobile</h3>
+              {error && <div className="bg-red-100 text-red-800 p-3 rounded mb-4">{error}</div>}
+              
+              <div className="mb-4">
+                <label htmlFor="mobileLogContent" className="block text-sm font-medium text-gray-700 mb-1">
+                  Conținut Loguri (copiați și lipiți logurile din aplicația mobilă)
+                </label>
+                <textarea
+                  id="mobileLogContent"
+                  value={mobileLogContent}
+                  onChange={(e) => setMobileLogContent(e.target.value)}
+                  className="w-full p-2 border rounded-md h-40 font-mono text-xs"
+                  placeholder="Copiați aici conținutul logurilor din aplicația mobilă..."
+                />
+              </div>
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={handleMobileLogImport}
+                  className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+                >
+                  Procesează Loguri
+                </button>
+                <button
+                  onClick={() => setShowMobileLogImport(false)}
+                  className="bg-gray-500 text-white py-2 px-4 rounded-md hover:bg-gray-600"
+                >
+                  Anulează
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {/* Tabel pentru afișarea logurilor */}
           <div className="bg-white shadow-md rounded-lg overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
