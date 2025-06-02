@@ -65,12 +65,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("[GPS Proxy] Primesc date GPS pentru transmisie:", req.body);
       
+      // Adaug credențialele de autentificare la datele GPS
+      const gpsDataWithAuth = {
+        ...req.body,
+        email: "test@exemplu.com",
+        password: "parola123"
+      };
+      
+      console.log("[GPS Proxy] Trimit date cu autentificare:", gpsDataWithAuth);
+      
       const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "User-Agent": "iTrack-Mobile-App/1.0"
         },
-        body: JSON.stringify(req.body)
+        body: JSON.stringify(gpsDataWithAuth)
       });
       
       const responseText = await response.text();
@@ -86,7 +97,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(500).json({ 
           success: false, 
           message: "Failed to send GPS data",
-          serverResponse: responseText 
+          serverResponse: responseText,
+          statusCode: response.status
         });
       }
       
@@ -95,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         success: false, 
         message: "Error sending GPS data",
-        error: error.message 
+        error: (error as Error).message 
       });
     }
   });
