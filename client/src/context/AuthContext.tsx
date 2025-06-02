@@ -299,7 +299,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             codDeclarant: data.codDeclarant,
             denumireCui: data.denumireCui,
             dataTransport: data.dataTransport,
-            ikRoTrans: data.ikRoTrans
+            ikRoTrans: data.ikRoTrans,
+            // IMPORTANT: Adăugăm toate transporturile procesate din API
+            allTransports: data.allTransports || []
           };
           
           setVehicleInfo(vehicleData);
