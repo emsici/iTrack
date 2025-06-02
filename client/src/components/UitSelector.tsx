@@ -48,6 +48,10 @@ export default function UitSelector() {
       let uits: UitOption[] = [];
       
       // Verificăm mai întâi dacă vehicleInfo conține toate transporturile
+      console.log("=== VERIFICARE TRANSPORTURI ===");
+      console.log("vehicleInfo:", vehicleInfo);
+      console.log("vehicleInfo.allTransports:", vehicleInfo?.allTransports);
+      
       if (vehicleInfo && vehicleInfo.allTransports && Array.isArray(vehicleInfo.allTransports)) {
         // Folosim transporturile din vehicleInfo care conține deja toate UIT-urile
         uits = vehicleInfo.allTransports.map((transport: any) => ({
@@ -56,6 +60,7 @@ export default function UitSelector() {
           stop_locatie: transport.stop_locatie
         }));
         console.log("UIT-uri obținute din vehicleInfo.allTransports:", uits.length);
+        console.log("Lista completă UIT-uri:", uits);
       } else if (vehicleInfo && vehicleInfo.nr && token) {
         try {
           // Facem un apel la API pentru a obține toate UIT-urile pentru vehicul
