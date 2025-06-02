@@ -105,8 +105,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    // Poll la fiecare 10 secunde
-    const statusInterval = setInterval(pollTransportStatus, 10000);
+    // Poll la fiecare 60 secunde
+    const statusInterval = setInterval(pollTransportStatus, 60000);
     
     // Poll imediat
     pollTransportStatus();
