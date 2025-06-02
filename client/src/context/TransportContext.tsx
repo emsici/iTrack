@@ -1455,6 +1455,57 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       );
       console.log("[Transport] Stare salvată după pornire");
       
+      // ADĂUGARE: Interval automat pentru transmisia GPS la fiecare 60 secunde
+      if (gpsIntervalRef.current) {
+        clearInterval(gpsIntervalRef.current);
+      }
+      
+      console.log("[GPS Auto] Pornire interval transmisie automată la 60 secunde");
+      gpsIntervalRef.current = setInterval(async () => {
+        console.log("[GPS Auto] Verificare transmisie automată la 60s...");
+        
+        // Verificăm dacă transportul este încă activ
+        const currentState = getSavedAppState();
+        if (currentState?.transportStatus !== 'active') {
+          console.log("[GPS Auto] Transport nu mai este activ, opresc intervalul");
+          if (gpsIntervalRef.current) {
+            clearInterval(gpsIntervalRef.current);
+            gpsIntervalRef.current = null;
+          }
+          return;
+        }
+        
+        // Obținem coordonatele curente
+        const coords = gpsCoordinates;
+        const vehicle = vehicleInfo?.nr;
+        const uit = currentActiveUit?.uit;
+        const authToken = token;
+        
+        console.log("[GPS Auto] Date pentru transmisie:", {
+          hasCoords: !!coords,
+          hasVehicle: !!vehicle,
+          hasUit: !!uit,
+          hasToken: !!authToken
+        });
+        
+        if (coords && vehicle && uit && authToken) {
+          console.log("[GPS Auto] Transmisie GPS automată:", coords);
+          
+          try {
+            const success = await sendGpsUpdate(coords, vehicle, uit, 2, authToken);
+            if (success) {
+              console.log("[GPS Auto] ✅ Transmisie automată reușită");
+            } else {
+              console.log("[GPS Auto] ❌ Transmisie automată eșuată");
+            }
+          } catch (error) {
+            console.error("[GPS Auto] Eroare transmisie automată:", error);
+          }
+        } else {
+          console.log("[GPS Auto] Condițiile nu sunt îndeplinite pentru transmisie");
+        }
+      }, 60000); // 60 secunde
+      
       toast({
         title: "Transport pornit",
         description: `Transportul pentru UIT ${currentActiveUit.uit} a fost pornit cu succes.`
