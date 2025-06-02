@@ -254,20 +254,6 @@ export default function TransportMap() {
             <span className="font-medium">Ultima actualizare:</span>{" "}
             {lastGpsUpdateTime}
           </span>
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-600">Baterie:</span>
-            <div className="relative flex items-center gap-2">
-              <div className="w-16 bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                <div
-                  className={`h-2.5 rounded-full ${gpsCoordinates.baterie > 20 ? "bg-green-500" : "bg-red-500"}`}
-                  style={{ width: `${gpsCoordinates.baterie}%` }}
-                ></div>
-              </div>
-              <span className="text-sm">
-                {gpsCoordinates.baterie}%
-              </span>
-            </div>
-          </div>
         </div>
       )}
 

@@ -377,8 +377,8 @@ export const sendGpsUpdate = async (
     console.log("GPS DATA FINAL format pentru API:", gpsDataFinal);
     
     // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
-    // Pentru testare, folosim direct URL-ul API-ului extern și în browser
-    const isNative = true; // Forțăm comportamentul nativ chiar și în browser pentru testare
+    // Detectăm dacă rulăm pe platformă nativă sau în browser
+    const isNative = Capacitor.isNativePlatform();
     
     // URL-ul API extern - pentru dispozitive native și test browser
     const apiExternUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
