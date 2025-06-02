@@ -101,97 +101,63 @@ export default function TransportControls() {
       ]);
     }
   }, [vehicleInfo]);
-  
-  // Sincronizează starea transporturilor cu starea globală din context - doar pentru transportul activ
+
+  // Sincronizăm starea transportului cu contextul
   useEffect(() => {
-    if (transports.length === 0) return;
-    
-    const localStatus = localStorage.getItem('transport_status');
     const activeUitFromStorage = localStorage.getItem('current_active_uit');
-    const effectiveStatus = localStatus || transportStatus || "inactive";
+    const localStatus = localStorage.getItem('transport_status') as "inactive" | "active" | "paused" | "finished" | null;
     
     console.log("[TransportControls] Sincronizare stare:", {
       localStatus,
       contextStatus: transportStatus,
-      effectiveStatus,
+      effectiveStatus: localStatus || transportStatus,
       activeUitFromStorage,
       currentActiveUit: currentActiveUit?.uit
     });
-    
-    // Actualizăm DOAR transportul care este activ în contextul global
+
+    const effectiveStatus = localStatus || transportStatus;
     const activeUit = currentActiveUit?.uit || activeUitFromStorage;
-    
-    setTransports(prev => prev.map(transport => {
-      // Dacă este transportul activ din context, actualizăm statusul
-      if (transport.uit === activeUit) {
-        return {
-          ...transport,
-          status: effectiveStatus as "inactive" | "active" | "paused" | "finished",
-          isTracking: effectiveStatus === "active" && isBackgroundActive
-        };
-      }
-      // Pentru celelalte transporturi, păstrăm statusul local (independent)
-      return transport;
-    }));
-    
-  }, [transportStatus, isBackgroundActive, currentActiveUit]);
 
-  // Obține clasa de culoare pentru indicatorul de stare
-  const getStatusIndicatorClass = (status: string, isTracking: boolean) => {
-    switch(status) {
-      case "inactive": return "bg-gray-400";
-      case "active": return isTracking ? "bg-green-500 animate-pulse" : "bg-green-500";
-      case "paused": return "bg-yellow-500";
-      case "finished": return "bg-blue-500";
-      default: return "bg-gray-400";
+    if (effectiveStatus && activeUit) {
+      setTransports(prev => prev.map(transport => ({
+        ...transport,
+        status: transport.uit === activeUit ? effectiveStatus : "inactive",
+        isTracking: transport.uit === activeUit && effectiveStatus === "active"
+      })));
+    } else if (effectiveStatus === "inactive") {
+      setTransports(prev => prev.map(transport => ({
+        ...transport,
+        status: "inactive",
+        isTracking: false
+      })));
     }
-  };
-  
-  // Obține textul de stare pentru afișare
+  }, [transportStatus, currentActiveUit]);
+
+  // Funcție pentru obținerea textului statusului
   const getStatusText = (status: string, isTracking: boolean) => {
-    switch(status) {
-      case "inactive": return "Inactiv";
-      case "active": return isTracking ? "Activ (GPS pornit)" : "Activ (fără GPS)";
-      case "paused": return "În pauză";
-      case "finished": return "Finalizat";
-      default: return "Necunoscut";
+    if (isTracking && !isGpsActive) {
+      return "Activ (fără GPS)"; // Acest caz nu ar trebui să se întâmple
+    }
+    
+    switch (status) {
+      case "active":
+        return isGpsActive ? "Activ" : "Activ (fără GPS)";
+      case "paused":
+        return "În pauză";
+      case "finished":
+        return "Finalizat";
+      default:
+        return "Inactiv";
     }
   };
 
-  // Handler pentru pornirea unui transport individual
+  // Handler pentru pornirea unui transport
   const handleStartTransport = async (transportId: string) => {
     try {
-      console.log("Se începe transportul:", transportId);
-      
       const currentTransport = transports.find(t => t.id === transportId);
       if (!currentTransport) {
         throw new Error("Transport negăsit");
       }
-      
-      // Verificăm dacă există deja un transport activ
-      const hasActiveTransport = transports.some(t => t.status === "active");
-      if (hasActiveTransport) {
-        toast({
-          variant: "destructive",
-          title: "Transport deja activ",
-          description: "Există deja un transport în desfășurare. Finalizați-l înainte de a porni altul."
-        });
-        return;
-      }
-      
-      toast({
-        title: "Se procesează...",
-        description: "Se inițiază transportul, vă rugăm așteptați..."
-      });
-      
-      // Actualizăm starea LOCAL pentru acest transport
-      setTransports(prevTransports => 
-        prevTransports.map(transport => 
-          transport.id === transportId 
-            ? { ...transport, status: "active", isTracking: true }
-            : transport
-        )
-      );
       
       const currentUit = {
         uit: currentTransport.uit,
@@ -199,59 +165,38 @@ export default function TransportControls() {
         stop_locatie: currentTransport.stop_locatie
       };
       
-      // Salvăm în localStorage care transport este activ
+      const success = await startTransport(currentUit);
+      if (!success) {
+        throw new Error("Pornirea transportului a eșuat");
+      }
+      
+      // Salvăm în localStorage
       localStorage.setItem('current_active_transport_id', transportId);
       localStorage.setItem('current_active_uit', currentTransport.uit);
       
-      const result = await startTransport(currentUit);
-      console.log("Rezultat pornire transport:", result);
-      
-      if (result) {
-        toast({
-          title: "Transport pornit",
-          description: `Transport ${currentTransport.uit} pornit cu succes.`
-        });
-      } else {
-        // Resetăm starea în caz de eroare
-        setTransports(prevTransports => 
-          prevTransports.map(transport => 
-            transport.id === transportId 
-              ? { ...transport, status: "inactive", isTracking: false } 
-              : transport
-          )
-        );
-        localStorage.removeItem('current_active_transport_id');
-        localStorage.removeItem('current_active_uit');
-        
-        toast({
-          variant: "destructive",
-          title: "Eroare GPS",
-          description: "Nu s-a putut activa GPS-ul. Transportul nu poate fi pornit fără GPS activ."
-        });
-      }
-    } catch (error) {
-      console.error("Eroare la pornirea transportului:", error);
-      
-      // Resetăm starea în caz de eroare
       setTransports(prevTransports => 
         prevTransports.map(transport => 
           transport.id === transportId 
-            ? { ...transport, status: "inactive", isTracking: false } 
-            : transport
+            ? { ...transport, status: "active", isTracking: true } 
+            : { ...transport, status: "inactive", isTracking: false }
         )
       );
-      localStorage.removeItem('current_active_transport_id');
-      localStorage.removeItem('current_active_uit');
       
+      toast({
+        title: "Transport pornit",
+        description: `Transport ${currentTransport.uit} a fost pornit cu succes.`
+      });
+    } catch (error) {
+      console.error("Eroare la pornirea transportului:", error);
       toast({
         variant: "destructive",
         title: "Eroare",
-        description: "A apărut o eroare la pornirea transportului. Verificați conexiunea la internet."
+        description: "A apărut o eroare la pornirea transportului."
       });
     }
   };
 
-  // Handler pentru pausarea unui transport
+  // Handler pentru pauzarea unui transport
   const handlePauseTransport = async (transportId: string) => {
     try {
       const currentTransport = transports.find(t => t.id === transportId);
@@ -276,15 +221,15 @@ export default function TransportControls() {
       );
       
       toast({
-        title: "Transport în pauză",
+        title: "Transport pus în pauză",
         description: `Transport ${currentTransport.uit} a fost pus în pauză.`
       });
     } catch (error) {
-      console.error("Eroare la pausarea transportului:", error);
+      console.error("Eroare la pauzarea transportului:", error);
       toast({
         variant: "destructive",
         title: "Eroare",
-        description: "A apărut o eroare la pausarea transportului."
+        description: "A apărut o eroare la pauzarea transportului."
       });
     }
   };
@@ -377,144 +322,179 @@ export default function TransportControls() {
       </div>
       
       <div className="grid gap-4">
-        {transports.map(transport => (
-          <Card key={transport.id} className={`transition-all duration-300 hover:shadow-lg border-l-4 ${
-            transport.status === 'active' ? 'border-l-green-500 bg-green-50' :
-            transport.status === 'paused' ? 'border-l-yellow-500 bg-yellow-50' :
-            transport.status === 'finished' ? 'border-l-gray-500 bg-gray-50' :
-            'border-l-blue-500 bg-white hover:bg-blue-50'
-          }`}>
-            <CardContent className="p-6">
-              <div className="flex flex-col space-y-4">
-                {/* Header cu status și UIT */}
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center space-x-3">
-                    <div className={`h-4 w-4 rounded-full flex items-center justify-center ${
-                      transport.status === 'active' ? 'bg-green-500' :
-                      transport.status === 'paused' ? 'bg-yellow-500' :
-                      transport.status === 'finished' ? 'bg-gray-500' :
-                      'bg-blue-500'
-                    }`}>
-                      <div className="h-2 w-2 bg-white rounded-full"></div>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg text-gray-900">
-                        {getStatusText(transport.status, transport.isTracking)}
-                      </h3>
-                      <p className="text-sm text-gray-500">Transport #{transport.id}</p>
-                    </div>
-                  </div>
-                  
-                  <Badge className={`px-3 py-1 font-medium ${
-                    transport.status === 'active' ? 'bg-green-100 text-green-800 border-green-200' :
-                    transport.status === 'paused' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
-                    transport.status === 'finished' ? 'bg-gray-100 text-gray-800 border-gray-200' :
-                    'bg-blue-100 text-blue-800 border-blue-200'
-                  }`}>
-                    UIT: {transport.uit}
-                  </Badge>
-                </div>
-                
-                {/* Informații traseu */}
-                <div className="bg-white rounded-lg p-4 border border-gray-200">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center space-x-2 flex-1">
-                      <div className="h-3 w-3 bg-green-500 rounded-full"></div>
-                      <span className="font-medium text-gray-900">{transport.start_locatie}</span>
-                    </div>
-                    
-                    <div className="flex-shrink-0">
-                      <div className="flex items-center space-x-1">
-                        <div className="h-0.5 w-8 bg-gray-300"></div>
-                        <Truck className="h-4 w-4 text-gray-400" />
-                        <div className="h-0.5 w-8 bg-gray-300"></div>
+        {transports.map(transport => {
+          const isActive = transport.status === 'active';
+          const isExpanded = expandedTransports.has(transport.id);
+          
+          return (
+            <Card key={transport.id} className={`transition-all duration-300 hover:shadow-lg border-l-4 ${
+              transport.status === 'active' ? 'border-l-green-500 bg-green-50' :
+              transport.status === 'paused' ? 'border-l-yellow-500 bg-yellow-50' :
+              transport.status === 'finished' ? 'border-l-gray-500 bg-gray-50' :
+              'border-l-blue-500 bg-white hover:bg-blue-50'
+            }`}>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {/* Header cu status și UIT */}
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center space-x-3">
+                      <div className={`h-4 w-4 rounded-full flex items-center justify-center ${
+                        transport.status === 'active' ? 'bg-green-500' :
+                        transport.status === 'paused' ? 'bg-yellow-500' :
+                        transport.status === 'finished' ? 'bg-gray-500' :
+                        'bg-blue-500'
+                      }`}>
+                        <div className="h-2 w-2 bg-white rounded-full"></div>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg text-gray-900">
+                          {getStatusText(transport.status, transport.isTracking)}
+                        </h3>
+                        <p className="text-sm text-gray-500">UIT: {transport.uit}</p>
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-2 flex-1 justify-end">
-                      <span className="font-medium text-gray-900">{transport.stop_locatie}</span>
-                      <div className="h-3 w-3 bg-red-500 rounded-full"></div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Informații status */}
-                <div className="flex justify-between items-center text-sm">
-                  {isGpsActive !== undefined && (
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-500">GPS:</span>
-                      <span className={`font-medium ${isGpsActive ? 'text-green-600' : 'text-red-600'}`}>
-                        {isGpsActive ? 'Activ' : 'Inactiv'}
-                      </span>
-                    </div>
-                  )}
-                  <div className="flex items-center space-x-2">
-                    <span className="text-gray-500">Baterie:</span>
-                    <span className="font-medium">{battery}%</span>
-                  </div>
-                </div>
-                
-                {/* Butoane acțiuni cu design modern */}
-                <div className="flex flex-col space-y-3">
-                  {/* Stare INACTIVĂ: Afișăm doar butonul de pornire */}
-                  {transport.status === "inactive" && (
-                    <Button 
-                      className="w-full h-12 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
-                      onClick={() => handleStartTransport(transport.id)}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleExpanded(transport.id)}
+                      className="p-1 h-8 w-8"
                     >
-                      <Play className="h-5 w-5 mr-2" /> Pornire Transport
+                      {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </Button>
+                  </div>
+                  
+                  {/* Traseu */}
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-2 flex-1">
+                        <div className="h-3 w-3 bg-green-500 rounded-full"></div>
+                        <span className="font-medium text-gray-900">{transport.start_locatie}</span>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <Truck className="h-4 w-4 text-gray-400" />
+                      </div>
+                      <div className="flex items-center space-x-2 flex-1 justify-end">
+                        <span className="font-medium text-gray-900">{transport.stop_locatie}</span>
+                        <div className="h-3 w-3 bg-red-500 rounded-full"></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Localizare curentă pentru transportul activ */}
+                  {isActive && gpsCoordinates && (
+                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <MapPin className="h-4 w-4 text-blue-600" />
+                        <span className="font-medium text-blue-900">Localizare curentă</span>
+                      </div>
+                      <div className="text-sm text-blue-800">
+                        <p>Lat: {gpsCoordinates.lat.toFixed(6)}</p>
+                        <p>Lng: {gpsCoordinates.lng.toFixed(6)}</p>
+                        <p>Actualizat: {new Date(gpsCoordinates.timestamp).toLocaleTimeString()}</p>
+                      </div>
+                    </div>
                   )}
                   
-                  {/* Stare ACTIVĂ: Afișăm butoanele de Pauză și Finalizare */}
-                  {transport.status === "active" && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button 
-                        className="h-12 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-semibold rounded-lg shadow-lg transition-all duration-300"
-                        onClick={() => handlePauseTransport(transport.id)}
-                      >
-                        <Pause className="h-4 w-4 mr-2" /> Pauză
-                      </Button>
+                  {/* Detalii expandabile */}
+                  <Collapsible open={isExpanded}>
+                    <CollapsibleContent>
+                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <h4 className="font-medium text-gray-900 mb-3">Detalii complete</h4>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <span className="text-gray-500">ikRoTrans:</span>
+                            <span className="ml-2 font-medium">{transport.ikRoTrans || 'N/A'}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Cod Declarant:</span>
+                            <span className="ml-2 font-medium">{transport.codDeclarant || 'N/A'}</span>
+                          </div>
+                          <div className="col-span-2">
+                            <span className="text-gray-500">Denumire:</span>
+                            <span className="ml-2 font-medium">{transport.denumireCui || 'N/A'}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Vehicul:</span>
+                            <span className="ml-2 font-medium">{transport.nrVehicul || 'N/A'}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">Data:</span>
+                            <span className="ml-2 font-medium">{transport.dataTransport || 'N/A'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                  
+                  {/* Controale */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-4 text-sm">
+                      <span className={`font-medium ${
+                        isActive && isGpsActive ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        GPS: {isGpsActive ? 'Activ' : 'Inactiv'}
+                      </span>
+                      <span className="text-gray-600">Baterie: {battery}%</span>
+                    </div>
+                    
+                    <div className="flex space-x-2">
+                      {transport.status === 'inactive' && (
+                        <Button
+                          onClick={() => handleStartTransport(transport.id)}
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <Play className="h-4 w-4 mr-2" />
+                          Pornește
+                        </Button>
+                      )}
                       
-                      <Button 
-                        className="h-12 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-300"
-                        onClick={() => handleFinishTransport(transport.id)}
-                      >
-                        <Check className="h-4 w-4 mr-2" /> Finalizare
-                      </Button>
-                    </div>
-                  )}
-                  
-                  {/* Stare PAUZĂ: Afișăm butonul de Reluare și Finalizare */}
-                  {transport.status === "paused" && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button 
-                        className="h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-300"
-                        onClick={() => handleResumeTransport(transport.id)}
-                      >
-                        <Play className="h-4 w-4 mr-2" /> Reluare
-                      </Button>
+                      {transport.status === 'active' && (
+                        <>
+                          <Button
+                            onClick={() => handlePauseTransport(transport.id)}
+                            className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                          >
+                            <Pause className="h-4 w-4 mr-2" />
+                            Pauză
+                          </Button>
+                          
+                          <Button
+                            onClick={() => handleFinishTransport(transport.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                          >
+                            <Check className="h-4 w-4 mr-2" />
+                            Finalizează
+                          </Button>
+                        </>
+                      )}
                       
-                      <Button 
-                        className="h-12 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-300"
-                        onClick={() => handleFinishTransport(transport.id)}
-                      >
-                        <Check className="h-4 w-4 mr-2" /> Finalizare
-                      </Button>
+                      {transport.status === 'paused' && (
+                        <>
+                          <Button
+                            onClick={() => handleResumeTransport(transport.id)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            Reia
+                          </Button>
+                          
+                          <Button
+                            onClick={() => handleFinishTransport(transport.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                          >
+                            <Check className="h-4 w-4 mr-2" />
+                            Finalizează
+                          </Button>
+                        </>
+                      )}
                     </div>
-                  )}
-                  
-                  {/* Stare FINALIZAT: Mesaj informativ */}
-                  {transport.status === "finished" && (
-                    <div className="w-full p-4 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg text-center">
-                      <span className="text-gray-600 font-medium">✓ Transport finalizat cu succes</span>
-                    </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
