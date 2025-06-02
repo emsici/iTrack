@@ -408,11 +408,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         // Verificăm dacă transportul este încă activ
         if (transportStatus === 'active' && vehicleInfo?.nr && currentActiveUit && token) {
           // Folosim ultimele coordonate valide sau coordonate estimate
-          const currentCoords = gpsCoordinates || (lastValidCoordinates ? {
-            ...lastValidCoordinates,
-            timestamp: new Date().toISOString(),
-            isEstimated: true
-          } : null);
+          const currentCoords = gpsCoordinates;
           
           if (currentCoords) {
             console.log("[GPS Interval] Transmisie periodică GPS la 60 secunde:", currentCoords);
