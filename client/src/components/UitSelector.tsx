@@ -28,6 +28,8 @@ interface UitOption {
 }
 
 export default function UitSelector() {
+  console.log("=== UitSelector RENDER START ===");
+  
   const { setSelectedUits, setCurrentActiveUit } = useTransport();
   const [isLoading, setIsLoading] = useState(false);
   const [availableUits, setAvailableUits] = useState<UitOption[]>([]);
@@ -35,6 +37,9 @@ export default function UitSelector() {
   const [currentUit, setCurrentUit] = useState<string>("");
 
   const { vehicleInfo, token } = useAuth();
+  
+  console.log("UitSelector - vehicleInfo în render:", vehicleInfo);
+  console.log("UitSelector - vehicleInfo?.allTransports în render:", vehicleInfo?.allTransports);
 
   // Funcție pentru a obține transporturile disponibile de la server
   const fetchUits = async (showLoading = true) => {
