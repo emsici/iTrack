@@ -114,7 +114,9 @@ router.post("/gps", async (req, res) => {
       baterie: Number(bodyData.baterie || 100),
       numar_inmatriculare: String(bodyData.numar_inmatriculare || ""),
       uit: String(bodyData.uit || ""),
-      status: String(bodyData.status || "in_progress")
+      status: String(bodyData.status || "in_progress"),
+      hdop: Number(bodyData.hdop || 2),
+      gsm_signal: Number(bodyData.gsm_signal || 85)
     };
     
     // Store GPS data in local storage for tracking purposes
@@ -148,7 +150,9 @@ router.post("/gps", async (req, res) => {
       baterie: validatedData.baterie || 100,
       numar_inmatriculare: validatedData.numar_inmatriculare,
       uit: validatedData.uit,
-      status: validatedData.status || 2
+      status: validatedData.status || 2,
+      hdop: validatedData.hdop || 2,
+      gsm_signal: validatedData.gsm_signal || 85
     };
     
     // IMPORTANT: Folosim JSON.stringify fără whitespace pentru formatul comprimat
