@@ -370,6 +370,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const onGpsUpdate = useCallback((position: GeolocationPosition) => {
     console.log("onGpsUpdate: Am primit poziție GPS", position);
     
+    // OPRIRE COMPLETĂ - verificăm starea globală
+    if ((window as any).gpsFullyStopped) {
+      console.log("GPS complet oprit prin variabilă globală - se ignoră actualizarea");
+      return;
+    }
+    
     // OPRIRE COMPLETĂ - verificăm doar starea aplicației
     if (!isGpsActive || transportStatus === 'inactive' || transportStatus === 'finished') {
       console.log("GPS inactiv sau transport neactiv - se ignoră actualizarea");
@@ -566,6 +572,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const startTransport = useCallback(async (): Promise<boolean> => {
     try {
       console.log("[Transport] Începere pornire transport");
+      
+      // Resetăm variabila globală pentru a permite GPS-ul să funcționeze din nou
+      (window as any).gpsFullyStopped = false;
       
       // Salvăm explicit starea transportului în localStorage pentru a o face disponibilă
       // între componente și pentru watchPosition
@@ -1451,6 +1460,10 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // OPRIRE COMPLETĂ GPS după trimiterea status 4
       console.log("[Transport] GPS OPRIT COMPLET după finalizare");
+      
+      // Marcăm GPS-ul ca fiind complet oprit prin variabilă globală
+      (window as any).gpsFullyStopped = true;
+      
       setIsGpsActive(false);
       setTransportStatus("inactive");
       setCurrentActiveUit(null);
@@ -1470,12 +1483,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           console.log("[Transport] GPS watch oprit");
         }
         
-        // Oprire toate instanțele GPS Capacitor
-        const { CapacitorGeoService } = await import('../lib/capacitorService');
-        if (CapacitorGeoService.stopWatching) {
-          CapacitorGeoService.stopWatching();
-          console.log("[Transport] Capacitor GPS oprit");
-        }
+        console.log("[Transport] Toate serviciile GPS oprite definitiv");
       } catch (error) {
         console.log("[Transport] Eroare la oprirea serviciilor GPS:", error);
       }
