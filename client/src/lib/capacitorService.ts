@@ -57,8 +57,8 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
     isRequestingPermissions = true;
     
     if (!Capacitor.isNativePlatform()) {
-      console.log("Rulăm în browser, solicităm permisiuni browser standard");
-      // În browser, folosim navigator.permissions dacă este disponibil
+      console.log("Rulăm în modul de dezvoltare, solicităm permisiuni standard");
+      // În modul de dezvoltare, folosim navigator.permissions dacă este disponibil
       if (navigator.permissions) {
         try {
           const result = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
@@ -67,8 +67,8 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
             permissionsRequested = true;
             return true;
           }
-        } catch (browserPermError) {
-          console.log("Eroare la verificarea permisiunilor browser:", browserPermError);
+        } catch (permError) {
+          console.log("Eroare la verificarea permisiunilor:", permError);
         }
       }
       
@@ -77,13 +77,13 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
       return new Promise((resolve) => {
         navigator.geolocation.getCurrentPosition(
           () => {
-            console.log("Permisiuni browser acordate");
+            console.log("Permisiuni locație acordate");
             isRequestingPermissions = false;
             permissionsRequested = true;
             resolve(true);
           },
           (err) => {
-            console.error("Permisiuni browser respinse:", err);
+            console.error("Permisiuni locație respinse:", err);
             isRequestingPermissions = false;
             permissionsRequested = true;
             resolve(false);
@@ -377,7 +377,7 @@ export const CapacitorGeoService = {
         }
       }
       
-      // Folosim API-ul Browser Battery dacă e disponibil
+      // Folosim API-ul dispozitivului pentru baterie dacă e disponibil
       if (typeof navigator !== 'undefined' && (navigator as any).getBattery) {
         const batteryManager = await (navigator as any).getBattery();
         return Math.round(batteryManager.level * 100);
@@ -586,24 +586,24 @@ export const CapacitorGeoService = {
           safeOptions
         );
         
-        console.log('Urmărire GPS browser inițiată cu ID:', watchId);
+        console.log('Urmărire GPS inițiată cu ID:', watchId);
         
         return {
           watchId,
           clearWatch: () => {
             try {
               navigator.geolocation.clearWatch(watchId);
-              console.log('Urmărire GPS browser oprită cu succes');
+              console.log('Urmărire GPS oprită cu succes');
             } catch (clearError) {
-              console.error('Eroare la oprirea urmăririi GPS browser:', clearError);
+              console.error('Eroare la oprirea urmăririi GPS:', clearError);
             }
           }
         };
-      } catch (browserError) {
-        console.error('Eroare la inițializarea urmăririi GPS browser:', browserError);
+      } catch (geoError) {
+        console.error('Eroare la inițializarea urmăririi GPS:', geoError);
         return {
           watchId: null,
-          clearWatch: () => console.log('Nicio urmărire de anulat - eroare la inițializare browser')
+          clearWatch: () => console.log('Nicio urmărire de anulat - eroare la inițializare')
         };
       }
     }
