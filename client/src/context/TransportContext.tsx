@@ -1385,14 +1385,19 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Oprim complet sistemul GPS și curățăm toate stările
       setIsGpsActive(false);
-      setTransportStatus("inactive");
+      setTransportStatus("finished");  // Setăm la finished pentru UI
       setCurrentActiveUit(null);
       
       // Curățăm localStorage pentru a preveni reactivarea GPS-ului
       localStorage.removeItem('transport_status');
       localStorage.removeItem('current_uit');
       localStorage.removeItem('transport_state_ref');
+      localStorage.removeItem('persist_finished_state');
       clearAppState();
+      
+      // Forțăm oprirea completă a oricăror callback-uri GPS
+      setGpsCoordinates(null);
+      setLastGpsUpdateTime(null);
       
       // Verificăm dacă avem date offline pentru a le sincroniza
       if (hasOfflineGpsData() && token) {
@@ -1419,17 +1424,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Păstrăm starea "finished" în localStorage pentru a asigura că UI-ul o poate citi
       localStorage.setItem('transport_status', 'finished');
       
-      // După o întârziere, resetăm toate stările
+      // Resetăm imediat la inactive pentru a preveni reactivarea GPS-ului
       setTimeout(() => {
-        // Verificăm dacă avem un flag de persistență - dacă da, nu resetăm starea
-        const shouldPersist = localStorage.getItem('persist_finished_state') === 'true';
-        
-        if (shouldPersist) {
-          console.log("[Transport] Se menține starea finalizată datorită flagului de persistență");
-          return; // Ieșim fără să resetăm starea
-        }
-        
-        console.log("[Transport] Resetare stare aplicație după finalizare (cu întârziere)");
+        console.log("[Transport] Resetare stare aplicație după finalizare (IMEDIAT)");
         setTransportStatus("inactive");
         setGpsCoordinates(null);
         setCurrentActiveUit(null);
@@ -1437,14 +1434,16 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         setBattery(100);
         setIsGpsActive(false);
         
-        // Forțăm curățarea stării din localStorage
+        // Forțăm curățarea completă din localStorage
         localStorage.removeItem('transport_status');
         localStorage.removeItem('transport_state_ref');
+        localStorage.removeItem('current_uit');
+        localStorage.removeItem('persist_finished_state');
         
         // Curățăm starea salvată
         clearAppState();
-        console.log("[Transport] Stare curățată după finalizare");
-      }, 8000); // Întârziere de 8 secunde pentru a permite UI-ului să afișeze starea "finished"
+        console.log("[Transport] Stare curățată COMPLET după finalizare");
+      }, 2000); // Doar 2 secunde pentru a afișa "finished" apoi resetăm complet
       
       toast({
         title: "Transport finalizat",
