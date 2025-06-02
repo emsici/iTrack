@@ -1366,6 +1366,11 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           const uitFinal = currentActiveUit?.uit || vehicleInfo?.uit || "UIT12345";
           console.log("UIT final pentru finalizare transport:", uitFinal);
           
+          // OPRIRE IMEDIAT GPS înainte de trimiterea status 4
+          (window as any).gpsFullyStopped = true;
+          setIsGpsActive(false);
+          console.log("GPS oprit IMEDIAT înainte de status 4");
+          
           // Trimitem actualizarea finală cu status 4 (finished)
           try {
             await sendGpsUpdate(
@@ -1375,9 +1380,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
               4, // Status numeric 4 pentru finished
               token
             );
-            console.log("Actualizare finală GPS trimisă cu succes");
+            console.log("Status 4 trimis cu succes");
           } catch (sendError) {
-            console.error("Eroare la trimiterea actualizării finale GPS:", sendError);
+            console.error("Eroare la trimiterea status 4:", sendError);
             // Continuăm execuția chiar dacă trimiterea GPS eșuează - prioritizăm finalizarea transportului 
             // în aplicație chiar dacă avem probleme de conectivitate
           }
