@@ -288,6 +288,7 @@ export default function TransportControls() {
       
       await finishTransport(currentUit);
       
+      // Actualizăm starea local
       setTransports(prevTransports => 
         prevTransports.map(transport => 
           transport.id === transportId 
@@ -304,6 +305,11 @@ export default function TransportControls() {
         title: "Transport finalizat",
         description: `Transport ${currentTransport.uit} a fost finalizat cu succes.`
       });
+      
+      // Reîncărcăm lista de transporturi de la server pentru date fresh
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (error) {
       console.error("Eroare la finalizarea transportului:", error);
       toast({
