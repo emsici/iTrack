@@ -148,7 +148,7 @@ router.post("/gps", async (req, res) => {
       baterie: validatedData.baterie || 100,
       numar_inmatriculare: validatedData.numar_inmatriculare,
       uit: validatedData.uit,
-      status: validatedData.status || "in_progress"
+      status: validatedData.status || 2
     };
     
     // IMPORTANT: Folosim JSON.stringify fără whitespace pentru formatul comprimat

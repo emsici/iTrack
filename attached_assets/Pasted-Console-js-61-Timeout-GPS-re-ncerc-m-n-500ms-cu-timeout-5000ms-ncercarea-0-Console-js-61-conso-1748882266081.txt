@@ -1,0 +1,32 @@
+Console.js:61 Timeout GPS, reîncercăm în 500ms cu timeout 5000ms (încercarea 0)
+Console.js:61 [console] Timeout GPS, reîncercăm în 500ms cu timeout 5000ms (încercarea 0) 
+Console.js:61 Folosim coordonate anterioare în timpul problemelor GPS: {lat: 44.25838824298432, lng: 28.61846912924353, timestamp: '2025-06-02T16:37:41.577Z', viteza: 0, directie: 0, …}
+Console.js:61 [console] Folosim coordonate anterioare în timpul problemelor GPS: {"lat":44.25838824298432,"lng":28.61846912924353,"timestamp":"2025-06-02T16:37:41.577Z","viteza":0,"directie":0,"altitudine":0,"baterie":100,"isEstimated":true} 
+Console.js:61 DEPANARE GPS (LocationTracking):  {transportStatus: 'active', isGpsActive: true, hasCoordinates: true, battery: 100, deviceBattery: 100, …}
+Console.js:61 [console] DEPANARE GPS (LocationTracking):  {"transportStatus":"active","isGpsActive":true,"hasCoordinates":true,"battery":100,"deviceBattery":100,"lastUpdateTime":"2025-06-02T16:37:36.440Z","coords":{"lat":44.25838824298432,"lng":28.61846912924353,"timestamp":"2025-06-02T16:37:36.440Z","viteza":0,"directie":0,"altitudine":0,"baterie":100},"localCoords":{"lat":44.25838824298432,"lng":28.61846912924353,"timestamp":"2025-06-02T16:37:32.341Z","viteza":0,"directie":0,"altitudine":0,"baterie":100},"gpsErrorCount":6} 
+Console.js:61 Eroare obținere coordonate: GeolocationPositionError {code: 3, message: 'Timeout expired'}
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ logService.ts:84
+navigator.geolocation.getCurrentPosition.enableHighAccuracy @ SimpleLocationTracking.tsx:102
+Console.js:61 [console] Eroare obținere coordonate: {} 
+Mt.forEach.n.<computed> @ Console.js:61
+addLog @ logService.ts:60
+console.error @ logService.ts:88
+navigator.geolocation.getCurrentPosition.enableHighAccuracy @ SimpleLocationTracking.tsx:102
+Console.js:61 Timeout GPS, reîncercăm în 750ms cu timeout 6000ms (încercarea 1)
+Console.js:61 [console] Timeout GPS, reîncercăm în 750ms cu timeout 6000ms (încercarea 1) 
+Console.js:61 Folosim coordonate anterioare în timpul problemelor GPS: {lat: 44.25838824298432, lng: 28.61846912924353, timestamp: '2025-06-02T16:37:42.422Z', viteza: 0, directie: 0, …}
+Console.js:61 [console] Folosim coordonate anterioare în timpul problemelor GPS: {"lat":44.25838824298432,"lng":28.61846912924353,"timestamp":"2025-06-02T16:37:42.422Z","viteza":0,"directie":0,"altitudine":0,"baterie":100,"isEstimated":true} 
+Console.js:61 DEPANARE GPS (LocationTracking):  {transportStatus: 'active', isGpsActive: true, hasCoordinates: true, battery: 100, deviceBattery: 100, …}
+Console.js:61 [console] DEPANARE GPS (LocationTracking):  {"transportStatus":"active","isGpsActive":true,"hasCoordinates":true,"battery":100,"deviceBattery":100,"lastUpdateTime":"2025-06-02T16:37:36.440Z","coords":{"lat":44.25838824298432,"lng":28.61846912924353,"timestamp":"2025-06-02T16:37:36.440Z","viteza":0,"directie":0,"altitudine":0,"baterie":100},"localCoords":{"lat":44.25838824298432,"lng":28.61846912924353,"timestamp":"2025-06-02T16:37:32.341Z","viteza":0,"directie":0,"altitudine":0,"baterie":100},"gpsErrorCount":8} 
+Console.js:61 Coordonate obținute după reîncercare: {lat: 44.2583967988122, lng: 28.6184676417147, timestamp: '2025-06-02T16:37:42.437Z', viteza: 0, directie: 0, …}
+Console.js:61 [console] Coordonate obținute după reîncercare: {"lat":44.2583967988122,"lng":28.6184676417147,"timestamp":"2025-06-02T16:37:42.437Z","viteza":0,"directie":0,"altitudine":0,"baterie":100} 
+Console.js:61 Coordonate obținute după reîncercare: {lat: 44.2583967988122, lng: 28.6184676417147, timestamp: '2025-06-02T16:37:42.442Z', viteza: 0, directie: 0, …}
+Console.js:61 [console] Coordonate obținute după reîncercare: {"lat":44.2583967988122,"lng":28.6184676417147,"timestamp":"2025-06-02T16:37:42.442Z","viteza":0,"directie":0,"altitudine":0,"baterie":100} 
+Console.js:61 Coordonate obținute direct și actualizate în context: {lat: 44.2583967988122, lng: 28.6184676417147, timestamp: '2025-06-02T16:37:42.450Z', viteza: 0, directie: 0, …}
+Console.js:61 [console] Coordonate obținute direct și actualizate în context: {"lat":44.2583967988122,"lng":28.6184676417147,"timestamp":"2025-06-02T16:37:42.450Z","viteza":0,"directie":0,"altitudine":0,"baterie":100} 
+Console.js:61 Coordonate obținute direct și actualizate în context: {lat: 44.2583967988122, lng: 28.6184676417147, timestamp: '2025-06-02T16:37:42.457Z', viteza: 0, directie: 0, …}
+Console.js:61 [console] Coordonate obținute direct și actualizate în context: {"lat":44.2583967988122,"lng":28.6184676417147,"timestamp":"2025-06-02T16:37:42.457Z","viteza":0,"directie":0,"altitudine":0,"baterie":100} 
+Console.js:61 Coordonate obținute direct și actualizate în context: {lat: 44.2583967988122, lng: 28.6184676417147, timestamp: '2025-06-02T16:37:42.462Z', viteza: 0, directie: 0, …}
+Console.js:61 [console] Coordonate obținute direct și actualizate în context: {"lat":44.2583967988122,"lng":28.6184676417147,"timestamp":"2025-06-02T16:37:42.462Z","viteza":0,"directie":0,"altitudine":0,"baterie":100} 
+Console.js:61 Coordonate obținute după reîncercare: {lat: 44.2583967988122, lng: 28.6184676417147, timestamp: '2025-06-02T16:37:42.468Z', viteza: 0, directie: 0, …}
