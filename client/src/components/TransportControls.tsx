@@ -44,8 +44,25 @@ export default function TransportControls() {
 
   // Încarcă transporturile disponibile pentru vehicul 
   useEffect(() => {
-    if (vehicleInfo && vehicleInfo.uit) {
-      // Inițializează cu UIT-ul obținut la înregistrarea vehiculului
+    console.log("TransportControls: vehicleInfo updated:", vehicleInfo);
+    console.log("TransportControls: vehicleInfo.allTransports:", vehicleInfo?.allTransports);
+    
+    if (vehicleInfo?.allTransports && Array.isArray(vehicleInfo.allTransports) && vehicleInfo.allTransports.length > 0) {
+      // Folosim toate transporturile din vehicleInfo.allTransports
+      const allTransports = vehicleInfo.allTransports.map((transport, index) => ({
+        id: (index + 1).toString(),
+        uit: transport.uit,
+        start_locatie: transport.start_locatie,
+        stop_locatie: transport.stop_locatie,
+        status: "inactive" as const,
+        isTracking: false
+      }));
+      
+      console.log("TransportControls: Setez toate transporturile:", allTransports);
+      setTransports(allTransports);
+    } else if (vehicleInfo && vehicleInfo.uit) {
+      // Fallback pentru compatibilitate - folosim doar primul UIT
+      console.log("TransportControls: Folosesc fallback cu primul UIT:", vehicleInfo.uit);
       setTransports([
         {
           id: "1",
