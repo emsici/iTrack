@@ -273,13 +273,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         console.log("Răspuns date vehicul:", data);
         
-        if (data && data.status === "success") {
-          // Actualizăm informațiile vehiculului local
+        // Verificăm dacă avem date valide (fie în noul format, fie în cel vechi)
+        if (data && (data.uit || data.UIT)) {
+          // Actualizăm informațiile vehiculului local cu datele din răspuns
           const vehicleData = {
             nr: registrationNumber,  // Folosim numărul de înmatriculare furnizat
-            uit: data.uit || "",
+            uit: data.uit || data.UIT || "",
             start_locatie: data.start_locatie || "",
-            stop_locatie: data.stop_locatie || ""
+            stop_locatie: data.stop_locatie || "",
+            // Adăugăm și alte informații din răspuns dacă există
+            codDeclarant: data.codDeclarant,
+            denumireCui: data.denumireCui,
+            dataTransport: data.dataTransport,
+            ikRoTrans: data.ikRoTrans
           };
           
           setVehicleInfo(vehicleData);

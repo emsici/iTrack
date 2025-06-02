@@ -276,7 +276,11 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
     }
     
     // Procesăm răspunsul conform noii structuri JSON
-    console.log("Răspuns raw API vehicul:", responseData);
+    console.log("=== RĂSPUNS RAW API VEHICUL ===");
+    console.log("Status:", responseData?.status);
+    console.log("Count:", responseData?.count);
+    console.log("Data array:", responseData?.data);
+    console.log("Întreg răspunsul:", JSON.stringify(responseData, null, 2));
     
     // Verificăm dacă avem răspuns cu noua structură: { status, count, data }
     if (responseData && responseData.status === "success" && responseData.data && Array.isArray(responseData.data)) {
@@ -287,13 +291,13 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
         // Mapăm noile proprietăți la structura așteptată de aplicație
         const mappedVehicleData = {
           nr: vehicleData.nrVehicul || registrationNumber,
-          uit: vehicleData.uit,
-          start_locatie: vehicleData.nudeStop || vehicleData.denumireColector || "Locație start",
-          stop_locatie: vehicleData.denumireColector || vehicleData.nudeStop || "Locație destinație",
-          codDeclarat: vehicleData.codDeclarat,
-          denumireLocui: vehicleData.denumireLocui,
+          uit: vehicleData.UIT || vehicleData.uit,
+          start_locatie: vehicleData.denumireLocStart || "Locație start",
+          stop_locatie: vehicleData.denumireLocStop || "Locație destinație", 
+          codDeclarant: vehicleData.codDeclarant,
+          denumireCui: vehicleData.denumireCui,
           dataTransport: vehicleData.dataTransport,
-          idVoitrans: vehicleData.idVoitrans
+          ikRoTrans: vehicleData.ikRoTrans
         };
         
         console.log("Date vehicul procesate:", mappedVehicleData);

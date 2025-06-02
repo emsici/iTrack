@@ -28,7 +28,6 @@ interface UitOption {
 }
 
 export default function UitSelector() {
-  const { token } = useAuth();
   const { setSelectedUits, setCurrentActiveUit } = useTransport();
   const [isLoading, setIsLoading] = useState(false);
   const [availableUits, setAvailableUits] = useState<UitOption[]>([]);
@@ -67,9 +66,9 @@ export default function UitSelector() {
             if (apiData && apiData.status === "success" && apiData.data && Array.isArray(apiData.data)) {
               // Convertim toate datele din API la formatul UitOption
               uits = apiData.data.map((item: any) => ({
-                uit: item.uit,
-                start_locatie: item.nudeStop || item.denumireColector || "Locație start",
-                stop_locatie: item.denumireColector || item.nudeStop || "Locație destinație"
+                uit: item.UIT || item.uit,
+                start_locatie: item.denumireLocStart || "Locație start",
+                stop_locatie: item.denumireLocStop || "Locație destinație"
               }));
               
               console.log("UIT-uri procesate din API:", uits.length);
