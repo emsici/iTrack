@@ -18,6 +18,7 @@ import {
   type TransportStatus
 } from "@/lib/stateManager";
 import { Capacitor } from "@capacitor/core";
+import { batteryOptimizedGpsService, type OptimizedGpsCoordinates } from '@/lib/batteryOptimizedGpsService';
 import { logger } from "@/lib/logger";
 import { Geolocation } from "@capacitor/geolocation";
 import { forceTransportActive, updateTransportState } from '@/lib/transportHelper';

@@ -9,44 +9,73 @@ export const startGpsInterval = (
   getToken: () => string,
   getTransportStatus: () => string
 ) => {
-  console.log("[GPS Interval Service] Pornire interval 60 secunde");
+  console.log("[GPS Optimizat] Pornire interval 60 secunde cu citire GPS la transmisie");
   
   // Oprește intervalul existent dacă există
   if (gpsInterval) {
     clearInterval(gpsInterval);
   }
   
-  gpsInterval = window.setInterval(() => {
-    console.log("[GPS Interval Service] Verificare la 60 secunde...");
+  gpsInterval = window.setInterval(async () => {
+    console.log("[GPS Optimizat] Verificare la 60 secunde - încep citirea GPS...");
     
     const status = getTransportStatus();
-    const coords = getGpsCoordinates();
     const vehicle = getVehicleInfo();
     const uit = getCurrentUit();
     const token = getToken();
     
-    console.log("[GPS Interval Service] Stare:", {
+    console.log("[GPS Optimizat] Stare disponibilă:", {
       status,
-      hasCoords: !!coords,
       hasVehicle: !!vehicle?.nr,
       hasUit: !!uit?.uit,
       hasToken: !!token
     });
     
-    if (status === 'active' && coords && vehicle?.nr && uit?.uit && token) {
-      console.log("[GPS Interval Service] Transmisie GPS...", coords);
-      
-      sendGpsUpdate(coords, vehicle.nr, uit.uit, 2, token)
-        .then((success: boolean) => {
-          if (success) {
-            console.log("[GPS Interval Service] ✅ Transmisie reușită - verifică rezultate.php");
-          } else {
-            console.log("[GPS Interval Service] ❌ Transmisie eșuată");
+    if (status === 'active' && vehicle?.nr && uit?.uit && token) {
+      try {
+        console.log("[GPS Optimizat] Citesc coordonate GPS pentru transmisie...");
+        
+        // Citim GPS-ul DOAR ACUM, la momentul transmisiei
+        const coords = await new Promise<any>((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error("Geolocation nu este suportat"));
+            return;
           }
-        })
-        .catch((e: any) => {
-          console.error("[GPS Interval Service] Eroare transmisie:", e);
+
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const gpsCoords = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+                timestamp: new Date().toISOString(),
+                viteza: position.coords.speed || 0,
+                directie: position.coords.heading || 0,
+                altitudine: position.coords.altitude || 0,
+                baterie: 100
+              };
+              console.log("[GPS Optimizat] Coordonate citite cu succes:", gpsCoords);
+              resolve(gpsCoords);
+            },
+            (error) => {
+              console.warn("[GPS Optimizat] Eroare la citirea coordonatelor:", error);
+              reject(error);
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
+          );
         });
+
+        console.log("[GPS Optimizat] Transmit coordonatele citite la server...");
+        
+        const success = await sendGpsUpdate(coords, vehicle.nr, uit.uit, 2, token);
+        
+        if (success) {
+          console.log("[GPS Optimizat] ✅ Transmisie automată reușită la", new Date().toLocaleTimeString());
+        } else {
+          console.log("[GPS Optimizat] ❌ Transmisie automată eșuată");
+        }
+      } catch (error) {
+        console.error("[GPS Optimizat] Eroare la citirea/transmisia GPS:", error);
+      }
     } else {
       console.log("[GPS Interval Service] Nu sunt îndeplinite condițiile pentru transmisie");
     }
