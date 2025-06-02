@@ -15,7 +15,7 @@ Pentru a genera APK-ul, aveți nevoie de:
 
 ```bash
 # Clonarea repository-ului
-git clone https://github.com/[username]/itrack.git
+git clone https://github.com/emsici/itrack.git
 cd itrack
 
 # Instalarea dependențelor

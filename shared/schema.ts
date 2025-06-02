@@ -60,6 +60,7 @@ export const gpsData = pgTable("gps_data", {
   direction: real("direction"),
   altitude: real("altitude"),
   battery: integer("battery"),
+  status: integer("status").notNull().default(2), // 1=nepreluat, 2=pornit, 3=pauză, 4=finalizat
 });
 
 export const insertGpsDataSchema = createInsertSchema(gpsData).pick({
@@ -73,6 +74,7 @@ export const insertGpsDataSchema = createInsertSchema(gpsData).pick({
   direction: true, 
   altitude: true,
   battery: true,
+  status: true,
 });
 
 export const gpsDataSchema = z.object({
@@ -85,7 +87,7 @@ export const gpsDataSchema = z.object({
   baterie: z.number(),
   numar_inmatriculare: z.string(),
   uit: z.string(),
-  status: z.string(), // "in_progress" sau "finished"
+  status: z.union([z.number(), z.string()]), // 1=nepreluat, 2=pornit, 3=pauză, 4=finalizat sau "in_progress"/"finished"
   hdop: z.number().optional(), // Horizontal Dilution of Precision (precizia poziției GPS)
   gsm_signal: z.number().optional() // Puterea semnalului GSM/celular (0-100%)
 });
