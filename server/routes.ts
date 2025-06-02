@@ -182,6 +182,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get transport status endpoint
+  app.get("/api/transport/status", async (req, res) => {
+    try {
+      const vehicleNumber = req.query.vehicle as string;
+      if (!vehicleNumber) {
+        return res.status(400).json({ error: "Vehicle number required" });
+      }
+      
+      // Pentru moment returnăm status inactiv - în viitor se va interoga baza de date
+      res.json({
+        status: "inactive",
+        activeUit: null,
+        isGpsActive: false,
+        lastGpsUpdate: null
+      });
+    } catch (error) {
+      console.error("[Transport Status] Error:", error);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+
   // GPS transmission proxy endpoint
   app.post("/api/gps/transmit", async (req, res) => {
     try {

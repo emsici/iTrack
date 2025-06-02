@@ -82,6 +82,38 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   // GPS interval reference
   const gpsIntervalRef = useRef<number | null>(null);
 
+  // Polling pentru starea transportului de pe server
+  useEffect(() => {
+    if (!vehicleInfo?.nr) return;
+
+    const pollTransportStatus = async () => {
+      try {
+        const response = await fetch(`/api/transport/status?vehicle=${encodeURIComponent(vehicleInfo.nr)}`);
+        if (response.ok) {
+          const serverStatus = await response.json();
+          console.log("[Transport] Status de pe server:", serverStatus);
+          
+          // Sincronizează starea locală cu cea de pe server
+          setTransportStatus(serverStatus.status);
+          setIsGpsActive(serverStatus.isGpsActive);
+          if (serverStatus.lastGpsUpdate) {
+            setLastGpsUpdateTime(serverStatus.lastGpsUpdate);
+          }
+        }
+      } catch (error) {
+        console.error("[Transport] Eroare la interogarea stării:", error);
+      }
+    };
+
+    // Poll la fiecare 10 secunde
+    const statusInterval = setInterval(pollTransportStatus, 10000);
+    
+    // Poll imediat
+    pollTransportStatus();
+
+    return () => clearInterval(statusInterval);
+  }, [vehicleInfo?.nr]);
+
   // Start transport function
   const startTransport = useCallback(async (uit?: UitOption): Promise<boolean> => {
     if (!isAuthenticated || !token || !vehicleInfo) {
