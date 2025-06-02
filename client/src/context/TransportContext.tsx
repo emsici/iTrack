@@ -1379,9 +1379,20 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         });
       }
       
-      // Oprim GPS-ul după ce am încercat să trimitem ultima actualizare
+      // Oprim GPS-ul IMEDIAT după ce am încercat să trimitem ultima actualizare
       await stopGpsTracking();
       console.log("[Transport] GPS oprit după finalizare");
+      
+      // Oprim complet sistemul GPS și curățăm toate stările
+      setIsGpsActive(false);
+      setTransportStatus("inactive");
+      setCurrentActiveUit(null);
+      
+      // Curățăm localStorage pentru a preveni reactivarea GPS-ului
+      localStorage.removeItem('transport_status');
+      localStorage.removeItem('current_uit');
+      localStorage.removeItem('transport_state_ref');
+      clearAppState();
       
       // Verificăm dacă avem date offline pentru a le sincroniza
       if (hasOfflineGpsData() && token) {
