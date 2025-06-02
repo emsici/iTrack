@@ -35,7 +35,7 @@ export default function UitSelector() {
   const [localSelectedUits, setLocalSelectedUits] = useState<UitOption[]>([]);
   const [currentUit, setCurrentUit] = useState<string>("");
 
-  const { vehicleInfo } = useAuth();
+  const { vehicleInfo, token } = useAuth();
 
   // Funcție pentru a obține transporturile disponibile de la server
   const fetchUits = async (showLoading = true) => {
@@ -44,49 +44,87 @@ export default function UitSelector() {
     }
     
     try {
-      // În implementarea reală, aici facem un apel API pentru a obține UIT-urile disponibile
-      // Simulăm un apel API pentru obținerea UIT-urilor pentru vehiculul curent
       console.log("Obținem transporturile disponibile pentru vehicul:", vehicleInfo?.nr);
       
-      let mockUits: UitOption[] = [];
+      let uits: UitOption[] = [];
       
-      // Adăugăm UIT-ul din vehicleInfo dacă există
-      if (vehicleInfo && vehicleInfo.uit) {
-        mockUits.push({
+      // Încercăm să obținem UIT-urile de la API dacă avem informații despre vehicul
+      if (vehicleInfo && vehicleInfo.nr && token) {
+        try {
+          // Facem un apel la API pentru a obține toate UIT-urile pentru vehicul
+          const response = await fetch(`/api/vehicle?nr=${vehicleInfo.nr}`, {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          });
+          
+          if (response.ok) {
+            const apiData = await response.json();
+            console.log("Răspuns API pentru UIT-uri:", apiData);
+            
+            // Procesăm răspunsul cu noua structură: { status, count, data }
+            if (apiData && apiData.status === "success" && apiData.data && Array.isArray(apiData.data)) {
+              // Convertim toate datele din API la formatul UitOption
+              uits = apiData.data.map((item: any) => ({
+                uit: item.uit,
+                start_locatie: item.nudeStop || item.denumireColector || "Locație start",
+                stop_locatie: item.denumireColector || item.nudeStop || "Locație destinație"
+              }));
+              
+              console.log("UIT-uri procesate din API:", uits.length);
+            } else {
+              console.log("Format API nerecunoscut, folosim datele din vehicleInfo");
+              // Fallback la datele din vehicleInfo
+              if (vehicleInfo.uit) {
+                uits.push({
+                  uit: vehicleInfo.uit,
+                  start_locatie: vehicleInfo.start_locatie || "Locație start",
+                  stop_locatie: vehicleInfo.stop_locatie || "Locație destinație"
+                });
+              }
+            }
+          } else {
+            console.log("Eroare la apelul API, folosim datele din vehicleInfo");
+            // Fallback la datele din vehicleInfo
+            if (vehicleInfo.uit) {
+              uits.push({
+                uit: vehicleInfo.uit,
+                start_locatie: vehicleInfo.start_locatie || "Locație start",
+                stop_locatie: vehicleInfo.stop_locatie || "Locație destinație"
+              });
+            }
+          }
+        } catch (apiError) {
+          console.error("Eroare la obținerea UIT-urilor din API:", apiError);
+          // Fallback la datele din vehicleInfo
+          if (vehicleInfo.uit) {
+            uits.push({
+              uit: vehicleInfo.uit,
+              start_locatie: vehicleInfo.start_locatie || "Locație start",
+              stop_locatie: vehicleInfo.stop_locatie || "Locație destinație"
+            });
+          }
+        }
+      } else if (vehicleInfo && vehicleInfo.uit) {
+        // Dacă nu avem token sau nr, folosim doar datele din vehicleInfo
+        uits.push({
           uit: vehicleInfo.uit,
-          start_locatie: vehicleInfo.start_locatie || "",
-          stop_locatie: vehicleInfo.stop_locatie || ""
+          start_locatie: vehicleInfo.start_locatie || "Locație start",
+          stop_locatie: vehicleInfo.stop_locatie || "Locație destinație"
         });
-        
-        // Adăugăm UIT-uri suplimentare pentru simularea unui răspuns real
-        // În implementarea reală, acestea vor veni de la API
-        mockUits.push({
-          uit: `UIT${vehicleInfo.uit.substr(3, 5)}A`,
-          start_locatie: "București",
-          stop_locatie: "Constanța"
-        });
-        
-        // Adăugăm UIT-uri cu timestamp pentru a simula actualizarea
-        const timestamp = new Date().getMinutes();
-        mockUits.push({
-          uit: `UIT${timestamp}NEW`,
-          start_locatie: "Depou Central",
-          stop_locatie: "Pitești"
-        });
-        
-        console.log("Transporturi disponibile găsite:", mockUits.length);
       } else {
-        // Adăugăm un UIT generic bazat pe numărul de înmatriculare
+        // Adăugăm un UIT generic dacă nu avem informații
         const genericUit = {
           uit: "UIT" + (vehicleInfo?.nr || "12345"),
           start_locatie: "Depou",
           stop_locatie: "Destinație"
         };
-        mockUits = [genericUit];
+        uits = [genericUit];
       }
       
       // Sortăm UIT-urile în ordine descrescătoare înainte de a le afișa
-      mockUits.sort((a, b) => {
+      uits.sort((a, b) => {
         // Extragem părțile numerice din UIT (presupunând formatul "UIT" + număr)
         const numA = parseInt(a.uit.replace(/\D/g, '') || '0', 10);
         const numB = parseInt(b.uit.replace(/\D/g, '') || '0', 10);
@@ -95,14 +133,14 @@ export default function UitSelector() {
         return numB - numA;
       });
       
-      console.log("UIT-uri sortate descrescător:", mockUits.map(u => u.uit));
+      console.log("UIT-uri sortate descrescător:", uits.map(u => u.uit));
       
       // Simulăm un răspuns de la API (delay redus pentru actualizări periodice)
       const delay = showLoading ? 500 : 200;
       setTimeout(() => {
         // Înainte de a seta noile UIT-uri, verificăm care sunt noi
         const existingUitIds = availableUits.map(uit => uit.uit);
-        const newUits = mockUits.filter(uit => !existingUitIds.includes(uit.uit));
+        const newUits = uits.filter(uit => !existingUitIds.includes(uit.uit));
         
         // Pentru actualizări periodice, adăugăm noile UIT-uri la sfârșitul listei existente
         if (!showLoading && newUits.length > 0) {
@@ -129,7 +167,7 @@ export default function UitSelector() {
         } else {
           // La prima încărcare sau când nu există UIT-uri noi, înlocuim toată lista
           // cu cea sortată descrescător
-          setAvailableUits(mockUits);
+          setAvailableUits(uits);
         }
         
         if (showLoading) {
@@ -139,7 +177,7 @@ export default function UitSelector() {
         // La prima încărcare, adăugăm automat UIT-ul din vehicleInfo dacă există
         // și dacă nu am selectat deja niciun UIT
         if (showLoading && vehicleInfo && vehicleInfo.uit && localSelectedUits.length === 0) {
-          const uitFromVehicle = mockUits.find(uit => uit.uit === vehicleInfo.uit);
+          const uitFromVehicle = uits.find(uit => uit.uit === vehicleInfo.uit);
           if (uitFromVehicle) {
             // Adăugăm în lista de selectate
             setLocalSelectedUits([uitFromVehicle]);

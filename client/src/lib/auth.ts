@@ -275,8 +275,38 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
       console.log("Răspuns informații vehicul (browser):", responseData);
     }
     
-    // Returnăm datele vehiculului
-    return responseData;
+    // Procesăm răspunsul conform noii structuri JSON
+    console.log("Răspuns raw API vehicul:", responseData);
+    
+    // Verificăm dacă avem răspuns cu noua structură: { status, count, data }
+    if (responseData && responseData.status === "success" && responseData.data && Array.isArray(responseData.data)) {
+      // Luăm primul vehicul din array (dacă există)
+      if (responseData.data.length > 0) {
+        const vehicleData = responseData.data[0];
+        
+        // Mapăm noile proprietăți la structura așteptată de aplicație
+        const mappedVehicleData = {
+          nr: vehicleData.nrVehicul || registrationNumber,
+          uit: vehicleData.uit,
+          start_locatie: vehicleData.nudeStop || vehicleData.denumireColector || "Locație start",
+          stop_locatie: vehicleData.denumireColector || vehicleData.nudeStop || "Locație destinație",
+          codDeclarat: vehicleData.codDeclarat,
+          denumireLocui: vehicleData.denumireLocui,
+          dataTransport: vehicleData.dataTransport,
+          idVoitrans: vehicleData.idVoitrans
+        };
+        
+        console.log("Date vehicul procesate:", mappedVehicleData);
+        return mappedVehicleData;
+      } else {
+        console.log("Nu s-au găsit date pentru vehiculul:", registrationNumber);
+        throw new Error("Nu s-au găsit informații pentru acest vehicul");
+      }
+    } else {
+      // Fallback pentru vechiul format sau alte formate
+      console.log("Folosim vechiul format de răspuns sau format nerecunoscut");
+      return responseData;
+    }
   } catch (error) {
     console.error("Eroare la obținerea informațiilor vehiculului:", error);
     throw error;
