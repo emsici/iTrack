@@ -56,6 +56,13 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
   try {
     isRequestingPermissions = true;
     
+    // Debugging pentru a vedea ce detectează Capacitor
+    console.log("Debug Capacitor:", {
+      isNativePlatform: Capacitor.isNativePlatform(),
+      platform: Capacitor.getPlatform(),
+      userAgent: navigator.userAgent
+    });
+    
     if (!Capacitor.isNativePlatform()) {
       console.log("Rulăm în modul de dezvoltare, solicităm permisiuni standard");
       // În modul de dezvoltare, folosim navigator.permissions dacă este disponibil
