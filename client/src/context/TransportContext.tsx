@@ -244,8 +244,15 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     }
   }, [transportStatus, gpsCoordinates, isGpsActive, isBackgroundActive, vehicleInfo?.nr, currentActiveUit]);
   
-  // Funcție pentru a porni urmărirea GPS
-  const startGpsTracking = useCallback(async (overrideVehicleInfo?: any) => {
+  // Funcție pentru a porni urmărirea GPS - DOAR când transportul este activ
+  const startGpsTracking = useCallback(async (overrideVehicleInfo?: any, forceStart = false) => {
+    // GPS-ul pornește DOAR când transportul este activ (statusuri 2, 3, 4)
+    // Nu pornește automat după acordarea permisiunilor (nu trimitem status 1)
+    if (!forceStart && transportStatus === "inactive") {
+      console.log("[Transport] GPS nu pornește automat - transportul nu este activ");
+      return false;
+    }
+    
     // Folosim vehicleInfo override dacă este furnizat (util pentru corecții)
     const effectiveVehicleInfo = overrideVehicleInfo || vehicleInfo;
     
@@ -253,7 +260,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       isAuthenticated,
       hasToken: !!token,
       hasVehicleInfo: !!effectiveVehicleInfo,
-      hasCurrentActiveUit: !!currentActiveUit
+      hasCurrentActiveUit: !!currentActiveUit,
+      transportStatus,
+      forceStart
     });
     
     // Condiții mai permisive pentru a porni GPS-ul - pentru browser
@@ -477,14 +486,15 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       console.error("Eroare la forțarea stării active de transport:", e);
     }
     
-    // Trimitem actualizarea la server dacă transportul este activ
-    if (transportStatus === "active") {
+    // Trimitem actualizarea la server DOAR dacă transportul este activ, în pauză sau finalizat
+    // Nu trimitem status 1 (nepreluat) - doar statusurile 2, 3, 4
+    if (transportStatus === "active" || transportStatus === "paused" || transportStatus === "finished") {
       try {
         console.log("Trimit coordonate GPS către server:", {
           coords: newCoords,
           vehicleNr: vehicleInfo.nr,
           uit: uit,
-          status: "in_progress"
+          status: transportStatus === "active" ? "in_progress" : transportStatus
         });
         
         // Verificare și debugging pentru vehicleInfo
