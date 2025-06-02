@@ -12,7 +12,7 @@ interface MobileHeaderProps {
 }
 
 export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
-  const { isGpsActive, battery, gpsCoordinates, transportStatus } = useTransport();
+  const { isGpsActive, battery, gpsCoordinates, transportStatus, lastGpsUpdateTime } = useTransport();
   const { logout, vehicleInfo, registerVehicle } = useAuth();
   const { toast } = useToast();
   const [location] = useLocation();
@@ -25,14 +25,29 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
   const [showGpsActive, setShowGpsActive] = useState<boolean>(false);
   
   useEffect(() => {
-    // Indicatorul GPS ar trebui să fie verde DOAR dacă:
-    // 1. Transportul este activ (nu inactive, nu paused, nu finished)
-    // 2. GPS-ul este activ (are permisiuni și funcționează)
-    // 3. Avem coordonate GPS (hasCoordinates)
+    // Sincronizare stare GPS - verificăm dacă GPS-ul funcționează efectiv
+    const hasActiveGps = gpsCoordinates !== null && lastGpsUpdateTime !== null;
     const isTransportActive = transportStatus === "active";
-    setShowGpsActive(isTransportActive && isGpsActive && gpsCoordinates !== null);
-    console.log("MobileHeader: Actualizare stare GPS:", {transportStatus, isGpsActive, hasCoordinates: !!gpsCoordinates});
-  }, [transportStatus, isGpsActive, gpsCoordinates, location]);
+    
+    // GPS-ul este considerat activ dacă:
+    // 1. Transportul este activ SAU avem coordonate GPS disponibile
+    // 2. Avem coordonate recente (în ultimele 2 minute)
+    const now = new Date().getTime();
+    const lastUpdate = lastGpsUpdateTime ? new Date(lastGpsUpdateTime).getTime() : 0;
+    const isGpsRecent = (now - lastUpdate) < 120000; // 2 minute
+    
+    const effectiveGpsActive = hasActiveGps && (isTransportActive || isGpsRecent);
+    setShowGpsActive(effectiveGpsActive);
+    
+    console.log("MobileHeader: Sincronizare stare GPS:", {
+      transportStatus, 
+      isGpsActive, 
+      hasCoordinates: !!gpsCoordinates,
+      isGpsRecent,
+      effectiveGpsActive,
+      lastGpsUpdateTime
+    });
+  }, [transportStatus, isGpsActive, gpsCoordinates, lastGpsUpdateTime, location]);
   
   // Eliminat funcția getBatteryColor care nu mai este necesară
   

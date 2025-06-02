@@ -568,11 +568,21 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           vehicleNrCorected: vehicleNr
         });
         
+        // Convertim statusul la codurile numerice corecte
+        let statusCode = "2"; // 2 = active (default)
+        if (transportStatus === "active") {
+          statusCode = "2";
+        } else if (transportStatus === "paused") {
+          statusCode = "3";
+        } else if (transportStatus === "finished") {
+          statusCode = "4";
+        }
+        
         sendGpsUpdate(
           newCoords, 
           vehicleInfo.nr, 
           uit, // Folosim variabila uit deja verificată mai sus
-          "in_progress",
+          statusCode,
           token || ''
         ).then(success => {
           if (success) {
