@@ -1409,12 +1409,34 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         }
       }
       
-      // Actualizăm transporturile vehiculelor
+      // Actualizăm transporturile vehiculelor și reîncărcăm lista
       if (vehicleInfo?.nr) {
         setVehicleTransports(prev => {
           console.log("[Transport] Actualizare listă transporturi după finalizare");
           return prev.filter(t => t.vehicleNumber !== vehicleInfo.nr);
         });
+        
+        // Reîncărcăm lista de transporturi de la server
+        try {
+          console.log("[Transport] Reîncărcare listă transporturi de la server...");
+          // Forțăm reîncărcarea informațiilor vehiculului pentru lista actualizată
+          const response = await fetch('/api/auth/vehicle-info', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ registrationNumber: vehicleInfo.nr })
+          });
+          
+          if (response.ok) {
+            const updatedVehicleInfo = await response.json();
+            console.log("[Transport] Lista transporturi reîncărcată cu succes:", updatedVehicleInfo);
+            // Actualizarea va fi gestionată automat de AuthContext
+          }
+        } catch (error) {
+          console.error("[Transport] Eroare la reîncărcarea listei de transporturi:", error);
+        }
       }
       
       // Păstrăm starea "finished" pentru o scurtă perioadă înainte de a reveni la "inactive"
@@ -1424,26 +1446,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Păstrăm starea "finished" în localStorage pentru a asigura că UI-ul o poate citi
       localStorage.setItem('transport_status', 'finished');
       
-      // Resetăm imediat la inactive pentru a preveni reactivarea GPS-ului
-      setTimeout(() => {
-        console.log("[Transport] Resetare stare aplicație după finalizare (IMEDIAT)");
-        setTransportStatus("inactive");
-        setGpsCoordinates(null);
-        setCurrentActiveUit(null);
-        setLastGpsUpdateTime(null);
-        setBattery(100);
-        setIsGpsActive(false);
-        
-        // Forțăm curățarea completă din localStorage
-        localStorage.removeItem('transport_status');
-        localStorage.removeItem('transport_state_ref');
-        localStorage.removeItem('current_uit');
-        localStorage.removeItem('persist_finished_state');
-        
-        // Curățăm starea salvată
-        clearAppState();
-        console.log("[Transport] Stare curățată COMPLET după finalizare");
-      }, 2000); // Doar 2 secunde pentru a afișa "finished" apoi resetăm complet
+      // Nu mai folosim timeout - resetăm imediat pentru a preveni reactivarea GPS-ului
+      console.log("[Transport] Resetare stare aplicație IMEDIAT după finalizare");
+      // Starea este deja setată la inactive mai sus, nu mai este nevoie de timeout
       
       toast({
         title: "Transport finalizat",
