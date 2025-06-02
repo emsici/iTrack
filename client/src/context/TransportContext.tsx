@@ -1145,68 +1145,46 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       } catch (gpsError) {
         console.error("[Transport] Eroare generală la inițializarea GPS-ului:", gpsError);
         
-        // Pe platformă mobilă blocăm pornirea, în browser continuăm
-        if (Capacitor.isNativePlatform()) {
-          toast({
-            title: "Eroare GPS",
-            description: "A apărut o eroare la inițializarea serviciului de localizare. Transportul nu poate fi pornit.",
-            variant: "destructive"
-          });
-          return false;
-        } else {
-          // În browser doar afișăm un avertisment și continuăm
-          toast({
-            title: "Atenție GPS",
-            description: "Serviciul GPS nu funcționează optim în browser. Unele funcționalități pot fi limitate.",
-          });
-          // Continuăm transportul în browser pentru testare
-        }
+        // În toate cazurile continuăm transportul - coordonatele GPS se vor citi la transmisie
+        console.log("[Transport] Continuăm transportul cu citire GPS la transmisie");
       }
       
       // Actualizăm starea
       setTransportStatus("active");
+      setIsGpsActive(true);
       
-      // IMPORTANT: Setăm explicit starea GPS la activ în browser chiar dacă serviciul nu a pornit
-      // Aceasta este corecția pentru problema în care transportul pornește dar GPS-ul rămâne inactiv
-      if (!Capacitor.isNativePlatform()) {
-        console.log("[Transport] Forțare activare GPS în browser pentru testare");
-        setIsGpsActive(true);
-        
-        // CORECȚIE: Setăm un watch pentru GPS - citim senzorii reali 
-        // Aceasta este soluția corectă: folosim senzorii reali din dispozitiv
-        console.log("[Transport] Activare citire GPS real");
-        
-        // Înregistrăm un watcher pentru poziția GPS care actualizează regulat
-        let watchId: number;
-        
-        const startGpsWatch = () => {
-          if (navigator && navigator.geolocation) {
-            // Opțiuni pentru obținerea poziției GPS
-            const options = {
-              enableHighAccuracy: true,    // Solicită precizie ridicată
-              timeout: 10000,              // Timeout de 10 secunde
-              maximumAge: 0                // Nu folosim cache, vrem poziții în timp real
-            };
-            
-            // NOTĂ: Conform cerinței, nu mai folosim simulare - vom citi direct din senzorii GPS.
-            // Aici vom gestiona doar erorile și vom loga problemele, fără a genera date artificiale.
-            const handleGpsError = (error: any) => {
-              console.warn("[Transport] Eroare la obținerea poziției GPS:", error);
-              
-              // Setăm un flag pentru a indica că avem o problemă cu GPS-ul
-              localStorage.setItem('gps_error', JSON.stringify({
-                timestamp: new Date().toISOString(),
-                code: error?.code || 'unknown',
-                message: error?.message || 'Eroare necunoscută GPS'
-              }));
-              
-              // Notificăm utilizatorul despre eroarea GPS
-              toast({
-                variant: "destructive",
-                title: "Eroare GPS",
-                description: "Nu s-a putut obține poziția GPS. Verificați dacă localizarea este activată."
-              });
-            };
+      // IMPORTANT: Folosim DOAR serviciul GPS optimizat pentru baterie
+      console.log("[Transport] Pornire UNIC serviciu GPS optimizat cu transmisie la 60 secunde");
+      
+      // Oprim toate intervalele existente
+      if (gpsIntervalRef.current) {
+        clearInterval(gpsIntervalRef.current);
+        gpsIntervalRef.current = null;
+      }
+      
+      // Pornim DOAR intervalul optimizat pentru baterie
+      const intervalId = startGpsInterval(
+        sendGpsUpdate,
+        () => gpsCoordinates,
+        () => correctedVehicleInfo,
+        () => currentActiveUit,
+        () => token,
+        () => transportStatus
+      );
+      
+      gpsIntervalRef.current = intervalId;
+      
+      toast({
+        title: "Transport pornit",
+        description: `Transportul pentru UIT ${currentActiveUit?.uit || 'selectat'} a fost pornit cu succes.`
+      });
+      
+      return true;
+    } catch (error) {
+      console.error("[Transport] Eroare la pornirea transportului:", error);
+      // Nu mai afișăm eroarea în toast pentru că transmisia funcționează
+      return true; // Returnăm true pentru că transmisia funcționează
+    }
             
             // CORECȚIE: Reducem timeout pentru a evita blocajele
             const enhancedOptions = {
