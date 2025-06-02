@@ -406,23 +406,12 @@ export default function TransportControls() {
                         </div>
                         
                         <div className="space-y-3">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-white rounded-lg p-3 border border-blue-100">
-                              <div className="text-xs uppercase tracking-wide text-blue-600 font-medium mb-1">
-                                ID Transport
-                              </div>
-                              <div className="text-sm font-semibold text-gray-900">
-                                {transport.ikRoTrans || 'N/A'}
-                              </div>
+                          <div className="bg-white rounded-lg p-3 border border-blue-100">
+                            <div className="text-xs uppercase tracking-wide text-blue-600 font-medium mb-1">
+                              Cod Declarant
                             </div>
-                            
-                            <div className="bg-white rounded-lg p-3 border border-blue-100">
-                              <div className="text-xs uppercase tracking-wide text-blue-600 font-medium mb-1">
-                                Cod Declarant
-                              </div>
-                              <div className="text-sm font-semibold text-gray-900">
-                                {transport.codDeclarant || 'N/A'}
-                              </div>
+                            <div className="text-sm font-semibold text-gray-900">
+                              {transport.codDeclarant || 'N/A'}
                             </div>
                           </div>
                           
@@ -435,23 +424,12 @@ export default function TransportControls() {
                             </div>
                           </div>
                           
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-white rounded-lg p-3 border border-blue-100">
-                              <div className="text-xs uppercase tracking-wide text-blue-600 font-medium mb-1">
-                                Număr Vehicul
-                              </div>
-                              <div className="text-sm font-semibold text-gray-900">
-                                {transport.nrVehicul || 'N/A'}
-                              </div>
+                          <div className="bg-white rounded-lg p-3 border border-blue-100">
+                            <div className="text-xs uppercase tracking-wide text-blue-600 font-medium mb-1">
+                              Data Transport
                             </div>
-                            
-                            <div className="bg-white rounded-lg p-3 border border-blue-100">
-                              <div className="text-xs uppercase tracking-wide text-blue-600 font-medium mb-1">
-                                Data Transport
-                              </div>
-                              <div className="text-sm font-semibold text-gray-900">
-                                {transport.dataTransport ? new Date(transport.dataTransport).toLocaleDateString('ro-RO') : 'N/A'}
-                              </div>
+                            <div className="text-sm font-semibold text-gray-900">
+                              {transport.dataTransport ? new Date(transport.dataTransport).toLocaleDateString('ro-RO') : 'N/A'}
                             </div>
                           </div>
                         </div>
@@ -459,9 +437,10 @@ export default function TransportControls() {
                     </CollapsibleContent>
                   </Collapsible>
                   
-                  {/* Controale */}
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center space-x-4 text-sm">
+                  {/* Status și controale */}
+                  <div className="space-y-3">
+                    {/* Informații status */}
+                    <div className="flex items-center justify-between text-sm">
                       <span className={`font-medium ${
                         isActive && isGpsActive ? 'text-green-600' : 'text-red-600'
                       }`}>
@@ -470,55 +449,56 @@ export default function TransportControls() {
                       <span className="text-gray-600">Baterie: {battery}%</span>
                     </div>
                     
-                    <div className="flex space-x-2">
+                    {/* Butoane de control */}
+                    <div className="w-full">
                       {transport.status === 'inactive' && (
                         <Button
                           onClick={() => handleStartTransport(transport.id)}
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white h-10"
                         >
                           <Play className="h-4 w-4 mr-2" />
-                          Pornește
+                          Pornește Transport
                         </Button>
                       )}
                       
                       {transport.status === 'active' && (
-                        <>
+                        <div className="grid grid-cols-2 gap-2">
                           <Button
                             onClick={() => handlePauseTransport(transport.id)}
-                            className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                            className="bg-yellow-600 hover:bg-yellow-700 text-white h-10"
                           >
-                            <Pause className="h-4 w-4 mr-2" />
+                            <Pause className="h-4 w-4 mr-1" />
                             Pauză
                           </Button>
                           
                           <Button
                             onClick={() => handleFinishTransport(transport.id)}
-                            className="bg-red-600 hover:bg-red-700 text-white"
+                            className="bg-red-600 hover:bg-red-700 text-white h-10"
                           >
-                            <Check className="h-4 w-4 mr-2" />
+                            <Check className="h-4 w-4 mr-1" />
                             Finalizează
                           </Button>
-                        </>
+                        </div>
                       )}
                       
                       {transport.status === 'paused' && (
-                        <>
+                        <div className="grid grid-cols-2 gap-2">
                           <Button
                             onClick={() => handleResumeTransport(transport.id)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            className="bg-blue-600 hover:bg-blue-700 text-white h-10"
                           >
-                            <Play className="h-4 w-4 mr-2" />
+                            <Play className="h-4 w-4 mr-1" />
                             Reia
                           </Button>
                           
                           <Button
                             onClick={() => handleFinishTransport(transport.id)}
-                            className="bg-red-600 hover:bg-red-700 text-white"
+                            className="bg-red-600 hover:bg-red-700 text-white h-10"
                           >
-                            <Check className="h-4 w-4 mr-2" />
+                            <Check className="h-4 w-4 mr-1" />
                             Finalizează
                           </Button>
-                        </>
+                        </div>
                       )}
                     </div>
                   </div>
