@@ -399,28 +399,60 @@ export default function TransportControls() {
                   {/* Detalii expandabile */}
                   <Collapsible open={isExpanded}>
                     <CollapsibleContent>
-                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <h4 className="font-medium text-gray-900 mb-3">Detalii complete</h4>
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          <div>
-                            <span className="text-gray-500">ikRoTrans:</span>
-                            <span className="ml-2 font-medium">{transport.ikRoTrans || 'N/A'}</span>
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-200 shadow-sm">
+                        <div className="flex items-center space-x-2 mb-4">
+                          <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+                          <h4 className="font-semibold text-blue-900">Informații Transport</h4>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-white rounded-lg p-3 border border-blue-100">
+                              <div className="text-xs uppercase tracking-wide text-blue-600 font-medium mb-1">
+                                ID Transport
+                              </div>
+                              <div className="text-sm font-semibold text-gray-900">
+                                {transport.ikRoTrans || 'N/A'}
+                              </div>
+                            </div>
+                            
+                            <div className="bg-white rounded-lg p-3 border border-blue-100">
+                              <div className="text-xs uppercase tracking-wide text-blue-600 font-medium mb-1">
+                                Cod Declarant
+                              </div>
+                              <div className="text-sm font-semibold text-gray-900">
+                                {transport.codDeclarant || 'N/A'}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <span className="text-gray-500">Cod Declarant:</span>
-                            <span className="ml-2 font-medium">{transport.codDeclarant || 'N/A'}</span>
+                          
+                          <div className="bg-white rounded-lg p-3 border border-blue-100">
+                            <div className="text-xs uppercase tracking-wide text-blue-600 font-medium mb-1">
+                              Companie
+                            </div>
+                            <div className="text-sm font-semibold text-gray-900">
+                              {transport.denumireCui || 'N/A'}
+                            </div>
                           </div>
-                          <div className="col-span-2">
-                            <span className="text-gray-500">Denumire:</span>
-                            <span className="ml-2 font-medium">{transport.denumireCui || 'N/A'}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-500">Vehicul:</span>
-                            <span className="ml-2 font-medium">{transport.nrVehicul || 'N/A'}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-500">Data:</span>
-                            <span className="ml-2 font-medium">{transport.dataTransport || 'N/A'}</span>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-white rounded-lg p-3 border border-blue-100">
+                              <div className="text-xs uppercase tracking-wide text-blue-600 font-medium mb-1">
+                                Număr Vehicul
+                              </div>
+                              <div className="text-sm font-semibold text-gray-900">
+                                {transport.nrVehicul || 'N/A'}
+                              </div>
+                            </div>
+                            
+                            <div className="bg-white rounded-lg p-3 border border-blue-100">
+                              <div className="text-xs uppercase tracking-wide text-blue-600 font-medium mb-1">
+                                Data Transport
+                              </div>
+                              <div className="text-sm font-semibold text-gray-900">
+                                {transport.dataTransport ? new Date(transport.dataTransport).toLocaleDateString('ro-RO') : 'N/A'}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
