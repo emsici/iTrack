@@ -26,28 +26,55 @@ export default function VoiceNotifications() {
   const prevGpsActiveRef = useRef(isGpsActive);
   const lastNotificationTimeRef = useRef<number>(0);
   
-  // Inițializare SpeechSynthesis și citirea state-ului din localStorage
+  // Inițializare SpeechSynthesis cu permisiuni pentru mobile
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      speechSynthRef.current = window.speechSynthesis;
-      
-      // Citire stare din localStorage
-      const savedState = localStorage.getItem('voice_notifications_enabled');
-      if (savedState !== null) {
-        const isEnabled = savedState === 'true';
-        setEnabled(isEnabled);
-        console.log("Stare notificări vocale citită din localStorage:", isEnabled ? "ACTIVE" : "DEZACTIVATE");
-      } else {
-        // Dacă nu există state salvat, scriem starea curentă în localStorage
-        localStorage.setItem('voice_notifications_enabled', String(enabled));
+    const initializeSpeech = async () => {
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        speechSynthRef.current = window.speechSynthesis;
+        
+        // Pentru platformele mobile, solicităm permisiuni explicite
+        if (navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
+          console.log("Platformă mobilă detectată - solicitare permisiuni audio");
+          
+          try {
+            // Cerere permisiuni microfon (necesare pentru TTS pe unele platforme)
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+            console.log("Permisiuni audio acordate pe platformă mobilă");
+          } catch (error) {
+            console.warn("Permisiuni audio refuzate, notificările vocale pot fi limitate:", error);
+          }
+          
+          // Pentru iOS, forțăm o interacțiune utilizator pentru a activa audio
+          const enableAudioContext = () => {
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            audioContext.resume();
+            console.log("AudioContext activat pentru iOS");
+          };
+          
+          // Adăugăm un listener pentru prima interacțiune utilizator
+          document.addEventListener('touchstart', enableAudioContext, { once: true });
+          document.addEventListener('click', enableAudioContext, { once: true });
+        }
+        
+        // Citire stare din localStorage
+        const savedState = localStorage.getItem('voice_notifications_enabled');
+        if (savedState !== null) {
+          const isEnabled = savedState === 'true';
+          setEnabled(isEnabled);
+          console.log("Stare notificări vocale citită din localStorage:", isEnabled ? "ACTIVE" : "DEZACTIVATE");
+        } else {
+          localStorage.setItem('voice_notifications_enabled', String(enabled));
+        }
+        
+        // Forțăm dezactivarea sunetelor dacă enabled este false
+        if (savedState === 'false' && speechSynthRef.current) {
+          console.log("Forțăm anularea tuturor notificărilor vocale la inițializare - dezactivate în localStorage");
+          speechSynthRef.current.cancel();
+        }
       }
-      
-      // Forțăm dezactivarea sunetelor dacă enabled este false
-      if (savedState === 'false' && speechSynthRef.current) {
-        console.log("Forțăm anularea tuturor notificărilor vocale la inițializare - dezactivate în localStorage");
-        speechSynthRef.current.cancel();
-      }
-    }
+    };
+    
+    initializeSpeech();
     
     // Cleanup
     return () => {
