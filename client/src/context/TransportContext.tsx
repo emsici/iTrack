@@ -1247,16 +1247,16 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         console.log("[Transport] Stare salvată înainte de pauză");
       }
       
-      // Oprim GPS-ul
+      // Oprim GPS-ul la pauză - nu mai trimitem coordonate
       const stopped = await stopGpsTracking();
-      console.log("[Transport] GPS oprit cu succes:", stopped);
+      console.log("[Transport] GPS oprit la pauză:", stopped);
       
       // Actualizăm starea
       setTransportStatus("paused");
       
       toast({
         title: "Transport în pauză",
-        description: "Transportul a fost pus în pauză. Locația nu mai este urmărită."
+        description: "Transportul a fost pus în pauză. Urmărirea GPS a fost oprită."
       });
     } catch (error) {
       console.error("[Transport] Eroare la pauză transport:", error);
@@ -1277,8 +1277,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     try {
       console.log("[Transport] Începere reluare transport");
       
-      // Pornim GPS-ul
-      const gpsStarted = await startGpsTracking();
+      // Pornim GPS-ul forțat la reluare (indiferent de starea transportului)
+      const gpsStarted = await startGpsTracking(undefined, true);
       console.log("[Transport] GPS pornit la reluare:", gpsStarted);
       
       // Actualizăm starea chiar dacă GPS-ul nu a pornit
