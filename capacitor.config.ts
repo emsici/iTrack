@@ -5,7 +5,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config = {
   appId: 'com.euscagency.itrack',
   appName: 'iTrack',
-  webDir: 'dist',
+  webDir: 'dist/public',
   server: {
     androidScheme: 'https',
     cleartext: true
