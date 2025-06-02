@@ -491,7 +491,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         }
       };
       
-      // Executăm testul după 5 secunde
+      // Executăm testul imediat și la 5 secunde
+      setTimeout(() => {
+        console.log("[GPS Test URGENT] Pornire test transmisie GPS imediată...");
+        testImmediateTransmission();
+      }, 2000);
+      
       setTimeout(testImmediateTransmission, 5000);
       
       // INTERVAL GPS DE 60 SECUNDE - pornește imediat și continuă
