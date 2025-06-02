@@ -369,15 +369,28 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   // Handler pentru actualizare GPS din foreground
   const onGpsUpdate = useCallback((position: GeolocationPosition) => {
     console.log("onGpsUpdate: Am primit poziție GPS", position);
+    
+    // OPRIRE COMPLETĂ după finish - verificăm starea din localStorage
+    const currentStatus = localStorage.getItem('transport_status');
+    if (currentStatus === 'finished' || transportStatus === 'finished') {
+      console.log("Transport finalizat - GPS OPRIT COMPLET");
+      return;
+    }
+    
+    // Verificăm dacă GPS-ul trebuie să fie activ
+    if (!isGpsActive && transportStatus === 'inactive') {
+      console.log("GPS inactiv și transport inactiv - se ignoră actualizarea");
+      return;
+    }
+    
     // Verificăm dacă poziția este validă
     if (!position || !position.coords) {
       console.error("Poziție GPS invalidă", position);
       return;
     }
     
-    // ATENȚIE: Actualizăm coordonatele indiferent de starea transportului
-    // Dar trimitem la server doar dacă transportul este activ
-    console.log("Actualizăm coordonatele GPS indiferent de starea transportului:", transportStatus);
+    // Actualizăm coordonatele GPS doar pentru transporturi active
+    console.log("Actualizăm coordonatele GPS pentru transport activ:", transportStatus);
     
     // Verificăm informațiile vehiculului
     if (!vehicleInfo) {
@@ -1351,13 +1364,13 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           const uitFinal = currentActiveUit?.uit || vehicleInfo?.uit || "UIT12345";
           console.log("UIT final pentru finalizare transport:", uitFinal);
           
-          // Trimitem actualizarea finală cu status "finished"
+          // Trimitem actualizarea finală cu status 4 (finished)
           try {
             await sendGpsUpdate(
               finalCoords, 
               vehicleNr, 
               uitFinal, 
-              "finished",
+              4, // Status numeric 4 pentru finished
               token
             );
             console.log("Actualizare finală GPS trimisă cu succes");

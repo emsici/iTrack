@@ -82,7 +82,7 @@ export const sendGpsUpdate = async (
   gpsCoords: GpsCoordinates,
   vehicleNumber: string,
   uit: string,
-  transportStatus: "in_progress" | "finished" = "in_progress",
+  transportStatus: "in_progress" | "finished" | number = "in_progress",
   token: string
 ): Promise<boolean> => {
   // Construim obiectul vehicleInfo pentru compatibilitate cu restul funcției
