@@ -405,33 +405,41 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       }
       
       gpsIntervalRef.current = setInterval(() => {
-        // Verificăm dacă transportul este încă activ
-        if (transportStatus === 'active' && vehicleInfo?.nr && currentActiveUit && token) {
-          // Folosim ultimele coordonate valide sau coordonate estimate
-          const currentCoords = gpsCoordinates;
+        // Verificăm starea curentă prin getSavedAppState pentru consistență
+        const savedState = getSavedAppState();
+        const isTransportActive = savedState?.transportStatus === 'active';
+        
+        console.log("[GPS Interval] Verificare interval 60s - Transport activ:", isTransportActive);
+        
+        if (isTransportActive && vehicleInfo?.nr && currentActiveUit && token && gpsCoordinates) {
+          console.log("[GPS Interval] Transmisie periodică GPS la 60 secunde:", gpsCoordinates);
           
-          if (currentCoords) {
-            console.log("[GPS Interval] Transmisie periodică GPS la 60 secunde:", currentCoords);
-            
-            // Transmitem coordonatele către server
-            sendGpsUpdate(
-              currentCoords,
-              vehicleInfo.nr,
-              currentActiveUit.uit,
-              transportStatus, // Folosim statusul numeric corect
-              token
-            ).then(success => {
-              if (success) {
-                console.log("[GPS Interval] ✅ Transmisie periodică reușită");
-              } else {
-                console.error("[GPS Interval] ❌ Eroare transmisie periodică");
-              }
-            }).catch(e => {
-              console.error("[GPS Interval] Excepție transmisie periodică:", e);
-            });
-          } else {
-            console.warn("[GPS Interval] Nu există coordonate pentru transmisie periodică");
-          }
+          // Convertim statusul la numeric
+          const numericStatus = 2; // 2 = active
+          
+          sendGpsUpdate(
+            gpsCoordinates,
+            vehicleInfo.nr,
+            currentActiveUit.uit,
+            numericStatus,
+            token
+          ).then(success => {
+            if (success) {
+              console.log("[GPS Interval] ✅ Transmisie periodică reușită");
+            } else {
+              console.error("[GPS Interval] ❌ Eroare transmisie periodică");
+            }
+          }).catch(e => {
+            console.error("[GPS Interval] Excepție transmisie periodică:", e);
+          });
+        } else {
+          console.log("[GPS Interval] Interval omis - Transport inactiv sau lipsă date:", {
+            isTransportActive,
+            hasVehicle: !!vehicleInfo?.nr,
+            hasUit: !!currentActiveUit,
+            hasToken: !!token,
+            hasCoords: !!gpsCoordinates
+          });
         }
       }, 60000); // 60 secunde = 60000ms
       
