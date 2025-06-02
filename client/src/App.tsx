@@ -15,6 +15,9 @@ import { Dialog } from "@/components/ui/dialog";
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { setupConsoleInterceptor, addLog } from "@/lib/logService";
+import "@/lib/directGpsTest";
+import "@/lib/simpleGpsService";
+import "@/lib/gpsIntervalService";
 
 function Router() {
   const [location] = useLocation();
