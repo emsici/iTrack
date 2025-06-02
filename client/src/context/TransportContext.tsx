@@ -1372,20 +1372,19 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           console.log("GPS oprit IMEDIAT înainte de status 4");
           
           // Trimitem actualizarea finală cu status 4 (finished)
-          try {
-            await sendGpsUpdate(
-              finalCoords, 
-              vehicleNr, 
-              uitFinal, 
-              4, // Status numeric 4 pentru finished
-              token
-            );
+          // Continuăm finalizarea chiar dacă API-ul extern nu răspunde
+          sendGpsUpdate(
+            finalCoords, 
+            vehicleNr, 
+            uitFinal, 
+            4, // Status numeric 4 pentru finished
+            token
+          ).then(() => {
             console.log("Status 4 trimis cu succes");
-          } catch (sendError) {
-            console.error("Eroare la trimiterea status 4:", sendError);
-            // Continuăm execuția chiar dacă trimiterea GPS eșuează - prioritizăm finalizarea transportului 
-            // în aplicație chiar dacă avem probleme de conectivitate
-          }
+          }).catch((sendError) => {
+            console.log("Eroare la trimiterea status 4 (continuăm finalizarea):", sendError);
+            // Ignorăm eroarea - prioritizăm finalizarea transportului în aplicație
+          });
           console.log("[Transport] Ultima actualizare GPS trimisă cu succes (status=finished)");
         } catch (error) {
           console.error("[Transport] Eroare la trimiterea coordonatelor finale:", error);

@@ -3,12 +3,13 @@ import { useTransport } from "@/context/TransportContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Play, Pause, Check, Truck } from "lucide-react";
+import { Play, Pause, Check, Truck, ChevronDown, ChevronUp, MapPin } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useForceTransportActive } from "@/hooks/useForceTransportActive";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-// Interfață pentru un transport
+// Interfață pentru un transport cu toate detaliile
 interface Transport {
   id: string;
   uit: string;
@@ -16,11 +17,20 @@ interface Transport {
   stop_locatie: string;
   status: "inactive" | "active" | "paused" | "finished";
   isTracking: boolean;
+  // Detalii complete din API
+  ikRoTrans?: number;
+  codDeclarant?: number;
+  denumireCui?: string;
+  nrVehicul?: string;
+  dataTransport?: string;
+  Vama?: string | null;
+  BirouVamal?: string | null;
 }
 
 export default function TransportControls() {
   const [transports, setTransports] = useState<Transport[]>([]);
   const [battery, setBattery] = useState(100);
+  const [expandedTransports, setExpandedTransports] = useState<Set<string>>(new Set());
   const { 
     transportStatus, 
     currentActiveUit, 
@@ -30,11 +40,25 @@ export default function TransportControls() {
     finishTransport,
     isGpsActive,
     isBackgroundActive,
+    gpsCoordinates,
   } = useTransport();
   const { vehicleInfo } = useAuth();
   
   // Activăm hook-ul pentru forțarea stării de transport activ
   useForceTransportActive(transportStatus);
+
+  // Funcție pentru toggle expand/collapse
+  const toggleExpanded = (transportId: string) => {
+    setExpandedTransports(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(transportId)) {
+        newSet.delete(transportId);
+      } else {
+        newSet.add(transportId);
+      }
+      return newSet;
+    });
+  };
 
   // Încarcă transporturile disponibile pentru vehicul 
   useEffect(() => {
@@ -42,14 +66,22 @@ export default function TransportControls() {
     console.log("TransportControls: vehicleInfo.allTransports:", vehicleInfo?.allTransports);
     
     if (vehicleInfo?.allTransports && Array.isArray(vehicleInfo.allTransports) && vehicleInfo.allTransports.length > 0) {
-      // Folosim toate transporturile din vehicleInfo.allTransports
+      // Folosim toate transporturile din vehicleInfo.allTransports cu detalii complete
       const allTransports = vehicleInfo.allTransports.map((transport, index) => ({
         id: (index + 1).toString(),
         uit: transport.uit,
         start_locatie: transport.start_locatie,
         stop_locatie: transport.stop_locatie,
         status: "inactive" as const,
-        isTracking: false
+        isTracking: false,
+        // Detalii complete din API
+        ikRoTrans: transport.ikRoTrans,
+        codDeclarant: (vehicleInfo as any).codDeclarant,
+        denumireCui: (vehicleInfo as any).denumireCui,
+        nrVehicul: vehicleInfo.nr,
+        dataTransport: transport.dataTransport,
+        Vama: null,
+        BirouVamal: null,
       }));
       
       console.log("TransportControls: Setez toate transporturile:", allTransports);
