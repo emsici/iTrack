@@ -66,8 +66,8 @@ export const startGpsTransmissionService = (
       
       console.log("[GPS Service] Transmit către server:", payload);
       
-      // Trimite către server
-      const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
+      // Trimite către server prin proxy-ul nostru (pentru a evita CORS)
+      const response = await fetch("/api/gps/transmit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

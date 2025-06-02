@@ -1,0 +1,90 @@
+Access to fetch at 'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php' from origin 'https://813298f8-355d-45c8-a208-8d8351cf88a4-00-2axpe8ckrdbyo.riker.replit.dev' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+singleGpsService.ts:70 
+            
+            
+           POST https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php net::ERR_FAILED
+window.fetch @ Network.js:219
+transmitGps @ singleGpsService.ts:70
+await in transmitGps
+startGpsTransmissionService @ singleGpsService.ts:91
+(anonymous) @ TransportContext.tsx:108
+handleStartTransport @ TransportControls.tsx:168
+onClick @ TransportControls.tsx:462
+callCallback2 @ chunk-RPCDYKBN.js?v=7f8be500:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=7f8be500:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=7f8be500:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=7f8be500:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=7f8be500:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=7f8be500:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=7f8be500:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=7f8be500:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=7f8be500:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=7f8be500:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=7f8be500:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=7f8be500:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=7f8be500:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=7f8be500:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=7f8be500:5449
+Console.js:61 [GPS Service] Eroare la transmisia GPS: TypeError: Failed to fetch
+    at window.fetch (Network.js:219:37)
+    at transmitGps (singleGpsService.ts:70:30)
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ logService.ts:84
+transmitGps @ singleGpsService.ts:86
+await in transmitGps
+startGpsTransmissionService @ singleGpsService.ts:91
+(anonymous) @ TransportContext.tsx:108
+handleStartTransport @ TransportControls.tsx:168
+onClick @ TransportControls.tsx:462
+callCallback2 @ chunk-RPCDYKBN.js?v=7f8be500:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=7f8be500:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=7f8be500:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=7f8be500:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=7f8be500:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=7f8be500:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=7f8be500:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=7f8be500:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=7f8be500:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=7f8be500:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=7f8be500:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=7f8be500:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=7f8be500:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=7f8be500:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=7f8be500:5449
+Console.js:61 [console] [GPS Service] Eroare la transmisia GPS: {} 
+Mt.forEach.n.<computed> @ Console.js:61
+addLog @ logService.ts:60
+console.error @ logService.ts:88
+transmitGps @ singleGpsService.ts:86
+await in transmitGps
+startGpsTransmissionService @ singleGpsService.ts:91
+(anonymous) @ TransportContext.tsx:108
+handleStartTransport @ TransportControls.tsx:168
+onClick @ TransportControls.tsx:462
+callCallback2 @ chunk-RPCDYKBN.js?v=7f8be500:3674
+invokeGuardedCallbackDev @ chunk-RPCDYKBN.js?v=7f8be500:3699
+invokeGuardedCallback @ chunk-RPCDYKBN.js?v=7f8be500:3733
+invokeGuardedCallbackAndCatchFirstError @ chunk-RPCDYKBN.js?v=7f8be500:3736
+executeDispatch @ chunk-RPCDYKBN.js?v=7f8be500:7014
+processDispatchQueueItemsInOrder @ chunk-RPCDYKBN.js?v=7f8be500:7034
+processDispatchQueue @ chunk-RPCDYKBN.js?v=7f8be500:7043
+dispatchEventsForPlugins @ chunk-RPCDYKBN.js?v=7f8be500:7051
+(anonymous) @ chunk-RPCDYKBN.js?v=7f8be500:7174
+batchedUpdates$1 @ chunk-RPCDYKBN.js?v=7f8be500:18913
+batchedUpdates @ chunk-RPCDYKBN.js?v=7f8be500:3579
+dispatchEventForPluginEventSystem @ chunk-RPCDYKBN.js?v=7f8be500:7173
+dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay @ chunk-RPCDYKBN.js?v=7f8be500:5478
+dispatchEvent @ chunk-RPCDYKBN.js?v=7f8be500:5472
+dispatchDiscreteEvent @ chunk-RPCDYKBN.js?v=7f8be500:5449
+Console.js:61 [promise] Promise respins netratat: TypeError: Failed to fetch {reason: 'TypeError: Failed to fetch', stack: 'TypeError: Failed to fetch\n    at window.fetch (ht…ker.replit.dev/src/lib/singleGpsService.ts:32:30)'}
+Mt.forEach.n.<computed> @ Console.js:61
+addLog @ logService.ts:60
+(anonymous) @ logService.ts:130
+Network.js:219 
+            
+            
+           
+        
+       Uncaught (in promise) TypeError: Failed to fetch
+    at window.fetch (Network.js:219:37)
+    at transmitGps (singleGpsService.ts:70:30)

@@ -182,6 +182,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // GPS transmission proxy endpoint
+  app.post("/api/gps/transmit", async (req, res) => {
+    try {
+      const gpsData = req.body;
+      const authHeader = req.headers.authorization;
+      
+      console.log("[GPS Proxy] Transmit GPS data:", gpsData);
+      
+      // Forward to external GPS API
+      const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": authHeader || ""
+        },
+        body: JSON.stringify(gpsData)
+      });
+      
+      if (response.ok) {
+        const result = await response.text();
+        console.log("[GPS Proxy] ✅ Transmisie reușită");
+        res.json({ success: true, message: "GPS data transmitted successfully" });
+      } else {
+        console.error("[GPS Proxy] ❌ Eroare transmisie:", response.status);
+        res.status(response.status).json({ success: false, error: "Failed to transmit GPS data" });
+      }
+      
+    } catch (error) {
+      console.error("[GPS Proxy] Eroare la transmisia GPS:", error);
+      res.status(500).json({ success: false, error: "Server error" });
+    }
+  });
+
   // Redirecționează vechiul endpoint GPS către noul endpoint din transportRoutes
   app.post("/api/gps", async (req, res) => {
     res.redirect(307, "/api/transport/gps"); // 307 păstrează metoda HTTP și body-ul
