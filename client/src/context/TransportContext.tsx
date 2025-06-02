@@ -411,21 +411,36 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         
         console.log("[GPS Interval] Verificare interval 60s - Transport activ:", isTransportActive);
         
-        if (isTransportActive && vehicleInfo?.nr && currentActiveUit && token && gpsCoordinates) {
-          console.log("[GPS Interval] Transmisie periodică GPS la 60 secunde:", gpsCoordinates);
+        // Obținem coordonatele GPS curente din context
+        const currentCoords = gpsCoordinates;
+        const currentVehicle = vehicleInfo?.nr;
+        const currentUit = currentActiveUit?.uit;
+        const authToken = token;
+        
+        console.log("[GPS Interval] Date disponibile:", {
+          isTransportActive,
+          hasCoords: !!currentCoords,
+          hasVehicle: !!currentVehicle,
+          hasUit: !!currentUit,
+          hasToken: !!authToken
+        });
+        
+        if (isTransportActive && currentCoords && currentVehicle && currentUit && authToken) {
+          console.log("[GPS Interval] Transmisie periodică GPS la 60 secunde:", currentCoords);
           
           // Convertim statusul la numeric
           const numericStatus = 2; // 2 = active
           
           sendGpsUpdate(
-            gpsCoordinates,
-            vehicleInfo.nr,
-            currentActiveUit.uit,
+            currentCoords,
+            currentVehicle,
+            currentUit,
             numericStatus,
-            token
+            authToken
           ).then(success => {
             if (success) {
               console.log("[GPS Interval] ✅ Transmisie periodică reușită");
+              console.log("[GPS Interval] Verifică gps.php pentru noile date");
             } else {
               console.error("[GPS Interval] ❌ Eroare transmisie periodică");
             }
@@ -433,49 +448,51 @@ export function TransportProvider({ children }: { children: ReactNode }) {
             console.error("[GPS Interval] Excepție transmisie periodică:", e);
           });
         } else {
-          console.log("[GPS Interval] Interval omis - Transport inactiv sau lipsă date:", {
+          console.log("[GPS Interval] Interval omis - lipsă date:", {
             isTransportActive,
-            hasVehicle: !!vehicleInfo?.nr,
-            hasUit: !!currentActiveUit,
-            hasToken: !!token,
-            hasCoords: !!gpsCoordinates
+            hasCoords: !!currentCoords,
+            hasVehicle: !!currentVehicle,
+            hasUit: !!currentUit,
+            hasToken: !!authToken
           });
         }
       }, 60000); // 60 secunde = 60000ms
       
-      // Pentru test imediat - trimitem o transmisie GPS la pornire folosind primul set de coordonate disponibile
-      setTimeout(() => {
-        console.log("[GPS Test] Încercare transmisie GPS la 3 secunde după pornire...");
-        console.log("[GPS Test] Date disponibile:", { 
-          gpsCoordinates, 
-          vehicleNr: vehicleInfo?.nr, 
-          uit: currentActiveUit?.uit,
-          hasToken: !!token 
-        });
+      // TEST IMEDIAT - transmitem GPS la pornire pentru a verifica funcționalitatea
+      const testImmediateTransmission = () => {
+        console.log("[GPS Test] Test transmisie imediată...");
         
-        if (gpsCoordinates && vehicleInfo?.nr && currentActiveUit?.uit && token) {
-          console.log("[GPS Test] Transmisie GPS imediată:", gpsCoordinates);
-          
-          sendGpsUpdate(
-            gpsCoordinates,
-            vehicleInfo.nr,
-            currentActiveUit.uit,
-            2, // 2 = active
-            token
-          ).then(success => {
-            console.log("[GPS Test] Rezultat transmisie imediată:", success ? "✅ Succes" : "❌ Eroare");
-            
-            // Verificăm și în logurile server pentru a confirma
-            if (success) {
-              console.log("[GPS Test] Datele ar trebui să apară acum în logurile server");
-            }
-          }).catch(e => {
-            console.error("[GPS Test] Excepție transmisie imediată:", e);
-          });
-        } else {
-          console.warn("[GPS Test] Nu sunt toate datele disponibile pentru transmisie");
+        // Folosim valori fixe pentru testare
+        const testData = {
+          lat: 44.25839017866312,
+          lng: 28.618467233092495,
+          timestamp: new Date().toISOString(),
+          viteza: 0,
+          directie: 0,
+          altitudine: 0,
+          baterie: 100
+        };
+        
+        const testVehicle = vehicleInfo?.nr || "B200ABC";
+        const testUit = currentActiveUit?.uit || "5W3Q9L6L2R4J7N26";
+        const testToken = token || "";
+        
+        console.log("[GPS Test] Transmisie cu date:", { testData, testVehicle, testUit, hasToken: !!testToken });
+        
+        if (testToken) {
+          sendGpsUpdate(testData, testVehicle, testUit, 2, testToken)
+            .then(success => {
+              console.log("[GPS Test] Rezultat:", success ? "✅ SUCCES" : "❌ EȘEC");
+              if (success) {
+                console.log("[GPS Test] Verifică gps.php pentru noile date");
+              }
+            })
+            .catch(e => console.error("[GPS Test] Eroare:", e));
         }
-      }, 3000); // Așteptăm 3 secunde pentru a fi siguri că avem coordonate GPS
+      };
+      
+      // Executăm testul după 5 secunde
+      setTimeout(testImmediateTransmission, 5000);
       
       console.log(`[Transport] GPS tracking pornit (background: ${backgroundStarted}) cu interval periodic 60s`);
       console.log(`[Transport] Interval GPS setat cu ID:`, gpsIntervalRef.current);
