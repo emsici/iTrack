@@ -123,10 +123,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const pauseTransport = useCallback(async (uit?: UitOption): Promise<void> => {
     console.log("[Transport] Punerea în pauză a transportului");
     
-    if (gpsIntervalRef.current) {
-      clearInterval(gpsIntervalRef.current);
-      gpsIntervalRef.current = null;
-    }
+    // Stop GPS transmission service
+    stopGpsTransmissionService();
     
     setTransportStatus("paused");
     setIsGpsActive(false);
@@ -160,10 +158,8 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const finishTransport = useCallback(async (uit?: UitOption): Promise<void> => {
     console.log("[Transport] Finalizarea transportului");
     
-    if (gpsIntervalRef.current) {
-      clearInterval(gpsIntervalRef.current);
-      gpsIntervalRef.current = null;
-    }
+    // Stop GPS transmission service
+    stopGpsTransmissionService();
     
     setTransportStatus("finished");
     setIsGpsActive(false);
