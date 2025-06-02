@@ -27,12 +27,14 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 // Stiluri pentru hartă
 const mapStyle = {
-  height: "500px",
+  height: "400px",
   width: "100%",
-  borderRadius: "12px",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
-  border: "1px solid rgba(0, 0, 0, 0.07)",
+  borderRadius: "16px",
+  boxShadow: "0 8px 25px rgba(0, 0, 0, 0.1)",
+  border: "2px solid rgba(59, 130, 246, 0.1)",
   overflow: "hidden",
+  position: "relative" as const,
+  zIndex: 1,
 };
 
 // Iconițe personalizate pentru marcaje
@@ -143,9 +145,14 @@ export default function TransportMap() {
   // Eliminăm variabila nefolosită
   
   return (
-    <div className="relative">
-      <div className="mb-2 px-1">
-        <div className="flex justify-between items-center">
+    <div className="relative mb-6">
+      {/* Header hartă */}
+      <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+        <div className="flex items-center space-x-2 mb-2">
+          <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+          <h3 className="font-semibold text-blue-900">Urmărire în timp real</h3>
+        </div>
+        <div className="flex justify-between items-center text-sm">
           <h3 className="text-base font-medium text-gray-700">
             Traseu Transport
           </h3>
