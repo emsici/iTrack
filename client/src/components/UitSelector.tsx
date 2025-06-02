@@ -225,9 +225,37 @@ export default function UitSelector() {
   // Obținem lista de UIT-uri disponibile la încărcarea componentei sau când se modifică vehicleInfo
   useEffect(() => {
     console.log("UitSelector - useEffect - vehicleInfo:", vehicleInfo);
+    console.log("vehicleInfo?.allTransports:", vehicleInfo?.allTransports);
     
-    // Dacă avem deja vehicleInfo, forțăm selecția UIT-ului direct
-    if (vehicleInfo && vehicleInfo.uit) {
+    // Verificăm dacă avem toate transporturile în vehicleInfo
+    if (vehicleInfo?.allTransports && Array.isArray(vehicleInfo.allTransports) && vehicleInfo.allTransports.length > 0) {
+      console.log("Folosim toate transporturile din vehicleInfo.allTransports:", vehicleInfo.allTransports.length);
+      
+      // Convertim toate transporturile la formatul UitOption
+      const allUits = vehicleInfo.allTransports.map(transport => ({
+        uit: transport.uit,
+        start_locatie: transport.start_locatie || "Locație start",
+        stop_locatie: transport.stop_locatie || "Locație destinație"
+      }));
+      
+      console.log("Setăm toate UIT-urile disponibile:", allUits);
+      setAvailableUits(allUits);
+      
+      // Setăm primul UIT ca selectat dacă nu avem nimic selectat
+      if (localSelectedUits.length === 0 && allUits.length > 0) {
+        const firstUit = allUits[0];
+        setSelectedUits([firstUit]);
+        setCurrentActiveUit(firstUit);
+        setLocalSelectedUits([firstUit]);
+        
+        console.log("Primul UIT setat automat:", firstUit);
+        toast({
+          title: "UIT configurat",
+          description: `Găsite ${allUits.length} transporturi. UIT ${firstUit.uit} setat automat.`,
+        });
+      }
+      
+    } else if (vehicleInfo && vehicleInfo.uit) {
       console.log("Setăm direct UIT-ul din vehicleInfo:", vehicleInfo.uit);
       
       // Creăm un UIT direct din vehicleInfo pentru a evita problemele de sincronizare
@@ -244,6 +272,7 @@ export default function UitSelector() {
       
       // Actualizăm și starea locală pentru UI
       setLocalSelectedUits([directUit]);
+      setAvailableUits([directUit]);
       
       toast({
         title: "UIT setat",
