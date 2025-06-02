@@ -99,7 +99,13 @@ export default function SimpleLocationTracking() {
             }
           },
           (error) => {
-            console.error("Eroare obținere coordonate:", error);
+            // Nu afișăm erori GPS când transportul este activ și avem coordonate valide
+            if (transportStatus !== 'active' || !lastValidCoordinates) {
+              console.error("Eroare obținere coordonate:", error);
+            } else {
+              // Pentru transport activ, doar log discret
+              console.log("GPS temporar indisponibil (normal pentru dispozitive mobile)");
+            }
             
             // Incrementăm contorul de erori și actualizăm timpul
             setGpsErrorCount(prev => prev + 1);
