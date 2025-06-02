@@ -164,30 +164,80 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
     setIsEditingVehicle(false);
   };
 
-  // Funcție pentru export loguri
-  const handleExportLogs = () => {
+  // Funcție pentru export loguri complet
+  const handleExportLogs = async () => {
     try {
-      // Colectează toate logurile din console
       const logs = [];
       
-      // Adaugă informații despre sistem
+      // Header export
       logs.push(`=== EXPORT LOGURI iTrack - ${new Date().toLocaleString()} ===`);
+      logs.push('');
+      
+      // Informații sistem
+      logs.push('=== INFORMAȚII SISTEM ===');
       logs.push(`Platform: ${navigator.platform}`);
       logs.push(`User Agent: ${navigator.userAgent}`);
+      logs.push(`Language: ${navigator.language}`);
+      logs.push(`Online: ${navigator.onLine}`);
+      logs.push(`Cookies: ${navigator.cookieEnabled}`);
+      logs.push('');
+      
+      // Starea aplicației
+      logs.push('=== STAREA APLICAȚIEI ===');
       logs.push(`Transport Status: ${transportStatus}`);
       logs.push(`GPS Active: ${isGpsActive}`);
       logs.push(`Battery: ${battery}%`);
       logs.push(`Has Coordinates: ${!!gpsCoordinates}`);
+      logs.push(`Vehicle: ${vehicleInfo?.nr || 'N/A'}`);
       
       if (gpsCoordinates) {
-        logs.push(`Last GPS: ${JSON.stringify(gpsCoordinates, null, 2)}`);
+        logs.push('');
+        logs.push('=== ULTIMA POZIȚIE GPS ===');
+        logs.push(JSON.stringify(gpsCoordinates, null, 2));
+      }
+      logs.push('');
+      
+      // Test GPS în timp real
+      logs.push('=== TEST GPS LIVE ===');
+      try {
+        const position = await navigator.geolocation.getCurrentPosition(
+          (pos) => pos,
+          (err) => { throw err; },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+        logs.push('GPS Standard Browser: SUCCESS');
+        logs.push(`Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}`);
+        logs.push(`Accuracy: ${position.coords.accuracy}m`);
+      } catch (gpsError) {
+        logs.push('GPS Standard Browser: FAILED');
+        logs.push(`Eroare: ${gpsError.message}`);
       }
       
-      // Adaugă logurile din localStorage dacă există
-      const storedLogs = localStorage.getItem('app_logs');
-      if (storedLogs) {
-        logs.push('\n=== LOGURI SALVATE ===');
-        logs.push(storedLogs);
+      // Verificare permisiuni
+      if (navigator.permissions) {
+        try {
+          const permission = await navigator.permissions.query({name: 'geolocation'});
+          logs.push(`Permisiune Geolocation: ${permission.state}`);
+        } catch (permError) {
+          logs.push(`Eroare verificare permisiuni: ${permError.message}`);
+        }
+      }
+      logs.push('');
+      
+      // localStorage data
+      logs.push('=== DATE SALVATE ===');
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('transport') || key.includes('gps') || key.includes('log')) {
+          logs.push(`${key}: ${localStorage.getItem(key)}`);
+        }
+      });
+      logs.push('');
+      
+      // Console logs dacă sunt salvate
+      const consoleLogs = localStorage.getItem('console_logs');
+      if (consoleLogs) {
+        logs.push('=== CONSOLE LOGS ===');
+        logs.push(consoleLogs);
       }
       
       // Creează și descarcă fișierul
@@ -197,7 +247,7 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
       
       const link = document.createElement('a');
       link.href = url;
-      link.download = `itrack-logs-${new Date().getTime()}.txt`;
+      link.download = `itrack-debug-${new Date().getTime()}.txt`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -205,7 +255,7 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
       
       toast({
         title: "Loguri exportate",
-        description: "Fișierul cu logurile a fost descărcat cu succes.",
+        description: "Fișierul de debug a fost descărcat cu succes.",
         variant: "default",
       });
     } catch (error) {
