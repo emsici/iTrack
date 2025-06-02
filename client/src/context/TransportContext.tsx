@@ -1430,9 +1430,15 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Actualizăm transporturile vehiculelor și reîncărcăm lista
       if (vehicleInfo?.nr) {
+        // Corectăm vehicleInfo.nr dacă este un obiect
+        let vehicleNr = vehicleInfo.nr;
+        if (typeof vehicleNr === 'object' && vehicleNr !== null) {
+          vehicleNr = vehicleNr.nr || vehicleInfo.registrationNumber || 'N/A';
+        }
+        
         setVehicleTransports(prev => {
           console.log("[Transport] Actualizare listă transporturi după finalizare");
-          return prev.filter(t => t.vehicleNumber !== vehicleInfo.nr);
+          return prev.filter(t => t.vehicleNumber !== vehicleNr);
         });
         
         // Reîncărcăm lista de transporturi de la server
@@ -1445,7 +1451,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ registrationNumber: vehicleInfo.nr })
+            body: JSON.stringify({ registrationNumber: vehicleNr })
           });
           
           if (response.ok) {
