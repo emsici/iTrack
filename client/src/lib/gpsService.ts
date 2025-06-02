@@ -7,6 +7,16 @@ import { CapacitorGeoService } from "./capacitorService";
 import { saveAppState } from "./stateManager";
 import { forceTransportActive, updateTransportState } from "./transportHelper";
 
+// Mapare statusuri transport la coduri GPS (nu trimitem status 1 - este implicit)
+const getGpsStatusCode = (status: string): number => {
+  switch (status) {
+    case "active": return 2;   // Start și Reluare → Status 2
+    case "paused": return 3;   // Pauză → Status 3
+    case "finished": return 4; // Finish → Status 4
+    default: return 2;         // default pentru active
+  }
+};
+
 export type GpsDataPayload = {
   lat: number;
   lng: number;
@@ -301,7 +311,7 @@ export const sendGpsUpdate = async (
       baterie: Math.round(batteryLevel),
       numar_inmatriculare: vehicleNr, // Folosim valoarea corectată
       uit: uitValue, // Folosim valoarea verificată
-      status: transportStatus === "finished" ? "finished" : "in_progress", // Format corect pentru API
+      status: getGpsStatusCode(transportStatus), // Cod numeric GPS: 2=pornit, 3=pauză, 4=finalizat
       hdop: hdopValue || 5,         // Valoare default pentru HDOP dacă nu este disponibilă
       gsm_signal: gsmSignalValue || 90  // Valoare default pentru puterea semnalului
     };
@@ -330,7 +340,7 @@ export const sendGpsUpdate = async (
     const baterie = Number(batteryLevel) || 100;
     const hdop = Number(hdopValue) || 2.0;
     const gsm_signal = Number(gsmSignalValue) || 85;
-    const status = transportStatus === "finished" ? "finished" : "in_progress";
+    const statusCode = getGpsStatusCode(transportStatus);
     
     // Asigurăm-ne că avem valori pentru toate câmpurile - nu acceptăm text gol sau undefined
     // Folosim valorile din effectiveVehicleInfo
@@ -355,7 +365,7 @@ export const sendGpsUpdate = async (
       baterie, 
       numar_inmatriculare: nr_inmatriculare, 
       uit: uit_value, 
-      status,
+      status: statusCode,
       hdop,
       gsm_signal
     };
