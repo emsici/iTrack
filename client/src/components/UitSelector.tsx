@@ -279,10 +279,14 @@ export default function UitSelector() {
         description: `UIT ${directUit.uit} configurat automat.`,
         duration: 3000
       });
+    } else {
+      console.log("Nu avem vehicleInfo sau vehicleInfo.allTransports în useEffect");
+      console.log("vehicleInfo:", vehicleInfo);
+      console.log("vehicleInfo?.allTransports:", vehicleInfo?.allTransports);
+      
+      // Continuăm cu încărcarea normală a UIT-urilor
+      fetchUits(true);
     }
-    
-    // Continuăm cu încărcarea normală a UIT-urilor
-    fetchUits(true);
   }, [token, vehicleInfo, setSelectedUits, setCurrentActiveUit]); // Adăugăm toate dependențele necesare
   
   // Efect pentru actualizarea periodică a transporturilor disponibile
