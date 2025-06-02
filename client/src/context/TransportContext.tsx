@@ -443,7 +443,42 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         }
       }, 60000); // 60 secunde = 60000ms
       
+      // Pentru test imediat - trimitem o transmisie GPS la pornire folosind primul set de coordonate disponibile
+      setTimeout(() => {
+        console.log("[GPS Test] Încercare transmisie GPS la 3 secunde după pornire...");
+        console.log("[GPS Test] Date disponibile:", { 
+          gpsCoordinates, 
+          vehicleNr: vehicleInfo?.nr, 
+          uit: currentActiveUit?.uit,
+          hasToken: !!token 
+        });
+        
+        if (gpsCoordinates && vehicleInfo?.nr && currentActiveUit?.uit && token) {
+          console.log("[GPS Test] Transmisie GPS imediată:", gpsCoordinates);
+          
+          sendGpsUpdate(
+            gpsCoordinates,
+            vehicleInfo.nr,
+            currentActiveUit.uit,
+            2, // 2 = active
+            token
+          ).then(success => {
+            console.log("[GPS Test] Rezultat transmisie imediată:", success ? "✅ Succes" : "❌ Eroare");
+            
+            // Verificăm și în logurile server pentru a confirma
+            if (success) {
+              console.log("[GPS Test] Datele ar trebui să apară acum în logurile server");
+            }
+          }).catch(e => {
+            console.error("[GPS Test] Excepție transmisie imediată:", e);
+          });
+        } else {
+          console.warn("[GPS Test] Nu sunt toate datele disponibile pentru transmisie");
+        }
+      }, 3000); // Așteptăm 3 secunde pentru a fi siguri că avem coordonate GPS
+      
       console.log(`[Transport] GPS tracking pornit (background: ${backgroundStarted}) cu interval periodic 60s`);
+      console.log(`[Transport] Interval GPS setat cu ID:`, gpsIntervalRef.current);
       return true;
     } catch (error) {
       console.error("Eroare la pornirea GPS tracking:", error);
