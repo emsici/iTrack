@@ -1229,7 +1229,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
                       newCoords,
                       vehicleNr,
                       transportUit,
-                      "in_progress",
+                      transportStatus, // Folosim statusul actual în loc de "in_progress"
                       token
                     );
                     
