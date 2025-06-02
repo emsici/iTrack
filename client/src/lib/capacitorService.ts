@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { Geolocation, Position, PositionOptions } from '@capacitor/geolocation';
+import { Device } from '@capacitor/device';
 
 // Interfață pentru tipul navigator.connection extins
 interface NavigatorWithConnection extends Navigator {
@@ -107,8 +108,8 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
       console.log("Stare permisiuni GPS:", permissionStatus.location);
       
       // Dacă permisiunea este deja acordată, returnam direct true
-      if (permissionStatus.location === 'granted') {
-        console.log("Permisiune GPS deja acordată");
+      if (permissionStatus.location === 'granted' || permissionStatus.location === 'prompt-with-rationale') {
+        console.log("Permisiune GPS deja acordată sau disponibilă");
         isRequestingPermissions = false;
         permissionsRequested = true;
         return true;
@@ -366,41 +367,34 @@ export const CapacitorGeoService = {
       return 85; // Valoare implicită
     }
   },
-  // Obținerea nivelului bateriei
+  // Obținerea nivelului bateriei (real pe dispozitive native)
   getBatteryLevel: async (): Promise<number> => {
     try {
-      // Pentru platforme native (Android/iOS)
-      if (Capacitor.isNativePlatform()) {
-        // Încercăm să obținem nivelul bateriei prin plugin-ul nativ Device
-        // Această abordare este mai fiabilă pe Android și iOS
-        try {
-          // Simulăm un nivel de baterie realist între 20-95% pentru a evita valoarea hardcodată 100%
-          // Acest lucru va fi înlocuit cu citirea reală a bateriei când vom implementa plugin-ul
-          const randomBatteryLevel = Math.floor(Math.random() * (95 - 20 + 1)) + 20;
-          console.log("Nivel baterie simulat (temporar):", randomBatteryLevel + "%");
-          return randomBatteryLevel;
-        } catch (nativeError) {
-          console.warn("Nu s-a putut obține nivelul bateriei nativ:", nativeError);
+      if (isNativePlatform()) {
+        // Pe dispozitive native (Android/iOS), folosim Device API pentru bateria reală
+        const info = await Device.getBatteryInfo();
+        if (info && typeof info.batteryLevel === 'number') {
+          // Device API returnează valoarea între 0-1, o convertim la 0-100
+          const batteryPercentage = Math.round(info.batteryLevel * 100);
+          console.log(`Baterie reală detectată: ${batteryPercentage}%`);
+          return batteryPercentage;
         }
       }
       
-      // Folosim API-ul dispozitivului pentru baterie dacă e disponibil
-      if (typeof navigator !== 'undefined' && (navigator as any).getBattery) {
-        const batteryManager = await (navigator as any).getBattery();
-        return Math.round(batteryManager.level * 100);
+      // Fallback pentru browser - încercăm Battery API
+      if ('getBattery' in navigator) {
+        const battery = await (navigator as any).getBattery();
+        if (battery && typeof battery.level === 'number') {
+          const batteryPercentage = Math.round(battery.level * 100);
+          return batteryPercentage;
+        }
       }
       
-      // Verificăm API-uri mai vechi
-      else if ((navigator as any).battery || (navigator as any).mozBattery) {
-        const battery = (navigator as any).battery || (navigator as any).mozBattery;
-        return Math.round(battery.level * 100);
-      }
-
-      // Valoare minimă implicită mai realistă (75%) decât 100%
-      return 75;
+      // Valoare implicită dacă nu putem citi bateria
+      return 100;
     } catch (error) {
-      console.warn('Nu se poate obține nivelul bateriei:', error);
-      return 75; // Valoare implicită mai realistă
+      console.warn('Nu se poate citi nivelul bateriei:', error);
+      return 100;
     }
   },
   
