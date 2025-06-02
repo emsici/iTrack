@@ -299,13 +299,16 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
           dataTransport: firstVehicleData.dataTransport,
           ikRoTrans: firstVehicleData.ikRoTrans,
           // Adăugăm informațiile complete pentru UitSelector
-          allTransports: responseData.data.map((item: any) => ({
-            uit: item.UIT || item.uit,
-            start_locatie: item.denumireLocStart || "Locație start",
-            stop_locatie: item.denumireLocStop || "Locație destinație",
-            ikRoTrans: item.ikRoTrans,
-            dataTransport: item.dataTransport
-          }))
+          allTransports: responseData.data.map((item: any) => {
+            console.log("Procesez transport:", item);
+            return {
+              uit: item.UIT || item.uit,
+              start_locatie: item.denumireLocStart || "Locație start",
+              stop_locatie: item.denumireLocStop || "Locație destinație",
+              ikRoTrans: item.ikRoTrans,
+              dataTransport: item.dataTransport
+            };
+          })
         };
         
         console.log("Date vehicul procesate cu toate transporturile:", mappedVehicleData);

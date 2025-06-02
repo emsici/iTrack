@@ -19,6 +19,13 @@ interface AuthContextType {
     uit: string;
     start_locatie: string;
     stop_locatie: string;
+    allTransports?: Array<{
+      uit: string;
+      start_locatie: string;
+      stop_locatie: string;
+      ikRoTrans?: number;
+      dataTransport?: string;
+    }>;
   } | null;
   login: (credentials: Login) => Promise<boolean>;
   registerVehicle: (registrationNumber: string) => Promise<boolean>;
@@ -37,6 +44,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     uit: string;
     start_locatie: string;
     stop_locatie: string;
+    allTransports?: Array<{
+      uit: string;
+      start_locatie: string;
+      stop_locatie: string;
+      ikRoTrans?: number;
+      dataTransport?: string;
+    }>;
   } | null>(null);
   const { toast } = useToast();
 
