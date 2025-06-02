@@ -200,17 +200,19 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
       // Test GPS în timp real
       logs.push('=== TEST GPS LIVE ===');
       try {
-        const position = await navigator.geolocation.getCurrentPosition(
-          (pos) => pos,
-          (err) => { throw err; },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(
+            resolve,
+            reject,
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          );
+        });
         logs.push('GPS Standard Browser: SUCCESS');
         logs.push(`Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}`);
         logs.push(`Accuracy: ${position.coords.accuracy}m`);
-      } catch (gpsError) {
+      } catch (gpsError: any) {
         logs.push('GPS Standard Browser: FAILED');
-        logs.push(`Eroare: ${gpsError.message}`);
+        logs.push(`Eroare: ${gpsError?.message || 'GPS nu disponibil'}`);
       }
       
       // Verificare permisiuni
@@ -218,8 +220,8 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
         try {
           const permission = await navigator.permissions.query({name: 'geolocation'});
           logs.push(`Permisiune Geolocation: ${permission.state}`);
-        } catch (permError) {
-          logs.push(`Eroare verificare permisiuni: ${permError.message}`);
+        } catch (permError: any) {
+          logs.push(`Eroare verificare permisiuni: ${permError?.message || 'Nu disponibil'}`);
         }
       }
       logs.push('');
@@ -240,18 +242,32 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
         logs.push(consoleLogs);
       }
       
-      // Creează și descarcă fișierul
+      // Creează și descarcă fișierul - compatibil cu mobile
       const logContent = logs.join('\n');
-      const blob = new Blob([logContent], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
+      const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' });
       
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `itrack-debug-${new Date().getTime()}.txt`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      // Pentru dispozitive mobile, folosim o abordare diferită
+      if (navigator.share && navigator.canShare && navigator.canShare({ text: logContent })) {
+        // Folosim Web Share API pentru mobile
+        await navigator.share({
+          title: 'iTrack Debug Logs',
+          text: logContent,
+        });
+      } else {
+        // Fallback pentru download tradițional
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `itrack-debug-${Date.now()}.txt`;
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Cleanup
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+      }
       
       toast({
         title: "Loguri exportate",
