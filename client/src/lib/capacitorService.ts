@@ -128,18 +128,19 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
           const requestResult = await Geolocation.requestPermissions();
           console.log("Rezultat solicitare permisiuni Android:", requestResult.location);
           
-          // Pe Android, după solicitare verificăm din nou starea
-          if (requestResult.location === 'granted' || requestResult.location === 'prompt-with-rationale') {
+          // Pe Android, după solicitare verificăm din nou starea cu o verificare dublă
+          if (requestResult.location === 'granted') {
             console.log("Permisiuni GPS acordate cu succes pe Android");
             isRequestingPermissions = false;
             return true;
           }
           
-          isRequestingPermissions = false;
-          
-          // Verificăm din nou statusul după solicitare
+          // Dacă prima verificare nu returnează 'granted', verificăm din nou statusul actual
+          console.log("Prima verificare nu a returnat 'granted', verificăm din nou...");
           const finalStatus = await Geolocation.checkPermissions();
-          console.log("Status final după solicitare permisiuni:", finalStatus);
+          console.log("Status final după solicitare permisiuni:", finalStatus.location);
+          
+          isRequestingPermissions = false;
           return finalStatus.location === 'granted';
         } catch (error) {
           console.error("Eroare la solicitarea permisiunilor Android:", error);

@@ -69,6 +69,14 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
           description: "Permisiunile GPS au fost acordate cu succes!",
           variant: "default",
         });
+        
+        // Actualizăm starea permisiunilor GPS pentru a reîncerca inițializarea
+        setGpsPermissionsAvailable(true);
+        
+        // Reîncărcăm pagina pentru a reinițializa GPS-ul cu noile permisiuni
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } else {
         toast({
           title: "Permisiuni refuzate",
