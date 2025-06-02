@@ -370,16 +370,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const onGpsUpdate = useCallback((position: GeolocationPosition) => {
     console.log("onGpsUpdate: Am primit poziție GPS", position);
     
-    // OPRIRE COMPLETĂ după finish - verificăm starea din localStorage
-    const currentStatus = localStorage.getItem('transport_status');
-    if (currentStatus === 'finished' || transportStatus === 'finished') {
-      console.log("Transport finalizat - GPS OPRIT COMPLET");
-      return;
-    }
-    
-    // Verificăm dacă GPS-ul trebuie să fie activ
-    if (!isGpsActive && transportStatus === 'inactive') {
-      console.log("GPS inactiv și transport inactiv - se ignoră actualizarea");
+    // OPRIRE COMPLETĂ - verificăm doar starea aplicației
+    if (!isGpsActive || transportStatus === 'inactive' || transportStatus === 'finished') {
+      console.log("GPS inactiv sau transport neactiv - se ignoră actualizarea");
       return;
     }
     
@@ -1456,12 +1449,19 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // pentru a permite UI-ului să afișeze corect starea finalizată
       console.log("[Transport] Setare stare finală finished");
       
-      // Păstrăm starea "finished" în localStorage pentru a asigura că UI-ul o poate citi
-      localStorage.setItem('transport_status', 'finished');
+      // OPRIRE COMPLETĂ GPS după trimiterea status 4
+      console.log("[Transport] GPS OPRIT COMPLET după finalizare");
+      setIsGpsActive(false);
+      setTransportStatus("inactive");
+      setCurrentActiveUit(null);
+      setGpsCoordinates(null);
       
-      // Nu mai folosim timeout - resetăm imediat pentru a preveni reactivarea GPS-ului
-      console.log("[Transport] Resetare stare aplicație IMEDIAT după finalizare");
-      // Starea este deja setată la inactive mai sus, nu mai este nevoie de timeout
+      // Curățăm watchId-ul GPS pentru a opri urmărirea
+      if ((window as any).gpsWatchId) {
+        navigator.geolocation.clearWatch((window as any).gpsWatchId);
+        (window as any).gpsWatchId = null;
+        console.log("[Transport] GPS watch oprit definitiv");
+      }
       
       toast({
         title: "Transport finalizat",
