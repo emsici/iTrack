@@ -112,6 +112,7 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
       
     // Validăm formatul (doar litere și cifre)
     if (!/^[A-Z0-9]+$/.test(trimmedValue)) {
+      console.log("Validare format eșuată pentru:", trimmedValue, "Caractere găsite:", trimmedValue.split(''));
       toast({
         title: "Format invalid",
         description: "Numărul de înmatriculare trebuie să conțină doar litere și cifre, fără spații sau caractere speciale.",
@@ -119,6 +120,8 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
       });
       return;
     }
+    
+    console.log("Validare format reușită pentru:", trimmedValue);
       
     try {
       // Facem apelul API cu noul număr, fără simulare
