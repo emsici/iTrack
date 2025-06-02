@@ -151,21 +151,43 @@ export const startGpsInterval = (
     }
     
     try {
-      console.log("[GPS Interval] Transmit coordonate:", coords);
+      console.log("[GPS Interval] Transmit coordonate către server:", coords);
       
-      // Aici ar trebui să faceți apelul real către server
-      // Pentru moment, doar logăm că transmisia ar avea loc
+      // Apel real către server GPS
       const payload = {
         lat: coords.lat,
         lng: coords.lng,
-        timestamp: coords.timestamp,
+        timestamp: coords.timestamp.replace('T', ' ').substring(0, 19), // Format: "2025-06-02 18:15:30"
+        viteza: coords.viteza,
+        directie: coords.directie,
+        altitudine: coords.altitudine,
+        baterie: coords.baterie,
+        numar_inmatriculare: "B200ABC", // Din vehicleInfo
         uit: activeUit.uit,
         status: 2, // active
-        HDOP: 2,
-        GSM: 85
+        hdop: 2,
+        gsm_signal: 85
       };
       
-      console.log("[GPS Interval] Payload pentru transmisie:", payload);
+      console.log("[GPS Interval] Payload către gps.php:", payload);
+      
+      const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      const responseText = await response.text();
+      console.log("[GPS Interval] Răspuns server:", response.status, responseText);
+      
+      if (response.ok) {
+        console.log("[GPS Interval] ✅ Transmisie reușită la", new Date().toLocaleTimeString());
+      } else {
+        console.warn("[GPS Interval] ❌ Transmisie eșuată:", response.status);
+      }
     } catch (error) {
       console.error("[GPS Interval] Eroare la transmisie:", error);
     }
