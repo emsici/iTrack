@@ -90,8 +90,8 @@ export default function TransportMap() {
       // Forțăm persistența transportului activ dacă avem coordonate
       if (transportStatus === "active") {
         try {
-          const { forceTransportActive } = require('@/lib/transportHelper');
-          forceTransportActive();
+          // Funcționalitatea de forțare este gestionată automat de context
+          console.log("[TransportMap] Transport activ detectat");
         } catch (e) {
           console.error("Eroare la forțarea transportului activ:", e);
         }

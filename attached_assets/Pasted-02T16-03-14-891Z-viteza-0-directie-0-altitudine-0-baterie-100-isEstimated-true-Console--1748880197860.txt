@@ -1,0 +1,53 @@
+02T16:03:14.891Z","viteza":0,"directie":0,"altitudine":0,"baterie":100,"isEstimated":true} 
+Console.js:61 MobileHeader: Actualizare stare GPS: {transportStatus: 'active', isGpsActive: true, hasCoordinates: true}
+Console.js:61 [console] MobileHeader: Actualizare stare GPS: {"transportStatus":"active","isGpsActive":true,"hasCoordinates":true} 
+Console.js:61 DEPANARE GPS (LocationTracking):  {transportStatus: 'active', isGpsActive: true, hasCoordinates: true, battery: 100, deviceBattery: 100, …}
+Console.js:61 [console] DEPANARE GPS (LocationTracking):  {"transportStatus":"active","isGpsActive":true,"hasCoordinates":true,"battery":100,"deviceBattery":100,"lastUpdateTime":"2025-06-02T16:03:14.894Z","coords":{"lat":44.258387649567155,"lng":28.618468190669407,"timestamp":"2025-06-02T16:03:14.891Z","viteza":0,"directie":0,"altitudine":0,"baterie":100,"isEstimated":true},"localCoords":{"lat":44.258387649567155,"lng":28.618468190669407,"timestamp":"2025-06-02T16:02:59.731Z","viteza":0,"directie":0,"altitudine":0,"baterie":100},"gpsErrorCount":12} 
+Console.js:61 Eroare la forțarea transportului activ: ReferenceError: require is not defined
+    at TransportMap.tsx:93:44
+    at commitHookEffectListMount (chunk-RPCDYKBN.js?v=7f8be500:16915:34)
+    at commitPassiveMountOnFiber (chunk-RPCDYKBN.js?v=7f8be500:18156:19)
+    at commitPassiveMountEffects_complete (chunk-RPCDYKBN.js?v=7f8be500:18129:17)
+    at commitPassiveMountEffects_begin (chunk-RPCDYKBN.js?v=7f8be500:18119:15)
+    at commitPassiveMountEffects (chunk-RPCDYKBN.js?v=7f8be500:18109:11)
+    at flushPassiveEffectsImpl (chunk-RPCDYKBN.js?v=7f8be500:19490:11)
+    at flushPassiveEffects (chunk-RPCDYKBN.js?v=7f8be500:19447:22)
+    at chunk-RPCDYKBN.js?v=7f8be500:19328:17
+    at workLoop (chunk-RPCDYKBN.js?v=7f8be500:197:42)
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ logService.ts:84
+(anonymous) @ TransportMap.tsx:96
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=7f8be500:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=7f8be500:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=7f8be500:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=7f8be500:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=7f8be500:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=7f8be500:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=7f8be500:19447
+(anonymous) @ chunk-RPCDYKBN.js?v=7f8be500:19328
+workLoop @ chunk-RPCDYKBN.js?v=7f8be500:197
+flushWork @ chunk-RPCDYKBN.js?v=7f8be500:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=7f8be500:384
+Console.js:61 [console] Eroare la forțarea transportului activ: {} 
+Mt.forEach.n.<computed> @ Console.js:61
+addLog @ logService.ts:60
+console.error @ logService.ts:88
+(anonymous) @ TransportMap.tsx:96
+commitHookEffectListMount @ chunk-RPCDYKBN.js?v=7f8be500:16915
+commitPassiveMountOnFiber @ chunk-RPCDYKBN.js?v=7f8be500:18156
+commitPassiveMountEffects_complete @ chunk-RPCDYKBN.js?v=7f8be500:18129
+commitPassiveMountEffects_begin @ chunk-RPCDYKBN.js?v=7f8be500:18119
+commitPassiveMountEffects @ chunk-RPCDYKBN.js?v=7f8be500:18109
+flushPassiveEffectsImpl @ chunk-RPCDYKBN.js?v=7f8be500:19490
+flushPassiveEffects @ chunk-RPCDYKBN.js?v=7f8be500:19447
+(anonymous) @ chunk-RPCDYKBN.js?v=7f8be500:19328
+workLoop @ chunk-RPCDYKBN.js?v=7f8be500:197
+flushWork @ chunk-RPCDYKBN.js?v=7f8be500:176
+performWorkUntilDeadline @ chunk-RPCDYKBN.js?v=7f8be500:384
+Console.js:61 [Transport] Salvare stare: Status=active, UIT=5W3Q9L6L2R4J7N26
+Console.js:61 [console] [Transport] Salvare stare: Status=active, UIT=5W3Q9L6L2R4J7N26 
+Console.js:61 [stateManager] Stare aplicație salvată {transportStatus: 'active', currentActiveUit: {…}, selectedUits: Array(1), lastGpsUpdateTime: '2025-06-02T16:03:14.894Z', battery: 100}
+Console.js:61 Eroare obținere coordonate: GeolocationPositionError {code: 3, message: 'Timeout expired'}
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ logService.ts:84
+navigator.geolocation.getCurrentPosition.enableHighAccuracy @ SimpleLocationTracking.tsx:102
