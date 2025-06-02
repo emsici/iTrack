@@ -352,7 +352,7 @@ export const sendGpsUpdate = async (
     // Log pentru debugging
     console.log("Valori GPS pentru payload final:", {
       lat, lng, timestamp, viteza, directie, altitudine, baterie,
-      nr_inmatriculare, uit_value, status 
+      nr_inmatriculare, uit_value, statusCode 
     });
     
     const gpsDataFinal = {
@@ -504,7 +504,7 @@ export const sendGpsUpdate = async (
       baterie: 100, // Valoare default
       numar_inmatriculare: vehicleInfo.nr || "TEST",
       uit: vehicleInfo.uit || "UIT12345",
-      status: transportStatus
+      status: getGpsStatusCode(transportStatus)
     };
     
     saveGpsDataOffline(gpsData, transportStatus);
