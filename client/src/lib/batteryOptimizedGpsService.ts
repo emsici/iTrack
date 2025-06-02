@@ -128,3 +128,51 @@ export class BatteryOptimizedGpsService {
 
 // Instanță globală pentru serviciul optimizat
 export const batteryOptimizedGpsService = new BatteryOptimizedGpsService();
+
+/**
+ * Funcție de conveniență pentru pornirea intervalului GPS
+ * Compatibilă cu TransportContext
+ */
+export const startGpsInterval = (
+  getCurrentActiveUit: () => any,
+  getToken: () => string | null,
+  getTransportStatus: () => string
+): number => {
+  console.log("[GPS Interval] Pornire interval GPS optimizat pentru baterie");
+  
+  const transmissionCallback = async (coords: OptimizedGpsCoordinates) => {
+    const activeUit = getCurrentActiveUit();
+    const token = getToken();
+    const status = getTransportStatus();
+    
+    if (!activeUit || !token || status !== "active") {
+      console.log("[GPS Interval] Nu se transmit coordonate - transport inactiv");
+      return;
+    }
+    
+    try {
+      console.log("[GPS Interval] Transmit coordonate:", coords);
+      
+      // Aici ar trebui să faceți apelul real către server
+      // Pentru moment, doar logăm că transmisia ar avea loc
+      const payload = {
+        lat: coords.lat,
+        lng: coords.lng,
+        timestamp: coords.timestamp,
+        uit: activeUit.uit,
+        status: 2, // active
+        HDOP: 2,
+        GSM: 85
+      };
+      
+      console.log("[GPS Interval] Payload pentru transmisie:", payload);
+    } catch (error) {
+      console.error("[GPS Interval] Eroare la transmisie:", error);
+    }
+  };
+  
+  batteryOptimizedGpsService.start(transmissionCallback);
+  
+  // Returnăm un ID fictiv pentru compatibilitate
+  return 1;
+};
