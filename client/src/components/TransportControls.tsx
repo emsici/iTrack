@@ -395,8 +395,8 @@ export default function TransportControls() {
                         <span className="font-medium text-blue-900">Localizare curentă</span>
                       </div>
                       <div className="text-sm text-blue-800">
-                        <p>Lat: {gpsCoordinates.lat.toFixed(6)}</p>
-                        <p>Lng: {gpsCoordinates.lng.toFixed(6)}</p>
+                        <p>Lat: {gpsCoordinates.latitude?.toFixed(6) || 'N/A'}</p>
+                        <p>Lng: {gpsCoordinates.longitude?.toFixed(6) || 'N/A'}</p>
                         <p>Actualizat: {new Date(gpsCoordinates.timestamp).toLocaleTimeString()}</p>
                       </div>
                     </div>

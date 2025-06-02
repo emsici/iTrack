@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { startGpsInterval } from '@/lib/batteryOptimizedGpsService';
+import { startGpsTransmissionService, stopGpsTransmissionService } from '@/lib/singleGpsService';
 
 // Types
 export type TransportStatus = "inactive" | "active" | "paused" | "finished";
@@ -103,14 +103,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setCurrentActiveUit(targetUit);
       setIsGpsActive(true);
       
-      // Start GPS interval service with optimized battery usage
-      const intervalId = startGpsInterval(
-        () => currentActiveUit,
-        () => token,
-        () => transportStatus
-      );
-      
-      gpsIntervalRef.current = intervalId;
+      // Start single GPS transmission service (60 seconds)
+      startGpsTransmissionService(vehicleInfo.nr, targetUit.uit, token);
+      console.log("[Transport] Serviciu GPS pornit pentru transmisie la 60 secunde");
       
       toast({
         title: "Transport pornit",
@@ -149,14 +144,11 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     setTransportStatus("active");
     setIsGpsActive(true);
     
-    // Restart GPS interval
-    const intervalId = startGpsInterval(
-      () => currentActiveUit,
-      () => token,
-      () => transportStatus
-    );
-    
-    gpsIntervalRef.current = intervalId;
+    // Restart GPS transmission service
+    if (vehicleInfo && currentActiveUit && token) {
+      startGpsTransmissionService(vehicleInfo.nr, currentActiveUit.uit, token);
+      console.log("[Transport] Serviciu GPS repornit pentru reluare");
+    }
     
     toast({
       title: "Transport reluat",
