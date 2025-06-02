@@ -102,21 +102,15 @@ export default function TransportControls() {
     }
   }, [vehicleInfo]);
 
-  // Sincronizăm starea transportului cu contextul
+  // Sincronizăm starea transportului cu contextul (doar server, fără localStorage)
   useEffect(() => {
-    const activeUitFromStorage = localStorage.getItem('current_active_uit');
-    const localStatus = localStorage.getItem('transport_status') as "inactive" | "active" | "paused" | "finished" | null;
-    
-    console.log("[TransportControls] Sincronizare stare:", {
-      localStatus,
+    console.log("[TransportControls] Sincronizare stare din server:", {
       contextStatus: transportStatus,
-      effectiveStatus: localStatus || transportStatus,
-      activeUitFromStorage,
       currentActiveUit: currentActiveUit?.uit
     });
 
-    const effectiveStatus = localStatus || transportStatus;
-    const activeUit = currentActiveUit?.uit || activeUitFromStorage;
+    const effectiveStatus = transportStatus;
+    const activeUit = currentActiveUit?.uit;
 
     if (effectiveStatus && activeUit) {
       setTransports(prev => prev.map(transport => ({
@@ -170,9 +164,7 @@ export default function TransportControls() {
         throw new Error("Pornirea transportului a eșuat");
       }
       
-      // Salvăm în localStorage
-      localStorage.setItem('current_active_transport_id', transportId);
-      localStorage.setItem('current_active_uit', currentTransport.uit);
+      // Starea se salvează automat pe server prin TransportContext
       
       setTransports(prevTransports => 
         prevTransports.map(transport => 
@@ -297,9 +289,7 @@ export default function TransportControls() {
         )
       );
       
-      // Curățăm localStorage
-      localStorage.removeItem('current_active_transport_id');
-      localStorage.removeItem('current_active_uit');
+      // Starea se curăță automat pe server prin TransportContext
       
       toast({
         title: "Transport finalizat",
