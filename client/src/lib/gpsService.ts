@@ -437,13 +437,12 @@ export const sendGpsUpdate = async (
         response = await fetch(apiUrl, {
           method: "POST",
           headers: {
-            // IMPORTANT: Token-ul poate veni deja cu prefixul Bearer, verificăm formatul
+            "Content-Type": "application/json",
             "Authorization": token.startsWith("Bearer ") ? token : `Bearer ${token}`,
-            "X-Vehicle-Number": nr_inmatriculare,  // Adăugăm numărul de înmatriculare în headers
-            "X-UIT": uit_value  // Adăugăm UIT în headers
-            // IMPORTANT: NU folosim Content-Type conform cerințelor API-ului
+            "X-Vehicle-Number": nr_inmatriculare,
+            "X-UIT": uit_value
           },
-          body: rawPayload // Folosim payload-ul raw generat mai sus
+          body: rawPayload
         });
         
         console.log("Răspuns API GPS:", response.status, response.statusText);
