@@ -1,0 +1,30 @@
+[TransportMap] Transport activ detectat
+Console.js:61 [console] [TransportMap] Transport activ detectat 
+Console.js:61 [Transport] Salvare stare: Status=active, UIT=5W3Q9L6L2R4J7N26
+Console.js:61 [console] [Transport] Salvare stare: Status=active, UIT=5W3Q9L6L2R4J7N26 
+Console.js:61 [stateManager] Stare aplicație salvată Object
+Console.js:61 Eroare obținere coordonate: GeolocationPositionError
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 [console] Eroare obținere coordonate: {} 
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Timeout GPS, reîncercăm în 500ms cu timeout 5000ms (încercarea 0)
+Console.js:61 [console] Timeout GPS, reîncercăm în 500ms cu timeout 5000ms (încercarea 0) 
+Console.js:61 Folosim coordonate anterioare în timpul problemelor GPS: Object
+Console.js:61 [console] Folosim coordonate anterioare în timpul problemelor GPS: {"lat":44.258387649567155,"lng":28.618468190669407,"timestamp":"2025-06-02T16:35:20.603Z","viteza":0,"directie":0,"altitudine":0,"baterie":100,"isEstimated":true} 
+Console.js:61 DEPANARE GPS (LocationTracking):  Object
+Console.js:61 [console] DEPANARE GPS (LocationTracking):  {"transportStatus":"active","isGpsActive":true,"hasCoordinates":true,"battery":100,"deviceBattery":100,"lastUpdateTime":"2025-06-02T16:35:15.563Z","coords":{"lat":44.258387649567155,"lng":28.618468190669407,"timestamp":"2025-06-02T16:35:15.563Z","viteza":0,"directie":0,"altitudine":0,"baterie":100},"localCoords":{"lat":44.258387649567155,"lng":28.618468190669407,"timestamp":"2025-06-02T16:35:15.559Z","viteza":0,"directie":0,"altitudine":0,"baterie":100},"gpsErrorCount":2} 
+Console.js:61 Eroare obținere coordonate: GeolocationPositionError {code: 3, message: 'Timeout expired'}
+Mt.forEach.n.<computed> @ Console.js:61
+console.error @ logService.ts:84
+navigator.geolocation.getCurrentPosition.enableHighAccuracy @ SimpleLocationTracking.tsx:102
+Console.js:61 [console] Eroare obținere coordonate: {} 
+Mt.forEach.n.<computed> @ Console.js:61
+addLog @ logService.ts:60
+console.error @ logService.ts:88
+navigator.geolocation.getCurrentPosition.enableHighAccuracy @ SimpleLocationTracking.tsx:102
+Console.js:61 Timeout GPS, reîncercăm în 500ms cu timeout 5000ms (încercarea 0)
+Console.js:61 [console] Timeout GPS, reîncercăm în 500ms cu timeout 5000ms (încercarea 0) 
+Console.js:61 Folosim coordonate anterioare în timpul problemelor GPS: {lat: 44.258387649567155, lng: 28.618468190669407, timestamp: '2025-06-02T16:35:23.601Z', viteza: 0, directie: 0, …}
+Console.js:61 [console] Folosim coordonate anterioare în timpul problemelor GPS: {"lat":44.258387649567155,"lng":28.618468190669407,"timestamp":"2025-06-02T16:35:23.601Z","viteza":0,"directie":0,"altitudine":0,"baterie":100,"isEstimated":true} 
+Console.js:61 DEPANARE GPS (LocationTracking):  {transportStatus: 'active', isGpsActive: true, hasCoordinates: true, battery: 100, deviceBattery: 100, …}
+Console.js:61 [console] DEPANARE GPS (LocationTracking):  

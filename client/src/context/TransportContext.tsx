@@ -578,6 +578,14 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           statusCode = "4";
         }
         
+        console.log("TRIMITERE COORDONATE LA SERVER:", {
+          coords: newCoords,
+          vehicleNr: vehicleInfo.nr,
+          uit: uit,
+          statusCode: statusCode,
+          hasToken: !!token
+        });
+        
         sendGpsUpdate(
           newCoords, 
           vehicleInfo.nr, 
@@ -585,6 +593,12 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           statusCode,
           token || ''
         ).then(success => {
+          console.log("REZULTAT TRIMITERE GPS:", success ? "SUCCESS" : "FAILED");
+          if (success) {
+            console.log("✅ Coordonate trimise cu succes la server!");
+          } else {
+            console.error("❌ Eroare la trimiterea coordonatelor!");
+          }
           if (success) {
             // Salvăm starea din nou după trimitere pentru a asigura persistența
             saveAppState(
