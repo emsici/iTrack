@@ -36,7 +36,7 @@ export const startSimpleGpsTransmission = () => {
       
       console.log("[Simple GPS] Transmitem coordonate:", gpsData);
       
-      const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
+      const response = await fetch("/api/gps/send", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
