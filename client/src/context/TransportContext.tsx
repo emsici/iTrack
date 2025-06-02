@@ -105,6 +105,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const initializationRef = useRef<boolean>(false);
   const notificationSentRef = useRef<boolean>(false);
   
+  // Referință pentru intervalul GPS periodic de 60 secunde
+  const gpsIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
   // Serviciu Capacitor GPS - este un obiect, nu o clasă
   const capacitorGeoService = CapacitorGeoService;
   
@@ -395,7 +398,48 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setIsGpsActive(true);
       setIsBackgroundActive(backgroundStarted);
       
-      console.log(`[Transport] GPS tracking pornit (background: ${backgroundStarted})`);
+      // CRUCIAL: Adăugăm intervalul fix de 60 secunde pentru transmisia GPS
+      // independent de statusul GPS pentru a respecta cerințele de transmisie
+      if (gpsIntervalRef.current) {
+        clearInterval(gpsIntervalRef.current);
+      }
+      
+      gpsIntervalRef.current = setInterval(() => {
+        // Verificăm dacă transportul este încă activ
+        if (transportStatus === 'active' && vehicleInfo?.nr && currentActiveUit && token) {
+          // Folosim ultimele coordonate valide sau coordonate estimate
+          const currentCoords = gpsCoordinates || (lastValidCoordinates ? {
+            ...lastValidCoordinates,
+            timestamp: new Date().toISOString(),
+            isEstimated: true
+          } : null);
+          
+          if (currentCoords) {
+            console.log("[GPS Interval] Transmisie periodică GPS la 60 secunde:", currentCoords);
+            
+            // Transmitem coordonatele către server
+            sendGpsUpdate(
+              currentCoords,
+              vehicleInfo.nr,
+              currentActiveUit.uit,
+              transportStatus, // Folosim statusul numeric corect
+              token
+            ).then(success => {
+              if (success) {
+                console.log("[GPS Interval] ✅ Transmisie periodică reușită");
+              } else {
+                console.error("[GPS Interval] ❌ Eroare transmisie periodică");
+              }
+            }).catch(e => {
+              console.error("[GPS Interval] Excepție transmisie periodică:", e);
+            });
+          } else {
+            console.warn("[GPS Interval] Nu există coordonate pentru transmisie periodică");
+          }
+        }
+      }, 60000); // 60 secunde = 60000ms
+      
+      console.log(`[Transport] GPS tracking pornit (background: ${backgroundStarted}) cu interval periodic 60s`);
       return true;
     } catch (error) {
       console.error("Eroare la pornirea GPS tracking:", error);
@@ -419,6 +463,13 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       
       // Oprim și watchPosition
       // capacitorGeoService.stopWatchPosition() nu există, trebuie implementat într-un helper
+      
+      // Oprim intervalul GPS periodic
+      if (gpsIntervalRef.current) {
+        clearInterval(gpsIntervalRef.current);
+        gpsIntervalRef.current = null;
+        console.log("[Transport] Interval GPS periodic oprit");
+      }
       
       // Actualizăm starea
       setIsGpsActive(false);
