@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 import { useTransport } from "@/context/TransportContext";
 import { useAuth } from "@/context/AuthContext";
-import { Battery, Signal, Wifi, MapPin, LogOut, Truck, Info, AlertCircle } from "lucide-react";
+import { Battery, Signal, Wifi, MapPin, LogOut, Truck, Info, AlertCircle, Download } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { requestGpsPermissions } from "@/lib/capacitorService";
 import { getGpsAvailability } from "@/lib/connectivityService";
@@ -164,6 +164,60 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
     setIsEditingVehicle(false);
   };
 
+  // Funcție pentru export loguri
+  const handleExportLogs = () => {
+    try {
+      // Colectează toate logurile din console
+      const logs = [];
+      
+      // Adaugă informații despre sistem
+      logs.push(`=== EXPORT LOGURI iTrack - ${new Date().toLocaleString()} ===`);
+      logs.push(`Platform: ${navigator.platform}`);
+      logs.push(`User Agent: ${navigator.userAgent}`);
+      logs.push(`Transport Status: ${transportStatus}`);
+      logs.push(`GPS Active: ${isGpsActive}`);
+      logs.push(`Battery: ${battery}%`);
+      logs.push(`Has Coordinates: ${!!gpsCoordinates}`);
+      
+      if (gpsCoordinates) {
+        logs.push(`Last GPS: ${JSON.stringify(gpsCoordinates, null, 2)}`);
+      }
+      
+      // Adaugă logurile din localStorage dacă există
+      const storedLogs = localStorage.getItem('app_logs');
+      if (storedLogs) {
+        logs.push('\n=== LOGURI SALVATE ===');
+        logs.push(storedLogs);
+      }
+      
+      // Creează și descarcă fișierul
+      const logContent = logs.join('\n');
+      const blob = new Blob([logContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `itrack-logs-${new Date().getTime()}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Loguri exportate",
+        description: "Fișierul cu logurile a fost descărcat cu succes.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("Eroare la exportul logurilor:", error);
+      toast({
+        title: "Eroare export",
+        description: "Nu s-au putut exporta logurile.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <header className="text-white shadow-md mobile-header">
       <div className="flex justify-between items-center">
@@ -240,6 +294,15 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Buton export loguri */}
+          <button 
+            onClick={handleExportLogs}
+            className="flex items-center text-white hover:text-blue-200 transition-colors"
+            title="Export loguri"
+          >
+            <Download className="h-4 w-4" />
+          </button>
+          
           {/* Popup despre aplicație */}
           <div className="flex">
             <div className="relative inline-block">
