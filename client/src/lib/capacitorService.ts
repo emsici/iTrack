@@ -137,8 +137,10 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
           
           isRequestingPermissions = false;
           
-          // Returnăm rezultatul real al solicitării
-          return requestResult.location === 'granted';
+          // Verificăm din nou statusul după solicitare
+          const finalStatus = await Geolocation.checkPermissions();
+          console.log("Status final după solicitare permisiuni:", finalStatus);
+          return finalStatus.location === 'granted';
         } catch (error) {
           console.error("Eroare la solicitarea permisiunilor Android:", error);
           isRequestingPermissions = false;

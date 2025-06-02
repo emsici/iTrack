@@ -868,7 +868,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
                     viteza: coords.speed || 0,
                     directie: coords.heading || 0,
                     altitudine: coords.altitude || 0,
-                    baterie: deviceBattery || 100
+                    baterie: battery
                   };
                   
                   // Actualizăm starea
@@ -1061,7 +1061,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
                   viteza: coords.speed || 0,
                   directie: coords.heading || 0,
                   altitudine: coords.altitude || 0,
-                  baterie: 100 // Bateria o setăm la 100% pentru browser
+                  baterie: battery
                 };
                 
                 console.log("[Transport] Am obținut coordonate GPS reale:", newCoords);
