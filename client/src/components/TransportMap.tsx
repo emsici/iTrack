@@ -153,22 +153,20 @@ export default function TransportMap() {
           <h3 className="font-semibold text-blue-900">Urmărire în timp real</h3>
         </div>
         <div className="flex justify-between items-center text-sm">
-          <h3 className="text-base font-medium text-gray-700">
-            Traseu Transport
-          </h3>
-          <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <h3 className="text-base font-medium text-gray-700">Traseu Transport</h3>
             {currentActiveUit && (
-              <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
+              <span className="text-xs text-blue-600 font-medium">
                 UIT: {currentActiveUit.uit}
               </span>
             )}
-            <button
-              onClick={() => setShowMap(!showMap)}
-              className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded-full font-medium hover:bg-gray-200 transition-colors"
-            >
-              {showMap ? "Ascunde harta" : "Arată harta"}
-            </button>
           </div>
+          <button
+            onClick={() => setShowMap(!showMap)}
+            className="text-xs px-3 py-1 bg-white border border-blue-200 text-blue-700 rounded-lg font-medium hover:bg-blue-50 transition-colors flex-shrink-0"
+          >
+            {showMap ? "Ascunde" : "Arată"}
+          </button>
         </div>
 
         {currentActiveUit && (
