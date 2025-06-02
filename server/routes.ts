@@ -66,13 +66,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Funcție pentru autentificare și obținerea token-ului Bearer
   async function getAuthToken(): Promise<string | null> {
+    console.log("[Auth] Începe procesul de autentificare...");
+    
     // Verifică dacă token-ul există și nu a expirat
     if (bearerToken && Date.now() < tokenExpiry) {
+      console.log("[Auth] Token valid existent, îl folosesc pe cel actual");
       return bearerToken;
     }
 
     try {
-      console.log("[Auth] Obțin token Bearer...");
+      console.log("[Auth] Fac cerere de autentificare către server...");
       
       const authResponse = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/login.php", {
         method: "POST",
@@ -81,29 +84,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "Accept": "application/json"
         },
         body: JSON.stringify({
-          email: "test@exemplu.com",
-          password: "parola123"
+          email: process.env.GPS_API_EMAIL,
+          password: process.env.GPS_API_PASSWORD
         })
       });
 
+      console.log("[Auth] Status răspuns autentificare:", authResponse.status);
+
       if (authResponse.ok) {
-        const authData = await authResponse.json();
-        console.log("[Auth] Răspuns autentificare:", authData);
+        const authData: any = await authResponse.json();
+        console.log("[Auth] Date autentificare primite:", authData);
         
-        if (authData.token) {
+        if (authData.status === "success" && authData.token) {
           bearerToken = authData.token;
           // Token-ul expiră în 1 oră (3600 secunde)
           tokenExpiry = Date.now() + (3600 * 1000);
-          console.log("[Auth] ✅ Token Bearer obținut cu succes");
+          console.log("[Auth] ✅ Token Bearer obținut cu succes:", authData.token.substring(0, 50) + "...");
           return bearerToken;
+        } else {
+          console.log("[Auth] ❌ Răspuns invalid - status:", authData.status, "token:", !!authData.token);
         }
       } else {
-        console.error("[Auth] ❌ Eroare autentificare:", authResponse.status);
+        const errorText = await authResponse.text();
+        console.error("[Auth] ❌ Eroare HTTP autentificare:", authResponse.status, errorText);
       }
     } catch (error) {
-      console.error("[Auth] ❌ Excepție autentificare:", error);
+      console.error("[Auth] ❌ Excepție în procesul de autentificare:", error);
     }
 
+    console.log("[Auth] Procesul de autentificare a eșuat");
     return null;
   }
 
@@ -111,11 +120,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/gps/send", async (req, res) => {
     try {
       console.log("[GPS Proxy] Primesc date GPS pentru transmisie:", req.body);
+      console.log("[GPS Proxy] Verificare token existent:", bearerToken ? "există" : "nu există");
       
       // Obține token-ul Bearer
       const token = await getAuthToken();
+      console.log("[GPS Proxy] Token obținut:", token ? "succes" : "eșec");
       
       if (!token) {
+        console.log("[GPS Proxy] Nu s-a putut obține token-ul de autentificare");
         return res.status(401).json({
           success: false,
           message: "Failed to authenticate with GPS server"
