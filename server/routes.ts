@@ -202,11 +202,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (response.ok) {
         const result = await response.text();
-        console.log("[GPS Proxy] ✅ Transmisie reușită");
-        res.json({ success: true, message: "GPS data transmitted successfully" });
+        console.log("[GPS Proxy] ✅ Transmisie reușită. Răspuns server:", result);
+        res.json({ success: true, message: "GPS data transmitted successfully", serverResponse: result });
       } else {
-        console.error("[GPS Proxy] ❌ Eroare transmisie:", response.status);
-        res.status(response.status).json({ success: false, error: "Failed to transmit GPS data" });
+        const errorText = await response.text();
+        console.error("[GPS Proxy] ❌ Eroare transmisie:", response.status, errorText);
+        res.status(response.status).json({ success: false, error: "Failed to transmit GPS data", details: errorText });
       }
       
     } catch (error) {
