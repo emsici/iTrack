@@ -17,7 +17,7 @@ export type GpsDataPayload = {
   baterie: number;
   numar_inmatriculare: string;
   uit: string;
-  status: string; // "in_progress" sau "finished" conform cerințelor API
+  status: number; // Statusuri GPS: 1=nepreluat, 2=pornit, 3=pauză, 4=finalizat
   hdop?: number;    // Horizontal Dilution of Precision (precizia poziției GPS)
   gsm_signal?: number; // Puterea semnalului GSM/celular (0-100%)
 };
