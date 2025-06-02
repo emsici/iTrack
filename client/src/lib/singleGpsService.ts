@@ -91,7 +91,10 @@ export const startGpsTransmissionService = (
   transmitGps();
   
   // Apoi la fiecare 60 secunde
-  gpsTransmissionInterval = window.setInterval(transmitGps, 60000);
+  gpsTransmissionInterval = window.setInterval(() => {
+    console.log("[GPS Service] 🕐 Interval 60s - transmisie automată");
+    transmitGps();
+  }, 60000);
   
   console.log("[GPS Service] Interval pornit - transmisie la 60 secunde");
 };
