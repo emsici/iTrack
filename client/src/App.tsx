@@ -11,6 +11,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { requestGpsPermissions, isNativePlatform, CapacitorGeoService } from "@/lib/capacitorService";
 import { useToast } from "@/hooks/use-toast";
 import { Capacitor } from "@capacitor/core";
+import "@/lib/autoGpsTransmission";
 import { Dialog } from "@/components/ui/dialog";
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
