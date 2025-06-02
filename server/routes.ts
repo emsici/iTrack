@@ -60,28 +60,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Variabilă pentru stocarea token-ului Bearer
+  let bearerToken: string | null = null;
+  let tokenExpiry: number = 0;
+
+  // Funcție pentru autentificare și obținerea token-ului Bearer
+  async function getAuthToken(): Promise<string | null> {
+    // Verifică dacă token-ul există și nu a expirat
+    if (bearerToken && Date.now() < tokenExpiry) {
+      return bearerToken;
+    }
+
+    try {
+      console.log("[Auth] Obțin token Bearer...");
+      
+      const authResponse = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/login.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          email: "test@exemplu.com",
+          password: "parola123"
+        })
+      });
+
+      if (authResponse.ok) {
+        const authData = await authResponse.json();
+        console.log("[Auth] Răspuns autentificare:", authData);
+        
+        if (authData.token) {
+          bearerToken = authData.token;
+          // Token-ul expiră în 1 oră (3600 secunde)
+          tokenExpiry = Date.now() + (3600 * 1000);
+          console.log("[Auth] ✅ Token Bearer obținut cu succes");
+          return bearerToken;
+        }
+      } else {
+        console.error("[Auth] ❌ Eroare autentificare:", authResponse.status);
+      }
+    } catch (error) {
+      console.error("[Auth] ❌ Excepție autentificare:", error);
+    }
+
+    return null;
+  }
+
   // GPS proxy endpoint - transmite datele către serverul extern
   app.post("/api/gps/send", async (req, res) => {
     try {
       console.log("[GPS Proxy] Primesc date GPS pentru transmisie:", req.body);
       
-      // Adaug credențialele de autentificare la datele GPS
-      const gpsDataWithAuth = {
-        ...req.body,
-        email: "test@exemplu.com",
-        password: "parola123"
-      };
+      // Obține token-ul Bearer
+      const token = await getAuthToken();
       
-      console.log("[GPS Proxy] Trimit date cu autentificare:", gpsDataWithAuth);
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: "Failed to authenticate with GPS server"
+        });
+      }
+
+      console.log("[GPS Proxy] Trimit date GPS cu Bearer token...");
       
       const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
+          "Authorization": `Bearer ${token}`,
           "User-Agent": "iTrack-Mobile-App/1.0"
         },
-        body: JSON.stringify(gpsDataWithAuth)
+        body: JSON.stringify(req.body)
       });
       
       const responseText = await response.text();
@@ -94,6 +145,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           serverResponse: responseText 
         });
       } else {
+        // Dacă primim 401, încearcă să reîmprospătezi token-ul
+        if (response.status === 401) {
+          console.log("[GPS Proxy] Token expirat, reîncerc autentificarea...");
+          bearerToken = null;
+          tokenExpiry = 0;
+        }
+        
         res.status(500).json({ 
           success: false, 
           message: "Failed to send GPS data",
