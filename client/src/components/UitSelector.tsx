@@ -47,8 +47,16 @@ export default function UitSelector() {
       
       let uits: UitOption[] = [];
       
-      // Încercăm să obținem UIT-urile de la API dacă avem informații despre vehicul
-      if (vehicleInfo && vehicleInfo.nr && token) {
+      // Verificăm mai întâi dacă vehicleInfo conține toate transporturile
+      if (vehicleInfo && vehicleInfo.allTransports && Array.isArray(vehicleInfo.allTransports)) {
+        // Folosim transporturile din vehicleInfo care conține deja toate UIT-urile
+        uits = vehicleInfo.allTransports.map((transport: any) => ({
+          uit: transport.uit,
+          start_locatie: transport.start_locatie,
+          stop_locatie: transport.stop_locatie
+        }));
+        console.log("UIT-uri obținute din vehicleInfo.allTransports:", uits.length);
+      } else if (vehicleInfo && vehicleInfo.nr && token) {
         try {
           // Facem un apel la API pentru a obține toate UIT-urile pentru vehicul
           const response = await fetch(`/api/vehicle?nr=${vehicleInfo.nr}`, {

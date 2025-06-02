@@ -284,23 +284,31 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
     
     // Verificăm dacă avem răspuns cu noua structură: { status, count, data }
     if (responseData && responseData.status === "success" && responseData.data && Array.isArray(responseData.data)) {
-      // Luăm primul vehicul din array (dacă există)
+      // Returnăm întregul răspuns pentru ca UitSelector să poată accesa toate UIT-urile
       if (responseData.data.length > 0) {
-        const vehicleData = responseData.data[0];
+        // Pentru compatibilitate cu codul existent, mapăm primul element la structura așteptată
+        const firstVehicleData = responseData.data[0];
         
-        // Mapăm noile proprietăți la structura așteptată de aplicație
         const mappedVehicleData = {
-          nr: vehicleData.nrVehicul || registrationNumber,
-          uit: vehicleData.UIT || vehicleData.uit,
-          start_locatie: vehicleData.denumireLocStart || "Locație start",
-          stop_locatie: vehicleData.denumireLocStop || "Locație destinație", 
-          codDeclarant: vehicleData.codDeclarant,
-          denumireCui: vehicleData.denumireCui,
-          dataTransport: vehicleData.dataTransport,
-          ikRoTrans: vehicleData.ikRoTrans
+          nr: firstVehicleData.nrVehicul || registrationNumber,
+          uit: firstVehicleData.UIT || firstVehicleData.uit,
+          start_locatie: firstVehicleData.denumireLocStart || "Locație start",
+          stop_locatie: firstVehicleData.denumireLocStop || "Locație destinație", 
+          codDeclarant: firstVehicleData.codDeclarant,
+          denumireCui: firstVehicleData.denumireCui,
+          dataTransport: firstVehicleData.dataTransport,
+          ikRoTrans: firstVehicleData.ikRoTrans,
+          // Adăugăm informațiile complete pentru UitSelector
+          allTransports: responseData.data.map((item: any) => ({
+            uit: item.UIT || item.uit,
+            start_locatie: item.denumireLocStart || "Locație start",
+            stop_locatie: item.denumireLocStop || "Locație destinație",
+            ikRoTrans: item.ikRoTrans,
+            dataTransport: item.dataTransport
+          }))
         };
         
-        console.log("Date vehicul procesate:", mappedVehicleData);
+        console.log("Date vehicul procesate cu toate transporturile:", mappedVehicleData);
         return mappedVehicleData;
       } else {
         console.log("Nu s-au găsit date pentru vehiculul:", registrationNumber);
