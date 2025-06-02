@@ -128,6 +128,13 @@ export const requestGpsPermissions = async (): Promise<boolean> => {
           const requestResult = await Geolocation.requestPermissions();
           console.log("Rezultat solicitare permisiuni Android:", requestResult.location);
           
+          // Pe Android, după solicitare verificăm din nou starea
+          if (requestResult.location === 'granted' || requestResult.location === 'prompt-with-rationale') {
+            console.log("Permisiuni GPS acordate cu succes pe Android");
+            isRequestingPermissions = false;
+            return true;
+          }
+          
           isRequestingPermissions = false;
           
           // Returnăm rezultatul real al solicitării
@@ -377,6 +384,14 @@ export const CapacitorGeoService = {
           // Device API returnează valoarea între 0-1, o convertim la 0-100
           const batteryPercentage = Math.round(info.batteryLevel * 100);
           console.log(`Baterie reală detectată: ${batteryPercentage}%`);
+          return batteryPercentage;
+        }
+        
+        // Dacă getBatteryInfo nu funcționează, încercăm getInfo()
+        const deviceInfo = await Device.getInfo();
+        if (deviceInfo && typeof (deviceInfo as any).batteryLevel === 'number') {
+          const batteryPercentage = Math.round((deviceInfo as any).batteryLevel * 100);
+          console.log(`Baterie detectată prin getInfo: ${batteryPercentage}%`);
           return batteryPercentage;
         }
       }
