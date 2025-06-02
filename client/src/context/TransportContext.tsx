@@ -104,6 +104,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setIsGpsActive(true);
       
       // Start single GPS transmission service (60 seconds)
+      console.log("[Transport] Pornesc serviciul GPS cu datele:", { vehicleNumber: vehicleInfo.nr, uit: targetUit.uit, hasToken: !!token });
       startGpsTransmissionService(vehicleInfo.nr, targetUit.uit, token);
       console.log("[Transport] Serviciu GPS pornit pentru transmisie la 60 secunde");
       
