@@ -494,6 +494,51 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       // Executăm testul după 5 secunde
       setTimeout(testImmediateTransmission, 5000);
       
+      // INTERVAL GPS DE 60 SECUNDE - pornește imediat și continuă
+      const startPeriodicGpsTransmission = () => {
+        console.log("[GPS Periodic] Pornire interval 60 secunde pentru transmisie GPS");
+        
+        gpsIntervalRef.current = setInterval(() => {
+          console.log("[GPS Periodic] Verificare interval 60s - trimitem GPS...");
+          
+          // Obținem datele curente
+          const currentCoords = gpsCoordinates;
+          const currentVehicle = vehicleInfo?.nr;
+          const currentUit = currentActiveUit?.uit;
+          const authToken = token;
+          const currentStatus = transportStatus;
+          
+          if (currentStatus === 'active' && currentCoords && currentVehicle && currentUit && authToken) {
+            console.log("[GPS Periodic] Transmisie GPS automată:", currentCoords);
+            
+            sendGpsUpdate(currentCoords, currentVehicle, currentUit, 2, authToken)
+              .then(success => {
+                if (success) {
+                  console.log("[GPS Periodic] ✅ Transmisie automată reușită - verifică rezultate.php");
+                } else {
+                  console.log("[GPS Periodic] ❌ Transmisie automată eșuată");
+                }
+              })
+              .catch(e => {
+                console.error("[GPS Periodic] Eroare transmisie automată:", e);
+              });
+          } else {
+            console.log("[GPS Periodic] Condițiile nu sunt îndeplinite:", {
+              status: currentStatus,
+              hasCoords: !!currentCoords,
+              hasVehicle: !!currentVehicle,
+              hasUit: !!currentUit,
+              hasToken: !!authToken
+            });
+          }
+        }, 60000); // 60 secunde = 60000ms
+        
+        console.log("[GPS Periodic] Interval setat cu ID:", gpsIntervalRef.current);
+      };
+      
+      // Pornește intervalul după 10 secunde pentru a permite stabilizarea GPS
+      setTimeout(startPeriodicGpsTransmission, 10000);
+      
       console.log(`[Transport] GPS tracking pornit (background: ${backgroundStarted}) cu interval periodic 60s`);
       console.log(`[Transport] Interval GPS setat cu ID:`, gpsIntervalRef.current);
       return true;
