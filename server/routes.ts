@@ -198,7 +198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       currentGpsCredentials = { email, password };
-      console.log("[GPS Credentials] Credențiale GPS setate pentru:", email);
+      console.log("[GPS Credentials] Credențiale GPS setate cu succes");
       
       res.json({ success: true, message: "Credențiale GPS setate cu succes" });
     } catch (error) {

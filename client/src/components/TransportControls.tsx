@@ -3,11 +3,12 @@ import { useTransport } from "@/context/TransportContext";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Play, Pause, Check, Truck, ChevronDown, ChevronUp, MapPin } from "lucide-react";
+import { Play, Pause, Check, Truck, ChevronDown, ChevronUp, MapPin, Settings } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useForceTransportActive } from "@/hooks/useForceTransportActive";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import GpsCredentialsForm from "./GpsCredentialsForm";
 
 // Interfață pentru un transport cu toate detaliile
 interface Transport {
@@ -31,6 +32,7 @@ export default function TransportControls() {
   const [transports, setTransports] = useState<Transport[]>([]);
   const [battery, setBattery] = useState(100);
   const [expandedTransports, setExpandedTransports] = useState<Set<string>>(new Set());
+  const [showGpsCredentials, setShowGpsCredentials] = useState(false);
   const { 
     transportStatus, 
     currentActiveUit, 
