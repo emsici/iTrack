@@ -102,18 +102,18 @@ export default function TransportMap() {
         const lastPoint = prev[prev.length - 1];
         if (
           !lastPoint ||
-          Math.abs(lastPoint.lat - gpsCoordinates.lat) > 0.0001 ||
-          Math.abs(lastPoint.lng - gpsCoordinates.lng) > 0.0001
+          Math.abs(lastPoint.lat - gpsCoordinates.latitude) > 0.0001 ||
+          Math.abs(lastPoint.lng - gpsCoordinates.longitude) > 0.0001
         ) {
           const newPoint = {
-            lat: gpsCoordinates.lat,
-            lng: gpsCoordinates.lng,
+            lat: gpsCoordinates.latitude,
+            lng: gpsCoordinates.longitude,
             timestamp: gpsCoordinates.timestamp,
-            speed: gpsCoordinates.viteza,
+            speed: gpsCoordinates.speed || 0,
           };
 
           // Centrăm harta pe noile coordonate
-          setCenter([gpsCoordinates.lat, gpsCoordinates.lng]);
+          setCenter([gpsCoordinates.latitude, gpsCoordinates.longitude]);
 
           // Limităm istoricul la 1000 de puncte pentru performanță
           const newHistory = [...prev, newPoint];
@@ -194,18 +194,18 @@ export default function TransportMap() {
           {/* Marker pentru poziția curentă */}
           {gpsCoordinates && (
             <Marker
-              position={[gpsCoordinates.lat, gpsCoordinates.lng]}
+              position={[gpsCoordinates.latitude, gpsCoordinates.longitude]}
               icon={customIcon}
             >
               <Popup>
                 <div className="p-1">
                   <p className="font-medium">Poziția curentă</p>
                   <p className="text-xs text-gray-600">
-                    Lat: {gpsCoordinates.lat.toFixed(6)}, Lng:{" "}
-                    {gpsCoordinates.lng.toFixed(6)}
+                    Lat: {gpsCoordinates.latitude?.toFixed(6) || 'N/A'}, Lng:{" "}
+                    {gpsCoordinates.longitude?.toFixed(6) || 'N/A'}
                   </p>
                   <p className="text-xs text-gray-600 mt-1">
-                    Viteză: {gpsCoordinates.viteza.toFixed(1)} km/h
+                    Viteză: {gpsCoordinates.speed?.toFixed(1) || '0'} km/h
                   </p>
                   <p className="text-xs text-gray-600 mt-1">
                     {lastGpsUpdateTime}
@@ -268,7 +268,7 @@ export default function TransportMap() {
           <div className="bg-green-50 p-2 rounded-lg">
             <p className="text-xs text-green-700">Viteză</p>
             <p className="font-medium text-green-900">
-              {gpsCoordinates?.viteza.toFixed(1) || 0} km/h
+              {gpsCoordinates?.speed?.toFixed(1) || 0} km/h
             </p>
           </div>
           <div className="bg-purple-50 p-2 rounded-lg">
