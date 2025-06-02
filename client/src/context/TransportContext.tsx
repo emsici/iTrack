@@ -310,6 +310,7 @@ export function TransportProvider({ children }: { children: ReactNode }) {
         
         // Activăm GPS-ul forțat pe dispozitive native
         try {
+          console.log("[Transport] Încerc să obțin poziția GPS inițială...");
           const initialPosition = await CapacitorGeoService.getCurrentPosition({
             enableHighAccuracy: true,
             timeout: 15000,
@@ -320,6 +321,20 @@ export function TransportProvider({ children }: { children: ReactNode }) {
           
           // Setăm GPS-ul ca activ
           setIsGpsActive(true);
+          
+          // Forțăm o primă citire GPS pentru a confirma că funcționează
+          const newCoords = {
+            lat: initialPosition.coords.latitude,
+            lng: initialPosition.coords.longitude,
+            timestamp: new Date().toISOString(),
+            viteza: initialPosition.coords.speed || 0,
+            directie: initialPosition.coords.heading || 0,
+            altitudine: initialPosition.coords.altitude || 0,
+            baterie: battery
+          };
+          
+          setGpsCoordinates(newCoords);
+          console.log("[Transport] Prima coordonată GPS setată:", newCoords);
           
         } catch (gpsError) {
           console.error("[Transport] Eroare la activarea GPS-ului:", gpsError);
