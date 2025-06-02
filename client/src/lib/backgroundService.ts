@@ -37,10 +37,8 @@ export const startBackgroundLocationTracking = async (
       await CapacitorGeoService.requestPermissions();
       
       // Pentru dispozitive native, folosim Capacitor pentru a rula în background
-      // În producție folosim exact 1 minut, în dezvoltare folosim 10 secunde
-      const updateInterval = process.env.NODE_ENV === 'production' 
-        ? BACKGROUND_UPDATE_INTERVAL  // 60000 ms (1 minut) în producție
-        : DEBUG_UPDATE_INTERVAL;      // 10000 ms (10 secunde) în dezvoltare
+      // IMPORTANT: Trimitem coordonate din minut în minut, indiferent de mișcare
+      const updateInterval = BACKGROUND_UPDATE_INTERVAL; // Întotdeauna 60000 ms (1 minut)
       
       console.log(`Background service pornit - interval: ${updateInterval/1000} secunde`);
       

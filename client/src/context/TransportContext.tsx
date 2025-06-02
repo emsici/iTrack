@@ -287,16 +287,61 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     setGpsAccessControl(true, true);
     
     try {
-      // Verificăm permisiunile GPS
-      const hasPermissions = await requestGpsPermissions();
+      // Pe Android, verificăm și forțăm activarea GPS-ului
+      const isNative = Capacitor.isNativePlatform();
       
-      if (!hasPermissions) {
-        toast({
-          title: "Permisiuni insuficiente",
-          description: "Aplicația necesită permisiuni de localizare pentru a funcționa corect.",
-          variant: "destructive"
-        });
-        return false;
+      if (isNative) {
+        console.log("[Transport] Verificare și activare GPS pe dispozitiv nativ");
+        
+        // Verificăm permisiunile GPS
+        const hasPermissions = await requestGpsPermissions();
+        
+        if (!hasPermissions) {
+          console.error("[Transport] Permisiuni GPS refuzate pe dispozitiv nativ");
+          toast({
+            title: "Permisiuni GPS necesare",
+            description: "Activați permisiunile de localizare în setările aplicației pentru a porni transportul.",
+            variant: "destructive"
+          });
+          return false;
+        }
+        
+        console.log("[Transport] Permisiuni GPS acordate, activez GPS-ul...");
+        
+        // Activăm GPS-ul forțat pe dispozitive native
+        try {
+          const initialPosition = await CapacitorGeoService.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+          });
+          
+          console.log("[Transport] GPS activat cu succes, poziție inițială:", initialPosition);
+          
+          // Setăm GPS-ul ca activ
+          setIsGpsActive(true);
+          
+        } catch (gpsError) {
+          console.error("[Transport] Eroare la activarea GPS-ului:", gpsError);
+          toast({
+            title: "GPS inactiv",
+            description: "Activați GPS-ul în setările dispozitivului pentru a porni transportul.",
+            variant: "destructive"
+          });
+          return false;
+        }
+      } else {
+        // Pentru browser, verificăm permisiunile standard
+        const hasPermissions = await requestGpsPermissions();
+        
+        if (!hasPermissions) {
+          toast({
+            title: "Permisiuni insuficiente",
+            description: "Aplicația necesită permisiuni de localizare pentru a funcționa corect.",
+            variant: "destructive"
+          });
+          return false;
+        }
       }
       
       // Pornim serviciul de background, verificând că avem currentActiveUit
