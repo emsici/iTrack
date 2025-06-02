@@ -86,7 +86,7 @@ export const loginUser = async (credentials: Login) => {
     // URL-ul API diferă între native și browser
     // Folosim URL-ul exact furnizat de client pentru API extern
     const apiUrl = isNative 
-      ? "https://www.euscagency.com/etsm3/platforme/transport/apk/login.php" 
+      ? `${import.meta.env.VITE_GPS_API_URL}/login.php`
       : "/api/login";
     console.log("URL autentificare:", apiUrl);
       

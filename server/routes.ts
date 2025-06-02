@@ -77,7 +77,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("[Auth] Fac cerere de autentificare către server...");
       
-      const authResponse = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/login.php", {
+      const authResponse = await fetch(`${process.env.GPS_API_URL}/login.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -136,7 +136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("[GPS Proxy] Trimit date GPS cu Bearer token...");
       
-      const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
+      const response = await fetch(`${process.env.GPS_API_URL}/gps.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

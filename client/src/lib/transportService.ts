@@ -8,8 +8,8 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
   try {
     console.log("Trimitere date GPS către API:", JSON.stringify(data, null, 2));
     
-    // URL-ul API extern direct
-    const apiExternUrl = "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php";
+    // URL-ul API extern din variabile de mediu
+    const apiExternUrl = `${import.meta.env.VITE_GPS_API_URL}/gps.php`;
     
     // În mediul de dezvoltare, folosim server-ul de dezvoltare
     const isLocalDev = !!import.meta.env.DEV;
