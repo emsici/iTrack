@@ -1456,11 +1456,28 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setCurrentActiveUit(null);
       setGpsCoordinates(null);
       
-      // Curățăm watchId-ul GPS pentru a opri urmărirea
-      if ((window as any).gpsWatchId) {
-        navigator.geolocation.clearWatch((window as any).gpsWatchId);
-        (window as any).gpsWatchId = null;
-        console.log("[Transport] GPS watch oprit definitiv");
+      // Oprire completă a tuturor serviciilor GPS
+      try {
+        // Oprire background GPS
+        const { stopBackgroundLocationTracking } = await import('../lib/backgroundService');
+        stopBackgroundLocationTracking();
+        console.log("[Transport] Background GPS oprit");
+        
+        // Oprire watchPosition
+        if ((window as any).gpsWatchId) {
+          navigator.geolocation.clearWatch((window as any).gpsWatchId);
+          (window as any).gpsWatchId = null;
+          console.log("[Transport] GPS watch oprit");
+        }
+        
+        // Oprire toate instanțele GPS Capacitor
+        const { CapacitorGeoService } = await import('../lib/capacitorService');
+        if (CapacitorGeoService.stopWatching) {
+          CapacitorGeoService.stopWatching();
+          console.log("[Transport] Capacitor GPS oprit");
+        }
+      } catch (error) {
+        console.log("[Transport] Eroare la oprirea serviciilor GPS:", error);
       }
       
       toast({
