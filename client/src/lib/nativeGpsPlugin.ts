@@ -1,0 +1,118 @@
+/**
+ * Plugin nativ pentru serviciul GPS background pe Android
+ * Controlează serviciul Foreground Service real pentru transmisie continuă
+ */
+
+import { registerPlugin } from '@capacitor/core';
+
+export interface GpsTrackingPlugin {
+  startGpsService(options: {
+    vehicleNumber: string;
+    uit: string;
+    authToken: string;
+  }): Promise<{ success: boolean; message: string }>;
+  
+  stopGpsService(): Promise<{ success: boolean; message: string }>;
+  
+  checkGpsServiceStatus(): Promise<{ isRunning: boolean; message: string }>;
+}
+
+const GpsTracking = registerPlugin<GpsTrackingPlugin>('GpsTracking');
+
+let isNativeServiceRunning = false;
+
+/**
+ * Pornește serviciul GPS nativ Android cu Foreground Service
+ */
+export const startNativeAndroidGpsService = async (
+  vehicleNumber: string,
+  uit: string,
+  token: string
+): Promise<boolean> => {
+  try {
+    console.log('[Native GPS Plugin] Pornesc serviciul GPS nativ Android pentru:', { vehicleNumber, uit });
+    
+    const result = await GpsTracking.startGpsService({
+      vehicleNumber: vehicleNumber,
+      uit: uit,
+      authToken: token
+    });
+    
+    if (result.success) {
+      isNativeServiceRunning = true;
+      console.log('[Native GPS Plugin] ✅ Serviciu GPS nativ pornit cu succes:', result.message);
+      return true;
+    } else {
+      console.error('[Native GPS Plugin] ❌ Eroare la pornirea serviciului:', result.message);
+      return false;
+    }
+    
+  } catch (error) {
+    console.error('[Native GPS Plugin] Eroare critică la pornirea serviciului nativ:', error);
+    return false;
+  }
+};
+
+/**
+ * Oprește serviciul GPS nativ Android
+ */
+export const stopNativeAndroidGpsService = async (): Promise<void> => {
+  try {
+    console.log('[Native GPS Plugin] Opresc serviciul GPS nativ Android');
+    
+    const result = await GpsTracking.stopGpsService();
+    
+    if (result.success) {
+      isNativeServiceRunning = false;
+      console.log('[Native GPS Plugin] ✅ Serviciu GPS nativ oprit cu succes:', result.message);
+    } else {
+      console.warn('[Native GPS Plugin] ⚠️ Eroare la oprirea serviciului:', result.message);
+    }
+    
+  } catch (error) {
+    console.error('[Native GPS Plugin] Eroare la oprirea serviciului nativ:', error);
+  }
+};
+
+/**
+ * Verifică statusul serviciului GPS nativ
+ */
+export const checkNativeAndroidGpsStatus = async (): Promise<boolean> => {
+  try {
+    const result = await GpsTracking.checkGpsServiceStatus();
+    return result.isRunning;
+  } catch (error) {
+    console.error('[Native GPS Plugin] Eroare la verificarea statusului:', error);
+    return false;
+  }
+};
+
+/**
+ * Verifică dacă serviciul GPS nativ este activ local
+ */
+export const isNativeAndroidGpsActive = (): boolean => {
+  return isNativeServiceRunning;
+};
+
+/**
+ * Obține informații despre serviciul GPS nativ
+ */
+export const getNativeAndroidGpsInfo = () => {
+  return {
+    isRunning: isNativeServiceRunning,
+    platform: 'android-native',
+    serviceType: 'foreground-service',
+    capabilities: [
+      'background-execution',
+      'wake-lock',
+      'persistent-notification',
+      'battery-optimization-bypass'
+    ]
+  };
+};
+
+// Export pentru debugging în consolă
+(window as any).startNativeAndroidGps = startNativeAndroidGpsService;
+(window as any).stopNativeAndroidGps = stopNativeAndroidGpsService;
+(window as any).checkNativeAndroidGps = checkNativeAndroidGpsStatus;
+(window as any).getNativeAndroidGpsInfo = getNativeAndroidGpsInfo;
