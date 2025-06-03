@@ -8,6 +8,19 @@ import { Device } from '@capacitor/device';
 let gpsTransmissionInterval: number | null = null;
 let isServiceActive = false;
 
+/**
+ * Obține nivelul bateriei dispozitivului
+ */
+const getBatteryLevel = async (): Promise<number> => {
+  try {
+    const batteryInfo = await Device.getBatteryInfo();
+    return Math.round((batteryInfo.batteryLevel || 1) * 100);
+  } catch (error) {
+    console.warn("Nu s-a putut citi nivelul bateriei:", error);
+    return 100; // Fallback dacă nu se poate citi
+  }
+};
+
 interface GpsTransmissionData {
   lat: number;
   lng: number;
@@ -58,7 +71,7 @@ export const startGpsTransmissionService = (
         viteza: coords.speed || 0,
         directie: coords.heading || 0,
         altitudine: coords.altitude || 0,
-        baterie: 100, // Vom actualiza cu bateria reală
+        baterie: await getBatteryLevel(),
         numar_inmatriculare: vehicleNumber,
         uit: uit,
         status: 2, // active
