@@ -1,31 +1,47 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 export default function LoginPage() {
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { setUser } = useAuth();
 
-  const loginMutation = useMutation({
-    mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      return await apiRequest("/api/login", {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/login", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-    },
-    onSuccess: (data) => {
+
+      const data = await response.json();
+
       if (data.status === "success" || data.success) {
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("userEmail", email);
         localStorage.setItem("userPassword", password);
+        
+        // Update auth state
+        setUser({
+          id: email,
+          email: email,
+          vehicleRegistered: false,
+          vehicleInfo: null,
+        });
+
         toast({
           title: "Succes",
           description: "Autentificare reușită!",
         });
+        
         setLocation("/");
       } else {
         toast({
@@ -34,19 +50,15 @@ export default function LoginPage() {
           variant: "destructive",
         });
       }
-    },
-    onError: (error) => {
+    } catch (error) {
       toast({
         title: "Eroare",
         description: "Eroare de conectare",
         variant: "destructive",
       });
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    loginMutation.mutate({ email, password });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -99,10 +111,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loginMutation.isPending}
+            disabled={isLoading}
             className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loginMutation.isPending ? "Se conectează..." : "Autentificare"}
+            {isLoading ? "Se conectează..." : "Autentificare"}
           </button>
         </form>
       </div>

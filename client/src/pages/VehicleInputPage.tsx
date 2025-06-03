@@ -1,31 +1,49 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 export default function VehicleInputPage() {
   const [, setLocation] = useLocation();
   const [vehicleNumber, setVehicleNumber] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { setUser } = useAuth();
 
-  const vehicleMutation = useMutation({
-    mutationFn: async (registrationNumber: string) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
       const authToken = localStorage.getItem("authToken");
-      return await apiRequest("/api/vehicle", {
+      const response = await fetch("/api/vehicle", {
         method: "POST",
-        body: JSON.stringify({ registrationNumber, authToken }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          registrationNumber: vehicleNumber.toUpperCase(), 
+          authToken 
+        }),
       });
-    },
-    onSuccess: (data) => {
+
+      const data = await response.json();
+
       if (data.success && data.vehicleInfo) {
         localStorage.setItem("vehicleInfo", JSON.stringify(data.vehicleInfo));
-        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+        
+        // Update auth state
+        const userEmail = localStorage.getItem("userEmail");
+        setUser({
+          id: userEmail || "",
+          email: userEmail || "",
+          vehicleRegistered: true,
+          vehicleInfo: data.vehicleInfo,
+        });
+
         toast({
           title: "Succes",
           description: "Vehicul înregistrat cu succes!",
         });
+        
         setLocation("/");
       } else {
         toast({
@@ -34,24 +52,20 @@ export default function VehicleInputPage() {
           variant: "destructive",
         });
       }
-    },
-    onError: (error) => {
+    } catch (error) {
       toast({
         title: "Eroare",
         description: "Eroare de înregistrare",
         variant: "destructive",
       });
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    vehicleMutation.mutate(vehicleNumber.toUpperCase());
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
     localStorage.clear();
-    queryClient.clear();
+    setUser(null);
     setLocation("/");
   };
 
@@ -100,10 +114,10 @@ export default function VehicleInputPage() {
 
           <button
             type="submit"
-            disabled={vehicleMutation.isPending}
+            disabled={isLoading}
             className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {vehicleMutation.isPending ? "Se înregistrează..." : "Verifică vehicul"}
+            {isLoading ? "Se înregistrează..." : "Verifică vehicul"}
           </button>
         </form>
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 interface Transport {
@@ -21,10 +21,10 @@ interface VehicleInfo {
 
 export default function TransportPage() {
   const [, setLocation] = useLocation();
-  const [activeTransports, setActiveTransports] = useState<Set<string>>(new Set());
+  const [activeTransports, setActiveTransports] = useState<string[]>([]);
   const [gpsInterval, setGpsInterval] = useState<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { setUser } = useAuth();
 
   const vehicleInfo: VehicleInfo | null = JSON.parse(localStorage.getItem("vehicleInfo") || "null");
 
@@ -36,7 +36,7 @@ export default function TransportPage() {
 
   const startTransport = async (uit: string) => {
     try {
-      setActiveTransports(prev => new Set([...prev, uit]));
+      setActiveTransports(prev => [...prev, uit]);
 
       // Set GPS credentials
       const email = localStorage.getItem("userEmail") || "";
@@ -84,11 +84,7 @@ export default function TransportPage() {
         description: `Transport activ pentru UIT: ${uit}`,
       });
     } catch (error) {
-      setActiveTransports(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(uit);
-        return newSet;
-      });
+      setActiveTransports(prev => prev.filter(id => id !== uit));
       toast({
         title: "Eroare",
         description: "Nu s-a putut porni transportul",
@@ -98,11 +94,7 @@ export default function TransportPage() {
   };
 
   const stopTransport = (uit: string) => {
-    setActiveTransports(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(uit);
-      return newSet;
-    });
+    setActiveTransports(prev => prev.filter(id => id !== uit));
 
     if (gpsInterval) {
       clearInterval(gpsInterval);
@@ -120,7 +112,7 @@ export default function TransportPage() {
       clearInterval(gpsInterval);
     }
     localStorage.clear();
-    queryClient.clear();
+    setUser(null);
     setLocation("/");
   };
 
@@ -162,7 +154,7 @@ export default function TransportPage() {
       {/* Transport List */}
       <div className="max-w-md mx-auto bg-white">
         {vehicleInfo.allTransports?.map((transport) => {
-          const isActive = activeTransports.has(transport.uit);
+          const isActive = activeTransports.includes(transport.uit);
           
           return (
             <div key={transport.uit} className="border-l-4 border-blue-600 bg-white p-5 mb-4 shadow-sm">
