@@ -4,6 +4,13 @@ import { storage } from "./storage";
 import { authSchema, gpsDataSchema, type User } from "../shared/schema";
 import bcrypt from "bcrypt";
 
+// Extend express session
+declare module 'express-session' {
+  interface SessionData {
+    userId: number;
+  }
+}
+
 // Simple auth middleware
 const requireAuth = (req: any, res: any, next: any) => {
   if (!req.session?.userId) {
