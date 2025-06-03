@@ -259,7 +259,7 @@ export default function TransportStats() {
                   <div>
                     <h4 className="text-sm font-medium mb-2">Poziție curentă</h4>
                     <div className="bg-gray-50 p-2 rounded-md text-xs">
-                      <p>Lat: {gpsCoordinates.lat.toFixed(6)}, Lng: {gpsCoordinates.lng.toFixed(6)}</p>
+                      <p>Lat: {gpsCoordinates?.lat ? gpsCoordinates.lat.toFixed(6) : '--'}, Lng: {gpsCoordinates?.lng ? gpsCoordinates.lng.toFixed(6) : '--'}</p>
                       <p>Altitudine: {gpsCoordinates.altitudine}m</p>
                       <p>Direcție: {gpsCoordinates.directie}°</p>
                       <p>Ultima actualizare: {new Date(gpsCoordinates.timestamp).toLocaleTimeString()}</p>

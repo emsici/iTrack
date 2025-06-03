@@ -218,13 +218,19 @@ export const startNativeGpsService = async (
     
     // Prima transmisie imediată
     console.log("[Native GPS] Prima transmisie GPS...");
-    await transmitNativeGps(vehicleNumber, uit, token);
+    const firstTransmit = await transmitNativeGps(vehicleNumber, uit, token);
+    if (firstTransmit) {
+      console.log("[Native GPS] ✅ Prima transmisie reușită");
+    } else {
+      console.log("[Native GPS] ❌ Prima transmisie eșuată");
+    }
     
     // Programează transmisia la fiecare 60 secunde
     gpsTransmissionTimer = window.setInterval(async () => {
       if (isNativeServiceActive) {
         console.log("[Native GPS] 🕐 Transmisie automată la 60s");
-        await transmitNativeGps(vehicleNumber, uit, token);
+        const success = await transmitNativeGps(vehicleNumber, uit, token);
+        console.log(`[Native GPS] Transmisie ${success ? 'reușită' : 'eșuată'} la ${new Date().toLocaleTimeString()}`);
       }
     }, 60000);
     
