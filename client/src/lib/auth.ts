@@ -1,7 +1,5 @@
-import { Login } from "@shared/schema";
-import { apiRequest } from "./queryClient";
-import { Http } from '@capacitor-community/http';
-import { Capacitor } from '@capacitor/core';
+import { Capacitor } from "@capacitor/core";
+import type { Login } from "@shared/schema";
 
 /**
  * Decodează un token JWT și returnează payload-ul
@@ -10,15 +8,14 @@ import { Capacitor } from '@capacitor/core';
  */
 export const decodeToken = (token: string): any | null => {
   try {
-    const base64Url = token.split('.')[1];
-    if (!base64Url) return null;
+    if (!token) return null;
     
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+    const tokenParts = token.split('.');
+    if (tokenParts.length !== 3) return null;
     
-    return JSON.parse(jsonPayload);
+    const payload = tokenParts[1];
+    const decodedPayload = atob(payload);
+    return JSON.parse(decodedPayload);
   } catch (error) {
     console.error("Eroare la decodarea token-ului:", error);
     return null;
@@ -31,8 +28,6 @@ export const decodeToken = (token: string): any | null => {
  * @returns true dacă tokenul este expirat, false altfel
  */
 export const isTokenExpired = (token: string): boolean => {
-  if (!token) return true;
-  
   try {
     const payload = decodeToken(token);
     if (!payload || !payload.exp) return true;
@@ -80,17 +75,9 @@ export const loginUser = async (credentials: Login) => {
     console.log("Date de autentificare trimise:", credentials);
     console.log("Încercare de autentificare cu:", credentials);
     
-    // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
-    const isNative = Capacitor.isNativePlatform();
-    
-    // URL-ul API diferă între native și browser
-    // Folosim URL-ul exact furnizat de client pentru API extern
-    const apiUrl = isNative 
-      ? `${import.meta.env.VITE_GPS_API_URL}/login.php`
-      : "/api/login";
+    // Folosim proxy-ul local pentru toate platformele (browser și native)
+    const apiUrl = "/api/login";
     console.log("URL autentificare:", apiUrl);
-      
-    console.log("Folosim URL API:", apiUrl, "isNative:", isNative);
     
     // Construim payload-ul de autentificare
     const payload = {
@@ -100,113 +87,44 @@ export const loginUser = async (credentials: Login) => {
     
     console.log("Payload autentificare:", JSON.stringify(payload));
     
-    let responseData;
+    // Folosim fetch pentru toate platformele prin proxy-ul local
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    };
     
-    // Diferențiem între browser și dispozitiv nativ pentru metoda de request
-    if (isNative) {
-      try {
-        // Folosim HTTP plugin de la Capacitor pentru dispozitive native
-        // API-ul extern așteaptă JSON în exact formatul din Postman
-        // Formatul exact din exemplu: {"email":"test@exemplu.com", "password":"parola123"}
-        
-        // Construim JSON exact în formatul așteptat
-        const jsonData = JSON.stringify({
-          "email": credentials.email,
-          "password": credentials.password
-        });
-        
-        console.log("Trimit date de autentificare în format JSON EXACT:", jsonData);
-        
-        const response = await Http.request({
-          method: 'POST',
-          url: apiUrl,
-          data: jsonData, // Trimitem string JSON deja formatat
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          params: {} as any // FOARTE IMPORTANT: obiect gol transformat în any pentru a rezolva problema de tipuri
-        });
-        
-        console.log("Răspuns login dispozitiv nativ:", response.status, response.data);
-        
-        if (response.status >= 200 && response.status < 300) {
-          responseData = response.data;
-        } else {
-          throw new Error(`Server returned status ${response.status}`);
-        }
-      } catch (error) {
-        console.error("Eroare HTTP pe dispozitiv nativ:", error);
-        throw error;
-      }
-    } else {
-      // Pentru browser folosim fetch API standard
-      const requestOptions = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      };
-      
-      const response = await fetch(apiUrl, requestOptions);
-      
-      if (!response.ok) {
-        throw new Error(`Server returned status ${response.status}`);
-      }
-      
-      responseData = await response.json();
+    const response = await fetch(apiUrl, requestOptions);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    // Procesăm răspunsul uniform, indiferent de platformă
+    const responseData = await response.json();
     console.log("Răspuns autentificare:", responseData);
     
-    // Verificăm dacă autentificarea a fost reușită și tratăm diferit răspunsul în funcție de platformă
+    // Verificăm rezultatul
     console.log("Rezultat autentificare:", responseData, apiUrl);
     
-    if (isNative) {
-      // Pentru API extern: verificăm strict formatul de răspuns așteptat
-      // Depanare avansată pentru răspunsul API-ului
-      console.log("RĂSPUNS RAW API EXTERN:", typeof responseData, JSON.stringify(responseData));
-      
-      // API-ul poate returna un string cu token-ul direct sau un obiect cu proprietatea token
-      // Conform exemplului de la client, răspunsul are format:
-      // { "status": "success", "token": "..." }
-      if (responseData && 
-          ((responseData.status === "success" && responseData.token) ||
-           (typeof responseData === 'string' && responseData.length > 10))) {
-        
-        // Dacă răspunsul este string direct, îl folosim ca token
-        const tokenValue = typeof responseData === 'string' ? responseData : responseData.token;
-        console.log("Rezultat autentificare API extern:", true, "Token:", tokenValue);
-        return {
-          success: true,
-          token: tokenValue,
-          user: { email: credentials.email }
-        };
-      } else {
-        console.log("Rezultat autentificare API extern:", false, apiUrl);
-        return {
-          success: false,
-          message: responseData?.message || "Credențiale invalide"
-        };
-      }
+    if (responseData.status === "success" && responseData.token) {
+      console.log("Rezultat autentificare API intern:", true);
+      return {
+        success: true,
+        token: responseData.token,
+        user: {
+          email: credentials.email
+        }
+      };
     } else {
-      // Pentru API intern (dezvoltare): verificăm formatul de răspuns specific
-      if (responseData && (responseData.status === "success" || responseData.token)) {
-        console.log("Rezultat autentificare API intern:", true);
-        return {
-          success: true,
-          token: responseData.token,
-          user: { email: credentials.email }
-        };
-      } else {
-        console.log("Rezultat autentificare API intern:", false);
-        return {
-          success: false,
-          message: responseData?.message || "Credențiale invalide"
-        };
-      }
+      console.log("Rezultat autentificare API intern:", false);
+      return {
+        success: false,
+        message: responseData.message || "Credențiale invalide"
+      };
     }
+    
   } catch (error) {
     console.error("Eroare la autentificare:", error);
     return {
@@ -220,107 +138,40 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
   try {
     console.log("Cerere informații vehicul:", registrationNumber);
     console.log("Token autorizare:", `Bearer ${token}`);
-    
-    // Determinăm dacă suntem în mediul nativ (Android/iOS) sau în browser
-    const isNative = Capacitor.isNativePlatform();
-    
-    // URL-ul API diferă între native și browser
-    const apiUrl = isNative 
-      ? `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`
-      : `/api/vehicle?nr=${registrationNumber}`;
-    
-    let responseData;
-    
-    // Diferențiem între browser și dispozitiv nativ pentru metoda de request
-    if (isNative) {
-      try {
-        // Folosim HTTP plugin de la Capacitor pentru dispozitive native
-        // Fixăm NullPointerException setând explicit params și data ca null
-        const response = await Http.request({
-          method: 'GET',
-          url: apiUrl,
-          headers: {
-            // IMPORTANT: Păstrăm formatul original, exact ce vine după login
-            "Authorization": token.startsWith("Bearer ") ? token : `Bearer ${token}`
-          },
-          params: {} as any, // FOARTE IMPORTANT: obiect gol transformat în any pentru a rezolva problema de tipuri
-          data: {} as any  // FOARTE IMPORTANT: obiect gol transformat în any pentru a evita NullPointerException
-        });
-        
-        console.log("Răspuns informații vehicul (native):", response.status, response.data);
-        
-        if (response.status >= 200 && response.status < 300) {
-          responseData = response.data;
-        } else {
-          throw new Error(`Server returned status ${response.status}`);
-        }
-      } catch (error) {
-        console.error("Eroare HTTP pe dispozitiv nativ (vehicul):", error);
-        throw error;
+
+    const response = await fetch(`/api/vehicle?nr=${registrationNumber}`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
       }
-    } else {
-      // Pentru browser folosim fetch API standard
-      const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Server returned status ${response.status}`);
-      }
-      
-      responseData = await response.json();
-      console.log("Răspuns informații vehicul (browser):", responseData);
-    }
-    
-    // Procesăm răspunsul conform noii structuri JSON
+    });
+
+    console.log("Răspuns informații vehicul (browser):", await response.clone().json());
+
+    const data = await response.json();
     console.log("=== RĂSPUNS RAW API VEHICUL ===");
-    console.log("Status:", responseData?.status);
-    console.log("Count:", responseData?.count);
-    console.log("Data array:", responseData?.data);
-    console.log("Întreg răspunsul:", JSON.stringify(responseData, null, 2));
-    
-    // Verificăm dacă avem răspuns cu noua structură: { status, count, data }
-    if (responseData && responseData.status === "success" && responseData.data && Array.isArray(responseData.data)) {
-      // Returnăm întregul răspuns pentru ca UitSelector să poată accesa toate UIT-urile
-      if (responseData.data.length > 0) {
-        // Pentru compatibilitate cu codul existent, mapăm primul element la structura așteptată
-        const firstVehicleData = responseData.data[0];
-        
-        const mappedVehicleData = {
-          nr: firstVehicleData.nrVehicul || registrationNumber,
-          uit: firstVehicleData.UIT || firstVehicleData.uit,
-          start_locatie: firstVehicleData.denumireLocStart || "Locație start",
-          stop_locatie: firstVehicleData.denumireLocStop || "Locație destinație", 
-          codDeclarant: firstVehicleData.codDeclarant,
-          denumireCui: firstVehicleData.denumireCui,
-          dataTransport: firstVehicleData.dataTransport,
-          ikRoTrans: firstVehicleData.ikRoTrans,
-          // Adăugăm informațiile complete pentru UitSelector
-          allTransports: responseData.data.map((item: any) => {
-            console.log("Procesez transport:", item);
-            return {
-              uit: item.UIT || item.uit,
-              start_locatie: item.denumireLocStart || "Locație start",
-              stop_locatie: item.denumireLocStop || "Locație destinație",
-              ikRoTrans: item.ikRoTrans,
-              dataTransport: item.dataTransport
-            };
-          })
-        };
-        
-        console.log("Date vehicul procesate cu toate transporturile:", mappedVehicleData);
-        return mappedVehicleData;
-      } else {
-        console.log("Nu s-au găsit date pentru vehiculul:", registrationNumber);
-        throw new Error("Nu s-au găsit informații pentru acest vehicul");
-      }
+    console.log("Status:", data.status);
+    console.log("Count:", data.count);
+    console.log("Data array:", data.data);
+    console.log("Întreg răspunsul:", JSON.stringify(data, null, 2));
+
+    if (data.status === "success" && data.count > 0 && data.data.length > 0) {
+      const vehicleData = data.data[0];
+      
+      return {
+        nr: registrationNumber,
+        uit: vehicleData.uit,
+        start_locatie: vehicleData.start_locatie,
+        stop_locatie: vehicleData.stop_locatie,
+        codDeclarant: vehicleData.codDeclarant,
+        denumireCui: vehicleData.denumireCui,
+        dataTransport: vehicleData.dataTransport,
+        ikRoTrans: vehicleData.ikRoTrans,
+        allTransports: data.data
+      };
     } else {
-      // Fallback pentru vechiul format sau alte formate
-      console.log("Folosim vechiul format de răspuns sau format nerecunoscut");
-      return responseData;
+      console.log("Nu s-au găsit date pentru vehiculul:", registrationNumber);
+      throw new Error("Vehiculul nu a fost găsit sau nu are transporturi active");
     }
   } catch (error) {
     console.error("Eroare la obținerea informațiilor vehiculului:", error);
