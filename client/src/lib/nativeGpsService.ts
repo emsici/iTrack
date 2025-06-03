@@ -179,17 +179,17 @@ export const transmitNativeGps = async (vehicleNumber: string, uit: string, toke
     // Salvez offline pentru retransmisie ulterioară
     try {
       const offlinePayload = {
-        lat: coords.lat,
-        lng: coords.lng,
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
         timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-        viteza: Math.round(coords.speed),
-        directie: Math.round(coords.heading),
-        altitudine: Math.round(coords.altitude),
-        baterie: batteryLevel,
+        viteza: Math.round(position.coords.speed || 0),
+        directie: Math.round(position.coords.heading || 0),
+        altitudine: Math.round(position.coords.altitude || 0),
+        baterie: battery,
         numar_inmatriculare: vehicleNumber,
         uit: uit,
         status: 2,
-        hdop: Math.min(coords.accuracy / 5, 10),
+        hdop: Math.min(position.coords.accuracy / 5, 10),
         gsm_signal: 85
       };
       
