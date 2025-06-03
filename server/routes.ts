@@ -16,9 +16,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Încercare de autentificare cu:", validatedData);
       
       // Forward request to the external API
-      // Nu adăugăm Content-Type header, conform testelor din Postman
       const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/login.php", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify(validatedData)
       });
       
