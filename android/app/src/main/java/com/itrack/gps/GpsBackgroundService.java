@@ -108,7 +108,8 @@ public class GpsBackgroundService extends Service implements LocationListener {
     }
 
     private Notification createNotification() {
-        Intent notificationIntent = new Intent(this, com.getcapacitor.MainActivity.class);
+        Intent notificationIntent = new Intent();
+        notificationIntent.setClassName(this, "com.euscagency.itrack.MainActivity");
         PendingIntent pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent, 
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE

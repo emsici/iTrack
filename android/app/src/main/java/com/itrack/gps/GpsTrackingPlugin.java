@@ -12,15 +12,7 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 
-@CapacitorPlugin(
-    name = "GpsTracking",
-    permissions = {
-        @Permission(strings = { Manifest.permission.ACCESS_FINE_LOCATION }, alias = "location"),
-        @Permission(strings = { Manifest.permission.ACCESS_BACKGROUND_LOCATION }, alias = "backgroundLocation"),
-        @Permission(strings = { Manifest.permission.FOREGROUND_SERVICE }, alias = "foregroundService"),
-        @Permission(strings = { Manifest.permission.WAKE_LOCK }, alias = "wakeLock")
-    }
-)
+@CapacitorPlugin(name = "GpsTracking")
 public class GpsTrackingPlugin extends Plugin {
 
     @PluginMethod
