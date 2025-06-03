@@ -179,126 +179,6 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
     setIsEditingVehicle(false);
   };
 
-  // Funcție pentru export loguri complet
-  const handleExportLogs = async () => {
-    try {
-      const logs = [];
-      
-      // Header export
-      logs.push(`=== EXPORT LOGURI iTrack - ${new Date().toLocaleString()} ===`);
-      logs.push('');
-      
-      // Informații sistem
-      logs.push('=== INFORMAȚII SISTEM ===');
-      logs.push(`Platform: ${navigator.platform}`);
-      logs.push(`User Agent: ${navigator.userAgent}`);
-      logs.push(`Language: ${navigator.language}`);
-      logs.push(`Online: ${navigator.onLine}`);
-      logs.push(`Cookies: ${navigator.cookieEnabled}`);
-      logs.push('');
-      
-      // Starea aplicației
-      logs.push('=== STAREA APLICAȚIEI ===');
-      logs.push(`Transport Status: ${transportStatus}`);
-      logs.push(`GPS Active: ${isGpsActive}`);
-      logs.push(`Battery: ${battery}%`);
-      logs.push(`Has Coordinates: ${!!gpsCoordinates}`);
-      logs.push(`Vehicle: ${vehicleInfo?.nr || 'N/A'}`);
-      
-      if (gpsCoordinates) {
-        logs.push('');
-        logs.push('=== ULTIMA POZIȚIE GPS ===');
-        logs.push(JSON.stringify(gpsCoordinates, null, 2));
-      }
-      logs.push('');
-      
-      // Test GPS în timp real
-      logs.push('=== TEST GPS LIVE ===');
-      try {
-        const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(
-            resolve,
-            reject,
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-          );
-        });
-        logs.push('GPS Standard Browser: SUCCESS');
-        logs.push(`Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}`);
-        logs.push(`Accuracy: ${position.coords.accuracy}m`);
-      } catch (gpsError: any) {
-        logs.push('GPS Standard Browser: FAILED');
-        logs.push(`Eroare: ${gpsError?.message || 'GPS nu disponibil'}`);
-      }
-      
-      // Verificare permisiuni
-      if (navigator.permissions) {
-        try {
-          const permission = await navigator.permissions.query({name: 'geolocation'});
-          logs.push(`Permisiune Geolocation: ${permission.state}`);
-        } catch (permError: any) {
-          logs.push(`Eroare verificare permisiuni: ${permError?.message || 'Nu disponibil'}`);
-        }
-      }
-      logs.push('');
-      
-      // localStorage data
-      logs.push('=== DATE SALVATE ===');
-      Object.keys(localStorage).forEach(key => {
-        if (key.includes('transport') || key.includes('gps') || key.includes('log')) {
-          logs.push(`${key}: ${localStorage.getItem(key)}`);
-        }
-      });
-      logs.push('');
-      
-      // Console logs dacă sunt salvate
-      const consoleLogs = localStorage.getItem('console_logs');
-      if (consoleLogs) {
-        logs.push('=== CONSOLE LOGS ===');
-        logs.push(consoleLogs);
-      }
-      
-      // Creează și descarcă fișierul - compatibil cu mobile
-      const logContent = logs.join('\n');
-      const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' });
-      
-      // Pentru dispozitive mobile, folosim o abordare diferită
-      if (navigator.share && navigator.canShare && navigator.canShare({ text: logContent })) {
-        // Folosim Web Share API pentru mobile
-        await navigator.share({
-          title: 'iTrack Debug Logs',
-          text: logContent,
-        });
-      } else {
-        // Fallback pentru download tradițional
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `itrack-debug-${Date.now()}.txt`;
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Cleanup
-        setTimeout(() => URL.revokeObjectURL(url), 100);
-      }
-      
-      toast({
-        title: "Loguri exportate",
-        description: "Fișierul de debug a fost descărcat cu succes.",
-        variant: "default",
-      });
-    } catch (error) {
-      console.error("Eroare la exportul logurilor:", error);
-      toast({
-        title: "Eroare export",
-        description: "Nu s-au putut exporta logurile.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <header className="text-white shadow-md mobile-header">
       <div className="flex justify-between items-center">
@@ -375,8 +255,6 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
         </div>
         
         <div className="flex items-center gap-3">
-
-          
           {/* Popup despre aplicație */}
           <div className="flex">
             <div className="relative inline-block">
