@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 import { useTransport } from "@/context/TransportContext";
 import { useAuth } from "@/context/AuthContext";
-import { Battery, Signal, Wifi, MapPin, LogOut, Truck, Info, AlertCircle, Download } from "lucide-react";
+import { Battery, Signal, Wifi, MapPin, LogOut, Truck, Info, AlertCircle } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { requestGpsPermissions } from "@/lib/capacitorService";
 import { getGpsAvailability } from "@/lib/connectivityService";
