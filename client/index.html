@@ -425,6 +425,8 @@
                 if (data.status === 'success' || data.success) {
                     authToken = data.token;
                     localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('userEmail', email);
+                    localStorage.setItem('userPassword', password);
                     showStatus('loginStatus', 'Conectare cu succes!', 'success');
                     setTimeout(() => checkAuthStatus(), 1000);
                 } else {
@@ -564,6 +566,16 @@
                 // Adaugă transportul în lista activă
                 activeTransports.add(uit);
                 
+                // Setează credențialele GPS pentru transmisia datelor
+                const email = localStorage.getItem('userEmail') || 'test@exemplu.com';
+                const password = localStorage.getItem('userPassword') || 'parola123';
+                
+                await fetch('/api/gps/credentials', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
                 if (window.GpsTracking) {
                     const result = await window.GpsTracking.startGpsService({
                         vehicleNumber: vehicleInfo.nr,
@@ -576,9 +588,10 @@
                         console.log('Transport pornit pentru UIT:', uit);
                     }
                 } else {
-                    // Pentru testing în browser
+                    // Pentru testing în browser - pornește transmisia GPS simulată
                     console.log('Pornire transport pentru UIT:', uit);
                     isGpsActive = true;
+                    startBrowserGpsTransmission(uit);
                 }
                 
                 // Reîmprospătează interfața
@@ -601,9 +614,10 @@
                         console.log('Transport oprit pentru UIT:', uit);
                     }
                 } else {
-                    // Pentru testing în browser
+                    // Pentru testing în browser - oprește transmisia GPS
                     console.log('Oprire transport pentru UIT:', uit);
                     isGpsActive = false;
+                    stopBrowserGpsTransmission();
                 }
                 
                 // Reîmprospătează interfața
@@ -626,10 +640,59 @@
             }
         }
         
+        let gpsInterval = null;
+        
+        function startBrowserGpsTransmission(uit) {
+            console.log('Pornire transmisie GPS pentru UIT:', uit);
+            
+            // Oprește orice transmisie anterioară
+            if (gpsInterval) {
+                clearInterval(gpsInterval);
+            }
+            
+            // Pornește transmisia GPS la fiecare 60 secunde
+            gpsInterval = setInterval(async () => {
+                try {
+                    // Simulează coordonate GPS din București
+                    const gpsData = {
+                        vehicleNumber: vehicleInfo.nr,
+                        uit: uit,
+                        latitude: 44.4268 + (Math.random() - 0.5) * 0.01, // București + variație mică
+                        longitude: 26.1025 + (Math.random() - 0.5) * 0.01,
+                        timestamp: new Date().toISOString(),
+                        status: 2 // Activ
+                    };
+                    
+                    console.log('Transmit coordonate GPS:', gpsData);
+                    
+                    const response = await fetch('/api/gps/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(gpsData)
+                    });
+                    
+                    const result = await response.json();
+                    console.log('Răspuns transmisie GPS:', result);
+                } catch (error) {
+                    console.error('Eroare transmisie GPS:', error);
+                }
+            }, 60000); // 60 secunde
+        }
+        
+        function stopBrowserGpsTransmission() {
+            if (gpsInterval) {
+                clearInterval(gpsInterval);
+                gpsInterval = null;
+                console.log('Transmisie GPS oprită');
+            }
+        }
+        
         function logout() {
+            stopBrowserGpsTransmission();
             localStorage.clear();
             authToken = null;
             vehicleInfo = null;
+            activeTransports.clear();
             checkAuthStatus();
         }
     </script>
