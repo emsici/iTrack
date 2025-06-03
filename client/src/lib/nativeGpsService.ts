@@ -195,7 +195,33 @@ export const startNativeGpsService = async (
     
     console.log("[Native GPS] Pornesc serviciul GPS nativ pentru:", { vehicleNumber, uit });
     
-    // Verifică permisiunile GPS
+    // Verifică dacă rulăm în browser sau pe device nativ
+    const isNativeDevice = Capacitor.isNativePlatform();
+    
+    if (!isNativeDevice) {
+      console.log("[Native GPS Plugin] Browser detectat - pornesc transmisia GPS web");
+      
+      // În browser, pornesc transmisia GPS directă
+      isNativeServiceActive = true;
+      
+      // Prima transmisie imediată
+      console.log("[Native GPS Plugin] Execut prima transmisie GPS imediată...");
+      const firstTransmit = await transmitNativeGps(vehicleNumber, uit, token);
+      console.log(`[Native GPS Plugin] Prima transmisie ${firstTransmit ? 'reușită' : 'eșuată'}`);
+      
+      // Programează transmisia la fiecare 60 secunde
+      gpsTransmissionTimer = window.setInterval(async () => {
+        if (isNativeServiceActive) {
+          console.log("[Native GPS Plugin] Transmisie automată la 60s");
+          const success = await transmitNativeGps(vehicleNumber, uit, token);
+          console.log(`[Native GPS Plugin] Transmisie ${success ? 'reușită' : 'eșuată'} la ${new Date().toLocaleTimeString()}`);
+        }
+      }, 60000);
+      
+      return true;
+    }
+    
+    // Verifică permisiunile GPS pe device nativ
     if (Capacitor.isNativePlatform()) {
       try {
         const permissions = await Geolocation.checkPermissions();
