@@ -8,10 +8,8 @@ const config = {
   webDir: 'dist',
   bundledWebRuntime: false,
   server: {
-    androidScheme: 'http',
-    cleartext: true,
-    url: 'http://10.0.2.2:5000',
-    allowNavigation: ['*']
+    androidScheme: 'https',
+    cleartext: true
   },
   plugins: {
     CapacitorHttp: {
