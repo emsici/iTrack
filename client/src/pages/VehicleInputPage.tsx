@@ -8,7 +8,7 @@ export default function VehicleInputPage() {
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { setUser } = useAuth();
+  const { updateAuth } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,13 +31,7 @@ export default function VehicleInputPage() {
         localStorage.setItem("vehicleInfo", JSON.stringify(data.vehicleInfo));
         
         // Update auth state
-        const userEmail = localStorage.getItem("userEmail");
-        setUser({
-          id: userEmail || "",
-          email: userEmail || "",
-          vehicleRegistered: true,
-          vehicleInfo: data.vehicleInfo,
-        });
+        updateAuth();
 
         toast({
           title: "Succes",
@@ -65,7 +59,7 @@ export default function VehicleInputPage() {
 
   const logout = () => {
     localStorage.clear();
-    setUser(null);
+    updateAuth();
     setLocation("/");
   };
 

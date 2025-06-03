@@ -9,7 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { setUser } = useAuth();
+  const { updateAuth } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,12 +30,7 @@ export default function LoginPage() {
         localStorage.setItem("userPassword", password);
         
         // Update auth state
-        setUser({
-          id: email,
-          email: email,
-          vehicleRegistered: false,
-          vehicleInfo: null,
-        });
+        updateAuth();
 
         toast({
           title: "Succes",

@@ -24,7 +24,7 @@ export default function TransportPage() {
   const [activeTransports, setActiveTransports] = useState<string[]>([]);
   const [gpsInterval, setGpsInterval] = useState<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
-  const { setUser } = useAuth();
+  const { updateAuth } = useAuth();
 
   const vehicleInfo: VehicleInfo | null = JSON.parse(localStorage.getItem("vehicleInfo") || "null");
 
@@ -112,7 +112,7 @@ export default function TransportPage() {
       clearInterval(gpsInterval);
     }
     localStorage.clear();
-    setUser(null);
+    updateAuth();
     setLocation("/");
   };
 

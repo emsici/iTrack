@@ -11,26 +11,26 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const checkAuth = () => {
+    const authToken = localStorage.getItem("authToken");
+    const vehicleInfo = localStorage.getItem("vehicleInfo");
+    const userEmail = localStorage.getItem("userEmail");
+
+    if (authToken && userEmail) {
+      const userData: User = {
+        id: userEmail,
+        email: userEmail,
+        vehicleRegistered: !!vehicleInfo,
+        vehicleInfo: vehicleInfo ? JSON.parse(vehicleInfo) : null,
+      };
+      setUser(userData);
+    } else {
+      setUser(null);
+    }
+    setIsLoading(false);
+  };
+
   useEffect(() => {
-    const checkAuth = () => {
-      const authToken = localStorage.getItem("authToken");
-      const vehicleInfo = localStorage.getItem("vehicleInfo");
-      const userEmail = localStorage.getItem("userEmail");
-
-      if (authToken && userEmail) {
-        const userData: User = {
-          id: userEmail,
-          email: userEmail,
-          vehicleRegistered: !!vehicleInfo,
-          vehicleInfo: vehicleInfo ? JSON.parse(vehicleInfo) : null,
-        };
-        setUser(userData);
-      } else {
-        setUser(null);
-      }
-      setIsLoading(false);
-    };
-
     checkAuth();
 
     // Listen for storage changes to update auth state
@@ -42,10 +42,15 @@ export function useAuth() {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
+  const updateAuth = () => {
+    checkAuth();
+  };
+
   return {
     user,
     isLoading,
     isAuthenticated: !!user,
     setUser,
+    updateAuth,
   };
 }
