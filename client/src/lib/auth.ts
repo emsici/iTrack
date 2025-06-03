@@ -160,14 +160,19 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
       
       return {
         nr: registrationNumber,
-        uit: vehicleData.uit,
-        start_locatie: vehicleData.start_locatie,
-        stop_locatie: vehicleData.stop_locatie,
+        uit: vehicleData.UIT || vehicleData.uit,
+        start_locatie: vehicleData.denumireLocStart || vehicleData.start_locatie,
+        stop_locatie: vehicleData.denumireLocStop || vehicleData.stop_locatie,
         codDeclarant: vehicleData.codDeclarant,
         denumireCui: vehicleData.denumireCui,
         dataTransport: vehicleData.dataTransport,
         ikRoTrans: vehicleData.ikRoTrans,
-        allTransports: data.data
+        allTransports: data.data.map(transport => ({
+          ...transport,
+          uit: transport.UIT || transport.uit,
+          start_locatie: transport.denumireLocStart || transport.start_locatie,
+          stop_locatie: transport.denumireLocStop || transport.stop_locatie
+        }))
       };
     } else {
       console.log("Nu s-au găsit date pentru vehiculul:", registrationNumber);
