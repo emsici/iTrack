@@ -375,14 +375,7 @@ export default function MobileHeader({ onInfoClick }: MobileHeaderProps = {}) {
         </div>
         
         <div className="flex items-center gap-3">
-          {/* Buton export loguri */}
-          <button 
-            onClick={handleExportLogs}
-            className="flex items-center text-white hover:text-blue-200 transition-colors"
-            title="Export loguri"
-          >
-            <Download className="h-4 w-4" />
-          </button>
+
           
           {/* Popup despre aplicație */}
           <div className="flex">
