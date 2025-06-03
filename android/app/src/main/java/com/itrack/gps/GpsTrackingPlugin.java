@@ -78,7 +78,7 @@ public class GpsTrackingPlugin extends Plugin {
         call.resolve(result);
     }
 
-    private boolean hasRequiredPermissions() {
+    public boolean hasRequiredPermissions() {
         return ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
             && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
