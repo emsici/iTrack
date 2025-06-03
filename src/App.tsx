@@ -1,6 +1,6 @@
 import { Switch, Route } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import "./App.css";
+import "./index.css";
 import LoginPage from "./pages/LoginPage";
 import TransportPage from "./pages/TransportPage";
 import DashboardPage from "./pages/DashboardPage";
