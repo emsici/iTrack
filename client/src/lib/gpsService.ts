@@ -160,10 +160,10 @@ export const sendGpsUpdate = async (
     
     // Verificăm dacă vehicleInfo.nr este un obiect în loc de string
     let correctedVehicleInfo = vehicleInfo;
-    if (vehicleInfo && typeof vehicleInfo.nr === 'object' && vehicleInfo.nr !== null) {
+    if (vehicleInfo && typeof (vehicleInfo as any).nr === 'object' && (vehicleInfo as any).nr !== null) {
       console.log("Corectăm formatul vehicleInfo.nr care este obiect în loc de string");
       // Extragem numărul real din obiect
-      const fixedNr = vehicleInfo.nr.nr || '';
+      const fixedNr = (vehicleInfo as any).nr.nr || '';
       // Creăm un nou obiect cu valoarea corectată (nu modificăm originalul care e const)
       correctedVehicleInfo = {
         ...vehicleInfo,
@@ -311,7 +311,7 @@ export const sendGpsUpdate = async (
       baterie: Math.round(batteryLevel),
       numar_inmatriculare: vehicleNr, // Folosim valoarea corectată
       uit: uitValue, // Folosim valoarea verificată
-      status: getGpsStatusCode(transportStatus), // Cod numeric GPS: 2=pornit, 3=pauză, 4=finalizat
+      status: getGpsStatusCode(String(transportStatus)), // Cod numeric GPS: 2=pornit, 3=pauză, 4=finalizat
       hdop: hdopValue || 5,         // Valoare default pentru HDOP dacă nu este disponibilă
       gsm_signal: gsmSignalValue || 90  // Valoare default pentru puterea semnalului
     };
@@ -348,7 +348,7 @@ export const sendGpsUpdate = async (
     }
     const hdop = Number(hdopValue) || 2.0;
     const gsm_signal = Number(gsmSignalValue) || 85;
-    const statusCode = getGpsStatusCode(transportStatus);
+    const statusCode = getGpsStatusCode(String(transportStatus));
     
     // Asigurăm-ne că avem valori pentru toate câmpurile - nu acceptăm text gol sau undefined
     // Folosim valorile din effectiveVehicleInfo
@@ -457,7 +457,7 @@ export const sendGpsUpdate = async (
       } catch (error) {
         console.error("Eroare la fetch GPS (salvăm offline):", error);
         // Salvăm local și considerăm ca tranzacția a eșuat
-        saveGpsDataOffline(gpsData, transportStatus);
+        saveGpsDataOffline(gpsData, String(transportStatus));
         console.log("[GPS Service] 💾 Date GPS salvate offline (fără internet) - NU SE PIERD");
         throw error;
       }
@@ -512,7 +512,7 @@ export const sendGpsUpdate = async (
       baterie: await Device.getBatteryInfo().then(info => Math.round(info.batteryLevel * 100)).catch(() => 95), // Nivel real de baterie
       numar_inmatriculare: vehicleInfo.nr || "TEST",
       uit: vehicleInfo.uit || "UIT12345",
-      status: getGpsStatusCode(transportStatus)
+      status: getGpsStatusCode(String(transportStatus))
     };
     
     saveGpsDataOffline(gpsData, transportStatus);

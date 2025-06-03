@@ -178,9 +178,22 @@ export const transmitNativeGps = async (vehicleNumber: string, uit: string, toke
     
     // Salvez offline pentru retransmisie ulterioară
     try {
-      const offlinePayload = {
+      // Obținem nivelul de baterie
+      const batteryLevel = await Device.getBatteryInfo().then(info => Math.round(info.batteryLevel * 100)).catch(() => 95);
+      
+      // Definim coordonatele
+      const coords = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
+        speed: (position.coords.speed || 0) * 3.6,
+        heading: position.coords.heading || 0,
+        altitude: position.coords.altitude || 0,
+        accuracy: position.coords.accuracy || 0
+      };
+
+      const offlinePayload = {
+        lat: coords.lat,
+        lng: coords.lng,
         timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
         viteza: Math.round(coords.speed),
         directie: Math.round(coords.heading),
@@ -419,8 +432,8 @@ const retransmitOfflineData = async (token: string): Promise<void> => {
     }
     
     // Actualizează storage-ul cu datele rămase
-    const remainingData = offlineData.filter(item => 
-      !successfullyTransmitted.some(transmitted => 
+    const remainingData = offlineData.filter((item: any) => 
+      !successfullyTransmitted.some((transmitted: any) => 
         transmitted.timestamp === item.timestamp
       )
     );
