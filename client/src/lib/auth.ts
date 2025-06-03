@@ -59,7 +59,7 @@ export const isValidToken = (token: string): boolean => {
 };
 
 // Helper pentru a verifica dacă suntem pe dispozitiv nativ
-export const isNativePlatform = (): boolean => {
+export const checkIsNativePlatform = (): boolean => {
   return Capacitor.isNativePlatform();
 };
 
@@ -91,7 +91,7 @@ export const loginUser = async (credentials: Login) => {
     
     let response;
     
-    if (isNative) {
+    if (Capacitor.isNativePlatform()) {
       // Pe platformele native folosim CapacitorHttp
       const httpResponse = await CapacitorHttp.request({
         url: apiUrl,
@@ -161,15 +161,13 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
     console.log("Cerere informații vehicul:", registrationNumber);
     console.log("Token autorizare:", `Bearer ${token}`);
 
-    // Configurez URL-ul în funcție de platformă
-    const isNative = isNativePlatform();
-    const baseUrl = isNative ? 'https://' + window.location.hostname : '';
-    const apiUrl = `${baseUrl}/api/vehicle?nr=${registrationNumber}`;
-    console.log("URL vehicul:", apiUrl, "Platformă nativă:", isNative);
+    // Configurez URL-ul folosind configurația centralizată
+    const apiUrl = getApiUrl(`/api/vehicle?nr=${registrationNumber}`);
+    console.log("URL vehicul:", apiUrl, "Platformă nativă:", Capacitor.isNativePlatform());
 
     let response;
     
-    if (isNative) {
+    if (Capacitor.isNativePlatform()) {
       // Pe platformele native folosim CapacitorHttp
       const httpResponse = await CapacitorHttp.request({
         url: apiUrl,

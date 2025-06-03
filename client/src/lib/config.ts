@@ -6,7 +6,10 @@ export const getApiBaseUrl = (): string => {
   
   if (isNative) {
     // Pentru aplicațiile native, folosim URL-ul Replit complet
-    return 'https://rest-express--euscagency.replit.app';
+    // IMPORTANT: Acest URL trebuie să fie URL-ul public al aplicației Replit
+    return window.location.origin.includes('replit.app') 
+      ? window.location.origin 
+      : 'https://rest-express--euscagency.replit.app';
   } else {
     // Pentru browser, folosim URL-ul relativ
     return '';

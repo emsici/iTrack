@@ -1,6 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { Capacitor } from '@capacitor/core';
 import { CapacitorHttp } from '@capacitor/core';
+import { getApiUrl } from './config';
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -14,11 +15,9 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const isNative = Capacitor.isNativePlatform();
-  const baseUrl = isNative ? 'https://' + window.location.hostname : '';
-  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  const fullUrl = url.startsWith('http') ? url : getApiUrl(url);
 
-  if (isNative) {
+  if (Capacitor.isNativePlatform()) {
     // Pe platformele native folosim CapacitorHttp
     const httpResponse = await CapacitorHttp.request({
       url: fullUrl,
