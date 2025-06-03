@@ -1,10 +1,6 @@
 import { createRoot } from "react-dom/client";
-import App from "./App";
+import SimpleApp from "./SimpleApp";
 import "./index.css";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "./lib/queryClient";
-
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Global error handling pentru Android
 window.addEventListener('error', (event) => {
@@ -16,26 +12,25 @@ window.addEventListener('unhandledrejection', (event) => {
   event.preventDefault();
 });
 
+console.log('Starting iTrack app...');
+
 try {
   const rootElement = document.getElementById("root");
   if (!rootElement) {
     throw new Error("Root element not found");
   }
 
-  createRoot(rootElement).render(
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <App />
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
+  createRoot(rootElement).render(<SimpleApp />);
+  console.log('App rendered successfully');
 } catch (error) {
   console.error('Failed to render app:', error);
   document.body.innerHTML = `
-    <div style="padding: 20px; text-align: center; font-family: Arial;">
-      <h2>iTrack</h2>
-      <p>Aplicația se încarcă...</p>
-      <p style="color: #666; font-size: 12px;">Dacă problema persistă, reporniți aplicația</p>
+    <div style="padding: 20px; text-align: center; font-family: Arial; background: #f5f5f5; min-height: 100vh;">
+      <h2 style="color: #1976d2;">iTrack</h2>
+      <p>Eroare la încărcare: ${error}</p>
+      <button onclick="window.location.reload()" style="padding: 10px 20px; background: #1976d2; color: white; border: none; border-radius: 4px;">
+        Restart
+      </button>
     </div>
   `;
 }

@@ -69,14 +69,18 @@ function App() {
   
   // Inițializăm interceptorul pentru console.log și alte mesaje
   useEffect(() => {
-    // Configurăm interceptorul pentru consolă
-    setupConsoleInterceptor();
-    
-    // Adăugăm un log de pornire a aplicației
-    addLog('Aplicație pornită', 'info', 'system', {
-      platform: isNativePlatform() ? Capacitor.getPlatform() : 'browser',
-      timestamp: new Date().toISOString()
-    });
+    try {
+      // Configurăm interceptorul pentru consolă
+      setupConsoleInterceptor();
+      
+      // Adăugăm un log de pornire a aplicației
+      addLog('Aplicație pornită', 'info', 'system', {
+        platform: isNativePlatform() ? Capacitor.getPlatform() : 'browser',
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Eroare la setup console interceptor:', error);
+    }
     
     return () => {
       // Adăugăm un log de închidere a aplicației
