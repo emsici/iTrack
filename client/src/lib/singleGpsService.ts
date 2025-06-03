@@ -88,9 +88,9 @@ export const startGpsTransmissionService = (
       
       if (Capacitor.isNativePlatform()) {
         // Pe platformele native folosim CapacitorHttp pentru gps.php
-        const { Http } = await import('@capacitor-community/http');
+        const { CapacitorHttp } = await import('@capacitor/core');
         
-        const httpResponse = await Http.request({
+        const httpResponse = await CapacitorHttp.request({
           url: 'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php',
           method: 'POST',
           headers: {
