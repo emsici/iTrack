@@ -61,11 +61,20 @@ public class GpsTrackingPlugin extends Plugin implements LocationListener {
             String notificationTitle = call.getString("notificationTitle", "iTrack GPS activ");
             String notificationText = call.getString("notificationText", "Urmărire transport în curs...");
             
-            // Initialize LocationManager
-            locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+            // Start background service for continuous GPS tracking
+            Intent serviceIntent = new Intent(getContext(), GpsBackgroundService.class);
+            serviceIntent.putExtra("interval", updateInterval);
+            serviceIntent.putExtra("notificationTitle", notificationTitle);
+            serviceIntent.putExtra("notificationText", notificationText);
             
-            // Start foreground service with notification
-            startForegroundService(notificationTitle, notificationText);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                getContext().startForegroundService(serviceIntent);
+            } else {
+                getContext().startService(serviceIntent);
+            }
+            
+            // Initialize LocationManager for immediate updates
+            locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
             
             // Acquire wake lock if requested
             if (enableWakeLock) {
@@ -75,7 +84,7 @@ public class GpsTrackingPlugin extends Plugin implements LocationListener {
                 Log.d(TAG, "Wake lock acquired");
             }
             
-            // Request location updates
+            // Request location updates for immediate feedback
             if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
@@ -95,7 +104,7 @@ public class GpsTrackingPlugin extends Plugin implements LocationListener {
                 }
                 
                 isTracking = true;
-                Log.d(TAG, "GPS tracking started successfully");
+                Log.d(TAG, "Background GPS tracking started successfully");
                 call.resolve();
             } else {
                 call.reject("Fine location permission not granted");
@@ -112,6 +121,10 @@ public class GpsTrackingPlugin extends Plugin implements LocationListener {
         Log.d(TAG, "Stopping background GPS tracking");
         
         try {
+            // Stop background service
+            Intent serviceIntent = new Intent(getContext(), GpsBackgroundService.class);
+            getContext().stopService(serviceIntent);
+            
             // Stop location updates
             if (locationManager != null) {
                 locationManager.removeUpdates(this);
@@ -129,7 +142,7 @@ public class GpsTrackingPlugin extends Plugin implements LocationListener {
             stopForegroundService();
             
             isTracking = false;
-            Log.d(TAG, "GPS tracking stopped successfully");
+            Log.d(TAG, "Background GPS tracking stopped successfully");
             call.resolve();
             
         } catch (Exception e) {

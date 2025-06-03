@@ -3,23 +3,8 @@ import { useMutation } from '@tanstack/react-query';
 import { Geolocation } from '@capacitor/geolocation';
 import { App as CapApp } from '@capacitor/app';
 import { Device } from '@capacitor/device';
+import GpsTracking from '../lib/gps-bridge';
 import type { GPSData } from '../../shared/schema';
-
-// Native GPS Background Service
-declare global {
-  interface Window {
-    GpsTrackingPlugin?: {
-      startBackgroundTracking: (options: {
-        interval: number;
-        enableWakeLock: boolean;
-        notificationTitle: string;
-        notificationText: string;
-      }) => Promise<void>;
-      stopBackgroundTracking: () => Promise<void>;
-      getCurrentLocation: () => Promise<{ latitude: number; longitude: number }>;
-    };
-  }
-}
 
 export default function TransportPage() {
   const [isTracking, setIsTracking] = useState(false);
@@ -82,19 +67,35 @@ export default function TransportPage() {
         return;
       }
 
-      // Check if native plugin is available
-      if (window.GpsTrackingPlugin) {
+      // Use native GPS plugin
+      try {
         addLog("Pornesc serviciul GPS nativ în fundal");
-        await window.GpsTrackingPlugin.startBackgroundTracking({
+        await GpsTracking.startBackgroundTracking({
           interval: 60000, // 1 minute
           enableWakeLock: true,
           notificationTitle: "iTrack GPS activ",
           notificationText: "Urmărire transport în curs..."
         });
+        
+        // Listen for location updates from native plugin
+        await GpsTracking.addListener('locationUpdate', (location) => {
+          const newGpsData: GPSData = {
+            vehicleNumber: vehicleData.vehicleNumber,
+            uit: vehicleData.uit,
+            latitude: location.latitude,
+            longitude: location.longitude,
+            timestamp: new Date(location.timestamp).toISOString(),
+            status: 2
+          };
+          
+          setGpsData(newGpsData);
+          gpsMutation.mutate(newGpsData);
+        });
+        
         backgroundService.current = true;
         addLog("✅ Serviciu GPS nativ pornit cu succes");
-      } else {
-        addLog("Folosesc Capacitor Geolocation pentru urmărire");
+      } catch (nativeError) {
+        addLog("Eroare serviciu nativ, folosesc Capacitor Geolocation");
         // Fallback to Capacitor Geolocation with high accuracy
         watchId.current = await Geolocation.watchPosition({
           enableHighAccuracy: true,
@@ -133,8 +134,8 @@ export default function TransportPage() {
   // Stop GPS tracking
   const stopGPSTracking = async () => {
     try {
-      if (backgroundService.current && window.GpsTrackingPlugin) {
-        await window.GpsTrackingPlugin.stopBackgroundTracking();
+      if (backgroundService.current) {
+        await GpsTracking.stopBackgroundTracking();
         backgroundService.current = false;
         addLog("Serviciu GPS nativ oprit");
       }
