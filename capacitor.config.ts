@@ -6,6 +6,7 @@ const config = {
   appId: 'com.euscagency.itrack',
   appName: 'iTrack',
   webDir: 'dist',
+  bundledWebRuntime: false,
   server: {
     androidScheme: 'https',
     cleartext: true
