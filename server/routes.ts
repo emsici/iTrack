@@ -207,6 +207,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Vehicle registration endpoint
+  app.post("/api/vehicle", async (req, res) => {
+    try {
+      const { registrationNumber, authToken } = req.body;
+      
+      if (!registrationNumber || !authToken) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Registration number and auth token required" 
+        });
+      }
+      
+      console.log("[Vehicle] Cerere înregistrare vehicul:", registrationNumber);
+      
+      // Forward to external vehicle API
+      const response = await fetch(`https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${authToken}`
+        }
+      });
+      
+      const data = await response.json();
+      console.log("[Vehicle] Răspuns API extern:", data);
+      
+      if (data.status === 'success' && data.count > 0 && data.data.length > 0) {
+        const vehicleData = data.data[0];
+        const vehicleInfo = {
+          nr: registrationNumber,
+          uit: vehicleData.UIT || vehicleData.uit,
+          start_locatie: vehicleData.denumireLocStart || vehicleData.start_locatie,
+          stop_locatie: vehicleData.denumireLocStop || vehicleData.stop_locatie,
+          codDeclarant: vehicleData.codDeclarant,
+          denumireCui: vehicleData.denumireCui,
+          dataTransport: vehicleData.dataTransport,
+          ikRoTrans: vehicleData.ikRoTrans,
+          allTransports: data.data.map((transport: any) => ({
+            uit: transport.UIT || transport.uit,
+            start_locatie: transport.denumireLocStart || transport.start_locatie,
+            stop_locatie: transport.denumireLocStop || transport.stop_locatie,
+            dataTransport: transport.dataTransport,
+            ikRoTrans: transport.ikRoTrans
+          }))
+        };
+        
+        res.json({
+          success: true,
+          vehicleInfo: vehicleInfo
+        });
+      } else {
+        res.json({
+          success: false,
+          message: "Vehiculul nu a fost găsit sau nu are transporturi active"
+        });
+      }
+      
+    } catch (error) {
+      console.error("[Vehicle] Error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Server error" 
+      });
+    }
+  });
+
   // Get transport status endpoint
   app.get("/api/transport/status", async (req, res) => {
     try {
