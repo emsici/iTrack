@@ -36,23 +36,17 @@ const config = {
         }
       }
     },
-    // Permite utilizarea locației în background
-    BackgroundGeolocation: {
-      locationProvider: 'distance-filter',
-      desiredAccuracy: 'high',
-      stationaryRadius: 5,
-      distanceFilter: 30,
-      debug: false,
-      startOnBoot: true,
-      stopOnTerminate: false,
-      enableHeadless: true,
-      interval: 60000, // 1 minut
-      fastestInterval: 30000, // 30 secunde
-      activitiesInterval: 60000,
-      stopOnStillActivity: false,
-      notificationTitle: "iTrack GPS activat",
-      notificationText: "Monitorizare GPS pentru transport activă",
-      notificationIconColor: "#3880ff"
+    // Configurație pentru Foreground Service GPS
+    ForegroundService: {
+      enabled: true,
+      notificationTitle: "iTrack GPS activ",
+      notificationText: "Urmărire transport în curs...",
+      notificationIcon: "ic_notification",
+      notificationChannelId: "itrack_gps_channel",
+      notificationChannelName: "iTrack GPS Service",
+      notificationChannelDescription: "Serviciu GPS pentru urmărirea transporturilor",
+      enableWakeLock: true,
+      interval: 60000 // 1 minut
     }
   },
   android: {
@@ -68,7 +62,10 @@ const config = {
       "android.permission.ACCESS_FINE_LOCATION",
       "android.permission.ACCESS_BACKGROUND_LOCATION",
       "android.permission.FOREGROUND_SERVICE",
-      "android.permission.WAKE_LOCK"
+      "android.permission.FOREGROUND_SERVICE_LOCATION",
+      "android.permission.WAKE_LOCK",
+      "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
+      "android.permission.SYSTEM_ALERT_WINDOW"
     ]
   },
   ios: {
