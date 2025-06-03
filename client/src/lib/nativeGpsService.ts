@@ -181,14 +181,14 @@ export const transmitNativeGps = async (vehicleNumber: string, uit: string, toke
       // Obținem nivelul de baterie
       const batteryLevel = await Device.getBatteryInfo().then(info => Math.round((info.batteryLevel || 0.95) * 100)).catch(() => 95);
       
-      // Definim coordonatele din parametrul position din catch block
+      // Definim coordonatele din parametrul gpsPosition din catch block
       const coords = {
-        lat: (position as any).coords.latitude,
-        lng: (position as any).coords.longitude,
-        speed: ((position as any).coords.speed || 0) * 3.6,
-        heading: (position as any).coords.heading || 0,
-        altitude: (position as any).coords.altitude || 0,
-        accuracy: (position as any).coords.accuracy || 0
+        lat: gpsPosition.coords.latitude,
+        lng: gpsPosition.coords.longitude,
+        speed: (gpsPosition.coords.speed || 0) * 3.6,
+        heading: gpsPosition.coords.heading || 0,
+        altitude: gpsPosition.coords.altitude || 0,
+        accuracy: gpsPosition.coords.accuracy || 0
       };
 
       const offlinePayload = {
