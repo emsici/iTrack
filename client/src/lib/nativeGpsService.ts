@@ -96,7 +96,7 @@ const getHighAccuracyPosition = async () => {
 /**
  * Transmite coordonatele GPS către serverul GPS
  */
-const transmitNativeGps = async (vehicleNumber: string, uit: string, token: string) => {
+export const transmitNativeGps = async (vehicleNumber: string, uit: string, token: string): Promise<boolean> => {
   try {
     console.log(`[Native GPS] Transmit la ${new Date().toLocaleTimeString()} pentru UIT: ${uit}`);
     
