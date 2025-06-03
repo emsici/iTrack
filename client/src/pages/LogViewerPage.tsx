@@ -50,7 +50,7 @@ export default function LogViewerPage() {
         sessionStorage.removeItem('fromAdminLogin');
       }
       
-      addLog('Autentificare automată administrator', 'info', 'admin-page');
+      addLog('Autentificare automată administrator - acces export loguri activat', 'info', 'admin-page');
     }
   }, []);
 
