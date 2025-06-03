@@ -77,8 +77,13 @@ export const loginUser = async (credentials: Login) => {
     console.log("Date de autentificare trimise:", credentials);
     console.log("Încercare de autentificare cu:", credentials);
     
-    // Configurez URL-ul folosind configurația centralizată
-    const apiUrl = getApiUrl('/api/login');
+    // Pentru platformele native, folosim API-ul direct
+    let apiUrl;
+    if (Capacitor.isNativePlatform()) {
+      apiUrl = 'https://api.gps-track.ro/login.php';
+    } else {
+      apiUrl = '/api/login'; // Browser - prin proxy Replit
+    }
     console.log("URL autentificare:", apiUrl, "Platformă nativă:", Capacitor.isNativePlatform());
     
     // Construim payload-ul de autentificare
@@ -161,8 +166,13 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
     console.log("Cerere informații vehicul:", registrationNumber);
     console.log("Token autorizare:", `Bearer ${token}`);
 
-    // Configurez URL-ul folosind configurația centralizată
-    const apiUrl = getApiUrl(`/api/vehicle?nr=${registrationNumber}`);
+    // Pentru platformele native, folosim API-ul direct
+    let apiUrl;
+    if (Capacitor.isNativePlatform()) {
+      apiUrl = `https://api.gps-track.ro/vehicule.php?nr=${registrationNumber}`;
+    } else {
+      apiUrl = `/api/vehicle?nr=${registrationNumber}`; // Browser - prin proxy Replit
+    }
     console.log("URL vehicul:", apiUrl, "Platformă nativă:", Capacitor.isNativePlatform());
 
     let response;

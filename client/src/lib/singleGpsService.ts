@@ -3,6 +3,8 @@
  * când transportul este activ
  */
 
+import { Device } from '@capacitor/device';
+
 let gpsTransmissionInterval: number | null = null;
 let isServiceActive = false;
 

@@ -8,14 +8,17 @@ export const sendGpsData = async (data: GpsDataPayload, token: string) => {
   try {
     console.log("Trimitere date GPS către API:", JSON.stringify(data, null, 2));
     
-    // URL-ul API extern din variabile de mediu
-    const apiExternUrl = `${import.meta.env.VITE_GPS_API_URL}/gps.php`;
+    // Pentru platformele native, folosim direct API-ul GPS
+    const isNative = Capacitor.isNativePlatform();
+    let apiUrl;
     
-    // În mediul de dezvoltare, folosim server-ul de dezvoltare
-    const isLocalDev = !!import.meta.env.DEV;
-    
-    // Folosim întotdeauna URL-ul direct către API-ul extern
-    const apiUrl = apiExternUrl;
+    if (isNative) {
+      // Direct către API-ul GPS extern pe Android/iOS
+      apiUrl = 'https://api.gps-track.ro/gps.php';
+    } else {
+      // Pe browser, prin proxy Replit
+      apiUrl = '/api/gps/transmit';
+    }
     
     console.log("Folosim API URL:", apiUrl);
     

@@ -5,13 +5,11 @@ export const getApiBaseUrl = (): string => {
   const isNative = Capacitor.isNativePlatform();
   
   if (isNative) {
-    // Pentru aplicațiile native, folosim URL-ul Replit complet
-    // IMPORTANT: Acest URL trebuie să fie URL-ul public al aplicației Replit
-    return window.location.origin.includes('replit.app') 
-      ? window.location.origin 
-      : 'https://rest-express--euscagency.replit.app';
+    // Pentru aplicațiile native, folosim API-ul GPS direct
+    // Doar pentru cererile de autentificare și management vehicule
+    return 'https://api.gps-track.ro';
   } else {
-    // Pentru browser, folosim URL-ul relativ
+    // Pentru browser, folosim URL-ul relativ (prin serverul Replit ca proxy)
     return '';
   }
 };
