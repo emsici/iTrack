@@ -422,7 +422,7 @@
                 
                 const data = await response.json();
                 
-                if (data.success) {
+                if (data.status === 'success' || data.success) {
                     authToken = data.token;
                     localStorage.setItem('authToken', authToken);
                     showStatus('loginStatus', 'Conectare cu succes!', 'success');
@@ -460,8 +460,9 @@
                 });
                 
                 const data = await response.json();
+                console.log('Răspuns înregistrare vehicul:', data);
                 
-                if (data.success) {
+                if (data.success && data.vehicleInfo) {
                     vehicleInfo = data.vehicleInfo;
                     localStorage.setItem('vehicleInfo', JSON.stringify(vehicleInfo));
                     showStatus('vehicleStatus', 'Vehicul înregistrat cu succes!', 'success');
