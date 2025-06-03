@@ -1,99 +1,82 @@
-import express from "express";
-import cors from "cors";
-import session from "express-session";
-import { createServer } from "http";
-import path from "path";
+import express, { type Request, Response, NextFunction } from "express";
+import { registerRoutes } from "./routes";
+import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-app.use(cors({
-  origin: true,
-  credentials: true
+// Adăugăm middleware personalizat pentru a procesa RAW body înainte de parser-ul JSON
+// Acest middleware ne ajută să procesăm corpul cererii în format raw pentru API-ul extern
+app.use(express.json({
+  // Acest reviver asigură că valorile din JSON sunt parsate corect
+  reviver: (key, value) => {
+    return value;
+  },
+  // Mărim limita payload-ului pentru a evita probleme cu date mai mari
+  limit: '10mb'
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// Adăugăm middleware-ul urlencoded pentru formulare
+app.use(express.urlencoded({ extended: true }));
 
-app.use(session({
-  secret: 'itrack-gps-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false,
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000
-  }
-}));
+app.use((req, res, next) => {
+  const start = Date.now();
+  const path = req.path;
+  let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
-const users = new Map();
-users.set('admin', { id: 1, username: 'admin', password: 'admin123' });
+  const originalResJson = res.json;
+  res.json = function (bodyJson, ...args) {
+    capturedJsonResponse = bodyJson;
+    return originalResJson.apply(res, [bodyJson, ...args]);
+  };
 
-app.post('/api/login', (req: any, res) => {
-  const { username, password } = req.body;
-  const user = users.get(username);
-  
-  if (!user || user.password !== password) {
-    return res.status(401).json({ message: 'Invalid credentials' });
-  }
-  
-  req.session.userId = user.id;
-  res.json({ user: { id: user.id, username: user.username } });
-});
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    if (path.startsWith("/api")) {
+      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+      if (capturedJsonResponse) {
+        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+      }
 
-app.post('/api/register', (req: any, res) => {
-  const { username, password } = req.body;
-  
-  if (users.has(username)) {
-    return res.status(400).json({ message: 'User already exists' });
-  }
-  
-  const newUser = { id: users.size + 1, username, password };
-  users.set(username, newUser);
-  req.session.userId = newUser.id;
-  res.json({ user: { id: newUser.id, username: newUser.username } });
-});
+      if (logLine.length > 80) {
+        logLine = logLine.slice(0, 79) + "…";
+      }
 
-app.get('/api/me', (req: any, res) => {
-  if (!req.session.userId) {
-    return res.status(401).json({ message: 'Not authenticated' });
-  }
-  
-  const user = Array.from(users.values()).find((u: any) => u.id === req.session.userId);
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-  
-  res.json({ user: { id: user.id, username: user.username } });
-});
-
-app.post('/api/logout', (req: any, res) => {
-  req.session.destroy((err: any) => {
-    if (err) return res.status(500).json({ message: 'Could not log out' });
-    res.json({ message: 'Logged out successfully' });
+      log(logLine);
+    }
   });
+
+  next();
 });
 
-app.post('/api/gps', (req: any, res) => {
-  if (!req.session.userId) {
-    return res.status(401).json({ message: 'Not authenticated' });
+(async () => {
+  const server = await registerRoutes(app);
+
+  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+
+    res.status(status).json({ message });
+    throw err;
+  });
+
+  // importantly only setup vite in development and after
+  // setting up all the other routes so the catch-all route
+  // doesn't interfere with the other routes
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
   }
-  console.log('GPS Data received:', req.body);
-  res.json({ message: 'GPS data received successfully', data: req.body });
-});
 
-app.use(express.static(path.join(process.cwd(), 'dist')));
-
-app.get('*', (req, res) => {
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ message: 'API endpoint not found' });
-  }
-  res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
-});
-
-const server = createServer(app);
-const PORT = 5000;
-
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Default login: admin / admin123`);
-});
+  // ALWAYS serve the app on port 5000
+  // this serves both the API and the client.
+  // It is the only port that is not firewalled.
+  const port = 5000;
+  server.listen({
+    port,
+    host: "0.0.0.0",
+    reusePort: true,
+  }, () => {
+    log(`serving on port ${port}`);
+  });
+})();
