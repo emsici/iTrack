@@ -35,52 +35,20 @@ function Router() {
 }
 
 function App() {
-  const [error, setError] = useState<string | null>(null);
-  
-  // Error boundary pentru catch-area toate erorile
-  useEffect(() => {
-    const errorHandler = (event: ErrorEvent) => {
-      console.error('App Error:', event.error);
-      setError(`Eroare aplicație: ${event.error?.message || 'Eroare necunoscută'}`);
-    };
-    
-    window.addEventListener('error', errorHandler);
-    return () => window.removeEventListener('error', errorHandler);
-  }, []);
-
-  if (error) {
-    return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h2>iTrack</h2>
-        <p>A apărut o eroare: {error}</p>
-        <button 
-          onClick={() => window.location.reload()} 
-          style={{ padding: '10px 20px', marginTop: '10px' }}
-        >
-          Reîncarcă aplicația
-        </button>
-      </div>
-    );
-  }
-
   const { toast } = useToast();
   const [permissionsRequested, setPermissionsRequested] = useState(false);
   const [showPermissionsDialog, setShowPermissionsDialog] = useState(false);
   
   // Inițializăm interceptorul pentru console.log și alte mesaje
   useEffect(() => {
-    try {
-      // Configurăm interceptorul pentru consolă
-      setupConsoleInterceptor();
-      
-      // Adăugăm un log de pornire a aplicației
-      addLog('Aplicație pornită', 'info', 'system', {
-        platform: isNativePlatform() ? Capacitor.getPlatform() : 'browser',
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Eroare la setup console interceptor:', error);
-    }
+    // Configurăm interceptorul pentru consolă
+    setupConsoleInterceptor();
+    
+    // Adăugăm un log de pornire a aplicației
+    addLog('Aplicație pornită', 'info', 'system', {
+      platform: isNativePlatform() ? Capacitor.getPlatform() : 'browser',
+      timestamp: new Date().toISOString()
+    });
     
     return () => {
       // Adăugăm un log de închidere a aplicației
