@@ -56,12 +56,10 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const isNative = Capacitor.isNativePlatform();
-    const baseUrl = isNative ? 'https://' + window.location.hostname : '';
     const url = queryKey[0] as string;
-    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+    const fullUrl = url.startsWith('http') ? url : getApiUrl(url);
 
-    if (isNative) {
+    if (Capacitor.isNativePlatform()) {
       // Pe platformele native folosim CapacitorHttp
       const httpResponse = await CapacitorHttp.request({
         url: fullUrl,
