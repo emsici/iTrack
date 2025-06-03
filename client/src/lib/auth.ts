@@ -80,7 +80,7 @@ export const loginUser = async (credentials: Login) => {
     // Pentru platformele native, folosim API-ul direct
     let apiUrl;
     if (Capacitor.isNativePlatform()) {
-      apiUrl = 'https://api.gps-track.ro/login.php';
+      apiUrl = 'https://www.euscagency.com/etsm3/platforme/transport/apk/login.php';
     } else {
       apiUrl = '/api/login'; // Browser - prin proxy Replit
     }
@@ -169,7 +169,7 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
     // Pentru platformele native, folosim API-ul direct
     let apiUrl;
     if (Capacitor.isNativePlatform()) {
-      apiUrl = `https://api.gps-track.ro/vehicule.php?nr=${registrationNumber}`;
+      apiUrl = `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicule.php?nr=${registrationNumber}`;
     } else {
       apiUrl = `/api/vehicle?nr=${registrationNumber}`; // Browser - prin proxy Replit
     }

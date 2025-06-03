@@ -7,7 +7,7 @@ export const getApiBaseUrl = (): string => {
   if (isNative) {
     // Pentru aplicațiile native, folosim API-ul GPS direct
     // Doar pentru cererile de autentificare și management vehicule
-    return 'https://api.gps-track.ro';
+    return 'https://www.euscagency.com/etsm3/platforme/transport/apk';
   } else {
     // Pentru browser, folosim URL-ul relativ (prin serverul Replit ca proxy)
     return '';

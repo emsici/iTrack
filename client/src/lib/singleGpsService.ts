@@ -4,6 +4,7 @@
  */
 
 import { Device } from '@capacitor/device';
+import { Capacitor } from '@capacitor/core';
 
 let gpsTransmissionInterval: number | null = null;
 let isServiceActive = false;
@@ -82,14 +83,39 @@ export const startGpsTransmissionService = (
       console.log("[GPS Service] Transmit către server:", payload);
       
       // Trimite către server prin proxy-ul nostru (pentru a evita CORS)
-      const response = await fetch("/api/gps/transmit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
+      // Pentru platformele native, folosim API-ul direct
+      let response;
+      
+      if (Capacitor.isNativePlatform()) {
+        // Pe platformele native folosim CapacitorHttp pentru gps.php
+        const { Http } = await import('@capacitor-community/http');
+        
+        const httpResponse = await Http.request({
+          url: 'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          data: payload
+        });
+        
+        response = {
+          ok: httpResponse.status >= 200 && httpResponse.status < 300,
+          status: httpResponse.status,
+          json: () => Promise.resolve(httpResponse.data)
+        };
+      } else {
+        // Pe browser folosim proxy-ul Replit
+        response = await fetch("/api/gps/transmit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+      }
       
       if (response.ok) {
         console.log(`[GPS Service] ✅ Transmisie reușită la ${new Date().toLocaleTimeString()}`);
