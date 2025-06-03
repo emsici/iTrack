@@ -17,7 +17,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Forward request to the external API
       // Nu adăugăm Content-Type header, conform testelor din Postman
-      const response = await fetch(`${process.env.GPS_API_URL}/login.php`, {
+      const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/login.php", {
         method: "POST",
         body: JSON.stringify(validatedData)
       });
@@ -46,7 +46,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Token autorizare:", req.headers.authorization);
       
       // Forward request to the external API
-      const response = await fetch(`${process.env.GPS_API_URL}/vehicul.php?nr=${registrationNumber}`, {
+      const response = await fetch(`https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`, {
         method: "GET",
         headers: {
           "Authorization": req.headers.authorization || ""
@@ -67,11 +67,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Funcție pentru autentificare și obținerea token-ului Bearer
   async function getAuthToken(): Promise<string | null> {
-    if (!currentGpsCredentials) {
-      console.log("[Auth] Credențiale GPS nu sunt disponibile");
-      return null;
-    }
-    
     console.log("[Auth] Începe procesul de autentificare...");
     
     // Verifică dacă token-ul există și nu a expirat
@@ -83,15 +78,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("[Auth] Fac cerere de autentificare către server...");
       
-      const authResponse = await fetch(`${process.env.GPS_API_URL}/login.php`, {
+      const authResponse = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/login.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json"
         },
         body: JSON.stringify({
-          email: currentGpsCredentials!.email,
-          password: currentGpsCredentials!.password
+          email: "test@exemplu.com",
+          password: "parola123"
         })
       });
 
@@ -142,7 +137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log("[GPS Proxy] Trimit date GPS cu Bearer token...");
       
-      const response = await fetch(`${process.env.GPS_API_URL}/gps.php`, {
+      const response = await fetch("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -188,24 +183,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Set GPS credentials endpoint
-  app.post("/api/gps/credentials", async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ error: "Email și parola sunt obligatorii" });
-      }
-      
-      currentGpsCredentials = { email, password };
-      console.log("[GPS Credentials] Credențiale GPS setate cu succes");
-      
-      res.json({ success: true, message: "Credențiale GPS setate cu succes" });
-    } catch (error) {
-      console.error("[GPS Credentials] Error:", error);
-      res.status(500).json({ error: "Server error" });
-    }
-  });
 
   // Get transport status endpoint
   app.get("/api/transport/status", async (req, res) => {
