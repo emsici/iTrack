@@ -337,7 +337,15 @@ export const sendGpsUpdate = async (
     const viteza = Number(speedKmh) || 0;
     const directie = Number(heading) || 0;
     const altitudine = Number(altitude) || 0;
-    const baterie = Number(batteryLevel) || 95;
+    // Obținem nivelul real de baterie din Capacitor
+    let baterie = 95;
+    try {
+      const batteryInfo = await Device.getBatteryInfo();
+      baterie = Math.round(batteryInfo.batteryLevel * 100);
+    } catch (error) {
+      console.warn("Nu s-a putut obține nivelul bateriei:", error);
+      baterie = Number(batteryLevel) || 95;
+    }
     const hdop = Number(hdopValue) || 2.0;
     const gsm_signal = Number(gsmSignalValue) || 85;
     const statusCode = getGpsStatusCode(transportStatus);
@@ -501,7 +509,7 @@ export const sendGpsUpdate = async (
       viteza: Math.max(0, Math.round((position.coords.speed || 0) * 3.6 * 10) / 10),
       directie: Math.round(position.coords.heading || 0),
       altitudine: Math.round(position.coords.altitude || 0),
-      baterie: 95, // Nivel real de baterie
+      baterie: await Device.getBatteryInfo().then(info => Math.round(info.batteryLevel * 100)).catch(() => 95), // Nivel real de baterie
       numar_inmatriculare: vehicleInfo.nr || "TEST",
       uit: vehicleInfo.uit || "UIT12345",
       status: getGpsStatusCode(transportStatus)

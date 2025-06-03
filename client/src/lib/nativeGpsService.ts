@@ -182,14 +182,14 @@ export const transmitNativeGps = async (vehicleNumber: string, uit: string, toke
         lat: position.coords.latitude,
         lng: position.coords.longitude,
         timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-        viteza: Math.round(position.coords.speed || 0),
-        directie: Math.round(position.coords.heading || 0),
-        altitudine: Math.round(position.coords.altitude || 0),
-        baterie: battery,
+        viteza: Math.round(coords.speed),
+        directie: Math.round(coords.heading),
+        altitudine: Math.round(coords.altitude),
+        baterie: batteryLevel,
         numar_inmatriculare: vehicleNumber,
         uit: uit,
         status: 2,
-        hdop: Math.min(position.coords.accuracy / 5, 10),
+        hdop: Math.min(coords.accuracy / 5, 10),
         gsm_signal: 85
       };
       
@@ -368,7 +368,7 @@ const retransmitOfflineData = async (token: string): Promise<void> => {
     // Procesează datele în batch-uri
     for (let i = 0; i < offlineData.length; i += BATCH_SIZE) {
       const batch = offlineData.slice(i, i + BATCH_SIZE);
-      const filteredBatch = batch.filter(data => (data.attempts || 0) < 3);
+      const filteredBatch = batch.filter((data: any) => (data.attempts || 0) < 3);
       
       if (filteredBatch.length === 0) continue;
       
@@ -376,7 +376,7 @@ const retransmitOfflineData = async (token: string): Promise<void> => {
       saveTransmissionLog('batch', `Batch ${Math.floor(i/BATCH_SIZE) + 1}: ${filteredBatch.length} coordonate`);
       
       // Transmite batch-ul curent
-      const batchPromises = filteredBatch.map(async (data) => {
+      const batchPromises = filteredBatch.map(async (data: any) => {
         try {
           const response = await fetch("/api/gps/transmit", {
             method: "POST",
@@ -426,7 +426,7 @@ const retransmitOfflineData = async (token: string): Promise<void> => {
     );
     
     // Actualizează numărul de încercări pentru datele eșuate
-    remainingData.forEach(item => {
+    remainingData.forEach((item: any) => {
       const failed = failedData.find(f => f.timestamp === item.timestamp);
       if (failed) {
         item.attempts = failed.attempts;
