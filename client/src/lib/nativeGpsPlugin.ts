@@ -36,8 +36,32 @@ export const startNativeAndroidGpsService = async (
     const isWeb = (window as any).Capacitor?.getPlatform() === 'web' || !(window as any).Capacitor;
     
     if (isWeb) {
-      console.log('[Native GPS Plugin] Rulăm în browser - plugin nativ indisponibil, folosesc GPS web');
-      return true; // Returnez success pentru că GPS-ul web va prelua
+      console.log('[Native GPS Plugin] Browser detectat - pornesc transmisia GPS web imediată');
+      
+      // În browser, execut transmisia GPS direct
+      try {
+        // Importez funcția de transmisie GPS
+        const { transmitNativeGps } = await import('./nativeGpsService');
+        
+        console.log('[Native GPS Plugin] Execut prima transmisie GPS...');
+        const firstTransmit = await transmitNativeGps(vehicleNumber, uit, token);
+        console.log(`[Native GPS Plugin] Prima transmisie ${firstTransmit ? 'reușită' : 'eșuată'}`);
+        
+        // Programez transmisia la fiecare 60 secunde
+        const gpsInterval = setInterval(async () => {
+          console.log('[Native GPS Plugin] Transmisie automată la 60s');
+          const success = await transmitNativeGps(vehicleNumber, uit, token);
+          console.log(`[Native GPS Plugin] Transmisie ${success ? 'reușită' : 'eșuată'} la ${new Date().toLocaleTimeString()}`);
+        }, 60000);
+        
+        // Salvez intervalul pentru a-l putea opri mai târziu
+        (window as any).gpsTransmissionInterval = gpsInterval;
+        
+        return true;
+      } catch (error) {
+        console.error('[Native GPS Plugin] Eroare la transmisia GPS web:', error);
+        return false;
+      }
     }
     
     const result = await GpsTracking.startGpsService({
