@@ -169,7 +169,7 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
     // Pentru platformele native, folosim API-ul direct
     let apiUrl;
     if (Capacitor.isNativePlatform()) {
-      apiUrl = `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicule.php?nr=${registrationNumber}`;
+      apiUrl = `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=${registrationNumber}`;
     } else {
       apiUrl = `/api/vehicle?nr=${registrationNumber}`; // Browser - prin proxy Replit
     }
