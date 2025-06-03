@@ -5,6 +5,7 @@
 
 import { Device } from '@capacitor/device';
 import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
 
 let gpsTransmissionInterval: number | null = null;
 let isServiceActive = false;
@@ -162,15 +163,37 @@ export const isGpsServiceActive = () => {
 };
 
 /**
- * Citește poziția GPS curentă
+ * Citește poziția GPS curentă folosind API-ul potrivit platformei
  */
-const getCurrentGpsPosition = (): Promise<{
+const getCurrentGpsPosition = async (): Promise<{
   lat: number;
   lng: number;
   speed: number;
   heading: number;
   altitude: number;
 }> => {
+  if (Capacitor.isNativePlatform()) {
+    // Pe platformele native folosim Capacitor Geolocation pentru viteza și direcția reale
+    try {
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000
+      });
+      
+      return {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        speed: (position.coords.speed || 0) * 3.6, // convertim m/s în km/h
+        heading: position.coords.heading || 0, // grade
+        altitude: position.coords.altitude || 0
+      };
+    } catch (error) {
+      console.warn("Capacitor Geolocation failed, falling back to web API:", error);
+      // Fallback la web API dacă Capacitor nu funcționează
+    }
+  }
+  
+  // Browser sau fallback - folosim Web Geolocation API
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
       reject(new Error("Geolocation nu este disponibil"));
@@ -179,10 +202,15 @@ const getCurrentGpsPosition = (): Promise<{
     
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        // În browser, viteza și direcția sunt de obicei null
+        // Convertim viteza din m/s în km/h pentru transmisie
+        const speedMps = position.coords.speed || 0;
+        const speedKmh = speedMps * 3.6; // conversie m/s -> km/h
+        
         resolve({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-          speed: position.coords.speed || 0,
+          speed: speedKmh,
           heading: position.coords.heading || 0,
           altitude: position.coords.altitude || 0
         });
