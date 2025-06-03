@@ -175,6 +175,43 @@ export const transmitNativeGps = async (vehicleNumber: string, uit: string, toke
     
   } catch (error) {
     console.error("[Native GPS] Eroare critică la transmisie:", error);
+    
+    // Salvez offline pentru retransmisie ulterioară
+    try {
+      const offlinePayload = {
+        lat: coords.lat,
+        lng: coords.lng,
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        viteza: Math.round(coords.speed),
+        directie: Math.round(coords.heading),
+        altitudine: Math.round(coords.altitude),
+        baterie: batteryLevel,
+        numar_inmatriculare: vehicleNumber,
+        uit: uit,
+        status: 2,
+        hdop: Math.min(coords.accuracy / 5, 10),
+        gsm_signal: 85
+      };
+      
+      // Salvez în localStorage pentru recuperare ulterioară
+      const offlineData = JSON.parse(localStorage.getItem('offline_gps_data') || '[]');
+      offlineData.push({
+        ...offlinePayload,
+        savedAt: new Date().toISOString(),
+        attempts: 0
+      });
+      
+      // Păstrez doar ultimele 100 de puncte offline
+      if (offlineData.length > 100) {
+        offlineData.splice(0, offlineData.length - 100);
+      }
+      
+      localStorage.setItem('offline_gps_data', JSON.stringify(offlineData));
+      console.log("[Native GPS] 💾 Date GPS salvate offline pentru retransmisie");
+    } catch (saveError) {
+      console.error("[Native GPS] Eroare la salvarea offline:", saveError);
+    }
+    
     return false;
   }
 };
@@ -247,6 +284,8 @@ export const startNativeGpsService = async (
     const firstTransmit = await transmitNativeGps(vehicleNumber, uit, token);
     if (firstTransmit) {
       console.log("[Native GPS] ✅ Prima transmisie reușită");
+      // Încearcă să retransmită datele offline dacă există
+      await retransmitOfflineData(token);
     } else {
       console.log("[Native GPS] ❌ Prima transmisie eșuată");
     }
@@ -257,6 +296,11 @@ export const startNativeGpsService = async (
         console.log("[Native GPS] 🕐 Transmisie automată la 60s");
         const success = await transmitNativeGps(vehicleNumber, uit, token);
         console.log(`[Native GPS] Transmisie ${success ? 'reușită' : 'eșuată'} la ${new Date().toLocaleTimeString()}`);
+        
+        // Dacă transmisia reușește, încearcă să retransmită datele offline
+        if (success) {
+          await retransmitOfflineData(token);
+        }
       }
     }, 60000);
     
@@ -279,6 +323,61 @@ export const startNativeGpsService = async (
     console.error("[Native GPS] Eroare la pornirea serviciului:", error);
     isNativeServiceActive = false;
     return false;
+  }
+};
+
+/**
+ * Retransmite datele GPS salvate offline
+ */
+const retransmitOfflineData = async (token: string): Promise<void> => {
+  try {
+    const offlineData = JSON.parse(localStorage.getItem('offline_gps_data') || '[]');
+    if (offlineData.length === 0) return;
+    
+    console.log(`[Native GPS] 📡 Retransmit ${offlineData.length} coordonate offline...`);
+    
+    const successfullyTransmitted = [];
+    
+    for (const data of offlineData) {
+      // Nu retransmit dacă a eșuat deja de 3 ori
+      if (data.attempts >= 3) continue;
+      
+      try {
+        const response = await fetch("/api/gps/transmit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+          successfullyTransmitted.push(data);
+          console.log(`[Native GPS] ✅ Retransmisie offline reușită pentru ${data.timestamp}`);
+        } else {
+          data.attempts = (data.attempts || 0) + 1;
+          console.log(`[Native GPS] ❌ Retransmisie offline eșuată (încercare ${data.attempts})`);
+        }
+      } catch (error) {
+        data.attempts = (data.attempts || 0) + 1;
+        console.error(`[Native GPS] Eroare retransmisie offline:`, error);
+      }
+    }
+    
+    // Șterge datele transmise cu succes
+    if (successfullyTransmitted.length > 0) {
+      const remainingData = offlineData.filter(item => 
+        !successfullyTransmitted.some(transmitted => 
+          transmitted.timestamp === item.timestamp
+        )
+      );
+      localStorage.setItem('offline_gps_data', JSON.stringify(remainingData));
+      console.log(`[Native GPS] 🗑️ Șterse ${successfullyTransmitted.length} coordonate retransmise`);
+    }
+    
+  } catch (error) {
+    console.error("[Native GPS] Eroare la retransmisia offline:", error);
   }
 };
 
