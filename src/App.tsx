@@ -10,16 +10,6 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: false,
-      queryFn: async ({ queryKey }) => {
-        const response = await fetch(queryKey[0] as string, {
-          credentials: 'include'
-        });
-        if (!response.ok) {
-          const error = await response.json().catch(() => ({ message: 'Network error' }));
-          throw new Error(error.message || 'Network response was not ok');
-        }
-        return response.json();
-      },
     },
   },
 });

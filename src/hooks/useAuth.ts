@@ -15,15 +15,25 @@ export function useAuth() {
   const { data, isLoading } = useQuery({
     queryKey: ["/api/me"],
     retry: false,
+    queryFn: async () => {
+      const response = await fetch("/api/me", {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) return null;
+        throw new Error("Failed to fetch user");
+      }
+      
+      return response.json();
+    },
   });
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
       const response = await fetch("/api/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
         credentials: "include",
       });
@@ -44,9 +54,7 @@ export function useAuth() {
     mutationFn: async (credentials: { username: string; password: string }) => {
       const response = await fetch("/api/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
         credentials: "include",
       });
@@ -70,10 +78,7 @@ export function useAuth() {
         credentials: "include",
       });
       
-      if (!response.ok) {
-        throw new Error("Logout failed");
-      }
-      
+      if (!response.ok) throw new Error("Logout failed");
       return response.json();
     },
     onSuccess: () => {
