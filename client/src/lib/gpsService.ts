@@ -337,7 +337,7 @@ export const sendGpsUpdate = async (
     const viteza = Number(speedKmh) || 0;
     const directie = Number(heading) || 0;
     const altitudine = Number(altitude) || 0;
-    const baterie = Number(batteryLevel) || 100;
+    const baterie = Number(batteryLevel) || await getRealBatteryLevel();
     const hdop = Number(hdopValue) || 2.0;
     const gsm_signal = Number(gsmSignalValue) || 85;
     const statusCode = getGpsStatusCode(transportStatus);
@@ -501,7 +501,7 @@ export const sendGpsUpdate = async (
       viteza: Math.max(0, Math.round((position.coords.speed || 0) * 3.6 * 10) / 10),
       directie: Math.round(position.coords.heading || 0),
       altitudine: Math.round(position.coords.altitude || 0),
-      baterie: 100, // Valoare default
+      baterie: await getRealBatteryLevel(), // Nivel real de baterie
       numar_inmatriculare: vehicleInfo.nr || "TEST",
       uit: vehicleInfo.uit || "UIT12345",
       status: getGpsStatusCode(transportStatus)

@@ -325,57 +325,123 @@ export const startNativeGpsService = async (
 };
 
 /**
- * Retransmite datele GPS salvate offline
+ * Salvează log-ul de transmisie în istoricul local
+ */
+const saveTransmissionLog = (type: 'success' | 'error' | 'batch', message: string, data?: any) => {
+  try {
+    const logs = JSON.parse(localStorage.getItem('transmission_logs') || '[]');
+    logs.push({
+      timestamp: new Date().toISOString(),
+      type,
+      message,
+      data: data ? JSON.stringify(data).substring(0, 200) : undefined
+    });
+    
+    // Păstrează ultimele 1000 de log-uri
+    if (logs.length > 1000) {
+      logs.splice(0, logs.length - 1000);
+    }
+    
+    localStorage.setItem('transmission_logs', JSON.stringify(logs));
+  } catch (error) {
+    console.error("Eroare la salvarea log-ului:", error);
+  }
+};
+
+/**
+ * Retransmite datele GPS salvate offline în batch-uri
  */
 const retransmitOfflineData = async (token: string): Promise<void> => {
   try {
     const offlineData = JSON.parse(localStorage.getItem('offline_gps_data') || '[]');
     if (offlineData.length === 0) return;
     
-    console.log(`[Native GPS] 📡 Retransmit TOATE ${offlineData.length} coordonate offline salvate...`);
+    console.log(`[Native GPS] 📡 Retransmit TOATE ${offlineData.length} coordonate offline în batch-uri...`);
+    saveTransmissionLog('batch', `Începe retransmisia a ${offlineData.length} coordonate offline`);
     
-    const successfullyTransmitted = [];
+    const BATCH_SIZE = 5; // Transmite câte 5 coordonate odată
+    const BATCH_DELAY = 2000; // Pauză de 2 secunde între batch-uri
     
-    for (const data of offlineData) {
-      // Nu retransmit dacă a eșuat deja de 3 ori
-      if (data.attempts >= 3) continue;
+    const successfullyTransmitted: any[] = [];
+    const failedData: any[] = [];
+    
+    // Procesează datele în batch-uri
+    for (let i = 0; i < offlineData.length; i += BATCH_SIZE) {
+      const batch = offlineData.slice(i, i + BATCH_SIZE);
+      const filteredBatch = batch.filter(data => (data.attempts || 0) < 3);
       
-      try {
-        const response = await fetch("/api/gps/transmit", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify(data)
-        });
-        
-        if (response.ok) {
-          successfullyTransmitted.push(data);
-          console.log(`[Native GPS] ✅ Retransmisie offline reușită pentru ${data.timestamp}`);
-        } else {
+      if (filteredBatch.length === 0) continue;
+      
+      console.log(`[Native GPS] 📦 Batch ${Math.floor(i/BATCH_SIZE) + 1}: ${filteredBatch.length} coordonate`);
+      saveTransmissionLog('batch', `Batch ${Math.floor(i/BATCH_SIZE) + 1}: ${filteredBatch.length} coordonate`);
+      
+      // Transmite batch-ul curent
+      const batchPromises = filteredBatch.map(async (data) => {
+        try {
+          const response = await fetch("/api/gps/transmit", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+          });
+          
+          if (response.ok) {
+            successfullyTransmitted.push(data);
+            console.log(`[Native GPS] ✅ Retransmisie reușită: ${data.timestamp}`);
+            saveTransmissionLog('success', `Retransmisie reușită pentru ${data.timestamp}`);
+            return { success: true, data };
+          } else {
+            data.attempts = (data.attempts || 0) + 1;
+            failedData.push(data);
+            console.log(`[Native GPS] ❌ Retransmisie eșuată (încercare ${data.attempts}): ${data.timestamp}`);
+            saveTransmissionLog('error', `Retransmisie eșuată (încercare ${data.attempts}) pentru ${data.timestamp}`);
+            return { success: false, data };
+          }
+        } catch (error: any) {
           data.attempts = (data.attempts || 0) + 1;
-          console.log(`[Native GPS] ❌ Retransmisie offline eșuată (încercare ${data.attempts})`);
+          failedData.push(data);
+          console.error(`[Native GPS] Eroare retransmisie pentru ${data.timestamp}:`, error);
+          saveTransmissionLog('error', `Eroare retransmisie pentru ${data.timestamp}: ${error?.message}`);
+          return { success: false, data, error };
         }
-      } catch (error) {
-        data.attempts = (data.attempts || 0) + 1;
-        console.error(`[Native GPS] Eroare retransmisie offline:`, error);
+      });
+      
+      // Așteaptă ca toate din batch să se termine
+      await Promise.all(batchPromises);
+      
+      // Pauză între batch-uri pentru a nu flood serverul
+      if (i + BATCH_SIZE < offlineData.length) {
+        console.log(`[Native GPS] ⏱️ Pauză ${BATCH_DELAY/1000}s înainte de următorul batch...`);
+        await new Promise(resolve => setTimeout(resolve, BATCH_DELAY));
       }
     }
     
-    // Șterge datele transmise cu succes
-    if (successfullyTransmitted.length > 0) {
-      const remainingData = offlineData.filter(item => 
-        !successfullyTransmitted.some(transmitted => 
-          transmitted.timestamp === item.timestamp
-        )
-      );
-      localStorage.setItem('offline_gps_data', JSON.stringify(remainingData));
-      console.log(`[Native GPS] ✅ ${successfullyTransmitted.length} coordonate retransmise cu succes și șterse din cache`);
-    }
+    // Actualizează storage-ul cu datele rămase
+    const remainingData = offlineData.filter(item => 
+      !successfullyTransmitted.some(transmitted => 
+        transmitted.timestamp === item.timestamp
+      )
+    );
+    
+    // Actualizează numărul de încercări pentru datele eșuate
+    remainingData.forEach(item => {
+      const failed = failedData.find(f => f.timestamp === item.timestamp);
+      if (failed) {
+        item.attempts = failed.attempts;
+      }
+    });
+    
+    localStorage.setItem('offline_gps_data', JSON.stringify(remainingData));
+    
+    const summary = `✅ ${successfullyTransmitted.length} coordonate transmise, ${remainingData.length} rămân în cache`;
+    console.log(`[Native GPS] ${summary}`);
+    saveTransmissionLog('batch', `Finalizat: ${summary}`);
     
   } catch (error) {
     console.error("[Native GPS] Eroare la retransmisia offline:", error);
+    saveTransmissionLog('error', `Eroare generală la retransmisie: ${error}`);
   }
 };
 
