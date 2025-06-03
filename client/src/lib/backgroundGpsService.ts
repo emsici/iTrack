@@ -175,7 +175,7 @@ export const startBackgroundGpsService = async (vehicleNumber: string, uit: stri
   
   // Monitorizează starea aplicației
   if (Capacitor.isNativePlatform()) {
-    App.addListener('appStateChange', ({ isActive }) => {
+    App.addListener('appStateChange', ({ isActive }: { isActive: boolean }) => {
       appIsInBackground = !isActive;
       console.log(`[Background GPS] App state changed: ${isActive ? 'foreground' : 'background'}`);
       
