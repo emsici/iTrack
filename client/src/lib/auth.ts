@@ -167,7 +167,7 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
         denumireCui: vehicleData.denumireCui,
         dataTransport: vehicleData.dataTransport,
         ikRoTrans: vehicleData.ikRoTrans,
-        allTransports: data.data.map(transport => ({
+        allTransports: data.data.map((transport: any) => ({
           ...transport,
           uit: transport.UIT || transport.uit,
           start_locatie: transport.denumireLocStart || transport.start_locatie,

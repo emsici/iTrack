@@ -63,9 +63,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Variabilă pentru stocarea token-ului Bearer
   let bearerToken: string | null = null;
   let tokenExpiry: number = 0;
+  let currentGpsCredentials: { email: string; password: string } | null = null;
 
   // Funcție pentru autentificare și obținerea token-ului Bearer
   async function getAuthToken(): Promise<string | null> {
+    if (!currentGpsCredentials) {
+      console.log("[Auth] Credențiale GPS nu sunt disponibile");
+      return null;
+    }
+    
     console.log("[Auth] Începe procesul de autentificare...");
     
     // Verifică dacă token-ul există și nu a expirat
@@ -84,8 +90,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "Accept": "application/json"
         },
         body: JSON.stringify({
-          email: "test@exemplu.com",
-          password: "parola123"
+          email: currentGpsCredentials!.email,
+          password: currentGpsCredentials!.password
         })
       });
 
@@ -182,6 +188,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Set GPS credentials endpoint
+  app.post("/api/gps/credentials", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ error: "Email și parola sunt obligatorii" });
+      }
+      
+      currentGpsCredentials = { email, password };
+      console.log("[GPS Credentials] Credențiale GPS setate cu succes");
+      
+      res.json({ success: true, message: "Credențiale GPS setate cu succes" });
+    } catch (error) {
+      console.error("[GPS Credentials] Error:", error);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
 
   // Get transport status endpoint
   app.get("/api/transport/status", async (req, res) => {
