@@ -55,7 +55,7 @@ export const saveGpsDataOffline = (
     // Salvăm înapoi în localStorage
     localStorage.setItem(OFFLINE_GPS_DATA_KEY, JSON.stringify(existingData));
     
-    console.log(`[Offline Storage] Datele GPS au fost salvate local. Total: ${existingData.length} înregistrări`);
+    console.log(`[Offline Storage] 💾 Datele GPS au fost salvate local. Total: ${existingData.length} înregistrări (FĂRĂ LIMITĂ)`);
     
   } catch (error) {
     console.error("[Offline Storage] Eroare la salvarea datelor GPS offline:", error);

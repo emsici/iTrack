@@ -450,6 +450,7 @@ export const sendGpsUpdate = async (
         console.error("Eroare la fetch GPS (salvăm offline):", error);
         // Salvăm local și considerăm ca tranzacția a eșuat
         saveGpsDataOffline(gpsData, transportStatus);
+        console.log("[GPS Service] 💾 Date GPS salvate offline (fără internet) - NU SE PIERD");
         throw error;
       }
     }

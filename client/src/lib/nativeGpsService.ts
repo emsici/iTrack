@@ -201,13 +201,11 @@ export const transmitNativeGps = async (vehicleNumber: string, uit: string, toke
         attempts: 0
       });
       
-      // Păstrez doar ultimele 100 de puncte offline
-      if (offlineData.length > 100) {
-        offlineData.splice(0, offlineData.length - 100);
-      }
+      // Salvez toate coordonatele - fără limită de puncte
+      // Toate datele GPS sunt importante și nu se pierd
       
       localStorage.setItem('offline_gps_data', JSON.stringify(offlineData));
-      console.log("[Native GPS] 💾 Date GPS salvate offline pentru retransmisie");
+      console.log("[Native GPS] 💾 Date GPS salvate offline pentru retransmisie - NU SE PIERD NIMIC");
     } catch (saveError) {
       console.error("[Native GPS] Eroare la salvarea offline:", saveError);
     }
@@ -334,7 +332,7 @@ const retransmitOfflineData = async (token: string): Promise<void> => {
     const offlineData = JSON.parse(localStorage.getItem('offline_gps_data') || '[]');
     if (offlineData.length === 0) return;
     
-    console.log(`[Native GPS] 📡 Retransmit ${offlineData.length} coordonate offline...`);
+    console.log(`[Native GPS] 📡 Retransmit TOATE ${offlineData.length} coordonate offline salvate...`);
     
     const successfullyTransmitted = [];
     
@@ -373,7 +371,7 @@ const retransmitOfflineData = async (token: string): Promise<void> => {
         )
       );
       localStorage.setItem('offline_gps_data', JSON.stringify(remainingData));
-      console.log(`[Native GPS] 🗑️ Șterse ${successfullyTransmitted.length} coordonate retransmise`);
+      console.log(`[Native GPS] ✅ ${successfullyTransmitted.length} coordonate retransmise cu succes și șterse din cache`);
     }
     
   } catch (error) {
