@@ -35,6 +35,34 @@ function Router() {
 }
 
 function App() {
+  const [error, setError] = useState<string | null>(null);
+  
+  // Error boundary pentru catch-area toate erorile
+  useEffect(() => {
+    const errorHandler = (event: ErrorEvent) => {
+      console.error('App Error:', event.error);
+      setError(`Eroare aplicație: ${event.error?.message || 'Eroare necunoscută'}`);
+    };
+    
+    window.addEventListener('error', errorHandler);
+    return () => window.removeEventListener('error', errorHandler);
+  }, []);
+
+  if (error) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h2>iTrack</h2>
+        <p>A apărut o eroare: {error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          style={{ padding: '10px 20px', marginTop: '10px' }}
+        >
+          Reîncarcă aplicația
+        </button>
+      </div>
+    );
+  }
+
   const { toast } = useToast();
   const [permissionsRequested, setPermissionsRequested] = useState(false);
   const [showPermissionsDialog, setShowPermissionsDialog] = useState(false);
