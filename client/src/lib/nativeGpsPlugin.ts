@@ -32,6 +32,14 @@ export const startNativeAndroidGpsService = async (
   try {
     console.log('[Native GPS Plugin] Pornesc serviciul GPS nativ Android pentru:', { vehicleNumber, uit });
     
+    // Detectez dacă rulăm în browser (preview) sau pe Android
+    const isWeb = (window as any).Capacitor?.getPlatform() === 'web' || !(window as any).Capacitor;
+    
+    if (isWeb) {
+      console.log('[Native GPS Plugin] Rulăm în browser - plugin nativ indisponibil, folosesc GPS web');
+      return true; // Returnez success pentru că GPS-ul web va prelua
+    }
+    
     const result = await GpsTracking.startGpsService({
       vehicleNumber: vehicleNumber,
       uit: uit,
@@ -47,7 +55,12 @@ export const startNativeAndroidGpsService = async (
       return false;
     }
     
-  } catch (error) {
+  } catch (error: any) {
+    // În cazul erorii UNIMPLEMENTED (browser), returnez success
+    if (error.code === 'UNIMPLEMENTED') {
+      console.log('[Native GPS Plugin] Plugin nativ nu este disponibil în browser - folosesc GPS web');
+      return true;
+    }
     console.error('[Native GPS Plugin] Eroare critică la pornirea serviciului nativ:', error);
     return false;
   }
