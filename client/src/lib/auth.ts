@@ -1,4 +1,5 @@
 import { Capacitor } from "@capacitor/core";
+import { CapacitorHttp } from '@capacitor/core';
 import type { Login } from "@shared/schema";
 
 /**
@@ -75,9 +76,11 @@ export const loginUser = async (credentials: Login) => {
     console.log("Date de autentificare trimise:", credentials);
     console.log("Încercare de autentificare cu:", credentials);
     
-    // Folosim proxy-ul local pentru toate platformele (browser și native)
-    const apiUrl = "/api/login";
-    console.log("URL autentificare:", apiUrl);
+    // Configurez URL-ul în funcție de platformă
+    const isNative = isNativePlatform();
+    const baseUrl = isNative ? 'https://' + window.location.hostname : '';
+    const apiUrl = `${baseUrl}/api/login`;
+    console.log("URL autentificare:", apiUrl, "Platformă nativă:", isNative);
     
     // Construim payload-ul de autentificare
     const payload = {
@@ -87,16 +90,36 @@ export const loginUser = async (credentials: Login) => {
     
     console.log("Payload autentificare:", JSON.stringify(payload));
     
-    // Folosim fetch pentru toate platformele prin proxy-ul local
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(payload)
-    };
+    let response;
     
-    const response = await fetch(apiUrl, requestOptions);
+    if (isNative) {
+      // Pe platformele native folosim CapacitorHttp
+      const httpResponse = await CapacitorHttp.request({
+        url: apiUrl,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: payload
+      });
+      
+      response = {
+        ok: httpResponse.status >= 200 && httpResponse.status < 300,
+        status: httpResponse.status,
+        json: async () => httpResponse.data
+      };
+    } else {
+      // Pe browser folosim fetch
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      };
+      
+      response = await fetch(apiUrl, requestOptions);
+    }
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -139,12 +162,41 @@ export const getVehicleInfo = async (registrationNumber: string, token: string) 
     console.log("Cerere informații vehicul:", registrationNumber);
     console.log("Token autorizare:", `Bearer ${token}`);
 
-    const response = await fetch(`/api/vehicle?nr=${registrationNumber}`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    });
+    // Configurez URL-ul în funcție de platformă
+    const isNative = isNativePlatform();
+    const baseUrl = isNative ? 'https://' + window.location.hostname : '';
+    const apiUrl = `${baseUrl}/api/vehicle?nr=${registrationNumber}`;
+    console.log("URL vehicul:", apiUrl, "Platformă nativă:", isNative);
+
+    let response;
+    
+    if (isNative) {
+      // Pe platformele native folosim CapacitorHttp
+      const httpResponse = await CapacitorHttp.request({
+        url: apiUrl,
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      response = {
+        ok: httpResponse.status >= 200 && httpResponse.status < 300,
+        status: httpResponse.status,
+        json: async () => httpResponse.data,
+        clone: () => ({
+          json: async () => httpResponse.data
+        })
+      };
+    } else {
+      // Pe browser folosim fetch
+      response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+    }
 
     console.log("Răspuns informații vehicul (browser):", await response.clone().json());
 
