@@ -97,10 +97,12 @@ const getHighAccuracyPosition = async () => {
  * Transmite coordonatele GPS către serverul GPS
  */
 export const transmitNativeGps = async (vehicleNumber: string, uit: string, token: string): Promise<boolean> => {
+  let coords: any = null;
+  
   try {
     console.log(`[Native GPS] Transmit la ${new Date().toLocaleTimeString()} pentru UIT: ${uit}`);
     
-    const coords = await getHighAccuracyPosition();
+    coords = await getHighAccuracyPosition();
     const batteryLevel = await getRealBatteryLevel();
     
     const payload: NativeGpsPayload = {
@@ -179,30 +181,35 @@ export const transmitNativeGps = async (vehicleNumber: string, uit: string, toke
     // Salvez offline pentru retransmisie ulterioară
     try {
       // Obținem nivelul de baterie
-      const batteryLevel = await Device.getBatteryInfo().then(info => Math.round((info.batteryLevel || 0.95) * 100)).catch(() => 95);
+      const batteryLevel = await Device.getBatteryInfo().then(info => Math.round((info?.batteryLevel || 0.95) * 100)).catch(() => 95);
       
-      // Definim coordonatele din parametrul position din catch block
-      const coords = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        speed: (position.coords.speed || 0) * 3.6,
-        heading: position.coords.heading || 0,
-        altitude: position.coords.altitude || 0,
-        accuracy: position.coords.accuracy || 0
+      // Dacă avem coordonate din try block, le folosim
+      if (!coords) {
+        console.error("[Native GPS] Nu avem coordonate pentru salvare offline");
+        return false;
+      }
+      
+      const coordsForOffline = {
+        lat: coords.lat,
+        lng: coords.lng,
+        speed: coords.speed,
+        heading: coords.heading,
+        altitude: coords.altitude,
+        accuracy: coords.accuracy
       };
 
       const offlinePayload = {
-        lat: coords.lat,
-        lng: coords.lng,
+        lat: coordsForOffline.lat,
+        lng: coordsForOffline.lng,
         timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-        viteza: Math.round(coords.speed),
-        directie: Math.round(coords.heading),
-        altitudine: Math.round(coords.altitude),
+        viteza: Math.round(coordsForOffline.speed),
+        directie: Math.round(coordsForOffline.heading),
+        altitudine: Math.round(coordsForOffline.altitude),
         baterie: batteryLevel,
         numar_inmatriculare: vehicleNumber,
         uit: uit,
         status: 2,
-        hdop: Math.min(coords.accuracy / 5, 10),
+        hdop: Math.min(coordsForOffline.accuracy / 5, 10),
         gsm_signal: 85
       };
       
