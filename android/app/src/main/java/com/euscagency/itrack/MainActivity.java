@@ -1,5 +1,6 @@
 package com.euscagency.itrack;
 
+import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
 import com.itrack.gps.GpsTrackingPlugin;
 

@@ -135,13 +135,13 @@ export function TransportProvider({ children }: { children: ReactNode }) {
       setCurrentActiveUit(targetUit);
       setIsGpsActive(true);
       
-      // Start optimized background GPS service cu wake locks
-      console.log("[Transport] Pornesc serviciul GPS background optimizat:", { vehicleNumber: vehicleInfo.nr, uit: targetUit.uit, hasToken: !!token });
-      const { startBackgroundGpsWorker } = await import("../lib/backgroundGpsWorker");
-      const gpsStarted = await startBackgroundGpsWorker(vehicleInfo.nr, targetUit.uit, token);
+      // Start native Android GPS service cu Foreground Service
+      console.log("[Transport] Pornesc serviciul GPS nativ Android:", { vehicleNumber: vehicleInfo.nr, uit: targetUit.uit, hasToken: !!token });
+      const { startNativeAndroidGpsService } = await import("../lib/nativeGpsPlugin");
+      const gpsStarted = await startNativeAndroidGpsService(vehicleInfo.nr, targetUit.uit, token);
       
       if (!gpsStarted) {
-        console.error("[Transport] Nu s-a putut porni serviciul GPS background");
+        console.error("[Transport] Nu s-a putut porni serviciul GPS nativ Android");
         setTransportStatus("inactive");
         setIsGpsActive(false);
         return false;
@@ -164,9 +164,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const pauseTransport = useCallback(async (uit?: UitOption): Promise<void> => {
     console.log("[Transport] Punerea în pauză a transportului");
     
-    // Stop background GPS service
-    const { stopBackgroundGpsWorker } = await import("../lib/backgroundGpsWorker");
-    await stopBackgroundGpsWorker();
+    // Stop native Android GPS service
+    const { stopNativeAndroidGpsService } = await import("../lib/nativeGpsPlugin");
+    await stopNativeAndroidGpsService();
     
     setTransportStatus("paused");
     setIsGpsActive(false);
@@ -184,11 +184,11 @@ export function TransportProvider({ children }: { children: ReactNode }) {
     setTransportStatus("active");
     setIsGpsActive(true);
     
-    // Restart background GPS service
+    // Restart native Android GPS service
     if (vehicleInfo && currentActiveUit && token) {
-      const { startBackgroundGpsWorker } = await import("../lib/backgroundGpsWorker");
-      await startBackgroundGpsWorker(vehicleInfo.nr, currentActiveUit.uit, token);
-      console.log("[Transport] Serviciu GPS background repornit pentru reluare");
+      const { startNativeAndroidGpsService } = await import("../lib/nativeGpsPlugin");
+      await startNativeAndroidGpsService(vehicleInfo.nr, currentActiveUit.uit, token);
+      console.log("[Transport] Serviciu GPS nativ Android repornit pentru reluare");
     }
     
     toast({
@@ -201,9 +201,9 @@ export function TransportProvider({ children }: { children: ReactNode }) {
   const finishTransport = useCallback(async (uit?: UitOption): Promise<void> => {
     console.log("[Transport] Finalizarea transportului");
     
-    // Stop background GPS service
-    const { stopBackgroundGpsWorker } = await import("../lib/backgroundGpsWorker");
-    await stopBackgroundGpsWorker();
+    // Stop native Android GPS service
+    const { stopNativeAndroidGpsService } = await import("../lib/nativeGpsPlugin");
+    await stopNativeAndroidGpsService();
     
     setTransportStatus("finished");
     setIsGpsActive(false);
