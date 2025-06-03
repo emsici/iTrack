@@ -9,9 +9,7 @@ const config = {
   bundledWebRuntime: false,
   server: {
     androidScheme: 'https',
-    cleartext: true,
-    url: 'http://localhost:5000',
-    allowNavigation: ['*']
+    cleartext: true
   },
   plugins: {
     CapacitorHttp: {
