@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Router, Route, Switch } from 'wouter';
 import LoginPage from './pages/LoginPage';
