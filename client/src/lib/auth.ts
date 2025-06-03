@@ -1,6 +1,7 @@
 import { Capacitor } from "@capacitor/core";
 import { CapacitorHttp } from '@capacitor/core';
 import type { Login } from "@shared/schema";
+import { getApiUrl } from './config';
 
 /**
  * Decodează un token JWT și returnează payload-ul
@@ -76,11 +77,9 @@ export const loginUser = async (credentials: Login) => {
     console.log("Date de autentificare trimise:", credentials);
     console.log("Încercare de autentificare cu:", credentials);
     
-    // Configurez URL-ul în funcție de platformă
-    const isNative = isNativePlatform();
-    const baseUrl = isNative ? 'https://' + window.location.hostname : '';
-    const apiUrl = `${baseUrl}/api/login`;
-    console.log("URL autentificare:", apiUrl, "Platformă nativă:", isNative);
+    // Configurez URL-ul folosind configurația centralizată
+    const apiUrl = getApiUrl('/api/login');
+    console.log("URL autentificare:", apiUrl, "Platformă nativă:", Capacitor.isNativePlatform());
     
     // Construim payload-ul de autentificare
     const payload = {
