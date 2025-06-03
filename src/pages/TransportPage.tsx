@@ -2,17 +2,47 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Geolocation } from '@capacitor/geolocation';
 import { App as CapApp } from '@capacitor/app';
-import { Device } from '@capacitor/device';
 import GpsTracking from '../lib/gps-bridge';
 import type { GPSData } from '../../shared/schema';
 
+interface Transport {
+  id: string;
+  vehicleNumber: string;
+  uit: string;
+  company: string;
+  driver: string;
+  route: string;
+  status: 'active' | 'inactive' | 'tracking';
+  lastUpdate?: Date;
+  coordinates?: { lat: number; lng: number };
+}
+
 export default function TransportPage() {
-  const [isTracking, setIsTracking] = useState(false);
+  const [transports, setTransports] = useState<Transport[]>([
+    {
+      id: '1',
+      vehicleNumber: 'CT01ZZZ',
+      uit: '5C3W1A7A0W0V7165',
+      company: 'Transport Express SRL',
+      driver: 'Popescu Ion',
+      route: 'București - Constanța',
+      status: 'inactive'
+    },
+    {
+      id: '2',
+      vehicleNumber: 'B102ABC',
+      uit: '7F4D2B8C9A1E3456',
+      company: 'Rapid Cargo SA',
+      driver: 'Marinescu Maria',
+      route: 'Cluj - Timișoara',
+      status: 'inactive'
+    }
+  ]);
+  
+  const [selectedTransport, setSelectedTransport] = useState<string | null>(null);
+  const [expandedDropdown, setExpandedDropdown] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<{transportId: string, field: string} | null>(null);
   const [gpsData, setGpsData] = useState<GPSData | null>(null);
-  const [vehicleData, setVehicleData] = useState({
-    vehicleNumber: 'CT01ZZZ',
-    uit: '5C3W1A7A0W0V7165'
-  });
   const [logs, setLogs] = useState<string[]>([]);
   const watchId = useRef<string | null>(null);
   const backgroundService = useRef<boolean>(false);
@@ -21,6 +51,26 @@ export default function TransportPage() {
     const timestamp = new Date().toLocaleTimeString('ro-RO');
     setLogs(prev => [`${timestamp} - ${message}`, ...prev.slice(0, 9)]);
     console.log(message);
+  };
+
+  const updateTransportField = (transportId: string, field: string, value: string) => {
+    setTransports(prev => prev.map(transport => 
+      transport.id === transportId 
+        ? { ...transport, [field]: value }
+        : transport
+    ));
+    setEditingField(null);
+  };
+
+  const toggleTransportStatus = (transportId: string) => {
+    const transport = transports.find(t => t.id === transportId);
+    if (!transport) return;
+
+    if (transport.status === 'tracking') {
+      stopGPSTracking(transportId);
+    } else {
+      startBackgroundGPS(transportId);
+    }
   };
 
   // GPS credentials mutation
@@ -56,9 +106,12 @@ export default function TransportPage() {
   });
 
   // Start native background GPS tracking
-  const startBackgroundGPS = async () => {
+  const startBackgroundGPS = async (transportId: string) => {
     try {
-      addLog("Inițiez urmărirea GPS nativă în fundal...");
+      const transport = transports.find(t => t.id === transportId);
+      if (!transport) return;
+
+      addLog(`Inițiez urmărirea GPS pentru ${transport.vehicleNumber}...`);
 
       // Request location permissions
       const permissions = await Geolocation.requestPermissions();
@@ -67,21 +120,28 @@ export default function TransportPage() {
         return;
       }
 
+      // Update transport status
+      setTransports(prev => prev.map(t => 
+        t.id === transportId 
+          ? { ...t, status: 'tracking' as const, lastUpdate: new Date() }
+          : t
+      ));
+
       // Use native GPS plugin
       try {
         addLog("Pornesc serviciul GPS nativ în fundal");
         await GpsTracking.startBackgroundTracking({
           interval: 60000, // 1 minute
           enableWakeLock: true,
-          notificationTitle: "iTrack GPS activ",
-          notificationText: "Urmărire transport în curs..."
+          notificationTitle: "FleetTracker Pro GPS",
+          notificationText: `Urmărire ${transport.vehicleNumber} în curs...`
         });
         
         // Listen for location updates from native plugin
         await GpsTracking.addListener('locationUpdate', (location) => {
           const newGpsData: GPSData = {
-            vehicleNumber: vehicleData.vehicleNumber,
-            uit: vehicleData.uit,
+            vehicleNumber: transport.vehicleNumber,
+            uit: transport.uit,
             latitude: location.latitude,
             longitude: location.longitude,
             timestamp: new Date(location.timestamp).toISOString(),
@@ -89,11 +149,19 @@ export default function TransportPage() {
           };
           
           setGpsData(newGpsData);
+          
+          // Update transport coordinates
+          setTransports(prev => prev.map(t => 
+            t.id === transportId 
+              ? { ...t, coordinates: { lat: location.latitude, lng: location.longitude }, lastUpdate: new Date() }
+              : t
+          ));
+          
           gpsMutation.mutate(newGpsData);
         });
         
         backgroundService.current = true;
-        addLog("✅ Serviciu GPS nativ pornit cu succes");
+        addLog(`✅ GPS pornit pentru ${transport.vehicleNumber}`);
       } catch (nativeError) {
         addLog("Eroare serviciu nativ, folosesc Capacitor Geolocation");
         // Fallback to Capacitor Geolocation with high accuracy
@@ -109,8 +177,8 @@ export default function TransportPage() {
           
           if (position) {
             const newGpsData: GPSData = {
-              vehicleNumber: vehicleData.vehicleNumber,
-              uit: vehicleData.uit,
+              vehicleNumber: transport.vehicleNumber,
+              uit: transport.uit,
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
               timestamp: new Date().toISOString(),
@@ -118,13 +186,17 @@ export default function TransportPage() {
             };
             
             setGpsData(newGpsData);
+            setTransports(prev => prev.map(t => 
+              t.id === transportId 
+                ? { ...t, coordinates: { lat: position.coords.latitude, lng: position.coords.longitude }, lastUpdate: new Date() }
+                : t
+            ));
             gpsMutation.mutate(newGpsData);
           }
         });
       }
 
-      setIsTracking(true);
-      addLog(`Pornire transmisie GPS pentru UIT: ${vehicleData.uit}`);
+      addLog(`Transmisie GPS activă pentru ${transport.vehicleNumber}`);
       
     } catch (error) {
       addLog(`Eroare pornire transport: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
