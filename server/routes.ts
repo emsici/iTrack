@@ -63,7 +63,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Variabilă pentru stocarea token-ului Bearer
   let bearerToken: string | null = null;
   let tokenExpiry: number = 0;
-  let currentGpsCredentials: { email: string; password: string } | null = null;
 
   // Funcție pentru autentificare și obținerea token-ului Bearer
   async function getAuthToken(): Promise<string | null> {
