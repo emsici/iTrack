@@ -1,6 +1,7 @@
 import { Position } from "@capacitor/geolocation";
 import { Capacitor } from '@capacitor/core';
 import { Http } from '@capacitor-community/http';
+import { Device } from '@capacitor/device';
 import { getInternetConnectivity } from "./connectivityService";
 import { saveGpsDataOffline } from "./offlineStorage";
 import { CapacitorGeoService } from "./capacitorService";
@@ -324,7 +325,7 @@ export const sendGpsUpdate = async (
     if (!isConnected) {
       console.log("Nu există conexiune la internet, datele GPS se salvează local");
       // Salvăm datele local pentru sincronizare ulterioară
-      saveGpsDataOffline(gpsData, transportStatus);
+      saveGpsDataOffline(gpsData, String(transportStatus));
       return true; // Returnăm true pentru a nu întrerupe fluxul aplicației
     }
     
@@ -341,7 +342,7 @@ export const sendGpsUpdate = async (
     let baterie = 95;
     try {
       const batteryInfo = await Device.getBatteryInfo();
-      baterie = Math.round(batteryInfo.batteryLevel * 100);
+      baterie = Math.round((batteryInfo.batteryLevel || 0.95) * 100);
     } catch (error) {
       console.warn("Nu s-a putut obține nivelul bateriei:", error);
       baterie = Number(batteryLevel) || 95;
@@ -465,7 +466,7 @@ export const sendGpsUpdate = async (
     
     if (!response.ok) {
       // Dacă serverul returnează eroare, salvăm datele local
-      saveGpsDataOffline(gpsData, transportStatus);
+      saveGpsDataOffline(gpsData, String(transportStatus));
       throw new Error(`Eroare la trimiterea datelor GPS: ${response.statusText}`);
     }
     
@@ -509,13 +510,13 @@ export const sendGpsUpdate = async (
       viteza: Math.max(0, Math.round((position.coords.speed || 0) * 3.6 * 10) / 10),
       directie: Math.round(position.coords.heading || 0),
       altitudine: Math.round(position.coords.altitude || 0),
-      baterie: await Device.getBatteryInfo().then(info => Math.round(info.batteryLevel * 100)).catch(() => 95), // Nivel real de baterie
+      baterie: await Device.getBatteryInfo().then((info: any) => Math.round((info.batteryLevel || 0.95) * 100)).catch(() => 95), // Nivel real de baterie
       numar_inmatriculare: vehicleInfo.nr || "TEST",
       uit: vehicleInfo.uit || "UIT12345",
       status: getGpsStatusCode(String(transportStatus))
     };
     
-    saveGpsDataOffline(gpsData, transportStatus);
+    saveGpsDataOffline(gpsData, String(transportStatus));
     return false;
   }
 };
