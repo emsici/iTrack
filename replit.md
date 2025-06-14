@@ -167,6 +167,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Created CourseDetailCard component with expandable dropdown showing complete course information
 - June 14, 2025. Added functional Info button that toggles detailed course information display
 - June 14, 2025. Course details include: departure/arrival times, locations, UIT code, descriptions, and formatted timestamps
+- June 14, 2025. Fixed app crashing issue by replacing complex GPS system with SimpleGPSService
+- June 14, 2025. Created SimpleGPSPlugin for reliable Android GPS tracking without crashes
+- June 14, 2025. Guaranteed GPS transmission every 60 seconds for each active course UIT separately
+- June 14, 2025. Simplified architecture: SimpleGPSService + SimpleGPSPlugin + Timer-based transmission
+- June 14, 2025. App now stable with foreground service, wake locks, and persistent notifications
 
 ## User Preferences
 
