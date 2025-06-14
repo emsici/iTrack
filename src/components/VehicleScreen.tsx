@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Course } from '../types';
 import { getVehicleCourses } from '../services/api';
 import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
@@ -15,9 +15,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [coursesLoaded, setCoursesLoaded] = useState(false);
-  const [showHelpModal, setShowHelpModal] = useState(false);
-
-  // GPS initialization handled by communityGPS when courses start
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -48,96 +45,66 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          token: token,
-          courseId: course.id,
+          uit: course.uit,
           status: status.toString(),
-        }),
+          token: token
+        })
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error('Failed to update status');
       }
-
-      const result = await response.text();
-      console.log('Status update response:', result);
     } catch (error) {
       console.error('Error updating status:', error);
-      throw error;
     }
   };
 
-  const renderCourseButton = (course: Course) => {
-    const [buttonLoading, setButtonLoading] = useState(false);
+  const handleCourseAction = async (course: Course, action: 'start' | 'pause' | 'resume' | 'finish') => {
+    let newStatus: number;
+    
+    switch (action) {
+      case 'start':
+      case 'resume':
+        newStatus = 2; // Active
+        break;
+      case 'pause':
+        newStatus = 3; // Paused
+        break;
+      case 'finish':
+        newStatus = 4; // Finished
+        break;
+      default:
+        return;
+    }
 
-    const handleCourseAction = async (newStatus: number) => {
-      setButtonLoading(true);
-      try {
-        // Send status update to server first
-        await sendStatusToServer(course, newStatus);
-        
-        // Update GPS tracking based on status
-        if (newStatus === 2) {
-          await startGPSTracking(course.id, vehicleNumber, token, course.uit);
-        } else if (course.status === 2 && (newStatus === 3 || newStatus === 4)) {
-          await stopGPSTracking(course.id);
-        } else if (newStatus === 2 && course.status === 3) {
-          await startGPSTracking(course.id, vehicleNumber, token, course.uit);
-        }
-        
-        handleStatusUpdate(course.id, newStatus);
-      } catch (error) {
-        console.error('Error updating course status:', error);
-      } finally {
-        setButtonLoading(false);
+    try {
+      if (newStatus === 2) {
+        // Start GPS tracking
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit);
+      } else {
+        // Stop GPS tracking
+        await stopGPSTracking(course.id);
       }
-    };
 
-    if (course.status === 1) {
-      return (
-        <button
-          className="btn btn-primary btn-sm"
-          onClick={() => handleCourseAction(2)}
-          disabled={buttonLoading}
-        >
-          {buttonLoading ? '...' : 'Start'}
-        </button>
+      // Update course status locally
+      setCourses(prevCourses =>
+        prevCourses.map(c =>
+          c.id === course.id ? { ...c, status: newStatus } : c
+        )
       );
-    }
 
-    if (course.status === 2) {
-      return (
-        <div className="d-flex gap-1">
-          <button
-            className="btn btn-warning btn-sm"
-            onClick={() => handleCourseAction(3)}
-            disabled={buttonLoading}
-          >
-            {buttonLoading ? '...' : 'Pauză'}
-          </button>
-          <button
-            className="btn btn-success btn-sm"
-            onClick={() => handleCourseAction(4)}
-            disabled={buttonLoading}
-          >
-            {buttonLoading ? '...' : 'Finalizează'}
-          </button>
-        </div>
-      );
+      // Send status to server
+      await sendStatusToServer(course, newStatus);
+    } catch (error) {
+      console.error('Error handling course action:', error);
     }
+  };
 
-    if (course.status === 3) {
-      return (
-        <button
-          className="btn btn-info btn-sm"
-          onClick={() => handleCourseAction(2)}
-          disabled={buttonLoading}
-        >
-          {buttonLoading ? '...' : 'Reia'}
-        </button>
-      );
-    }
-
-    return null;
+  const handleVehicleChange = () => {
+    setCoursesLoaded(false);
+    setCourses([]);
+    setVehicleNumber('');
+    setError('');
   };
 
   const handleStatusUpdate = (courseId: string, newStatus: number) => {
@@ -150,189 +117,183 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     );
   };
 
-  return (
-    <div className="app">
-      <div className="container py-4">
-        <div className="row">
-          <div className="col-12">
-            {/* Bara de acțiuni eliminată - funcționalitate mutată în footer */}
-
-            {!coursesLoaded ? (
-              <div className="vehicle-input-card">
-                <div className="card-body">
-                  <h5 className="vehicle-input-title">
-                    🚛 Selectează Vehiculul
-                  </h5>
-                  <div className="row g-3">
-                    <div className="col-md-8">
-                      <input
-                        type="text"
-                        className="form-control form-control-lg"
-                        placeholder="Introdu numărul vehiculului (ex: B123XYZ)"
-                        value={vehicleNumber}
-                        onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            handleLoadCourses();
-                          }
-                        }}
-                      />
-                    </div>
-                    <div className="col-md-4">
-                      <button
-                        className="btn btn-load-courses btn-lg w-100"
-                        onClick={() => handleLoadCourses()}
-                        disabled={loading || !vehicleNumber.trim()}
-                      >
-                        {loading ? (
-                          <>
-                            <span className="spinner-border spinner-border-sm me-2"></span>
-                            Se încarcă...
-                          </>
-                        ) : (
-                          <>
-                            🔍 Încarcă Curse
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {error && (
-                    <div className="alert alert-danger mt-3">
-                      <i className="fas fa-exclamation-triangle me-2"></i>
-                      {error}
-                    </div>
-                  )}
+  // Vehicle number input screen
+  if (!coursesLoaded) {
+    return (
+      <div className="modern-app">
+        <div className="vehicle-input-screen">
+          <div className="vehicle-input-container">
+            <div className="vehicle-input-header">
+              <h1 className="vehicle-input-title">Introduceți numărul vehiculului</h1>
+              <p className="vehicle-input-subtitle">Pentru a încărca cursele disponibile</p>
+            </div>
+            
+            <div className="vehicle-input-form">
+              <div className="input-group">
+                <label className="input-label">Numărul vehiculului</label>
+                <input
+                  type="text"
+                  className="vehicle-input"
+                  value={vehicleNumber}
+                  onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+                  placeholder="Ex: B-123-ABC"
+                  disabled={loading}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleLoadCourses();
+                    }
+                  }}
+                />
+              </div>
+              
+              {error && (
+                <div className="error-alert">
+                  <span className="error-icon">⚠</span>
+                  <span className="error-text">{error}</span>
                 </div>
-              </div>
-            ) : (
-              <div className="courses-section">
-                <div className="vehicle-info-header mb-3">
-                  <div className="vehicle-title-section">
-                    <h4 className="vehicle-title">🚛 Vehicul {vehicleNumber}</h4>
-                    <button 
-                      className="edit-vehicle-btn-small"
-                      onClick={() => {
-                        setCoursesLoaded(false);
-                        setCourses([]);
-                        setVehicleNumber('');
-                      }}
-                      title="Schimbă vehiculul"
-                    >
-                      ✏️ Schimbă
-                    </button>
-                  </div>
-                  <div className="vehicle-status-info">
-                    <div className="courses-count">
-                      {courses.length} transporturi disponibile
-                    </div>
-                    {courses.some(course => course.status === 2) && (
-                      <div className="gps-tracking-status">
-                        <span className="gps-indicator">📍</span>
-                        <span className="gps-text">GPS Tracking Activ (60s interval)</span>
-                        <span className="gps-pulse"></span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                  
-                {courses.length === 0 ? (
-                  <div className="alert alert-info">
-                    <i className="fas fa-info-circle me-2"></i>
-                    Nu există curse disponibile pentru acest vehicul.
-                  </div>
-                ) : (
-                  <div className="row">
-                    {courses.map((course) => (
-                      <div key={course.id} className="col-12 mb-3">
-                        <CourseCard
-                          course={course}
-                          vehicleNumber={vehicleNumber}
-                          token={token}
-                          onStatusUpdate={handleStatusUpdate}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Footer fix cu acțiuni */}
-      <div className="mobile-footer">
-        <div className="footer-actions">
-          <button 
-            className="footer-btn help-footer-btn"
-            onClick={() => setShowHelpModal(true)}
-            title="Informații aplicație"
-          >
-            <span className="footer-icon">❓</span>
-            <span className="footer-label">Info</span>
-          </button>
-          <div className="footer-brand">
-            <span className="footer-app-icon">📍</span>
-            <span className="footer-app-name">iTrack</span>
-          </div>
-          <button 
-            className="footer-btn logout-footer-btn"
-            onClick={onLogout}
-            title="Deconectare"
-          >
-            <span className="footer-icon">↗️</span>
-            <span className="footer-label">Ieșire</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Help Modal */}
-      {showHelpModal && (
-        <div className="modal-overlay" onClick={() => setShowHelpModal(false)}>
-          <div className="help-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="modal-title">
-                <span className="app-icon-modal">📍</span>
-                <h3>iTrack v1.0</h3>
-              </div>
-              <button 
-                className="modal-close"
-                onClick={() => setShowHelpModal(false)}
+              )}
+              
+              <button
+                className="load-courses-btn"
+                onClick={handleLoadCourses}
+                disabled={loading || !vehicleNumber.trim()}
               >
-                ✕
+                {loading ? (
+                  <>
+                    <div className="loading-spinner"></div>
+                    <span>Se încarcă...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="btn-icon">📋</span>
+                    <span>Încarcă Cursele</span>
+                  </>
+                )}
               </button>
             </div>
-            <div className="modal-body">
-              <p className="app-description">
-                Aplicație profesională de tracking GPS pentru șoferi
-              </p>
-              <div className="features-list">
-                <div className="feature-item">
-                  <span className="feature-icon">🚛</span>
-                  <span>GPS tracking în timp real</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">📊</span>
-                  <span>Monitorizare curse active</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">🔄</span>
-                  <span>Status reporting automat</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">📱</span>
-                  <span>Background tracking pe Android</span>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <p className="copyright">© 2025 EUSC Agency</p>
-              </div>
-            </div>
+          </div>
+          
+          <div className="bottom-actions">
+            <button className="logout-btn" onClick={onLogout}>
+              <span className="logout-icon">🚪</span>
+              <span>Deconectare</span>
+            </button>
           </div>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  // Courses list screen
+  return (
+    <div className="modern-app">
+      <div className="courses-screen">
+        <div className="courses-header">
+          <div className="vehicle-info">
+            <button className="change-vehicle-btn" onClick={handleVehicleChange}>
+              <span className="change-icon">🔄</span>
+              <span>Schimbă</span>
+            </button>
+            <div className="vehicle-number">
+              <span className="vehicle-icon">🚛</span>
+              <span className="vehicle-text">{vehicleNumber}</span>
+            </div>
+          </div>
+          <div className="courses-count">
+            <span className="count-number">{courses.length}</span>
+            <span className="count-text">transporturi disponibile</span>
+          </div>
+        </div>
+        
+        <div className="courses-list">
+          {courses.map((course) => (
+            <div key={course.id} className="course-card">
+              <div className="course-header">
+                <div className="course-info">
+                  <div className="course-title">
+                    <span className="course-icon">🚛</span>
+                    <span>Transport marfă</span>
+                    <span className="course-arrow">→</span>
+                    <span className="course-destination">
+                      {course.destination_location || 'DESTINAȚIE'}
+                    </span>
+                  </div>
+                  <div className="course-status">
+                    <span className={`status-badge ${course.status === 1 ? 'available' : course.status === 2 ? 'active' : course.status === 3 ? 'paused' : 'finished'}`}>
+                      {course.status === 1 ? 'DISPONIBILĂ' : 
+                       course.status === 2 ? 'ACTIVĂ' : 
+                       course.status === 3 ? 'PAUZATĂ' : 'FINALIZATĂ'}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="course-details">
+                  <div className="course-uit">
+                    <span className="uit-label">UIT:</span>
+                    <span className="uit-code">{course.uit}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="course-actions">
+                {course.status === 1 && (
+                  <button
+                    className="action-btn start-btn"
+                    onClick={() => handleCourseAction(course, 'start')}
+                  >
+                    <span className="btn-icon">▶</span>
+                    <span>Start</span>
+                  </button>
+                )}
+                
+                {course.status === 2 && (
+                  <>
+                    <button
+                      className="action-btn pause-btn"
+                      onClick={() => handleCourseAction(course, 'pause')}
+                    >
+                      <span className="btn-icon">⏸</span>
+                      <span>Pauză</span>
+                    </button>
+                    <button
+                      className="action-btn finish-btn"
+                      onClick={() => handleCourseAction(course, 'finish')}
+                    >
+                      <span className="btn-icon">⏹</span>
+                      <span>Finalizează</span>
+                    </button>
+                  </>
+                )}
+                
+                {course.status === 3 && (
+                  <button
+                    className="action-btn resume-btn"
+                    onClick={() => handleCourseAction(course, 'resume')}
+                  >
+                    <span className="btn-icon">▶</span>
+                    <span>Continuă</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div className="bottom-navigation">
+          <div className="nav-item">
+            <span className="nav-icon">❓</span>
+            <span className="nav-label">Info</span>
+          </div>
+          <div className="nav-item active">
+            <span className="nav-icon">📍</span>
+            <span className="nav-label">iTrack</span>
+          </div>
+          <div className="nav-item" onClick={onLogout}>
+            <span className="nav-icon">🚪</span>
+            <span className="nav-label">Ieșire</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
