@@ -4,6 +4,29 @@ modules = ["nodejs-20"]
 channel = "stable-24_05"
 
 [workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Development Server"
+
+[[workflows.workflow]]
+name = "Development Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "vite --host 0.0.0.0 --port 5000"
+waitForPort = 5000
 
 [deployment]
 run = ["sh", "-c", "npm install vite @vitejs/plugin-react typescript react react-dom @types/react @types/react-dom @capacitor/core @capacitor/cli @capacitor/android @capacitor/geolocation @capacitor/background-mode @capacitor/device @capacitor/preferences bootstrap"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80

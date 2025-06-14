@@ -8,11 +8,6 @@ const config: CapacitorConfig = {
     androidScheme: 'https'
   },
   plugins: {
-    BackgroundMode: {
-      enabled: true,
-      title: 'GPS Tracking Active',
-      text: 'GPS tracking is running in background'
-    },
     Geolocation: {
       requestPermissions: true,
       enableBackgroundLocationUpdates: true

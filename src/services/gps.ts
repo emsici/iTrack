@@ -1,8 +1,6 @@
-import { Geolocation, Position } from '@capacitor/geolocation';
-import { BackgroundMode } from '@capacitor/background-mode';
+import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
 import { sendGPSData, GPSData } from './api';
-import { getStoredToken } from './storage';
 
 interface ActiveCourse {
   courseId: string;
@@ -20,11 +18,9 @@ class GPSTracker {
     if (this.isInitialized) return;
 
     try {
-      // Request permissions
-      await Geolocation.requestPermissions();
-      
-      // Enable background mode
-      await BackgroundMode.enable();
+      // Request permissions for location access
+      const permissions = await Geolocation.requestPermissions();
+      console.log('Location permissions:', permissions);
       
       this.isInitialized = true;
       console.log('GPS Tracker initialized');
@@ -98,8 +94,7 @@ class GPSTracker {
         timeout: 10000
       });
 
-      // Get device info
-      const deviceInfo = await Device.getInfo();
+      // Get battery info
       const batteryInfo = await Device.getBatteryInfo();
 
       // Send GPS data for each active course
