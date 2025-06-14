@@ -128,6 +128,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Fixed GPS background tracking with status reporting (3=pause, 4=finish)
 - June 14, 2025. Improved course button logic: Status 1 shows only Start, Status 2 shows Pause/Finish, Status 3 shows only Resume
 - June 14, 2025. Added quick vehicle switch button in header for driver convenience
+- June 14, 2025. Implemented modern blue design matching provided mockup with header, vehicle info card, and course list
+- June 14, 2025. Updated login screen to match modern design with consistent blue header and styling
+- June 14, 2025. Created Windows build scripts: build-android.bat (full build) and quick-build.bat (rapid development)
 
 ## User Preferences
 
