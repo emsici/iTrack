@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Course } from '../types';
 import { getVehicleCourses } from '../services/api';
-import { getActiveCourses } from '../services/communityGPS';
+import { startGPSTracking, stopGPSTracking } from '../services/communityGPS';
 import CourseCard from './CourseCard';
 
 interface VehicleScreenProps {
@@ -17,9 +17,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [coursesLoaded, setCoursesLoaded] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
 
-  useEffect(() => {
-    initializeGPS();
-  }, []);
+  // GPS initialization handled by communityGPS when courses start
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
