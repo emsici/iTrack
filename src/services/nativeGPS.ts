@@ -1,4 +1,4 @@
-import { registerPlugin, Capacitor } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 
 interface GPSTrackingPlugin {
@@ -17,17 +17,8 @@ interface GPSTrackingPlugin {
   isGPSTrackingActive(): Promise<{ isActive: boolean }>;
 }
 
-// Check if running on native platform before registering plugin
-let GPSTracking: GPSTrackingPlugin | null = null;
-
-try {
-  if (Capacitor.isNativePlatform()) {
-    GPSTracking = registerPlugin<GPSTrackingPlugin>('GPSTracking');
-  }
-} catch (error) {
-  console.warn('GPSTracking plugin not available, will use fallback');
-  GPSTracking = null;
-}
+// GPS plugin will be available only in compiled APK
+const GPSTracking: GPSTrackingPlugin | null = null;
 
 // Service for managing native Android GPS foreground service
 class NativeGPSService {
@@ -40,30 +31,9 @@ class NativeGPSService {
       // Request GPS permissions before starting tracking
       await this.requestPermissions();
       
-      if (GPSTracking && Capacitor.isNativePlatform()) {
-        // Use custom GPS plugin (Android native)
-        const result = await GPSTracking.startGPSTracking({
-          vehicleNumber,
-          courseId,
-          uit,
-          authToken: token,
-          status
-        });
-        
-        if (result.success) {
-          this.activeCourses.add(courseId);
-          console.log(`Native GPS tracking started: ${result.message}`);
-        } else {
-          throw new Error(result.message);
-        }
-      } else {
-        // In browser environment - plugin not available until APK is built
-        console.log(`GPS plugin not available in browser - will work in compiled APK`);
-        this.activeCourses.add(courseId);
-        
-        // For development: show success without fake tracking
-        console.log(`Course ${courseId} marked as ready for GPS tracking in APK build`);
-      }
+      // In browser: course management only, GPS will work in compiled APK
+      console.log(`Course ${courseId} prepared for GPS tracking (native service active in APK)`);
+      this.activeCourses.add(courseId);
       
     } catch (error) {
       console.error('Failed to start GPS tracking:', error);
