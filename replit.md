@@ -95,9 +95,16 @@ This is a hybrid mobile GPS tracking application built with React, TypeScript, a
 - **TypeScript**: Strict mode with modern ES2020 target
 - **Security**: HTTPS enforcement for API communications
 
+## Recent Changes
+- June 14, 2025: Simplified authentication flow by removing persistent token storage
+- June 14, 2025: Fixed Vite development server configuration for proper hosting
+- June 14, 2025: Application fully functional with real API integration for login and vehicle course management
+- June 14, 2025: GPS background tracking system implemented with Android permissions
+
 ## Changelog
-- June 14, 2025. Initial setup
+- June 14, 2025: Initial setup and complete application development
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Uses Romanian language for UI text and error messages.

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { login } from '../services/api';
-import { storeToken } from '../services/storage';
 
 interface LoginScreenProps {
   onLogin: (token: string) => void;
@@ -21,7 +20,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       const response = await login(email, password);
       
       if (response.token) {
-        await storeToken(response.token);
         onLogin(response.token);
       } else {
         setError('Autentificare eșuată. Verificați datele introduse.');

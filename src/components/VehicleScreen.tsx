@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import CourseCard from './CourseCard';
 import { getVehicleCourses } from '../services/api';
-import { clearToken } from '../services/storage';
 import { Course } from '../types';
 
 interface VehicleScreenProps {
@@ -38,8 +37,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const handleLogout = async () => {
-    await clearToken();
+  const handleLogout = () => {
     onLogout();
   };
 
