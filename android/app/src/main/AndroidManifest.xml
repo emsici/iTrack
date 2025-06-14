@@ -15,7 +15,7 @@
 
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
-            android:name=".MainActivity"
+            android:name="com.euscagency.itrack.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask"
@@ -28,16 +28,16 @@
 
         </activity>
 
-        <!-- GPS Foreground Service optimized for @capacitor-community/background-geolocation -->
+        <!-- Simplified GPS Service for reliable background tracking -->
         <service
-            android:name=".GPSForegroundService"
+            android:name="com.euscagency.itrack.SimpleGPSService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />
 
         <!-- GPS Alarm Receiver for backup GPS transmission -->
         <receiver
-            android:name=".GPSAlarmReceiver"
+            android:name="com.euscagency.itrack.GPSAlarmReceiver"
             android:enabled="true"
             android:exported="false" />
 
