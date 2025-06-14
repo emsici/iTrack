@@ -29,9 +29,9 @@ class BackgroundGPSTracker {
         locationUpdateInterval: 60000, // Every 60 seconds
         fastestLocationUpdateInterval: 30000, // Fallback every 30 seconds
         
-        // Activity Recognition - aggressive settings
-        stopTimeout: 1, // Quick transition to stationary
-        activityRecognitionInterval: 30000,
+        // Disable Activity Recognition to avoid permission prompts
+        disableMotionActivityUpdates: true,
+        disableLocationAuthorizationAlert: false,
         
         // Application config - CRITICAL for background operation
         debug: false, // Disable debug sounds
@@ -46,6 +46,10 @@ class BackgroundGPSTracker {
         // Android-specific settings for robust background operation
         allowIdenticalLocations: true,
         disableElasticity: true, // Disable location smoothing for accuracy
+        
+        // Disable problematic features that require additional permissions
+        enableTimestampMeta: false,
+        disableStopDetection: true,
         
         // Persistent notification to prevent service termination
         notification: {

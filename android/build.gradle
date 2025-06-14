@@ -21,7 +21,10 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        // Transistorsoft repositories for background geolocation
+        // Transistorsoft local libraries for background geolocation
+        flatDir {
+            dirs "${project.rootDir}/../node_modules/@transistorsoft/capacitor-background-geolocation/android/libs"
+        }
         maven {
             url("${project.rootDir}/../node_modules/@transistorsoft/capacitor-background-geolocation/android/libs")
         }
