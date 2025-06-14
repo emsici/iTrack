@@ -189,15 +189,8 @@ public class GPSForegroundService extends Service implements LocationListener {
     }
     
     private void initializeAlarmManager() {
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        
-        Intent alarmReceiverIntent = new Intent(this, GPSAlarmReceiver.class);
-        alarmIntent = PendingIntent.getBroadcast(
-            this, 0, alarmReceiverIntent, 
-            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-        
-        Log.d(TAG, "AlarmManager initialized for backup GPS transmission");
+        // AlarmManager removed - using Timer and Background Thread for reliability
+        Log.d(TAG, "AlarmManager disabled - using Timer/Thread backup systems");
     }
     
     private void setupForceTransmissionReceiver() {
@@ -431,36 +424,13 @@ public class GPSForegroundService extends Service implements LocationListener {
     }
     
     private void startBackupAlarmSystem() {
-        if (alarmManager != null && alarmIntent != null) {
-            // Set repeating alarm every 60 seconds as backup
-            long triggerTime = System.currentTimeMillis() + 60000; // First trigger in 1 minute
-            
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                // For Android 6.0+ use setExactAndAllowWhileIdle for better reliability
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, alarmIntent);
-                
-                // Schedule next alarm after this one fires
-                scheduleNextAlarm();
-            } else {
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, triggerTime, 60000, alarmIntent);
-            }
-            
-            Log.d(TAG, "Backup alarm system started - GPS will transmit even when app minimized");
-        }
+        // AlarmManager removed - using Timer and Background Thread systems
+        Log.d(TAG, "Backup alarm system disabled - using reliable Timer/Thread systems");
     }
     
     private void scheduleNextAlarm() {
-        // This will be called recursively to maintain alarm chain
-        scheduler.schedule(new Runnable() {
-            @Override
-            public void run() {
-                if (alarmManager != null && alarmIntent != null) {
-                    long nextTrigger = System.currentTimeMillis() + 60000;
-                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextTrigger, alarmIntent);
-                    scheduleNextAlarm(); // Chain the next alarm
-                }
-            }
-        }, 60, TimeUnit.SECONDS);
+        // Alarm system removed - Timer and Background Thread handle transmission
+        Log.d(TAG, "Alarm scheduling disabled - using Timer/Thread systems");
     }
     
     private void startAllBackupSystems() {
@@ -534,11 +504,8 @@ public class GPSForegroundService extends Service implements LocationListener {
         // Mark service as inactive
         isServiceActive = false;
         
-        // Stop Level 3: AlarmManager
-        if (alarmManager != null && alarmIntent != null) {
-            alarmManager.cancel(alarmIntent);
-            Log.d(TAG, "AlarmManager backup stopped");
-        }
+        // AlarmManager removed - no longer needed
+        Log.d(TAG, "AlarmManager backup disabled");
         
         // Stop Level 4: Timer backup
         if (backupTimer != null) {

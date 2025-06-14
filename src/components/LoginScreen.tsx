@@ -43,8 +43,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         <div className="login-card">
           <div className="login-header">
             <div className="login-logo">📍</div>
-            <h1 className="login-title">iTrack Professional</h1>
-            <p className="login-subtitle">Soluție profesională de tracking vehicule</p>
+            <h1 className="login-title">iTrack</h1>
           </div>
 
           <form onSubmit={handleLogin} className="login-form">
@@ -56,7 +55,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
             <div className="form-group">
               <label htmlFor="email" className="form-label">
-                Email Address
+                Email
               </label>
               <input
                 id="email"
@@ -72,7 +71,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
             <div className="form-group">
               <label htmlFor="password" className="form-label">
-                Password
+                Parola
               </label>
               <input
                 id="password"
@@ -104,7 +103,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           <div className="login-footer">
             <p style={{textAlign: 'center', color: '#6b7280', fontSize: '0.75rem'}}>
-              © 2025 iTrack Professional - Transport Management System
+              © 2025 iTrack v18.1922
             </p>
           </div>
         </div>
