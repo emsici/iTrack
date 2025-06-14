@@ -160,9 +160,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           {/* Quick Info Summary */}
           <div className="course-summary mb-3">
             <div className="summary-item">
-              <i className="fas fa-route text-primary"></i>
-              <span className="summary-label">Transport:</span>
-              <span className="summary-value">Marfă generală</span>
+              <i className="fas fa-calendar text-primary"></i>
+              <span className="summary-label">Data:</span>
+              <span className="summary-value">
+                {course.departure_time || 'Nu este specificată'}
+              </span>
             </div>
             <div className="summary-item">
               <i className="fas fa-barcode text-primary"></i>

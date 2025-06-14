@@ -99,8 +99,8 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
           name: `Transport ${course.codDeclarant} - ${course.ikRoTrans}`,
           departure_location: `${course.denumireLocStart || 'Start'}, ${course.Judet || ''}`.trim().replace(/, $/, ''),
           destination_location: `${course.denumireLocStop || 'Stop'}, ${course.JudetStop || ''}`.trim().replace(/, $/, ''),
-          departure_time: course.dataTransport ? `${course.dataTransport} 08:00:00` : null,
-          arrival_time: course.dataTransport ? `${course.dataTransport} 18:00:00` : null,
+          departure_time: course.dataTransport || null,
+          arrival_time: null, // Not provided by API
           description: `${course.denumireCui || 'Transport marfă'} - Vehicul: ${course.nrVehicul || 'N/A'}`,
           status: 1, // Always start as available
           uit: course.UIT

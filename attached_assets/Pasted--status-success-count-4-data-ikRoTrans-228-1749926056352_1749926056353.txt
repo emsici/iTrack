@@ -1,0 +1,70 @@
+{
+    "status": "success",
+    "count": 4,
+    "data": [
+        {
+            "ikRoTrans": 228,
+            "codDeclarant": 19008889,
+            "denumireCui": "SUPPLY CHAIN MANAGEMENT CENTER SRL",
+            "nrVehicul": "CT01ZZZ",
+            "UIT": "5C3W1A7A0W0V7165",
+            "dataTransport": "2025-04-03",
+            "Vama": null,
+            "BirouVamal": null,
+            "Judet": "Ialomița",
+            "denumireLocStart": "mehedinti",
+            "VamaStop": null,
+            "BirouVamalStop": null,
+            "JudetStop": "Satu Mare",
+            "denumireLocStop": "ORADEA"
+        },
+        {
+            "ikRoTrans": 229,
+            "codDeclarant": 19008889,
+            "denumireCui": "SUPPLY CHAIN MANAGEMENT CENTER SRL",
+            "nrVehicul": "CT01ZZZ",
+            "UIT": "4U2Q6V9Q0D4K6192",
+            "dataTransport": "2025-04-03",
+            "Vama": null,
+            "BirouVamal": null,
+            "Judet": "Alba",
+            "denumireLocStart": "mehedinti",
+            "VamaStop": null,
+            "BirouVamalStop": null,
+            "JudetStop": "Mureș",
+            "denumireLocStop": "ORADEA"
+        },
+        {
+            "ikRoTrans": 231,
+            "codDeclarant": 19008889,
+            "denumireCui": "SUPPLY CHAIN MANAGEMENT CENTER SRL",
+            "nrVehicul": "CT01ZZZ",
+            "UIT": "7V3P1N7J0T0Q7193",
+            "dataTransport": "2025-04-03",
+            "Vama": null,
+            "BirouVamal": null,
+            "Judet": "Arad",
+            "denumireLocStart": "mehedinti",
+            "VamaStop": null,
+            "BirouVamalStop": null,
+            "JudetStop": "Argeș",
+            "denumireLocStop": "ORADEA"
+        },
+        {
+            "ikRoTrans": 230,
+            "codDeclarant": 19008889,
+            "denumireCui": "SUPPLY CHAIN MANAGEMENT CENTER SRL",
+            "nrVehicul": "CT01ZZZ",
+            "UIT": "6P3F1M7P0Q0L7173",
+            "dataTransport": "2025-04-03",
+            "Vama": null,
+            "BirouVamal": null,
+            "Judet": "Alba",
+            "denumireLocStart": "mehedinti",
+            "VamaStop": null,
+            "BirouVamalStop": null,
+            "JudetStop": "Harghita",
+            "denumireLocStop": "ORADEA"
+        }
+    ]
+}

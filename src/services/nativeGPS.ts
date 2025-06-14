@@ -1,5 +1,6 @@
-import { registerPlugin } from '@capacitor/core';
+import { registerPlugin, Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
+import { BackgroundGeolocationPlugin } from '@capacitor-community/background-geolocation';
 
 interface GPSTrackingPlugin {
   startGPSTracking(options: {
@@ -17,7 +18,10 @@ interface GPSTrackingPlugin {
   isGPSTrackingActive(): Promise<{ isActive: boolean }>;
 }
 
-const GPSTracking = registerPlugin<GPSTrackingPlugin>('GPSTracking');
+// Check if running on native platform before registering plugin
+const GPSTracking = Capacitor.isNativePlatform() ? 
+  registerPlugin<GPSTrackingPlugin>('GPSTracking') : 
+  null;
 
 // Service for managing native Android GPS foreground service
 class NativeGPSService {
@@ -25,28 +29,105 @@ class NativeGPSService {
 
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number = 2): Promise<void> {
     try {
-      console.log(`Starting native GPS tracking for course ${courseId} with status ${status}`);
+      console.log(`Starting GPS tracking for course ${courseId} with status ${status}`);
       
       // Request GPS permissions before starting tracking
       await this.requestPermissions();
       
-      const result = await GPSTracking.startGPSTracking({
-        vehicleNumber,
-        courseId,
-        uit,
-        authToken: token,
-        status
+      if (GPSTracking && Capacitor.isNativePlatform()) {
+        // Try custom GPS plugin first (Android native)
+        try {
+          const result = await GPSTracking.startGPSTracking({
+            vehicleNumber,
+            courseId,
+            uit,
+            authToken: token,
+            status
+          });
+          
+          if (result.success) {
+            this.activeCourses.add(courseId);
+            console.log(`Native GPS tracking started: ${result.message}`);
+            return;
+          }
+        } catch (pluginError) {
+          console.warn('Custom GPS plugin failed, using fallback:', pluginError);
+        }
+      }
+      
+      // Fallback: Use community background geolocation
+      await this.startBackgroundGeolocation(courseId, vehicleNumber, uit, token, status);
+      
+    } catch (error) {
+      console.error('Failed to start GPS tracking:', error);
+      throw error;
+    }
+  }
+
+  private async startBackgroundGeolocation(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
+    try {
+      const { BackgroundGeolocationPlugin } = await import('@capacitor-community/background-geolocation');
+      
+      // Configure background geolocation
+      await BackgroundGeolocationPlugin.addWatcher({
+        backgroundMessage: `Tracking ${uit}`,
+        backgroundTitle: "iTrack GPS Active",
+        requestPermissions: true,
+        stale: false,
+        distanceFilter: 0.5
+      }, (location, error) => {
+        if (error) {
+          console.error('Background geolocation error:', error);
+          return;
+        }
+        
+        if (location) {
+          this.sendLocationToServer(location, vehicleNumber, uit, token, status);
+        }
       });
       
-      if (result.success) {
-        this.activeCourses.add(courseId);
-        console.log(`Native GPS tracking started: ${result.message}`);
+      this.activeCourses.add(courseId);
+      console.log(`Background geolocation started for course ${courseId}`);
+      
+    } catch (error) {
+      console.error('Failed to start background geolocation:', error);
+      throw new Error('Nu s-a putut porni urmărirea GPS');
+    }
+  }
+
+  private async sendLocationToServer(location: any, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
+    try {
+      const gpsData = {
+        lat: location.latitude,
+        lng: location.longitude,
+        timestamp: new Date().toISOString().replace('T', ' ').slice(0, 19),
+        viteza: Math.round((location.speed || 0) * 3.6), // km/h
+        directie: Math.round(location.bearing || 0),
+        altitudine: Math.round(location.altitude || 0),
+        baterie: 100, // Default value
+        numar_inmatriculare: vehicleNumber,
+        uit: uit,
+        status: status,
+        hdop: Math.round(location.accuracy || 0),
+        gsm_signal: "85"
+      };
+
+      const response = await fetch('https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(gpsData)
+      });
+
+      if (response.ok) {
+        console.log(`GPS data sent successfully for UIT: ${uit}`);
       } else {
-        throw new Error(result.message);
+        console.warn(`GPS transmission failed with code: ${response.status} for UIT: ${uit}`);
       }
     } catch (error) {
-      console.error('Failed to start native GPS tracking:', error);
-      throw error;
+      console.error(`Error sending GPS data for UIT ${uit}:`, error);
     }
   }
 
