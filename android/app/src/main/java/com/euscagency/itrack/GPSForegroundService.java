@@ -260,7 +260,7 @@ public class GPSForegroundService extends Service implements LocationListener {
                 
                 while (isServiceActive) {
                     try {
-                        Thread.sleep(30000); // Wait 30 seconds for more frequent checks
+                        Thread.sleep(60000); // Wait 60 seconds - once per minute
                         
                         if (isServiceActive) {
                             Log.d(TAG, "Background thread check - service active: " + isServiceActive);
@@ -505,7 +505,8 @@ public class GPSForegroundService extends Service implements LocationListener {
                 }
             };
             
-            backupTimer.scheduleAtFixedRate(timerTask, 60000, 60000); // Start after 1 min, repeat every 60s
+            backupTimer.scheduleAtFixedRate(timerTask, 60000, 60000); // Start after 1 min, repeat every 60s - DISABLED for single transmission
+            backupTimer.cancel(); // Disable timer backup to prevent multiple transmissions
             Log.d(TAG, "Timer backup system started");
         }
     }
