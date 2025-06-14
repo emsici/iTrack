@@ -159,8 +159,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Reconstituted minimal GPS architecture: GPSForegroundService.java + GPSTrackingPlugin.java + nativeGPS.ts
 - June 14, 2025. GPS background tracking works with native Android service through Capacitor bridge
 - June 14, 2025. Removed AlarmManager dependency - GPS works with Timer/Thread backup systems for better reliability
-- June 14, 2025. Optimized GPS system - reads coordinates once per minute and sends to all active courses efficiently
-- June 14, 2025. Multi-course GPS support - single GPS reading shared between multiple active courses to save battery
+- June 14, 2025. Restored native Android GPS service (GPSForegroundService.java) that works when phone is locked/app minimized
+- June 14, 2025. Optimized background GPS to transmit once per minute (60 seconds) instead of continuous tracking
+- June 14, 2025. Native Android service uses WakeLock + Foreground notification for guaranteed background operation
 
 ## User Preferences
 

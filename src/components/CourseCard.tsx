@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
-import { startGPSTracking, stopGPSTracking, pauseGPSTracking, resumeGPSTracking } from '../services/continuousGPS';
+import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
 
 interface CourseCardProps {
   course: Course;
@@ -41,28 +41,20 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const handleStatusChange = async (newStatus: number) => {
     setLoading(true);
     try {
-      // Handle GPS tracking based on status change
+      // Handle native Android GPS tracking based on status change
       if (newStatus === 2) {
-        // Start continuous GPS tracking (sends coordinates every minute)
+        // Start native Android GPS background tracking (sends coordinates every minute)
         await startGPSTracking(course.id, vehicleNumber, token, course.uit);
-        console.log(`Started continuous GPS tracking for course ${course.id}`);
-      } else if (newStatus === 3 && course.status === 2) {
-        // Pause GPS tracking
-        await pauseGPSTracking(course.id);
-        console.log(`Paused GPS tracking for course ${course.id}`);
-      } else if (newStatus === 2 && course.status === 3) {
-        // Resume GPS tracking from pause
-        await resumeGPSTracking(course.id);
-        console.log(`Resumed GPS tracking for course ${course.id}`);
+        console.log(`Started native GPS background tracking for course ${course.id}`);
       } else if (newStatus === 4) {
-        // Stop GPS tracking
+        // Stop native Android GPS tracking
         await stopGPSTracking(course.id);
-        console.log(`Stopped GPS tracking for course ${course.id}`);
+        console.log(`Stopped native GPS tracking for course ${course.id}`);
       }
       
       onStatusUpdate(course.id, newStatus);
     } catch (error) {
-      console.error('Error updating course status with GPS:', error);
+      console.error('Error updating course status with native GPS:', error);
       // Continue with status update even if GPS fails
       onStatusUpdate(course.id, newStatus);
     } finally {
