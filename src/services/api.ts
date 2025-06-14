@@ -25,26 +25,55 @@ export interface GPSData {
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    const response = await CapacitorHttp.post({
-      url: `${API_BASE_URL}/login.php`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: {
-        email,
-        password
+    let response;
+    
+    if (Capacitor.isNativePlatform()) {
+      // Use CapacitorHttp for native platforms
+      response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}/login.php`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {
+          email,
+          password
+        }
+      });
+      
+      if (response.status === 200) {
+        const data = response.data;
+        if (data.status === 'success' && data.token) {
+          return { status: data.status, token: data.token };
+        } else {
+          throw new Error('Autentificare eșuată');
+        }
+      } else {
+        throw new Error('Autentificare eșuată');
       }
-    });
-
-    if (response.status === 200) {
-      const data = response.data;
+    } else {
+      // For web environment, the API server needs CORS configured
+      // Try using fetch with proper headers
+      const fetchResponse = await fetch(`${API_BASE_URL}/login.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password
+        }),
+      });
+      
+      if (!fetchResponse.ok) {
+        throw new Error(`HTTP error! status: ${fetchResponse.status}`);
+      }
+      
+      const data = await fetchResponse.json();
       if (data.status === 'success' && data.token) {
         return { status: data.status, token: data.token };
       } else {
         throw new Error('Autentificare eșuată');
       }
-    } else {
-      throw new Error('Autentificare eșuată');
     }
   } catch (error) {
     console.error('Login error:', error);
