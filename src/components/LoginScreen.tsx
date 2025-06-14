@@ -56,7 +56,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             )}
 
             <div className="input-group">
-              <label className="input-label">Email</label>
               <input
                 type="email"
                 className="vehicle-input"
@@ -68,7 +67,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             </div>
 
             <div className="input-group">
-              <label className="input-label">Parolă</label>
               <div className="password-input-container">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -107,6 +105,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               )}
             </button>
           </form>
+        </div>
+        
+        <div className="version-footer">
+          <span className="version-text">Versiunea 1807.99</span>
         </div>
       </div>
     </div>

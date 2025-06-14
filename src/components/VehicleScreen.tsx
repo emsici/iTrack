@@ -372,6 +372,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <span className="nav-label">Ieșire</span>
           </div>
         </div>
+        
+        <div className="version-footer-bottom">
+          <span className="version-text">Versiunea 1807.99</span>
+        </div>
       </div>
     </div>
   );
