@@ -80,15 +80,16 @@ class GPSTracker {
   private startTrackingInterval() {
     if (this.trackingInterval) return;
 
-    console.log('Starting GPS tracking interval');
+    console.log('Starting GPS tracking interval - sending data every 60 seconds');
     
     // Send GPS data immediately
     this.sendAllActiveCoursesGPSData();
 
-    // Then send every minute
+    // Then send every minute (60 seconds)
     this.trackingInterval = setInterval(() => {
+      console.log('GPS interval triggered - sending data for active courses');
       this.sendAllActiveCoursesGPSData();
-    }, 60000); // 60 seconds
+    }, 60000); // 60 seconds = 1 minute
   }
 
   private stopTrackingInterval() {
@@ -100,40 +101,57 @@ class GPSTracker {
   }
 
   private async sendAllActiveCoursesGPSData() {
-    if (this.activeCourses.size === 0) return;
+    if (this.activeCourses.size === 0) {
+      console.log('No active courses to send GPS data for');
+      return;
+    }
+
+    console.log(`Sending GPS data for ${this.activeCourses.size} active courses`);
 
     try {
-      // Get current position
+      // Get current position with background location settings
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
-        timeout: 10000
+        timeout: 15000,
+        maximumAge: 30000 // Allow 30 second cached position for better battery life
       });
 
       // Get battery info
       const batteryInfo = await Device.getBatteryInfo();
+
+      const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+      console.log(`GPS Position obtained: ${position.coords.latitude}, ${position.coords.longitude} at ${currentTime}`);
 
       // Send GPS data for each active course
       for (const [courseId, courseData] of this.activeCourses) {
         const gpsData: GPSData = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-          timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
-          viteza: position.coords.speed || 0,
+          timestamp: currentTime,
+          viteza: Math.max(0, position.coords.speed || 0), // Ensure non-negative speed
           directie: position.coords.heading || 0,
           altitudine: position.coords.altitude || 0,
           baterie: Math.round((batteryInfo.batteryLevel || 0) * 100),
           numar_inmatriculare: courseData.vehicleNumber,
           uit: courseData.uit,
           status: '2', // Active status
-          hdop: position.coords.accuracy?.toString() || '0',
-          gsm_signal: '100' // Assume good signal for mobile app
+          hdop: Math.round(position.coords.accuracy || 0).toString(),
+          gsm_signal: '100' // Mobile app has good signal
         };
 
+        console.log(`Sending GPS data for course ${courseId} (${courseData.vehicleNumber}):`, {
+          lat: gpsData.lat,
+          lng: gpsData.lng,
+          speed: gpsData.viteza,
+          battery: gpsData.baterie
+        });
+
         const success = await sendGPSData(gpsData, courseData.token);
-        console.log(`GPS data sent for course ${courseId}:`, success ? 'SUCCESS' : 'FAILED');
+        console.log(`GPS data for course ${courseId}: ${success ? 'SUCCESS' : 'FAILED'}`);
       }
     } catch (error) {
-      console.error('Error getting position or sending GPS data:', error);
+      console.error('Error getting GPS position or sending data:', error);
+      // Continue trying - don't stop the interval
     }
   }
 

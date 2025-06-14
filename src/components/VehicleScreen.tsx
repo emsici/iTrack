@@ -52,22 +52,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   };
 
   return (
-    <div className="container-fluid vh-100 bg-light">
-      <nav className="navbar navbar-dark bg-primary">
-        <div className="container-fluid">
-          <span className="navbar-brand">
-            <i className="fas fa-truck me-2"></i>
-            GPS Tracker
-          </span>
-          <button
-            className="btn btn-outline-light"
+    <div className="app">
+      <div className="vehicle-header">
+        <div className="container">
+          <h1 className="vehicle-title">🚛 GPS Tracker</h1>
+          <button 
+            className="disconnect-btn"
             onClick={handleLogout}
           >
-            <i className="fas fa-sign-out-alt me-2"></i>
             Deconectare
           </button>
         </div>
-      </nav>
+      </div>
 
       <div className="container py-4">
         <div className="row">
@@ -96,7 +92,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                   <div className="col-md-4">
                     <button
-                      className="btn btn-primary btn-lg w-100"
+                      className="btn btn-load-courses btn-lg w-100"
                       onClick={handleLoadCourses}
                       disabled={loading || !vehicleNumber.trim()}
                     >
@@ -107,8 +103,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         </>
                       ) : (
                         <>
-                          <i className="fas fa-search me-2"></i>
-                          Încarcă Curse
+                          🔍 Încarcă Curse
                         </>
                       )}
                     </button>

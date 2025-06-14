@@ -1,129 +1,130 @@
-# GPS Tracker Application
+# GPS Tracker Mobile Application
 
 ## Overview
-
-This is a hybrid mobile GPS tracking application built with React, TypeScript, and Capacitor. The app is designed for vehicle tracking, allowing users to monitor and manage transportation courses with real-time GPS data collection. It features a web-based interface that can be packaged as a native Android application.
+This is a React-based GPS tracking application built with Capacitor for cross-platform mobile deployment. The application is designed to track vehicle locations in real-time and manage transport courses. It features user authentication, vehicle management, and GPS data transmission to a remote server.
 
 ## System Architecture
 
 ### Frontend Architecture
-- **Framework**: React 18 with TypeScript for type safety
-- **Build Tool**: Vite for fast development and optimized builds
-- **UI Framework**: Bootstrap 5 with custom CSS for responsive design
-- **State Management**: React hooks (useState, useEffect) for local state management
-- **Mobile Framework**: Capacitor for cross-platform native functionality
+- **Framework**: React 19.1.0 with TypeScript
+- **Build Tool**: Vite 6.3.5 for fast development and optimized builds
+- **UI Framework**: Bootstrap 5.3.6 for responsive design
+- **Icons**: Font Awesome 6.4.0 for consistent iconography
+- **Styling**: CSS modules with custom styling for platform-specific appearance
+
+### Mobile Platform Integration
+- **Cross-Platform Framework**: Capacitor 7.3.0 for native mobile app deployment
+- **Target Platforms**: Android (primary), with iOS capability
+- **Native Plugins**: 
+  - Geolocation for GPS tracking
+  - Device info for hardware identification
+  - Preferences for local data storage
 
 ### Backend Integration
-- **API Communication**: RESTful API integration using CapacitorHttp
-- **Authentication**: Bearer token-based authentication with persistent storage
-- **External API**: Integration with ETSM3 platform transport API
-
-### Mobile Platform
-- **Target Platform**: Android (configured, iOS support available)
-- **App ID**: com.gps.tracker
-- **Build Output**: dist/ directory for web assets
+- **API Communication**: RESTful API integration with external transport management system
+- **Base URL**: `https://www.euscagency.com/etsm3/platforme/transport/apk`
+- **Authentication**: Token-based authentication system
+- **Data Format**: JSON for API communication
 
 ## Key Components
 
-### Core Components
-1. **App.tsx**: Main application coordinator handling authentication state and screen navigation
-2. **LoginScreen.tsx**: User authentication interface with email/password validation
-3. **VehicleScreen.tsx**: Main dashboard for vehicle course management
-4. **CourseCard.tsx**: Individual course management component with status controls
+### Authentication System
+- Login screen with email/password authentication
+- Token-based session management
+- Secure token storage using Capacitor Preferences
+- Automatic session persistence across app restarts
 
-### Services Layer
-1. **api.ts**: HTTP client for external API communication
-2. **gps.ts**: GPS tracking service with background location updates
-3. **storage.ts**: Secure token storage using Capacitor Preferences
+### GPS Tracking Service
+- Real-time location tracking using Capacitor Geolocation
+- Background location updates support
+- Configurable tracking intervals
+- GPS data buffering and transmission
+- Support for both native and web environments
 
-### Type Definitions
-- **Course**: Transportation course data structure
-- **GPSPosition**: Location data with accuracy and movement metrics
-- **CourseStatus**: Course state management interface
+### Course Management
+- Vehicle-specific course loading
+- Course status management (Available, In Progress, Paused, Stopped)
+- Real-time course status updates
+- Integration with GPS tracking for active courses
+
+### User Interface Components
+- **LoginScreen**: Handles user authentication with form validation
+- **VehicleScreen**: Main dashboard for vehicle and course management
+- **CourseCard**: Individual course display and control component
+- Responsive design for various screen sizes
 
 ## Data Flow
 
 ### Authentication Flow
-1. User enters credentials on LoginScreen
-2. Credentials sent to ETSM3 API via login endpoint
-3. Bearer token received and stored securely
-4. App transitions to VehicleScreen with authenticated state
+1. User enters credentials on login screen
+2. Credentials sent to authentication API
+3. Server returns authentication token
+4. Token stored locally using Capacitor Preferences
+5. Token used for subsequent API requests
 
 ### GPS Tracking Flow
-1. User selects vehicle number and loads available courses
-2. Course status changes trigger GPS tracking start/stop
-3. Background GPS collection sends periodic location updates
-4. Location data transmitted to API with course and vehicle context
+1. User initiates course tracking
+2. GPS service requests location permissions
+3. Continuous location monitoring begins
+4. GPS data collected with timestamp, coordinates, speed, direction
+5. Data transmitted to server at regular intervals
+6. Local tracking state managed for multiple concurrent courses
 
 ### Course Management Flow
-1. Vehicle courses fetched from API based on vehicle registration number
-2. Course status updates (available/in-progress/paused/stopped) managed locally
-3. Status changes synchronized with GPS tracking service
+1. User enters vehicle identification number
+2. System fetches available courses for vehicle
+3. User can start, pause, or stop individual courses
+4. Course status changes trigger GPS tracking state updates
+5. Real-time status updates reflected in UI
 
 ## External Dependencies
 
-### Capacitor Plugins
-- **@capacitor/geolocation**: Location services with background updates
-- **@capacitor/background-mode**: Background task execution
-- **@capacitor/preferences**: Secure local storage
-- **@capacitor/http**: Network requests with native performance
-
-### UI Dependencies
-- **Bootstrap 5**: CSS framework for responsive design
-- **Font Awesome 6**: Icon library for enhanced UI
+### Core Dependencies
+- **React ecosystem**: react, react-dom, @types/react, @types/react-dom
+- **Capacitor platform**: @capacitor/core, @capacitor/cli, @capacitor/android
+- **Capacitor plugins**: @capacitor/geolocation, @capacitor/device, @capacitor/preferences
+- **Build tools**: vite, @vitejs/plugin-react, typescript
+- **UI libraries**: bootstrap for styling
 
 ### API Integration
-- **Base URL**: https://www.euscagency.com/etsm3/platforme/transport/apk
-- **Endpoints**: 
-  - POST /login.php: User authentication
-  - Additional course and GPS data endpoints (implementation in progress)
+- External transport management system API
+- HTTPS-based communication
+- JSON data format
+- Token-based authentication
+
+### Development Environment
+- Node.js 20 runtime
+- Android development tools (Android SDK, Gradle)
+- Java/OpenJDK for Android compilation
 
 ## Deployment Strategy
 
 ### Development Environment
-- **Platform**: Node.js 20 with Replit environment
-- **Package Manager**: npm for dependency management
-- **Build Process**: Vite development server with hot reload
+- Vite development server on port 5000
+- Hot reload for rapid development
+- Web-based testing capability
 
-### Mobile Deployment
-- **Android Build**: Capacitor CLI generates native Android project
-- **Build Output**: APK generation through Android Studio or Capacitor build
-- **Permissions**: Location, background processing, and network access
+### Android Build Process
+1. Web application built using Vite
+2. Capacitor sync to prepare Android project
+3. Gradle build system for APK generation
+4. Android Studio integration for advanced debugging
+5. Signed APK generation for distribution
 
-### Configuration
-- **Capacitor Config**: Background mode enabled, HTTPS scheme for Android
-- **TypeScript**: Strict mode with modern ES2020 target
-- **Security**: HTTPS enforcement for API communications
+### Build Configuration
+- **App ID**: com.gps.tracker
+- **App Name**: GPS Tracker
+- **Target SDK**: Android API level based on Capacitor requirements
+- **Permissions**: Location access, network access, background processing
 
-## Recent Changes
-- June 14, 2025: Simplified authentication flow by removing persistent token storage
-- June 14, 2025: Fixed Vite development server configuration for proper hosting
-- June 14, 2025: Application fully functional with real API integration for login and vehicle course management
-- June 14, 2025: GPS background tracking system implemented with Android permissions
-- June 14, 2025: Fixed GPS initialization for web/native environment compatibility
-- June 14, 2025: Resolved Gradle "Could not find method include()" error by regenerating Android project
-- June 14, 2025: Successfully regenerated Android project with proper Capacitor configuration
-- June 14, 2025: Added complete GPS permissions for background location tracking
-
-## Build Instructions
-### Web Development
-```bash
-npx vite --host 0.0.0.0 --port 5000
-```
-
-### Android Production Build
-```bash
-npm install
-npx vite build
-npx cap sync android
-npx cap open android
-```
-Note: Android build requires Android Studio with SDK tools. APK generation needs proper Java version (OpenJDK 11 recommended).
+### Environment Support
+- **Native Android**: Full feature support with native GPS and storage
+- **Web Browser**: Development and testing mode with fallback implementations
+- **Cross-platform**: Single codebase for multiple deployment targets
 
 ## Changelog
-- June 14, 2025: Initial setup and complete application development
+- June 14, 2025. Initial setup
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-Uses Romanian language for UI text and error messages.
