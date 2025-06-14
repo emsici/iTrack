@@ -204,21 +204,21 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
                 <div className="detail-item">
                   <div className="detail-icon">
-                    <i className="fas fa-play-circle"></i>
+                    <i className="fas fa-calendar-day"></i>
                   </div>
                   <div className="detail-content">
-                    <div className="detail-label">Ora plecare</div>
-                    <div className="detail-value">{formatTime(course.departure_time)}</div>
+                    <div className="detail-label">Data transport</div>
+                    <div className="detail-value">{course.departure_time || 'Nu este specificată'}</div>
                   </div>
                 </div>
 
                 <div className="detail-item">
                   <div className="detail-icon">
-                    <i className="fas fa-stop-circle"></i>
+                    <i className="fas fa-building"></i>
                   </div>
                   <div className="detail-content">
-                    <div className="detail-label">Ora sosire</div>
-                    <div className="detail-value">{formatTime(course.arrival_time)}</div>
+                    <div className="detail-label">Companie</div>
+                    <div className="detail-value">{course.description ? course.description.split(' - ')[0] : 'Nu este specificată'}</div>
                   </div>
                 </div>
 
