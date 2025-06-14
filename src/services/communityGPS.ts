@@ -2,6 +2,7 @@ import { BackgroundGeolocationPlugin } from '@capacitor-community/background-geo
 import { registerPlugin } from '@capacitor/core';
 import { sendGPSData, type GPSData } from "./api";
 import { Device } from '@capacitor/device';
+import { Geolocation } from '@capacitor/geolocation';
 
 const BackgroundGeolocation = registerPlugin<BackgroundGeolocationPlugin>('BackgroundGeolocation');
 
@@ -21,6 +22,12 @@ class CommunityGPSTracker {
     console.log('Starting community background GPS tracking for course:', courseId);
     
     try {
+      // Request GPS permissions first
+      const hasPermissions = await this.requestLocationPermissions();
+      if (!hasPermissions) {
+        throw new Error('Location permissions denied');
+      }
+
       const courseData: ActiveCourse = {
         courseId,
         vehicleNumber,
@@ -40,6 +47,44 @@ class CommunityGPSTracker {
     } catch (error) {
       console.error('Failed to start community GPS tracking:', error);
       this.activeCourses.delete(courseId);
+      return false;
+    }
+  }
+
+  private async requestLocationPermissions(): Promise<boolean> {
+    try {
+      console.log('Requesting location permissions...');
+      
+      // Request basic location permission first
+      const permission = await Geolocation.requestPermissions();
+      console.log('Basic location permission:', permission);
+      
+      if (permission.location !== 'granted') {
+        alert('Pentru urmărirea GPS, aplicația necesită acces la locație. Vă rugăm să acordați permisiunea în setări.');
+        return false;
+      }
+
+      // For Android, we need to request background location permission separately
+      if ((window as any).DeviceInfo?.platform === 'android') {
+        // Show user instruction for background permission
+        const userConsent = confirm(`Pentru urmărirea GPS în background (când aplicația este minimizată), este necesar să acordați permisiunea "Allow all the time" pentru locație.
+
+Doriți să continuați? Veți fi redirecționat către setările de permisiuni.`);
+        
+        if (userConsent) {
+          // This will prompt Android's background location permission dialog
+          try {
+            await BackgroundGeolocation.requestPermissions();
+            console.log('Background location permission requested');
+          } catch (error) {
+            console.log('Background permission request failed, continuing with foreground only');
+          }
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error requesting permissions:', error);
       return false;
     }
   }
