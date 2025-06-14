@@ -29,9 +29,9 @@ class BackgroundGPSTracker {
         locationUpdateInterval: 60000, // Every 60 seconds
         fastestLocationUpdateInterval: 30000, // Fallback every 30 seconds
         
-        // Disable Activity Recognition to avoid permission prompts
-        disableMotionActivityUpdates: true,
-        disableLocationAuthorizationAlert: false,
+        // Use pre-granted permissions from AndroidManifest
+        disableLocationAuthorizationAlert: true,
+        locationAuthorizationRequest: 'Always',
         
         // Application config - CRITICAL for background operation
         debug: false, // Disable debug sounds
