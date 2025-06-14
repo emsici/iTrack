@@ -41,6 +41,10 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const handleStatusChange = async (newStatus: number) => {
     setLoading(true);
     try {
+      // Send status update to server first
+      await sendStatusToServer(newStatus);
+      
+      // Update GPS tracking based on status
       if (newStatus === 2) {
         // Start GPS tracking
         await startGPSTracking(course.id, vehicleNumber, token);
@@ -60,10 +64,47 @@ const CourseCard: React.FC<CourseCardProps> = ({
     }
   };
 
-  const canStart = course.status === 1;
-  const canPause = course.status === 2;
-  const canResume = course.status === 3;
-  const canStop = course.status === 2 || course.status === 3;
+  const sendStatusToServer = async (status: number) => {
+    try {
+      // Send GPS data with the new status to mark course state change
+      const { sendGPSData } = await import('../services/api');
+      const { Geolocation } = await import('@capacitor/geolocation');
+      const { Device } = await import('@capacitor/device');
+      
+      // Get current position for status update
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      });
+
+      const batteryInfo = await Device.getBatteryInfo();
+      const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+      const gpsData = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        timestamp: currentTime,
+        viteza: Math.max(0, position.coords.speed || 0),
+        directie: position.coords.heading || 0,
+        altitudine: position.coords.altitude || 0,
+        baterie: Math.round((batteryInfo.batteryLevel || 0) * 100),
+        numar_inmatriculare: vehicleNumber,
+        uit: course.uit,
+        status: status.toString(), // Send the exact status: 2=started, 3=paused, 4=finished
+        hdop: Math.round(position.coords.accuracy || 0).toString(),
+        gsm_signal: '100'
+      };
+
+      console.log(`Sending status ${status} to server for course ${course.id}`);
+      await sendGPSData(gpsData, token);
+    } catch (error) {
+      console.error('Error sending status to server:', error);
+      // Don't throw error - continue with local status update
+    }
+  };
+
+
 
   return (
     <div className="card shadow-sm">
@@ -124,8 +165,9 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
       <div className="card-footer bg-white">
         <div className="row g-2">
-          {canStart && (
-            <div className="col-6 col-md-3">
+          {/* Status 1 (Available): Show only START button */}
+          {course.status === 1 && (
+            <div className="col-12">
               <button
                 className="btn btn-course btn-start w-100"
                 onClick={() => handleStatusChange(2)}
@@ -140,8 +182,41 @@ const CourseCard: React.FC<CourseCardProps> = ({
             </div>
           )}
 
-          {canResume && (
-            <div className="col-6 col-md-3">
+          {/* Status 2 (In Progress): Show PAUSE and FINISH buttons */}
+          {course.status === 2 && (
+            <>
+              <div className="col-6">
+                <button
+                  className="btn btn-course btn-pause w-100"
+                  onClick={() => handleStatusChange(3)}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="spinner-border spinner-border-sm"></span>
+                  ) : (
+                    <>⏸️ Pauză</>
+                  )}
+                </button>
+              </div>
+              <div className="col-6">
+                <button
+                  className="btn btn-course btn-stop w-100"
+                  onClick={() => handleStatusChange(4)}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="spinner-border spinner-border-sm"></span>
+                  ) : (
+                    <>🏁 Termină</>
+                  )}
+                </button>
+              </div>
+            </>
+          )}
+
+          {/* Status 3 (Paused): Show only RESUME button */}
+          {course.status === 3 && (
+            <div className="col-12">
               <button
                 className="btn btn-course btn-start w-100"
                 onClick={() => handleStatusChange(2)}
@@ -150,57 +225,18 @@ const CourseCard: React.FC<CourseCardProps> = ({
                 {loading ? (
                   <span className="spinner-border spinner-border-sm"></span>
                 ) : (
-                  <>▶️ Continuă</>
+                  <>▶️ Reluare</>
                 )}
               </button>
             </div>
           )}
 
-          {canPause && (
-            <div className="col-6 col-md-3">
-              <button
-                className="btn btn-course btn-pause w-100"
-                onClick={() => handleStatusChange(3)}
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="spinner-border spinner-border-sm"></span>
-                ) : (
-                  <>⏸️ Pauză</>
-                )}
-              </button>
+          {/* Status 4 (Finished): No buttons */}
+          {course.status === 4 && (
+            <div className="col-12 text-center text-muted">
+              <small>Cursă finalizată</small>
             </div>
           )}
-
-          {canStop && (
-            <div className="col-6 col-md-3">
-              <button
-                className="btn btn-course btn-stop w-100"
-                onClick={() => handleStatusChange(4)}
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="spinner-border spinner-border-sm"></span>
-                ) : (
-                  <>⏹️ Stop</>
-                )}
-              </button>
-            </div>
-          )}
-
-          <div className="col-6 col-md-3">
-            <button
-              className="btn btn-course btn-finish w-100"
-              onClick={() => handleStatusChange(4)}
-              disabled={loading || course.status === 4}
-            >
-              {loading ? (
-                <span className="spinner-border spinner-border-sm"></span>
-              ) : (
-                <>🏁 Termină</>
-              )}
-            </button>
-          </div>
         </div>
       </div>
     </div>

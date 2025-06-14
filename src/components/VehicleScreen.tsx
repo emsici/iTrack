@@ -70,12 +70,27 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       <div className="vehicle-header">
         <div className="container">
           <h1 className="vehicle-title">🚛 Tracking Șoferi</h1>
-          <button 
-            className="disconnect-btn"
-            onClick={handleLogout}
-          >
-            Deconectare
-          </button>
+          <div className="header-controls">
+            {coursesLoaded && (
+              <button 
+                className="btn-switch-vehicle"
+                onClick={() => {
+                  setCoursesLoaded(false);
+                  setCourses([]);
+                  setVehicleNumber('');
+                }}
+                title="Schimbă vehiculul"
+              >
+                🔄
+              </button>
+            )}
+            <button 
+              className="disconnect-btn"
+              onClick={handleLogout}
+            >
+              Deconectare
+            </button>
+          </div>
         </div>
       </div>
 

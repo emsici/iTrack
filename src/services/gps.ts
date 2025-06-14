@@ -129,16 +129,10 @@ class GPSTracker {
           timeout: 15000,           // Shorter timeout for more frequent updates
           maximumAge: 5000          // Fresh location data
         }, (position) => {
-          console.log('Background GPS update - lat:', position.coords.latitude, 'lng:', position.coords.longitude, 'speed:', position.coords.speed, 'heading:', position.coords.heading);
+          if (position) {
+            console.log('Background GPS update - lat:', position.coords.latitude, 'lng:', position.coords.longitude, 'speed:', position.coords.speed, 'heading:', position.coords.heading);
+          }
           // Position updates are handled by the main tracking interval
-        }, (error) => {
-          console.error('Background GPS tracking error:', error);
-          // Restart watch if it fails
-          setTimeout(() => {
-            if (this.activeCourses.size > 0) {
-              this.enableBackgroundLocationUpdates();
-            }
-          }, 5000);
         });
         
         console.log('Background GPS watch started with ID:', this.watchId);
