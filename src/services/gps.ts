@@ -2,6 +2,11 @@ import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
 import { Capacitor } from '@capacitor/core';
 import { sendGPSData, GPSData } from './api';
+import { 
+  startNativeGPSTracking, 
+  stopNativeGPSTracking, 
+  hasNativeActiveCourses 
+} from './nativeGPS';
 
 interface ActiveCourse {
   courseId: string;
