@@ -169,6 +169,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Added mobile safe area support to prevent UI overlap with phone status bar and navigation bar
 - June 14, 2025. Enhanced GPS tracking with explicit permission requests and detailed logging for debugging coordinate transmission
 - June 14, 2025. Improved viewport configuration with viewport-fit=cover for better mobile display compatibility
+- June 14, 2025. CRITICAL FIX: Restored GPSForegroundService to working version that successfully transmitted GPS in background
+- June 14, 2025. Added automatic ACCESS_BACKGROUND_LOCATION permission request when starting GPS tracking
+- June 14, 2025. GPS confirmed working: Status "2", 60-second intervals, background transmission when phone locked
 
 ## User Preferences
 

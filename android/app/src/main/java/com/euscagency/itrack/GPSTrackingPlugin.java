@@ -144,11 +144,17 @@ public class GPSTrackingPlugin extends Plugin {
     @PluginMethod
     public void requestBackgroundPermissions(PluginCall call) {
         try {
+            Log.d(TAG, "Requesting all background permissions for GPS tracking");
+            
+            // Request background location permission first
+            requestBackgroundLocationPermission();
+            
+            // Request battery optimization exemption
             requestBatteryOptimizationExemption();
             
             JSObject result = new JSObject();
             result.put("success", true);
-            result.put("message", "Battery optimization settings opened - please allow iTrack to run in background");
+            result.put("message", "Background permissions requested - GPS will work when phone is locked");
             call.resolve(result);
             
         } catch (Exception e) {
