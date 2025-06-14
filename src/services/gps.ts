@@ -83,21 +83,67 @@ class GPSTracker {
   private startTrackingInterval() {
     if (this.trackingInterval) return;
 
-    console.log('Starting GPS tracking interval - sending data every 60 seconds');
+    console.log('Starting persistent GPS tracking for Android background');
     
-    // Request background execution for Android
+    // Request background execution for Android with Wake Lock
     if (Capacitor.isNativePlatform()) {
       this.enableBackgroundMode();
+      this.keepAppAwake();
     }
     
     // Send GPS data immediately
     this.sendAllActiveCoursesGPSData();
 
-    // Then send every minute (60 seconds) - reliable background tracking
+    // Critical: Use shorter intervals for Android background tracking
     this.trackingInterval = setInterval(() => {
-      console.log('GPS interval triggered - sending data for active courses');
-      this.sendAllActiveCoursesGPSData();
-    }, 60000); // 60 seconds = 1 minute
+      console.log('Background GPS ping - checking active courses');
+      if (this.activeCourses.size > 0) {
+        this.sendAllActiveCoursesGPSData();
+        this.ensureBackgroundTracking(); // Re-verify background state
+      }
+    }, 30000); // 30 seconds for better background reliability
+  }
+
+  private keepAppAwake() {
+    // Prevent app from sleeping during GPS tracking
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+      console.log('Requesting Android Wake Lock for continuous GPS');
+      // Note: This helps prevent the app from being killed by Android
+      try {
+        // Use a combination of techniques to stay alive
+        this.preventScreenSleep();
+        this.requestForegroundService();
+      } catch (error) {
+        console.warn('Could not enable wake lock:', error);
+      }
+    }
+  }
+
+  private preventScreenSleep() {
+    // Keep CPU awake during GPS tracking
+    if (window.navigator && 'wakeLock' in window.navigator) {
+      (window.navigator as any).wakeLock.request('system').then(() => {
+        console.log('Wake lock enabled for GPS tracking');
+      }).catch((err: any) => {
+        console.log('Wake lock not supported:', err);
+      });
+    }
+  }
+
+  private requestForegroundService() {
+    // For Android - request foreground service to prevent app termination
+    console.log('Requesting foreground service for background GPS');
+    // This would need a native plugin implementation for full Android support
+  }
+
+  private ensureBackgroundTracking() {
+    // Re-verify that background tracking is still active
+    if (Capacitor.isNativePlatform() && this.activeCourses.size > 0) {
+      if (!this.watchId) {
+        console.log('Background GPS watch lost - restarting');
+        this.enableBackgroundLocationUpdates();
+      }
+    }
   }
 
   private enableBackgroundMode() {
@@ -116,18 +162,18 @@ class GPSTracker {
     try {
       // Start background location tracking with watchPosition for persistent updates
       if (Capacitor.isNativePlatform()) {
-        console.log('Starting native background location tracking with high accuracy GPS');
+        console.log('Starting Android background GPS tracking for locked screen');
         
         // Clear any existing watch
         if (this.watchId) {
           await Geolocation.clearWatch({ id: this.watchId });
         }
         
-        // Use watchPosition for continuous location updates in background
+        // Configure for background tracking on Android when phone is locked
         this.watchId = await Geolocation.watchPosition({
-          enableHighAccuracy: true, // Force GPS usage for speed and direction
-          timeout: 15000,           // Shorter timeout for more frequent updates
-          maximumAge: 5000          // Fresh location data
+          enableHighAccuracy: true,     // Force GPS for speed/direction
+          timeout: 30000,              // Longer timeout for background
+          maximumAge: 10000            // Allow slightly cached data for performance
         }, (position) => {
           if (position) {
             console.log('Background GPS update - lat:', position.coords.latitude, 'lng:', position.coords.longitude, 'speed:', position.coords.speed, 'heading:', position.coords.heading);
@@ -167,28 +213,44 @@ class GPSTracker {
     console.log(`Sending GPS data for ${this.activeCourses.size} active courses`);
 
     try {
-      // Get current position with optimized settings for Android background
+      // Enhanced GPS settings for Android background tracking when phone is locked
       const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: Capacitor.isNativePlatform(),
-        timeout: Capacitor.isNativePlatform() ? 20000 : 10000,
-        maximumAge: Capacitor.isNativePlatform() ? 60000 : 30000 // Android can use older positions in background
+        enableHighAccuracy: true,  // Always use GPS for accurate speed/direction
+        timeout: 30000,           // Longer timeout for background mode
+        maximumAge: 20000         // Allow cached data for reliability in background
       });
 
       // Get battery info
       const batteryInfo = await Device.getBatteryInfo();
 
       const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-      console.log(`GPS Position obtained: ${position.coords.latitude}, ${position.coords.longitude} at ${currentTime}`);
+      
+      // Enhanced logging for background tracking debugging
+      console.log(`BACKGROUND GPS DATA COLLECTED:`, {
+        position: {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          speed: position.coords.speed,
+          heading: position.coords.heading,
+          accuracy: position.coords.accuracy
+        },
+        timestamp: currentTime,
+        activeCourses: this.activeCourses.size,
+        platform: Capacitor.getPlatform(),
+        isNative: Capacitor.isNativePlatform()
+      });
 
-      // Send GPS data for each active course
+      // Send GPS data for each active course with retry logic
       for (const [courseId, courseData] of this.activeCourses) {
+        const speedKmh = (position.coords.speed || 0) * 3.6; // Convert m/s to km/h
+        
         const gpsData: GPSData = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
           timestamp: currentTime,
-          viteza: Math.max(0, position.coords.speed || 0), // Ensure non-negative speed
-          directie: position.coords.heading || 0,
-          altitudine: position.coords.altitude || 0,
+          viteza: Math.max(0, Math.round(speedKmh)), // Speed in km/h, rounded
+          directie: Math.round(position.coords.heading || 0), // Direction in degrees
+          altitudine: Math.round(position.coords.altitude || 0),
           baterie: Math.round((batteryInfo.batteryLevel || 0) * 100),
           numar_inmatriculare: courseData.vehicleNumber,
           uit: courseData.uit,

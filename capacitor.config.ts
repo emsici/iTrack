@@ -11,11 +11,18 @@ const config: CapacitorConfig = {
     Geolocation: {
       requestPermissions: true,
       enableBackgroundLocationUpdates: true,
-      backgroundLocationUpdateInterval: 60000, // 1 minute
-      distanceFilter: 10 // meters
+      backgroundLocationUpdateInterval: 30000, // 30 seconds for reliable tracking
+      distanceFilter: 5, // meters - more sensitive
+      enableHighAccuracy: true,
+      timeout: 30000,
+      maximumAge: 10000
     },
     App: {
-      appendUserAgent: 'iTrack/1.0'
+      appendUserAgent: 'iTrack/1.0',
+      handleTasks: true // Enable background task handling
+    },
+    Device: {
+      getInfo: true
     }
   }
 };
