@@ -172,6 +172,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Guaranteed GPS transmission every 60 seconds for each active course UIT separately
 - June 14, 2025. Simplified architecture: SimpleGPSService + SimpleGPSPlugin + Timer-based transmission
 - June 14, 2025. App now stable with foreground service, wake locks, and persistent notifications
+- June 14, 2025. Confirmed complete background GPS tracking: works when phone locked, app minimized, or user in other apps
+- June 14, 2025. GPS transmits every 60 seconds to gps.php for each active course UIT separately with full location data
+- June 14, 2025. Added automatic GPS permission requests (ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION, ACCESS_BACKGROUND_LOCATION)
+- June 14, 2025. Implemented clickable vehicle number with visual highlighting instead of separate change button
+- June 14, 2025. Fixed Info button functionality and removed hardcoded time display, replaced with transport type
 
 ## User Preferences
 
