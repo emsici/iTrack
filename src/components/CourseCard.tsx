@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
-import { startGPSTracking, pauseGPSTracking, resumeGPSTracking, stopGPSTracking } from '../services/nativeGPS';
+import { startGPSTracking, stopGPSTracking } from '../services/communityGPS';
 
 interface CourseCardProps {
   course: Course;
@@ -41,46 +41,74 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const handleStatusChange = async (newStatus: number) => {
     setLoading(true);
     try {
+      // Send status update to server first
+      await sendStatusToServer(newStatus);
+      
+      // Update GPS tracking based on status - no await to prevent blocking
       if (newStatus === 2) {
-        // Status 2: Start GPS tracking - trimite coordonate continuu din minut în minut
-        console.log('Requesting background permissions...');
-        try {
-          await import('../services/nativeGPS').then(module => module.requestBackgroundPermissions());
-          console.log('Background permissions requested successfully');
-        } catch (permError) {
-          console.log('Background permissions request failed, continuing anyway:', permError);
-        }
-        
-        await startGPSTracking(course.id, vehicleNumber, token, course.uit);
-        console.log(`✓ STARTED GPS tracking - coordinates every 60 seconds - Status 2`);
-        
-      } else if (newStatus === 3) {
-        // Status 3: Pause GPS tracking - nu mai trimite coordonate
-        await pauseGPSTracking(course.id);
-        console.log(`✓ PAUSED GPS tracking - coordinates stopped - Status 3`);
-        
+        // Start GPS tracking with real UIT from course
+        startGPSTracking(course.id, vehicleNumber, token, course.uit).catch(error => {
+          console.error('Failed to start GPS tracking:', error);
+        });
+      } else if (course.status === 2 && (newStatus === 3 || newStatus === 4)) {
+        // Stop or pause GPS tracking
+        stopGPSTracking(course.id).catch(error => {
+          console.error('Failed to stop GPS tracking:', error);
+        });
       } else if (newStatus === 2 && course.status === 3) {
-        // Resume from pause - reactivate coordinate transmission
-        await resumeGPSTracking(course.id);
-        console.log(`✓ RESUMED GPS tracking - coordinates restarted - Status 2`);
-        
-      } else if (newStatus === 4) {
-        // Status 4: Stop GPS tracking completely
-        await stopGPSTracking(course.id);
-        console.log(`✓ STOPPED GPS tracking completely - Status 4`);
+        // Resume GPS tracking from pause with real UIT
+        startGPSTracking(course.id, vehicleNumber, token, course.uit).catch(error => {
+          console.error('Failed to resume GPS tracking:', error);
+        });
       }
       
       onStatusUpdate(course.id, newStatus);
     } catch (error) {
-      console.error('ERROR in GPS tracking:', error);
-      // Continue with status update even if GPS fails
-      onStatusUpdate(course.id, newStatus);
+      console.error('Error updating course status:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Removed old GPS sending method - now handled by continuousGPS service
+  const sendStatusToServer = async (status: number) => {
+    try {
+      // Send GPS data with the new status to mark course state change
+      const { sendGPSData } = await import('../services/api');
+      const { Geolocation } = await import('@capacitor/geolocation');
+      const { Device } = await import('@capacitor/device');
+      
+      // Get current position for status update
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      });
+
+      const batteryInfo = await Device.getBatteryInfo();
+      const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+      const gpsData = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        timestamp: currentTime,
+        viteza: Math.max(0, position.coords.speed || 0),
+        directie: position.coords.heading || 0,
+        altitudine: position.coords.altitude || 0,
+        baterie: Math.round((batteryInfo.batteryLevel || 0) * 100),
+        numar_inmatriculare: vehicleNumber,
+        uit: course.uit,
+        status: status.toString(), // Send the exact status: 2=started, 3=paused, 4=finished
+        hdop: Math.round(position.coords.accuracy || 0).toString(),
+        gsm_signal: '100'
+      };
+
+      console.log(`Sending status ${status} to server for course ${course.id}`);
+      await sendGPSData(gpsData, token);
+    } catch (error) {
+      console.error('Error sending status to server:', error);
+      // Don't throw error - continue with local status update
+    }
+  };
 
 
 

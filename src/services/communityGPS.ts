@@ -1,8 +1,6 @@
 import { BackgroundGeolocationPlugin } from '@capacitor-community/background-geolocation';
 import { registerPlugin } from '@capacitor/core';
 import { sendGPSData, type GPSData } from "./api";
-import { Device } from '@capacitor/device';
-import { Geolocation } from '@capacitor/geolocation';
 
 const BackgroundGeolocation = registerPlugin<BackgroundGeolocationPlugin>('BackgroundGeolocation');
 
@@ -22,12 +20,6 @@ class CommunityGPSTracker {
     console.log('Starting community background GPS tracking for course:', courseId);
     
     try {
-      // Request GPS permissions first
-      const hasPermissions = await this.requestLocationPermissions();
-      if (!hasPermissions) {
-        throw new Error('Location permissions denied');
-      }
-
       const courseData: ActiveCourse = {
         courseId,
         vehicleNumber,
@@ -51,44 +43,6 @@ class CommunityGPSTracker {
     }
   }
 
-  private async requestLocationPermissions(): Promise<boolean> {
-    try {
-      console.log('Requesting location permissions...');
-      
-      // Request basic location permission first
-      const permission = await Geolocation.requestPermissions();
-      console.log('Basic location permission:', permission);
-      
-      if (permission.location !== 'granted') {
-        alert('Pentru urmărirea GPS, aplicația necesită acces la locație. Vă rugăm să acordați permisiunea în setări.');
-        return false;
-      }
-
-      // For Android, we need to request background location permission separately
-      if ((window as any).DeviceInfo?.platform === 'android') {
-        // Show user instruction for background permission
-        const userConsent = confirm(`Pentru urmărirea GPS în background (când aplicația este minimizată), este necesar să acordați permisiunea "Allow all the time" pentru locație.
-
-Doriți să continuați? Veți fi redirecționat către setările de permisiuni.`);
-        
-        if (userConsent) {
-          // This will prompt Android's background location permission dialog
-          try {
-            await BackgroundGeolocation.requestPermissions();
-            console.log('Background location permission requested');
-          } catch (error) {
-            console.log('Background permission request failed, continuing with foreground only');
-          }
-        }
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error requesting permissions:', error);
-      return false;
-    }
-  }
-
   async stopTracking(courseId: string) {
     console.log('Stopping community GPS tracking for course:', courseId);
     this.activeCourses.delete(courseId);
@@ -103,14 +57,37 @@ Doriți să continuați? Veți fi redirecționat către setările de permisiuni.
 
   private async startBackgroundWatch() {
     try {
-      console.log('Status-based GPS tracking active - coordinates sent only on course status changes');
+      console.log('Starting optimized background GPS with foreground service integration...');
       
-      // Set watchId to indicate tracking is "active" but no continuous watching
-      this.watchId = 'status-based-tracking';
-      
-      console.log('GPS background watch configured for status-only tracking');
+      this.watchId = await BackgroundGeolocation.addWatcher(
+        {
+          // Professional notification for foreground service
+          backgroundMessage: "📍 iTrack Professional - Tracking vehicul activ",
+          backgroundTitle: "iTrack GPS Professional",
+          
+          // Enhanced permissions and settings
+          requestPermissions: true,
+          stale: false,
+          distanceFilter: 0, // Track any movement for precision
+          
+          // Optimized for foreground service cooperation
+        },
+        (location, error) => {
+          if (error) {
+            console.error('Background GPS service error:', error);
+            return;
+          }
+
+          if (location) {
+            console.log('GPS location received from background service');
+            this.onLocationReceived(location);
+          }
+        }
+      );
+
+      console.log('Background GPS service integrated with foreground service, ID:', this.watchId);
     } catch (error) {
-      console.error('Failed to configure GPS tracking:', error);
+      console.error('Failed to start community background watch:', error);
       throw error;
     }
   }
@@ -207,6 +184,7 @@ Doriți să continuați? Veți fi redirecționat către setările de permisiuni.
 
   private async getBatteryLevel(): Promise<number> {
     try {
+      const { Device } = await import('@capacitor/device');
       const batteryInfo = await Device.getBatteryInfo();
       return Math.round((batteryInfo.batteryLevel || 0) * 100);
     } catch (error) {

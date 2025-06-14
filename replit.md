@@ -158,26 +158,6 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Cleaned GPS architecture - removed duplicate services (SimpleGPSService, backgroundGPS.ts, simpleGPS.ts)
 - June 14, 2025. Reconstituted minimal GPS architecture: GPSForegroundService.java + GPSTrackingPlugin.java + nativeGPS.ts
 - June 14, 2025. GPS background tracking works with native Android service through Capacitor bridge
-- June 14, 2025. Removed AlarmManager dependency - GPS works with Timer/Thread backup systems for better reliability
-- June 14, 2025. Fixed GPS transmission frequency - eliminated redundant backup systems causing per-second transmission
-- June 14, 2025. GPS now sends coordinates exactly once per minute (60 seconds) with status "2" instead of "active"
-- June 14, 2025. Background tracking verified working when phone locked/app minimized using single optimized system
-- June 14, 2025. Implemented automatic permission requests - app directly asks for background location and battery optimization
-- June 14, 2025. Fixed design consistency - all screens now match login's modern professional appearance
-- June 14, 2025. GPS background permissions requested automatically when starting tracking, no manual user guidance needed
-- June 14, 2025. Fixed Android scheduleAtFixedRate warning - replaced with scheduleWithFixedDelay for stable background GPS transmission
-- June 14, 2025. Added mobile safe area support to prevent UI overlap with phone status bar and navigation bar
-- June 14, 2025. Enhanced GPS tracking with explicit permission requests and detailed logging for debugging coordinate transmission
-- June 14, 2025. Improved viewport configuration with viewport-fit=cover for better mobile display compatibility
-- June 14, 2025. CRITICAL FIX: Restored GPSForegroundService to working version that successfully transmitted GPS in background
-- June 14, 2025. Added automatic ACCESS_BACKGROUND_LOCATION permission request when starting GPS tracking
-- June 14, 2025. GPS confirmed working: Status "2", 60-second intervals, background transmission when phone locked
-- June 14, 2025. Implemented correct GPS status logic: Status 2=active (sends coordinates), 3=pause (stops coordinates), 4=stop (final status)
-- June 14, 2025. GPS transmits coordinates continuously ONLY when status is 2 (active), pauses transmission for status 3/4
-- June 14, 2025. Added pause/resume/stop methods in native Android service with proper status management
-- June 14, 2025. Implemented multiple course tracking - GPS handles multiple simultaneous courses with individual status management
-- June 14, 2025. Enhanced background location permission request - always opens settings for "Allow all the time" selection
-- June 14, 2025. GPS service tracks multiple vehicles/courses simultaneously, coordinates sent per active course every 60 seconds
 
 ## User Preferences
 
