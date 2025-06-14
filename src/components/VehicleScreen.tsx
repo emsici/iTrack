@@ -208,13 +208,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       <div className="courses-screen">
         <div className="courses-header">
           <div className="vehicle-info">
-            <button className="change-vehicle-btn" onClick={handleVehicleChange}>
-              <span className="change-icon">🔄</span>
-              <span>Schimbă</span>
-            </button>
-            <div className="vehicle-number">
+            <div className="vehicle-spacer"></div>
+            <div className="vehicle-number clickable-vehicle" onClick={handleVehicleChange}>
               <span className="vehicle-icon">🚛</span>
               <span className="vehicle-text">{vehicleNumber}</span>
+              <span className="edit-hint">✎</span>
             </div>
           </div>
           
