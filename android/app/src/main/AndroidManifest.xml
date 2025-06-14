@@ -24,6 +24,13 @@
 
         </activity>
 
+        <!-- GPS Foreground Service for background tracking -->
+        <service
+            android:name=".GPSForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
