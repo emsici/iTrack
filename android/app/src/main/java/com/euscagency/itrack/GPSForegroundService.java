@@ -5,8 +5,11 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.app.AlarmManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -42,6 +45,9 @@ public class GPSForegroundService extends Service implements LocationListener {
     private ScheduledExecutorService scheduler;
     private OkHttpClient httpClient;
     private TelephonyManager telephonyManager;
+    private AlarmManager alarmManager;
+    private PendingIntent alarmIntent;
+    private BroadcastReceiver forceTransmissionReceiver;
     
     // GPS tracking data
     private String vehicleNumber;
@@ -63,6 +69,8 @@ public class GPSForegroundService extends Service implements LocationListener {
         initializeTelephonyManager();
         initializeHttpClient();
         initializeScheduler();
+        initializeAlarmManager();
+        setupForceTransmissionReceiver();
     }
     
     @Override
@@ -80,6 +88,7 @@ public class GPSForegroundService extends Service implements LocationListener {
                 
                 startLocationTracking();
                 startForeground(NOTIFICATION_ID, createNotification());
+                Log.d(TAG, "Foreground service started with notification ID: " + NOTIFICATION_ID);
                 
             } else if ("STOP_TRACKING".equals(action)) {
                 stopLocationTracking();
@@ -159,6 +168,36 @@ public class GPSForegroundService extends Service implements LocationListener {
         Log.d(TAG, "Scheduler initialized successfully");
     }
     
+    private void initializeAlarmManager() {
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        
+        Intent alarmReceiverIntent = new Intent(this, GPSAlarmReceiver.class);
+        alarmIntent = PendingIntent.getBroadcast(
+            this, 0, alarmReceiverIntent, 
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+        
+        Log.d(TAG, "AlarmManager initialized for backup GPS transmission");
+    }
+    
+    private void setupForceTransmissionReceiver() {
+        forceTransmissionReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(TAG, "Force transmission broadcast received");
+                if (lastLocation != null) {
+                    sendGPSDataToServer();
+                } else {
+                    Log.w(TAG, "No location data for forced transmission");
+                }
+            }
+        };
+        
+        IntentFilter filter = new IntentFilter("com.euscagency.itrack.FORCE_GPS_TRANSMISSION");
+        registerReceiver(forceTransmissionReceiver, filter);
+        Log.d(TAG, "Force transmission receiver registered");
+    }
+    
     private void startLocationTracking() {
         Log.d(TAG, "Starting native GPS location tracking");
         
@@ -188,6 +227,9 @@ public class GPSForegroundService extends Service implements LocationListener {
             
             // Schedule regular GPS data transmission every 60 seconds
             startPeriodicGPSTransmission();
+            
+            // Start backup alarm system for guaranteed transmission
+            startBackupAlarmSystem();
             
         } catch (SecurityException e) {
             Log.e(TAG, "Location permission not granted", e);
@@ -232,6 +274,39 @@ public class GPSForegroundService extends Service implements LocationListener {
         }, 10, 60, TimeUnit.SECONDS); // Start after 10 seconds, then every 60 seconds
         
         Log.d(TAG, "Periodic transmission scheduled successfully");
+    }
+    
+    private void startBackupAlarmSystem() {
+        if (alarmManager != null && alarmIntent != null) {
+            // Set repeating alarm every 60 seconds as backup
+            long triggerTime = System.currentTimeMillis() + 60000; // First trigger in 1 minute
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // For Android 6.0+ use setExactAndAllowWhileIdle for better reliability
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, alarmIntent);
+                
+                // Schedule next alarm after this one fires
+                scheduleNextAlarm();
+            } else {
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, triggerTime, 60000, alarmIntent);
+            }
+            
+            Log.d(TAG, "Backup alarm system started - GPS will transmit even when app minimized");
+        }
+    }
+    
+    private void scheduleNextAlarm() {
+        // This will be called recursively to maintain alarm chain
+        scheduler.schedule(new Runnable() {
+            @Override
+            public void run() {
+                if (alarmManager != null && alarmIntent != null) {
+                    long nextTrigger = System.currentTimeMillis() + 60000;
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, nextTrigger, alarmIntent);
+                    scheduleNextAlarm(); // Chain the next alarm
+                }
+            }
+        }, 60, TimeUnit.SECONDS);
     }
     
     private void stopLocationTracking() {
