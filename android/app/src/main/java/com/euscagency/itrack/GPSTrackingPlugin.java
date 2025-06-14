@@ -2,6 +2,10 @@ package com.euscagency.itrack;
 
 import android.content.Intent;
 import android.util.Log;
+import android.os.PowerManager;
+import android.provider.Settings;
+import android.net.Uri;
+import android.os.Build;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -25,6 +29,9 @@ public class GPSTrackingPlugin extends Plugin {
         }
         
         Log.d(TAG, "Starting GPS tracking for course: " + courseId + ", vehicle: " + vehicleNumber);
+        
+        // Request battery optimization exemption for background operation
+        requestBatteryOptimizationExemption();
         
         try {
             Intent serviceIntent = new Intent(getContext(), GPSForegroundService.class);
