@@ -27,14 +27,13 @@ public class GPSTrackingPlugin extends Plugin {
         Log.d(TAG, "Starting GPS tracking for course: " + courseId + ", vehicle: " + vehicleNumber);
         
         try {
-            Intent serviceIntent = new Intent(getContext(), GPSForegroundService.class);
-            serviceIntent.putExtra("action", "START_TRACKING");
+            Intent serviceIntent = new Intent(getContext(), SimpleGPSService.class);
             serviceIntent.putExtra("vehicleNumber", vehicleNumber);
             serviceIntent.putExtra("courseId", courseId);
             serviceIntent.putExtra("uit", uit);
             serviceIntent.putExtra("authToken", authToken);
             
-            // Start foreground service that will run independently
+            // Start simple foreground service
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 getContext().startForegroundService(serviceIntent);
             } else {
@@ -59,9 +58,7 @@ public class GPSTrackingPlugin extends Plugin {
         Log.d(TAG, "Stopping GPS tracking for course: " + courseId);
         
         try {
-            Intent serviceIntent = new Intent(getContext(), GPSForegroundService.class);
-            serviceIntent.putExtra("action", "STOP_TRACKING");
-            
+            Intent serviceIntent = new Intent(getContext(), SimpleGPSService.class);
             getContext().stopService(serviceIntent);
             
             JSObject result = new JSObject();

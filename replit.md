@@ -148,6 +148,8 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Fixed UIT transmission to use real course UIT instead of random generated values
 - June 14, 2025. Eliminated GPS coordinate duplication by forcing Android to use only native service, never JavaScript
 - June 14, 2025. GPS tracking now sends single coordinate stream with proper UIT from course data
+- June 14, 2025. Created SimpleGPSService to replace complex system - minimalist approach for maximum reliability
+- June 14, 2025. Single Timer-based transmission system with wake lock for guaranteed background operation
 
 ## User Preferences
 
