@@ -161,6 +161,12 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Optimized GPS transmission frequency to 60-second intervals to reduce server load and battery consumption
 - June 14, 2025. Implemented numeric status values (2=active, 3=paused, 4=stopped) for course status transmission
 - June 14, 2025. Added minimum distance threshold of 0.5 meters to prevent unnecessary GPS updates when vehicle is stationary
+- June 14, 2025. Eliminated GPS coordinate duplication - removed triple backup system, now uses single timer at 60-second intervals
+- June 14, 2025. Fixed plugin registration by moving MainActivity to correct package (com.euscagency.itrack)
+- June 14, 2025. Implemented strict vehicle validation - users cannot proceed without valid courses for entered vehicle number
+- June 14, 2025. Created CourseDetailCard component with expandable dropdown showing complete course information
+- June 14, 2025. Added functional Info button that toggles detailed course information display
+- June 14, 2025. Course details include: departure/arrival times, locations, UIT code, descriptions, and formatted timestamps
 
 ## User Preferences
 
