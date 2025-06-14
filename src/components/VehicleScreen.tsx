@@ -236,8 +236,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <CourseDetailCard
               key={course.id}
               course={course}
-              vehicleNumber={vehicleNumber}
-              token={token}
               onStatusUpdate={handleStatusUpdate}
               isLoading={actionLoading === course.id}
             />

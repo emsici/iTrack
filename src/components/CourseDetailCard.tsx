@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
+import '../styles/courses.css';
 
 interface CourseDetailCardProps {
   course: Course;
-  vehicleNumber: string;
-  token: string;
   onStatusUpdate: (courseId: string, newStatus: number) => void;
   isLoading: boolean;
 }
 
 const CourseDetailCard: React.FC<CourseDetailCardProps> = ({ 
   course, 
-  vehicleNumber, 
-  token, 
   onStatusUpdate,
   isLoading 
 }) => {
@@ -28,15 +25,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     }
   };
 
-  const getStatusColor = (status: number) => {
-    switch (status) {
-      case 1: return '#28a745'; // Green
-      case 2: return '#007bff'; // Blue  
-      case 3: return '#ffc107'; // Yellow
-      case 4: return '#6c757d'; // Gray
-      default: return '#dc3545'; // Red
-    }
-  };
+  // Removed getStatusColor - using CSS classes instead
 
   const handleAction = (action: string) => {
     let newStatus: number;
@@ -130,24 +119,34 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
   };
 
   return (
-    <div className="course-detail-card mb-3">
-      <div className="card shadow-sm border-0">
-        <div className="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
-          <div>
-            <h6 className="mb-0 fw-bold">{course.name}</h6>
-            <small className="opacity-75">ID: {course.id}</small>
+    <div className="course-detail-card mb-4">
+      <div className="card shadow-lg border-0 course-card-modern">
+        <div className="card-header-modern d-flex justify-content-between align-items-center">
+          <div className="course-header-info">
+            <div className="course-name-section">
+              <h5 className="course-title-main">{course.name || 'Transport marfă'}</h5>
+              <span className="course-id-badge">#{course.id}</span>
+            </div>
+            <div className="course-route-info">
+              <div className="route-display">
+                <span className="route-start">{course.departure_location || 'Punct plecare'}</span>
+                <i className="fas fa-arrow-right route-arrow"></i>
+                <span className="route-end">{course.destination_location || 'Destinație'}</span>
+              </div>
+            </div>
           </div>
-          <div className="d-flex align-items-center gap-2">
+          
+          <div className="course-header-actions">
             <span 
-              className="badge rounded-pill px-3 py-2"
-              style={{ backgroundColor: getStatusColor(course.status) }}
+              className={`status-badge-modern status-${course.status}`}
             >
+              <i className="fas fa-circle status-indicator"></i>
               {getStatusText(course.status)}
             </span>
             <button 
-              className="btn btn-outline-light btn-sm"
+              className="btn-info-toggle"
               onClick={() => setShowDetails(!showDetails)}
-              title="Afișează/Ascunde detalii"
+              title="Afișează/Ascunde detalii complete"
             >
               <i className={`fas fa-${showDetails ? 'chevron-up' : 'info-circle'}`}></i>
             </button>
@@ -155,38 +154,92 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         </div>
 
         <div className="card-body">
-          {/* Basic Info */}
-          <div className="row mb-3">
-            <div className="col-6">
-              <small className="text-muted">Plecare:</small>
-              <div className="fw-semibold">{course.departure_location || 'Nu este specificat'}</div>
+          {/* Quick Info Summary */}
+          <div className="course-summary mb-3">
+            <div className="summary-item">
+              <i className="fas fa-clock text-primary"></i>
+              <span className="summary-label">Program:</span>
+              <span className="summary-value">
+                {course.departure_time && course.arrival_time 
+                  ? `${formatTime(course.departure_time).split(' ')[1]} - ${formatTime(course.arrival_time).split(' ')[1]}`
+                  : 'Nu este specificat'}
+              </span>
             </div>
-            <div className="col-6">
-              <small className="text-muted">Destinație:</small>
-              <div className="fw-semibold">{course.destination_location || 'Nu este specificat'}</div>
+            <div className="summary-item">
+              <i className="fas fa-barcode text-primary"></i>
+              <span className="summary-label">UIT:</span>
+              <span className="summary-value font-monospace">{course.uit}</span>
             </div>
           </div>
 
           {/* Detailed Info - Collapsible */}
           {showDetails && (
-            <div className="course-details border-top pt-3 mb-3">
-              <div className="row">
-                <div className="col-md-6 mb-2">
-                  <small className="text-muted">Ora plecare:</small>
-                  <div className="fw-semibold">{formatTime(course.departure_time)}</div>
+            <div className="course-details">
+              <h6 className="details-title">
+                <i className="fas fa-info-circle me-2"></i>
+                Informații Complete
+              </h6>
+              
+              <div className="details-grid">
+                <div className="detail-item">
+                  <div className="detail-icon">
+                    <i className="fas fa-map-marker-alt"></i>
+                  </div>
+                  <div className="detail-content">
+                    <div className="detail-label">Punct de plecare</div>
+                    <div className="detail-value">{course.departure_location || 'Nu este specificat'}</div>
+                  </div>
                 </div>
-                <div className="col-md-6 mb-2">
-                  <small className="text-muted">Ora sosire:</small>
-                  <div className="fw-semibold">{formatTime(course.arrival_time)}</div>
+
+                <div className="detail-item">
+                  <div className="detail-icon">
+                    <i className="fas fa-flag-checkered"></i>
+                  </div>
+                  <div className="detail-content">
+                    <div className="detail-label">Destinație</div>
+                    <div className="detail-value">{course.destination_location || 'Nu este specificat'}</div>
+                  </div>
                 </div>
-                <div className="col-12 mb-2">
-                  <small className="text-muted">UIT:</small>
-                  <div className="fw-semibold font-monospace">{course.uit}</div>
+
+                <div className="detail-item">
+                  <div className="detail-icon">
+                    <i className="fas fa-play-circle"></i>
+                  </div>
+                  <div className="detail-content">
+                    <div className="detail-label">Ora plecare</div>
+                    <div className="detail-value">{formatTime(course.departure_time)}</div>
+                  </div>
                 </div>
+
+                <div className="detail-item">
+                  <div className="detail-icon">
+                    <i className="fas fa-stop-circle"></i>
+                  </div>
+                  <div className="detail-content">
+                    <div className="detail-label">Ora sosire</div>
+                    <div className="detail-value">{formatTime(course.arrival_time)}</div>
+                  </div>
+                </div>
+
+                <div className="detail-item">
+                  <div className="detail-icon">
+                    <i className="fas fa-id-card"></i>
+                  </div>
+                  <div className="detail-content">
+                    <div className="detail-label">Identificator UIT</div>
+                    <div className="detail-value font-monospace">{course.uit}</div>
+                  </div>
+                </div>
+
                 {course.description && (
-                  <div className="col-12 mb-2">
-                    <small className="text-muted">Descriere:</small>
-                    <div className="fw-semibold">{course.description}</div>
+                  <div className="detail-item full-width">
+                    <div className="detail-icon">
+                      <i className="fas fa-file-text"></i>
+                    </div>
+                    <div className="detail-content">
+                      <div className="detail-label">Descriere transport</div>
+                      <div className="detail-value">{course.description}</div>
+                    </div>
                   </div>
                 )}
               </div>
