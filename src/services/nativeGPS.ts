@@ -23,7 +23,13 @@ class NativeGPSService {
   constructor() {
     if (Capacitor.isNativePlatform()) {
       // Register the native plugin on Android
-      this.plugin = (window as any).Capacitor?.Plugins?.GPSTracking as GPSTrackingPlugin;
+      try {
+        this.plugin = (window as any).Capacitor?.Plugins?.GPSTracking as GPSTrackingPlugin;
+        console.log('Native GPS plugin initialized:', this.plugin ? 'SUCCESS' : 'FAILED');
+      } catch (error) {
+        console.error('Error initializing native GPS plugin:', error);
+        this.plugin = null;
+      }
     }
   }
 
