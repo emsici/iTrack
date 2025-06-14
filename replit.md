@@ -162,6 +162,8 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Fixed GPS transmission frequency - eliminated redundant backup systems causing per-second transmission
 - June 14, 2025. GPS now sends coordinates exactly once per minute (60 seconds) with status "2" instead of "active"
 - June 14, 2025. Background tracking verified working when phone locked/app minimized using single optimized system
+- June 14, 2025. Added automatic battery optimization exemption request - guides user to allow background operation
+- June 14, 2025. Implemented requestBackgroundPermissions() method for user-guided battery settings access
 
 ## User Preferences
 

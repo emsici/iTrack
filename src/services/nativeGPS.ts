@@ -13,6 +13,8 @@ interface GPSTrackingPlugin {
   }): Promise<{ success: boolean; message: string }>;
   
   isGPSTrackingActive(): Promise<{ isActive: boolean }>;
+  
+  requestBackgroundPermissions(): Promise<{ success: boolean; message: string }>;
 }
 
 const GPSTracking = registerPlugin<GPSTrackingPlugin>('GPSTracking');
@@ -81,6 +83,16 @@ class NativeGPSService {
       return false;
     }
   }
+
+  async requestBackgroundPermissions(): Promise<void> {
+    try {
+      const result = await GPSTracking.requestBackgroundPermissions();
+      console.log('Background permissions requested:', result.message);
+    } catch (error) {
+      console.error('Failed to request background permissions:', error);
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance
@@ -100,3 +112,6 @@ export const hasActiveCourses = () =>
 
 export const isGPSTrackingActive = () => 
   nativeGPSService.isTrackingActive();
+
+export const requestBackgroundPermissions = () => 
+  nativeGPSService.requestBackgroundPermissions();

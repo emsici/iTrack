@@ -86,4 +86,44 @@ public class GPSTrackingPlugin extends Plugin {
         result.put("isActive", true);
         call.resolve(result);
     }
+    
+    private void requestBatteryOptimizationExemption() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PowerManager powerManager = (PowerManager) getContext().getSystemService(getContext().POWER_SERVICE);
+                String packageName = getContext().getPackageName();
+                
+                if (powerManager != null && !powerManager.isIgnoringBatteryOptimizations(packageName)) {
+                    Log.d(TAG, "Requesting battery optimization exemption for background GPS");
+                    
+                    Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                    intent.setData(Uri.parse("package:" + packageName));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    
+                    getContext().startActivity(intent);
+                    Log.d(TAG, "Battery optimization settings opened for user approval");
+                } else {
+                    Log.d(TAG, "Battery optimization already disabled or not supported");
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Could not request battery optimization exemption", e);
+        }
+    }
+    
+    @PluginMethod
+    public void requestBackgroundPermissions(PluginCall call) {
+        try {
+            requestBatteryOptimizationExemption();
+            
+            JSObject result = new JSObject();
+            result.put("success", true);
+            result.put("message", "Battery optimization settings opened - please allow iTrack to run in background");
+            call.resolve(result);
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to request background permissions", e);
+            call.reject("Failed to request background permissions: " + e.getMessage());
+        }
+    }
 }
