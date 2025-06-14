@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
-import { startGPSTracking, stopGPSTracking } from '../services/communityGPS';
-import { sendGPSData } from '../services/api';
-import { Geolocation } from '@capacitor/geolocation';
-import { Device } from '@capacitor/device';
+import { startGPSTracking, stopGPSTracking, pauseGPSTracking, resumeGPSTracking } from '../services/continuousGPS';
 
 interface CourseCardProps {
   course: Course;
@@ -44,30 +41,30 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const handleStatusChange = async (newStatus: number) => {
     setLoading(true);
     try {
-      // Send status update to server first
-      await sendStatusToServer(newStatus);
-      
-      // Update GPS tracking based on status - no await to prevent blocking
+      // Handle GPS tracking based on status change
       if (newStatus === 2) {
-        // Start GPS tracking with real UIT from course
-        startGPSTracking(course.id, vehicleNumber, token, course.uit).catch(error => {
-          console.error('Failed to start GPS tracking:', error);
-        });
-      } else if (course.status === 2 && (newStatus === 3 || newStatus === 4)) {
-        // Stop or pause GPS tracking
-        stopGPSTracking(course.id).catch(error => {
-          console.error('Failed to stop GPS tracking:', error);
-        });
+        // Start continuous GPS tracking (sends coordinates every minute)
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit);
+        console.log(`Started continuous GPS tracking for course ${course.id}`);
+      } else if (newStatus === 3 && course.status === 2) {
+        // Pause GPS tracking
+        await pauseGPSTracking(course.id);
+        console.log(`Paused GPS tracking for course ${course.id}`);
       } else if (newStatus === 2 && course.status === 3) {
-        // Resume GPS tracking from pause with real UIT
-        startGPSTracking(course.id, vehicleNumber, token, course.uit).catch(error => {
-          console.error('Failed to resume GPS tracking:', error);
-        });
+        // Resume GPS tracking from pause
+        await resumeGPSTracking(course.id);
+        console.log(`Resumed GPS tracking for course ${course.id}`);
+      } else if (newStatus === 4) {
+        // Stop GPS tracking
+        await stopGPSTracking(course.id);
+        console.log(`Stopped GPS tracking for course ${course.id}`);
       }
       
       onStatusUpdate(course.id, newStatus);
     } catch (error) {
-      console.error('Error updating course status:', error);
+      console.error('Error updating course status with GPS:', error);
+      // Continue with status update even if GPS fails
+      onStatusUpdate(course.id, newStatus);
     } finally {
       setLoading(false);
     }

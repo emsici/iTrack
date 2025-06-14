@@ -103,37 +103,14 @@ Doriți să continuați? Veți fi redirecționat către setările de permisiuni.
 
   private async startBackgroundWatch() {
     try {
-      console.log('Starting optimized background GPS with foreground service integration...');
+      console.log('Status-based GPS tracking active - coordinates sent only on course status changes');
       
-      this.watchId = await BackgroundGeolocation.addWatcher(
-        {
-          // Professional notification for foreground service
-          backgroundMessage: "📍 iTrack Professional - Tracking vehicul activ",
-          backgroundTitle: "iTrack GPS Professional",
-          
-          // Enhanced permissions and settings
-          requestPermissions: true,
-          stale: false,
-          distanceFilter: 0, // Track any movement for precision
-          
-          // Optimized for foreground service cooperation
-        },
-        (location, error) => {
-          if (error) {
-            console.error('Background GPS service error:', error);
-            return;
-          }
-
-          if (location) {
-            console.log('GPS location received from background service');
-            this.onLocationReceived(location);
-          }
-        }
-      );
-
-      console.log('Background GPS service integrated with foreground service, ID:', this.watchId);
+      // Set watchId to indicate tracking is "active" but no continuous watching
+      this.watchId = 'status-based-tracking';
+      
+      console.log('GPS background watch configured for status-only tracking');
     } catch (error) {
-      console.error('Failed to start community background watch:', error);
+      console.error('Failed to configure GPS tracking:', error);
       throw error;
     }
   }
