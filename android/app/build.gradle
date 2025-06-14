@@ -28,6 +28,13 @@ repositories {
     flatDir{
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
     }
+    // Transistorsoft private repository for background geolocation
+    maven {
+        url("${project.rootDir}/../node_modules/@transistorsoft/capacitor-background-geolocation/android/libs")
+    }
+    maven {
+        url 'https://developer.huawei.com/repo/'
+    }
 }
 
 dependencies {
