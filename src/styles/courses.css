@@ -355,6 +355,107 @@
   letter-spacing: 0.5px;
 }
 
+/* Course Summary and Details Styling */
+.course-summary {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.summary-item:last-child {
+  margin-bottom: 0;
+}
+
+.summary-item i {
+  width: 20px;
+  font-size: 1rem;
+}
+
+.summary-label {
+  font-weight: 600;
+  color: #475569;
+  min-width: 70px;
+}
+
+.summary-value {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.details-title {
+  color: #1e40af;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid rgba(226, 232, 240, 0.5);
+  transition: all 0.2s ease;
+}
+
+.detail-item:hover {
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateX(4px);
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+}
+
+.detail-content {
+  flex: 1;
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .course-header-actions {
@@ -382,5 +483,19 @@
   .vehicle-info {
     flex-direction: column;
     gap: 0.75rem;
+  }
+  
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-item {
+    padding: 0.5rem;
+    gap: 0.75rem;
+  }
+  
+  .detail-icon {
+    width: 35px;
+    height: 35px;
   }
 }

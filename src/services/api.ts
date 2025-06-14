@@ -96,12 +96,12 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
       if (responseData.status === 'success' && Array.isArray(responseData.data)) {
         return responseData.data.map((course: any, index: number) => ({
           id: course.ikRoTrans?.toString() || `course_${index}`,
-          name: `Transport ${course.denumireLocStart || 'Start'} → ${course.denumireLocStop || 'Stop'}`,
-          departure_location: course.denumireLocStart || course.Judet,
-          destination_location: course.denumireLocStop || course.JudetStop,
-          departure_time: course.dataTransport,
-          arrival_time: null,
-          description: `${course.denumireCui || ''} - ${course.nrVehicul || ''}`,
+          name: `Transport ${course.codDeclarant} - ${course.ikRoTrans}`,
+          departure_location: `${course.denumireLocStart || 'Start'}, ${course.Judet || ''}`.trim().replace(/, $/, ''),
+          destination_location: `${course.denumireLocStop || 'Stop'}, ${course.JudetStop || ''}`.trim().replace(/, $/, ''),
+          departure_time: course.dataTransport ? `${course.dataTransport} 08:00:00` : null,
+          arrival_time: course.dataTransport ? `${course.dataTransport} 18:00:00` : null,
+          description: `${course.denumireCui || 'Transport marfă'} - Vehicul: ${course.nrVehicul || 'N/A'}`,
           status: 1, // Always start as available
           uit: course.UIT
         }));
