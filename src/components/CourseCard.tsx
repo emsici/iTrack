@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
 import { startGPSTracking, stopGPSTracking } from '../services/communityGPS';
+import { sendGPSData } from '../services/api';
+import { Geolocation } from '@capacitor/geolocation';
+import { Device } from '@capacitor/device';
 
 interface CourseCardProps {
   course: Course;
@@ -73,9 +76,6 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const sendStatusToServer = async (status: number) => {
     try {
       // Send GPS data with the new status to mark course state change
-      const { sendGPSData } = await import('../services/api');
-      const { Geolocation } = await import('@capacitor/geolocation');
-      const { Device } = await import('@capacitor/device');
       
       // Get current position for status update
       const position = await Geolocation.getCurrentPosition({

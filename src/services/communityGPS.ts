@@ -1,6 +1,7 @@
 import { BackgroundGeolocationPlugin } from '@capacitor-community/background-geolocation';
 import { registerPlugin } from '@capacitor/core';
 import { sendGPSData, type GPSData } from "./api";
+import { Device } from '@capacitor/device';
 
 const BackgroundGeolocation = registerPlugin<BackgroundGeolocationPlugin>('BackgroundGeolocation');
 
@@ -184,7 +185,6 @@ class CommunityGPSTracker {
 
   private async getBatteryLevel(): Promise<number> {
     try {
-      const { Device } = await import('@capacitor/device');
       const batteryInfo = await Device.getBatteryInfo();
       return Math.round((batteryInfo.batteryLevel || 0) * 100);
     } catch (error) {
