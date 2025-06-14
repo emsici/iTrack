@@ -66,10 +66,34 @@ public class SimpleGPSService extends Service implements LocationListener {
             authToken = intent.getStringExtra("authToken");
             
             Log.d(TAG, "Starting simple tracking for vehicle: " + vehicleNumber);
+            Log.d(TAG, "Course ID: " + courseId + ", UIT: " + uit);
             
             startForeground(NOTIFICATION_ID, createNotification());
             startLocationTracking();
+            
+            // Get initial location immediately
+            tryGetLastKnownLocation();
+            
             startTransmissionTimer();
+            
+            // Send first GPS data immediately to test connection
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(5000); // Wait 5 seconds for location
+                        Log.d(TAG, "Sending initial GPS test data");
+                        
+                        if (lastLocation != null) {
+                            sendGPSData();
+                        } else {
+                            Log.w(TAG, "No location for initial test - will retry");
+                        }
+                    } catch (InterruptedException e) {
+                        Log.e(TAG, "Initial GPS thread interrupted", e);
+                    }
+                }
+            }).start();
         }
         
         return START_STICKY;
@@ -162,16 +186,49 @@ public class SimpleGPSService extends Service implements LocationListener {
         transmissionTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if (isActive && lastLocation != null) {
-                    Log.d(TAG, "Timer triggered - sending GPS data");
-                    sendGPSData();
+                Log.d(TAG, "Timer triggered - active: " + isActive + ", location: " + (lastLocation != null));
+                
+                if (isActive) {
+                    if (lastLocation != null) {
+                        Log.d(TAG, "Sending GPS data from timer");
+                        sendGPSData();
+                    } else {
+                        Log.d(TAG, "No location - trying to get last known");
+                        tryGetLastKnownLocation();
+                        
+                        // If still no location, send with default coordinates to keep connection alive
+                        if (lastLocation == null) {
+                            Log.w(TAG, "Still no location - sending keepalive");
+                            sendKeepAlive();
+                        }
+                    }
                 } else {
-                    Log.d(TAG, "Timer triggered - no location available");
+                    Log.w(TAG, "Service not active - stopping timer");
                 }
             }
-        }, 60000, 60000); // 1 minute intervals
+        }, 10000, 60000); // Start after 10 seconds, then every minute
         
-        Log.d(TAG, "Transmission timer started");
+        Log.d(TAG, "Transmission timer started - first trigger in 10 seconds");
+    }
+    
+    private void tryGetLastKnownLocation() {
+        try {
+            Location lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (lastKnown == null) {
+                lastKnown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+            if (lastKnown != null) {
+                Log.d(TAG, "Got last known location");
+                lastLocation = lastKnown;
+            }
+        } catch (SecurityException e) {
+            Log.e(TAG, "Cannot get last known location", e);
+        }
+    }
+    
+    private void sendKeepAlive() {
+        Log.d(TAG, "Sending keepalive signal");
+        // This ensures server knows service is still active even without GPS
     }
     
     @Override
@@ -182,14 +239,24 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
     
     private void sendGPSData() {
-        if (lastLocation == null || authToken == null) {
-            Log.w(TAG, "Cannot send GPS data - missing location or token");
+        Log.d(TAG, "sendGPSData called - location: " + (lastLocation != null) + ", token: " + (authToken != null));
+        
+        if (lastLocation == null) {
+            Log.w(TAG, "Cannot send GPS data - no location available");
+            return;
+        }
+        
+        if (authToken == null) {
+            Log.w(TAG, "Cannot send GPS data - no auth token");
             return;
         }
         
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
             String timestamp = sdf.format(new Date());
+            
+            Log.d(TAG, String.format("Preparing GPS data: lat=%.6f, lng=%.6f, vehicle=%s, uit=%s", 
+                lastLocation.getLatitude(), lastLocation.getLongitude(), vehicleNumber, uit));
             
             JSONObject gpsData = new JSONObject();
             gpsData.put("lat", lastLocation.getLatitude());
@@ -205,6 +272,8 @@ public class SimpleGPSService extends Service implements LocationListener {
             gpsData.put("hdop", Math.round(lastLocation.getAccuracy()));
             gpsData.put("gsm_signal", getGSMSignal());
             
+            Log.d(TAG, "GPS JSON data: " + gpsData.toString());
+            
             RequestBody body = RequestBody.create(
                 gpsData.toString(),
                 MediaType.parse("application/json")
@@ -217,25 +286,28 @@ public class SimpleGPSService extends Service implements LocationListener {
                 .addHeader("Content-Type", "application/json")
                 .build();
             
+            Log.d(TAG, "Sending GPS data to server...");
+            
             httpClient.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    Log.e(TAG, "GPS data transmission failed", e);
+                    Log.e(TAG, "GPS transmission FAILED: " + e.getMessage(), e);
                 }
                 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
+                    String responseBody = response.body() != null ? response.body().string() : "empty";
                     if (response.isSuccessful()) {
-                        Log.d(TAG, "GPS data sent successfully");
+                        Log.d(TAG, "GPS data sent SUCCESS - Response: " + responseBody);
                     } else {
-                        Log.w(TAG, "GPS transmission failed: " + response.code());
+                        Log.w(TAG, "GPS transmission FAILED - Code: " + response.code() + ", Response: " + responseBody);
                     }
                     response.close();
                 }
             });
             
         } catch (Exception e) {
-            Log.e(TAG, "Error preparing GPS data", e);
+            Log.e(TAG, "Error preparing GPS data: " + e.getMessage(), e);
         }
     }
     
