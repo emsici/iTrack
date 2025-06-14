@@ -21,50 +21,85 @@ class BackgroundGPSTracker {
     try {
       console.log('Initializing professional background GPS...');
       
-      // Configure background geolocation with aggressive settings for continuous tracking
+      // Configure background geolocation with MAXIMUM AGGRESSIVE settings for locked phone
       await BackgroundGeolocation.ready({
-        // Geolocation Config
+        // Geolocation Config - ULTRA AGGRESSIVE
         desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
-        distanceFilter: 0, // Track any movement
-        locationUpdateInterval: 60000, // Every 60 seconds
-        fastestLocationUpdateInterval: 30000, // Fallback every 30 seconds
+        distanceFilter: 0, // Track ANY movement
+        locationUpdateInterval: 30000, // Every 30 seconds - more frequent
+        fastestLocationUpdateInterval: 15000, // Minimum 15 seconds
         
         // Application config - CRITICAL for background operation
-        debug: false, // Disable debug sounds
-        logLevel: BackgroundGeolocation.LOG_LEVEL_ERROR,
+        debug: true, // Enable for debugging locked phone issues
+        logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
         stopOnTerminate: false,   // CRITICAL: Continue when app terminates
         startOnBoot: true,        // CRITICAL: Auto-start after reboot
         
-        // Background modes - force all background capabilities
-        enableHeadless: true,     // CRITICAL: Background operation
-        foregroundService: true,  // CRITICAL: Android foreground service
+        // Background modes - FORCE ALL background capabilities
+        enableHeadless: true,     // CRITICAL: Background operation without app
+        foregroundService: true,  // CRITICAL: Android foreground service with notification
         
-        // Android-specific settings for robust background operation
+        // Android-specific AGGRESSIVE settings
         allowIdenticalLocations: true,
-        disableElasticity: true, // Disable location smoothing for accuracy
+        disableElasticity: true, // No battery optimization
+        preventSuspend: true,    // CRITICAL: Prevent Android from suspending service
         
-        // CRITICAL: Disable activity recognition to prevent permission prompts
-        disableMotionActivityUpdates: true,
-        stopTimeout: 0, // Disable motion detection completely
+        // Motion detection - COMPLETELY DISABLED for maximum reliability
+        disableMotionActivityUpdates: true, // No motion detection
+        disableStopDetection: true,         // Never stop tracking
+        stopTimeout: 0,                     // No stop timeout
         
-        // Force use of manifest permissions only
-        disableLocationAuthorizationAlert: true,
-        locationAuthorizationRequest: 'WhenInUse', // Less aggressive permission request
+        // Force ALWAYS permission for background
+        locationAuthorizationRequest: 'Always', // Request background permission
+        disableLocationAuthorizationAlert: false, // Show permission dialogs
         
-        // Persistent notification to prevent service termination
+        // PERSISTENT notification - CANNOT be dismissed
         notification: {
-          title: "iTrack GPS Activ",
-          text: "Urmărire vehicul în curs",
-          color: "red",
-          channelName: "GPS Tracking",
-          priority: BackgroundGeolocation.NOTIFICATION_PRIORITY_HIGH,
-          sticky: true // Cannot be dismissed
+          title: "🚚 iTrack GPS ACTIV",
+          text: "Urmărire vehicul în fundal - NU ÎNCHIDE",
+          color: "#FF0000",
+          channelName: "GPS Tracking Background",
+          priority: BackgroundGeolocation.NOTIFICATION_PRIORITY_MAX,
+          sticky: true, // Cannot be dismissed by user
+          actions: [] // No action buttons to prevent accidental dismissal
         },
         
-        // Disable HTTP auto-sync - we handle manually
-        url: undefined,
-        autoSync: false,
-        batchSync: false
+        // Heartbeat for stationary periods - AGGRESSIVE
+        heartbeatInterval: 30, // Send heartbeat every 30 seconds when stationary
+        
+        // Battery - IGNORE all optimizations
+        schedule: [], // Always active, no scheduling
+        
+        // Network - immediate transmission
+        autoSync: false, // We handle manually for immediate transmission
+        batchSync: false,
+        maxBatchSize: 1, // Send immediately, don't batch
+        
+        // FORCE continuous operation
+        isMoving: true, // Force moving state to prevent stop detection
+        
+        // Android power management - DISABLE ALL optimizations
+        extras: {
+          "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS": true
+        },
+        
+        // FORCE wake locks and background execution
+        maxDaysToPersist: 1,
+        
+        // Aggressive background settings for minimized app
+        forceReloadOnLocationChange: false,  // Don't reload app
+        forceReloadOnMotionChange: false,    // Don't reload app
+        forceReloadOnHeartbeat: false,       // Don't reload app
+        forceReloadOnBoot: false,            // Don't reload app
+        
+        // Keep service alive when app minimized
+        locationTimeout: 60,
+        backgroundPermissionRationale: {
+          title: "Permisiune Locație în Fundal",
+          message: "iTrack trebuie să urmărească vehiculul chiar și când aplicația este minimizată sau telefonul blocat",
+          positiveAction: "Permite Întotdeauna",
+          negativeAction: "Anulează"
+        }
       });
 
       // Location event listener
