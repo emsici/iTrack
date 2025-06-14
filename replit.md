@@ -139,6 +139,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Implemented OkHttp-based GPS data transmission directly from Android service to bypass JavaScript limitations
 - June 14, 2025. Added native GPS plugin (GPSTrackingPlugin.java) with Capacitor bridge for seamless integration
 - June 14, 2025. GPS tracking now works independently when phone is locked or user switches to other apps like Facebook
+- June 14, 2025. Implemented real GSM signal strength reading from Android TelephonyManager (0-100 scale)
+- June 14, 2025. Added persistent authentication with automatic token storage and logout API integration
+- June 14, 2025. Fixed session persistence - app no longer logs out when minimized or backgrounded
 
 ## User Preferences
 

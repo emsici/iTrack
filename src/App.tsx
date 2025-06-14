@@ -40,10 +40,36 @@ const App: React.FC = () => {
     setCurrentScreen('vehicle');
   };
 
-  const handleLogout = () => {
-    setToken('');
-    setCurrentScreen('login');
+  const handleLogout = async () => {
+    try {
+      // Call logout API endpoint
+      const response = await fetch('https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('Logout API response:', response.status);
+    } catch (error) {
+      console.error('Error calling logout API:', error);
+    } finally {
+      // Clear local storage and reset state regardless of API response
+      await clearToken();
+      setToken('');
+      setCurrentScreen('login');
+      console.log('Logged out - cleared local storage');
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="app" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="app">
