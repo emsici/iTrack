@@ -8,6 +8,9 @@ const config: CapacitorConfig = {
     androidScheme: 'https'
   },
   plugins: {
+    GPSTracking: {
+      // Custom GPS tracking plugin for native Android service
+    },
     Geolocation: {
       requestPermissions: true,
       enableBackgroundLocationUpdates: true,
