@@ -1,7 +1,7 @@
-# GPS Tracker Mobile Application
+# iTrack - Professional Driver Tracking Application
 
 ## Overview
-This is a React-based GPS tracking application built with Capacitor for cross-platform mobile deployment. The application is designed to track vehicle locations in real-time and manage transport courses. It features user authentication, vehicle management, and GPS data transmission to a remote server.
+This is a professional React-based GPS tracking application built with Capacitor for cross-platform mobile deployment. The application is specifically designed for drivers to track their active transport courses in real-time. It features secure authentication, vehicle course management, and continuous GPS data transmission to the ETSM3 transport management server.
 
 ## System Architecture
 
@@ -112,8 +112,8 @@ This is a React-based GPS tracking application built with Capacitor for cross-pl
 5. Signed APK generation for distribution
 
 ### Build Configuration
-- **App ID**: com.gps.tracker
-- **App Name**: GPS Tracker
+- **App ID**: com.euscagency.iTrack
+- **App Name**: iTrack
 - **Target SDK**: Android API level based on Capacitor requirements
 - **Permissions**: Location access, network access, background processing
 

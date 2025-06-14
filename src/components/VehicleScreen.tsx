@@ -55,7 +55,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     <div className="app">
       <div className="vehicle-header">
         <div className="container">
-          <h1 className="vehicle-title">🚛 GPS Tracker</h1>
+          <h1 className="vehicle-title">📍 iTrack</h1>
           <button 
             className="disconnect-btn"
             onClick={handleLogout}
