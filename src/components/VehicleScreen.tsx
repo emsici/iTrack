@@ -10,7 +10,7 @@ interface VehicleScreenProps {
 }
 
 const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
-  const [vehicleNumber, setVehicleNumber] = useState('CT01ZZZ');
+  const [vehicleNumber, setVehicleNumber] = useState('');
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -85,17 +85,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <input
                       type="text"
                       className="form-control form-control-lg"
-                      placeholder="Numărul de înmatriculare (ex: B123XYZ)"
+                      placeholder="Numărul de înmatriculare (ex: CT01ZZZ, B123XYZ)"
                       value={vehicleNumber}
                       onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
                       disabled={loading}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !loading && vehicleNumber.trim()) {
+                          handleLoadCourses();
+                        }
+                      }}
                     />
                   </div>
                   <div className="col-md-4">
                     <button
                       className="btn btn-primary btn-lg w-100"
                       onClick={handleLoadCourses}
-                      disabled={loading}
+                      disabled={loading || !vehicleNumber.trim()}
                     >
                       {loading ? (
                         <>
@@ -111,6 +116,26 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     </button>
                   </div>
                 </div>
+
+                {coursesLoaded && courses.length > 0 && (
+                  <div className="mt-3">
+                    <div className="alert alert-info">
+                      <i className="fas fa-info-circle me-2"></i>
+                      Vehicul: <strong>{vehicleNumber}</strong> - {courses.length} curse găsite
+                      <button 
+                        className="btn btn-sm btn-outline-primary ms-3"
+                        onClick={() => {
+                          setCourses([]);
+                          setCoursesLoaded(false);
+                          setVehicleNumber('');
+                        }}
+                      >
+                        <i className="fas fa-plus me-1"></i>
+                        Vehicul nou
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {error && (
                   <div className="alert alert-danger mt-3">
