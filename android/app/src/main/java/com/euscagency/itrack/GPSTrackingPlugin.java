@@ -1,19 +1,60 @@
 package com.euscagency.itrack;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.util.Log;
+import androidx.core.app.ActivityCompat;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
 
-@CapacitorPlugin(name = "GPSTracking")
+@CapacitorPlugin(name = "GPSTracking", permissions = {
+    @Permission(strings = {Manifest.permission.ACCESS_FINE_LOCATION}, alias = "location"),
+    @Permission(strings = {Manifest.permission.ACCESS_COARSE_LOCATION}, alias = "coarseLocation"),
+    @Permission(strings = {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, alias = "backgroundLocation")
+})
 public class GPSTrackingPlugin extends Plugin {
     private static final String TAG = "GPSTrackingPlugin";
     
     @PluginMethod
     public void startGPSTracking(PluginCall call) {
+        // Check and request permissions first
+        if (!hasRequiredPermissions()) {
+            requestAllPermissions(call, "GPS_TRACKING_PERMS");
+            return;
+        }
+        
+        startGPSTrackingInternal(call);
+    }
+    
+    private boolean hasRequiredPermissions() {
+        return ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+               ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+    
+    @Override
+    protected void handleRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.handleRequestPermissionsResult(requestCode, permissions, grantResults);
+        
+        PluginCall savedCall = getSavedCall();
+        if (savedCall == null) {
+            return;
+        }
+        
+        if ("GPS_TRACKING_PERMS".equals(savedCall.getMethodName())) {
+            if (hasRequiredPermissions()) {
+                startGPSTrackingInternal(savedCall);
+            } else {
+                savedCall.reject("GPS permissions are required for tracking");
+            }
+        }
+    }
+    
+    private void startGPSTrackingInternal(PluginCall call) {
         String vehicleNumber = call.getString("vehicleNumber");
         String courseId = call.getString("courseId");
         String uit = call.getString("uit");

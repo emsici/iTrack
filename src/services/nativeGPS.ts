@@ -1,4 +1,5 @@
 import { registerPlugin } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
 
 interface GPSTrackingPlugin {
   startGPSTracking(options: {
@@ -26,6 +27,9 @@ class NativeGPSService {
     try {
       console.log(`Starting native GPS tracking for course ${courseId} with status ${status}`);
       
+      // Request GPS permissions before starting tracking
+      await this.requestPermissions();
+      
       const result = await GPSTracking.startGPSTracking({
         vehicleNumber,
         courseId,
@@ -43,6 +47,29 @@ class NativeGPSService {
     } catch (error) {
       console.error('Failed to start native GPS tracking:', error);
       throw error;
+    }
+  }
+
+  private async requestPermissions(): Promise<void> {
+    try {
+      console.log('Requesting GPS and background location permissions...');
+      
+      // Request location permissions
+      const permissions = await Geolocation.requestPermissions();
+      
+      if (permissions.location === 'denied') {
+        throw new Error('Permisiunile GPS sunt necesare pentru urmărirea traseului');
+      }
+      
+      if (permissions.coarseLocation === 'denied') {
+        console.warn('Permisiunea pentru locația aproximativă a fost refuzată');
+      }
+      
+      console.log('GPS permissions granted:', permissions);
+      
+    } catch (error) {
+      console.error('Error requesting permissions:', error);
+      throw new Error('Nu s-au putut obține permisiunile GPS necesare');
     }
   }
 
