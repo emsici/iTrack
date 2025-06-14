@@ -175,6 +175,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Implemented correct GPS status logic: Status 2=active (sends coordinates), 3=pause (stops coordinates), 4=stop (final status)
 - June 14, 2025. GPS transmits coordinates continuously ONLY when status is 2 (active), pauses transmission for status 3/4
 - June 14, 2025. Added pause/resume/stop methods in native Android service with proper status management
+- June 14, 2025. Implemented multiple course tracking - GPS handles multiple simultaneous courses with individual status management
+- June 14, 2025. Enhanced background location permission request - always opens settings for "Allow all the time" selection
+- June 14, 2025. GPS service tracks multiple vehicles/courses simultaneously, coordinates sent per active course every 60 seconds
 
 ## User Preferences
 
