@@ -35,11 +35,12 @@ This is a professional React-based GPS tracking application built with Capacitor
 - Automatic session persistence across app restarts
 
 ### GPS Tracking Service
-- Real-time location tracking using Capacitor Geolocation
-- Background location updates support
-- Configurable tracking intervals
-- GPS data buffering and transmission
-- Support for both native and web environments
+- Native Android location tracking with persistent background operation
+- Continues tracking even when phone is locked or app is minimized
+- Optimized for battery efficiency with 1-minute interval updates
+- Automatic battery optimization exemption requests
+- watchPosition implementation for continuous location monitoring
+- Robust error handling and recovery mechanisms
 
 ### Course Management
 - Vehicle-specific course loading

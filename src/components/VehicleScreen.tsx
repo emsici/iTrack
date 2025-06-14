@@ -14,9 +14,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [coursesLoaded, setCoursesLoaded] = useState(false);
+  const [recentVehicles, setRecentVehicles] = useState<string[]>([]);
 
-  const handleLoadCourses = async () => {
-    if (!vehicleNumber.trim()) {
+  const handleLoadCourses = async (vehicleNum?: string) => {
+    const targetVehicle = vehicleNum || vehicleNumber;
+    
+    if (!targetVehicle.trim()) {
       setError('Introduceți numărul de înmatriculare');
       return;
     }
@@ -25,9 +28,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     setError('');
 
     try {
-      const coursesData = await getVehicleCourses(vehicleNumber, token);
+      const coursesData = await getVehicleCourses(targetVehicle, token);
       setCourses(coursesData);
       setCoursesLoaded(true);
+      
+      // Update vehicle number if switching
+      if (vehicleNum) {
+        setVehicleNumber(vehicleNum);
+      }
+      
+      // Add to recent vehicles (avoid duplicates)
+      setRecentVehicles(prev => {
+        const updated = [targetVehicle, ...prev.filter(v => v !== targetVehicle)];
+        return updated.slice(0, 5); // Keep only last 5 vehicles
+      });
     } catch (err: any) {
       setError(err.message || 'Eroare la încărcarea curselor');
       setCourses([]);
@@ -92,7 +106,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <div className="col-md-4">
                     <button
                       className="btn btn-load-courses btn-lg w-100"
-                      onClick={handleLoadCourses}
+                      onClick={() => handleLoadCourses()}
                       disabled={loading || !vehicleNumber.trim()}
                     >
                       {loading ? (
@@ -111,20 +125,69 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
                 {coursesLoaded && courses.length > 0 && (
                   <div className="mt-3">
-                    <div className="alert alert-info">
-                      <i className="fas fa-info-circle me-2"></i>
-                      Vehicul: <strong>{vehicleNumber}</strong> - {courses.length} curse găsite
-                      <button 
-                        className="btn btn-sm btn-outline-primary ms-3"
-                        onClick={() => {
-                          setCourses([]);
-                          setCoursesLoaded(false);
-                          setVehicleNumber('');
-                        }}
-                      >
-                        <i className="fas fa-plus me-1"></i>
-                        Vehicul nou
-                      </button>
+                    <div className="vehicle-info-card">
+                      <div className="vehicle-info-content">
+                        <div className="vehicle-info-text">
+                          <span className="vehicle-badge">🚛 {vehicleNumber}</span>
+                          <span className="courses-count">{courses.length} curse disponibile</span>
+                        </div>
+                        <button
+                          className="btn btn-new-vehicle"
+                          onClick={() => {
+                            setVehicleNumber('');
+                            setCourses([]);
+                            setCoursesLoaded(false);
+                          }}
+                        >
+                          ➕ Vehicul nou
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Recent Vehicles Quick Switch */}
+                {recentVehicles.length > 0 && !coursesLoaded && (
+                  <div className="mt-3">
+                    <div className="recent-vehicles-section">
+                      <h6 className="recent-vehicles-title">🕒 Vehicule recente</h6>
+                      <div className="recent-vehicles-grid">
+                        {recentVehicles.map((vehicle, index) => (
+                          <button
+                            key={index}
+                            className="btn btn-recent-vehicle"
+                            onClick={() => handleLoadCourses(vehicle)}
+                            disabled={loading}
+                          >
+                            {vehicle}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Quick Vehicle Switch when courses are loaded */}
+                {coursesLoaded && recentVehicles.length > 1 && (
+                  <div className="mt-3">
+                    <div className="vehicle-switch-section">
+                      <h6 className="switch-title">🔄 Schimbă vehiculul</h6>
+                      <div className="vehicle-switch-grid">
+                        {recentVehicles.filter(v => v !== vehicleNumber).map((vehicle, index) => (
+                          <button
+                            key={index}
+                            className="btn btn-switch-vehicle"
+                            onClick={() => handleLoadCourses(vehicle)}
+                            disabled={loading}
+                          >
+                            {loading ? (
+                              <span className="spinner-border spinner-border-sm"></span>
+                            ) : (
+                              <>🚛 {vehicle}</>
+                            )}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}

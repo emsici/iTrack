@@ -10,7 +10,12 @@ const config: CapacitorConfig = {
   plugins: {
     Geolocation: {
       requestPermissions: true,
-      enableBackgroundLocationUpdates: true
+      enableBackgroundLocationUpdates: true,
+      backgroundLocationUpdateInterval: 60000, // 1 minute
+      distanceFilter: 10 // meters
+    },
+    App: {
+      appendUserAgent: 'iTrack/1.0'
     }
   }
 };
