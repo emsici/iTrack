@@ -134,8 +134,8 @@ public class GPSForegroundService extends Service implements LocationListener {
             PowerManager.PARTIAL_WAKE_LOCK,
             "iTrack::GPSTrackingWakeLock"
         );
-        wakeLock.acquire(24 * 60 * 60 * 1000L); // 24 hours max
-        Log.d(TAG, "Wake lock acquired");
+        wakeLock.acquire(); // Indefinite wake lock for background operation
+        Log.d(TAG, "Indefinite wake lock acquired for background GPS tracking");
     }
     
     private void initializeLocationManager() {
@@ -156,6 +156,7 @@ public class GPSForegroundService extends Service implements LocationListener {
     
     private void initializeScheduler() {
         scheduler = Executors.newSingleThreadScheduledExecutor();
+        Log.d(TAG, "Scheduler initialized successfully");
     }
     
     private void startLocationTracking() {
@@ -186,11 +187,51 @@ public class GPSForegroundService extends Service implements LocationListener {
             }
             
             // Schedule regular GPS data transmission every 60 seconds
-            scheduler.scheduleAtFixedRate(this::sendGPSDataToServer, 10, 60, TimeUnit.SECONDS);
+            startPeriodicGPSTransmission();
             
         } catch (SecurityException e) {
             Log.e(TAG, "Location permission not granted", e);
         }
+    }
+    
+    private void startPeriodicGPSTransmission() {
+        Log.d(TAG, "Starting periodic GPS transmission every 60 seconds for course: " + courseId);
+        
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.d(TAG, "Periodic transmission triggered - Service active: " + (vehicleNumber != null));
+                    
+                    if (lastLocation != null) {
+                        Log.d(TAG, "Sending GPS data from periodic timer");
+                        sendGPSDataToServer();
+                    } else {
+                        Log.w(TAG, "No location available for periodic transmission");
+                        
+                        // Try to get last known location
+                        try {
+                            Location lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            if (lastKnown == null) {
+                                lastKnown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                            }
+                            
+                            if (lastKnown != null) {
+                                Log.d(TAG, "Using last known location for transmission");
+                                lastLocation = lastKnown;
+                                sendGPSDataToServer();
+                            }
+                        } catch (SecurityException e) {
+                            Log.e(TAG, "Cannot access last known location", e);
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error in periodic GPS transmission", e);
+                }
+            }
+        }, 10, 60, TimeUnit.SECONDS); // Start after 10 seconds, then every 60 seconds
+        
+        Log.d(TAG, "Periodic transmission scheduled successfully");
     }
     
     private void stopLocationTracking() {
