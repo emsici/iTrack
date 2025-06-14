@@ -242,7 +242,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             </div>
             <div className="header-actions">
-              <button className="help-btn">❓</button>
+              <button 
+                className="help-btn"
+                onClick={() => alert('iTrack v1.0\n\nAplicație profesională de tracking GPS pentru șoferi.\n\nFuncții:\n• GPS tracking în timp real\n• Monitorizare curse active\n• Status reporting automat\n• Background tracking pe Android\n\n© 2025 EUSC Agency')}
+                title="Informații despre aplicație"
+              >
+                ❓
+              </button>
               <button className="recording-btn">🔴</button>
               <button 
                 className="logout-btn"

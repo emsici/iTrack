@@ -51,7 +51,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               </div>
             </div>
             <div className="header-actions">
-              <button className="help-btn">❓</button>
+              <button 
+                className="help-btn"
+                onClick={() => alert('iTrack v1.0\n\nAplicație profesională de tracking GPS pentru șoferi.\n\nFuncții:\n• GPS tracking în timp real\n• Monitorizare curse active\n• Status reporting automat\n• Background tracking pe Android\n\n© 2025 EUSC Agency')}
+                title="Informații despre aplicație"
+              >
+                ❓
+              </button>
             </div>
           </div>
         </div>
@@ -68,83 +74,63 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                   <p className="login-subtitle">Introduceți datele de autentificare</p>
                 </div>
 
-                <div className="login-form-card">
-                  <div className="form-header">
-                    <h2 className="form-title">Conectare</h2>
-                    <p className="form-subtitle">Acces pentru șoferi autorizați</p>
+                {error && (
+                  <div className="alert alert-danger">
+                    <span>⚠️ {error}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleLogin} className="login-form">
+                  <div className="form-group">
+                    <label htmlFor="email" className="form-label">Email</label>
+                    <input
+                      type="email"
+                      className="form-control"
+                      id="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="exemplu@euscagency.com"
+                      disabled={loading}
+                      required
+                    />
                   </div>
 
-                  {error && (
-                    <div className="alert alert-danger d-flex align-items-center" role="alert">
-                      <span className="alert-icon">⚠️</span>
-                      <span>{error}</span>
-                    </div>
-                  )}
-
-                  <form onSubmit={handleLogin} className="login-form">
-                    <div className="form-group">
-                      <label htmlFor="email" className="form-label">
-                        Adresa de email
-                      </label>
-                      <div className="input-group">
-                        <span className="input-icon">✉️</span>
-                        <input
-                          type="email"
-                          className="form-control"
-                          id="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="exemplu@euscagency.com"
-                          disabled={loading}
-                          autoComplete="email"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="password" className="form-label">
-                        Parola
-                      </label>
-                      <div className="input-group">
-                        <span className="input-icon">🔒</span>
-                        <input
-                          type="password"
-                          className="form-control"
-                          id="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="••••••••••••"
-                          disabled={loading}
-                          autoComplete="current-password"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="login-btn"
-                      disabled={loading || !email || !password}
-                    >
-                      {loading ? (
-                        <>
-                          <span className="spinner-border spinner-border-sm me-2"></span>
-                          Se conectează...
-                        </>
-                      ) : (
-                        <>
-                          Conectare →
-                        </>
-                      )}
-                    </button>
-                  </form>
-
-                  <div className="form-footer">
-                    <p className="security-note">
-                      🔐 Conexiune securizată SSL
-                    </p>
+                  <div className="form-group">
+                    <label htmlFor="password" className="form-label">Parola</label>
+                    <input
+                      type="password"
+                      className="form-control"
+                      id="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••••••"
+                      disabled={loading}
+                      required
+                    />
                   </div>
+
+                  <button
+                    type="submit"
+                    className="login-btn"
+                    disabled={loading || !email || !password}
+                  >
+                    {loading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2"></span>
+                        Se conectează...
+                      </>
+                    ) : (
+                      <>
+                        Conectare →
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                <div className="form-footer">
+                  <p className="security-note">
+                    🔐 Conexiune securizată SSL
+                  </p>
                 </div>
               </div>
             </div>
