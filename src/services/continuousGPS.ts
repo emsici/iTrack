@@ -115,7 +115,9 @@ Deschideți: Setări > Aplicații > iTrack > Permisiuni > Locație > "Allow all 
       try {
         console.log(`Sending GPS data for ${this.activeCourses.size} active courses`);
         
+        // Send GPS data for each active course separately
         for (const [courseId, courseData] of this.activeCourses) {
+          console.log(`Sending GPS for course ${courseId} (${courseData.vehicleNumber})`);
           await this.sendGPSForCourse(courseData, 2); // Status 2 = active
         }
       } catch (error) {

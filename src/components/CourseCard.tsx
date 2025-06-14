@@ -70,42 +70,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
     }
   };
 
-  const sendStatusToServer = async (status: number) => {
-    try {
-      // Send GPS data with the new status to mark course state change
-      
-      // Get current position for status update
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 30000
-      });
-
-      const batteryInfo = await Device.getBatteryInfo();
-      const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-
-      const gpsData = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        timestamp: currentTime,
-        viteza: Math.max(0, position.coords.speed || 0),
-        directie: position.coords.heading || 0,
-        altitudine: position.coords.altitude || 0,
-        baterie: Math.round((batteryInfo.batteryLevel || 0) * 100),
-        numar_inmatriculare: vehicleNumber,
-        uit: course.uit,
-        status: status.toString(), // Send the exact status: 2=started, 3=paused, 4=finished
-        hdop: Math.round(position.coords.accuracy || 0).toString(),
-        gsm_signal: '100'
-      };
-
-      console.log(`Sending status ${status} to server for course ${course.id}`);
-      await sendGPSData(gpsData, token);
-    } catch (error) {
-      console.error('Error sending status to server:', error);
-      // Don't throw error - continue with local status update
-    }
-  };
+  // Removed old GPS sending method - now handled by continuousGPS service
 
 
 
