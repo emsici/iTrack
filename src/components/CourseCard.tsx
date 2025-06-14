@@ -68,21 +68,23 @@ const CourseCard: React.FC<CourseCardProps> = ({
   return (
     <div className="card shadow-sm">
       <div className="card-header bg-white">
-        <div className="d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center">
-            <h6 className="mb-0 me-3">
-              <i className="fas fa-route me-2"></i>
-              {course.name || `Cursă ${course.id}`}
+        <div className="course-info">
+          <div>
+            <h6 className="course-title mb-1">
+              🚚 {course.name || `Cursă ${course.id}`}
             </h6>
-            <span className={`badge ${getStatusBadgeClass(course.status)}`}>
-              {getStatusText(course.status)}
-            </span>
+            <div className="d-flex gap-2 align-items-center">
+              <span className={`badge status-badge ${getStatusBadgeClass(course.status)}`}>
+                {getStatusText(course.status)}
+              </span>
+              <span className="course-uit">UIT: {course.uit}</span>
+            </div>
           </div>
           <button
             className="btn btn-outline-secondary btn-sm"
             onClick={() => setExpanded(!expanded)}
           >
-            <i className={`fas fa-chevron-${expanded ? 'up' : 'down'}`}></i>
+            {expanded ? '▲' : '▼'}
           </button>
         </div>
       </div>
@@ -125,12 +127,15 @@ const CourseCard: React.FC<CourseCardProps> = ({
           {canStart && (
             <div className="col-6 col-md-3">
               <button
-                className="btn btn-success w-100"
+                className="btn btn-course btn-start w-100"
                 onClick={() => handleStatusChange(2)}
                 disabled={loading}
               >
-                <i className="fas fa-play me-2"></i>
-                Start
+                {loading ? (
+                  <span className="spinner-border spinner-border-sm"></span>
+                ) : (
+                  <>▶️ Start</>
+                )}
               </button>
             </div>
           )}
@@ -138,12 +143,15 @@ const CourseCard: React.FC<CourseCardProps> = ({
           {canResume && (
             <div className="col-6 col-md-3">
               <button
-                className="btn btn-success w-100"
+                className="btn btn-course btn-start w-100"
                 onClick={() => handleStatusChange(2)}
                 disabled={loading}
               >
-                <i className="fas fa-play me-2"></i>
-                Reia
+                {loading ? (
+                  <span className="spinner-border spinner-border-sm"></span>
+                ) : (
+                  <>▶️ Continuă</>
+                )}
               </button>
             </div>
           )}
@@ -151,12 +159,15 @@ const CourseCard: React.FC<CourseCardProps> = ({
           {canPause && (
             <div className="col-6 col-md-3">
               <button
-                className="btn btn-warning w-100"
+                className="btn btn-course btn-pause w-100"
                 onClick={() => handleStatusChange(3)}
                 disabled={loading}
               >
-                <i className="fas fa-pause me-2"></i>
-                Pauză
+                {loading ? (
+                  <span className="spinner-border spinner-border-sm"></span>
+                ) : (
+                  <>⏸️ Pauză</>
+                )}
               </button>
             </div>
           )}
@@ -164,24 +175,30 @@ const CourseCard: React.FC<CourseCardProps> = ({
           {canStop && (
             <div className="col-6 col-md-3">
               <button
-                className="btn btn-danger w-100"
+                className="btn btn-course btn-stop w-100"
                 onClick={() => handleStatusChange(4)}
                 disabled={loading}
               >
-                <i className="fas fa-stop me-2"></i>
-                Stop
+                {loading ? (
+                  <span className="spinner-border spinner-border-sm"></span>
+                ) : (
+                  <>⏹️ Stop</>
+                )}
               </button>
             </div>
           )}
 
           <div className="col-6 col-md-3">
             <button
-              className="btn btn-dark w-100"
+              className="btn btn-course btn-finish w-100"
               onClick={() => handleStatusChange(4)}
               disabled={loading || course.status === 4}
             >
-              <i className="fas fa-flag-checkered me-2"></i>
-              Termină
+              {loading ? (
+                <span className="spinner-border spinner-border-sm"></span>
+              ) : (
+                <>🏁 Termină</>
+              )}
             </button>
           </div>
         </div>
