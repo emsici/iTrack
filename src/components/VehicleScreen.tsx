@@ -53,89 +53,71 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       const response = await fetch('https://www.euscagency.com/etsm3/platforme/transport/apk/reportStatus.php', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: new URLSearchParams({
-          uit: course.uit,
-          status: status.toString(),
-          token: token
+        body: JSON.stringify({
+          courseId: course.id,
+          vehicleNumber: vehicleNumber,
+          status: status,
+          uit: course.uit
         })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update status');
+        throw new Error(`Server error: ${response.status}`);
       }
+
+      const result = await response.json();
+      console.log('Status sent to server:', result);
     } catch (error) {
       console.error('Error updating status:', error);
     }
   };
 
-  const handleCourseAction = async (course: Course, action: 'start' | 'pause' | 'resume' | 'finish') => {
-    // Prevent multiple simultaneous actions on same course
-    if (actionLoading === course.id) {
-      return;
-    }
-
-    let newStatus: number;
-    
-    switch (action) {
-      case 'start':
-      case 'resume':
-        newStatus = 2; // Active
-        break;
-      case 'pause':
-        newStatus = 3; // Paused
-        break;
-      case 'finish':
-        newStatus = 4; // Finished
-        break;
-      default:
-        return;
-    }
+  const handleStatusUpdate = async (courseId: string, newStatus: number) => {
+    const course = courses.find(c => c.id === courseId);
+    if (!course) return;
 
     const originalStatus = course.status;
-    setActionLoading(course.id);
+    setActionLoading(courseId);
 
     try {
       // Update course status locally first for immediate UI feedback
       setCourses(prevCourses =>
         prevCourses.map(c =>
-          c.id === course.id ? { ...c, status: newStatus } : c
+          c.id === courseId ? { ...c, status: newStatus } : c
         )
       );
 
-      console.log(`Handling ${action} for course ${course.id}: ${originalStatus} → ${newStatus}`);
+      console.log(`Updating status for course ${courseId}: ${originalStatus} → ${newStatus}`);
 
       // Handle GPS tracking first
       if (newStatus === 2) {
         // Start GPS tracking with status
-        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
-        console.log(`GPS tracking started for course ${course.id}`);
+        await startGPSTracking(courseId, vehicleNumber, token, course.uit, newStatus);
+        console.log(`GPS tracking started for course ${courseId}`);
       } else {
         // Stop GPS tracking
-        await stopGPSTracking(course.id);
-        console.log(`GPS tracking stopped for course ${course.id}`);
+        await stopGPSTracking(courseId);
+        console.log(`GPS tracking stopped for course ${courseId}`);
       }
 
       // Send status to server after GPS is handled
       await sendStatusToServer(course, newStatus);
-      console.log(`Status updated on server for course ${course.id}: ${newStatus}`);
+      console.log(`Status updated on server for course ${courseId}: ${newStatus}`);
 
     } catch (error) {
-      console.error(`Error handling ${action} for course ${course.id}:`, error);
+      console.error(`Error updating status for course ${courseId}:`, error);
       
       // Revert status change on error
       setCourses(prevCourses =>
         prevCourses.map(c =>
-          c.id === course.id ? { ...c, status: originalStatus } : c
+          c.id === courseId ? { ...c, status: originalStatus } : c
         )
       );
       
-      // Show error to user
-      setError(`Eroare la ${action === 'start' ? 'pornirea' : action === 'pause' ? 'pauzarea' : action === 'resume' ? 'reluarea' : 'finalizarea'} cursei: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
-      
-      // Clear error after 5 seconds
-      setTimeout(() => setError(''), 5000);
+      setError(`Eroare la actualizarea statusului: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
     } finally {
       setActionLoading(null);
     }
@@ -144,34 +126,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const handleVehicleChange = () => {
     setCoursesLoaded(false);
     setCourses([]);
-    setVehicleNumber('');
     setError('');
+    setVehicleNumber('');
   };
 
-  const handleStatusUpdate = (courseId: string, newStatus: number) => {
-    setCourses(prevCourses =>
-      prevCourses.map(course =>
-        course.id === courseId
-          ? { ...course, status: newStatus }
-          : course
-      )
-    );
-  };
-
-  // Vehicle number input screen
+  // Vehicle input screen
   if (!coursesLoaded) {
     return (
       <div className="modern-app">
         <div className="vehicle-input-screen">
-          <div className="vehicle-input-container">
-            <div className="vehicle-input-header">
-              <h1 className="vehicle-input-title">Introduceți numărul vehiculului</h1>
-              <p className="vehicle-input-subtitle">Pentru a încărca cursele disponibile</p>
+          <div className="input-container">
+            <div className="input-header">
+              <div className="header-icon">🚛</div>
+              <h2 className="header-title">Identificare Vehicul</h2>
+              <p className="header-subtitle">Introduceți numărul de înmatriculare</p>
             </div>
             
-            <div className="vehicle-input-form">
+            <div className="input-form">
               <div className="input-group">
-                <label className="input-label">Numărul vehiculului</label>
+                <label className="input-label">Număr vehicul</label>
                 <input
                   type="text"
                   className="vehicle-input"
@@ -260,115 +233,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         <div className="courses-list">
           {courses.map((course) => (
-            <div key={course.id} className="course-card">
-              <div className="course-header">
-                <div className="course-info">
-                  <div className="course-title">
-                    <span className="course-icon">🚛</span>
-                    <span>Transport marfă</span>
-                    <span className="course-arrow">→</span>
-                    <span className="course-destination">
-                      {course.destination_location || 'DESTINAȚIE'}
-                    </span>
-                  </div>
-                  <div className="course-status">
-                    <span className={`status-badge ${course.status === 1 ? 'available' : course.status === 2 ? 'active' : course.status === 3 ? 'paused' : 'finished'}`}>
-                      {course.status === 1 ? 'DISPONIBILĂ' : 
-                       course.status === 2 ? 'ACTIVĂ' : 
-                       course.status === 3 ? 'PAUZATĂ' : 'FINALIZATĂ'}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="course-details">
-                  <div className="course-uit">
-                    <span className="uit-label">UIT:</span>
-                    <span className="uit-code">{course.uit}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="course-actions">
-                {course.status === 1 && (
-                  <button
-                    className="action-btn start-btn"
-                    onClick={() => handleCourseAction(course, 'start')}
-                    disabled={actionLoading === course.id}
-                  >
-                    {actionLoading === course.id ? (
-                      <>
-                        <div className="loading-spinner"></div>
-                        <span>Se pornește...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="btn-icon">▶</span>
-                        <span>Start</span>
-                      </>
-                    )}
-                  </button>
-                )}
-                
-                {course.status === 2 && (
-                  <>
-                    <button
-                      className="action-btn pause-btn"
-                      onClick={() => handleCourseAction(course, 'pause')}
-                      disabled={actionLoading === course.id}
-                    >
-                      {actionLoading === course.id ? (
-                        <>
-                          <div className="loading-spinner"></div>
-                          <span>Se pauzează...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="btn-icon">⏸</span>
-                          <span>Pauză</span>
-                        </>
-                      )}
-                    </button>
-                    <button
-                      className="action-btn finish-btn"
-                      onClick={() => handleCourseAction(course, 'finish')}
-                      disabled={actionLoading === course.id}
-                    >
-                      {actionLoading === course.id ? (
-                        <>
-                          <div className="loading-spinner"></div>
-                          <span>Se finalizează...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="btn-icon">⏹</span>
-                          <span>Finalizează</span>
-                        </>
-                      )}
-                    </button>
-                  </>
-                )}
-                
-                {course.status === 3 && (
-                  <button
-                    className="action-btn resume-btn"
-                    onClick={() => handleCourseAction(course, 'resume')}
-                    disabled={actionLoading === course.id}
-                  >
-                    {actionLoading === course.id ? (
-                      <>
-                        <div className="loading-spinner"></div>
-                        <span>Se reia...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="btn-icon">▶</span>
-                        <span>Continuă</span>
-                      </>
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
+            <CourseDetailCard
+              key={course.id}
+              course={course}
+              vehicleNumber={vehicleNumber}
+              token={token}
+              onStatusUpdate={handleStatusUpdate}
+              isLoading={actionLoading === course.id}
+            />
           ))}
         </div>
         
