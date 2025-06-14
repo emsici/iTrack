@@ -243,18 +243,30 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     Nu există curse disponibile pentru acest vehicul.
                   </div>
                 ) : (
-                  <div className="row">
-                    {courses.map((course) => (
-                      <div key={course.id} className="col-12 mb-3">
-                        <CourseCard
-                          course={course}
-                          vehicleNumber={vehicleNumber}
-                          token={token}
-                          onStatusUpdate={handleStatusUpdate}
-                        />
-                      </div>
-                    ))}
-                  </div>
+                  <>
+                    <div className="courses-list">
+                      {courses.map((course) => (
+                        <div key={course.id} className="course-item">
+                          <CourseCard
+                            course={course}
+                            vehicleNumber={vehicleNumber}
+                            token={token}
+                            onStatusUpdate={handleStatusUpdate}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Link simplu de ieșire sub curse */}
+                    <div className="logout-section">
+                      <button 
+                        className="logout-link"
+                        onClick={onLogout}
+                      >
+                        Ieșire din cont
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             )}
@@ -262,77 +274,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       </div>
 
-      {/* Footer fix cu acțiuni */}
-      <div className="mobile-footer">
-        <div className="footer-actions">
-          <button 
-            className="footer-btn help-footer-btn"
-            onClick={() => setShowHelpModal(true)}
-            title="Informații aplicație"
-          >
-            <span className="footer-icon">❓</span>
-            <span className="footer-label">Info</span>
-          </button>
-          <div className="footer-brand">
-            <span className="footer-app-icon">📍</span>
-            <span className="footer-app-name">iTrack</span>
-          </div>
-          <button 
-            className="footer-btn logout-footer-btn"
-            onClick={onLogout}
-            title="Deconectare"
-          >
-            <span className="footer-icon">↗️</span>
-            <span className="footer-label">Ieșire</span>
-          </button>
-        </div>
-      </div>
 
-      {/* Help Modal */}
-      {showHelpModal && (
-        <div className="modal-overlay" onClick={() => setShowHelpModal(false)}>
-          <div className="help-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="modal-title">
-                <span className="app-icon-modal">📍</span>
-                <h3>iTrack v1.0</h3>
-              </div>
-              <button 
-                className="modal-close"
-                onClick={() => setShowHelpModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="modal-body">
-              <p className="app-description">
-                Aplicație profesională de tracking GPS pentru șoferi
-              </p>
-              <div className="features-list">
-                <div className="feature-item">
-                  <span className="feature-icon">🚛</span>
-                  <span>GPS tracking în timp real</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">📊</span>
-                  <span>Monitorizare curse active</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">🔄</span>
-                  <span>Status reporting automat</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">📱</span>
-                  <span>Background tracking pe Android</span>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <p className="copyright">© 2025 EUSC Agency</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
