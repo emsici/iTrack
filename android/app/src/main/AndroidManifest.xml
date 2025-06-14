@@ -58,10 +58,10 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
         
-        <!-- TransistorSoft Background Geolocation configuration -->
+        <!-- Background Geolocation Community Plugin -->
         <meta-data
-            android:name="com.transistorsoft.locationmanager.license"
-            android:value="DEBUG" />
+            android:name="background_geolocation_plugin"
+            android:value="community" />
     </application>
 
     <!-- Permissions -->
