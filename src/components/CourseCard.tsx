@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
-import { startGPSTracking, stopGPSTracking } from '../services/simpleGPS';
+import { startGPSTracking, stopGPSTracking } from '../services/communityGPS';
 
 interface CourseCardProps {
   course: Course;

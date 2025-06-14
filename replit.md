@@ -150,7 +150,7 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. GPS tracking now sends single coordinate stream with proper UIT from course data
 - June 14, 2025. Created SimpleGPSService to replace complex system - minimalist approach for maximum reliability
 - June 14, 2025. Single Timer-based transmission system with wake lock for guaranteed background operation
-- June 14, 2025. Replaced paid TransistorSoft library with simple Capacitor Geolocation + setInterval approach
+- June 14, 2025. Implemented @capacitor-community/background-geolocation for true background GPS tracking
 - June 14, 2025. Fixed loading freeze issue - GPS starts in background without blocking UI
 - June 14, 2025. Implemented 60-second interval GPS tracking using standard @capacitor/geolocation
 - June 14, 2025. GPS tracking works with real UIT values from API responses, not generated locally
