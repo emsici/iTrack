@@ -26,6 +26,8 @@ import android.telephony.SignalStrength;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 import okhttp3.*;
 import org.json.JSONObject;
 import java.io.IOException;
@@ -48,6 +50,11 @@ public class GPSForegroundService extends Service implements LocationListener {
     private AlarmManager alarmManager;
     private PendingIntent alarmIntent;
     private BroadcastReceiver forceTransmissionReceiver;
+    private Timer backupTimer;
+    private Handler mainHandler;
+    private Runnable heartbeatRunnable;
+    private Thread backgroundThread;
+    private volatile boolean isServiceActive = true;
     
     // GPS tracking data
     private String vehicleNumber;
@@ -71,6 +78,7 @@ public class GPSForegroundService extends Service implements LocationListener {
         initializeScheduler();
         initializeAlarmManager();
         setupForceTransmissionReceiver();
+        initializeBackupSystems();
     }
     
     @Override
@@ -198,6 +206,70 @@ public class GPSForegroundService extends Service implements LocationListener {
         Log.d(TAG, "Force transmission receiver registered");
     }
     
+    private void initializeBackupSystems() {
+        // Level 4: Timer-based backup system
+        initializeTimerBackup();
+        
+        // Level 5: Handler-based heartbeat system
+        initializeHandlerHeartbeat();
+        
+        // Level 6: Background thread with infinite loop
+        initializeBackgroundThread();
+        
+        Log.d(TAG, "All backup systems initialized - 5 levels of redundancy active");
+    }
+    
+    private void initializeTimerBackup() {
+        backupTimer = new Timer("GPS-Backup-Timer", true);
+        Log.d(TAG, "Timer backup system initialized");
+    }
+    
+    private void initializeHandlerHeartbeat() {
+        mainHandler = new Handler(Looper.getMainLooper());
+        heartbeatRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isServiceActive && lastLocation != null) {
+                    Log.d(TAG, "Handler heartbeat triggered - sending GPS data");
+                    sendGPSDataToServer();
+                }
+                // Schedule next heartbeat
+                mainHandler.postDelayed(this, 60000); // 60 seconds
+            }
+        };
+        Log.d(TAG, "Handler heartbeat system initialized");
+    }
+    
+    private void initializeBackgroundThread() {
+        backgroundThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Background thread started for GPS transmission");
+                
+                while (isServiceActive) {
+                    try {
+                        Thread.sleep(60000); // Wait 60 seconds
+                        
+                        if (isServiceActive && lastLocation != null) {
+                            Log.d(TAG, "Background thread triggered - sending GPS data");
+                            sendGPSDataToServer();
+                        }
+                    } catch (InterruptedException e) {
+                        Log.w(TAG, "Background thread interrupted", e);
+                        break;
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error in background thread", e);
+                    }
+                }
+                
+                Log.d(TAG, "Background thread stopped");
+            }
+        }, "GPS-Background-Thread");
+        
+        backgroundThread.setDaemon(true);
+        Log.d(TAG, "Background thread initialized");
+    }
+    
     private void startLocationTracking() {
         Log.d(TAG, "Starting native GPS location tracking");
         
@@ -230,6 +302,9 @@ public class GPSForegroundService extends Service implements LocationListener {
             
             // Start backup alarm system for guaranteed transmission
             startBackupAlarmSystem();
+            
+            // Start all additional backup systems
+            startAllBackupSystems();
             
         } catch (SecurityException e) {
             Log.e(TAG, "Location permission not granted", e);
@@ -309,8 +384,61 @@ public class GPSForegroundService extends Service implements LocationListener {
         }, 60, TimeUnit.SECONDS);
     }
     
+    private void startAllBackupSystems() {
+        Log.d(TAG, "Starting all 5 backup transmission systems");
+        
+        // Level 4: Start Timer backup system
+        startTimerBackup();
+        
+        // Level 5: Start Handler heartbeat
+        startHandlerHeartbeat();
+        
+        // Level 6: Start background thread
+        startBackgroundThread();
+        
+        Log.d(TAG, "All backup systems now active - GPS transmission guaranteed");
+    }
+    
+    private void startTimerBackup() {
+        if (backupTimer != null) {
+            TimerTask timerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        if (isServiceActive && lastLocation != null) {
+                            Log.d(TAG, "Timer backup triggered - sending GPS data");
+                            sendGPSDataToServer();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error in timer backup", e);
+                    }
+                }
+            };
+            
+            backupTimer.scheduleAtFixedRate(timerTask, 60000, 60000); // Start after 1 min, repeat every 60s
+            Log.d(TAG, "Timer backup system started");
+        }
+    }
+    
+    private void startHandlerHeartbeat() {
+        if (mainHandler != null && heartbeatRunnable != null) {
+            mainHandler.postDelayed(heartbeatRunnable, 60000); // Start after 1 minute
+            Log.d(TAG, "Handler heartbeat system started");
+        }
+    }
+    
+    private void startBackgroundThread() {
+        if (backgroundThread != null && !backgroundThread.isAlive()) {
+            backgroundThread.start();
+            Log.d(TAG, "Background thread system started");
+        }
+    }
+    
     private void stopLocationTracking() {
         Log.d(TAG, "Stopping GPS location tracking");
+        
+        // Stop all backup systems first
+        stopAllBackupSystems();
         
         if (locationManager != null) {
             locationManager.removeUpdates(this);
@@ -319,6 +447,50 @@ public class GPSForegroundService extends Service implements LocationListener {
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdown();
         }
+    }
+    
+    private void stopAllBackupSystems() {
+        Log.d(TAG, "Stopping all backup transmission systems");
+        
+        // Mark service as inactive
+        isServiceActive = false;
+        
+        // Stop Level 3: AlarmManager
+        if (alarmManager != null && alarmIntent != null) {
+            alarmManager.cancel(alarmIntent);
+            Log.d(TAG, "AlarmManager backup stopped");
+        }
+        
+        // Stop Level 4: Timer backup
+        if (backupTimer != null) {
+            backupTimer.cancel();
+            backupTimer.purge();
+            Log.d(TAG, "Timer backup stopped");
+        }
+        
+        // Stop Level 5: Handler heartbeat
+        if (mainHandler != null && heartbeatRunnable != null) {
+            mainHandler.removeCallbacks(heartbeatRunnable);
+            Log.d(TAG, "Handler heartbeat stopped");
+        }
+        
+        // Stop Level 6: Background thread (will exit naturally due to isServiceActive = false)
+        if (backgroundThread != null && backgroundThread.isAlive()) {
+            backgroundThread.interrupt();
+            Log.d(TAG, "Background thread stopped");
+        }
+        
+        // Unregister broadcast receiver
+        if (forceTransmissionReceiver != null) {
+            try {
+                unregisterReceiver(forceTransmissionReceiver);
+                Log.d(TAG, "Force transmission receiver unregistered");
+            } catch (Exception e) {
+                Log.w(TAG, "Error unregistering receiver", e);
+            }
+        }
+        
+        Log.d(TAG, "All backup systems stopped successfully");
     }
     
     @Override
