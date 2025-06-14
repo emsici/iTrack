@@ -50,12 +50,10 @@ class GPSTracker {
     }
   }
 
-  async startTracking(courseId: string, vehicleNumber: string, token: string) {
+  async startTracking(courseId: string, vehicleNumber: string, token: string, uit: string) {
     if (!this.isInitialized) {
       await this.initialize();
     }
-
-    const uit = `UIT${Math.random().toString(36).substr(2, 5)}`;
     
     this.activeCourses.set(courseId, {
       courseId,
@@ -437,7 +435,7 @@ const gpsTracker = new GPSTracker();
 
 // Export functions
 export const initializeGPS = () => gpsTracker.initialize();
-export const startGPSTracking = (courseId: string, vehicleNumber: string, token: string) => 
-  gpsTracker.startTracking(courseId, vehicleNumber, token);
+export const startGPSTracking = (courseId: string, vehicleNumber: string, token: string, uit: string) => 
+  gpsTracker.startTracking(courseId, vehicleNumber, token, uit);
 export const stopGPSTracking = (courseId: string) => gpsTracker.stopTracking(courseId);
 export const getActiveCourses = () => gpsTracker.getActiveCourses();

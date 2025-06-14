@@ -46,14 +46,14 @@ const CourseCard: React.FC<CourseCardProps> = ({
       
       // Update GPS tracking based on status
       if (newStatus === 2) {
-        // Start GPS tracking
-        await startGPSTracking(course.id, vehicleNumber, token);
+        // Start GPS tracking with real UIT from course
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit);
       } else if (course.status === 2 && (newStatus === 3 || newStatus === 4)) {
         // Stop or pause GPS tracking
         await stopGPSTracking(course.id);
       } else if (newStatus === 2 && course.status === 3) {
-        // Resume GPS tracking from pause
-        await startGPSTracking(course.id, vehicleNumber, token);
+        // Resume GPS tracking from pause with real UIT
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit);
       }
       
       onStatusUpdate(course.id, newStatus);
