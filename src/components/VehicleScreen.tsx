@@ -225,8 +225,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       ✏️ Schimbă
                     </button>
                   </div>
-                  <div className="courses-count">
-                    {courses.length} transporturi disponibile
+                  <div className="vehicle-status-info">
+                    <div className="courses-count">
+                      {courses.length} transporturi disponibile
+                    </div>
+                    {courses.some(course => course.status === 2) && (
+                      <div className="gps-tracking-status">
+                        <span className="gps-indicator">📍</span>
+                        <span className="gps-text">GPS Tracking Activ (60s interval)</span>
+                        <span className="gps-pulse"></span>
+                      </div>
+                    )}
                   </div>
                 </div>
                   
