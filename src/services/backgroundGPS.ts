@@ -29,10 +29,6 @@ class BackgroundGPSTracker {
         locationUpdateInterval: 60000, // Every 60 seconds
         fastestLocationUpdateInterval: 30000, // Fallback every 30 seconds
         
-        // Use pre-granted permissions from AndroidManifest
-        disableLocationAuthorizationAlert: true,
-        locationAuthorizationRequest: 'Always',
-        
         // Application config - CRITICAL for background operation
         debug: false, // Disable debug sounds
         logLevel: BackgroundGeolocation.LOG_LEVEL_ERROR,
@@ -47,9 +43,9 @@ class BackgroundGPSTracker {
         allowIdenticalLocations: true,
         disableElasticity: true, // Disable location smoothing for accuracy
         
-        // Disable problematic features that require additional permissions
-        enableTimestampMeta: false,
-        disableStopDetection: true,
+        // Use pre-granted permissions from AndroidManifest
+        disableLocationAuthorizationAlert: true,
+        locationAuthorizationRequest: 'Always',
         
         // Persistent notification to prevent service termination
         notification: {
@@ -64,10 +60,7 @@ class BackgroundGPSTracker {
         // Disable HTTP auto-sync - we handle manually
         url: undefined,
         autoSync: false,
-        batchSync: false,
-        
-        // Location authorization
-        locationAuthorizationRequest: 'Always'
+        batchSync: false
       });
 
       // Location event listener
