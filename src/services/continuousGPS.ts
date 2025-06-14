@@ -109,37 +109,41 @@ Deschideți: Setări > Aplicații > iTrack > Permisiuni > Locație > "Allow all 
   }
 
   private startContinuousTracking(): void {
-    console.log('Starting continuous GPS tracking every 60 seconds');
+    console.log('Starting GPS check every 60 seconds');
     
     this.trackingInterval = setInterval(async () => {
       try {
-        console.log(`Sending GPS data for ${this.activeCourses.size} active courses`);
+        if (this.activeCourses.size === 0) {
+          console.log('No active courses - skipping GPS reading');
+          return;
+        }
+
+        console.log(`Reading GPS once for ${this.activeCourses.size} active courses`);
         
-        // Send GPS data for each active course separately
+        // Read GPS coordinates once
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 30000
+        });
+
+        // Send the same coordinates to all active courses
         for (const [courseId, courseData] of this.activeCourses) {
-          console.log(`Sending GPS for course ${courseId} (${courseData.vehicleNumber})`);
-          await this.sendGPSForCourse(courseData, 2); // Status 2 = active
+          console.log(`Sending GPS data for course ${courseId} (${courseData.vehicleNumber})`);
+          await this.sendGPSDataForCourse(courseData, position, 2); // Status 2 = active
         }
       } catch (error) {
-        console.error('Error in continuous GPS tracking:', error);
+        console.error('Error reading GPS:', error);
       }
     }, 60000); // 60 seconds = 1 minute
   }
 
-  private async sendGPSForCourse(courseData: ActiveCourse, status: number): Promise<void> {
+  // Send GPS data using already read position (efficient for multiple courses)
+  private async sendGPSDataForCourse(courseData: ActiveCourse, position: any, status: number): Promise<void> {
     try {
-      // Get current GPS position
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 30000
-      });
-
-      // Get battery info
       const batteryInfo = await Device.getBatteryInfo();
       const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-      // Prepare GPS data
       const gpsData: GPSData = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
@@ -166,6 +170,21 @@ Deschideți: Setări > Aplicații > iTrack > Permisiuni > Locație > "Allow all 
       console.log(`GPS data sent successfully for course ${courseData.courseId}`);
     } catch (error) {
       console.error(`Failed to send GPS data for course ${courseData.courseId}:`, error);
+    }
+  }
+
+  // For single course events (pause/stop) - reads GPS specifically for that course
+  private async sendGPSForCourse(courseData: ActiveCourse, status: number): Promise<void> {
+    try {
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      });
+
+      await this.sendGPSDataForCourse(courseData, position, status);
+    } catch (error) {
+      console.error(`Failed to get GPS for course ${courseData.courseId}:`, error);
     }
   }
 
