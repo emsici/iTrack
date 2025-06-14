@@ -1,0 +1,139 @@
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/capacitor-cordova-android-plugins/src/main/libs/
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/app/libs/
+       - https://developer.huawei.com/repo/com/transistorsoft/tslocationmanager/maven-metadata.xml
+     Required by:
+         project :app > project :transistorsoft-capacitor-background-geolocation
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+7: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:checkDebugDuplicateClasses'.
+> Could not resolve all files for configuration ':app:debugRuntimeClasspath'.
+   > Could not find any matches for com.transistorsoft:tslocationmanager:+ as no versions of com.transistorsoft:tslocationmanager are available.
+     Searched in the following locations:
+       - https://dl.google.com/dl/android/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - https://repo.maven.apache.org/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/capacitor-cordova-android-plugins/src/main/libs/
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/app/libs/
+       - https://developer.huawei.com/repo/com/transistorsoft/tslocationmanager/maven-metadata.xml
+     Required by:
+         project :app > project :transistorsoft-capacitor-background-geolocation
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+8: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:checkDebugAndroidTestAarMetadata'.
+> Could not resolve all files for configuration ':app:debugRuntimeClasspath'.
+   > Could not find any matches for com.transistorsoft:tslocationmanager:+ as no versions of com.transistorsoft:tslocationmanager are available.
+     Searched in the following locations:
+       - https://dl.google.com/dl/android/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - https://repo.maven.apache.org/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/capacitor-cordova-android-plugins/src/main/libs/
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/app/libs/
+       - https://developer.huawei.com/repo/com/transistorsoft/tslocationmanager/maven-metadata.xml
+     Required by:
+         project :app > project :transistorsoft-capacitor-background-geolocation
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+9: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:processDebugAndroidTestManifest'.
+> Could not resolve all files for configuration ':app:debugRuntimeClasspath'.
+   > Could not find any matches for com.transistorsoft:tslocationmanager:+ as no versions of com.transistorsoft:tslocationmanager are available.
+     Searched in the following locations:
+       - https://dl.google.com/dl/android/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - https://repo.maven.apache.org/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/capacitor-cordova-android-plugins/src/main/libs/
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/app/libs/
+       - https://developer.huawei.com/repo/com/transistorsoft/tslocationmanager/maven-metadata.xml
+     Required by:
+         project :app > project :transistorsoft-capacitor-background-geolocation
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+10: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:mergeDebugAndroidTestAssets'.
+> Could not resolve all artifacts for configuration ':app:debugRuntimeClasspath'.
+   > Could not find any matches for com.transistorsoft:tslocationmanager:+ as no versions of com.transistorsoft:tslocationmanager are available.
+     Searched in the following locations:
+       - https://dl.google.com/dl/android/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - https://repo.maven.apache.org/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/capacitor-cordova-android-plugins/src/main/libs/
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/app/libs/
+       - https://developer.huawei.com/repo/com/transistorsoft/tslocationmanager/maven-metadata.xml
+     Required by:
+         project :app > project :transistorsoft-capacitor-background-geolocation
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+11: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:desugarDebugAndroidTestFileDependencies'.
+> Could not resolve all files for configuration ':app:debugRuntimeClasspath'.
+   > Could not find any matches for com.transistorsoft:tslocationmanager:+ as no versions of com.transistorsoft:tslocationmanager are available.
+     Searched in the following locations:
+       - https://dl.google.com/dl/android/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - https://repo.maven.apache.org/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/capacitor-cordova-android-plugins/src/main/libs/
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/app/libs/
+       - https://developer.huawei.com/repo/com/transistorsoft/tslocationmanager/maven-metadata.xml
+     Required by:
+         project :app > project :transistorsoft-capacitor-background-geolocation
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+12: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:checkDebugAndroidTestDuplicateClasses'.
+> Could not resolve all files for configuration ':app:debugRuntimeClasspath'.
+   > Could not find any matches for com.transistorsoft:tslocationmanager:+ as no versions of com.transistorsoft:tslocationmanager are available.
+     Searched in the following locations:
+       - https://dl.google.com/dl/android/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - https://repo.maven.apache.org/maven2/com/transistorsoft/tslocationmanager/maven-metadata.xml
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/capacitor-cordova-android-plugins/src/main/libs/
+       - file:/C:/Users/eusun/Downloads/TransportTracker-1%20(14)/TransportTracker-1/android/app/libs/
+       - https://developer.huawei.com/repo/com/transistorsoft/tslocationmanager/maven-metadata.xml
+     Required by:
+         project :app > project :transistorsoft-capacitor-background-geolocation
+
+* Try:

@@ -1,5 +1,7 @@
+// Professional background GPS with @transistorsoft/capacitor-background-geolocation
+// FREE for DEBUG builds, requires license for RELEASE builds
 import BackgroundGeolocation from '@transistorsoft/capacitor-background-geolocation';
-import { sendGPSData } from './api';
+import { sendGPSData, type GPSData } from './api';
 
 interface ActiveCourse {
   courseId: string;
@@ -11,26 +13,29 @@ interface ActiveCourse {
 class BackgroundGPSTracker {
   private activeCourses: Map<string, ActiveCourse> = new Map();
   private isConfigured = false;
+  private lastPosition: { lat: number; lng: number } | null = null;
 
   async initialize() {
     if (this.isConfigured) return;
 
     try {
-      // Configure background geolocation
+      console.log('Initializing professional background GPS...');
+      
+      // Configure background geolocation with aggressive settings for continuous tracking
       await BackgroundGeolocation.ready({
         // Geolocation Config
         desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
         distanceFilter: 0, // Track any movement
-        locationUpdateInterval: 60000, // 1 minute
-        fastestLocationUpdateInterval: 30000, // Fallback 30 seconds
+        locationUpdateInterval: 60000, // Every 60 seconds
+        fastestLocationUpdateInterval: 30000, // Fallback every 30 seconds
         
-        // Activity Recognition - aggressive settings for continuous tracking
+        // Activity Recognition - aggressive settings
         stopTimeout: 1, // Quick transition to stationary
         activityRecognitionInterval: 30000,
         
-        // Application config - ensure background operation
-        debug: true, // Enable for troubleshooting
-        logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
+        // Application config - CRITICAL for background operation
+        debug: false, // Disable debug sounds
+        logLevel: BackgroundGeolocation.LOG_LEVEL_ERROR,
         stopOnTerminate: false,   // CRITICAL: Continue when app terminates
         startOnBoot: true,        // CRITICAL: Auto-start after reboot
         
@@ -38,20 +43,21 @@ class BackgroundGPSTracker {
         enableHeadless: true,     // CRITICAL: Background operation
         foregroundService: true,  // CRITICAL: Android foreground service
         
-        // Android-specific background settings
+        // Android-specific settings for robust background operation
         allowIdenticalLocations: true,
+        disableElasticity: true, // Disable location smoothing for accuracy
         
-        // Notification to prevent Android from killing service
+        // Persistent notification to prevent service termination
         notification: {
-          title: "iTrack GPS Active",
-          text: "Vehicle tracking - do not disable",
+          title: "iTrack GPS Activ",
+          text: "Urmărire vehicul în curs",
           color: "red",
           channelName: "GPS Tracking",
           priority: BackgroundGeolocation.NOTIFICATION_PRIORITY_HIGH,
-          sticky: true // Persistent notification
+          sticky: true // Cannot be dismissed
         },
         
-        // Disable HTTP auto-sync - we handle it manually
+        // Disable HTTP auto-sync - we handle manually
         url: undefined,
         autoSync: false,
         batchSync: false,
@@ -63,11 +69,14 @@ class BackgroundGPSTracker {
       // Location event listener
       BackgroundGeolocation.onLocation(this.onLocationReceived.bind(this), this.onLocationError.bind(this));
       
-      // Motion activity events
+      // Motion change listener
       BackgroundGeolocation.onMotionChange(this.onMotionChange.bind(this));
       
+      // Heartbeat listener for stationary periods
+      BackgroundGeolocation.onHeartbeat(this.onHeartbeat.bind(this));
+
       this.isConfigured = true;
-      console.log('Background GPS initialized successfully');
+      console.log('Professional background GPS initialized successfully');
       
     } catch (error) {
       console.error('Failed to initialize background GPS:', error);
@@ -76,7 +85,7 @@ class BackgroundGPSTracker {
   }
 
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string) {
-    console.log('Starting background GPS tracking...');
+    console.log('Starting professional background GPS tracking...');
     
     await this.initialize();
 
@@ -90,37 +99,36 @@ class BackgroundGPSTracker {
     this.activeCourses.set(courseId, courseData);
 
     try {
-      // Request location permissions first
-      console.log('Requesting location permissions...');
+      // Request location permissions
       const authorizationStatus = await BackgroundGeolocation.requestPermission();
-      console.log('Permission status:', authorizationStatus);
+      console.log('Location permission status:', authorizationStatus);
 
-      // Check if we have the required permissions
       if (authorizationStatus === BackgroundGeolocation.AUTHORIZATION_STATUS_ALWAYS || 
           authorizationStatus === BackgroundGeolocation.AUTHORIZATION_STATUS_WHEN_IN_USE) {
         
-        console.log('Location permissions granted');
-        
-        // Start background geolocation
-        console.log('Starting background location service...');
+        // Start background geolocation service
         await BackgroundGeolocation.start();
         
-        // Get current state to verify it started
+        // Verify service started
         const state = await BackgroundGeolocation.getState();
-        console.log('Background GPS state:', state);
+        console.log('Background GPS state:', {
+          enabled: state.enabled,
+          isMoving: state.isMoving,
+          trackingMode: state.trackingMode
+        });
         
         if (state.enabled) {
-          console.log(`Background GPS tracking ACTIVE for course: ${courseId}`);
+          console.log(`Professional background GPS ACTIVE for course: ${courseId}`);
           console.log(`Vehicle: ${vehicleNumber}, UIT: ${uit}`);
           return true;
         } else {
-          console.error('Background GPS failed to start - service not enabled');
+          console.error('Background GPS service failed to start');
           this.activeCourses.delete(courseId);
           return false;
         }
         
       } else {
-        console.error('Location permissions denied:', authorizationStatus);
+        console.error('Location permissions denied');
         this.activeCourses.delete(courseId);
         return false;
       }
@@ -135,57 +143,131 @@ class BackgroundGPSTracker {
   async stopTracking(courseId: string) {
     this.activeCourses.delete(courseId);
 
-    // If no active courses, stop tracking
+    // Stop service if no active courses
     if (this.activeCourses.size === 0) {
       try {
         await BackgroundGeolocation.stop();
-        console.log('Background GPS tracking stopped');
+        console.log('Background GPS service stopped');
       } catch (error) {
-        console.error('Failed to stop background GPS tracking:', error);
+        console.error('Error stopping background GPS:', error);
       }
     }
+
+    console.log(`Background GPS tracking stopped for course: ${courseId}`);
+    return true;
   }
 
   private async onLocationReceived(location: any) {
-    console.log('Background location received:', location);
+    console.log('Background GPS location received:', {
+      lat: location.coords.latitude,
+      lng: location.coords.longitude,
+      speed: location.coords.speed,
+      accuracy: location.coords.accuracy,
+      timestamp: location.timestamp
+    });
 
-    // Send location for all active courses
+    // Send GPS data for all active courses
     for (const [courseId, courseData] of this.activeCourses) {
-      try {
-        const gpsData = {
-          lat: location.coords.latitude,
-          lng: location.coords.longitude,
-          timestamp: new Date(location.timestamp).toISOString().slice(0, 19).replace('T', ' '),
-          viteza: Math.round((location.coords.speed || 0) * 3.6), // m/s to km/h
-          directie: Math.round(location.coords.heading || 0),
-          altitudine: Math.round(location.coords.altitude || 0),
-          baterie: Math.round((location.battery?.level || 1) * 100),
-          numar_inmatriculare: courseData.vehicleNumber,
-          uit: courseData.uit,
-          status: "2", // Active status
-          hdop: String(Math.round(location.coords.accuracy || 0)),
-          gsm_signal: "75" // Default signal strength
-        };
-
-        const success = await sendGPSData(gpsData, courseData.token);
-        if (success) {
-          console.log(`GPS data sent successfully for course: ${courseId}`);
-        } else {
-          console.error(`Failed to send GPS data for course: ${courseId}`);
-        }
-        
-      } catch (error) {
-        console.error(`Error sending GPS data for course ${courseId}:`, error);
-      }
+      await this.sendGPSDataForCourse(location.coords, courseData);
     }
+
+    this.lastPosition = {
+      lat: location.coords.latitude,
+      lng: location.coords.longitude
+    };
   }
 
   private onLocationError(error: any) {
-    console.error('Background GPS error:', error);
+    console.error('Background GPS location error:', error);
   }
 
   private onMotionChange(event: any) {
-    console.log('Motion change detected:', event.isMoving ? 'moving' : 'stationary');
+    console.log('Motion change detected:', {
+      isMoving: event.isMoving,
+      location: event.location
+    });
+    
+    if (event.location) {
+      this.onLocationReceived(event.location);
+    }
+  }
+
+  private onHeartbeat(event: any) {
+    console.log('Background GPS heartbeat:', event);
+    
+    if (event.location) {
+      this.onLocationReceived(event.location);
+    }
+  }
+
+  private async sendGPSDataForCourse(coordinates: any, courseData: ActiveCourse) {
+    try {
+      // Calculate direction if we have previous position
+      let direction = 0;
+      if (this.lastPosition) {
+        direction = this.calculateBearing(
+          this.lastPosition.lat,
+          this.lastPosition.lng,
+          coordinates.latitude,
+          coordinates.longitude
+        );
+      }
+
+      const gpsData: GPSData = {
+        lat: coordinates.latitude,
+        lng: coordinates.longitude,
+        timestamp: new Date().toISOString(),
+        viteza: coordinates.speed ? Math.round(coordinates.speed * 3.6) : 0, // Convert m/s to km/h
+        directie: Math.round(direction),
+        altitudine: coordinates.altitude || 0,
+        baterie: await this.getBatteryLevel(),
+        numar_inmatriculare: courseData.vehicleNumber,
+        uit: courseData.uit,
+        status: "active",
+        hdop: coordinates.accuracy?.toString() || "0",
+        gsm_signal: "100" // Default good signal
+      };
+
+      const success = await sendGPSData(gpsData, courseData.token);
+      
+      if (success) {
+        console.log(`GPS data sent successfully for course: ${courseData.courseId}`, {
+          lat: gpsData.lat,
+          lng: gpsData.lng,
+          speed: gpsData.viteza,
+          direction: gpsData.directie
+        });
+      } else {
+        console.error(`Failed to send GPS data for course: ${courseData.courseId}`);
+      }
+
+    } catch (error) {
+      console.error('Error sending GPS data:', error);
+    }
+  }
+
+  private calculateBearing(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const lat1Rad = lat1 * Math.PI / 180;
+    const lat2Rad = lat2 * Math.PI / 180;
+    
+    const y = Math.sin(dLon) * Math.cos(lat2Rad);
+    const x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(dLon);
+    
+    const bearing = Math.atan2(y, x) * 180 / Math.PI;
+    return (bearing + 360) % 360;
+  }
+
+  private async getBatteryLevel(): Promise<number> {
+    try {
+      if ('getBattery' in navigator) {
+        const battery = await (navigator as any).getBattery();
+        return Math.round(battery.level * 100);
+      }
+      return 100; // Default to full battery if not available
+    } catch (error) {
+      return 100;
+    }
   }
 
   getActiveCourses(): string[] {
@@ -197,7 +279,6 @@ class BackgroundGPSTracker {
   }
 }
 
-// Export singleton instance
 const backgroundGPSTracker = new BackgroundGPSTracker();
 
 export const initializeBackgroundGPS = () => backgroundGPSTracker.initialize();
