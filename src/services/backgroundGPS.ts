@@ -50,7 +50,6 @@ class BackgroundGPSTracker {
         // Force use of manifest permissions only
         disableLocationAuthorizationAlert: true,
         locationAuthorizationRequest: 'WhenInUse', // Less aggressive permission request
-        requestPermissionOnReady: false, // Don't request permissions automatically
         
         // Persistent notification to prevent service termination
         notification: {
@@ -89,8 +88,6 @@ class BackgroundGPSTracker {
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string) {
     console.log('Starting professional background GPS tracking...');
     
-    await this.initialize();
-
     const courseData: ActiveCourse = {
       courseId,
       vehicleNumber,
@@ -101,12 +98,29 @@ class BackgroundGPSTracker {
     this.activeCourses.set(courseId, courseData);
 
     try {
-      // Request location permissions
-      const authorizationStatus = await BackgroundGeolocation.requestPermission();
-      console.log('Location permission status:', authorizationStatus);
+      // First request permissions manually using Capacitor Geolocation
+      console.log('Requesting location permissions using Capacitor...');
+      const { Geolocation } = await import('@capacitor/geolocation');
+      const permissions = await Geolocation.requestPermissions();
+      console.log('Capacitor location permissions:', permissions);
+      
+      if (permissions.location !== 'granted') {
+        console.error('Location permissions not granted via Capacitor');
+        this.activeCourses.delete(courseId);
+        return false;
+      }
 
-      if (authorizationStatus === BackgroundGeolocation.AUTHORIZATION_STATUS_ALWAYS || 
-          authorizationStatus === BackgroundGeolocation.AUTHORIZATION_STATUS_WHEN_IN_USE) {
+      // Now initialize the background library
+      await this.initialize();
+      
+      // Start the background GPS service directly since we have permissions
+      await BackgroundGeolocation.start();
+      
+      // Verify service started
+      const state = await BackgroundGeolocation.getState();
+      console.log('Background GPS state:', state);
+
+      if (state.enabled) {
         
         // Start background geolocation service
         await BackgroundGeolocation.start();
