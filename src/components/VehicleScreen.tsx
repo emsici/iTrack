@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import CourseCard from './CourseCard';
 import { getVehicleCourses } from '../services/api';
 import { Course } from '../types';
+import { startGPSTracking, stopGPSTracking } from '../services/gps';
 
 interface VehicleScreenProps {
   token: string;
@@ -43,6 +44,124 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       case 3: return 'PAUZĂ';
       case 4: return 'FINALIZAT';
       default: return 'INACTIV';
+    }
+  };
+
+  const renderCourseButton = (course: Course) => {
+    const [buttonLoading, setButtonLoading] = useState(false);
+
+    const handleCourseAction = async (newStatus: number) => {
+      setButtonLoading(true);
+      try {
+        // Send status update to server first
+        await sendStatusToServer(course, newStatus);
+        
+        // Update GPS tracking based on status
+        if (newStatus === 2) {
+          await startGPSTracking(course.id, vehicleNumber, token);
+        } else if (course.status === 2 && (newStatus === 3 || newStatus === 4)) {
+          await stopGPSTracking(course.id);
+        } else if (newStatus === 2 && course.status === 3) {
+          await startGPSTracking(course.id, vehicleNumber, token);
+        }
+        
+        handleStatusUpdate(course.id, newStatus);
+      } catch (error) {
+        console.error('Error updating course status:', error);
+      } finally {
+        setButtonLoading(false);
+      }
+    };
+
+    if (course.status === 1) {
+      return (
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={() => handleCourseAction(2)}
+          disabled={buttonLoading}
+        >
+          {buttonLoading ? '...' : 'Start'}
+        </button>
+      );
+    }
+
+    if (course.status === 2) {
+      return (
+        <div className="d-flex gap-1">
+          <button
+            className="btn btn-warning btn-sm"
+            onClick={() => handleCourseAction(3)}
+            disabled={buttonLoading}
+          >
+            {buttonLoading ? '...' : 'Pauză'}
+          </button>
+          <button
+            className="btn btn-success btn-sm"
+            onClick={() => handleCourseAction(4)}
+            disabled={buttonLoading}
+          >
+            {buttonLoading ? '...' : 'Termină'}
+          </button>
+        </div>
+      );
+    }
+
+    if (course.status === 3) {
+      return (
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={() => handleCourseAction(2)}
+          disabled={buttonLoading}
+        >
+          {buttonLoading ? '...' : 'Reluare'}
+        </button>
+      );
+    }
+
+    return <span className="text-muted small">Finalizat</span>;
+  };
+
+  const handleStatusUpdate = (courseId: string, newStatus: number) => {
+    setCourses(prevCourses =>
+      prevCourses.map(course =>
+        course.id === courseId ? { ...course, status: newStatus } : course
+      )
+    );
+  };
+
+  const sendStatusToServer = async (course: Course, status: number) => {
+    try {
+      const { sendGPSData } = await import('../services/api');
+      const { Geolocation } = await import('@capacitor/geolocation');
+      const { Device } = await import('@capacitor/device');
+      
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      });
+
+      const batteryInfo = await Device.getBatteryInfo();
+      const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+      const gpsData = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        timestamp: currentTime,
+        viteza: Math.max(0, position.coords.speed || 0),
+        directie: position.coords.heading || 0,
+        altitudine: position.coords.altitude || 0,
+        baterie: Math.round((batteryInfo.batteryLevel || 0) * 100),
+        numar_inmatriculare: vehicleNumber,
+        uit: course.uit,
+        status: status.toString(),
+        hdop: Math.round(position.coords.accuracy || 0).toString(),
+        gsm_signal: '100'
+      };
+
+      await sendGPSData(gpsData, token);
+    } catch (error) {
+      console.error('Error sending status to server:', error);
     }
   };
 
@@ -180,26 +299,51 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                 </div>
 
-                {coursesLoaded && courses.length > 0 && (
+                {coursesLoaded && (
                   <div className="mt-3">
+                    {/* Vehicle Info Card */}
                     <div className="vehicle-info-card">
-                      <div className="vehicle-info-content">
-                        <div className="vehicle-info-text">
-                          <span className="vehicle-badge">🚛 {vehicleNumber}</span>
-                          <span className="courses-count">{courses.length} curse disponibile</span>
+                      <div className="vehicle-card-content">
+                        <div className="vehicle-details">
+                          <h3 className="vehicle-title-card">Vehicul {vehicleNumber}</h3>
+                          <p className="vehicle-subtitle">{courses.length} transporturi disponibile</p>
                         </div>
-                        <button
-                          className="btn btn-new-vehicle"
-                          onClick={() => {
-                            setVehicleNumber('');
-                            setCourses([]);
-                            setCoursesLoaded(false);
-                          }}
-                        >
-                          ➕ Vehicul nou
-                        </button>
+                        <div className="battery-info">
+                          <span className="battery-label">Baterie</span>
+                          <span className="battery-percentage">100%</span>
+                        </div>
                       </div>
                     </div>
+
+                    {/* Courses List */}
+                    {courses.length > 0 && (
+                      <div className="courses-list">
+                        {courses.map((course) => (
+                          <div key={course.id} className="modern-course-card">
+                            <div className="course-indicator">
+                              <div className={`status-dot ${getStatusDotClass(course.status)}`}></div>
+                            </div>
+                            <div className="course-content">
+                              <div className="course-header">
+                                <h4 className="course-uit">UIT: {course.uit}</h4>
+                                <div className={`status-badge-modern ${getStatusBadgeModern(course.status)}`}>
+                                  {getStatusTextModern(course.status)}
+                                </div>
+                              </div>
+                              <div className="course-route">
+                                <span className="route-icon">📍</span>
+                                <span className="route-text">
+                                  {course.departure_location || 'Plecare'} → {course.destination_location || 'Destinație'}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="course-actions">
+                              {renderCourseButton(course)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
