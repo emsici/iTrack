@@ -18,6 +18,7 @@ public class GPSTrackingPlugin extends Plugin {
         String courseId = call.getString("courseId");
         String uit = call.getString("uit");
         String authToken = call.getString("authToken");
+        Integer status = call.getInt("status", 2); // Default to active status
         
         if (vehicleNumber == null || courseId == null || uit == null || authToken == null) {
             call.reject("Missing required parameters");
@@ -28,10 +29,12 @@ public class GPSTrackingPlugin extends Plugin {
         
         try {
             Intent serviceIntent = new Intent(getContext(), GPSForegroundService.class);
+            serviceIntent.putExtra("action", "START_TRACKING");
             serviceIntent.putExtra("vehicleNumber", vehicleNumber);
             serviceIntent.putExtra("courseId", courseId);
             serviceIntent.putExtra("uit", uit);
             serviceIntent.putExtra("authToken", authToken);
+            serviceIntent.putExtra("status", status);
             
             // Start foreground service
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {

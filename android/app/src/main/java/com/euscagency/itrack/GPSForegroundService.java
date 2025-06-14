@@ -61,6 +61,7 @@ public class GPSForegroundService extends Service implements LocationListener {
     private String courseId;
     private String uit;
     private String authToken;
+    private int courseStatus = 2; // Default: active (2=active, 3=paused, 4=stopped)
     private Location lastLocation;
     private Location previousLocation;
     private float lastValidBearing = 0f;
@@ -94,6 +95,7 @@ public class GPSForegroundService extends Service implements LocationListener {
                 courseId = intent.getStringExtra("courseId");
                 uit = intent.getStringExtra("uit");
                 authToken = intent.getStringExtra("authToken");
+                courseStatus = intent.getIntExtra("status", 2); // Get course status (2=active, 3=paused, 4=stopped)
                 
                 Log.d(TAG, "Starting tracking for vehicle: " + vehicleNumber + ", course: " + courseId);
                 
@@ -630,7 +632,7 @@ public class GPSForegroundService extends Service implements LocationListener {
             gpsData.put("baterie", batteryLevel);
             gpsData.put("numar_inmatriculare", vehicleNumber);
             gpsData.put("uit", uit);
-            gpsData.put("status", "2"); // Active status
+            gpsData.put("status", courseStatus); // Course status: 2=active, 3=paused, 4=stopped
             gpsData.put("hdop", Math.round(lastLocation.getAccuracy()));
             gpsData.put("gsm_signal", getGSMSignalStrength());
             
