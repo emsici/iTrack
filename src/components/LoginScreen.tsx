@@ -50,8 +50,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             <div className="col-md-6 col-lg-4">
               <div className="login-card">
                 <div className="login-card-header">
-                  <h2 className="login-title">Conectare</h2>
-                  <p className="login-subtitle">Introduceți datele de autentificare</p>
+                  <div className="login-header-content">
+                    <div className="login-title-section">
+                      <h2 className="login-title">📍 iTrack</h2>
+                      <p className="login-subtitle">Tracking profesional pentru șoferi</p>
+                    </div>
+                    <button 
+                      className="help-btn-login"
+                      onClick={() => setShowHelpModal(true)}
+                      title="Informații despre aplicație"
+                    >
+                      ❓
+                    </button>
+                  </div>
+                  <div className="login-form-subtitle">Introduceți datele de autentificare</div>
                 </div>
 
                 {error && (

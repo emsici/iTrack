@@ -723,6 +723,136 @@ body {
   }
 }
 
+/* Mobile Footer fix cu acțiuni */
+.mobile-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e9ecef;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: env(safe-area-inset-bottom) 0 0;
+}
+
+.footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.footer-btn {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0.5rem 1rem;
+  color: #6c757d;
+  transition: all 0.2s ease;
+  min-width: 60px;
+}
+
+.footer-btn:hover {
+  color: #495057;
+  transform: translateY(-1px);
+}
+
+.footer-icon {
+  font-size: 1.25rem;
+}
+
+.footer-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.footer-app-icon {
+  font-size: 1.5rem;
+}
+
+.footer-app-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #4285f4;
+}
+
+/* Ajustare padding pentru conținut când footer este fix */
+.app {
+  padding-bottom: 80px;
+}
+
+/* Responsive pentru footer */
+@media (max-width: 480px) {
+  .footer-actions {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .footer-btn {
+    min-width: 50px;
+    padding: 0.375rem 0.5rem;
+  }
+  
+  .footer-icon {
+    font-size: 1.1rem;
+  }
+  
+  .footer-label {
+    font-size: 0.7rem;
+  }
+}
+
+/* Login Card Header cu help button */
+.login-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.login-title-section {
+  flex: 1;
+}
+
+.help-btn-login {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #6c757d;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.help-btn-login:hover {
+  background: #e9ecef;
+  color: #495057;
+  transform: scale(1.05);
+}
+
+.login-form-subtitle {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
 .vehicle-title {
   font-size: 1.6rem;
   font-weight: 700;
