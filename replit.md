@@ -177,6 +177,10 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Added automatic GPS permission requests (ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION, ACCESS_BACKGROUND_LOCATION)
 - June 14, 2025. Implemented clickable vehicle number with visual highlighting instead of separate change button
 - June 14, 2025. Fixed Info button functionality and removed hardcoded time display, replaced with transport type
+- June 14, 2025. Finalized clean GPS architecture: eliminated GPSAlarmReceiver and all backup systems causing conflicts
+- June 14, 2025. GPS tracking now uses only native Android GPSForegroundService + GPSTrackingPlugin + nativeGPS.ts
+- June 14, 2025. Removed artificial data (08:00-18:00 times), using only authentic API data (dataTransport, locations, UIT)
+- June 14, 2025. Plugin registered in MainActivity.java, no more "plugin not implemented" errors expected
 
 ## User Preferences
 
