@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Course } from '../types';
 import { getVehicleCourses } from '../services/api';
 import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
-import CourseCard from './CourseCard';
+import CourseDetailCard from './CourseDetailCard';
 
 interface VehicleScreenProps {
   token: string;
@@ -28,11 +28,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     try {
       const data = await getVehicleCourses(vehicleNumber, token);
+      
+      if (!data || data.length === 0) {
+        setError('Nu există curse disponibile pentru acest vehicul. Verificați numărul și încercați din nou.');
+        setCourses([]);
+        setCoursesLoaded(false); // Don't allow proceeding
+        return;
+      }
+      
       setCourses(data);
       setCoursesLoaded(true);
     } catch (error: any) {
       console.error('Error loading courses:', error);
       setError(error.message || 'Eroare la încărcarea curselor. Verificați numărul vehiculului.');
+      setCourses([]);
+      setCoursesLoaded(false); // Don't allow proceeding on error
     } finally {
       setLoading(false);
     }
