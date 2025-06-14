@@ -49,6 +49,8 @@ public class GPSForegroundService extends Service implements LocationListener {
     private String uit;
     private String authToken;
     private Location lastLocation;
+    private Location previousLocation;
+    private float lastValidBearing = 0f;
     
     @Override
     public void onCreate() {
@@ -205,10 +207,24 @@ public class GPSForegroundService extends Service implements LocationListener {
     
     @Override
     public void onLocationChanged(Location location) {
+        // Store previous location for bearing calculation
+        previousLocation = lastLocation;
         lastLocation = location;
-        Log.d(TAG, String.format("Location updated: %.6f, %.6f, speed: %.1f km/h", 
+        
+        // Calculate bearing if we have movement
+        if (previousLocation != null && location.hasSpeed() && location.getSpeed() > 0.5f) {
+            // Use GPS bearing if available and valid
+            if (location.hasBearing() && location.getBearing() >= 0) {
+                lastValidBearing = location.getBearing();
+            } else {
+                // Calculate bearing from previous position
+                lastValidBearing = calculateBearing(previousLocation, location);
+            }
+        }
+        
+        Log.d(TAG, String.format("Location updated: %.6f, %.6f, speed: %.1f km/h, bearing: %.1f°", 
             location.getLatitude(), location.getLongitude(), 
-            location.getSpeed() * 3.6)); // Convert m/s to km/h
+            location.getSpeed() * 3.6, lastValidBearing));
     }
     
     private void sendGPSDataToServer() {
@@ -230,7 +246,7 @@ public class GPSForegroundService extends Service implements LocationListener {
             gpsData.put("lng", lastLocation.getLongitude());
             gpsData.put("timestamp", timestamp);
             gpsData.put("viteza", Math.round(lastLocation.getSpeed() * 3.6)); // km/h
-            gpsData.put("directie", Math.round(lastLocation.getBearing()));
+            gpsData.put("directie", Math.round(lastValidBearing));
             gpsData.put("altitudine", Math.round(lastLocation.getAltitude()));
             gpsData.put("baterie", batteryLevel);
             gpsData.put("numar_inmatriculare", vehicleNumber);
@@ -324,6 +340,20 @@ public class GPSForegroundService extends Service implements LocationListener {
             Log.w(TAG, "Could not get GSM signal strength", e);
         }
         return "50"; // Default moderate signal
+    }
+    
+    private float calculateBearing(Location start, Location end) {
+        double lat1 = Math.toRadians(start.getLatitude());
+        double lat2 = Math.toRadians(end.getLatitude());
+        double deltaLon = Math.toRadians(end.getLongitude() - start.getLongitude());
+        
+        double y = Math.sin(deltaLon) * Math.cos(lat2);
+        double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLon);
+        
+        double bearing = Math.toDegrees(Math.atan2(y, x));
+        
+        // Normalize to 0-360 degrees
+        return (float) ((bearing + 360) % 360);
     }
     
     @Override
