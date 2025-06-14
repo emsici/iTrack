@@ -47,8 +47,7 @@ public class GPSForegroundService extends Service implements LocationListener {
     private ScheduledExecutorService scheduler;
     private OkHttpClient httpClient;
     private TelephonyManager telephonyManager;
-    private AlarmManager alarmManager;
-    private PendingIntent alarmIntent;
+    // AlarmManager removed - using Timer and Background Thread systems
     private BroadcastReceiver forceTransmissionReceiver;
     private Timer backupTimer;
     private Handler mainHandler;
