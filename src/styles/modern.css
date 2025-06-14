@@ -390,6 +390,13 @@ body {
   justify-content: center;
 }
 
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 .start-btn, .resume-btn {
   background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
   color: white;

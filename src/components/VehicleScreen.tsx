@@ -15,6 +15,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [coursesLoaded, setCoursesLoaded] = useState(false);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -60,6 +61,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   };
 
   const handleCourseAction = async (course: Course, action: 'start' | 'pause' | 'resume' | 'finish') => {
+    // Prevent multiple simultaneous actions on same course
+    if (actionLoading === course.id) {
+      return;
+    }
+
     let newStatus: number;
     
     switch (action) {
@@ -77,35 +83,51 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         return;
     }
 
+    const originalStatus = course.status;
+    setActionLoading(course.id);
+
     try {
-      // Update course status locally first
+      // Update course status locally first for immediate UI feedback
       setCourses(prevCourses =>
         prevCourses.map(c =>
           c.id === course.id ? { ...c, status: newStatus } : c
         )
       );
 
-      // Send status to server
-      await sendStatusToServer(course, newStatus);
+      console.log(`Handling ${action} for course ${course.id}: ${originalStatus} → ${newStatus}`);
 
-      // Handle GPS tracking
+      // Handle GPS tracking first
       if (newStatus === 2) {
         // Start GPS tracking with status
-        await startGPSTracking(course.id, vehicleNumber, token, course.uit);
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
         console.log(`GPS tracking started for course ${course.id}`);
       } else {
         // Stop GPS tracking
         await stopGPSTracking(course.id);
         console.log(`GPS tracking stopped for course ${course.id}`);
       }
+
+      // Send status to server after GPS is handled
+      await sendStatusToServer(course, newStatus);
+      console.log(`Status updated on server for course ${course.id}: ${newStatus}`);
+
     } catch (error) {
-      console.error('Error handling course action:', error);
+      console.error(`Error handling ${action} for course ${course.id}:`, error);
+      
       // Revert status change on error
       setCourses(prevCourses =>
         prevCourses.map(c =>
-          c.id === course.id ? { ...c, status: course.status } : c
+          c.id === course.id ? { ...c, status: originalStatus } : c
         )
       );
+      
+      // Show error to user
+      setError(`Eroare la ${action === 'start' ? 'pornirea' : action === 'pause' ? 'pauzarea' : action === 'resume' ? 'reluarea' : 'finalizarea'} cursei: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
+      
+      // Clear error after 5 seconds
+      setTimeout(() => setError(''), 5000);
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -208,6 +230,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <span className="vehicle-text">{vehicleNumber}</span>
             </div>
           </div>
+          
+          {error && (
+            <div className="error-alert">
+              <span className="error-icon">⚠</span>
+              <span className="error-text">{error}</span>
+            </div>
+          )}
+          
           <div className="courses-count">
             <span className="count-number">{courses.length}</span>
             <span className="count-text">transporturi disponibile</span>
@@ -249,9 +279,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <button
                     className="action-btn start-btn"
                     onClick={() => handleCourseAction(course, 'start')}
+                    disabled={actionLoading === course.id}
                   >
-                    <span className="btn-icon">▶</span>
-                    <span>Start</span>
+                    {actionLoading === course.id ? (
+                      <>
+                        <div className="loading-spinner"></div>
+                        <span>Se pornește...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="btn-icon">▶</span>
+                        <span>Start</span>
+                      </>
+                    )}
                   </button>
                 )}
                 
@@ -260,16 +300,36 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <button
                       className="action-btn pause-btn"
                       onClick={() => handleCourseAction(course, 'pause')}
+                      disabled={actionLoading === course.id}
                     >
-                      <span className="btn-icon">⏸</span>
-                      <span>Pauză</span>
+                      {actionLoading === course.id ? (
+                        <>
+                          <div className="loading-spinner"></div>
+                          <span>Se pauzează...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="btn-icon">⏸</span>
+                          <span>Pauză</span>
+                        </>
+                      )}
                     </button>
                     <button
                       className="action-btn finish-btn"
                       onClick={() => handleCourseAction(course, 'finish')}
+                      disabled={actionLoading === course.id}
                     >
-                      <span className="btn-icon">⏹</span>
-                      <span>Finalizează</span>
+                      {actionLoading === course.id ? (
+                        <>
+                          <div className="loading-spinner"></div>
+                          <span>Se finalizează...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="btn-icon">⏹</span>
+                          <span>Finalizează</span>
+                        </>
+                      )}
                     </button>
                   </>
                 )}
@@ -278,9 +338,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <button
                     className="action-btn resume-btn"
                     onClick={() => handleCourseAction(course, 'resume')}
+                    disabled={actionLoading === course.id}
                   >
-                    <span className="btn-icon">▶</span>
-                    <span>Continuă</span>
+                    {actionLoading === course.id ? (
+                      <>
+                        <div className="loading-spinner"></div>
+                        <span>Se reia...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="btn-icon">▶</span>
+                        <span>Continuă</span>
+                      </>
+                    )}
                   </button>
                 )}
               </div>
