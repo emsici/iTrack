@@ -176,22 +176,41 @@ public class GPSTrackingPlugin extends Plugin {
     
     private void requestBackgroundLocationPermission() {
         try {
+            Log.d(TAG, "Requesting background location permission for GPS tracking when phone is locked");
+            
+            // Check and request fine location first
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) 
+                != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Requesting fine location permission first");
+                if (getActivity() != null) {
+                    ActivityCompat.requestPermissions(getActivity(), 
+                        new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        }, 1000);
+                }
+            }
+            
+            // For Android 10+ (API 29+), request background location
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // Check if background location permission is granted
                 if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) 
                     != PackageManager.PERMISSION_GRANTED) {
                     
-                    Log.d(TAG, "Requesting background location permission");
+                    Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION for tracking when phone is locked");
                     
-                    // Request background location permission directly
-                    if (getActivity() != null) {
-                        ActivityCompat.requestPermissions(getActivity(), 
-                            new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 
-                            1001);
-                    }
+                    // Open location settings to manually enable "Allow all the time"
+                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(android.net.Uri.parse("package:" + getContext().getPackageName()));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    
+                    getContext().startActivity(intent);
+                    
+                    Log.d(TAG, "Opened app settings - user must select 'Allow all the time' for location");
                 } else {
-                    Log.d(TAG, "Background location permission already granted");
+                    Log.d(TAG, "Background location permission already granted - GPS will work when phone is locked");
                 }
+            } else {
+                Log.d(TAG, "Android version < 10 - background location not required");
             }
         } catch (Exception e) {
             Log.w(TAG, "Could not request background location permission", e);
@@ -201,17 +220,17 @@ public class GPSTrackingPlugin extends Plugin {
     @PluginMethod
     public void requestBackgroundPermissions(PluginCall call) {
         try {
-            Log.d(TAG, "Requesting all background permissions for GPS tracking");
+            Log.d(TAG, "ALWAYS requesting background location permission for GPS tracking when phone is locked");
             
-            // Request background location permission first
+            // Always request background location permission
             requestBackgroundLocationPermission();
             
-            // Request battery optimization exemption
+            // Always request battery optimization exemption
             requestBatteryOptimizationExemption();
             
             JSObject result = new JSObject();
             result.put("success", true);
-            result.put("message", "Background permissions requested - GPS will work when phone is locked");
+            result.put("message", "CRITICAL: Select 'Allow all the time' for location access. This enables GPS tracking when phone is locked.");
             call.resolve(result);
             
         } catch (Exception e) {

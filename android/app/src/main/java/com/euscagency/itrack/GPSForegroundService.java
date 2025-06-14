@@ -24,6 +24,8 @@ import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.HashMap;
 
 public class GPSForegroundService extends Service implements LocationListener {
     private static final String TAG = "GPSForegroundService";
@@ -38,15 +40,28 @@ public class GPSForegroundService extends Service implements LocationListener {
     private OkHttpClient httpClient;
     private TelephonyManager telephonyManager;
     
-    // GPS tracking data
-    private String vehicleNumber;
-    private String courseId;
-    private String uit;
-    private String authToken;
+    // GPS tracking data for multiple courses
+    private Map<String, CourseData> activeCourses = new HashMap<>();
     private Location lastLocation;
     private Location previousLocation;
     private float lastValidBearing = 0f;
-    private int currentStatus = 2; // 2=activ, 3=pauză, 4=terminat
+    
+    // Course data structure
+    private static class CourseData {
+        String vehicleNumber;
+        String courseId;
+        String uit;
+        String authToken;
+        int status; // 2=activ, 3=pauză, 4=terminat
+        
+        CourseData(String vehicleNumber, String courseId, String uit, String authToken) {
+            this.vehicleNumber = vehicleNumber;
+            this.courseId = courseId;
+            this.uit = uit;
+            this.authToken = authToken;
+            this.status = 2; // Start active
+        }
+    }
     
     @Override
     public void onCreate() {
@@ -63,52 +78,67 @@ public class GPSForegroundService extends Service implements LocationListener {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "GPS Foreground Service onStartCommand");
+        Log.d(TAG, "GPS Foreground Service onStartCommand for multiple courses");
         
         if (intent != null) {
             String action = intent.getStringExtra("action");
+            String courseId = intent.getStringExtra("courseId");
             
-            if ("pause".equals(action)) {
-                currentStatus = 3; // Pauză - nu mai trimite coordonate
-                Log.d(TAG, "GPS PAUSED - coordinate transmission stopped");
-                sendGPSDataToServer(); // Trimite o dată statusul 3
+            if ("pause".equals(action) && courseId != null) {
+                CourseData course = activeCourses.get(courseId);
+                if (course != null) {
+                    course.status = 3; // Pauză
+                    Log.d(TAG, "Course " + courseId + " PAUSED - stops coordinate transmission");
+                    sendGPSDataForCourse(course);
+                }
                 return START_STICKY;
-            } else if ("resume".equals(action)) {
-                currentStatus = 2; // Activ - reia trimiterea coordonatelor
-                Log.d(TAG, "GPS RESUMED - coordinate transmission restarted");
+                
+            } else if ("resume".equals(action) && courseId != null) {
+                CourseData course = activeCourses.get(courseId);
+                if (course != null) {
+                    course.status = 2; // Activ
+                    Log.d(TAG, "Course " + courseId + " RESUMED - resumes coordinate transmission");
+                }
                 return START_STICKY;
-            } else if ("stop".equals(action)) {
-                currentStatus = 4; // Terminat
-                Log.d(TAG, "GPS STOPPED - sending final status 4");
-                sendGPSDataToServer(); // Trimite o dată statusul 4
+                
+            } else if ("stop".equals(action) && courseId != null) {
+                CourseData course = activeCourses.get(courseId);
+                if (course != null) {
+                    course.status = 4; // Terminat
+                    Log.d(TAG, "Course " + courseId + " STOPPED - sending final status");
+                    sendGPSDataForCourse(course);
+                    activeCourses.remove(courseId);
+                    
+                    // Stop service if no more active courses
+                    if (activeCourses.isEmpty()) {
+                        Log.d(TAG, "No more courses - stopping service");
+                        stopSelf();
+                    }
+                }
                 return START_STICKY;
             }
             
-            // First time start
-            vehicleNumber = intent.getStringExtra("vehicleNumber");
-            courseId = intent.getStringExtra("courseId");
-            uit = intent.getStringExtra("uit");
-            authToken = intent.getStringExtra("authToken");
-            currentStatus = 2; // Start cu status activ
+            // New course start
+            String vehicleNumber = intent.getStringExtra("vehicleNumber");
+            String uit = intent.getStringExtra("uit");
+            String authToken = intent.getStringExtra("authToken");
             
-            Log.d(TAG, "Starting GPS tracking: vehicle=" + vehicleNumber + ", course=" + courseId + ", UIT=" + uit);
-            
-            startLocationTracking();
-            startForeground(NOTIFICATION_ID, createNotification());
-            startPeriodicGPSTransmission();
-            
-        } else {
-            Log.w(TAG, "Service started with null intent");
-            if (vehicleNumber != null && courseId != null) {
-                Log.d(TAG, "Restarting background tracking after system restart");
-                currentStatus = 2; // Repornim ca activ
-                startLocationTracking();
-                startForeground(NOTIFICATION_ID, createNotification());
-                startPeriodicGPSTransmission();
+            if (courseId != null && vehicleNumber != null && uit != null && authToken != null) {
+                CourseData newCourse = new CourseData(vehicleNumber, courseId, uit, authToken);
+                activeCourses.put(courseId, newCourse);
+                
+                Log.d(TAG, "Added course " + courseId + " for vehicle " + vehicleNumber + ". Total courses: " + activeCourses.size());
+                
+                // Start location tracking and periodic transmission if first course
+                if (activeCourses.size() == 1) {
+                    startLocationTracking();
+                    startForeground(NOTIFICATION_ID, createNotification());
+                    startPeriodicGPSTransmission();
+                }
             }
         }
         
-        return START_STICKY; // Restart service if killed
+        return START_STICKY;
     }
     
     @Override
@@ -149,7 +179,7 @@ public class GPSForegroundService extends Service implements LocationListener {
         
         return new NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("iTrack GPS Active")
-            .setContentText("Tracking in background: " + (courseId != null ? courseId : "Unknown"))
+            .setContentText("Tracking " + activeCourses.size() + " courses in background")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
@@ -232,17 +262,29 @@ public class GPSForegroundService extends Service implements LocationListener {
             @Override
             public void run() {
                 try {
-                    // Trimite coordonate DOAR dacă statusul este 2 (activ)
-                    if (currentStatus == 2) {
-                        if (lastLocation != null) {
-                            Log.d(TAG, "Sending GPS data in background - status 2 (activ)");
-                            sendGPSDataToServer();
+                    if (lastLocation == null) {
+                        Log.w(TAG, "No location available, trying last known");
+                        tryGetLastKnownLocation();
+                        return;
+                    }
+                    
+                    // Send GPS data for all active courses (status 2)
+                    int activeCourseCount = 0;
+                    for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+                        CourseData course = entry.getValue();
+                        if (course.status == 2) {
+                            Log.d(TAG, "Sending GPS data for active course: " + course.courseId);
+                            sendGPSDataForCourse(course);
+                            activeCourseCount++;
                         } else {
-                            Log.w(TAG, "No location available, trying last known");
-                            tryGetLastKnownLocation();
+                            Log.d(TAG, "Course " + course.courseId + " paused/stopped (status " + course.status + ") - no coordinates sent");
                         }
+                    }
+                    
+                    if (activeCourseCount > 0) {
+                        Log.d(TAG, "GPS transmission complete for " + activeCourseCount + " active courses");
                     } else {
-                        Log.d(TAG, "GPS tracking paused/stopped - status " + currentStatus + " (nu trimite coordonate)");
+                        Log.d(TAG, "No active courses - no GPS data sent");
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Error in background GPS transmission", e);
@@ -299,9 +341,9 @@ public class GPSForegroundService extends Service implements LocationListener {
             location.getSpeed() * 3.6, lastValidBearing));
     }
     
-    private void sendGPSDataToServer() {
-        if (lastLocation == null || authToken == null) {
-            Log.w(TAG, "No location data or auth token available for background transmission");
+    private void sendGPSDataForCourse(CourseData course) {
+        if (lastLocation == null || course.authToken == null) {
+            Log.w(TAG, "No location data or auth token for course " + course.courseId);
             return;
         }
         
@@ -319,13 +361,13 @@ public class GPSForegroundService extends Service implements LocationListener {
             gpsData.put("directie", Math.round(lastValidBearing));
             gpsData.put("altitudine", Math.round(lastLocation.getAltitude()));
             gpsData.put("baterie", batteryLevel);
-            gpsData.put("numar_inmatriculare", vehicleNumber);
-            gpsData.put("uit", uit);
-            gpsData.put("status", currentStatus); // 2=activ, 3=pauză, 4=terminat
+            gpsData.put("numar_inmatriculare", course.vehicleNumber);
+            gpsData.put("uit", course.uit);
+            gpsData.put("status", course.status); // 2=activ, 3=pauză, 4=terminat
             gpsData.put("hdop", Math.round(lastLocation.getAccuracy()));
             gpsData.put("gsm_signal", getGSMSignalStrength());
             
-            Log.d(TAG, "Sending background GPS data: " + gpsData.toString());
+            Log.d(TAG, "Sending GPS data for course " + course.courseId + " with status " + course.status);
             
             RequestBody body = RequestBody.create(
                 gpsData.toString(),
@@ -334,7 +376,7 @@ public class GPSForegroundService extends Service implements LocationListener {
             
             Request request = new Request.Builder()
                 .url("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php")
-                .addHeader("Authorization", "Bearer " + authToken)
+                .addHeader("Authorization", "Bearer " + course.authToken)
                 .addHeader("Content-Type", "application/json")
                 .post(body)
                 .build();
@@ -342,22 +384,22 @@ public class GPSForegroundService extends Service implements LocationListener {
             httpClient.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    Log.e(TAG, "Failed to send background GPS data", e);
+                    Log.e(TAG, "Failed to send GPS data for course " + course.courseId, e);
                 }
                 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     if (response.isSuccessful()) {
-                        Log.d(TAG, "Background GPS data sent successfully to gps.php");
+                        Log.d(TAG, "GPS data sent successfully for course " + course.courseId + " (status " + course.status + ")");
                     } else {
-                        Log.w(TAG, "Background GPS data send failed with code: " + response.code());
+                        Log.w(TAG, "GPS data send failed for course " + course.courseId + " with code: " + response.code());
                     }
                     response.close();
                 }
             });
             
         } catch (Exception e) {
-            Log.e(TAG, "Error sending background GPS data", e);
+            Log.e(TAG, "Error sending GPS data for course " + course.courseId, e);
         }
     }
     
