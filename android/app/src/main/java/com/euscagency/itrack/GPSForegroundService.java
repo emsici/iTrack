@@ -32,7 +32,7 @@ public class GPSForegroundService extends Service implements LocationListener {
     private static final String CHANNEL_ID = "gps_tracking_channel";
     private static final int NOTIFICATION_ID = 1;
     private static final int LOCATION_INTERVAL = 30000; // 30 seconds
-    private static final float LOCATION_DISTANCE = 0.5f; // 0.5 meter minimum distance
+    private static final float LOCATION_DISTANCE = 0.2f; // 0.2 meter minimum distance
     
     private LocationManager locationManager;
     private PowerManager.WakeLock wakeLock;

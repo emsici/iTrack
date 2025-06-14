@@ -23,7 +23,7 @@ public class GPSTrackingPlugin extends Plugin {
     @PluginMethod
     public void startGPSTracking(PluginCall call) {
         // Check and request permissions first
-        if (!hasRequiredPermissions()) {
+        if (!hasGPSPermissions()) {
             requestAllPermissions(call, "GPS_TRACKING_PERMS");
             return;
         }
@@ -31,7 +31,7 @@ public class GPSTrackingPlugin extends Plugin {
         startGPSTrackingInternal(call);
     }
     
-    private boolean hasRequiredPermissions() {
+    private boolean hasGPSPermissions() {
         return ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
@@ -46,7 +46,7 @@ public class GPSTrackingPlugin extends Plugin {
         }
         
         if ("GPS_TRACKING_PERMS".equals(savedCall.getMethodName())) {
-            if (hasRequiredPermissions()) {
+            if (hasGPSPermissions()) {
                 startGPSTrackingInternal(savedCall);
             } else {
                 savedCall.reject("GPS permissions are required for tracking");
