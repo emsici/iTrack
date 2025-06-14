@@ -100,6 +100,24 @@ This is a hybrid mobile GPS tracking application built with React, TypeScript, a
 - June 14, 2025: Fixed Vite development server configuration for proper hosting
 - June 14, 2025: Application fully functional with real API integration for login and vehicle course management
 - June 14, 2025: GPS background tracking system implemented with Android permissions
+- June 14, 2025: Fixed GPS initialization for web/native environment compatibility
+- June 14, 2025: Android build configuration completed with Gradle wrapper and Java compatibility
+- June 14, 2025: API calls properly configured for both native (CapacitorHttp) and web (fetch) environments
+
+## Build Instructions
+### Web Development
+```bash
+npx vite --host 0.0.0.0 --port 5000
+```
+
+### Android Production Build
+```bash
+npm install
+npx vite build
+npx cap sync android
+npx cap open android
+```
+Note: Android build requires Android Studio with SDK tools. APK generation needs proper Java version (OpenJDK 11 recommended).
 
 ## Changelog
 - June 14, 2025: Initial setup and complete application development
