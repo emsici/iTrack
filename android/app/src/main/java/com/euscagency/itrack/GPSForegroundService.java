@@ -75,9 +75,7 @@ public class GPSForegroundService extends Service implements LocationListener {
         initializeTelephonyManager();
         initializeHttpClient();
         initializeScheduler();
-        initializeAlarmManager();
-        setupForceTransmissionReceiver();
-        initializeBackupSystems();
+        // Removed redundant backup systems that cause frequent transmission
     }
     
     @Override
@@ -309,8 +307,8 @@ public class GPSForegroundService extends Service implements LocationListener {
                 Log.d(TAG, "Network provider enabled and tracking started");
             }
             
-            // Start simple but robust transmission system
-            startRobustGPSTransmission();
+            // Start single transmission system - 60 seconds interval only
+            startPeriodicGPSTransmission();
             
         } catch (SecurityException e) {
             Log.e(TAG, "Location permission not granted", e);
@@ -357,26 +355,7 @@ public class GPSForegroundService extends Service implements LocationListener {
         Log.d(TAG, "Periodic transmission scheduled successfully");
     }
     
-    private void startRobustGPSTransmission() {
-        Log.d(TAG, "Starting robust GPS transmission system");
-        
-        // Primary system: ScheduledExecutorService with aggressive scheduling
-        scheduler.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Log.d(TAG, "Primary transmission triggered");
-                    if (lastLocation != null) {
-                        sendGPSDataToServer();
-                    } else {
-                        Log.w(TAG, "No location for primary transmission");
-                        tryGetLastKnownLocation();
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Error in primary transmission", e);
-                }
-            }
-        }, 30, 60, TimeUnit.SECONDS); // Start after 30 seconds, then every 60 seconds
+    // Removed redundant GPS transmission system - using only startPeriodicGPSTransmission()
         
         // Backup system: Timer for independent operation
         if (backupTimer != null) {
