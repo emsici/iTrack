@@ -256,43 +256,74 @@ public class GPSForegroundService extends Service implements LocationListener {
     }
     
     private void startPeriodicGPSTransmission() {
-        Log.d(TAG, "Starting periodic GPS transmission every 60 seconds for background");
+        Log.d(TAG, "URGENT: Starting GPS transmission - will force send coordinates");
         
+        // Test immediate transmission
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(5000); // Wait 5 seconds for location
+                    Log.d(TAG, "FORCE SENDING GPS DATA NOW");
+                    
+                    // Force get location
+                    tryGetLastKnownLocation();
+                    
+                    if (lastLocation != null) {
+                        // Send for all courses immediately
+                        for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+                            CourseData course = entry.getValue();
+                            Log.d(TAG, "URGENT: Sending GPS for course " + course.courseId + " status " + course.status);
+                            sendGPSDataForCourse(course);
+                        }
+                    } else {
+                        Log.e(TAG, "CRITICAL: No location available - GPS permissions may be missing");
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "CRITICAL: Error in immediate GPS test", e);
+                }
+            }
+        }).start();
+        
+        // Schedule regular transmission
         scheduler.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 try {
+                    Log.d(TAG, "PERIODIC GPS CHECK - every 60 seconds");
+                    
                     if (lastLocation == null) {
-                        Log.w(TAG, "No location available, trying last known");
+                        Log.w(TAG, "No location - trying to get last known");
                         tryGetLastKnownLocation();
+                    }
+                    
+                    if (lastLocation == null) {
+                        Log.e(TAG, "CRITICAL: Still no location - check permissions");
                         return;
                     }
                     
                     // Send GPS data for all active courses (status 2)
-                    int activeCourseCount = 0;
+                    int sentCount = 0;
                     for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
                         CourseData course = entry.getValue();
                         if (course.status == 2) {
-                            Log.d(TAG, "Sending GPS data for active course: " + course.courseId);
+                            Log.d(TAG, "Sending GPS for active course: " + course.courseId);
                             sendGPSDataForCourse(course);
-                            activeCourseCount++;
+                            sentCount++;
                         } else {
-                            Log.d(TAG, "Course " + course.courseId + " paused/stopped (status " + course.status + ") - no coordinates sent");
+                            Log.d(TAG, "Course " + course.courseId + " not active (status " + course.status + ")");
                         }
                     }
                     
-                    if (activeCourseCount > 0) {
-                        Log.d(TAG, "GPS transmission complete for " + activeCourseCount + " active courses");
-                    } else {
-                        Log.d(TAG, "No active courses - no GPS data sent");
-                    }
+                    Log.d(TAG, "GPS transmission complete: " + sentCount + " courses, " + activeCourses.size() + " total");
+                    
                 } catch (Exception e) {
-                    Log.e(TAG, "Error in background GPS transmission", e);
+                    Log.e(TAG, "CRITICAL: Error in periodic GPS transmission", e);
                 }
             }
-        }, 10, 60, TimeUnit.SECONDS); // 60 seconds interval
+        }, 10, 60, TimeUnit.SECONDS);
         
-        Log.d(TAG, "Background GPS transmission scheduled successfully");
+        Log.d(TAG, "GPS transmission scheduled - immediate test + 60s periodic");
     }
     
     private void tryGetLastKnownLocation() {
@@ -304,7 +335,14 @@ public class GPSForegroundService extends Service implements LocationListener {
             if (lastKnown != null) {
                 Log.d(TAG, "Using last known location for background transmission");
                 lastLocation = lastKnown;
-                sendGPSDataToServer();
+                
+                // Send GPS data for all active courses
+                for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+                    CourseData course = entry.getValue();
+                    if (course.status == 2) {
+                        sendGPSDataForCourse(course);
+                    }
+                }
             }
         } catch (SecurityException e) {
             Log.e(TAG, "Cannot access last known location", e);

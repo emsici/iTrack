@@ -1,37 +1,37 @@
-import React, { useState } from 'react';
-import { login } from '../services/api';
+import React, { useState } from "react";
+import { login } from "../services/api";
 
 interface LoginScreenProps {
   onLogin: (token: string) => void;
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
-      setError('Te rog să completezi toate câmpurile');
+      setError("Te rog să completezi toate câmpurile");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const response = await login(email, password);
-      
+
       if (response.token) {
         onLogin(response.token);
       } else {
-        setError(response.error || 'Date de conectare incorecte');
+        setError(response.error || "Date de conectare incorecte");
       }
     } catch (err: any) {
-      setError(err.message || 'Eroare la conectare');
+      setError(err.message || "Eroare la conectare");
     } finally {
       setLoading(false);
     }
@@ -47,11 +47,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           </div>
 
           <form onSubmit={handleLogin} className="login-form">
-            {error && (
-              <div className="alert alert-danger">
-                {error}
-              </div>
-            )}
+            {error && <div className="alert alert-danger">{error}</div>}
 
             <div className="form-group">
               <label htmlFor="email" className="form-label">
@@ -96,14 +92,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                   Se conectează...
                 </>
               ) : (
-                'Conectează-te'
+                "Conectează-te"
               )}
             </button>
           </form>
 
           <div className="login-footer">
-            <p style={{textAlign: 'center', color: '#6b7280', fontSize: '0.75rem'}}>
-              © 2025 iTrack v18.1922
+            <p
+              style={{
+                textAlign: "center",
+                color: "#6b7280",
+                fontSize: "0.75rem",
+              }}
+            >
+              © 2025 iTrack v18.0799
             </p>
           </div>
         </div>

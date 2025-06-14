@@ -1,11 +1,12 @@
 @echo off
-echo Building final iTrack APK with background GPS...
+echo Building iTrack APK with Multiple Course Tracking...
 echo.
 echo Features:
-echo - GPS works when phone is locked
-echo - Automatic permission requests  
-echo - Fixed mobile UI overlap
-echo - 60 second transmission interval
+echo - Multiple simultaneous course tracking
+echo - Background GPS when phone is locked
+echo - "Allow all the time" location permission
+echo - Status 2=active, 3=pause, 4=stop
+echo - 60-second coordinate transmission per active course
 echo.
 
 cd android
@@ -14,13 +15,15 @@ call gradlew assembleDebug
 
 if %ERRORLEVEL% EQU 0 (
     echo.
-    echo SUCCESS! APK built with background GPS tracking
+    echo SUCCESS! APK built with multiple course tracking
     echo Location: android\app\build\outputs\apk\debug\app-debug.apk
     echo.
-    echo Install on phone and test:
-    echo 1. Start a course - permissions requested automatically
-    echo 2. Lock phone and minimize app
-    echo 3. GPS sends coordinates every 60 seconds
+    echo TESTING INSTRUCTIONS:
+    echo 1. Install APK on phone
+    echo 2. Start multiple courses - select "Allow all the time" for location
+    echo 3. Lock phone and minimize app
+    echo 4. Each active course sends coordinates every 60 seconds
+    echo 5. Pause/resume individual courses - GPS continues for active ones
 ) else (
     echo ERROR: Build failed
 )
