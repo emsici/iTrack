@@ -158,6 +158,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Cleaned GPS architecture - removed duplicate services (SimpleGPSService, backgroundGPS.ts, simpleGPS.ts)
 - June 14, 2025. Reconstituted minimal GPS architecture: GPSForegroundService.java + GPSTrackingPlugin.java + nativeGPS.ts
 - June 14, 2025. GPS background tracking works with native Android service through Capacitor bridge
+- June 14, 2025. Optimized GPS transmission frequency to 60-second intervals to reduce server load and battery consumption
+- June 14, 2025. Implemented numeric status values (2=active, 3=paused, 4=stopped) for course status transmission
+- June 14, 2025. Added minimum distance threshold of 0.5 meters to prevent unnecessary GPS updates when vehicle is stationary
 
 ## User Preferences
 
