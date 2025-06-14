@@ -116,19 +116,32 @@ class GPSTracker {
     try {
       // Start background location tracking with watchPosition for persistent updates
       if (Capacitor.isNativePlatform()) {
-        console.log('Starting native background location tracking');
+        console.log('Starting native background location tracking with high accuracy GPS');
         
-        // This will continue working even when phone is locked on Android
+        // Clear any existing watch
+        if (this.watchId) {
+          await Geolocation.clearWatch({ id: this.watchId });
+        }
+        
+        // Use watchPosition for continuous location updates in background
         this.watchId = await Geolocation.watchPosition({
-          enableHighAccuracy: true,
-          timeout: 30000,
-          maximumAge: 60000
+          enableHighAccuracy: true, // Force GPS usage for speed and direction
+          timeout: 15000,           // Shorter timeout for more frequent updates
+          maximumAge: 5000          // Fresh location data
         }, (position) => {
-          console.log('Background position update:', position);
-          // Position updates will be handled by our interval system
+          console.log('Background GPS update - lat:', position.coords.latitude, 'lng:', position.coords.longitude, 'speed:', position.coords.speed, 'heading:', position.coords.heading);
+          // Position updates are handled by the main tracking interval
+        }, (error) => {
+          console.error('Background GPS tracking error:', error);
+          // Restart watch if it fails
+          setTimeout(() => {
+            if (this.activeCourses.size > 0) {
+              this.enableBackgroundLocationUpdates();
+            }
+          }, 5000);
         });
         
-        console.log('Background location watch started with ID:', this.watchId);
+        console.log('Background GPS watch started with ID:', this.watchId);
       }
     } catch (error) {
       console.error('Error enabling background location updates:', error);
