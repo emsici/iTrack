@@ -6,6 +6,7 @@ interface GPSTrackingPlugin {
     courseId: string;
     uit: string;
     authToken: string;
+    status?: number;
   }): Promise<{ success: boolean; message: string }>;
   
   stopGPSTracking(options: {
@@ -21,15 +22,16 @@ const GPSTracking = registerPlugin<GPSTrackingPlugin>('GPSTracking');
 class NativeGPSService {
   private activeCourses: Set<string> = new Set();
 
-  async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string): Promise<void> {
+  async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number = 2): Promise<void> {
     try {
-      console.log(`Starting native GPS tracking for course ${courseId}`);
+      console.log(`Starting native GPS tracking for course ${courseId} with status ${status}`);
       
       const result = await GPSTracking.startGPSTracking({
         vehicleNumber,
         courseId,
         uit,
-        authToken: token
+        authToken: token,
+        status
       });
       
       if (result.success) {

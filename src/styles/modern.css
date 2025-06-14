@@ -211,6 +211,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
+  margin-top: 0.5rem; /* Space for Android camera cutout */
   background: #e2e8f0;
   color: #4a5568;
   border: none;

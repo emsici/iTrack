@@ -78,15 +78,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
 
     try {
-      if (newStatus === 2) {
-        // Start GPS tracking
-        await startGPSTracking(course.id, vehicleNumber, token, course.uit);
-      } else {
-        // Stop GPS tracking
-        await stopGPSTracking(course.id);
-      }
-
-      // Update course status locally
+      // Update course status locally first
       setCourses(prevCourses =>
         prevCourses.map(c =>
           c.id === course.id ? { ...c, status: newStatus } : c
@@ -95,8 +87,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       // Send status to server
       await sendStatusToServer(course, newStatus);
+
+      // Handle GPS tracking
+      if (newStatus === 2) {
+        // Start GPS tracking with status
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit);
+        console.log(`GPS tracking started for course ${course.id}`);
+      } else {
+        // Stop GPS tracking
+        await stopGPSTracking(course.id);
+        console.log(`GPS tracking stopped for course ${course.id}`);
+      }
     } catch (error) {
       console.error('Error handling course action:', error);
+      // Revert status change on error
+      setCourses(prevCourses =>
+        prevCourses.map(c =>
+          c.id === course.id ? { ...c, status: course.status } : c
+        )
+      );
     }
   };
 
@@ -283,10 +292,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <div className="nav-item">
             <span className="nav-icon">❓</span>
             <span className="nav-label">Info</span>
-          </div>
-          <div className="nav-item active">
-            <span className="nav-icon">📍</span>
-            <span className="nav-label">iTrack</span>
           </div>
           <div className="nav-item" onClick={onLogout}>
             <span className="nav-icon">🚪</span>

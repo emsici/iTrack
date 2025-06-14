@@ -38,74 +38,64 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="modern-login-app">
-      <div className="login-content">
-        <div className="login-card">
-          <div className="login-header">
-            <div className="login-logo">📍</div>
-            <h1 className="login-title">iTrack</h1>
+    <div className="modern-app">
+      <div className="vehicle-input-screen">
+        <div className="vehicle-input-container">
+          <div className="vehicle-input-header">
+            <h1 className="vehicle-input-title">iTrack</h1>
+            <p className="vehicle-input-subtitle">Autentificare în sistem</p>
           </div>
 
-          <form onSubmit={handleLogin} className="login-form">
+          <form onSubmit={handleLogin} className="vehicle-input-form">
             {error && (
-              <div className="alert alert-danger">
-                {error}
+              <div className="error-alert">
+                <span className="error-icon">⚠</span>
+                <span className="error-text">{error}</span>
               </div>
             )}
 
-            <div className="form-group">
-              <label htmlFor="email" className="form-label">
-                Email
-              </label>
+            <div className="input-group">
+              <label className="input-label">Email</label>
               <input
-                id="email"
                 type="email"
-                className="form-control"
+                className="vehicle-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Introdu adresa de email"
                 disabled={loading}
-                required
+                placeholder="Introduceți email-ul"
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="password" className="form-label">
-                Parola
-              </label>
+            <div className="input-group">
+              <label className="input-label">Parolă</label>
               <input
-                id="password"
                 type="password"
-                className="form-control"
+                className="vehicle-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Introdu parola"
                 disabled={loading}
-                required
+                placeholder="Introduceți parola"
               />
             </div>
 
             <button
               type="submit"
-              className="btn btn-primary btn-lg w-100"
+              className="load-courses-btn"
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <div className="spinner"></div>
-                  Se conectează...
+                  <div className="loading-spinner"></div>
+                  <span>Se conectează...</span>
                 </>
               ) : (
-                'Conectează-te'
+                <>
+                  <span className="btn-icon">🔐</span>
+                  <span>Conectare</span>
+                </>
               )}
             </button>
           </form>
-
-          <div className="login-footer">
-            <p style={{textAlign: 'center', color: '#6b7280', fontSize: '0.75rem'}}>
-              © 2025 iTrack v18.1922
-            </p>
-          </div>
         </div>
       </div>
     </div>
