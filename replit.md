@@ -161,8 +161,6 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Removed AlarmManager dependency - GPS works with Timer/Thread backup systems for better reliability
 - June 14, 2025. Optimized GPS system - reads coordinates once per minute and sends to all active courses efficiently
 - June 14, 2025. Multi-course GPS support - single GPS reading shared between multiple active courses to save battery
-- June 14, 2025. Implemented mobile-first design - removed bottom bar, added simple logout link under courses
-- June 14, 2025. Enhanced mobile UX with safe area support and modern interactive elements
 
 ## User Preferences
 
