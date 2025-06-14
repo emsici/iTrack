@@ -1,0 +1,27 @@
+modules = ["nodejs-20"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Install Dependencies"
+
+[[workflows.workflow]]
+name = "Install Dependencies"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install vite @vitejs/plugin-react typescript react react-dom @types/react @types/react-dom @capacitor/core @capacitor/cli @capacitor/android @capacitor/geolocation @capacitor/background-mode @capacitor/device @capacitor/preferences bootstrap"
+
+[deployment]
+run = ["sh", "-c", "npm install vite @vitejs/plugin-react typescript react react-dom @types/react @types/react-dom @capacitor/core @capacitor/cli @capacitor/android @capacitor/geolocation @capacitor/background-mode @capacitor/device @capacitor/preferences bootstrap"]
