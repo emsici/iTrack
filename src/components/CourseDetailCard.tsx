@@ -145,7 +145,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
             </span>
             <button 
               className="btn-info-toggle"
-              onClick={() => setShowDetails(!showDetails)}
+              onClick={() => {
+                console.log('Info button clicked, current state:', showDetails);
+                setShowDetails(!showDetails);
+              }}
               title="Afișează/Ascunde detalii complete"
             >
               <i className={`fas fa-${showDetails ? 'chevron-up' : 'info-circle'}`}></i>
@@ -157,13 +160,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           {/* Quick Info Summary */}
           <div className="course-summary mb-3">
             <div className="summary-item">
-              <i className="fas fa-clock text-primary"></i>
-              <span className="summary-label">Program:</span>
-              <span className="summary-value">
-                {course.departure_time && course.arrival_time 
-                  ? `${formatTime(course.departure_time).split(' ')[1]} - ${formatTime(course.arrival_time).split(' ')[1]}`
-                  : 'Nu este specificat'}
-              </span>
+              <i className="fas fa-route text-primary"></i>
+              <span className="summary-label">Transport:</span>
+              <span className="summary-value">Marfă generală</span>
             </div>
             <div className="summary-item">
               <i className="fas fa-barcode text-primary"></i>
