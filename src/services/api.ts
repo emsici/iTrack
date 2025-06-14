@@ -1,4 +1,4 @@
-import { CapacitorHttp } from '@capacitor/core';
+import { CapacitorHttp, Capacitor } from '@capacitor/core';
 
 const API_BASE_URL = 'https://www.euscagency.com/etsm3/platforme/transport/apk';
 

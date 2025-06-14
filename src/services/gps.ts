@@ -1,5 +1,6 @@
 import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
+import { Capacitor } from '@capacitor/core';
 import { sendGPSData, GPSData } from './api';
 
 interface ActiveCourse {
@@ -18,14 +19,28 @@ class GPSTracker {
     if (this.isInitialized) return;
 
     try {
-      // Request permissions for location access
-      const permissions = await Geolocation.requestPermissions();
-      console.log('Location permissions:', permissions);
+      // Check if we're in a native environment
+      if (Capacitor.isNativePlatform()) {
+        // Request permissions for location access on native platforms
+        const permissions = await Geolocation.requestPermissions();
+        console.log('Location permissions:', permissions);
+      } else {
+        // For web environment, check if geolocation is available
+        if (!navigator.geolocation) {
+          console.warn('Geolocation not supported in this browser');
+          return;
+        }
+        console.log('GPS Tracker running in web environment');
+      }
       
       this.isInitialized = true;
       console.log('GPS Tracker initialized');
     } catch (error) {
       console.error('Error initializing GPS Tracker:', error);
+      // Don't throw error in web environment
+      if (Capacitor.isNativePlatform()) {
+        throw error;
+      }
     }
   }
 
