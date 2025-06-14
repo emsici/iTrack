@@ -6,6 +6,10 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.net.Uri;
 import android.os.Build;
+import android.content.pm.PackageManager;
+import android.Manifest;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
@@ -30,7 +34,8 @@ public class GPSTrackingPlugin extends Plugin {
         
         Log.d(TAG, "Starting GPS tracking for course: " + courseId + ", vehicle: " + vehicleNumber);
         
-        // Request battery optimization exemption for background operation
+        // Automatically request all necessary background permissions
+        requestBackgroundLocationPermission();
         requestBatteryOptimizationExemption();
         
         try {
@@ -94,20 +99,45 @@ public class GPSTrackingPlugin extends Plugin {
                 String packageName = getContext().getPackageName();
                 
                 if (powerManager != null && !powerManager.isIgnoringBatteryOptimizations(packageName)) {
-                    Log.d(TAG, "Requesting battery optimization exemption for background GPS");
+                    Log.d(TAG, "Automatically requesting battery optimization exemption");
                     
+                    // Request permission directly without user guidance
                     Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
                     intent.setData(Uri.parse("package:" + packageName));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     
                     getContext().startActivity(intent);
-                    Log.d(TAG, "Battery optimization settings opened for user approval");
+                    Log.d(TAG, "Battery optimization permission dialog opened automatically");
                 } else {
-                    Log.d(TAG, "Battery optimization already disabled or not supported");
+                    Log.d(TAG, "Battery optimization already disabled");
                 }
             }
         } catch (Exception e) {
             Log.w(TAG, "Could not request battery optimization exemption", e);
+        }
+    }
+    
+    private void requestBackgroundLocationPermission() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Check if background location permission is granted
+                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) 
+                    != PackageManager.PERMISSION_GRANTED) {
+                    
+                    Log.d(TAG, "Requesting background location permission");
+                    
+                    // Request background location permission directly
+                    if (getActivity() != null) {
+                        ActivityCompat.requestPermissions(getActivity(), 
+                            new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 
+                            1001);
+                    }
+                } else {
+                    Log.d(TAG, "Background location permission already granted");
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Could not request background location permission", e);
         }
     }
     
