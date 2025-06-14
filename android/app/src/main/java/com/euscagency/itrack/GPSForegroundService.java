@@ -83,10 +83,11 @@ public class GPSForegroundService extends Service implements LocationListener {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "GPS Foreground Service Started");
+        Log.d(TAG, "GPS Foreground Service Started - flags: " + flags + ", startId: " + startId);
         
         if (intent != null) {
             String action = intent.getStringExtra("action");
+            Log.d(TAG, "Service action: " + action);
             
             if ("START_TRACKING".equals(action)) {
                 vehicleNumber = intent.getStringExtra("vehicleNumber");
@@ -94,14 +95,25 @@ public class GPSForegroundService extends Service implements LocationListener {
                 uit = intent.getStringExtra("uit");
                 authToken = intent.getStringExtra("authToken");
                 
+                Log.d(TAG, "Starting tracking for vehicle: " + vehicleNumber + ", course: " + courseId);
+                
                 startLocationTracking();
                 startForeground(NOTIFICATION_ID, createNotification());
                 Log.d(TAG, "Foreground service started with notification ID: " + NOTIFICATION_ID);
                 
             } else if ("STOP_TRACKING".equals(action)) {
+                Log.d(TAG, "Stopping GPS tracking service");
                 stopLocationTracking();
                 stopForeground(true);
                 stopSelf();
+            }
+        } else {
+            Log.w(TAG, "Service started with null intent - this may be a restart");
+            // Service restarted by system, try to continue if we have data
+            if (vehicleNumber != null && courseId != null) {
+                Log.d(TAG, "Restarting tracking after system restart");
+                startLocationTracking();
+                startForeground(NOTIFICATION_ID, createNotification());
             }
         }
         
@@ -248,17 +260,25 @@ public class GPSForegroundService extends Service implements LocationListener {
                 
                 while (isServiceActive) {
                     try {
-                        Thread.sleep(60000); // Wait 60 seconds
+                        Thread.sleep(30000); // Wait 30 seconds for more frequent checks
                         
-                        if (isServiceActive && lastLocation != null) {
-                            Log.d(TAG, "Background thread triggered - sending GPS data");
-                            sendGPSDataToServer();
+                        if (isServiceActive) {
+                            Log.d(TAG, "Background thread check - service active: " + isServiceActive);
+                            
+                            if (lastLocation != null) {
+                                Log.d(TAG, "Background thread sending GPS data");
+                                sendGPSDataToServer();
+                            } else {
+                                Log.d(TAG, "Background thread trying to get location");
+                                tryGetLastKnownLocation();
+                            }
                         }
                     } catch (InterruptedException e) {
                         Log.w(TAG, "Background thread interrupted", e);
                         break;
                     } catch (Exception e) {
                         Log.e(TAG, "Error in background thread", e);
+                        // Continue running even if there's an error
                     }
                 }
                 
@@ -297,14 +317,8 @@ public class GPSForegroundService extends Service implements LocationListener {
                 Log.d(TAG, "Network provider enabled and tracking started");
             }
             
-            // Schedule regular GPS data transmission every 60 seconds
-            startPeriodicGPSTransmission();
-            
-            // Start backup alarm system for guaranteed transmission
-            startBackupAlarmSystem();
-            
-            // Start all additional backup systems
-            startAllBackupSystems();
+            // Start simple but robust transmission system
+            startRobustGPSTransmission();
             
         } catch (SecurityException e) {
             Log.e(TAG, "Location permission not granted", e);
@@ -349,6 +363,71 @@ public class GPSForegroundService extends Service implements LocationListener {
         }, 10, 60, TimeUnit.SECONDS); // Start after 10 seconds, then every 60 seconds
         
         Log.d(TAG, "Periodic transmission scheduled successfully");
+    }
+    
+    private void startRobustGPSTransmission() {
+        Log.d(TAG, "Starting robust GPS transmission system");
+        
+        // Primary system: ScheduledExecutorService with aggressive scheduling
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.d(TAG, "Primary transmission triggered");
+                    if (lastLocation != null) {
+                        sendGPSDataToServer();
+                    } else {
+                        Log.w(TAG, "No location for primary transmission");
+                        tryGetLastKnownLocation();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Error in primary transmission", e);
+                }
+            }
+        }, 30, 60, TimeUnit.SECONDS); // Start after 30 seconds, then every 60 seconds
+        
+        // Backup system: Timer for independent operation
+        if (backupTimer != null) {
+            TimerTask backupTask = new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        Log.d(TAG, "Backup timer transmission triggered");
+                        if (lastLocation != null) {
+                            sendGPSDataToServer();
+                        } else {
+                            tryGetLastKnownLocation();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error in backup transmission", e);
+                    }
+                }
+            };
+            backupTimer.scheduleAtFixedRate(backupTask, 45000, 60000); // Offset by 15 seconds
+        }
+        
+        // Emergency system: Background thread with shorter intervals
+        if (backgroundThread != null && !backgroundThread.isAlive()) {
+            backgroundThread.start();
+        }
+        
+        Log.d(TAG, "Robust GPS transmission system activated");
+    }
+    
+    private void tryGetLastKnownLocation() {
+        try {
+            Location lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (lastKnown == null) {
+                lastKnown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+            if (lastKnown != null) {
+                Log.d(TAG, "Using last known location for transmission");
+                lastLocation = lastKnown;
+                sendGPSDataToServer();
+            }
+        } catch (SecurityException e) {
+            Log.e(TAG, "Cannot access last known location", e);
+        }
     }
     
     private void startBackupAlarmSystem() {
