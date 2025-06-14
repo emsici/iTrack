@@ -38,45 +38,34 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-overlay">
-        <div className="container-fluid h-100">
-          <div className="row h-100">
-            {/* Left side - Branding */}
-            <div className="col-lg-6 d-none d-lg-flex login-brand-side">
-              <div className="d-flex flex-column justify-content-center align-items-center text-white p-5">
-                <div className="brand-logo">
-                  <div className="logo-icon">📍</div>
-                  <h1 className="brand-title">iTrack</h1>
-                </div>
-                <div className="brand-subtitle">
-                  Sistem profesional de tracking pentru șoferi
-                </div>
-                <div className="brand-features">
-                  <div className="feature-item">
-                    <span className="feature-icon">🚛</span>
-                    <span>Monitorizare în timp real</span>
-                  </div>
-                  <div className="feature-item">
-                    <span className="feature-icon">📊</span>
-                    <span>Rapoarte detaliate</span>
-                  </div>
-                  <div className="feature-item">
-                    <span className="feature-icon">🛡️</span>
-                    <span>Securitate avansată</span>
-                  </div>
-                </div>
+    <div className="modern-login-app">
+      {/* Modern Header - same as main app */}
+      <div className="modern-header">
+        <div className="container">
+          <div className="header-content">
+            <div className="app-info">
+              <div className="app-icon">📍</div>
+              <div className="app-details">
+                <h1 className="app-title">iTrack</h1>
+                <div className="app-subtitle">Tracking profesional pentru șoferi</div>
               </div>
             </div>
+            <div className="header-actions">
+              <button className="help-btn">❓</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            {/* Right side - Login Form */}
-            <div className="col-lg-6 d-flex align-items-center justify-content-center">
-              <div className="login-form-container">
-                <div className="text-center mb-5 d-lg-none">
-                  <div className="mobile-logo">
-                    <div className="logo-icon">📍</div>
-                    <h1 className="brand-title text-white">iTrack</h1>
-                  </div>
+      {/* Login Content */}
+      <div className="login-content">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-md-6 col-lg-4">
+              <div className="login-card">
+                <div className="login-card-header">
+                  <h2 className="login-title">Conectare</h2>
+                  <p className="login-subtitle">Introduceți datele de autentificare</p>
                 </div>
 
                 <div className="login-form-card">
@@ -135,7 +124,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
                     <button
                       type="submit"
-                      className="btn btn-login w-100"
+                      className="login-btn"
                       disabled={loading || !email || !password}
                     >
                       {loading ? (
