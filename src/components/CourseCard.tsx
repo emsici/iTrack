@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
-import { startGPSTracking, stopGPSTracking } from '../services/gps';
+import { startGPSTracking, stopGPSTracking } from '../services/simpleGPS';
 
 interface CourseCardProps {
   course: Course;
@@ -44,16 +44,22 @@ const CourseCard: React.FC<CourseCardProps> = ({
       // Send status update to server first
       await sendStatusToServer(newStatus);
       
-      // Update GPS tracking based on status
+      // Update GPS tracking based on status - no await to prevent blocking
       if (newStatus === 2) {
         // Start GPS tracking with real UIT from course
-        await startGPSTracking(course.id, vehicleNumber, token, course.uit);
+        startGPSTracking(course.id, vehicleNumber, token, course.uit).catch(error => {
+          console.error('Failed to start GPS tracking:', error);
+        });
       } else if (course.status === 2 && (newStatus === 3 || newStatus === 4)) {
         // Stop or pause GPS tracking
-        await stopGPSTracking(course.id);
+        stopGPSTracking(course.id).catch(error => {
+          console.error('Failed to stop GPS tracking:', error);
+        });
       } else if (newStatus === 2 && course.status === 3) {
         // Resume GPS tracking from pause with real UIT
-        await startGPSTracking(course.id, vehicleNumber, token, course.uit);
+        startGPSTracking(course.id, vehicleNumber, token, course.uit).catch(error => {
+          console.error('Failed to resume GPS tracking:', error);
+        });
       }
       
       onStatusUpdate(course.id, newStatus);
