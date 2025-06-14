@@ -131,6 +131,10 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Implemented modern blue design matching provided mockup with header, vehicle info card, and course list
 - June 14, 2025. Updated login screen to match modern design with consistent blue header and styling
 - June 14, 2025. Created Windows build scripts: build-android.bat (full build) and quick-build.bat (rapid development)
+- June 14, 2025. Removed all blue header bars completely per user request for cleaner mobile design
+- June 14, 2025. Replaced with fixed footer navigation containing app branding and essential actions
+- June 14, 2025. Enhanced GPS background tracking with improved Android wake locks and shorter intervals (30s)
+- June 14, 2025. Implemented robust background location tracking to work when phone is locked
 
 ## User Preferences
 
