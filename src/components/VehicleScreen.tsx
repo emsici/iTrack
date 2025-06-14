@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Course } from '../types';
 import { getVehicleCourses } from '../services/api';
-import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
 import CourseCard from './CourseCard';
 
 interface VehicleScreenProps {
@@ -15,9 +14,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [coursesLoaded, setCoursesLoaded] = useState(false);
-  const [showHelpModal, setShowHelpModal] = useState(false);
-
-  // GPS initialization handled by communityGPS when courses start
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -49,105 +45,31 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         },
         body: new URLSearchParams({
           token: token,
-          courseId: course.id,
+          course_id: course.id,
           status: status.toString(),
-        }),
+          vehicle_number: vehicleNumber,
+          uit: course.uit
+        }).toString()
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error('Network response was not ok');
       }
 
       const result = await response.text();
       console.log('Status update response:', result);
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error('Error sending status to server:', error);
       throw error;
     }
   };
 
-  const renderCourseButton = (course: Course) => {
-    const [buttonLoading, setButtonLoading] = useState(false);
-
-    const handleCourseAction = async (newStatus: number) => {
-      setButtonLoading(true);
-      try {
-        // Send status update to server first
-        await sendStatusToServer(course, newStatus);
-        
-        // Update GPS tracking based on status
-        if (newStatus === 2) {
-          await startGPSTracking(course.id, vehicleNumber, token, course.uit);
-        } else if (course.status === 2 && (newStatus === 3 || newStatus === 4)) {
-          await stopGPSTracking(course.id);
-        } else if (newStatus === 2 && course.status === 3) {
-          await startGPSTracking(course.id, vehicleNumber, token, course.uit);
-        }
-        
-        handleStatusUpdate(course.id, newStatus);
-      } catch (error) {
-        console.error('Error updating course status:', error);
-      } finally {
-        setButtonLoading(false);
-      }
-    };
-
-    if (course.status === 1) {
-      return (
-        <button
-          className="btn btn-primary btn-sm"
-          onClick={() => handleCourseAction(2)}
-          disabled={buttonLoading}
-        >
-          {buttonLoading ? '...' : 'Start'}
-        </button>
-      );
-    }
-
-    if (course.status === 2) {
-      return (
-        <div className="d-flex gap-1">
-          <button
-            className="btn btn-warning btn-sm"
-            onClick={() => handleCourseAction(3)}
-            disabled={buttonLoading}
-          >
-            {buttonLoading ? '...' : 'Pauză'}
-          </button>
-          <button
-            className="btn btn-success btn-sm"
-            onClick={() => handleCourseAction(4)}
-            disabled={buttonLoading}
-          >
-            {buttonLoading ? '...' : 'Finalizează'}
-          </button>
-        </div>
-      );
-    }
-
-    if (course.status === 3) {
-      return (
-        <button
-          className="btn btn-info btn-sm"
-          onClick={() => handleCourseAction(2)}
-          disabled={buttonLoading}
-        >
-          {buttonLoading ? '...' : 'Reia'}
-        </button>
-      );
-    }
-
-    return null;
-  };
-
   const handleStatusUpdate = (courseId: string, newStatus: number) => {
-    setCourses(prevCourses =>
-      prevCourses.map(course =>
-        course.id === courseId
-          ? { ...course, status: newStatus }
-          : course
-      )
-    );
+    setCourses(prev => prev.map(course => 
+      course.id === courseId 
+        ? { ...course, status: newStatus }
+        : course
+    ));
   };
 
   return (
@@ -155,8 +77,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       <div className="container py-4">
         <div className="row">
           <div className="col-12">
-            {/* Bara de acțiuni eliminată - funcționalitate mutată în footer */}
-
             {!coursesLoaded ? (
               <div className="vehicle-input-card">
                 <div className="card-body">
@@ -273,8 +193,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </div>
         </div>
       </div>
-
-
     </div>
   );
 };
