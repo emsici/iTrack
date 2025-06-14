@@ -166,8 +166,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   type="text"
                   className="vehicle-input"
                   value={vehicleNumber}
-                  onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
-                  placeholder="Ex: B-123-ABC"
+                  onChange={(e) => {
+                    // Allow only alphanumeric characters and convert to uppercase
+                    const value = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                    setVehicleNumber(value);
+                  }}
+                  placeholder="Ex: B123ABC"
                   disabled={loading}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
