@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles/main.css';
+import './styles/modern.css';
 
 // Import Capacitor plugins
 import { Capacitor } from '@capacitor/core';
