@@ -39,30 +39,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="modern-login-app">
-      {/* Modern Header - same as main app */}
-      <div className="modern-header">
-        <div className="container">
-          <div className="header-content">
-            <div className="app-info">
-              <div className="app-icon">📍</div>
-              <div className="app-details">
-                <h1 className="app-title">iTrack</h1>
-                <div className="app-subtitle">Tracking profesional pentru șoferi</div>
-              </div>
-            </div>
-            <div className="header-actions">
-              <button 
-                className="help-btn"
-                onClick={() => setShowHelpModal(true)}
-                title="Informații despre aplicație"
-              >
-                ❓
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="modern-login-app">{/* Header eliminat complet */}
+
+      {/* Bara eliminată complet - design curat pentru mobil */}
 
       {/* Login Content */}
       <div className="login-content">

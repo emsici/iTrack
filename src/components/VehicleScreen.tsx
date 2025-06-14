@@ -157,28 +157,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       <div className="container py-4">
         <div className="row">
           <div className="col-12">
-            {/* Top Actions Bar */}
-            <div className="top-actions-bar mb-3">
-              <div className="app-title-simple">
-                📍 iTrack
-              </div>
-              <div className="action-buttons">
-                <button 
-                  className="action-btn help-btn"
-                  onClick={() => setShowHelpModal(true)}
-                  title="Informații despre aplicație"
-                >
-                  ❓
-                </button>
-                <button 
-                  className="action-btn logout-btn"
-                  onClick={onLogout}
-                  title="Deconectare"
-                >
-                  ↗️
-                </button>
-              </div>
-            </div>
+            {/* Bara de acțiuni eliminată - funcționalitate mutată în footer */}
 
             {!coursesLoaded ? (
               <div className="vehicle-input-card">
@@ -273,6 +252,32 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Footer fix cu acțiuni */}
+      <div className="mobile-footer">
+        <div className="footer-actions">
+          <button 
+            className="footer-btn help-footer-btn"
+            onClick={() => setShowHelpModal(true)}
+            title="Informații aplicație"
+          >
+            <span className="footer-icon">❓</span>
+            <span className="footer-label">Info</span>
+          </button>
+          <div className="footer-brand">
+            <span className="footer-app-icon">📍</span>
+            <span className="footer-app-name">iTrack</span>
+          </div>
+          <button 
+            className="footer-btn logout-footer-btn"
+            onClick={onLogout}
+            title="Deconectare"
+          >
+            <span className="footer-icon">↗️</span>
+            <span className="footer-label">Ieșire</span>
+          </button>
         </div>
       </div>
 
