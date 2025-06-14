@@ -142,6 +142,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Implemented real GSM signal strength reading from Android TelephonyManager (0-100 scale)
 - June 14, 2025. Added persistent authentication with automatic token storage and logout API integration
 - June 14, 2025. Fixed session persistence - app no longer logs out when minimized or backgrounded
+- June 14, 2025. Fixed GPS bearing calculation using mathematical formula between coordinates when GPS bearing unavailable
+- June 14, 2025. Prevented GPS coordinate duplication by prioritizing native Android service over JavaScript tracking
+- June 14, 2025. Improved CSS layout spacing to eliminate footer/header element overlapping issues
 
 ## User Preferences
 

@@ -791,7 +791,19 @@ body {
 
 /* Ajustare padding pentru conținut când footer este fix */
 .app {
-  padding-bottom: 80px;
+  padding-bottom: 90px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Fix pentru suprapunerea elementelor */
+.main-content {
+  padding-bottom: 100px;
+  margin-bottom: 0;
+}
+
+.container {
+  padding-bottom: 20px;
 }
 
 /* Responsive pentru footer */
