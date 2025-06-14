@@ -68,11 +68,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       <div className="container py-4">
         <div className="row">
           <div className="col-12">
-            <div className="card shadow-sm mb-4">
+            <div className="vehicle-input-card">
               <div className="card-body">
-                <h5 className="card-title">
-                  <i className="fas fa-car me-2"></i>
-                  Vehicul
+                <h5 className="vehicle-input-title">
+                  🚛 Selectează Vehiculul
                 </h5>
                 <div className="row g-3">
                   <div className="col-md-8">

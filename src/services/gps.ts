@@ -82,14 +82,34 @@ class GPSTracker {
 
     console.log('Starting GPS tracking interval - sending data every 60 seconds');
     
+    // Request background execution for Android
+    if (Capacitor.isNativePlatform()) {
+      this.enableBackgroundMode();
+    }
+    
     // Send GPS data immediately
     this.sendAllActiveCoursesGPSData();
 
-    // Then send every minute (60 seconds)
+    // Then send every minute (60 seconds) - reliable background tracking
     this.trackingInterval = setInterval(() => {
       console.log('GPS interval triggered - sending data for active courses');
       this.sendAllActiveCoursesGPSData();
     }, 60000); // 60 seconds = 1 minute
+  }
+
+  private enableBackgroundMode() {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+      console.log('Enabling background mode for Android GPS tracking');
+      
+      // Keep app alive in background for GPS tracking
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(() => {
+          console.log('Service worker registered for background tracking');
+        }).catch((error) => {
+          console.log('Service worker registration failed:', error);
+        });
+      }
+    }
   }
 
   private stopTrackingInterval() {
@@ -109,11 +129,11 @@ class GPSTracker {
     console.log(`Sending GPS data for ${this.activeCourses.size} active courses`);
 
     try {
-      // Get current position with background location settings
+      // Get current position with optimized settings for Android background
       const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 30000 // Allow 30 second cached position for better battery life
+        enableHighAccuracy: Capacitor.isNativePlatform(),
+        timeout: Capacitor.isNativePlatform() ? 20000 : 10000,
+        maximumAge: Capacitor.isNativePlatform() ? 60000 : 30000 // Android can use older positions in background
       });
 
       // Get battery info
