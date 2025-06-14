@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { registerPlugin } from '@capacitor/core';
 
 interface GPSTrackingPlugin {
   startGPSTracking(options: {
@@ -22,13 +23,20 @@ class NativeGPSService {
 
   constructor() {
     if (Capacitor.isNativePlatform()) {
-      // Register the native plugin on Android
+      // Register the native plugin using Capacitor's registerPlugin
       try {
-        this.plugin = (window as any).Capacitor?.Plugins?.GPSTracking as GPSTrackingPlugin;
-        console.log('Native GPS plugin initialized:', this.plugin ? 'SUCCESS' : 'FAILED');
+        this.plugin = registerPlugin<GPSTrackingPlugin>('GPSTracking');
+        console.log('Native GPS plugin registered successfully');
       } catch (error) {
-        console.error('Error initializing native GPS plugin:', error);
-        this.plugin = null;
+        console.error('Error registering native GPS plugin:', error);
+        // Fallback to direct access
+        try {
+          this.plugin = (window as any).Capacitor?.Plugins?.GPSTracking as GPSTrackingPlugin;
+          console.log('Native GPS plugin fallback initialized:', this.plugin ? 'SUCCESS' : 'FAILED');
+        } catch (fallbackError) {
+          console.error('Fallback initialization failed:', fallbackError);
+          this.plugin = null;
+        }
       }
     }
   }

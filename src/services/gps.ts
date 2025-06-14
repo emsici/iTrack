@@ -64,18 +64,37 @@ class GPSTracker {
       token
     });
 
-    // Start robust JavaScript GPS tracking with Android optimizations
+    // Try native Android GPS service first for background tracking
+    if (Capacitor.isNativePlatform()) {
+      console.log('Starting native Android GPS service for course:', courseId);
+      const nativeStarted = await startNativeGPSTracking(courseId, vehicleNumber, uit, token);
+      
+      if (nativeStarted) {
+        console.log('Native Android GPS service started - runs independently when app minimized');
+        return; // Native service handles everything independently
+      } else {
+        console.log('Native GPS service failed - falling back to JavaScript GPS');
+      }
+    }
+
+    // Fallback to JavaScript GPS for web or if native fails
     if (this.activeCourses.size === 1) {
       this.startTrackingInterval();
       console.log('GPS tracking started for first active course');
     }
 
-    console.log(`Started JavaScript GPS tracking for course ${courseId}`);
+    console.log(`Started GPS tracking for course ${courseId}`);
   }
 
   async stopTracking(courseId: string) {
     this.activeCourses.delete(courseId);
     console.log(`Stopping GPS tracking for course ${courseId}`);
+
+    // Stop native Android GPS service if available
+    if (Capacitor.isNativePlatform()) {
+      console.log('Stopping native Android GPS service for course:', courseId);
+      await stopNativeGPSTracking(courseId);
+    }
 
     // Stop JavaScript tracking if no active courses remain
     if (this.activeCourses.size === 0) {
