@@ -125,6 +125,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 
 ## Changelog
 - June 14, 2025. Initial setup
+- June 14, 2025. Fixed GPS background tracking with status reporting (3=pause, 4=finish)
+- June 14, 2025. Improved course button logic: Status 1 shows only Start, Status 2 shows Pause/Finish, Status 3 shows only Resume
+- June 14, 2025. Added quick vehicle switch button in header for driver convenience
 
 ## User Preferences
 
