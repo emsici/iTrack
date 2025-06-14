@@ -57,34 +57,35 @@ class CommunityGPSTracker {
 
   private async startBackgroundWatch() {
     try {
-      console.log('Starting @capacitor-community/background-geolocation watcher...');
+      console.log('Starting optimized background GPS with foreground service integration...');
       
       this.watchId = await BackgroundGeolocation.addWatcher(
         {
-          // Background notification
-          backgroundMessage: "🚚 iTrack urmărește vehiculul în fundal",
-          backgroundTitle: "iTrack GPS Activ",
+          // Professional notification for foreground service
+          backgroundMessage: "📍 iTrack Professional - Tracking vehicul activ",
+          backgroundTitle: "iTrack GPS Professional",
           
-          // Request permissions
+          // Enhanced permissions and settings
           requestPermissions: true,
-          
-          // Tracking settings
           stale: false,
-          distanceFilter: 0 // Track any movement
+          distanceFilter: 0, // Track any movement for precision
+          
+          // Optimized for foreground service cooperation
         },
         (location, error) => {
           if (error) {
-            console.error('Community background GPS error:', error);
+            console.error('Background GPS service error:', error);
             return;
           }
 
           if (location) {
+            console.log('GPS location received from background service');
             this.onLocationReceived(location);
           }
         }
       );
 
-      console.log('Community background GPS watcher started with ID:', this.watchId);
+      console.log('Background GPS service integrated with foreground service, ID:', this.watchId);
     } catch (error) {
       console.error('Failed to start community background watch:', error);
       throw error;

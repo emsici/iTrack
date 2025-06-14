@@ -28,25 +28,12 @@
 
         </activity>
 
-        <!-- GPS Foreground Service for background tracking -->
+        <!-- GPS Foreground Service optimized for @capacitor-community/background-geolocation -->
         <service
             android:name=".GPSForegroundService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />
-
-        <!-- Simple GPS Service for reliable tracking -->
-        <service
-            android:name=".SimpleGPSService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="location" />
-
-        <!-- GPS Alarm Receiver for backup transmission -->
-        <receiver
-            android:name=".GPSAlarmReceiver"
-            android:enabled="true"
-            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

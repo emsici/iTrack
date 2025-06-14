@@ -10,7 +10,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showHelpModal, setShowHelpModal] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,142 +38,77 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="modern-login-app">{/* Header eliminat complet */}
-
-      {/* Bara eliminată complet - design curat pentru mobil */}
-
-      {/* Login Content */}
+    <div className="modern-login-app">
       <div className="login-content">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-md-6 col-lg-4">
-              <div className="login-card">
-                <div className="login-card-header">
-                  <div className="login-header-content">
-                    <div className="login-title-section">
-                      <h2 className="login-title">📍 iTrack</h2>
-                      <p className="login-subtitle">Tracking profesional pentru șoferi</p>
-                    </div>
-                    <button 
-                      className="help-btn-login"
-                      onClick={() => setShowHelpModal(true)}
-                      title="Informații despre aplicație"
-                    >
-                      ❓
-                    </button>
-                  </div>
-                  <div className="login-form-subtitle">Introduceți datele de autentificare</div>
-                </div>
+        <div className="login-card">
+          <div className="login-header">
+            <div className="login-logo">📍</div>
+            <h1 className="login-title">iTrack Professional</h1>
+            <p className="login-subtitle">Soluție profesională de tracking vehicule</p>
+          </div>
 
-                {error && (
-                  <div className="alert alert-danger">
-                    <span>⚠️ {error}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleLogin} className="login-form">
-                  <div className="form-group">
-                    <label htmlFor="email" className="form-label">Email</label>
-                    <input
-                      type="email"
-                      className="form-control"
-                      id="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="exemplu@euscagency.com"
-                      disabled={loading}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="password" className="form-label">Parola</label>
-                    <input
-                      type="password"
-                      className="form-control"
-                      id="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••••••"
-                      disabled={loading}
-                      required
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="login-btn"
-                    disabled={loading || !email || !password}
-                  >
-                    {loading ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2"></span>
-                        Se conectează...
-                      </>
-                    ) : (
-                      <>
-                        Conectare →
-                      </>
-                    )}
-                  </button>
-                </form>
-
-                <div className="form-footer">
-                  <p className="security-note">
-                    🔐 Conexiune securizată SSL
-                  </p>
-                </div>
+          <form onSubmit={handleLogin} className="login-form">
+            {error && (
+              <div className="alert alert-danger">
+                {error}
               </div>
+            )}
+
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                className="form-control"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Introdu adresa de email"
+                disabled={loading}
+                required
+              />
             </div>
+
+            <div className="form-group">
+              <label htmlFor="password" className="form-label">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                className="form-control"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Introdu parola"
+                disabled={loading}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-lg w-100"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <div className="spinner"></div>
+                  Se conectează...
+                </>
+              ) : (
+                'Conectează-te'
+              )}
+            </button>
+          </form>
+
+          <div className="login-footer">
+            <p style={{textAlign: 'center', color: '#6b7280', fontSize: '0.75rem'}}>
+              © 2025 iTrack Professional - Transport Management System
+            </p>
           </div>
         </div>
       </div>
-
-      {/* Help Modal */}
-      {showHelpModal && (
-        <div className="modal-overlay" onClick={() => setShowHelpModal(false)}>
-          <div className="help-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div className="modal-title">
-                <span className="app-icon-modal">📍</span>
-                <h3>iTrack v1.0</h3>
-              </div>
-              <button 
-                className="modal-close"
-                onClick={() => setShowHelpModal(false)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="modal-body">
-              <p className="app-description">
-                Aplicație profesională de tracking GPS pentru șoferi
-              </p>
-              <div className="features-list">
-                <div className="feature-item">
-                  <span className="feature-icon">🚛</span>
-                  <span>GPS tracking în timp real</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">📊</span>
-                  <span>Monitorizare curse active</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">🔄</span>
-                  <span>Status reporting automat</span>
-                </div>
-                <div className="feature-item">
-                  <span className="feature-icon">📱</span>
-                  <span>Background tracking pe Android</span>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <p className="copyright">© 2025 EUSC Agency</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
