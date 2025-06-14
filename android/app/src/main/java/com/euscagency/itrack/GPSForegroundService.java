@@ -319,8 +319,8 @@ public class GPSForegroundService extends Service implements LocationListener {
                 Log.d(TAG, "Network provider enabled and tracking started");
             }
             
-            // Start simple but robust transmission system
-            startRobustGPSTransmission();
+            // Start single transmission system at 60 second intervals
+            startPeriodicGPSTransmission();
             
         } catch (SecurityException e) {
             Log.e(TAG, "Location permission not granted", e);
@@ -367,54 +367,7 @@ public class GPSForegroundService extends Service implements LocationListener {
         Log.d(TAG, "Periodic transmission scheduled successfully");
     }
     
-    private void startRobustGPSTransmission() {
-        Log.d(TAG, "Starting robust GPS transmission system");
-        
-        // Primary system: ScheduledExecutorService with aggressive scheduling
-        scheduler.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Log.d(TAG, "Primary transmission triggered");
-                    if (lastLocation != null) {
-                        sendGPSDataToServer();
-                    } else {
-                        Log.w(TAG, "No location for primary transmission");
-                        tryGetLastKnownLocation();
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "Error in primary transmission", e);
-                }
-            }
-        }, 30, 60, TimeUnit.SECONDS); // Start after 30 seconds, then every 60 seconds
-        
-        // Backup system: Timer for independent operation
-        if (backupTimer != null) {
-            TimerTask backupTask = new TimerTask() {
-                @Override
-                public void run() {
-                    try {
-                        Log.d(TAG, "Backup timer transmission triggered");
-                        if (lastLocation != null) {
-                            sendGPSDataToServer();
-                        } else {
-                            tryGetLastKnownLocation();
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error in backup transmission", e);
-                    }
-                }
-            };
-            backupTimer.scheduleAtFixedRate(backupTask, 45000, 60000); // Offset by 15 seconds
-        }
-        
-        // Emergency system: Background thread with shorter intervals
-        if (backgroundThread != null && !backgroundThread.isAlive()) {
-            backgroundThread.start();
-        }
-        
-        Log.d(TAG, "Robust GPS transmission system activated");
-    }
+    // Removed duplicate transmission systems - now using only single periodic timer
     
     private void tryGetLastKnownLocation() {
         try {
