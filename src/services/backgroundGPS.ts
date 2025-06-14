@@ -20,31 +20,44 @@ class BackgroundGPSTracker {
       await BackgroundGeolocation.ready({
         // Geolocation Config
         desiredAccuracy: BackgroundGeolocation.DESIRED_ACCURACY_HIGH,
-        distanceFilter: 10,
+        distanceFilter: 0, // Track any movement
         locationUpdateInterval: 60000, // 1 minute
-        fastestLocationUpdateInterval: 30000,
+        fastestLocationUpdateInterval: 30000, // Fallback 30 seconds
         
-        // Activity Recognition
-        stopTimeout: 1,
+        // Activity Recognition - aggressive settings for continuous tracking
+        stopTimeout: 1, // Quick transition to stationary
+        activityRecognitionInterval: 30000,
         
-        // Application config
-        debug: false, // Disable debug sounds in production
-        logLevel: BackgroundGeolocation.LOG_LEVEL_OFF,
-        stopOnTerminate: false,   // Continue tracking when app terminates
-        startOnBoot: true,        // Start tracking after device reboot
+        // Application config - ensure background operation
+        debug: true, // Enable for troubleshooting
+        logLevel: BackgroundGeolocation.LOG_LEVEL_VERBOSE,
+        stopOnTerminate: false,   // CRITICAL: Continue when app terminates
+        startOnBoot: true,        // CRITICAL: Auto-start after reboot
         
-        // HTTP / Persistence config
-        url: 'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php',
-        batchSync: false,       // Send immediately
-        autoSync: true,         // Auto send to server
+        // Background modes - force all background capabilities
+        enableHeadless: true,     // CRITICAL: Background operation
+        foregroundService: true,  // CRITICAL: Android foreground service
         
-        // Android specific
-        enableHeadless: true,   // Continue in background
-        foregroundService: true,
+        // Android-specific background settings
+        allowIdenticalLocations: true,
+        
+        // Notification to prevent Android from killing service
         notification: {
           title: "iTrack GPS Active",
-          text: "Vehicle tracking in progress"
-        }
+          text: "Vehicle tracking - do not disable",
+          color: "red",
+          channelName: "GPS Tracking",
+          priority: BackgroundGeolocation.NOTIFICATION_PRIORITY_HIGH,
+          sticky: true // Persistent notification
+        },
+        
+        // Disable HTTP auto-sync - we handle it manually
+        url: undefined,
+        autoSync: false,
+        batchSync: false,
+        
+        // Location authorization
+        locationAuthorizationRequest: 'Always'
       });
 
       // Location event listener
@@ -63,6 +76,8 @@ class BackgroundGPSTracker {
   }
 
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string) {
+    console.log('Starting background GPS tracking...');
+    
     await this.initialize();
 
     const courseData: ActiveCourse = {
@@ -75,24 +90,40 @@ class BackgroundGPSTracker {
     this.activeCourses.set(courseId, courseData);
 
     try {
-      // Update HTTP config with auth token
-      await BackgroundGeolocation.setConfig({
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        params: {
-          vehicleNumber,
-          courseId,
-          uit
-        }
-      });
+      // Request location permissions first
+      console.log('Requesting location permissions...');
+      const authorizationStatus = await BackgroundGeolocation.requestPermission();
+      console.log('Permission status:', authorizationStatus);
 
-      // Start background geolocation
-      await BackgroundGeolocation.start();
-      
-      console.log(`Background GPS tracking started for course: ${courseId}`);
-      return true;
+      // Check if we have the required permissions
+      if (authorizationStatus === BackgroundGeolocation.AUTHORIZATION_STATUS_ALWAYS || 
+          authorizationStatus === BackgroundGeolocation.AUTHORIZATION_STATUS_WHEN_IN_USE) {
+        
+        console.log('Location permissions granted');
+        
+        // Start background geolocation
+        console.log('Starting background location service...');
+        await BackgroundGeolocation.start();
+        
+        // Get current state to verify it started
+        const state = await BackgroundGeolocation.getState();
+        console.log('Background GPS state:', state);
+        
+        if (state.enabled) {
+          console.log(`Background GPS tracking ACTIVE for course: ${courseId}`);
+          console.log(`Vehicle: ${vehicleNumber}, UIT: ${uit}`);
+          return true;
+        } else {
+          console.error('Background GPS failed to start - service not enabled');
+          this.activeCourses.delete(courseId);
+          return false;
+        }
+        
+      } else {
+        console.error('Location permissions denied:', authorizationStatus);
+        this.activeCourses.delete(courseId);
+        return false;
+      }
       
     } catch (error) {
       console.error('Failed to start background GPS tracking:', error);
