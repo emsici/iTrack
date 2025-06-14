@@ -145,6 +145,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. Fixed GPS bearing calculation using mathematical formula between coordinates when GPS bearing unavailable
 - June 14, 2025. Prevented GPS coordinate duplication by prioritizing native Android service over JavaScript tracking
 - June 14, 2025. Improved CSS layout spacing to eliminate footer/header element overlapping issues
+- June 14, 2025. Fixed UIT transmission to use real course UIT instead of random generated values
+- June 14, 2025. Eliminated GPS coordinate duplication by forcing Android to use only native service, never JavaScript
+- June 14, 2025. GPS tracking now sends single coordinate stream with proper UIT from course data
 
 ## User Preferences
 

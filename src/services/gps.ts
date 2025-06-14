@@ -62,23 +62,24 @@ class GPSTracker {
       token
     });
 
-    // Try native Android GPS service first for background tracking
+    // On Android, always use native service to prevent duplicates
     if (Capacitor.isNativePlatform()) {
-      console.log('Starting native Android GPS service for course:', courseId);
-      const nativeStarted = await startNativeGPSTracking(courseId, vehicleNumber, uit, token);
-      
-      if (nativeStarted) {
-        console.log('Native Android GPS service started - runs independently when app minimized');
-        return; // Native service handles everything independently
-      } else {
-        console.log('Native GPS service failed - falling back to JavaScript GPS');
+      console.log('Android platform detected - using native GPS service only');
+      try {
+        await startNativeGPSTracking(courseId, vehicleNumber, uit, token);
+        console.log('Native Android GPS service started - JavaScript GPS disabled to prevent duplicates');
+        return; // Always use native on Android, never JavaScript
+      } catch (error) {
+        console.error('Native GPS service error:', error);
+        // Still don't start JavaScript GPS to prevent duplicates
+        return;
       }
     }
 
-    // Fallback to JavaScript GPS for web or if native fails
+    // Only use JavaScript GPS on web platform
     if (this.activeCourses.size === 1) {
       this.startTrackingInterval();
-      console.log('GPS tracking started for first active course');
+      console.log('Web platform - using JavaScript GPS tracking');
     }
 
     console.log(`Started GPS tracking for course ${courseId}`);
