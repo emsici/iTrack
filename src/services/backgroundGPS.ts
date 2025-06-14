@@ -1,7 +1,5 @@
-// Professional background GPS with @transistorsoft/capacitor-background-geolocation
-// FREE for DEBUG builds, requires license for RELEASE builds
-import BackgroundGeolocation from '@transistorsoft/capacitor-background-geolocation';
-import { sendGPSData, type GPSData } from './api';
+import BackgroundGeolocation from "@transistorsoft/capacitor-background-geolocation";
+import { sendGPSData, type GPSData } from "./api";
 
 interface ActiveCourse {
   courseId: string;
@@ -14,6 +12,7 @@ class BackgroundGPSTracker {
   private activeCourses: Map<string, ActiveCourse> = new Map();
   private isConfigured = false;
   private lastPosition: { lat: number; lng: number } | null = null;
+  private locationMonitorInterval: NodeJS.Timeout | null = null;
 
   async initialize() {
     if (this.isConfigured) return;
@@ -113,7 +112,6 @@ class BackgroundGPSTracker {
 
       this.isConfigured = true;
       console.log('Professional background GPS initialized successfully');
-      
     } catch (error) {
       console.error('Failed to initialize background GPS:', error);
       throw error;
@@ -139,9 +137,9 @@ class BackgroundGPSTracker {
       const { Geolocation } = await import('@capacitor/geolocation');
       const permissions = await Geolocation.requestPermissions();
       console.log('Capacitor location permissions:', permissions);
-      
+
       if (permissions.location !== 'granted') {
-        console.error('Location permissions not granted via Capacitor');
+        console.error('Location permissions denied');
         this.activeCourses.delete(courseId);
         return false;
       }
@@ -149,38 +147,29 @@ class BackgroundGPSTracker {
       // Now initialize the background library
       await this.initialize();
       
-      // Start the background GPS service directly since we have permissions
+      // Start the background GPS service
+      console.log('Starting BackgroundGeolocation service...');
       await BackgroundGeolocation.start();
       
-      // Verify service started
+      // Verify service started and wait a moment
+      await new Promise(resolve => setTimeout(resolve, 2000));
       const state = await BackgroundGeolocation.getState();
-      console.log('Background GPS state:', state);
+      console.log('Background GPS final state:', {
+        enabled: state.enabled,
+        isMoving: state.isMoving,
+        trackingMode: state.trackingMode
+      });
 
       if (state.enabled) {
+        console.log(`✅ Professional background GPS ACTIVE for course: ${courseId}`);
+        console.log(`Vehicle: ${vehicleNumber}, UIT: ${uit}`);
         
-        // Start background geolocation service
-        await BackgroundGeolocation.start();
+        // Start a monitoring timer to check if events are coming
+        this.startLocationMonitor();
         
-        // Verify service started
-        const state = await BackgroundGeolocation.getState();
-        console.log('Background GPS state:', {
-          enabled: state.enabled,
-          isMoving: state.isMoving,
-          trackingMode: state.trackingMode
-        });
-        
-        if (state.enabled) {
-          console.log(`Professional background GPS ACTIVE for course: ${courseId}`);
-          console.log(`Vehicle: ${vehicleNumber}, UIT: ${uit}`);
-          return true;
-        } else {
-          console.error('Background GPS service failed to start');
-          this.activeCourses.delete(courseId);
-          return false;
-        }
-        
+        return true;
       } else {
-        console.error('Location permissions denied');
+        console.error('❌ Background GPS service failed to start');
         this.activeCourses.delete(courseId);
         return false;
       }
@@ -200,6 +189,11 @@ class BackgroundGPSTracker {
       try {
         await BackgroundGeolocation.stop();
         console.log('Background GPS service stopped');
+        
+        if (this.locationMonitorInterval) {
+          clearInterval(this.locationMonitorInterval);
+          this.locationMonitorInterval = null;
+        }
       } catch (error) {
         console.error('Error stopping background GPS:', error);
       }
@@ -209,17 +203,27 @@ class BackgroundGPSTracker {
     return true;
   }
 
+  private startLocationMonitor() {
+    if (this.locationMonitorInterval) return;
+    
+    this.locationMonitorInterval = setInterval(() => {
+      console.log(`📍 GPS Monitor: ${this.activeCourses.size} active courses, last position:`, this.lastPosition);
+    }, 60000); // Every minute
+  }
+
   private async onLocationReceived(location: any) {
-    console.log('Background GPS location received:', {
+    const timestamp = new Date().toLocaleTimeString();
+    console.log(`🟢 [${timestamp}] Background GPS location received:`, {
       lat: location.coords.latitude,
       lng: location.coords.longitude,
       speed: location.coords.speed,
       accuracy: location.coords.accuracy,
-      timestamp: location.timestamp
+      activeCourses: this.activeCourses.size
     });
 
     // Send GPS data for all active courses
     for (const [courseId, courseData] of this.activeCourses) {
+      console.log(`📤 Sending GPS data for course ${courseId}...`);
       await this.sendGPSDataForCourse(location.coords, courseData);
     }
 
@@ -292,37 +296,34 @@ class BackgroundGPSTracker {
         console.log(`GPS data sent successfully for course: ${courseData.courseId}`, {
           lat: gpsData.lat,
           lng: gpsData.lng,
-          speed: gpsData.viteza,
-          direction: gpsData.directie
+          uit: gpsData.uit
         });
       } else {
         console.error(`Failed to send GPS data for course: ${courseData.courseId}`);
       }
-
     } catch (error) {
-      console.error('Error sending GPS data:', error);
+      console.error(`Error sending GPS data for course ${courseData.courseId}:`, error);
     }
   }
 
   private calculateBearing(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const lat1Rad = lat1 * Math.PI / 180;
-    const lat2Rad = lat2 * Math.PI / 180;
+    const dLon = lon2 - lon1;
+    const y = Math.sin(dLon) * Math.cos(lat2);
+    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+    const bearing = Math.atan2(y, x);
     
-    const y = Math.sin(dLon) * Math.cos(lat2Rad);
-    const x = Math.cos(lat1Rad) * Math.sin(lat2Rad) - Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(dLon);
-    
-    const bearing = Math.atan2(y, x) * 180 / Math.PI;
-    return (bearing + 360) % 360;
+    // Convert to degrees and normalize to 0-360
+    return (bearing * 180 / Math.PI + 360) % 360;
   }
 
   private async getBatteryLevel(): Promise<number> {
     try {
-      if ('getBattery' in navigator) {
-        const battery = await (navigator as any).getBattery();
-        return Math.round(battery.level * 100);
+      const { Device } = await import('@capacitor/device');
+      if (navigator && Device) {
+        const batteryInfo = await Device.getBatteryInfo();
+        return Math.round((batteryInfo.batteryLevel || 0) * 100);
       }
-      return 100; // Default to full battery if not available
+      return 100;
     } catch (error) {
       return 100;
     }
