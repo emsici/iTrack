@@ -55,7 +55,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   };
 
   return (
-    <div className="modern-app">
+    <div className="modern-app mobile-safe-area">
       <div className="app-content">
         <div className="content-container">
           {!coursesLoaded ? (

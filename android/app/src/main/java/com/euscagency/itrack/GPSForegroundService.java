@@ -204,19 +204,19 @@ public class GPSForegroundService extends Service implements LocationListener {
     }
     
     private void startPeriodicGPSTransmission() {
-        Log.d(TAG, "Starting periodic GPS transmission every 60 seconds");
+        Log.d(TAG, "Starting periodic GPS transmission every 60 seconds with fixed delay");
         
-        scheduler.scheduleAtFixedRate(new Runnable() {
+        scheduler.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Log.d(TAG, "GPS transmission every 60 seconds");
+                    Log.d(TAG, "GPS transmission every 60 seconds (fixed delay)");
                     
                     if (lastLocation != null) {
-                        Log.d(TAG, "Sending GPS data once per minute");
+                        Log.d(TAG, "Sending GPS data once per minute to gps.php");
                         sendGPSDataToServer();
                     } else {
-                        Log.w(TAG, "No location available");
+                        Log.w(TAG, "No location available, trying last known");
                         tryGetLastKnownLocation();
                     }
                 } catch (Exception e) {
@@ -225,7 +225,7 @@ public class GPSForegroundService extends Service implements LocationListener {
             }
         }, 10, 60, TimeUnit.SECONDS);
         
-        Log.d(TAG, "Periodic transmission scheduled successfully");
+        Log.d(TAG, "Periodic transmission with fixed delay scheduled successfully");
     }
     
     private void tryGetLastKnownLocation() {

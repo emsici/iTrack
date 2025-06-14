@@ -41,20 +41,30 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const handleStatusChange = async (newStatus: number) => {
     setLoading(true);
     try {
-      // Handle native Android GPS tracking based on status change
+      // Request background permissions first
       if (newStatus === 2) {
+        console.log('Requesting background permissions...');
+        try {
+          await import('../services/nativeGPS').then(module => module.requestBackgroundPermissions());
+          console.log('Background permissions requested successfully');
+        } catch (permError) {
+          console.log('Background permissions request failed, continuing anyway:', permError);
+        }
+        
         // Start native Android GPS background tracking (sends coordinates every minute)
         await startGPSTracking(course.id, vehicleNumber, token, course.uit);
-        console.log(`Started native GPS background tracking for course ${course.id}`);
+        console.log(`✓ STARTED native GPS background tracking for course ${course.id}`);
+        console.log(`✓ Vehicle: ${vehicleNumber}, UIT: ${course.uit}`);
+        console.log(`✓ GPS will send coordinates every 60 seconds to gps.php`);
       } else if (newStatus === 4) {
         // Stop native Android GPS tracking
         await stopGPSTracking(course.id);
-        console.log(`Stopped native GPS tracking for course ${course.id}`);
+        console.log(`✓ STOPPED native GPS tracking for course ${course.id}`);
       }
       
       onStatusUpdate(course.id, newStatus);
     } catch (error) {
-      console.error('Error updating course status with native GPS:', error);
+      console.error('ERROR in GPS tracking:', error);
       // Continue with status update even if GPS fails
       onStatusUpdate(course.id, newStatus);
     } finally {
