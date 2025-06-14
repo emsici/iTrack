@@ -355,35 +355,7 @@ public class GPSForegroundService extends Service implements LocationListener {
         Log.d(TAG, "Periodic transmission scheduled successfully");
     }
     
-    // Removed redundant GPS transmission system - using only startPeriodicGPSTransmission()
-        
-        // Backup system: Timer for independent operation
-        if (backupTimer != null) {
-            TimerTask backupTask = new TimerTask() {
-                @Override
-                public void run() {
-                    try {
-                        Log.d(TAG, "Backup timer transmission triggered");
-                        if (lastLocation != null) {
-                            sendGPSDataToServer();
-                        } else {
-                            tryGetLastKnownLocation();
-                        }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error in backup transmission", e);
-                    }
-                }
-            };
-            backupTimer.scheduleAtFixedRate(backupTask, 45000, 60000); // Offset by 15 seconds
-        }
-        
-        // Emergency system: Background thread with shorter intervals
-        if (backgroundThread != null && !backgroundThread.isAlive()) {
-            backgroundThread.start();
-        }
-        
-        Log.d(TAG, "Robust GPS transmission system activated");
-    }
+    // Single GPS transmission system active - no redundant backups
     
     private void tryGetLastKnownLocation() {
         try {
