@@ -64,18 +64,75 @@ public class GPSTrackingPlugin extends Plugin {
     }
     
     @PluginMethod
-    public void stopGPSTracking(PluginCall call) {
+    public void pauseGPSTracking(PluginCall call) {
         String courseId = call.getString("courseId");
         
-        Log.d(TAG, "Stopping GPS tracking for course: " + courseId);
+        Log.d(TAG, "Pausing GPS tracking for course: " + courseId + " - stops coordinate transmission");
         
         try {
-            Intent serviceIntent = new Intent(getContext(), GPSForegroundService.class);
-            getContext().stopService(serviceIntent);
+            // Send pause status to service
+            Intent statusIntent = new Intent(getContext(), GPSForegroundService.class);
+            statusIntent.putExtra("action", "pause");
+            statusIntent.putExtra("courseId", courseId);
+            getContext().startService(statusIntent);
             
             JSObject result = new JSObject();
             result.put("success", true);
-            result.put("message", "GPS tracking stopped");
+            result.put("message", "GPS paused - coordinates stopped");
+            call.resolve(result);
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to pause GPS tracking", e);
+            call.reject("Failed to pause GPS tracking: " + e.getMessage());
+        }
+    }
+
+    @PluginMethod
+    public void resumeGPSTracking(PluginCall call) {
+        String courseId = call.getString("courseId");
+        
+        Log.d(TAG, "Resuming GPS tracking for course: " + courseId + " - resumes coordinate transmission");
+        
+        try {
+            // Send resume status to service
+            Intent statusIntent = new Intent(getContext(), GPSForegroundService.class);
+            statusIntent.putExtra("action", "resume");
+            statusIntent.putExtra("courseId", courseId);
+            getContext().startService(statusIntent);
+            
+            JSObject result = new JSObject();
+            result.put("success", true);
+            result.put("message", "GPS resumed - coordinates sending");
+            call.resolve(result);
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to resume GPS tracking", e);
+            call.reject("Failed to resume GPS tracking: " + e.getMessage());
+        }
+    }
+
+    @PluginMethod
+    public void stopGPSTracking(PluginCall call) {
+        String courseId = call.getString("courseId");
+        
+        Log.d(TAG, "Stopping GPS tracking for course: " + courseId + " - sends final status and stops");
+        
+        try {
+            // Send stop status to service
+            Intent statusIntent = new Intent(getContext(), GPSForegroundService.class);
+            statusIntent.putExtra("action", "stop");
+            statusIntent.putExtra("courseId", courseId);
+            getContext().startService(statusIntent);
+            
+            // Stop service after brief delay to send final status
+            new android.os.Handler().postDelayed(() -> {
+                Intent serviceIntent = new Intent(getContext(), GPSForegroundService.class);
+                getContext().stopService(serviceIntent);
+            }, 3000); // 3 second delay
+            
+            JSObject result = new JSObject();
+            result.put("success", true);
+            result.put("message", "GPS tracking stopped completely");
             call.resolve(result);
             
         } catch (Exception e) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
-import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
+import { startGPSTracking, pauseGPSTracking, resumeGPSTracking, stopGPSTracking } from '../services/nativeGPS';
 
 interface CourseCardProps {
   course: Course;
@@ -41,8 +41,8 @@ const CourseCard: React.FC<CourseCardProps> = ({
   const handleStatusChange = async (newStatus: number) => {
     setLoading(true);
     try {
-      // Request background permissions first
       if (newStatus === 2) {
+        // Status 2: Start GPS tracking - trimite coordonate continuu din minut în minut
         console.log('Requesting background permissions...');
         try {
           await import('../services/nativeGPS').then(module => module.requestBackgroundPermissions());
@@ -51,15 +51,23 @@ const CourseCard: React.FC<CourseCardProps> = ({
           console.log('Background permissions request failed, continuing anyway:', permError);
         }
         
-        // Start native Android GPS background tracking (sends coordinates every minute)
         await startGPSTracking(course.id, vehicleNumber, token, course.uit);
-        console.log(`✓ STARTED native GPS background tracking for course ${course.id}`);
-        console.log(`✓ Vehicle: ${vehicleNumber}, UIT: ${course.uit}`);
-        console.log(`✓ GPS will send coordinates every 60 seconds to gps.php`);
+        console.log(`✓ STARTED GPS tracking - coordinates every 60 seconds - Status 2`);
+        
+      } else if (newStatus === 3) {
+        // Status 3: Pause GPS tracking - nu mai trimite coordonate
+        await pauseGPSTracking(course.id);
+        console.log(`✓ PAUSED GPS tracking - coordinates stopped - Status 3`);
+        
+      } else if (newStatus === 2 && course.status === 3) {
+        // Resume from pause - reactivate coordinate transmission
+        await resumeGPSTracking(course.id);
+        console.log(`✓ RESUMED GPS tracking - coordinates restarted - Status 2`);
+        
       } else if (newStatus === 4) {
-        // Stop native Android GPS tracking
+        // Status 4: Stop GPS tracking completely
         await stopGPSTracking(course.id);
-        console.log(`✓ STOPPED native GPS tracking for course ${course.id}`);
+        console.log(`✓ STOPPED GPS tracking completely - Status 4`);
       }
       
       onStatusUpdate(course.id, newStatus);

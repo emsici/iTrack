@@ -63,15 +63,35 @@ public class GPSForegroundService extends Service implements LocationListener {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "GPS Foreground Service Started - will work in background");
+        Log.d(TAG, "GPS Foreground Service onStartCommand");
         
         if (intent != null) {
+            String action = intent.getStringExtra("action");
+            
+            if ("pause".equals(action)) {
+                currentStatus = 3; // Pauză - nu mai trimite coordonate
+                Log.d(TAG, "GPS PAUSED - coordinate transmission stopped");
+                sendGPSDataToServer(); // Trimite o dată statusul 3
+                return START_STICKY;
+            } else if ("resume".equals(action)) {
+                currentStatus = 2; // Activ - reia trimiterea coordonatelor
+                Log.d(TAG, "GPS RESUMED - coordinate transmission restarted");
+                return START_STICKY;
+            } else if ("stop".equals(action)) {
+                currentStatus = 4; // Terminat
+                Log.d(TAG, "GPS STOPPED - sending final status 4");
+                sendGPSDataToServer(); // Trimite o dată statusul 4
+                return START_STICKY;
+            }
+            
+            // First time start
             vehicleNumber = intent.getStringExtra("vehicleNumber");
             courseId = intent.getStringExtra("courseId");
             uit = intent.getStringExtra("uit");
             authToken = intent.getStringExtra("authToken");
+            currentStatus = 2; // Start cu status activ
             
-            Log.d(TAG, "Starting background GPS tracking for vehicle: " + vehicleNumber + ", course: " + courseId + ", UIT: " + uit);
+            Log.d(TAG, "Starting GPS tracking: vehicle=" + vehicleNumber + ", course=" + courseId + ", UIT=" + uit);
             
             startLocationTracking();
             startForeground(NOTIFICATION_ID, createNotification());
@@ -81,6 +101,7 @@ public class GPSForegroundService extends Service implements LocationListener {
             Log.w(TAG, "Service started with null intent");
             if (vehicleNumber != null && courseId != null) {
                 Log.d(TAG, "Restarting background tracking after system restart");
+                currentStatus = 2; // Repornim ca activ
                 startLocationTracking();
                 startForeground(NOTIFICATION_ID, createNotification());
                 startPeriodicGPSTransmission();
