@@ -16,6 +16,36 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [coursesLoaded, setCoursesLoaded] = useState(false);
   const [recentVehicles, setRecentVehicles] = useState<string[]>([]);
 
+  const getStatusDotClass = (status: number) => {
+    switch (status) {
+      case 1: return 'inactive';
+      case 2: return 'active';
+      case 3: return 'paused';
+      case 4: return 'finished';
+      default: return 'inactive';
+    }
+  };
+
+  const getStatusBadgeModern = (status: number) => {
+    switch (status) {
+      case 1: return 'inactive';
+      case 2: return 'active';
+      case 3: return 'paused';
+      case 4: return 'finished';
+      default: return 'inactive';
+    }
+  };
+
+  const getStatusTextModern = (status: number) => {
+    switch (status) {
+      case 1: return 'INACTIV';
+      case 2: return 'ACTIV';
+      case 3: return 'PAUZĂ';
+      case 4: return 'FINALIZAT';
+      default: return 'INACTIV';
+    }
+  };
+
   const handleLoadCourses = async (vehicleNum?: string) => {
     const targetVehicle = vehicleNum || vehicleNumber;
     
@@ -67,29 +97,41 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   return (
     <div className="app">
-      <div className="vehicle-header">
+      <div className="modern-header">
         <div className="container">
-          <h1 className="vehicle-title">🚛 Tracking Șoferi</h1>
-          <div className="header-controls">
-            {coursesLoaded && (
+          <div className="header-content">
+            <div className="app-info">
+              <div className="app-icon">📍</div>
+              <div className="app-details">
+                <h1 className="app-title">iTrack</h1>
+                {coursesLoaded && (
+                  <div className="vehicle-info">
+                    <span className="vehicle-number">{vehicleNumber}</span>
+                    <button 
+                      className="edit-vehicle-btn"
+                      onClick={() => {
+                        setCoursesLoaded(false);
+                        setCourses([]);
+                        setVehicleNumber('');
+                      }}
+                      title="Schimbă vehiculul"
+                    >
+                      ✏️
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="header-actions">
+              <button className="help-btn">❓</button>
+              <button className="recording-btn">🔴</button>
               <button 
-                className="btn-switch-vehicle"
-                onClick={() => {
-                  setCoursesLoaded(false);
-                  setCourses([]);
-                  setVehicleNumber('');
-                }}
-                title="Schimbă vehiculul"
+                className="logout-btn"
+                onClick={handleLogout}
               >
-                🔄
+                ↗️
               </button>
-            )}
-            <button 
-              className="disconnect-btn"
-              onClick={handleLogout}
-            >
-              Deconectare
-            </button>
+            </div>
           </div>
         </div>
       </div>
