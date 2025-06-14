@@ -7,6 +7,11 @@ import {
   stopNativeGPSTracking, 
   hasNativeActiveCourses 
 } from './nativeGPS';
+import { 
+  startBackgroundGPSTracking, 
+  stopBackgroundGPSTracking, 
+  initializeBackgroundGPS 
+} from './backgroundGPS';
 
 interface ActiveCourse {
   courseId: string;
@@ -62,16 +67,23 @@ class GPSTracker {
       token
     });
 
-    // On Android, always use native service to prevent duplicates
+    // Use professional background geolocation library for robust tracking
     if (Capacitor.isNativePlatform()) {
-      console.log('Android platform detected - using native GPS service only');
+      console.log('Android platform - using professional background geolocation');
       try {
-        await startNativeGPSTracking(courseId, vehicleNumber, uit, token);
-        console.log('Native Android GPS service started - JavaScript GPS disabled to prevent duplicates');
-        return; // Always use native on Android, never JavaScript
+        await initializeBackgroundGPS();
+        const success = await startBackgroundGPSTracking(courseId, vehicleNumber, uit, token);
+        if (success) {
+          console.log('Professional background GPS tracking started - works when app minimized');
+          return;
+        } else {
+          console.log('Background GPS failed - falling back to native service');
+          await startNativeGPSTracking(courseId, vehicleNumber, uit, token);
+          return;
+        }
       } catch (error) {
-        console.error('Native GPS service error:', error);
-        // Still don't start JavaScript GPS to prevent duplicates
+        console.error('Background GPS error, using native fallback:', error);
+        await startNativeGPSTracking(courseId, vehicleNumber, uit, token);
         return;
       }
     }
