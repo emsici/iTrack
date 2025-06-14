@@ -71,15 +71,17 @@ public class GPSForegroundService extends Service implements LocationListener {
         super.onCreate();
         Log.d(TAG, "GPS Foreground Service Created");
         
-        createNotificationChannel();
-        acquireWakeLock();
-        initializeLocationManager();
-        initializeTelephonyManager();
-        initializeHttpClient();
-        initializeScheduler();
-        initializeAlarmManager();
-        setupForceTransmissionReceiver();
-        initializeBackupSystems();
+        try {
+            createNotificationChannel();
+            acquireWakeLock();
+            initializeLocationManager();
+            initializeTelephonyManager();
+            initializeHttpClient();
+            initializeScheduler();
+            Log.d(TAG, "GPS Foreground Service initialized successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing GPS service", e);
+        }
     }
     
     @Override
@@ -367,7 +369,7 @@ public class GPSForegroundService extends Service implements LocationListener {
         Log.d(TAG, "Periodic transmission scheduled successfully");
     }
     
-    // Removed duplicate transmission systems - now using only single periodic timer
+    // Clean GPS transmission - only periodic timer at 60 seconds
     
     private void tryGetLastKnownLocation() {
         try {

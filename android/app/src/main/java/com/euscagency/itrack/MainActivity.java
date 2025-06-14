@@ -2,16 +2,16 @@ package com.euscagency.itrack;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
-import com.euscagency.itrack.SimpleGPSPlugin;
+import com.euscagency.itrack.GPSTrackingPlugin;
 
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Register simplified GPS tracking plugin for reliable operation
-        registerPlugin(SimpleGPSPlugin.class);
+        // Register original GPS tracking plugin for GPSForegroundService
+        registerPlugin(GPSTrackingPlugin.class);
         
-        android.util.Log.d("MainActivity", "Simple GPS Plugin registered successfully");
+        android.util.Log.d("MainActivity", "GPS Tracking Plugin registered successfully");
     }
 }
