@@ -66,7 +66,7 @@ Deschideți: Setări > Aplicații > iTrack > Permisiuni > Locație > "Allow all 
         baterie: Math.round((batteryInfo.batteryLevel || 0) * 100),
         numar_inmatriculare: vehicleNumber,
         uit: uit,
-        status: status.toString(), // 2=start, 3=pause, 4=stop
+        status: status, // 2=activ, 3=pauză, 4=terminat
         hdop: Math.round(position.coords.accuracy || 0).toString(),
         gsm_signal: '100'
       };

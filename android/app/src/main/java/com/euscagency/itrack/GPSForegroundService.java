@@ -46,6 +46,7 @@ public class GPSForegroundService extends Service implements LocationListener {
     private Location lastLocation;
     private Location previousLocation;
     private float lastValidBearing = 0f;
+    private int currentStatus = 2; // 2=activ, 3=pauză, 4=terminat
     
     @Override
     public void onCreate() {
@@ -210,12 +211,17 @@ public class GPSForegroundService extends Service implements LocationListener {
             @Override
             public void run() {
                 try {
-                    if (lastLocation != null) {
-                        Log.d(TAG, "Sending GPS data in background every 60 seconds");
-                        sendGPSDataToServer();
+                    // Trimite coordonate DOAR dacă statusul este 2 (activ)
+                    if (currentStatus == 2) {
+                        if (lastLocation != null) {
+                            Log.d(TAG, "Sending GPS data in background - status 2 (activ)");
+                            sendGPSDataToServer();
+                        } else {
+                            Log.w(TAG, "No location available, trying last known");
+                            tryGetLastKnownLocation();
+                        }
                     } else {
-                        Log.w(TAG, "No location available in background, trying last known");
-                        tryGetLastKnownLocation();
+                        Log.d(TAG, "GPS tracking paused/stopped - status " + currentStatus + " (nu trimite coordonate)");
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Error in background GPS transmission", e);
@@ -294,7 +300,7 @@ public class GPSForegroundService extends Service implements LocationListener {
             gpsData.put("baterie", batteryLevel);
             gpsData.put("numar_inmatriculare", vehicleNumber);
             gpsData.put("uit", uit);
-            gpsData.put("status", "2"); // Status 2 = în desfășurare
+            gpsData.put("status", currentStatus); // 2=activ, 3=pauză, 4=terminat
             gpsData.put("hdop", Math.round(lastLocation.getAccuracy()));
             gpsData.put("gsm_signal", getGSMSignalStrength());
             

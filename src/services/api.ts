@@ -18,7 +18,7 @@ export interface GPSData {
   baterie: number;
   numar_inmatriculare: string;
   uit: string;
-  status: string;
+  status: number; // 2=active, 3=pause, 4=stop
   hdop: string;
   gsm_signal: string;
 }

@@ -154,7 +154,7 @@ Deschideți: Setări > Aplicații > iTrack > Permisiuni > Locație > "Allow all 
         baterie: Math.round((batteryInfo.batteryLevel || 0) * 100),
         numar_inmatriculare: courseData.vehicleNumber,
         uit: courseData.uit,
-        status: status.toString(),
+        status: status,
         hdop: Math.round(position.coords.accuracy || 0).toString(),
         gsm_signal: '100'
       };
