@@ -39,21 +39,27 @@ APK-ul final va fi generat în: `android/app/build/outputs/apk/debug/`
 
 ### Dacă primești eroare "Could not find method include() for arguments [:capacitor-android]":
 
-1. Rulează din nou sincronizarea:
+**Soluția definitivă** - regenerează proiectul Android:
+
+1. Șterge directorul Android existent:
 ```bash
-npx cap sync android
+rm -rf android
 ```
 
-2. Dacă persistă, șterge cache-ul Gradle:
+2. Construiește aplicația web:
+```bash
+npx vite build
+```
+
+3. Regenerează proiectul Android cu Capacitor:
+```bash
+npx cap add android
+```
+
+4. Acum poți compila APK-ul:
 ```bash
 cd android
-rm -rf .gradle build */build
-./gradlew clean
-```
-
-3. Verifică că toate modulele Capacitor sunt instalate:
-```bash
-npm ls @capacitor/android @capacitor/core
+./gradlew assembleDebug
 ```
 
 ## Notă Importantă
