@@ -35,6 +35,12 @@
             android:exported="false"
             android:foregroundServiceType="location" />
 
+        <!-- GPS Alarm Receiver for backup GPS transmission -->
+        <receiver
+            android:name=".GPSAlarmReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
