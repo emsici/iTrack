@@ -316,14 +316,15 @@ body {
 }
 
 .vehicle-title {
-  font-size: 1.8rem;
-  font-weight: 800;
+  font-size: 1.6rem;
+  font-weight: 700;
   margin: 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(45deg, #fff, #e3f2fd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: white;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  max-width: calc(100% - 140px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .disconnect-btn {
@@ -334,12 +335,14 @@ body {
   background: rgba(255, 255, 255, 0.15);
   border: 2px solid rgba(255, 255, 255, 0.3);
   color: white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 25px;
-  font-size: 0.9rem;
+  padding: 0.6rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
+  white-space: nowrap;
+  min-width: 110px;
 }
 
 .disconnect-btn:hover {
@@ -527,6 +530,18 @@ body {
 
 /* Mobile responsiveness for vehicle switching */
 @media (max-width: 768px) {
+  .vehicle-title {
+    font-size: 1.3rem;
+    max-width: calc(100% - 120px);
+  }
+  
+  .disconnect-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+    min-width: 100px;
+    right: 10px;
+  }
+  
   .recent-vehicles-grid,
   .vehicle-switch-grid {
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -537,6 +552,20 @@ body {
   .btn-switch-vehicle {
     padding: 0.5rem 0.6rem;
     font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .vehicle-title {
+    font-size: 1.1rem;
+    max-width: calc(100% - 110px);
+  }
+  
+  .disconnect-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+    min-width: 90px;
+    right: 8px;
   }
 }
 

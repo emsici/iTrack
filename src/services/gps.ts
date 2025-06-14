@@ -69,13 +69,15 @@ class GPSTracker {
 
   async stopTracking(courseId: string) {
     this.activeCourses.delete(courseId);
+    console.log(`Stopped GPS tracking for course ${courseId}`);
 
     // Stop tracking if no active courses remain
     if (this.activeCourses.size === 0) {
       this.stopTrackingInterval();
+      console.log('All courses stopped - GPS background tracking disabled');
+    } else {
+      console.log(`${this.activeCourses.size} courses still active - continuing GPS tracking`);
     }
-
-    console.log(`Stopped GPS tracking for course ${courseId}`);
   }
 
   private startTrackingInterval() {
