@@ -3,7 +3,8 @@ import { CapacitorHttp } from '@capacitor/core';
 const API_BASE_URL = 'https://www.euscagency.com/etsm3/platforme/transport/apk';
 
 export interface LoginResponse {
-  bearer?: string;
+  status?: string;
+  token?: string;
   error?: string;
 }
 
@@ -36,7 +37,12 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     });
 
     if (response.status === 200) {
-      return response.data;
+      const data = response.data;
+      if (data.status === 'success' && data.token) {
+        return { status: data.status, token: data.token };
+      } else {
+        throw new Error('Autentificare eșuată');
+      }
     } else {
       throw new Error('Autentificare eșuată');
     }
@@ -57,19 +63,18 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
     });
 
     if (response.status === 200) {
-      // Parse the response data and ensure it's in the expected format
-      const data = response.data;
-      if (Array.isArray(data)) {
-        return data.map((course: any, index: number) => ({
-          id: course.id || `course_${index}`,
-          name: course.name || course.nume || `Cursă ${index + 1}`,
-          departure_location: course.departure_location || course.plecare,
-          destination_location: course.destination_location || course.destinatie,
-          departure_time: course.departure_time || course.ora_plecare,
-          arrival_time: course.arrival_time || course.ora_sosire,
-          description: course.description || course.descriere,
-          status: course.status || 1,
-          uit: course.uit || `UIT${Math.random().toString(36).substr(2, 5)}`
+      const responseData = response.data;
+      if (responseData.status === 'success' && Array.isArray(responseData.data)) {
+        return responseData.data.map((course: any, index: number) => ({
+          id: course.ikRoTrans?.toString() || `course_${index}`,
+          name: `Transport ${course.denumireLocStart || 'Start'} → ${course.denumireLocStop || 'Stop'}`,
+          departure_location: course.denumireLocStart || course.Judet,
+          destination_location: course.denumireLocStop || course.JudetStop,
+          departure_time: course.dataTransport,
+          arrival_time: null,
+          description: `${course.denumireCui || ''} - ${course.nrVehicul || ''}`,
+          status: 1, // Always start as available
+          uit: course.UIT
         }));
       } else {
         return [];

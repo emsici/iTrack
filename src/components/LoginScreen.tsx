@@ -20,9 +20,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     try {
       const response = await login(email, password);
       
-      if (response.bearer) {
-        await storeToken(response.bearer);
-        onLogin(response.bearer);
+      if (response.token) {
+        await storeToken(response.token);
+        onLogin(response.token);
       } else {
         setError('Autentificare eșuată. Verificați datele introduse.');
       }

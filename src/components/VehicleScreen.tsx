@@ -10,7 +10,7 @@ interface VehicleScreenProps {
 }
 
 const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
-  const [vehicleNumber, setVehicleNumber] = useState('B123XYZ');
+  const [vehicleNumber, setVehicleNumber] = useState('CT01ZZZ');
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
