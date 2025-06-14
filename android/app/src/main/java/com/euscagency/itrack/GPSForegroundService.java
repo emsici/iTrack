@@ -18,6 +18,8 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.util.Log;
 import androidx.core.app.NotificationCompat;
+import android.telephony.TelephonyManager;
+import android.telephony.SignalStrength;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +41,7 @@ public class GPSForegroundService extends Service implements LocationListener {
     private PowerManager.WakeLock wakeLock;
     private ScheduledExecutorService scheduler;
     private OkHttpClient httpClient;
+    private TelephonyManager telephonyManager;
     
     // GPS tracking data
     private String vehicleNumber;
@@ -55,6 +58,7 @@ public class GPSForegroundService extends Service implements LocationListener {
         createNotificationChannel();
         acquireWakeLock();
         initializeLocationManager();
+        initializeTelephonyManager();
         initializeHttpClient();
         initializeScheduler();
     }
@@ -134,6 +138,10 @@ public class GPSForegroundService extends Service implements LocationListener {
     
     private void initializeLocationManager() {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    }
+    
+    private void initializeTelephonyManager() {
+        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
     }
     
     private void initializeHttpClient() {
@@ -229,7 +237,7 @@ public class GPSForegroundService extends Service implements LocationListener {
             gpsData.put("uit", uit);
             gpsData.put("status", "2"); // Active status
             gpsData.put("hdop", Math.round(lastLocation.getAccuracy()));
-            gpsData.put("gsm_signal", "100");
+            gpsData.put("gsm_signal", getGSMSignalStrength());
             
             // Send to server
             RequestBody body = RequestBody.create(
@@ -282,6 +290,40 @@ public class GPSForegroundService extends Service implements LocationListener {
             Log.w(TAG, "Could not get battery level", e);
         }
         return 100; // Default value
+    }
+    
+    private String getGSMSignalStrength() {
+        try {
+            if (telephonyManager != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    // Android 9+ (API 28+)
+                    SignalStrength signalStrength = telephonyManager.getSignalStrength();
+                    if (signalStrength != null) {
+                        int level = signalStrength.getLevel(); // 0-4 scale
+                        return String.valueOf((level * 25)); // Convert to 0-100 scale
+                    }
+                } else {
+                    // For older Android versions, use network type as fallback
+                    int networkType = telephonyManager.getNetworkType();
+                    switch (networkType) {
+                        case TelephonyManager.NETWORK_TYPE_LTE:
+                        case TelephonyManager.NETWORK_TYPE_HSPAP:
+                        case TelephonyManager.NETWORK_TYPE_HSPA:
+                            return "85"; // Good signal for 4G/3G+
+                        case TelephonyManager.NETWORK_TYPE_UMTS:
+                        case TelephonyManager.NETWORK_TYPE_EDGE:
+                            return "65"; // Moderate signal for 3G/2G
+                        case TelephonyManager.NETWORK_TYPE_GPRS:
+                            return "45"; // Weak signal for 2G
+                        default:
+                            return "25"; // Unknown/poor signal
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Could not get GSM signal strength", e);
+        }
+        return "50"; // Default moderate signal
     }
     
     @Override
