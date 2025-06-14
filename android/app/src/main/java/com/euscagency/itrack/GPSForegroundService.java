@@ -29,8 +29,9 @@ public class GPSForegroundService extends Service implements LocationListener {
     private static final String TAG = "GPSForegroundService";
     private static final String CHANNEL_ID = "gps_tracking_channel";
     private static final int NOTIFICATION_ID = 1;
-    private static final int LOCATION_INTERVAL = 60000; // 60 seconds = 1 minute
-    private static final float LOCATION_DISTANCE = 0f;
+    private static final int LOCATION_INTERVAL = 300000; // 5 minutes for location updates
+    private static final float LOCATION_DISTANCE = 10f; // 10 meters minimum distance
+    private static final int GPS_TRANSMISSION_INTERVAL = 60; // 60 seconds for GPS transmission
     
     private LocationManager locationManager;
     private PowerManager.WakeLock wakeLock;
@@ -223,7 +224,7 @@ public class GPSForegroundService extends Service implements LocationListener {
                     Log.e(TAG, "Error in periodic GPS transmission", e);
                 }
             }
-        }, 10, 60, TimeUnit.SECONDS);
+        }, 10, GPS_TRANSMISSION_INTERVAL, TimeUnit.SECONDS);
         
         Log.d(TAG, "Periodic transmission with fixed delay scheduled successfully");
     }
@@ -296,7 +297,7 @@ public class GPSForegroundService extends Service implements LocationListener {
             gpsData.put("baterie", batteryLevel);
             gpsData.put("numar_inmatriculare", vehicleNumber);
             gpsData.put("uit", uit);
-            gpsData.put("status", "2");
+            gpsData.put("status", "2"); // Status 2 = în desfășurare
             gpsData.put("hdop", Math.round(lastLocation.getAccuracy()));
             gpsData.put("gsm_signal", getGSMSignalStrength());
             
