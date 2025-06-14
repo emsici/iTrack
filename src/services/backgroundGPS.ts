@@ -87,6 +87,7 @@ class BackgroundGPSTracker {
 
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string) {
     console.log('Starting professional background GPS tracking...');
+    console.log('Course data received:', { courseId, vehicleNumber, uit, tokenLength: token.length });
     
     const courseData: ActiveCourse = {
       courseId,
@@ -243,6 +244,12 @@ class BackgroundGPSTracker {
         hdop: coordinates.accuracy?.toString() || "0",
         gsm_signal: "100" // Default good signal
       };
+
+      console.log('Sending GPS data with UIT:', {
+        courseId: courseData.courseId,
+        uit: courseData.uit,
+        vehicleNumber: courseData.vehicleNumber
+      });
 
       const success = await sendGPSData(gpsData, courseData.token);
       
