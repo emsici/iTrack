@@ -16,6 +16,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [error, setError] = useState('');
   const [coursesLoaded, setCoursesLoaded] = useState(false);
   const [recentVehicles, setRecentVehicles] = useState<string[]>([]);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   const getStatusDotClass = (status: number) => {
     switch (status) {
@@ -244,7 +245,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div className="header-actions">
               <button 
                 className="help-btn"
-                onClick={() => alert('iTrack v1.0\n\nAplicație profesională de tracking GPS pentru șoferi.\n\nFuncții:\n• GPS tracking în timp real\n• Monitorizare curse active\n• Status reporting automat\n• Background tracking pe Android\n\n© 2025 EUSC Agency')}
+                onClick={() => setShowHelpModal(true)}
                 title="Informații despre aplicație"
               >
                 ❓
@@ -441,6 +442,52 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </div>
         </div>
       </div>
+
+      {/* Help Modal */}
+      {showHelpModal && (
+        <div className="modal-overlay" onClick={() => setShowHelpModal(false)}>
+          <div className="help-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-title">
+                <span className="app-icon-modal">📍</span>
+                <h3>iTrack v1.0</h3>
+              </div>
+              <button 
+                className="modal-close"
+                onClick={() => setShowHelpModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="modal-body">
+              <p className="app-description">
+                Aplicație profesională de tracking GPS pentru șoferi
+              </p>
+              <div className="features-list">
+                <div className="feature-item">
+                  <span className="feature-icon">🚛</span>
+                  <span>GPS tracking în timp real</span>
+                </div>
+                <div className="feature-item">
+                  <span className="feature-icon">📊</span>
+                  <span>Monitorizare curse active</span>
+                </div>
+                <div className="feature-item">
+                  <span className="feature-icon">🔄</span>
+                  <span>Status reporting automat</span>
+                </div>
+                <div className="feature-item">
+                  <span className="feature-icon">📱</span>
+                  <span>Background tracking pe Android</span>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <p className="copyright">© 2025 EUSC Agency</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
