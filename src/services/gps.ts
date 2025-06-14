@@ -14,6 +14,7 @@ class GPSTracker {
   private activeCourses: Map<string, ActiveCourse> = new Map();
   private trackingInterval: NodeJS.Timeout | null = null;
   private isInitialized = false;
+  private watchId: string | null = null;
 
   async initialize() {
     if (this.isInitialized) return;
