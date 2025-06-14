@@ -682,6 +682,141 @@ body {
   }
 }
 
+/* Top Actions Bar - înlocuiește header-ul eliminat */
+.top-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #4285f4 0%, #667eea 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.2);
+}
+
+.app-title-simple {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+/* Vehicle Info Header pentru secțiunea de curse */
+.vehicle-info-header {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #4285f4;
+}
+
+.vehicle-title-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.vehicle-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.edit-vehicle-btn-small {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #6c757d;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.edit-vehicle-btn-small:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.courses-count {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* Courses Section */
+.courses-section {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile responsive pentru noua structură */
+@media (max-width: 768px) {
+  .top-actions-bar {
+    padding: 0.75rem;
+  }
+  
+  .app-title-simple {
+    font-size: 1.25rem;
+  }
+  
+  .action-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+  
+  .vehicle-info-header {
+    padding: 1rem;
+  }
+  
+  .vehicle-title-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .edit-vehicle-btn-small {
+    align-self: flex-end;
+  }
+}
+
 .vehicle-title {
   font-size: 1.6rem;
   font-weight: 700;
