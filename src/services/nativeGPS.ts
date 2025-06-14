@@ -88,8 +88,8 @@ class NativeGPSService {
 // Export singleton instance
 const nativeGPSService = new NativeGPSService();
 
-export const startGPSTracking = (courseId: string, vehicleNumber: string, token: string, uit: string) => 
-  nativeGPSService.startTracking(courseId, vehicleNumber, uit, token);
+export const startGPSTracking = (courseId: string, vehicleNumber: string, token: string, uit: string, status: number = 2) => 
+  nativeGPSService.startTracking(courseId, vehicleNumber, uit, token, status);
 
 export const stopGPSTracking = (courseId: string) => 
   nativeGPSService.stopTracking(courseId);
