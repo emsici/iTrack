@@ -2,13 +2,16 @@ package com.gps.tracker;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
+import com.euscagency.itrack.GPSTrackingPlugin;
 
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // GPS tracking handled by @capacitor-community/background-geolocation plugin
-        android.util.Log.d("MainActivity", "iTrack app initialized");
+        // Register native GPS tracking plugin for GPSForegroundService
+        registerPlugin(GPSTrackingPlugin.class);
+        
+        android.util.Log.d("MainActivity", "GPS Tracking Plugin registered");
     }
 }

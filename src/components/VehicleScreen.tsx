@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Course } from '../types';
 import { getVehicleCourses } from '../services/api';
-import { startGPSTracking, stopGPSTracking } from '../services/communityGPS';
+import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
 import CourseCard from './CourseCard';
 
 interface VehicleScreenProps {
