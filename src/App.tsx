@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import LoginScreen from './components/LoginScreen';
 import VehicleScreen from './components/VehicleScreen';
-import { initializeGPS } from './services/gps';
+// GPS initialization removed - handled by communityGPS when needed
 import { getStoredToken, clearToken } from './services/storage';
 
 type AppState = 'login' | 'vehicle';
@@ -14,7 +14,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const initApp = async () => {
       try {
-        await initializeGPS();
+        // GPS initialization handled by communityGPS service when tracking starts
         
         // Check for stored authentication token
         const storedToken = await getStoredToken();
