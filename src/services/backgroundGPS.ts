@@ -43,9 +43,14 @@ class BackgroundGPSTracker {
         allowIdenticalLocations: true,
         disableElasticity: true, // Disable location smoothing for accuracy
         
-        // Use pre-granted permissions from AndroidManifest
+        // CRITICAL: Disable activity recognition to prevent permission prompts
+        disableMotionActivityUpdates: true,
+        stopTimeout: 0, // Disable motion detection completely
+        
+        // Force use of manifest permissions only
         disableLocationAuthorizationAlert: true,
-        locationAuthorizationRequest: 'Always',
+        locationAuthorizationRequest: 'WhenInUse', // Less aggressive permission request
+        requestPermissionOnReady: false, // Don't request permissions automatically
         
         // Persistent notification to prevent service termination
         notification: {
