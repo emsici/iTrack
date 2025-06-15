@@ -185,6 +185,10 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. CourseCard connected to GPSForegroundService for continuous 60-second GPS updates
 - June 14, 2025. Background GPS works when phone locked, app minimized, or user in other applications
 - June 14, 2025. GPSTrackingPlugin bridges JavaScript to native Android service for true background operation
+- June 15, 2025. Fixed GPSTrackingPlugin to send action parameter and status to GPSForegroundService
+- June 15, 2025. Corrected package imports in GPSForegroundService (com.euscagency.itrack.MainActivity)
+- June 15, 2025. GPS service now uses dynamic courseStatus instead of hardcoded "2" for status transmission
+- June 15, 2025. Status values are purely numeric: 1=available, 2=active, 3=paused, 4=finished (no text values)
 
 ## User Preferences
 
