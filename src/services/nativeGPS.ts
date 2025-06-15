@@ -143,8 +143,15 @@ class NativeGPSService {
           throw new Error(result.message);
         }
       } else {
+        // Clear GPS interval for this course
+        const intervalId = this.gpsIntervals.get(courseId);
+        if (intervalId) {
+          clearInterval(intervalId);
+          this.gpsIntervals.delete(courseId);
+        }
+        
         this.activeCourses.delete(courseId);
-        console.log(`GPS tracking stopped for course ${courseId} (web fallback)`);
+        console.log(`GPS tracking stopped for course ${courseId}`);
       }
     } catch (error) {
       console.error('Failed to stop native GPS tracking:', error);
