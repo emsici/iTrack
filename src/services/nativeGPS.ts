@@ -7,8 +7,8 @@ declare global {
   }
 }
 
-const GPSTracking = Capacitor.isNativePlatform() 
-  ? (window as any).GPSTracking || (Capacitor as any).Plugins?.GPSTracking
+const SimpleGPSPlugin = Capacitor.isNativePlatform() 
+  ? (window as any).SimpleGPSPlugin || (Capacitor as any).Plugins?.SimpleGPSPlugin
   : null;
 
 interface GPSTrackingPlugin {

@@ -332,35 +332,18 @@ public class GPSForegroundService extends Service implements LocationListener {
     }
 
     private void startPeriodicGPSTransmission() {
-        Log.d(TAG, "Starting periodic GPS transmission every 60 seconds for course: " + courseId);
+        Log.d(TAG, "Starting simplified GPS transmission every 60 seconds for course: " + courseId);
 
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Log.d(TAG, "Periodic transmission triggered - Service active: " + (vehicleNumber != null));
-
-                    if (lastLocation != null) {
-                        Log.d(TAG, "Sending GPS data from periodic timer");
+                    if (lastLocation != null && isServiceActive) {
+                        Log.d(TAG, "Sending GPS data to server");
                         sendGPSDataToServer();
-                    } else {
-                        Log.w(TAG, "No location available for periodic transmission");
-
-                        // Try to get last known location
-                        try {
-                            Location lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                            if (lastKnown == null) {
-                                lastKnown = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                            }
-
-                            if (lastKnown != null) {
-                                Log.d(TAG, "Using last known location for transmission");
-                                lastLocation = lastKnown;
-                                sendGPSDataToServer();
-                            }
-                        } catch (SecurityException e) {
-                            Log.e(TAG, "Cannot access last known location", e);
-                        }
+                    } else if (isServiceActive) {
+                        Log.w(TAG, "No location available, trying to get last known location");
+                        tryGetLastKnownLocation();
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "Error in periodic GPS transmission", e);

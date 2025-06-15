@@ -8,8 +8,8 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Register GPS tracking plugin for background service
-        registerPlugin(GPSTrackingPlugin.class);
+        // Register Simple GPS plugin for background service
+        registerPlugin(SimpleGPSPlugin.class);
         
         android.util.Log.d("MainActivity", "GPS Tracking Plugin registered for background service");
     }
