@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
-// GPS tracking handled by status updates only
+import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
 
 interface CourseCardProps {
   course: Course;
@@ -44,8 +44,20 @@ const CourseCard: React.FC<CourseCardProps> = ({
       // Send status update to server first
       await sendStatusToServer(newStatus);
       
-      // GPS tracking handled by native Android service in production APK
-      console.log(`Course ${course.id} status changed to ${newStatus} - GPS handled natively`);
+      // Handle native background GPS tracking
+      if (newStatus === 2) {
+        // Start background GPS tracking
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
+        console.log(`Background GPS tracking started for course ${course.id}`);
+      } else if (course.status === 2 && (newStatus === 3 || newStatus === 4)) {
+        // Stop background GPS tracking
+        await stopGPSTracking(course.id);
+        console.log(`Background GPS tracking stopped for course ${course.id}`);
+      } else if (newStatus === 2 && course.status === 3) {
+        // Resume background GPS tracking
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
+        console.log(`Background GPS tracking resumed for course ${course.id}`);
+      }
       
       onStatusUpdate(course.id, newStatus);
     } catch (error) {

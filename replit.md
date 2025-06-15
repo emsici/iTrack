@@ -181,6 +181,10 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 14, 2025. GPS tracking now uses only native Android GPSForegroundService + GPSTrackingPlugin + nativeGPS.ts
 - June 14, 2025. Removed artificial data (08:00-18:00 times), using only authentic API data (dataTransport, locations, UIT)
 - June 14, 2025. Plugin registered in MainActivity.java, no more "plugin not implemented" errors expected
+- June 14, 2025. Reintegrated native Android GPS background tracking for real GPS transmission
+- June 14, 2025. CourseCard connected to GPSForegroundService for continuous 60-second GPS updates
+- June 14, 2025. Background GPS works when phone locked, app minimized, or user in other applications
+- June 14, 2025. GPSTrackingPlugin bridges JavaScript to native Android service for true background operation
 
 ## User Preferences
 

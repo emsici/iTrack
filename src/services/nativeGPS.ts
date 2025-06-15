@@ -17,8 +17,19 @@ interface GPSTrackingPlugin {
   isGPSTrackingActive(): Promise<{ isActive: boolean }>;
 }
 
-// GPS plugin will be available only in compiled APK
-const GPSTracking: GPSTrackingPlugin | null = null;
+import { registerPlugin } from '@capacitor/core';
+
+// Register GPS plugin for native Android background service
+let GPSTracking: GPSTrackingPlugin | null = null;
+
+try {
+  if (Capacitor.isNativePlatform()) {
+    GPSTracking = registerPlugin<GPSTrackingPlugin>('GPSTracking');
+  }
+} catch (error) {
+  console.warn('GPSTracking plugin not available in browser - will work in APK');
+  GPSTracking = null;
+}
 
 // Service for managing native Android GPS foreground service
 class NativeGPSService {
@@ -31,9 +42,27 @@ class NativeGPSService {
       // Request GPS permissions before starting tracking
       await this.requestPermissions();
       
-      // In browser: course management only, GPS will work in compiled APK
-      console.log(`Course ${courseId} prepared for GPS tracking (native service active in APK)`);
-      this.activeCourses.add(courseId);
+      if (GPSTracking && Capacitor.isNativePlatform()) {
+        // Use native Android GPS foreground service
+        const result = await GPSTracking.startGPSTracking({
+          vehicleNumber,
+          courseId,
+          uit,
+          authToken: token,
+          status
+        });
+        
+        if (result.success) {
+          this.activeCourses.add(courseId);
+          console.log(`Native background GPS tracking started: ${result.message}`);
+        } else {
+          throw new Error(result.message);
+        }
+      } else {
+        // Browser fallback - course management only
+        console.log(`Course ${courseId} prepared for background GPS tracking in APK`);
+        this.activeCourses.add(courseId);
+      }
       
     } catch (error) {
       console.error('Failed to start GPS tracking:', error);

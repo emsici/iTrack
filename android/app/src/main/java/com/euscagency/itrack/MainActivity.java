@@ -8,6 +8,9 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        android.util.Log.d("MainActivity", "iTrack app started successfully");
+        // Register GPS tracking plugin for background service
+        registerPlugin(GPSTrackingPlugin.class);
+        
+        android.util.Log.d("MainActivity", "GPS Tracking Plugin registered for background service");
     }
 }
