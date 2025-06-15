@@ -59,9 +59,12 @@ class NativeGPSService {
           throw new Error(result.message);
         }
       } else {
-        // Browser fallback - course management only
-        console.log(`Course ${courseId} prepared for background GPS tracking in APK`);
+        // Browser fallback - simulate GPS transmission for testing
+        console.log(`Browser mode: Simulating GPS start for course ${courseId}`);
         this.activeCourses.add(courseId);
+        
+        // Test GPS transmission with current location
+        this.startBrowserGPSSimulation(courseId, vehicleNumber, uit, token, status);
       }
       
     } catch (error) {
