@@ -43,9 +43,9 @@ class NativeGPSService {
       // Request GPS permissions and start location tracking
       await this.requestPermissions();
       
-      // Start GPS tracking with real coordinates
+      // For testing only - real background GPS requires compiled APK
       this.activeCourses.add(courseId);
-      this.startContinuousGPSTracking(courseId, vehicleNumber, uit, token, status);
+      console.log(`Course ${courseId} marked for GPS tracking - requires APK with native service for background operation`);
       
     } catch (error) {
       console.error('Failed to start GPS tracking:', error);
