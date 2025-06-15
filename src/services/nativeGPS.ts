@@ -1,6 +1,16 @@
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
 
+declare global {
+  interface Window {
+    GPSTracking: GPSTrackingPlugin;
+  }
+}
+
+const GPSTracking = Capacitor.isNativePlatform() 
+  ? (window as any).GPSTracking || (Capacitor as any).Plugins?.GPSTracking
+  : null;
+
 interface GPSTrackingPlugin {
   startGPSTracking(options: {
     vehicleNumber: string;
@@ -17,92 +27,44 @@ interface GPSTrackingPlugin {
   isGPSTrackingActive(): Promise<{ isActive: boolean }>;
 }
 
-import { registerPlugin } from '@capacitor/core';
-
-// Register GPS plugin for native Android background service
-let GPSTracking: GPSTrackingPlugin | null = null;
-
-try {
-  if (Capacitor.isNativePlatform()) {
-    GPSTracking = registerPlugin<GPSTrackingPlugin>('GPSTracking');
-  }
-} catch (error) {
-  console.warn('GPSTracking plugin not available in browser - will work in APK');
-  GPSTracking = null;
-}
-
 // Service for managing native Android GPS foreground service
 class NativeGPSService {
   private activeCourses: Set<string> = new Set();
-  private gpsIntervals: Map<string, number> = new Map();
 
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number = 2): Promise<void> {
     try {
-      console.log(`Starting GPS tracking for course ${courseId} with status ${status}`);
+      console.log(`Starting native GPS tracking for course ${courseId} with status ${status}`);
       
-      // Request GPS permissions and start location tracking
+      // Request GPS permissions first
       await this.requestPermissions();
       
-      // For testing only - real background GPS requires compiled APK
-      this.activeCourses.add(courseId);
-      console.log(`Course ${courseId} marked for GPS tracking - requires APK with native service for background operation`);
+      if (GPSTracking && Capacitor.isNativePlatform()) {
+        // Use native Android GPS foreground service for real background tracking
+        const result = await GPSTracking.startGPSTracking({
+          vehicleNumber,
+          courseId,
+          uit,
+          authToken: token,
+          status
+        });
+        
+        if (result.success) {
+          this.activeCourses.add(courseId);
+          console.log(`Native Android GPS service started for background tracking: ${result.message}`);
+        } else {
+          throw new Error(result.message);
+        }
+      } else {
+        // Browser mode - no background tracking possible
+        this.activeCourses.add(courseId);
+        console.log(`Course ${courseId} ready - native GPS service will work in compiled APK`);
+      }
       
     } catch (error) {
-      console.error('Failed to start GPS tracking:', error);
+      console.error('Failed to start native GPS tracking:', error);
       throw error;
     }
   }
-
-  private startContinuousGPSTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): void {
-    console.log(`Starting continuous GPS tracking for course ${courseId}`);
-    
-    // Send GPS data immediately and then every 60 seconds
-    this.sendGPSUpdate(courseId, vehicleNumber, uit, token, status);
-    
-    const intervalId = setInterval(() => {
-      this.sendGPSUpdate(courseId, vehicleNumber, uit, token, status);
-    }, 60000); // 60 seconds
-    
-    this.gpsIntervals.set(courseId, intervalId);
-  }
-
-  private async sendGPSUpdate(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
-    try {
-      const { sendGPSData } = await import('../services/api');
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 30000
-      });
-
-      const { Device } = await import('@capacitor/device');
-      const batteryInfo = await Device.getBatteryInfo();
-      const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-
-      const gpsData = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        timestamp: currentTime,
-        viteza: Math.max(0, Math.round((position.coords.speed || 0) * 3.6)),
-        directie: Math.round(position.coords.heading || 0),
-        altitudine: Math.round(position.coords.altitude || 0),
-        baterie: Math.round((batteryInfo.batteryLevel || 0) * 100),
-        numar_inmatriculare: vehicleNumber,
-        uit: uit,
-        status: status.toString(),
-        hdop: Math.round(position.coords.accuracy || 0).toString(),
-        gsm_signal: '100'
-      };
-
-      await sendGPSData(gpsData, token);
-      console.log(`GPS data sent for course ${courseId} with UIT ${uit}`);
-      
-    } catch (error) {
-      console.error(`Failed to send GPS data for course ${courseId}:`, error);
-    }
-  }
-
-
 
   private async requestPermissions(): Promise<void> {
     try {
@@ -143,15 +105,9 @@ class NativeGPSService {
           throw new Error(result.message);
         }
       } else {
-        // Clear GPS interval for this course
-        const intervalId = this.gpsIntervals.get(courseId);
-        if (intervalId) {
-          clearInterval(intervalId);
-          this.gpsIntervals.delete(courseId);
-        }
-        
+        // Browser mode - no background tracking to stop
         this.activeCourses.delete(courseId);
-        console.log(`GPS tracking stopped for course ${courseId}`);
+        console.log(`Course ${courseId} removed from tracking list`);
       }
     } catch (error) {
       console.error('Failed to stop native GPS tracking:', error);
@@ -176,7 +132,7 @@ class NativeGPSService {
         return this.activeCourses.size > 0;
       }
     } catch (error) {
-      console.error('Failed to check GPS tracking status:', error);
+      console.error('Error checking tracking status:', error);
       return false;
     }
   }
@@ -185,6 +141,7 @@ class NativeGPSService {
 // Export singleton instance
 const nativeGPSService = new NativeGPSService();
 
+// Export functions
 export const startGPSTracking = (courseId: string, vehicleNumber: string, token: string, uit: string, status: number = 2) => 
   nativeGPSService.startTracking(courseId, vehicleNumber, uit, token, status);
 
