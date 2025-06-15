@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
 import { getVehicleCourses } from '../services/api';
-import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
+// GPS tracking will be handled by native Android service in production APK
 import CourseDetailCard from './CourseDetailCard';
 
 interface VehicleScreenProps {
@@ -92,18 +92,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       console.log(`Updating status for course ${courseId}: ${originalStatus} → ${newStatus}`);
 
-      // Handle GPS tracking first
-      if (newStatus === 2) {
-        // Start GPS tracking with status
-        await startGPSTracking(courseId, vehicleNumber, token, course.uit, newStatus);
-        console.log(`GPS tracking started for course ${courseId}`);
-      } else {
-        // Stop GPS tracking
-        await stopGPSTracking(courseId);
-        console.log(`GPS tracking stopped for course ${courseId}`);
-      }
+      // GPS tracking will be handled by native Android service in production
+      console.log(`Status update for course ${courseId}: ${originalStatus} → ${newStatus}`);
 
-      // Send status to server after GPS is handled
+      // Send status to server
       await sendStatusToServer(course, newStatus);
       console.log(`Status updated on server for course ${courseId}: ${newStatus}`);
 
