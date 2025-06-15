@@ -34,42 +34,71 @@ try {
 // Service for managing native Android GPS foreground service
 class NativeGPSService {
   private activeCourses: Set<string> = new Set();
+  private gpsIntervals: Map<string, number> = new Map();
 
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number = 2): Promise<void> {
     try {
       console.log(`Starting GPS tracking for course ${courseId} with status ${status}`);
       
-      // Request GPS permissions before starting tracking
+      // Request GPS permissions and start location tracking
       await this.requestPermissions();
       
-      if (GPSTracking && Capacitor.isNativePlatform()) {
-        // Use native Android GPS foreground service
-        const result = await GPSTracking.startGPSTracking({
-          vehicleNumber,
-          courseId,
-          uit,
-          authToken: token,
-          status
-        });
-        
-        if (result.success) {
-          this.activeCourses.add(courseId);
-          console.log(`Native background GPS tracking started: ${result.message}`);
-        } else {
-          throw new Error(result.message);
-        }
-      } else {
-        // Browser fallback - simulate GPS transmission for testing
-        console.log(`Browser mode: Simulating GPS start for course ${courseId}`);
-        this.activeCourses.add(courseId);
-        
-        // Test GPS transmission with current location
-        this.startBrowserGPSSimulation(courseId, vehicleNumber, uit, token, status);
-      }
+      // Start GPS tracking with real coordinates
+      this.activeCourses.add(courseId);
+      this.startContinuousGPSTracking(courseId, vehicleNumber, uit, token, status);
       
     } catch (error) {
       console.error('Failed to start GPS tracking:', error);
       throw error;
+    }
+  }
+
+  private startContinuousGPSTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): void {
+    console.log(`Starting continuous GPS tracking for course ${courseId}`);
+    
+    // Send GPS data immediately and then every 60 seconds
+    this.sendGPSUpdate(courseId, vehicleNumber, uit, token, status);
+    
+    const intervalId = setInterval(() => {
+      this.sendGPSUpdate(courseId, vehicleNumber, uit, token, status);
+    }, 60000); // 60 seconds
+    
+    this.gpsIntervals.set(courseId, intervalId);
+  }
+
+  private async sendGPSUpdate(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
+    try {
+      const { sendGPSData } = await import('../services/api');
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      });
+
+      const { Device } = await import('@capacitor/device');
+      const batteryInfo = await Device.getBatteryInfo();
+      const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+      const gpsData = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        timestamp: currentTime,
+        viteza: Math.max(0, Math.round((position.coords.speed || 0) * 3.6)),
+        directie: Math.round(position.coords.heading || 0),
+        altitudine: Math.round(position.coords.altitude || 0),
+        baterie: Math.round((batteryInfo.batteryLevel || 0) * 100),
+        numar_inmatriculare: vehicleNumber,
+        uit: uit,
+        status: status.toString(),
+        hdop: Math.round(position.coords.accuracy || 0).toString(),
+        gsm_signal: '100'
+      };
+
+      await sendGPSData(gpsData, token);
+      console.log(`GPS data sent for course ${courseId} with UIT ${uit}`);
+      
+    } catch (error) {
+      console.error(`Failed to send GPS data for course ${courseId}:`, error);
     }
   }
 
