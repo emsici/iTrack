@@ -3,7 +3,7 @@ import { Geolocation } from '@capacitor/geolocation';
 
 declare global {
   interface Window {
-    GPSTracking: GPSTrackingPlugin;
+    SimpleGPSPlugin: SimpleGPSPluginInterface;
   }
 }
 
@@ -11,7 +11,7 @@ const SimpleGPSPlugin = Capacitor.isNativePlatform()
   ? (window as any).SimpleGPSPlugin || (Capacitor as any).Plugins?.SimpleGPSPlugin
   : null;
 
-interface GPSTrackingPlugin {
+interface SimpleGPSPluginInterface {
   startGPSTracking(options: {
     vehicleNumber: string;
     courseId: string;
@@ -36,8 +36,8 @@ class NativeGPSService {
       // Request GPS permissions first
       await this.requestPermissions();
       
-      // Use native Android GPS foreground service for background tracking
-      const result = await GPSTracking.startGPSTracking({
+      // Use Simple GPS Service for background tracking
+      const result = await SimpleGPSPlugin.startGPSTracking({
         vehicleNumber,
         courseId,
         uit,
@@ -52,7 +52,7 @@ class NativeGPSService {
       }
       
     } catch (error) {
-      console.error('Failed to start native GPS tracking:', error);
+      console.error('Failed to start GPS tracking:', error);
       throw error;
     }
   }
@@ -82,7 +82,7 @@ class NativeGPSService {
 
   async stopTracking(courseId: string): Promise<void> {
     try {
-      const result = await GPSTracking.stopGPSTracking({
+      const result = await SimpleGPSPlugin.stopGPSTracking({
         courseId
       });
       
@@ -92,7 +92,7 @@ class NativeGPSService {
         throw new Error(result.message);
       }
     } catch (error) {
-      console.error('Failed to stop native GPS tracking:', error);
+      console.error('Failed to stop GPS tracking:', error);
       throw error;
     }
   }
@@ -107,7 +107,7 @@ class NativeGPSService {
 
   async isTrackingActive(): Promise<boolean> {
     try {
-      const result = await GPSTracking.isGPSTrackingActive();
+      const result = await SimpleGPSPlugin.isGPSTrackingActive();
       return result.isActive;
     } catch (error) {
       console.error('Error checking tracking status:', error);
