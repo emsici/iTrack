@@ -30,99 +30,30 @@ interface GPSTrackingPlugin {
 // Service for managing native Android GPS foreground service
 class NativeGPSService {
   private activeCourses: Set<string> = new Set();
-  private jsIntervals: Map<string, any> = new Map();
 
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number = 2): Promise<void> {
     try {
-      console.log(`Starting GPS tracking for course ${courseId} with status ${status}`);
-      console.log(`Platform detection: isNativePlatform=${Capacitor.isNativePlatform()}, platform=${Capacitor.getPlatform()}`);
-      console.log(`GPSTracking plugin available: ${!!GPSTracking}`);
-      
       // Request GPS permissions first
       await this.requestPermissions();
       
-      if (GPSTracking && Capacitor.isNativePlatform()) {
-        // Use native Android GPS foreground service for real background tracking
-        console.log(`Attempting to start native Android GPS service...`);
-        const result = await GPSTracking.startGPSTracking({
-          vehicleNumber,
-          courseId,
-          uit,
-          authToken: token,
-          status
-        });
-        
-        if (result.success) {
-          this.activeCourses.add(courseId);
-          console.log(`✓ Native Android GPS service started: ${result.message}`);
-        } else {
-          console.error(`✗ Native GPS service failed: ${result.message}`);
-          throw new Error(result.message);
-        }
-      } else {
-        // Fallback for WebView or testing - start JavaScript GPS tracking
+      // Use native Android GPS foreground service for background tracking
+      const result = await GPSTracking.startGPSTracking({
+        vehicleNumber,
+        courseId,
+        uit,
+        authToken: token,
+        status
+      });
+      
+      if (result.success) {
         this.activeCourses.add(courseId);
-        console.log(`⚠ Starting fallback JavaScript GPS tracking (not background-capable)`);
-        this.startJavaScriptGPSTracking(courseId, vehicleNumber, uit, token, status);
+      } else {
+        throw new Error(result.message);
       }
       
     } catch (error) {
       console.error('Failed to start native GPS tracking:', error);
       throw error;
-    }
-  }
-
-  private startJavaScriptGPSTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): void {
-    console.log(`Starting JavaScript GPS fallback for course ${courseId}`);
-    
-    // Send initial GPS data
-    this.sendJavaScriptGPSData(courseId, vehicleNumber, uit, token, status);
-    
-    // Set up interval for testing (will work in foreground only)
-    const intervalId = setInterval(() => {
-      this.sendJavaScriptGPSData(courseId, vehicleNumber, uit, token, status);
-    }, 60000);
-    
-    // Store interval for cleanup
-    this.jsIntervals.set(courseId, intervalId);
-  }
-
-  private async sendJavaScriptGPSData(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
-    try {
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 30000
-      });
-
-      const { Device } = await import('@capacitor/device');
-      const batteryInfo = await Device.getBatteryInfo();
-      const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-
-      const gpsData = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        timestamp: currentTime,
-        viteza: Math.max(0, Math.round((position.coords.speed || 0) * 3.6)),
-        directie: Math.round(position.coords.heading || 0),
-        altitudine: Math.round(position.coords.altitude || 0),
-        baterie: Math.round((batteryInfo.batteryLevel || 0) * 100),
-        numar_inmatriculare: vehicleNumber,
-        uit: uit,
-        status: status.toString(),
-        hdop: Math.round(position.coords.accuracy || 0).toString(),
-        gsm_signal: '100'
-      };
-
-      console.log(`📍 Sending GPS data for course ${courseId}:`, gpsData);
-      
-      const { sendGPSData } = await import('../services/api');
-      await sendGPSData(gpsData, token);
-      
-      console.log(`✓ GPS data sent successfully for course ${courseId} with UIT ${uit}`);
-      
-    } catch (error) {
-      console.error(`✗ Failed to send GPS data for course ${courseId}:`, error);
     }
   }
 
@@ -151,30 +82,14 @@ class NativeGPSService {
 
   async stopTracking(courseId: string): Promise<void> {
     try {
-      console.log(`Stopping GPS tracking for course ${courseId}`);
+      const result = await GPSTracking.stopGPSTracking({
+        courseId
+      });
       
-      if (GPSTracking && Capacitor.isNativePlatform()) {
-        const result = await GPSTracking.stopGPSTracking({
-          courseId
-        });
-        
-        if (result.success) {
-          this.activeCourses.delete(courseId);
-          console.log(`Native GPS tracking stopped: ${result.message}`);
-        } else {
-          throw new Error(result.message);
-        }
-      } else {
-        // Stop JavaScript interval if exists
-        const intervalId = this.jsIntervals.get(courseId);
-        if (intervalId) {
-          clearInterval(intervalId);
-          this.jsIntervals.delete(courseId);
-          console.log(`JavaScript GPS interval stopped for course ${courseId}`);
-        }
-        
+      if (result.success) {
         this.activeCourses.delete(courseId);
-        console.log(`Course ${courseId} removed from tracking`);
+      } else {
+        throw new Error(result.message);
       }
     } catch (error) {
       console.error('Failed to stop native GPS tracking:', error);
@@ -192,12 +107,8 @@ class NativeGPSService {
 
   async isTrackingActive(): Promise<boolean> {
     try {
-      if (GPSTracking && Capacitor.isNativePlatform()) {
-        const result = await GPSTracking.isGPSTrackingActive();
-        return result.isActive;
-      } else {
-        return this.activeCourses.size > 0;
-      }
+      const result = await GPSTracking.isGPSTrackingActive();
+      return result.isActive;
     } catch (error) {
       console.error('Error checking tracking status:', error);
       return false;

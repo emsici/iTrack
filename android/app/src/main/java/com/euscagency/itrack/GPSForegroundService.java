@@ -42,8 +42,9 @@ public class GPSForegroundService extends Service implements LocationListener {
     private static final String TAG = "GPSForegroundService";
     private static final String CHANNEL_ID = "gps_tracking_channel";
     private static final int NOTIFICATION_ID = 1;
-    private static final int LOCATION_INTERVAL = 30000; // 30 seconds for more frequent updates
-    private static final float LOCATION_DISTANCE = 0f; // Accept any distance change
+    private static final int LOCATION_INTERVAL = 5000; // 5 seconds for fast location updates
+    private static final float LOCATION_DISTANCE = 0.5f; // Minimum 0.5 meters movement
+    private static final int GPS_TRANSMISSION_INTERVAL = 60000; // Send to server every 60 seconds
 
     private LocationManager locationManager;
     private PowerManager.WakeLock wakeLock;
@@ -668,7 +669,9 @@ public class GPSForegroundService extends Service implements LocationListener {
                 }
             });
 
-            Log.d(TAG, "GPS data sent for course: " + courseId);
+            Log.i(TAG, String.format("GPS data transmitted: lat=%.6f, lng=%.6f, speed=%.1f km/h, course=%s, UIT=%s", 
+                lastLocation.getLatitude(), lastLocation.getLongitude(), 
+                lastLocation.getSpeed() * 3.6, courseId, uit));
 
         } catch (Exception e) {
             Log.e(TAG, "Error sending GPS data", e);
