@@ -195,8 +195,8 @@ public class GPSForegroundService extends Service implements LocationListener {
     private void initializeAlarmManager() {
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        // Create simple alarm intent for GPS transmission backup
-        Intent alarmReceiverIntent = new Intent("com.euscagency.itrack.FORCE_GPS_TRANSMISSION");
+        // Create alarm intent using GPSAlarmReceiver for backup transmission
+        Intent alarmReceiverIntent = new Intent(this, GPSAlarmReceiver.class);
         alarmIntent = PendingIntent.getBroadcast(
             this, 0, alarmReceiverIntent, 
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE

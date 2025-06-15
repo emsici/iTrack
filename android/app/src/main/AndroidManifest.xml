@@ -35,6 +35,12 @@
             android:exported="false"
             android:foregroundServiceType="location" />
 
+        <!-- GPS Alarm Receiver for backup transmission redundancy -->
+        <receiver
+            android:name="com.euscagency.itrack.GPSAlarmReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
 
 
         <provider

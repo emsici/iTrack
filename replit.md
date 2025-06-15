@@ -189,6 +189,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 15, 2025. Corrected package imports in GPSForegroundService (com.euscagency.itrack.MainActivity)
 - June 15, 2025. GPS service now uses dynamic courseStatus instead of hardcoded "2" for status transmission
 - June 15, 2025. Status values are purely numeric: 1=available, 2=active, 3=paused, 4=finished (no text values)
+- June 15, 2025. Added GPSAlarmReceiver.java for backup transmission redundancy using AlarmManager
+- June 15, 2025. Background GPS now has 6 levels of redundancy: Executor, Timer, AlarmManager, Handler, Thread, BroadcastReceiver
+- June 15, 2025. System guaranteed to transmit GPS coordinates even if primary services fail or are terminated by Android
 
 ## User Preferences
 
