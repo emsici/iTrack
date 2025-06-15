@@ -30,7 +30,7 @@ interface GPSTrackingPlugin {
 // Service for managing native Android GPS foreground service
 class NativeGPSService {
   private activeCourses: Set<string> = new Set();
-  private jsIntervals: Map<string, number> = new Map();
+  private jsIntervals: Map<string, any> = new Map();
 
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number = 2): Promise<void> {
     try {
@@ -84,8 +84,7 @@ class NativeGPSService {
     }, 60000);
     
     // Store interval for cleanup
-    (this as any).jsIntervals = (this as any).jsIntervals || new Map();
-    (this as any).jsIntervals.set(courseId, intervalId);
+    this.jsIntervals.set(courseId, intervalId);
   }
 
   private async sendJavaScriptGPSData(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
@@ -152,7 +151,7 @@ class NativeGPSService {
 
   async stopTracking(courseId: string): Promise<void> {
     try {
-      console.log(`Stopping native GPS tracking for course ${courseId}`);
+      console.log(`Stopping GPS tracking for course ${courseId}`);
       
       if (GPSTracking && Capacitor.isNativePlatform()) {
         const result = await GPSTracking.stopGPSTracking({
@@ -166,9 +165,16 @@ class NativeGPSService {
           throw new Error(result.message);
         }
       } else {
-        // Browser mode - no background tracking to stop
+        // Stop JavaScript interval if exists
+        const intervalId = this.jsIntervals.get(courseId);
+        if (intervalId) {
+          clearInterval(intervalId);
+          this.jsIntervals.delete(courseId);
+          console.log(`JavaScript GPS interval stopped for course ${courseId}`);
+        }
+        
         this.activeCourses.delete(courseId);
-        console.log(`Course ${courseId} removed from tracking list`);
+        console.log(`Course ${courseId} removed from tracking`);
       }
     } catch (error) {
       console.error('Failed to stop native GPS tracking:', error);
