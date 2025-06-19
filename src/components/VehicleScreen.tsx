@@ -205,48 +205,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               flex-direction: column;
               align-items: center;
               justify-content: center;
-              padding: calc(env(safe-area-inset-top, 0px) + 60px) env(safe-area-inset-right) max(20px, env(safe-area-inset-bottom)) env(safe-area-inset-left);
+              padding: calc(env(safe-area-inset-top, 0px) + 40px) env(safe-area-inset-right) max(20px, env(safe-area-inset-bottom)) env(safe-area-inset-left);
               position: relative;
               overflow: hidden;
             }
 
-            .vehicle-input-container::before {
-              content: '';
-              position: absolute;
-              top: 0;
-              left: 0;
-              right: 0;
-              bottom: 0;
-              background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-              pointer-events: none;
-            }
-
             .vehicle-card {
-              background: rgba(255, 255, 255, 0.2);
-              backdrop-filter: blur(30px);
-              border-radius: 25px;
-              padding: 50px 45px;
+              background: rgba(255, 255, 255, 0.15);
+              backdrop-filter: blur(20px);
+              border-radius: 20px;
+              padding: 40px;
               width: 100%;
-              max-width: 520px;
-              box-shadow: 
-                0 30px 60px rgba(0, 0, 0, 0.15),
-                0 15px 30px rgba(79, 70, 229, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-              border: 2px solid rgba(255, 255, 255, 0.3);
+              max-width: 450px;
+              box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+              border: 1px solid rgba(255, 255, 255, 0.2);
               position: relative;
               z-index: 1;
-              transform: translateY(0);
-              transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-
-            .vehicle-card:hover {
-              transform: translateY(-5px);
-              background: rgba(255, 255, 255, 0.25);
-              border-color: rgba(255, 255, 255, 0.5);
-              box-shadow: 
-                0 40px 80px rgba(0, 0, 0, 0.2),
-                0 20px 40px rgba(79, 70, 229, 0.15),
-                inset 0 2px 0 rgba(255, 255, 255, 0.4);
             }
 
             .vehicle-header {
@@ -297,21 +271,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
             .vehicle-form-input {
               width: 100%;
-              padding: 18px 25px 18px 55px;
-              border: 2px solid rgba(255, 255, 255, 0.3);
-              border-radius: 15px;
-              background: rgba(255, 255, 255, 0.15);
+              padding: 16px 20px 16px 50px;
+              border: 1px solid rgba(255, 255, 255, 0.3);
+              border-radius: 12px;
+              background: rgba(255, 255, 255, 0.1);
               color: white;
-              font-size: 1.2rem;
-              font-weight: 700;
+              font-size: 1.1rem;
+              font-weight: 600;
               text-transform: uppercase;
-              letter-spacing: 2px;
-              transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-              backdrop-filter: blur(15px);
+              letter-spacing: 1px;
+              transition: all 0.3s ease;
+              backdrop-filter: blur(10px);
               text-align: center;
-              box-shadow: 
-                inset 0 2px 4px rgba(0, 0, 0, 0.1),
-                0 4px 12px rgba(255, 255, 255, 0.1);
             }
 
             .vehicle-form-input::placeholder {
@@ -323,13 +294,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
             .vehicle-form-input:focus {
               outline: none;
-              border-color: rgba(255, 255, 255, 0.8);
-              background: rgba(255, 255, 255, 0.25);
-              transform: translateY(-3px) scale(1.02);
-              box-shadow: 
-                0 0 0 4px rgba(255, 255, 255, 0.2),
-                0 12px 30px rgba(79, 70, 229, 0.3),
-                inset 0 2px 4px rgba(0, 0, 0, 0.1);
+              border-color: rgba(255, 255, 255, 0.6);
+              background: rgba(255, 255, 255, 0.15);
+              box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+              transform: translateY(-2px);
             }
 
             .vehicle-input-icon {
@@ -343,42 +311,26 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }
 
             .vehicle-load-button {
-              background: linear-gradient(135deg, #4f46e5, #06b6d4, #10b981);
-              background-size: 200% 200%;
+              background: linear-gradient(135deg, #4f46e5, #06b6d4);
               color: white;
               border: none;
-              padding: 20px 30px;
-              border-radius: 16px;
-              font-size: 1.2rem;
-              font-weight: 700;
+              padding: 18px 24px;
+              border-radius: 12px;
+              font-size: 1.1rem;
+              font-weight: 600;
               cursor: pointer;
-              transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+              transition: all 0.3s ease;
               display: flex;
               align-items: center;
               justify-content: center;
-              gap: 12px;
-              margin-top: 15px;
-              box-shadow: 
-                0 15px 35px rgba(79, 70, 229, 0.4),
-                0 5px 15px rgba(6, 182, 212, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-              animation: gradientShift 3s ease infinite;
-              position: relative;
-              overflow: hidden;
+              gap: 10px;
+              margin-top: 10px;
+              box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
             }
 
             .vehicle-load-button:hover:not(:disabled) {
-              transform: translateY(-4px) scale(1.02);
-              background-position: 100% 0%;
-              box-shadow: 
-                0 20px 45px rgba(79, 70, 229, 0.5),
-                0 8px 20px rgba(6, 182, 212, 0.4),
-                0 4px 12px rgba(16, 185, 129, 0.3);
-            }
-
-            .vehicle-load-button:active {
-              transform: translateY(-1px) scale(0.98);
-              transition: all 0.1s ease;
+              transform: translateY(-2px);
+              box-shadow: 0 15px 35px rgba(79, 70, 229, 0.4);
             }
 
             .vehicle-load-button:disabled {
@@ -636,7 +588,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(30px);
             color: #1e3c72;
-            padding: 30px 25px;
+            padding: calc(env(safe-area-inset-top, 0px) + 30px) 25px 30px 25px;
             box-shadow: 
               0 12px 40px rgba(0, 0, 0, 0.1),
               0 4px 12px rgba(79, 70, 229, 0.05);
