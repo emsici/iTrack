@@ -25,26 +25,55 @@ export interface GPSData {
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    const response = await CapacitorHttp.post({
-      url: `${API_BASE_URL}/login.php`,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      data: {
-        email,
-        password
-      }
-    });
+    let response;
     
-    if (response.status === 200) {
-      const data = response.data;
+    if (Capacitor.isNativePlatform()) {
+      // Use CapacitorHttp for native platforms
+      response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}/login.php`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {
+          email,
+          password
+        }
+      });
+      
+      if (response.status === 200) {
+        const data = response.data;
+        if (data.status === 'success' && data.token) {
+          return { status: data.status, token: data.token };
+        } else {
+          throw new Error('Autentificare eșuată');
+        }
+      } else {
+        throw new Error('Autentificare eșuată');
+      }
+    } else {
+      // For web environment, the API server needs CORS configured
+      // Try using fetch with proper headers
+      const fetchResponse = await fetch(`${API_BASE_URL}/login.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password
+        }),
+      });
+      
+      if (!fetchResponse.ok) {
+        throw new Error(`HTTP error! status: ${fetchResponse.status}`);
+      }
+      
+      const data = await fetchResponse.json();
       if (data.status === 'success' && data.token) {
         return { status: data.status, token: data.token };
       } else {
         throw new Error('Autentificare eșuată');
       }
-    } else {
-      throw new Error('Autentificare eșuată');
     }
   } catch (error) {
     console.error('Login error:', error);
@@ -144,36 +173,14 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
     console.log('Token:', token.substring(0, 20) + '...');
     console.log('GPS Data:', JSON.stringify(gpsData, null, 2));
     
-    let response;
-    
-    if (Capacitor.isNativePlatform()) {
-      // Use CapacitorHttp for native platforms
-      response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}/gps.php`,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        data: gpsData
-      });
-    } else {
-      // Use fetch for web platforms
-      const fetchResponse = await fetch(`${API_BASE_URL}/gps.php`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(gpsData)
-      });
-      
-      if (!fetchResponse.ok) {
-        throw new Error(`HTTP error! status: ${fetchResponse.status}`);
-      }
-      
-      const data = await fetchResponse.json();
-      response = { status: fetchResponse.status, data };
-    }
+    const response = await CapacitorHttp.post({
+      url: `${API_BASE_URL}/gps.php`,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      data: gpsData
+    });
 
     console.log('=== GPS RESPONSE DETAILS ===');
     console.log('Status:', response.status);
