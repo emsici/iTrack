@@ -19,6 +19,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [coursesLoaded, setCoursesLoaded] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showInfo, setShowInfo] = useState(false);
+  const [versionClickCount, setVersionClickCount] = useState(0);
+  const [showDebugPrompt, setShowDebugPrompt] = useState(false);
+  const [debugPassword, setDebugPassword] = useState('');
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -159,6 +163,32 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       await clearToken();
       onLogout();
     }
+  };
+
+  const handleVersionClick = () => {
+    setVersionClickCount(prev => {
+      const newCount = prev + 1;
+      if (newCount >= 20) {
+        setShowDebugPrompt(true);
+        setVersionClickCount(0);
+      }
+      return newCount;
+    });
+  };
+
+  const handleDebugPasswordSubmit = () => {
+    if (debugPassword === 'parola123') {
+      setShowDebugPanel(true);
+      setShowDebugPrompt(false);
+      setDebugPassword('');
+    } else {
+      alert('Parolă incorectă');
+      setDebugPassword('');
+    }
+  };
+
+  const closeDebugPanel = () => {
+    setShowDebugPanel(false);
   };
 
   // Vehicle input screen
@@ -1040,9 +1070,75 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       )}
       
-      <div className="version-info-bottom">
-        Versiunea 1807.99
+      <div className="version-info-bottom" onClick={handleVersionClick}>
+        Versiunea 1807.99{versionClickCount > 0 && `+${versionClickCount}`}
       </div>
+
+      {/* Debug Password Prompt */}
+      {showDebugPrompt && (
+        <div className="debug-prompt-overlay">
+          <div className="debug-prompt-content">
+            <h3>Mod Debug Dezvoltator</h3>
+            <p>Introduceți parola pentru accesul la panelul de debug:</p>
+            <input
+              type="password"
+              value={debugPassword}
+              onChange={(e) => setDebugPassword(e.target.value)}
+              placeholder="Parola debug"
+              className="debug-password-input"
+              onKeyPress={(e) => e.key === 'Enter' && handleDebugPasswordSubmit()}
+            />
+            <div className="debug-prompt-buttons">
+              <button onClick={handleDebugPasswordSubmit} className="debug-submit-btn">
+                Accesează Debug
+              </button>
+              <button onClick={() => setShowDebugPrompt(false)} className="debug-cancel-btn">
+                Anulează
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Debug Panel */}
+      {showDebugPanel && (
+        <div className="mobile-debug-overlay">
+          <div className="mobile-debug-panel">
+            <div className="debug-header">
+              <h3>📱 Debug Panel (Mobile)</h3>
+              <button onClick={closeDebugPanel} className="debug-close-btn">✕</button>
+            </div>
+            <div className="debug-content">
+              <div className="debug-logs-container">
+                <div className="debug-status">
+                  <span className="debug-indicator">🟢 Debug Activ</span>
+                  <span className="debug-platform">Platform: Android APK</span>
+                </div>
+                <div className="debug-log-output" id="debugLogOutput">
+                  <div className="debug-log-item info">
+                    <span className="log-time">{new Date().toLocaleTimeString()}</span>
+                    <span className="log-level">INFO</span>
+                    <span className="log-message">Debug panel activat pentru diagnosticare GPS</span>
+                  </div>
+                  <div className="debug-log-item warn">
+                    <span className="log-time">{new Date().toLocaleTimeString()}</span>
+                    <span className="log-level">WARN</span>
+                    <span className="log-message">Verificați logurile Android ADB pentru detalii complete</span>
+                  </div>
+                </div>
+                <div className="debug-actions">
+                  <button className="debug-action-btn" onClick={() => console.log('Test GPS Plugin')}>
+                    Test GPS Plugin
+                  </button>
+                  <button className="debug-action-btn" onClick={() => console.log('Clear Logs')}>
+                    Clear Logs
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
