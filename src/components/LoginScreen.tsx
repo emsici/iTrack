@@ -141,21 +141,24 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .app-title {
-            font-size: 3rem;
+            font-size: 2.8rem;
             font-weight: 800;
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             animation: slideInFromLeft 0.8s ease-out;
+            letter-spacing: -1px;
           }
 
           .app-subtitle {
-            font-size: 1.2rem;
-            color: #64748b;
-            font-weight: 500;
+            font-size: 1.1rem;
+            color: #475569;
+            font-weight: 600;
             animation: slideInFromRight 0.8s ease-out;
+            text-transform: uppercase;
+            letter-spacing: 2px;
           }
 
           .login-form {
@@ -170,25 +173,27 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           .form-input {
             width: 100%;
-            padding: 16px 20px 16px 50px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1rem;
+            padding: 18px 20px 18px 55px;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            background: #ffffff;
+            color: #1e293b;
+            font-size: 1.1rem;
+            font-weight: 500;
             transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
           }
 
           .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: #94a3b8;
+            font-weight: 400;
           }
 
           .form-input:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            border-color: #4f46e5;
+            background: #ffffff;
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15);
             transform: translateY(-2px);
           }
 
