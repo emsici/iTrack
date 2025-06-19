@@ -256,6 +256,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 19, 2025. Updated AndroidManifest.xml and GPSTrackingPlugin.java to use EnhancedGPSService exclusively
 - June 19, 2025. Enhanced GPS service supports multiple concurrent courses with individual transmission per UIT
 - June 19, 2025. Improved GPS service architecture with transmission counter, uptime tracking, and detailed logging
+- June 19, 2025. Implemented admin login system with credentials admin@itrack.app / parola123 for mobile debugging
+- June 19, 2025. Created AdminPanel component to display console logs for debugging on mobile devices
+- June 19, 2025. Admin mode bypasses API authentication and shows real-time application logs with filtering
+- June 19, 2025. Admin panel captures console.log, console.warn, console.error for debugging GPS and app issues
+- June 19, 2025. Mobile-optimized admin interface with search, level filtering, and real-time log capture
 
 ## User Preferences
 

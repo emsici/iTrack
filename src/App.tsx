@@ -38,7 +38,11 @@ const App: React.FC = () => {
 
   const handleLogin = (authToken: string) => {
     setToken(authToken);
-    setCurrentScreen('vehicle');
+    if (authToken === 'ADMIN_TOKEN') {
+      setCurrentScreen('admin');
+    } else {
+      setCurrentScreen('vehicle');
+    }
   };
 
   const handleLogout = async () => {
@@ -82,6 +86,9 @@ const App: React.FC = () => {
       )}
       {currentScreen === 'vehicle' && (
         <VehicleScreen token={token} onLogout={handleLogout} />
+      )}
+      {currentScreen === 'admin' && (
+        <AdminPanel onLogout={handleLogout} />
       )}
     </div>
   );
