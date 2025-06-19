@@ -165,7 +165,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
     
     private void startGPSTracking() {
-        Log.d(TAG, "Starting simple GPS tracking for course: " + courseId);
+        Log.d(TAG, "Starting simple GPS tracking for " + activeCourses.size() + " active courses");
         
         isServiceActive = true;
         

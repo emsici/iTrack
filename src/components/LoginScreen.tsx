@@ -294,7 +294,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             <i className="fas fa-route"></i>
           </div>
           <h1 className="app-title">iTrack</h1>
-          <p className="app-subtitle">Sistem Profesional de Urmărire GPS</p>
+          <p className="app-subtitle">Sistem profesional de urmărire GPS</p>
         </div>
 
         <form onSubmit={handleLogin} className="login-form">
@@ -313,7 +313,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
-              placeholder="Adresa de email corporativă"
+              placeholder="Adresa de email"
               autoComplete="email"
             />
           </div>
@@ -354,7 +354,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             ) : (
               <>
                 <i className="fas fa-sign-in-alt"></i>
-                <span>Autentificare Securizată</span>
+                <span>Autentificare</span>
               </>
             )}
           </button>
@@ -365,21 +365,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             <i className="fas fa-code-branch"></i>
             <span>Versiunea 1807.99</span>
           </div>
-          
-          <div className="security-badges">
-            <div className="security-badge">
-              <i className="fas fa-shield-alt"></i>
-              <span>Securizat SSL</span>
-            </div>
-            <div className="security-badge">
-              <i className="fas fa-lock"></i>
-              <span>Criptat</span>
-            </div>
-            <div className="security-badge">
-              <i className="fas fa-satellite-dish"></i>
-              <span>GPS Activ</span>
-            </div>
-          </div>
+        
         </div>
       </div>
     </div>
