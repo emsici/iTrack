@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
+import { startGPSTracking, stopGPSTracking } from '../services/simpleGPS';
 import { Course } from '../types';
 
 interface CourseCardProps {
