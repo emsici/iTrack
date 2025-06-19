@@ -1,12 +1,5 @@
 # iTrack - Aplicație de Urmărire GPS pentru Transport
 
-[![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
-[![Capacitor](https://img.shields.io/badge/Capacitor-7.3.0-green.svg)](https://capacitorjs.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Latest-blue.svg)](https://www.typescriptlang.org/)
-[![Android](https://img.shields.io/badge/Platform-Android-brightgreen.svg)](https://developer.android.com/)
-
-## Despre Aplicație
-
 iTrack este o aplicație mobilă pentru urmărirea vehiculelor de transport în timp real. Șoferii folosesc aplicația pentru a gestiona și monitoriza cursele de transport, cu transmisia automată a coordonatelor GPS către sistemul central ETSM3.
 
 ## Funcționalități
@@ -30,7 +23,7 @@ iTrack este o aplicație mobilă pentru urmărirea vehiculelor de transport în 
 
 ```bash
 # Clonare proiect
-git clone <url-repository>
+git clone https://github.com/emsici/iTrack
 cd itrack
 
 # Instalare dependențe
@@ -69,7 +62,7 @@ npx cap open android
 ### 3. Gestionare Curse
 - **Start** - pornește urmărirea GPS și schimbă statusul în "Activ"
 - **Pauză** - suspendă temporar cursa
-- **Finalizare** - termină cursa definitiv
+- **Finalizează** - termină cursa definitiv
 - **Info** - afișează detalii complete despre cursă
 
 ### 4. Urmărire GPS
@@ -192,14 +185,10 @@ Aplicația se conectează la sistemul ETSM3 pentru:
 ## Build Scripturi
 
 ```bash
-# Build complet Android
-./build-android.sh
+# Build 
+./build.bat
 
-# Build rapid dezvoltare
-./quick-build.bat
 
-# Rebuild Android din zero
-./rebuild-android.sh
 ```
 
 ## Statusuri Curse
