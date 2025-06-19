@@ -116,182 +116,273 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .transport-logo {
-            width: 140px;
-            height: 100px;
+            width: 180px;
+            height: 120px;
             margin: 0 auto 25px;
             position: relative;
-            animation: truckDrive 4s ease-in-out infinite;
+            animation: elegantMotion 6s ease-in-out infinite;
           }
 
-          .freight-truck {
+          .corporate-truck {
             width: 100%;
             height: 100%;
             position: relative;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
           }
 
-          .freight-truck:hover {
-            transform: scale(1.15) translateY(-3px);
+          .corporate-truck:hover {
+            transform: scale(1.08) translateY(-3px);
+            filter: drop-shadow(0 25px 50px rgba(30, 64, 175, 0.25));
           }
 
-          /* Cabina șoferului */
-          .truck-cab {
-            width: 32px;
-            height: 45px;
-            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #312e81 100%);
-            border-radius: 8px 8px 3px 3px;
+          /* Cabina corporată elegantă */
+          .executive-cab {
+            width: 45px;
+            height: 55px;
+            background: linear-gradient(145deg, #1e40af 0%, #3b82f6 25%, #60a5fa 50%, #93c5fd 75%, #dbeafe 100%);
+            border-radius: 15px 15px 6px 6px;
             position: absolute;
-            top: 15px;
+            top: 10px;
+            left: 20px;
+            box-shadow: 
+              0 12px 35px rgba(30, 64, 175, 0.4),
+              inset 0 2px 4px rgba(255, 255, 255, 0.2);
+            animation: executiveFloat 5s ease-in-out infinite;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+          }
+
+          .executive-cab::before {
+            content: '';
+            width: 38px;
+            height: 28px;
+            background: linear-gradient(135deg, rgba(219, 234, 254, 0.95) 0%, rgba(147, 197, 253, 0.9) 100%);
+            border-radius: 8px;
+            position: absolute;
+            top: 8px;
+            left: 3.5px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: inset 0 1px 2px rgba(59, 130, 246, 0.2);
+          }
+
+          .executive-cab::after {
+            content: '';
+            width: 8px;
+            height: 4px;
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            border-radius: 2px;
+            position: absolute;
+            top: 20px;
+            left: 18.5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+          }
+
+          /* Grila premium sofisticată */
+          .executive-grille {
+            width: 10px;
+            height: 30px;
+            background: linear-gradient(145deg, #374151 0%, #1f2937 50%, #111827 100%);
+            border-radius: 4px;
+            position: absolute;
+            top: 25px;
             left: 10px;
-            box-shadow: 0 4px 16px rgba(30, 64, 175, 0.5);
-            animation: cabBounce 3s ease-in-out infinite;
+            box-shadow: 
+              inset 0 2px 4px rgba(255, 255, 255, 0.1),
+              0 2px 8px rgba(0, 0, 0, 0.3);
           }
 
-          .truck-cab::before {
+          .executive-grille::before {
             content: '';
-            width: 28px;
-            height: 20px;
-            background: linear-gradient(135deg, #60a5fa 30%, #3b82f6 70%);
+            width: 8px;
+            height: 2px;
+            background: linear-gradient(90deg, #9ca3af 0%, #d1d5db 50%, #9ca3af 100%);
+            border-radius: 1px;
+            position: absolute;
+            top: 6px;
+            left: 1px;
+            box-shadow: 
+              0 6px 0 #9ca3af, 
+              0 12px 0 #9ca3af, 
+              0 18px 0 #9ca3af;
+          }
+
+          /* Șasiu executiv */
+          .executive-chassis {
+            width: 110px;
+            height: 16px;
+            background: linear-gradient(145deg, #4b5563 0%, #374151 30%, #1f2937 70%, #111827 100%);
             border-radius: 4px;
             position: absolute;
-            top: 5px;
-            left: 2px;
-            opacity: 0.9;
+            top: 52px;
+            left: 35px;
+            box-shadow: 
+              0 6px 20px rgba(0, 0, 0, 0.4),
+              inset 0 1px 2px rgba(255, 255, 255, 0.1);
           }
 
-          /* Șasiul principal */
-          .truck-chassis {
-            width: 85px;
-            height: 12px;
-            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-            border-radius: 2px;
+          /* Container corporativ premium */
+          .corporate-container {
+            width: 90px;
+            height: 45px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 20%, #f1f5f9 40%, #e2e8f0 100%);
+            border-radius: 10px;
             position: absolute;
-            top: 48px;
-            left: 25px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            top: 18px;
+            left: 75px;
+            box-shadow: 
+              0 15px 40px rgba(0, 0, 0, 0.12),
+              inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 2px solid #e2e8f0;
+            animation: corporateGlow 6s ease-in-out infinite;
           }
 
-          /* Remorca de marfă */
-          .truck-trailer {
-            width: 70px;
+          .corporate-container::before {
+            content: '';
+            width: 8px;
             height: 38px;
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
-            border-radius: 6px;
-            position: absolute;
-            top: 22px;
-            left: 55px;
-            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
-            animation: trailerSway 4s ease-in-out infinite;
-          }
-
-          .truck-trailer::before {
-            content: '';
-            width: 4px;
-            height: 32px;
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            border-radius: 2px;
-            position: absolute;
-            top: 3px;
-            right: 2px;
-            animation: reflectorFlash 2s ease-in-out infinite;
-          }
-
-          /* Container de marfă */
-          .cargo-container {
-            width: 60px;
-            height: 32px;
-            background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%);
+            background: linear-gradient(145deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
             border-radius: 4px;
             position: absolute;
-            top: 3px;
-            left: 5px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            top: 3.5px;
+            right: 4px;
+            box-shadow: 
+              0 0 15px rgba(220, 38, 38, 0.4),
+              inset 0 1px 2px rgba(255, 255, 255, 0.2);
           }
 
-          .cargo-container::after {
-            content: '📦';
-            font-size: 14px;
+          /* Brandingul corporativ */
+          .corporate-branding {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            animation: cargoShake 3s ease-in-out infinite;
-          }
-
-          /* Roți */
-          .truck-wheel {
-            width: 20px;
+            width: 35px;
             height: 20px;
-            background: radial-gradient(circle, #374151 30%, #111827 70%);
-            border-radius: 50%;
-            position: absolute;
-            top: 60px;
-            animation: wheelSpin 0.8s linear infinite;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-            border: 2px solid #6b7280;
+            background: linear-gradient(145deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+              0 4px 12px rgba(59, 130, 246, 0.3),
+              inset 0 1px 2px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
           }
 
-          .truck-wheel::before {
+          .corporate-branding::after {
+            content: '🏢';
+            font-size: 10px;
+            filter: brightness(1.2);
+          }
+
+          /* Roți executive premium */
+          .executive-wheel {
+            width: 26px;
+            height: 26px;
+            background: radial-gradient(circle, #374151 15%, #1f2937 40%, #111827 70%, #000000 90%);
+            border-radius: 50%;
+            position: absolute;
+            top: 68px;
+            animation: executiveWheelSpin 1.2s linear infinite;
+            box-shadow: 
+              0 6px 20px rgba(0, 0, 0, 0.6),
+              inset 0 2px 4px rgba(255, 255, 255, 0.1);
+            border: 3px solid #4b5563;
+          }
+
+          .executive-wheel::before {
             content: '';
-            width: 10px;
-            height: 10px;
-            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(145deg, #9ca3af 0%, #6b7280 50%, #374151 100%);
             border-radius: 50%;
             position: absolute;
-            top: 5px;
-            left: 5px;
-          }
-
-          .truck-wheel.front-cab {
-            left: 20px;
-          }
-
-          .truck-wheel.rear-cab {
-            left: 35px;
-          }
-
-          .truck-wheel.trailer-front {
-            left: 85px;
-          }
-
-          .truck-wheel.trailer-rear {
-            left: 110px;
-          }
-
-          /* Faruri */
-          .truck-headlight {
-            width: 6px;
-            height: 8px;
-            background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
-            border-radius: 50%;
-            position: absolute;
-            top: 25px;
+            top: 6px;
             left: 6px;
-            animation: headlightGlow 2s ease-in-out infinite;
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+            border: 2px solid #d1d5db;
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
           }
 
-          /* Evacuare */
-          .truck-exhaust-pipe {
-            width: 3px;
-            height: 15px;
-            background: linear-gradient(135deg, #6b7280 0%, #374151 100%);
-            border-radius: 50px;
+          .executive-wheel::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #f3f4f6 30%, #e5e7eb 70%);
+            border-radius: 50%;
             position: absolute;
             top: 10px;
-            left: 38px;
+            left: 10px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
           }
 
-          .exhaust-smoke {
-            width: 8px;
+          .executive-wheel.front-executive {
+            left: 30px;
+          }
+
+          .executive-wheel.rear-executive {
+            left: 55px;
+          }
+
+          .executive-wheel.trailer-front-exec {
+            left: 105px;
+          }
+
+          .executive-wheel.trailer-rear-exec {
+            left: 135px;
+          }
+
+          /* Faruri LED executive */
+          .executive-headlight {
+            width: 10px;
+            height: 12px;
+            background: linear-gradient(145deg, #ffffff 0%, #f0f9ff 30%, #dbeafe 70%, #bfdbfe 100%);
+            border-radius: 6px;
+            position: absolute;
+            top: 20px;
+            left: 12px;
+            animation: executiveLEDPulse 4s ease-in-out infinite;
+            box-shadow: 
+              0 0 25px rgba(255, 255, 255, 0.9),
+              0 0 50px rgba(59, 130, 246, 0.6);
+            border: 2px solid rgba(59, 130, 246, 0.4);
+          }
+
+          .executive-headlight::before {
+            content: '';
+            width: 6px;
             height: 8px;
-            background: rgba(156, 163, 175, 0.7);
+            background: radial-gradient(circle, #ffffff 20%, #3b82f6 80%);
+            border-radius: 3px;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            animation: headlightBeam 3s ease-in-out infinite;
+          }
+
+          /* Comunicații business */
+          .executive-antenna {
+            width: 3px;
+            height: 15px;
+            background: linear-gradient(145deg, #9ca3af 0%, #6b7280 50%, #374151 100%);
+            border-radius: 2px;
+            position: absolute;
+            top: 6px;
+            left: 42px;
+            animation: antennaSignal 5s ease-in-out infinite;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+          }
+
+          .executive-antenna::after {
+            content: '';
+            width: 5px;
+            height: 5px;
+            background: radial-gradient(circle, #10b981 30%, #059669 70%);
             border-radius: 50%;
             position: absolute;
-            top: 5px;
-            left: 40px;
-            animation: smokeRise 2s ease-in-out infinite;
+            top: -2px;
+            left: -1px;
+            animation: connectivityPulse 2s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
           }
 
           .app-title {
@@ -306,58 +397,80 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             letter-spacing: -1px;
           }
 
-          @keyframes truckDrive {
-            0%, 100% { transform: translateX(0px) translateY(0px); }
-            25% { transform: translateX(5px) translateY(-1px); }
-            50% { transform: translateX(10px) translateY(0px); }
-            75% { transform: translateX(5px) translateY(1px); }
+          @keyframes elegantMotion {
+            0%, 100% { 
+              transform: translateX(0px) translateY(0px) rotate(0deg); 
+            }
+            25% { 
+              transform: translateX(3px) translateY(-2px) rotate(0.3deg); 
+            }
+            50% { 
+              transform: translateX(6px) translateY(0px) rotate(0deg); 
+            }
+            75% { 
+              transform: translateX(3px) translateY(1px) rotate(-0.2deg); 
+            }
           }
 
-          @keyframes cabBounce {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-2px) rotate(0.5deg); }
+          @keyframes executiveFloat {
+            0%, 100% { 
+              transform: translateY(0px) rotate(0deg); 
+              box-shadow: 0 12px 35px rgba(30, 64, 175, 0.4);
+            }
+            50% { 
+              transform: translateY(-3px) rotate(0.5deg); 
+              box-shadow: 0 18px 45px rgba(30, 64, 175, 0.6);
+            }
           }
 
-          @keyframes trailerSway {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-1px) rotate(-0.3deg); }
+          @keyframes corporateGlow {
+            0%, 100% { 
+              box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+              border-color: #e2e8f0;
+            }
+            50% { 
+              box-shadow: 0 20px 50px rgba(59, 130, 246, 0.15);
+              border-color: #bfdbfe;
+            }
           }
 
-          @keyframes wheelSpin {
+          @keyframes executiveWheelSpin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
           }
 
-          @keyframes headlightGlow {
+          @keyframes executiveLEDPulse {
             0%, 100% { 
               opacity: 1; 
-              box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+              box-shadow: 0 0 25px rgba(255, 255, 255, 0.9), 0 0 50px rgba(59, 130, 246, 0.6);
             }
             50% { 
-              opacity: 0.7; 
-              box-shadow: 0 0 25px rgba(251, 191, 36, 0.9);
+              opacity: 0.8; 
+              box-shadow: 0 0 35px rgba(255, 255, 255, 1), 0 0 70px rgba(59, 130, 246, 0.8);
             }
           }
 
-          @keyframes reflectorFlash {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
+          @keyframes headlightBeam {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
           }
 
-          @keyframes cargoShake {
-            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-            25% { transform: translate(-50%, -50%) rotate(1deg); }
-            75% { transform: translate(-50%, -50%) rotate(-1deg); }
+          @keyframes antennaSignal {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(2deg); }
+            75% { transform: rotate(-1deg); }
           }
 
-          @keyframes smokeRise {
-            0% { 
-              opacity: 0.7; 
-              transform: translateY(0px) scale(1); 
+          @keyframes connectivityPulse {
+            0%, 100% { 
+              opacity: 1; 
+              transform: scale(1);
+              box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
             }
-            100% { 
-              opacity: 0; 
-              transform: translateY(-20px) scale(2); 
+            50% { 
+              opacity: 0.6; 
+              transform: scale(1.2);
+              box-shadow: 0 0 20px rgba(16, 185, 129, 0.9);
             }
           }
 
