@@ -230,7 +230,12 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 19, 2025. GPS now transmits coordinates every 60 seconds for all active courses using SimpleGPSTracker
 - June 19, 2025. Streamlined bottom navigation to Info and Logout buttons only for cleaner interface
 - June 19, 2025. Eliminated duplicate GPS services - simplified architecture to single nativeGPS + Android native service
-- June 19, 2025. Clean GPS architecture: nativeGPS.ts → SimpleGPSPlugin.java → SimpleGPSService.java for reliable tracking
+- June 19, 2025. Clean GPS architecture: nativeGPS.ts → GPSTrackingPlugin.java → GPSForegroundService.java for reliable tracking
+- June 19, 2025. Removed SimpleGPSPlugin duplicates and cleaned GPS folder structure to prevent conflicts
+- June 19, 2025. Native GPS service connects JavaScript to Android background service through Capacitor bridge
+- June 19, 2025. GPS tracking uses only existing GPSForegroundService in itrack package for background coordinate transmission
+- June 19, 2025. MainActivity registers GPSTrackingPlugin for native Android GPS service integration
+- June 19, 2025. GPS coordinates transmit every 60 seconds to server through native Android service even when phone locked
 
 ## User Preferences
 
