@@ -239,6 +239,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
+            .vehicle-card:hover {
+              transform: translateY(-5px);
+              background: rgba(255, 255, 255, 0.25);
+              border-color: rgba(255, 255, 255, 0.5);
+              box-shadow: 
+                0 40px 80px rgba(0, 0, 0, 0.2),
+                0 20px 40px rgba(79, 70, 229, 0.15),
+                inset 0 2px 0 rgba(255, 255, 255, 0.4);
+            }
+
             .vehicle-header {
               text-align: center;
               margin-bottom: 40px;
@@ -313,10 +323,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
             .vehicle-form-input:focus {
               outline: none;
-              border-color: rgba(255, 255, 255, 0.6);
-              background: rgba(255, 255, 255, 0.15);
-              box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-              transform: translateY(-2px);
+              border-color: rgba(255, 255, 255, 0.8);
+              background: rgba(255, 255, 255, 0.25);
+              transform: translateY(-3px) scale(1.02);
+              box-shadow: 
+                0 0 0 4px rgba(255, 255, 255, 0.2),
+                0 12px 30px rgba(79, 70, 229, 0.3),
+                inset 0 2px 4px rgba(0, 0, 0, 0.1);
             }
 
             .vehicle-input-icon {
@@ -330,26 +343,42 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }
 
             .vehicle-load-button {
-              background: linear-gradient(135deg, #4f46e5, #06b6d4);
+              background: linear-gradient(135deg, #4f46e5, #06b6d4, #10b981);
+              background-size: 200% 200%;
               color: white;
               border: none;
-              padding: 18px 24px;
-              border-radius: 12px;
-              font-size: 1.1rem;
-              font-weight: 600;
+              padding: 20px 30px;
+              border-radius: 16px;
+              font-size: 1.2rem;
+              font-weight: 700;
               cursor: pointer;
-              transition: all 0.3s ease;
+              transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
               display: flex;
               align-items: center;
               justify-content: center;
-              gap: 10px;
-              margin-top: 10px;
-              box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+              gap: 12px;
+              margin-top: 15px;
+              box-shadow: 
+                0 15px 35px rgba(79, 70, 229, 0.4),
+                0 5px 15px rgba(6, 182, 212, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+              animation: gradientShift 3s ease infinite;
+              position: relative;
+              overflow: hidden;
             }
 
             .vehicle-load-button:hover:not(:disabled) {
-              transform: translateY(-2px);
-              box-shadow: 0 15px 35px rgba(79, 70, 229, 0.4);
+              transform: translateY(-4px) scale(1.02);
+              background-position: 100% 0%;
+              box-shadow: 
+                0 20px 45px rgba(79, 70, 229, 0.5),
+                0 8px 20px rgba(6, 182, 212, 0.4),
+                0 4px 12px rgba(16, 185, 129, 0.3);
+            }
+
+            .vehicle-load-button:active {
+              transform: translateY(-1px) scale(0.98);
+              transition: all 0.1s ease;
             }
 
             .vehicle-load-button:disabled {
@@ -369,6 +398,66 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             @keyframes spin {
               0% { transform: rotate(0deg); }
               100% { transform: rotate(360deg); }
+            }
+
+            @media (max-width: 768px) {
+              .vehicle-card {
+                padding: 40px 30px;
+                margin: 15px;
+                max-width: calc(100vw - 30px);
+                border-radius: 20px;
+              }
+              
+              .vehicle-title {
+                font-size: 2rem;
+              }
+              
+              .vehicle-subtitle {
+                font-size: 1rem;
+              }
+              
+              .vehicle-form-input {
+                padding: 16px 20px 16px 50px;
+                font-size: 1.1rem;
+                letter-spacing: 1px;
+              }
+              
+              .vehicle-load-button {
+                padding: 18px 25px;
+                font-size: 1.1rem;
+              }
+              
+              .vehicle-logo {
+                width: 70px;
+                height: 70px;
+              }
+              
+              .vehicle-logo i {
+                font-size: 1.8rem;
+              }
+            }
+
+            @media (max-width: 480px) {
+              .vehicle-input-container {
+                padding: calc(env(safe-area-inset-top, 0px) + 40px) 15px max(15px, env(safe-area-inset-bottom)) 15px;
+              }
+              
+              .vehicle-card {
+                padding: 35px 25px;
+                margin: 10px;
+              }
+              
+              .vehicle-title {
+                font-size: 1.8rem;
+              }
+              
+              .vehicle-header {
+                margin-bottom: 35px;
+              }
+              
+              .vehicle-form {
+                gap: 20px;
+              }
             }
 
             .vehicle-error-alert {
