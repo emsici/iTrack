@@ -124,6 +124,63 @@ class DirectAndroidGPSService {
     return this.activeCourses.size > 0;
   }
 
+  private async startWebGPSTest(course: ActiveCourse): Promise<void> {
+    console.log('Starting web GPS test for course:', course.courseId);
+    
+    try {
+      // Test GPS transmission cu Geolocation API pentru debugging web
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const gpsData = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+              timestamp: new Date().toISOString(),
+              viteza: Math.round(position.coords.speed || 0),
+              directie: Math.round(position.coords.heading || 0),
+              altitudine: Math.round(position.coords.altitude || 0),
+              baterie: 100,
+              numar_inmatriculare: course.vehicleNumber,
+              uit: course.uit,
+              status: course.status.toString(),
+              hdop: '1.0',
+              gsm_signal: '100'
+            };
+            
+            console.log('Web GPS test data:', gpsData);
+            
+            // Test transmission la server
+            try {
+              const response = await fetch('https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${course.token}`
+                },
+                body: JSON.stringify(gpsData)
+              });
+              
+              console.log('GPS test transmission response:', response.status);
+              if (response.ok) {
+                console.log('✅ GPS test transmission successful');
+              } else {
+                console.log('❌ GPS test transmission failed:', response.statusText);
+              }
+            } catch (error) {
+              console.error('GPS test transmission error:', error);
+            }
+          },
+          (error) => {
+            console.error('Geolocation error:', error);
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      }
+    } catch (error) {
+      console.error('Web GPS test failed:', error);
+    }
+  }
+
   getServiceInfo() {
     return {
       platform: Capacitor.getPlatform(),
