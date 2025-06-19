@@ -185,7 +185,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .emblem-center i {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             color: #ffffff;
             filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
             animation: iconFloat 5s ease-in-out infinite;
@@ -697,7 +697,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               <div className="emblem-ring">
                 <div className="emblem-core">
                   <div className="emblem-center">
-                    <i className="fas fa-globe-americas"></i>
+                    <i className="fas fa-truck"></i>
                   </div>
                 </div>
               </div>
