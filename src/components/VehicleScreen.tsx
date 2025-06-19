@@ -459,7 +459,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
         
         <div className="vehicle-footer-actions">
-          <button className="vehicle-logout-button" onClick={onLogout}>
+          <button className="vehicle-logout-button" onClick={handleLogout}>
             <i className="fas fa-sign-out-alt"></i>
             <span>Deconectare</span>
           </button>

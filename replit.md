@@ -220,6 +220,10 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 19, 2025. Implemented comprehensive responsive design with media queries for mobile, tablet, and desktop
 - June 19, 2025. Added safe area support for iOS devices and modern mobile browsers
 - June 19, 2025. Enhanced course content padding to prevent overlap with fixed bottom navigation
+- June 19, 2025. Fixed all white text visibility issues on light backgrounds (version info, error messages, security badges)
+- June 19, 2025. Implemented proper logout functionality with request to login.php sending {"iesire": 1} with Bearer token
+- June 19, 2025. Added automatic token clearing and data cleanup on logout with server communication
+- June 19, 2025. Enhanced logout process: server request → clear stored values → redirect to authentication
 
 ## User Preferences
 
