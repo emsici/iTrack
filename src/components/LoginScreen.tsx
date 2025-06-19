@@ -123,101 +123,86 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             animation: professionalFloat 4s ease-in-out infinite;
           }
 
-          .professional-truck-icon {
+          .corporate-emblem {
             width: 100%;
             height: 100%;
             position: relative;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
           }
 
-          .professional-truck-icon:hover {
-            transform: scale(1.1) translateY(-5px);
-            filter: drop-shadow(0 20px 40px rgba(30, 64, 175, 0.3));
+          .corporate-emblem:hover {
+            transform: scale(1.08) translateY(-3px);
+            filter: drop-shadow(0 25px 50px rgba(30, 64, 175, 0.25));
           }
 
-          .truck-main {
-            font-size: 4.5rem;
-            background: linear-gradient(145deg, #1e40af 0%, #3b82f6 30%, #60a5fa 70%, #93c5fd 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: truckPulse 3s ease-in-out infinite;
-            filter: drop-shadow(0 4px 8px rgba(30, 64, 175, 0.3));
-            cursor: pointer;
-            transition: all 0.3s ease;
-          }
-
-          .truck-main:hover {
-            transform: scale(1.15) rotate(2deg);
-            filter: drop-shadow(0 8px 16px rgba(30, 64, 175, 0.5));
-          }
-
-          .truck-details {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-          }
-
-          .gps-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 1.2rem;
-            color: #059669;
-            animation: gpsPulse 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 12px rgba(5, 150, 105, 0.8));
-            background: rgba(5, 150, 105, 0.1);
-            padding: 8px;
+          .emblem-ring {
+            width: 90px;
+            height: 90px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
             border-radius: 50%;
-            border: 2px solid rgba(5, 150, 105, 0.3);
+            position: relative;
+            animation: emblemRotate 10s linear infinite;
+            background: linear-gradient(145deg, rgba(248, 250, 252, 0.9), rgba(226, 232, 240, 0.8));
+            box-shadow: 
+              0 8px 32px rgba(30, 64, 175, 0.12),
+              inset 0 2px 8px rgba(255, 255, 255, 0.6);
           }
 
-          .cargo-indicator {
+          .emblem-core {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 50%;
             position: absolute;
-            bottom: 30px;
-            right: 15px;
-            font-size: 1.1rem;
-            color: #d97706;
-            animation: cargoFloat 3s ease-in-out infinite;
-            filter: drop-shadow(0 2px 8px rgba(217, 119, 6, 0.6));
-            background: rgba(217, 119, 6, 0.1);
-            padding: 6px;
-            border-radius: 8px;
-            border: 2px solid rgba(217, 119, 6, 0.3);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 
+              0 6px 20px rgba(0, 0, 0, 0.08),
+              inset 0 1px 4px rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(226, 232, 240, 0.5);
           }
 
-          .route-indicator {
-            position: absolute;
-            bottom: 10px;
-            left: 15px;
-            font-size: 1rem;
-            color: #4f46e5;
-            animation: routePulse 2.5s ease-in-out infinite;
-            filter: drop-shadow(0 2px 8px rgba(79, 70, 229, 0.6));
-            background: rgba(79, 70, 229, 0.1);
-            padding: 6px;
-            border-radius: 6px;
-            border: 2px solid rgba(79, 70, 229, 0.3);
+          .emblem-center {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(145deg, #1e40af 0%, #3b82f6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+              0 4px 16px rgba(30, 64, 175, 0.25),
+              inset 0 1px 4px rgba(255, 255, 255, 0.3);
+            animation: emblemPulse 4s ease-in-out infinite;
           }
 
-          .professional-truck-icon:hover .gps-indicator {
-            animation: gpsPulse 0.8s ease-in-out infinite;
-            transform: scale(1.3);
+          .emblem-center i {
+            font-size: 1.3rem;
+            color: #ffffff;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+            animation: iconFloat 5s ease-in-out infinite;
           }
 
-          .professional-truck-icon:hover .cargo-indicator {
-            animation: cargoFloat 1.5s ease-in-out infinite;
-            transform: scale(1.2) translateX(-5px);
+          .corporate-emblem:hover .emblem-ring {
+            animation: emblemRotate 2s linear infinite;
+            box-shadow: 
+              0 0 50px rgba(59, 130, 246, 0.4),
+              inset 0 0 30px rgba(255, 255, 255, 0.2);
           }
 
-          .professional-truck-icon:hover .route-indicator {
-            animation: routePulse 1.2s ease-in-out infinite;
-            transform: scale(1.25);
+          .corporate-emblem:hover .emblem-center {
+            transform: scale(1.1);
+            box-shadow: 
+              0 12px 40px rgba(30, 64, 175, 0.5),
+              inset 0 2px 12px rgba(255, 255, 255, 0.3);
           }
 
           .app-title {
@@ -309,12 +294,32 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             }
           }
 
-          @keyframes routePulse {
+          @keyframes emblemRotate {
+            0% { 
+              transform: rotate(0deg); 
+            }
+            100% { 
+              transform: rotate(360deg); 
+            }
+          }
+
+          @keyframes emblemPulse {
             0%, 100% { 
-              opacity: 1; 
+              transform: scale(1); 
+              box-shadow: 0 4px 16px rgba(30, 64, 175, 0.25), inset 0 1px 4px rgba(255, 255, 255, 0.3);
             }
             50% { 
-              opacity: 0.6; 
+              transform: scale(1.05); 
+              box-shadow: 0 6px 24px rgba(30, 64, 175, 0.35), inset 0 1px 6px rgba(255, 255, 255, 0.4);
+            }
+          }
+
+          @keyframes iconFloat {
+            0%, 100% { 
+              transform: translateY(0px); 
+            }
+            50% { 
+              transform: translateY(-2px); 
             }
           }
 
@@ -688,17 +693,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       <div className="login-card">
         <div className="login-header">
           <div className="transport-logo">
-            <div className="professional-truck-icon">
-              <i className="fas fa-truck truck-main"></i>
-              <div className="truck-details">
-                <div className="gps-indicator">
-                  <i className="fas fa-satellite-dish"></i>
-                </div>
-                <div className="cargo-indicator">
-                  <i className="fas fa-boxes"></i>
-                </div>
-                <div className="route-indicator">
-                  <i className="fas fa-route"></i>
+            <div className="corporate-emblem">
+              <div className="emblem-ring">
+                <div className="emblem-core">
+                  <div className="emblem-center">
+                    <i className="fas fa-globe-americas"></i>
+                  </div>
                 </div>
               </div>
             </div>
@@ -715,10 +715,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           )}
 
           <div className="form-group">
-            <label className="form-label">
-              <i className="fas fa-envelope label-icon"></i>
-              Email Corporativ
-            </label>
             <div className="input-container">
               <input
                 type="email"
@@ -726,18 +722,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                placeholder="numele@companie.com"
+                placeholder="Email"
                 autoComplete="email"
               />
-              <i className="fas fa-building input-icon"></i>
+              <i className="fas fa-user input-icon"></i>
             </div>
           </div>
 
           <div className="form-group">
-            <label className="form-label">
-              <i className="fas fa-shield-alt label-icon"></i>
-              Parolă Securizată
-            </label>
             <div className="input-container">
               <input
                 type={showPassword ? "text" : "password"}
@@ -745,9 +737,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
-                placeholder="••••••••••••"
+                placeholder="Parolă"
                 autoComplete="current-password"
               />
+              <i className="fas fa-lock input-icon"></i>
               <button
                 type="button"
                 className="password-toggle"
