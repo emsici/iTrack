@@ -168,6 +168,11 @@ export const logout = async (token: string): Promise<boolean> => {
 
 export const sendGPSData = async (gpsData: GPSData, token: string): Promise<boolean> => {
   try {
+    console.log('=== GPS REQUEST DETAILS ===');
+    console.log('URL:', `${API_BASE_URL}/gps.php`);
+    console.log('Token:', token.substring(0, 20) + '...');
+    console.log('GPS Data:', JSON.stringify(gpsData, null, 2));
+    
     const response = await CapacitorHttp.post({
       url: `${API_BASE_URL}/gps.php`,
       headers: {
@@ -177,9 +182,19 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       data: gpsData
     });
 
-    return response.status === 200;
+    console.log('=== GPS RESPONSE DETAILS ===');
+    console.log('Status:', response.status);
+    console.log('Response:', response.data);
+    
+    if (response.status === 200) {
+      console.log('✅ GPS data sent successfully for UIT:', gpsData.uit);
+      return true;
+    } else {
+      console.error('❌ GPS request failed with status:', response.status);
+      return false;
+    }
   } catch (error) {
-    console.error('Send GPS data error:', error);
+    console.error('❌ GPS transmission error:', error);
     return false;
   }
 };

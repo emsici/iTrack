@@ -116,109 +116,182 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .transport-logo {
-            width: 120px;
-            height: 90px;
+            width: 140px;
+            height: 100px;
             margin: 0 auto 25px;
             position: relative;
-            animation: truckDrive 3s ease-in-out infinite;
+            animation: truckDrive 4s ease-in-out infinite;
           }
 
-          .truck-container {
+          .freight-truck {
             width: 100%;
             height: 100%;
             position: relative;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           }
 
-          .truck-container:hover {
-            transform: scale(1.1);
+          .freight-truck:hover {
+            transform: scale(1.15) translateY(-3px);
           }
 
-          .truck-body {
+          /* Cabina șoferului */
+          .truck-cab {
+            width: 32px;
+            height: 45px;
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #312e81 100%);
+            border-radius: 8px 8px 3px 3px;
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            box-shadow: 0 4px 16px rgba(30, 64, 175, 0.5);
+            animation: cabBounce 3s ease-in-out infinite;
+          }
+
+          .truck-cab::before {
+            content: '';
+            width: 28px;
+            height: 20px;
+            background: linear-gradient(135deg, #60a5fa 30%, #3b82f6 70%);
+            border-radius: 4px;
+            position: absolute;
+            top: 5px;
+            left: 2px;
+            opacity: 0.9;
+          }
+
+          /* Șasiul principal */
+          .truck-chassis {
+            width: 85px;
+            height: 12px;
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            border-radius: 2px;
+            position: absolute;
+            top: 48px;
+            left: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+          }
+
+          /* Remorca de marfă */
+          .truck-trailer {
             width: 70px;
-            height: 40px;
-            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-            border-radius: 8px;
+            height: 38px;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+            border-radius: 6px;
             position: absolute;
-            top: 25px;
-            left: 30px;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
-            animation: truckBounce 2s ease-in-out infinite;
+            top: 22px;
+            left: 55px;
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+            animation: trailerSway 4s ease-in-out infinite;
           }
 
-          .truck-cabin {
-            width: 25px;
-            height: 35px;
-            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-            border-radius: 6px 6px 2px 2px;
+          .truck-trailer::before {
+            content: '';
+            width: 4px;
+            height: 32px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 2px;
             position: absolute;
-            top: 20px;
+            top: 3px;
+            right: 2px;
+            animation: reflectorFlash 2s ease-in-out infinite;
+          }
+
+          /* Container de marfă */
+          .cargo-container {
+            width: 60px;
+            height: 32px;
+            background: linear-gradient(135deg, #047857 0%, #065f46 50%, #064e3b 100%);
+            border-radius: 4px;
+            position: absolute;
+            top: 3px;
             left: 5px;
-            box-shadow: 0 3px 10px rgba(30, 64, 175, 0.3);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
           }
 
+          .cargo-container::after {
+            content: '📦';
+            font-size: 14px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: cargoShake 3s ease-in-out infinite;
+          }
+
+          /* Roți */
           .truck-wheel {
-            width: 18px;
-            height: 18px;
-            background: linear-gradient(135deg, #374151 0%, #111827 100%);
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #374151 30%, #111827 70%);
             border-radius: 50%;
             position: absolute;
-            top: 57px;
-            animation: wheelSpin 1s linear infinite;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            top: 60px;
+            animation: wheelSpin 0.8s linear infinite;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+            border: 2px solid #6b7280;
           }
 
-          .truck-wheel:before {
+          .truck-wheel::before {
             content: '';
-            width: 8px;
-            height: 8px;
-            background: #6b7280;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
             border-radius: 50%;
             position: absolute;
             top: 5px;
             left: 5px;
           }
 
-          .truck-wheel.front {
-            left: 15px;
+          .truck-wheel.front-cab {
+            left: 20px;
           }
 
-          .truck-wheel.rear {
-            left: 80px;
+          .truck-wheel.rear-cab {
+            left: 35px;
           }
 
-          .truck-cargo {
-            width: 45px;
-            height: 30px;
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            border-radius: 4px;
-            position: absolute;
-            top: 30px;
-            left: 55px;
-            box-shadow: 0 3px 12px rgba(5, 150, 105, 0.3);
+          .truck-wheel.trailer-front {
+            left: 85px;
           }
 
-          .truck-lights {
-            width: 4px;
+          .truck-wheel.trailer-rear {
+            left: 110px;
+          }
+
+          /* Faruri */
+          .truck-headlight {
+            width: 6px;
             height: 8px;
-            background: #fbbf24;
-            border-radius: 2px;
-            position: absolute;
-            top: 35px;
-            left: 1px;
-            animation: lightsFlash 2s ease-in-out infinite;
-          }
-
-          .truck-exhaust {
-            width: 3px;
-            height: 3px;
-            background: #9ca3af;
+            background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
             border-radius: 50%;
             position: absolute;
-            top: 15px;
-            left: 102px;
-            animation: exhaustSmoke 1.5s ease-in-out infinite;
+            top: 25px;
+            left: 6px;
+            animation: headlightGlow 2s ease-in-out infinite;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+          }
+
+          /* Evacuare */
+          .truck-exhaust-pipe {
+            width: 3px;
+            height: 15px;
+            background: linear-gradient(135deg, #6b7280 0%, #374151 100%);
+            border-radius: 50px;
+            position: absolute;
+            top: 10px;
+            left: 38px;
+          }
+
+          .exhaust-smoke {
+            width: 8px;
+            height: 8px;
+            background: rgba(156, 163, 175, 0.7);
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            left: 40px;
+            animation: smokeRise 2s ease-in-out infinite;
           }
 
           .app-title {
@@ -234,13 +307,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           @keyframes truckDrive {
-            0%, 100% { transform: translateX(0px); }
-            50% { transform: translateX(10px); }
+            0%, 100% { transform: translateX(0px) translateY(0px); }
+            25% { transform: translateX(5px) translateY(-1px); }
+            50% { transform: translateX(10px) translateY(0px); }
+            75% { transform: translateX(5px) translateY(1px); }
           }
 
-          @keyframes truckBounce {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-2px); }
+          @keyframes cabBounce {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-2px) rotate(0.5deg); }
+          }
+
+          @keyframes trailerSway {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-1px) rotate(-0.3deg); }
           }
 
           @keyframes wheelSpin {
@@ -248,14 +328,37 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             100% { transform: rotate(360deg); }
           }
 
-          @keyframes lightsFlash {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+          @keyframes headlightGlow {
+            0%, 100% { 
+              opacity: 1; 
+              box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+            }
+            50% { 
+              opacity: 0.7; 
+              box-shadow: 0 0 25px rgba(251, 191, 36, 0.9);
+            }
           }
 
-          @keyframes exhaustSmoke {
-            0% { opacity: 0.8; transform: translateY(0px) scale(1); }
-            100% { opacity: 0; transform: translateY(-15px) scale(1.5); }
+          @keyframes reflectorFlash {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+          }
+
+          @keyframes cargoShake {
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            25% { transform: translate(-50%, -50%) rotate(1deg); }
+            75% { transform: translate(-50%, -50%) rotate(-1deg); }
+          }
+
+          @keyframes smokeRise {
+            0% { 
+              opacity: 0.7; 
+              transform: translateY(0px) scale(1); 
+            }
+            100% { 
+              opacity: 0; 
+              transform: translateY(-20px) scale(2); 
+            }
           }
 
           .login-form {
@@ -584,14 +687,19 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       <div className="login-card">
         <div className="login-header">
           <div className="transport-logo">
-            <div className="truck-container">
-              <div className="truck-cabin"></div>
-              <div className="truck-body"></div>
-              <div className="truck-cargo"></div>
-              <div className="truck-wheel front"></div>
-              <div className="truck-wheel rear"></div>
-              <div className="truck-lights"></div>
-              <div className="truck-exhaust"></div>
+            <div className="freight-truck">
+              <div className="truck-cab"></div>
+              <div className="truck-chassis"></div>
+              <div className="truck-trailer">
+                <div className="cargo-container"></div>
+              </div>
+              <div className="truck-wheel front-cab"></div>
+              <div className="truck-wheel rear-cab"></div>
+              <div className="truck-wheel trailer-front"></div>
+              <div className="truck-wheel trailer-rear"></div>
+              <div className="truck-headlight"></div>
+              <div className="truck-exhaust-pipe"></div>
+              <div className="exhaust-smoke"></div>
             </div>
           </div>
           <h1 className="app-title">iTrack</h1>

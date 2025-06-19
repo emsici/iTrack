@@ -242,6 +242,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 19, 2025. Enhanced course list with gradient borders, hover animations, and responsive business design
 - June 19, 2025. Added comprehensive course information display: UIT prominence, declarant details, transport dates
 - June 19, 2025. Integrated Font Awesome icons throughout course cards for professional corporate appearance
+- June 19, 2025. Updated AndroidManifest.xml to use GPSForegroundService instead of deprecated SimpleGPSService
+- June 19, 2025. Created interactive transport truck animation for login screen replacing static icon
+- June 19, 2025. Removed "Business Transport Solutions" text and implemented animated truck with wheels, lights, exhaust
+- June 19, 2025. Added comprehensive GPS request logging to track transmission issues and debug API calls
+- June 19, 2025. GPS requests send to gps.php with Bearer token authentication and detailed coordinate data
 
 ## User Preferences
 
