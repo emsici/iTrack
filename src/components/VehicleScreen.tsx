@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
 import { getVehicleCourses } from '../services/api';
-// GPS tracking will be handled by native Android service in production APK
+import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
 import CourseDetailCard from './CourseDetailCard';
 
 interface VehicleScreenProps {
@@ -92,8 +92,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       console.log(`Updating status for course ${courseId}: ${originalStatus} → ${newStatus}`);
 
-      // GPS tracking will be handled by native Android service in production
-      console.log(`Status update for course ${courseId}: ${originalStatus} → ${newStatus}`);
+      // Handle GPS tracking based on status change
+      if (newStatus === 2 && originalStatus !== 2) {
+        // Starting course - start GPS tracking
+        console.log(`Starting GPS tracking for course ${courseId} with UIT ${course.uit}`);
+        await startGPSTracking(courseId, vehicleNumber, token, course.uit, newStatus);
+      } else if (newStatus === 3 && originalStatus === 2) {
+        // Pausing course - update GPS status but keep tracking
+        console.log(`Pausing GPS tracking for course ${courseId} with UIT ${course.uit}`);
+        await stopGPSTracking(courseId);
+        await startGPSTracking(courseId, vehicleNumber, token, course.uit, newStatus);
+      } else if (newStatus === 4) {
+        // Stopping course - stop GPS tracking completely
+        console.log(`Stopping GPS tracking for course ${courseId} with UIT ${course.uit}`);
+        await stopGPSTracking(courseId);
+      } else if (newStatus === 2 && originalStatus === 3) {
+        // Resuming from pause - restart GPS tracking
+        console.log(`Resuming GPS tracking for course ${courseId} with UIT ${course.uit}`);
+        await startGPSTracking(courseId, vehicleNumber, token, course.uit, newStatus);
+      }
 
       // Send status to server
       await sendStatusToServer(course, newStatus);

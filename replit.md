@@ -204,6 +204,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 19, 2025. Enhanced course cards with UIT prominently displayed as primary identifier (most important field)
 - June 19, 2025. Structured course information: Header (UIT, ikRoTrans, codDeclarant), Summary (data, traseu), Dropdown (complete details)
 - June 19, 2025. Created consistent corporate design across LoginScreen, VehicleScreen, and course listing with Font Awesome icons
+- June 19, 2025. Integrated native GPS tracking with course status management - starts/stops GPS based on course actions
+- June 19, 2025. Fixed GPS background transmission: Status 2=start GPS, Status 3=pause with GPS update, Status 4=stop GPS completely
+- June 19, 2025. GPS coordinates now transmit automatically every 60 seconds for all active courses with individual UITs
 
 ## User Preferences
 
