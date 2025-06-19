@@ -1006,9 +1006,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
               <div className="info-section">
                 <h4><i className="fas fa-satellite"></i> GPS Tracking</h4>
-                <p>Status: <strong>Activ</strong></p>
-                <p>Interval transmisie: <strong>60 secunde</strong></p>
-                <p>Background tracking: <strong>Activat</strong></p>
+                {courses.filter(c => c.status === 2).length > 0 ? (
+                  <>
+                    <p>Status: <strong>Activ pentru {courses.filter(c => c.status === 2).length} curse</strong></p>
+                    <p>Curse în tracking:</p>
+                    <div style={{marginLeft: '15px', fontSize: '0.9rem'}}>
+                      {courses.filter(c => c.status === 2).map(course => (
+                        <p key={course.id} style={{margin: '2px 0', color: '#059669'}}>
+                          • UIT: <strong>{course.uit}</strong>
+                        </p>
+                      ))}
+                    </div>
+                    <p>Interval transmisie: <strong>60 secunde</strong></p>
+                    <p>Background tracking: <strong>Activat (nativ Android)</strong></p>
+                    <p>Funcționează când: <strong>telefon blocat, app minimizată</strong></p>
+                  </>
+                ) : (
+                  <>
+                    <p>Status: <strong>Inactiv</strong></p>
+                    <p>Nu există curse în desfășurare</p>
+                    <p>GPS va porni automat la Start Cursă</p>
+                  </>
+                )}
               </div>
               <div className="info-section">
                 <h4><i className="fas fa-mobile-alt"></i> Aplicație</h4>

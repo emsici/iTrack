@@ -43,7 +43,7 @@ public class GPSForegroundService extends Service implements LocationListener {
     private static final String CHANNEL_ID = "gps_tracking_channel";
     private static final int NOTIFICATION_ID = 1;
     private static final int LOCATION_INTERVAL = 5000; // 5 seconds for fast location updates
-    private static final float LOCATION_DISTANCE = 1f; // Minimum 0.5 meters movement
+    private static final float LOCATION_DISTANCE = 0.5f; // Minimum 0.5 meters movement
     private static final int GPS_TRANSMISSION_INTERVAL = 60000; // Send to server every 60 seconds
 
     private LocationManager locationManager;
