@@ -285,6 +285,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 19, 2025. Updated nativeGPS.ts to use proper Capacitor plugin integration instead of global window object
 - June 19, 2025. Added includePlugins configuration in capacitor.config.ts for custom GPSTracking plugin recognition
 - June 19, 2025. Executed npx cap sync android to properly register plugin with Android project structure
+- June 19, 2025. Moved 20-click debug system from Version button to Info button in bottom navigation bar
+- June 19, 2025. Eliminated Version button from course list and removed sendStatusToServer function using non-existent reportStatus.php endpoint
+- June 19, 2025. Course status updates now handled locally only - GPS data transmits directly to gps.php through native Android service
 
 ## User Preferences
 

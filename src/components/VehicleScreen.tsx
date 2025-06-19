@@ -55,32 +55,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const sendStatusToServer = async (course: Course, status: number) => {
-    try {
-      const response = await fetch('https://www.euscagency.com/etsm3/platforme/transport/apk/reportStatus.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          courseId: course.id,
-          vehicleNumber: vehicleNumber,
-          status: status,
-          uit: course.uit
-        })
-      });
 
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log('Status sent to server:', result);
-    } catch (error) {
-      console.error('Error updating status:', error);
-    }
-  };
 
   const handleStatusUpdate = async (courseId: string, newStatus: number) => {
     const course = courses.find(c => c.id === courseId);
@@ -119,9 +94,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         await startGPSTracking(courseId, vehicleNumber, token, course.uit, newStatus);
       }
 
-      // Send status to server
-      await sendStatusToServer(course, newStatus);
-      console.log(`Status updated on server for course ${courseId}: ${newStatus}`);
+      console.log(`Status updated locally for course ${courseId}: ${newStatus}`);
 
     } catch (error) {
       console.error(`Error updating status for course ${courseId}:`, error);
