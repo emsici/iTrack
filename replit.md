@@ -195,6 +195,10 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 15, 2025. Simplified architecture: SimpleGPSService + SimpleGPSPlugin + single timer transmission (60 seconds)
 - June 15, 2025. GPS tracking strictly native Android - no JavaScript fallbacks or debugging code
 - June 19, 2025. Updated logout function to send {"iesire": 1} to login.php with Bearer token authentication
+- June 19, 2025. Modified SimpleGPSService to support multiple concurrent courses with separate GPS transmission
+- June 19, 2025. Each active course (UIT) now receives individual GPS coordinates every 60 seconds
+- June 19, 2025. Added CourseData structure to track multiple courses with individual vehicle numbers, UITs, and status
+- June 19, 2025. Notification displays active course count: "3 curse active - GPS tracking"
 
 ## User Preferences
 

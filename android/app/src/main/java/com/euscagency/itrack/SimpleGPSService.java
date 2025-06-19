@@ -401,6 +401,13 @@ public class SimpleGPSService extends Service implements LocationListener {
             .build();
     }
     
+    private void updateNotification() {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.notify(NOTIFICATION_ID, createNotification());
+        }
+    }
+    
     @Override
     public void onDestroy() {
         super.onDestroy();
