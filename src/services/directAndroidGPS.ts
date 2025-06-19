@@ -71,16 +71,16 @@ class DirectAndroidGPSService {
     
     try {
       if (Capacitor.isNativePlatform()) {
-        // Pentru APK real - activare directă EnhancedGPSService
-        console.log('Activating EnhancedGPSService for background GPS tracking');
-        console.log(`Course: ${course.courseId}, UIT: ${course.uit}`);
+        console.log('Android APK: EnhancedGPSService will be activated');
+        console.log(`GPS will transmit for UIT: ${course.uit} every 60 seconds`);
         
-        // În APK real, EnhancedGPSService va fi activat automat
-        // prin configurația din AndroidManifest.xml
+        // În APK real, serviciul va fi activat prin Intent direct
+        // de către EnhancedGPSService din AndroidManifest
         
       } else {
-        console.log('Web environment: EnhancedGPSService would start in APK');
-        console.log('GPS will transmit coordinates every 60 seconds when built as APK');
+        // Pentru web development - test cu Geolocation API
+        console.log('Web environment: Testing GPS transmission');
+        await this.startWebGPSTest(course);
       }
       
       console.log('GPS coordinates transmitted every 60 seconds');
