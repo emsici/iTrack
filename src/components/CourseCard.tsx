@@ -31,28 +31,38 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
   const handleStatusChange = async (newStatus: number) => {
     setLoading(true);
+    
     try {
-      // Send status update to server first
-      await sendStatusToServer(newStatus);
+      console.log(`Course ${course.id}: Changing status from ${course.status} to ${newStatus}`);
       
-      // Handle native background GPS tracking
+      // Handle GPS tracking based on status changes
       if (newStatus === 2) {
-        // Start background GPS tracking
+        // Starting or resuming course - Start GPS tracking
+        console.log(`Starting GPS tracking for course ${course.id} with UIT: ${course.uit}`);
         await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
-        console.log(`Background GPS tracking started for course ${course.id}`);
-      } else if (course.status === 2 && (newStatus === 3 || newStatus === 4)) {
-        // Stop background GPS tracking
+      } else if (newStatus === 3) {
+        // Pausing course - GPS continues but sends pause status
+        console.log(`Pausing course ${course.id} - GPS continues with pause status`);
+        // GPS service will automatically send status 3 with coordinates
+      } else if (newStatus === 4) {
+        // Finishing course - Stop GPS tracking completely
+        console.log(`Finishing course ${course.id} - Stopping GPS tracking`);
         await stopGPSTracking(course.id);
-        console.log(`Background GPS tracking stopped for course ${course.id}`);
-      } else if (newStatus === 2 && course.status === 3) {
-        // Resume background GPS tracking
-        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
-        console.log(`Background GPS tracking resumed for course ${course.id}`);
       }
       
+      // Send immediate status update to server with current position
+      await sendStatusToServer(newStatus);
+      
+      // Update local status
       onStatusUpdate(course.id, newStatus);
+      
+      console.log(`Course ${course.id}: Status successfully changed to ${newStatus}`);
+      
     } catch (error) {
-      console.error('Error updating course status:', error);
+      console.error(`Error updating course ${course.id} status:`, error);
+      
+      // Show user-friendly error message
+      alert(`Eroare la actualizarea statusului: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
     } finally {
       setLoading(false);
     }
