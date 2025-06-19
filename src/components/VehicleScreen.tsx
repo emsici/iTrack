@@ -633,16 +633,37 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
 
           .courses-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(25px);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(30px);
             color: #1e3c72;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 30px 25px;
+            box-shadow: 
+              0 12px 40px rgba(0, 0, 0, 0.1),
+              0 4px 12px rgba(79, 70, 229, 0.05);
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
+            border-bottom: 2px solid rgba(79, 70, 229, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideInDown 0.6s ease-out;
+          }
+
+          .courses-header:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 
+              0 16px 50px rgba(0, 0, 0, 0.12),
+              0 6px 15px rgba(79, 70, 229, 0.1);
+          }
+
+          @keyframes slideInDown {
+            0% {
+              transform: translateY(-100%);
+              opacity: 0;
+            }
+            100% {
+              transform: translateY(0);
+              opacity: 1;
+            }
           }
 
           .vehicle-header-info {
@@ -655,22 +676,48 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           .vehicle-display {
             display: flex;
             align-items: center;
-            gap: 15px;
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(124, 58, 237, 0.2));
-            padding: 15px 25px;
-            border-radius: 20px;
-            backdrop-filter: blur(15px);
+            gap: 18px;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.25), rgba(124, 58, 237, 0.25), rgba(16, 185, 129, 0.15));
+            background-size: 200% 200%;
+            padding: 18px 30px;
+            border-radius: 25px;
+            backdrop-filter: blur(20px);
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 
+              0 12px 35px rgba(0, 0, 0, 0.1),
+              0 4px 12px rgba(79, 70, 229, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: gradientShift 4s ease infinite;
           }
 
           .vehicle-display:hover {
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.3), rgba(124, 58, 237, 0.3));
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(79, 70, 229, 0.2);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.4), rgba(124, 58, 237, 0.4), rgba(16, 185, 129, 0.3));
+            transform: translateY(-5px) scale(1.03);
+            background-position: 100% 0%;
+            box-shadow: 
+              0 20px 50px rgba(79, 70, 229, 0.25),
+              0 8px 20px rgba(124, 58, 237, 0.2),
+              0 4px 12px rgba(16, 185, 129, 0.15);
+            border-color: rgba(255, 255, 255, 0.6);
+          }
+
+          .vehicle-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s ease;
+          }
+
+          .vehicle-display:hover::before {
+            left: 100%;
           }
 
           .vehicle-display:active {
@@ -694,30 +741,67 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
           .courses-stats {
             text-align: center;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
-            padding: 20px;
-            border-radius: 20px;
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.4s ease;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.25), rgba(6, 182, 212, 0.15));
+            background-size: 200% 200%;
+            padding: 25px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: gradientShift 6s ease infinite;
+            box-shadow: 
+              0 12px 30px rgba(16, 185, 129, 0.15),
+              0 4px 12px rgba(5, 150, 105, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.3);
           }
 
           .courses-stats:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.2);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3));
+            transform: translateY(-6px) scale(1.05);
+            background-position: 100% 0%;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(5, 150, 105, 0.4), rgba(6, 182, 212, 0.3));
+            box-shadow: 
+              0 20px 45px rgba(16, 185, 129, 0.25),
+              0 8px 20px rgba(5, 150, 105, 0.2),
+              0 4px 12px rgba(6, 182, 212, 0.15);
+            border-color: rgba(255, 255, 255, 0.6);
+          }
+
+          .courses-stats::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: all 0.8s ease;
+          }
+
+          .courses-stats:hover::before {
+            left: 100%;
           }
 
           .stats-number {
-            font-size: 2.5rem;
-            font-weight: 800;
+            font-size: 3rem;
+            font-weight: 900;
             display: block;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #059669, #10b981);
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #059669, #10b981, #06b6d4);
+            background-size: 200% 200%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: countUp 1s ease-out;
+            animation: countUp 1.2s ease-out, gradientShift 3s ease infinite;
+            transition: all 0.4s ease;
+            position: relative;
+          }
+
+          .courses-stats:hover .stats-number {
+            font-size: 3.2rem;
+            transform: scale(1.1);
+            text-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
           }
 
           .stats-label {
@@ -738,8 +822,43 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
           .courses-grid {
             display: grid;
-            gap: 20px;
+            gap: 25px;
             grid-template-columns: 1fr;
+            animation: fadeInUp 0.8s ease-out;
+          }
+
+          .courses-grid > * {
+            animation: slideInUp 0.6s ease-out;
+            animation-fill-mode: both;
+          }
+
+          .courses-grid > *:nth-child(1) { animation-delay: 0.1s; }
+          .courses-grid > *:nth-child(2) { animation-delay: 0.2s; }
+          .courses-grid > *:nth-child(3) { animation-delay: 0.3s; }
+          .courses-grid > *:nth-child(4) { animation-delay: 0.4s; }
+          .courses-grid > *:nth-child(5) { animation-delay: 0.5s; }
+          .courses-grid > *:nth-child(6) { animation-delay: 0.6s; }
+
+          @keyframes fadeInUp {
+            0% {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          @keyframes slideInUp {
+            0% {
+              opacity: 0;
+              transform: translateY(40px) scale(0.9);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
           }
 
           .courses-error-alert {
@@ -770,30 +889,55 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 15px 20px calc(15px + env(safe-area-inset-bottom, 20px)) 20px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(25px);
+            border-top: 2px solid rgba(79, 70, 229, 0.1);
+            padding: 18px 20px calc(18px + env(safe-area-inset-bottom, 20px)) 20px;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 
+              0 -8px 30px rgba(0, 0, 0, 0.12),
+              0 -2px 8px rgba(79, 70, 229, 0.05);
             z-index: 1000;
+            transition: all 0.3s ease;
+            animation: slideInUp 0.5s ease-out;
+          }
+
+          .courses-bottom-nav:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 
+              0 -12px 40px rgba(0, 0, 0, 0.15),
+              0 -4px 12px rgba(79, 70, 229, 0.1);
           }
 
           .nav-button {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
-            padding: 10px 15px;
+            gap: 6px;
+            padding: 12px 18px;
             border: none;
-            background: none;
+            background: rgba(79, 70, 229, 0.05);
             color: #64748b;
             cursor: pointer;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            min-width: 70px;
+            border-radius: 16px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 80px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+          }
+
+          .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(79, 70, 229, 0.1), transparent);
+            transition: all 0.6s ease;
           }
 
           .nav-button:hover {
