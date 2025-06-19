@@ -1,21 +1,13 @@
 import { Capacitor } from '@capacitor/core';
-import { Geolocation } from '@capacitor/geolocation';
 
 declare global {
   interface Window {
-    SimpleGPSPlugin: SimpleGPSPluginInterface;
+    GPSTracking: GPSTrackingInterface;
   }
 }
 
-const SimpleGPSPlugin = Capacitor.isNativePlatform() 
-  ? (window as any).SimpleGPSPlugin || (Capacitor as any).Plugins?.SimpleGPSPlugin
-  : {
-      startGPSTracking: async () => ({ success: true, message: 'Mock GPS started' }),
-      stopGPSTracking: async () => ({ success: true, message: 'Mock GPS stopped' }),
-      isGPSTrackingActive: async () => ({ isActive: false })
-    };
-
-interface SimpleGPSPluginInterface {
+// GPS Tracking Plugin Interface
+interface GPSTrackingInterface {
   startGPSTracking(options: {
     vehicleNumber: string;
     courseId: string;
@@ -31,23 +23,49 @@ interface SimpleGPSPluginInterface {
   isGPSTrackingActive(): Promise<{ isActive: boolean }>;
 }
 
-// Service for managing native Android GPS foreground service
+// Get the native GPS plugin
+const GPSTracking = Capacitor.isNativePlatform() 
+  ? (window as any).GPSTracking || (Capacitor as any).Plugins?.GPSTracking
+  : {
+      startGPSTracking: async () => ({ success: true, message: 'Mock GPS started for web' }),
+      stopGPSTracking: async () => ({ success: true, message: 'Mock GPS stopped for web' }),
+      isGPSTrackingActive: async () => ({ isActive: false })
+    };
+
+interface ActiveCourse {
+  courseId: string;
+  vehicleNumber: string;
+  uit: string;
+  token: string;
+  status: number;
+}
+
+// Native GPS service that connects to Android background service
 class NativeGPSService {
-  private activeCourses: Set<string> = new Set();
+  private activeCourses: Map<string, ActiveCourse> = new Map();
 
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number = 2): Promise<void> {
+    console.log(`Starting native GPS tracking for course ${courseId}, UIT: ${uit}`);
+    
     try {
-      // Request GPS permissions first
-      await this.requestPermissions();
+      // Store course data
+      const courseData: ActiveCourse = {
+        courseId,
+        vehicleNumber,
+        uit,
+        token,
+        status
+      };
       
-      // Use Simple GPS Service for background tracking
-      if (!SimpleGPSPlugin || !SimpleGPSPlugin.startGPSTracking) {
-        console.warn('GPS plugin not available - using mock GPS');
-        this.activeCourses.add(courseId);
-        return;
+      this.activeCourses.set(courseId, courseData);
+      
+      // Start native Android GPS service
+      if (!GPSTracking || !GPSTracking.startGPSTracking) {
+        console.warn('Native GPS plugin not available - using web fallback');
+        throw new Error('GPS plugin not available on this platform');
       }
       
-      const result = await SimpleGPSPlugin.startGPSTracking({
+      const result = await GPSTracking.startGPSTracking({
         vehicleNumber,
         courseId,
         uit,
@@ -56,59 +74,144 @@ class NativeGPSService {
       });
       
       if (result.success) {
-        this.activeCourses.add(courseId);
+        console.log(`Native GPS tracking started successfully for UIT: ${uit}`);
       } else {
-        throw new Error(result.message);
+        throw new Error(result.message || 'Failed to start GPS tracking');
       }
       
     } catch (error) {
       console.error('Failed to start GPS tracking:', error);
+      this.activeCourses.delete(courseId);
       throw error;
+    }
+  }
+
+  async stopTracking(courseId: string): Promise<void> {
+    console.log(`Stopping GPS tracking for course ${courseId}`);
+    
+    const courseData = this.activeCourses.get(courseId);
+    if (courseData) {
+      // Send final status update
+      if (this.lastPosition) {
+        await this.sendGPSData(courseData, 4); // Status 4 = stopped
+      }
+      
+      this.activeCourses.delete(courseId);
+    }
+    
+    // Stop location watching if no active courses
+    if (this.activeCourses.size === 0) {
+      this.stopLocationWatch();
+      this.stopTransmissionTimer();
     }
   }
 
   private async requestPermissions(): Promise<void> {
     try {
-      console.log('Requesting GPS and background location permissions...');
-      
-      // Request location permissions
-      const permissions = await Geolocation.requestPermissions();
-      
-      if (permissions.location === 'denied') {
-        throw new Error('Permisiunile GPS sunt necesare pentru urmărirea traseului');
+      const permission = await Geolocation.requestPermissions();
+      if (permission.location !== 'granted') {
+        throw new Error('Permisiunile de localizare sunt necesare pentru urmărirea GPS');
       }
-      
-      if (permissions.coarseLocation === 'denied') {
-        console.warn('Permisiunea pentru locația aproximativă a fost refuzată');
-      }
-      
-      console.log('GPS permissions granted:', permissions);
-      
     } catch (error) {
-      console.error('Error requesting permissions:', error);
-      throw new Error('Nu s-au putut obține permisiunile GPS necesare');
+      console.error('Permission request failed:', error);
+      throw new Error('Nu s-au putut obține permisiunile de localizare');
     }
   }
 
-  async stopTracking(courseId: string): Promise<void> {
+  private async startLocationWatch(): Promise<void> {
     try {
-      const result = await SimpleGPSPlugin.stopGPSTracking({
-        courseId
-      });
+      this.watchId = await Geolocation.watchPosition(
+        {
+          enableHighAccuracy: true,
+          timeout: 30000,
+          maximumAge: 10000
+        },
+        (position) => {
+          if (position) {
+            this.lastPosition = position;
+            console.log('GPS position updated:', position.coords.latitude, position.coords.longitude);
+          }
+        }
+      );
+    } catch (error) {
+      console.error('Failed to start location watch:', error);
+    }
+  }
+
+  private stopLocationWatch(): void {
+    if (this.watchId) {
+      Geolocation.clearWatch({ id: this.watchId });
+      this.watchId = null;
+    }
+  }
+
+  private startTransmissionTimer(): void {
+    console.log('Starting GPS transmission timer (60 seconds interval)');
+    
+    this.transmissionInterval = setInterval(async () => {
+      if (this.lastPosition && this.activeCourses.size > 0) {
+        console.log(`Transmitting GPS data for ${this.activeCourses.size} active courses`);
+        
+        // Send GPS data for each active course
+        for (const [courseId, courseData] of this.activeCourses) {
+          await this.sendGPSData(courseData, courseData.status);
+        }
+      }
+    }, 60000); // 60 seconds
+  }
+
+  private stopTransmissionTimer(): void {
+    if (this.transmissionInterval) {
+      clearInterval(this.transmissionInterval);
+      this.transmissionInterval = null;
+    }
+  }
+
+  private async sendGPSData(courseData: ActiveCourse, status: number): Promise<void> {
+    if (!this.lastPosition) return;
+
+    try {
+      const batteryLevel = await this.getBatteryLevel();
       
-      if (result.success) {
-        this.activeCourses.delete(courseId);
+      const gpsData = {
+        lat: this.lastPosition.coords.latitude,
+        lng: this.lastPosition.coords.longitude,
+        timestamp: new Date().toISOString(),
+        viteza: this.lastPosition.coords.speed || 0,
+        directie: this.lastPosition.coords.heading || 0,
+        altitudine: this.lastPosition.coords.altitude || 0,
+        baterie: batteryLevel,
+        numar_inmatriculare: courseData.vehicleNumber,
+        uit: courseData.uit,
+        status: status.toString(),
+        hdop: this.lastPosition.coords.accuracy?.toString() || '0',
+        gsm_signal: '75' // Default GSM signal strength
+      };
+
+      const success = await sendGPSData(gpsData, courseData.token);
+      
+      if (success) {
+        console.log(`GPS data sent successfully for UIT: ${courseData.uit}`);
       } else {
-        throw new Error(result.message);
+        console.error(`Failed to send GPS data for UIT: ${courseData.uit}`);
       }
     } catch (error) {
-      console.error('Failed to stop GPS tracking:', error);
-      throw error;
+      console.error('Error sending GPS data:', error);
+    }
+  }
+
+  private async getBatteryLevel(): Promise<number> {
+    try {
+      const info = await Device.getBatteryInfo();
+      return Math.round((info.batteryLevel || 0) * 100);
+    } catch (error) {
+      console.error('Failed to get battery level:', error);
+      return 85; // Default battery level
     }
   }
 
   getActiveCourses(): string[] {
-    return Array.from(this.activeCourses);
+    return Array.from(this.activeCourses.keys());
   }
 
   hasActiveCourses(): boolean {
@@ -116,31 +219,25 @@ class NativeGPSService {
   }
 
   async isTrackingActive(): Promise<boolean> {
-    try {
-      const result = await SimpleGPSPlugin.isGPSTrackingActive();
-      return result.isActive;
-    } catch (error) {
-      console.error('Error checking tracking status:', error);
-      return false;
-    }
+    return this.activeCourses.size > 0 && this.watchId !== null;
   }
 }
 
-// Export singleton instance
-const nativeGPSService = new NativeGPSService();
+// Create singleton instance
+const gpsService = new RealGPSService();
 
-// Export functions
+// Export functions that use the singleton
 export const startGPSTracking = (courseId: string, vehicleNumber: string, token: string, uit: string, status: number = 2) => 
-  nativeGPSService.startTracking(courseId, vehicleNumber, uit, token, status);
+  gpsService.startTracking(courseId, vehicleNumber, uit, token, status);
 
 export const stopGPSTracking = (courseId: string) => 
-  nativeGPSService.stopTracking(courseId);
+  gpsService.stopTracking(courseId);
 
 export const getActiveCourses = () => 
-  nativeGPSService.getActiveCourses();
+  gpsService.getActiveCourses();
 
 export const hasActiveCourses = () => 
-  nativeGPSService.hasActiveCourses();
+  gpsService.hasActiveCourses();
 
 export const isGPSTrackingActive = () => 
-  nativeGPSService.isTrackingActive();
+  gpsService.isTrackingActive();
