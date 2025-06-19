@@ -142,14 +142,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           .emblem-ring {
             width: 90px;
             height: 90px;
-            border: 2px solid rgba(59, 130, 246, 0.3);
+            border: 2px solid rgba(59, 130, 246, 0.2);
             border-radius: 50%;
             position: relative;
-            animation: emblemRotate 10s linear infinite;
-            background: linear-gradient(145deg, rgba(248, 250, 252, 0.9), rgba(226, 232, 240, 0.8));
+            background: linear-gradient(145deg, rgba(248, 250, 252, 0.95), rgba(226, 232, 240, 0.9));
             box-shadow: 
-              0 8px 32px rgba(30, 64, 175, 0.12),
-              inset 0 2px 8px rgba(255, 255, 255, 0.6);
+              0 8px 32px rgba(30, 64, 175, 0.15),
+              inset 0 2px 8px rgba(255, 255, 255, 0.7);
+            animation: emblemGlow 6s ease-in-out infinite;
           }
 
           .emblem-core {
@@ -171,24 +171,23 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .emblem-center {
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             background: linear-gradient(145deg, #1e40af 0%, #3b82f6 100%);
-            border-radius: 50%;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             box-shadow: 
               0 4px 16px rgba(30, 64, 175, 0.25),
               inset 0 1px 4px rgba(255, 255, 255, 0.3);
-            animation: emblemPulse 4s ease-in-out infinite;
+            animation: truckPulse 4s ease-in-out infinite;
           }
 
           .emblem-center i {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: #ffffff;
             filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
-            animation: iconFloat 5s ease-in-out infinite;
           }
 
           .corporate-emblem:hover .emblem-ring {
@@ -294,23 +293,23 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             }
           }
 
-          @keyframes emblemRotate {
-            0% { 
-              transform: rotate(0deg); 
+          @keyframes emblemGlow {
+            0%, 100% { 
+              box-shadow: 0 8px 32px rgba(30, 64, 175, 0.15), inset 0 2px 8px rgba(255, 255, 255, 0.7);
             }
-            100% { 
-              transform: rotate(360deg); 
+            50% { 
+              box-shadow: 0 12px 40px rgba(30, 64, 175, 0.25), inset 0 2px 12px rgba(255, 255, 255, 0.8);
             }
           }
 
-          @keyframes emblemPulse {
+          @keyframes truckPulse {
             0%, 100% { 
               transform: scale(1); 
               box-shadow: 0 4px 16px rgba(30, 64, 175, 0.25), inset 0 1px 4px rgba(255, 255, 255, 0.3);
             }
             50% { 
-              transform: scale(1.05); 
-              box-shadow: 0 6px 24px rgba(30, 64, 175, 0.35), inset 0 1px 6px rgba(255, 255, 255, 0.4);
+              transform: scale(1.02); 
+              box-shadow: 0 6px 20px rgba(30, 64, 175, 0.3), inset 0 1px 6px rgba(255, 255, 255, 0.4);
             }
           }
 
