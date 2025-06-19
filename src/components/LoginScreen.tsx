@@ -800,19 +800,19 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       <div className="login-card">
         <div className="login-header">
           <div className="transport-logo">
-            <div className="freight-truck">
-              <div className="truck-cab"></div>
-              <div className="truck-chassis"></div>
-              <div className="truck-trailer">
-                <div className="cargo-container"></div>
+            <div className="corporate-truck">
+              <div className="executive-cab"></div>
+              <div className="executive-grille"></div>
+              <div className="executive-chassis"></div>
+              <div className="corporate-container">
+                <div className="corporate-branding"></div>
               </div>
-              <div className="truck-wheel front-cab"></div>
-              <div className="truck-wheel rear-cab"></div>
-              <div className="truck-wheel trailer-front"></div>
-              <div className="truck-wheel trailer-rear"></div>
-              <div className="truck-headlight"></div>
-              <div className="truck-exhaust-pipe"></div>
-              <div className="exhaust-smoke"></div>
+              <div className="executive-wheel front-executive"></div>
+              <div className="executive-wheel rear-executive"></div>
+              <div className="executive-wheel trailer-front-exec"></div>
+              <div className="executive-wheel trailer-rear-exec"></div>
+              <div className="executive-headlight"></div>
+              <div className="executive-antenna"></div>
             </div>
           </div>
           <h1 className="app-title">iTrack</h1>
@@ -827,28 +827,37 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           )}
 
           <div className="form-group">
-            <i className="fas fa-envelope input-icon"></i>
-            <input
-              type="email"
-              className="form-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={loading}
-              placeholder="Adresa de email"
-              autoComplete="email"
-            />
+            <label className="form-label">
+              <i className="fas fa-envelope label-icon"></i>
+              Email Corporativ
+            </label>
+            <div className="input-container">
+              <input
+                type="email"
+                className="form-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                placeholder="numele@companie.com"
+                autoComplete="email"
+              />
+              <i className="fas fa-building input-icon"></i>
+            </div>
           </div>
 
           <div className="form-group">
-            <div className="password-container">
-              <i className="fas fa-lock input-icon"></i>
+            <label className="form-label">
+              <i className="fas fa-shield-alt label-icon"></i>
+              Parolă Securizată
+            </label>
+            <div className="input-container">
               <input
                 type={showPassword ? "text" : "password"}
                 className="form-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
-                placeholder="Parola de acces"
+                placeholder="••••••••••••"
                 autoComplete="current-password"
               />
               <button
@@ -856,6 +865,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={loading}
+                title={showPassword ? "Ascunde parola" : "Afișează parola"}
               >
                 <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
               </button>
