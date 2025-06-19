@@ -506,18 +506,26 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           .vehicle-display {
             display: flex;
             align-items: center;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 12px 20px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
+            gap: 15px;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(124, 58, 237, 0.2));
+            padding: 15px 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
           }
 
           .vehicle-display:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.3), rgba(124, 58, 237, 0.3));
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(79, 70, 229, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+          }
+
+          .vehicle-display:active {
+            animation: buttonPress 0.2s ease;
           }
 
           .vehicle-display i {
@@ -537,24 +545,39 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
           .courses-stats {
             text-align: center;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 15px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+            padding: 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s ease;
+            cursor: pointer;
+          }
+
+          .courses-stats:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.2);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3));
           }
 
           .stats-number {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 800;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: countUp 1s ease-out;
           }
 
           .stats-label {
-            font-size: 0.9rem;
+            font-size: 1rem;
             opacity: 0.9;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            font-weight: 600;
+            color: #1e3c72;
           }
 
           .courses-content {

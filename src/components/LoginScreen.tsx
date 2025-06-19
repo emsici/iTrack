@@ -44,10 +44,36 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         {`
           .login-container {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #667eea 50%, #764ba2 75%, #1e3c72 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+              radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, rgba(79, 70, 229, 0.2) 0%, transparent 50%);
+            animation: backgroundFloat 25s ease-in-out infinite;
+            pointer-events: none;
+          }
+
+          @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
             padding: 20px;
             position: relative;
             overflow: hidden;
@@ -65,16 +91,23 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .login-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 25px;
+            padding: 50px;
             width: 100%;
-            max-width: 450px;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 500px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             position: relative;
             z-index: 1;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInUp 0.8s ease-out;
+          }
+
+          .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 40px 80px rgba(79, 70, 229, 0.2);
           }
 
           .login-header {
@@ -83,34 +116,46 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .app-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #4f46e5, #06b6d4);
-            border-radius: 20px;
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+            border-radius: 25px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
-            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+            margin: 0 auto 25px;
+            box-shadow: 0 15px 35px rgba(79, 70, 229, 0.4);
+            animation: pulse 2s infinite;
+            transition: all 0.3s ease;
+          }
+
+          .app-logo:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.5);
           }
 
           .app-logo i {
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: white;
+            animation: bounce 2s infinite alternate;
           }
 
           .app-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 8px;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            animation: slideInFromLeft 0.8s ease-out;
           }
 
           .app-subtitle {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 400;
+            font-size: 1.2rem;
+            color: #64748b;
+            font-weight: 500;
+            animation: slideInFromRight 0.8s ease-out;
           }
 
           .login-form {
@@ -182,31 +227,55 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .login-button {
-            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
             color: white;
             border: none;
-            padding: 18px 24px;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            padding: 20px 30px;
+            border-radius: 18px;
+            font-size: 1.2rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+            gap: 12px;
+            margin-top: 15px;
+            box-shadow: 0 15px 35px rgba(79, 70, 229, 0.4);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+          }
+
+          .login-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
           }
 
           .login-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(79, 70, 229, 0.4);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(79, 70, 229, 0.5);
+          }
+
+          .login-button:hover:not(:disabled)::before {
+            left: 100%;
+          }
+
+          .login-button:active:not(:disabled) {
+            animation: buttonPress 0.2s ease;
           }
 
           .login-button:disabled {
-            opacity: 0.7;
+            opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
           }
 
           .loading-spinner {
