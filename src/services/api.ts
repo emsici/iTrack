@@ -129,6 +129,43 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
   }
 };
 
+export const logout = async (token: string): Promise<boolean> => {
+  try {
+    let response;
+    
+    if (Capacitor.isNativePlatform()) {
+      // Use CapacitorHttp for native platforms
+      response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}/login.php`,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        data: {
+          iesire: 1
+        }
+      });
+    } else {
+      // Use fetch for web platforms
+      response = await fetch(`${API_BASE_URL}/login.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          iesire: 1
+        })
+      });
+    }
+    
+    return response.status === 200;
+  } catch (error) {
+    console.error('Logout error:', error);
+    return false;
+  }
+};
+
 export const sendGPSData = async (gpsData: GPSData, token: string): Promise<boolean> => {
   try {
     const response = await CapacitorHttp.post({

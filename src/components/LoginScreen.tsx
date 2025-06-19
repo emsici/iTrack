@@ -321,7 +321,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .error-text {
-            color: white;
+            color: #dc2626;
             font-weight: 500;
           }
 
@@ -333,8 +333,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .version-info {
-            color: rgba(255, 255, 255, 0.6);
+            color: #64748b;
             font-size: 0.9rem;
+            font-weight: 500;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -352,8 +353,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             display: flex;
             align-items: center;
             gap: 6px;
-            color: rgba(255, 255, 255, 0.7);
+            color: #64748b;
             font-size: 0.85rem;
+            font-weight: 500;
           }
 
           @media (max-width: 768px) {

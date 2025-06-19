@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
-import { getVehicleCourses } from '../services/api';
+import { getVehicleCourses, logout } from '../services/api';
 import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
+import { clearToken } from '../services/storage';
 import CourseDetailCard from './CourseDetailCard';
 import '../styles/animations.css';
 
@@ -138,6 +139,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     setCourses([]);
     setError('');
     setVehicleNumber('');
+  };
+
+  const handleLogout = async () => {
+    try {
+      // Send logout request to server
+      await logout(token);
+      
+      // Clear all stored data
+      await clearToken();
+      
+      // Redirect to login
+      onLogout();
+    } catch (error) {
+      console.error('Logout error:', error);
+      
+      // Clear local data even if server request fails
+      await clearToken();
+      onLogout();
+    }
   };
 
   // Vehicle input screen
@@ -837,7 +857,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <span className="nav-button-label">Statistici</span>
         </button>
         
-        <button className="nav-button logout-nav-button" onClick={onLogout}>
+        <button className="nav-button logout-nav-button" onClick={handleLogout}>
           <i className="fas fa-sign-out-alt"></i>
           <span className="nav-button-label">Ieșire</span>
         </button>
