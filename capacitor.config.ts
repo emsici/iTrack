@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.euscagency.iTrack',
+  appId: 'com.euscagency.itrack',
   appName: 'iTrack',
   webDir: 'dist',
   server: {

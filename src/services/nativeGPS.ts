@@ -1,14 +1,14 @@
-// Enhanced GPS tracking service that works with native Android service
-// Handles multiple concurrent courses with individual UIT transmission
+// Simple GPS tracking service for reliable Android GPS transmission
+// Connects to SimpleGPSService for background coordinate transmission
 
 declare global {
   interface Window {
-    GPSTracking: GPSTrackingInterface;
+    SimpleGPS: SimpleGPSInterface;
   }
 }
 
-interface GPSTrackingInterface {
-  startGPSTracking(options: {
+interface SimpleGPSInterface {
+  startTracking(options: {
     vehicleNumber: string;
     courseId: string;
     uit: string;
@@ -16,11 +16,11 @@ interface GPSTrackingInterface {
     status?: number;
   }): Promise<{ success: boolean; message: string }>;
   
-  stopGPSTracking(options: {
+  stopTracking(options: {
     courseId: string;
   }): Promise<{ success: boolean; message: string }>;
   
-  isGPSTrackingActive(): Promise<{ isActive: boolean }>;
+  isActive(): Promise<{ isActive: boolean }>;
 }
 
 interface ActiveCourse {
@@ -31,14 +31,14 @@ interface ActiveCourse {
   status: number;
 }
 
-// Enhanced GPS service that connects to Android background service
-class EnhancedGPSService {
+// Simple GPS service for reliable Android GPS tracking
+class SimpleGPSTracker {
   private activeCourses: Map<string, ActiveCourse> = new Map();
 
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number = 2): Promise<void> {
-    console.log(`Starting Enhanced GPS tracking for course ${courseId}, UIT: ${uit}`);
+    console.log(`Starting Simple GPS tracking for course ${courseId}, UIT: ${uit}`);
     
-    // Store course data
+    // Store course data locally
     const courseData: ActiveCourse = {
       courseId,
       vehicleNumber,
@@ -49,10 +49,10 @@ class EnhancedGPSService {
     
     this.activeCourses.set(courseId, courseData);
     
-    // Check if we're running on Android with native GPS plugin
-    if (typeof window !== 'undefined' && window.GPSTracking) {
+    // Use native Android GPS if available
+    if (typeof window !== 'undefined' && window.SimpleGPS) {
       try {
-        const result = await window.GPSTracking.startGPSTracking({
+        const result = await window.SimpleGPS.startTracking({
           vehicleNumber,
           courseId,
           uit,
@@ -61,23 +61,23 @@ class EnhancedGPSService {
         });
         
         if (result && result.success) {
-          console.log(`Enhanced GPS tracking started successfully for UIT: ${uit}`);
-          console.log(`GPS will transmit coordinates every 60 seconds for course ${courseId}`);
+          console.log(`Simple GPS tracking started successfully for UIT: ${uit}`);
+          console.log(`GPS coordinates will transmit every 60 seconds`);
         } else {
-          console.warn(`GPS tracking setup failed: ${result?.message || 'Unknown error'}`);
+          console.warn(`Simple GPS setup failed: ${result?.message || 'Unknown error'}`);
         }
       } catch (nativeError) {
-        console.warn('Native GPS plugin error:', nativeError);
-        console.log('Continuing with course tracking in app state');
+        console.warn('Simple GPS plugin error:', nativeError);
+        console.log('Course tracking continues in app state');
       }
     } else {
-      console.log('Running in web environment - GPS tracking simulated');
-      console.log(`Course ${courseId} with UIT ${uit} marked as active`);
+      console.log('Running in web environment - course marked as active');
+      console.log(`Course ${courseId} with UIT ${uit} ready for GPS tracking`);
     }
   }
 
   async stopTracking(courseId: string): Promise<void> {
-    console.log(`Stopping Enhanced GPS tracking for course ${courseId}`);
+    console.log(`Stopping Simple GPS tracking for course ${courseId}`);
     
     const courseData = this.activeCourses.get(courseId);
     if (!courseData) {
@@ -85,23 +85,23 @@ class EnhancedGPSService {
       return;
     }
     
-    // Remove from active courses
+    // Remove from local tracking
     this.activeCourses.delete(courseId);
     
-    // Stop native GPS tracking if available
-    if (typeof window !== 'undefined' && window.GPSTracking) {
+    // Stop native GPS if available
+    if (typeof window !== 'undefined' && window.SimpleGPS) {
       try {
-        const result = await window.GPSTracking.stopGPSTracking({
+        const result = await window.SimpleGPS.stopTracking({
           courseId
         });
         
         if (result && result.success) {
-          console.log(`Enhanced GPS tracking stopped successfully for course ${courseId}`);
+          console.log(`Simple GPS tracking stopped successfully for course ${courseId}`);
         } else {
-          console.warn(`GPS tracking stop failed: ${result?.message || 'Unknown error'}`);
+          console.warn(`GPS stop failed: ${result?.message || 'Unknown error'}`);
         }
       } catch (nativeError) {
-        console.warn('Native GPS plugin stop error:', nativeError);
+        console.warn('Simple GPS stop error:', nativeError);
       }
     } else {
       console.log(`Course ${courseId} removed from active tracking`);
@@ -117,9 +117,9 @@ class EnhancedGPSService {
   }
 
   async isTrackingActive(): Promise<boolean> {
-    if (typeof window !== 'undefined' && window.GPSTracking) {
+    if (typeof window !== 'undefined' && window.SimpleGPS) {
       try {
-        const result = await window.GPSTracking.isGPSTrackingActive();
+        const result = await window.SimpleGPS.isActive();
         return result.isActive;
       } catch (error) {
         console.warn('Error checking GPS tracking status:', error);
@@ -131,22 +131,22 @@ class EnhancedGPSService {
 }
 
 // Create single instance
-const enhancedGPSService = new EnhancedGPSService();
+const simpleGPSTracker = new SimpleGPSTracker();
 
-// Export convenience functions
+// Export convenience functions for course management
 export const startGPSTracking = (courseId: string, vehicleNumber: string, token: string, uit: string, status: number = 2) => 
-  enhancedGPSService.startTracking(courseId, vehicleNumber, uit, token, status);
+  simpleGPSTracker.startTracking(courseId, vehicleNumber, uit, token, status);
 
 export const stopGPSTracking = (courseId: string) => 
-  enhancedGPSService.stopTracking(courseId);
+  simpleGPSTracker.stopTracking(courseId);
 
 export const getActiveCourses = () => 
-  enhancedGPSService.getActiveCourses();
+  simpleGPSTracker.getActiveCourses();
 
 export const hasActiveCourses = () => 
-  enhancedGPSService.hasActiveCourses();
+  simpleGPSTracker.hasActiveCourses();
 
 export const isGPSTrackingActive = () => 
-  enhancedGPSService.isTrackingActive();
+  simpleGPSTracker.isTrackingActive();
 
-export default enhancedGPSService;
+export default simpleGPSTracker;
