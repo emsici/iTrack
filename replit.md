@@ -261,6 +261,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 19, 2025. Admin mode bypasses API authentication and shows real-time application logs with filtering
 - June 19, 2025. Admin panel captures console.log, console.warn, console.error for debugging GPS and app issues
 - June 19, 2025. Mobile-optimized admin interface with search, level filtering, and real-time log capture
+- June 19, 2025. Completely redesigned CourseCard with modern corporatist interactive design
+- June 19, 2025. Removed UIT and data from course details dropdown as requested
+- June 19, 2025. Enhanced course cards with status-based color coding, animated interactions, and professional styling
+- June 19, 2025. Improved route visualization with departure/destination display and declarant information
+- June 19, 2025. Added interactive hover effects, smooth animations, and responsive mobile design
 
 ## User Preferences
 
