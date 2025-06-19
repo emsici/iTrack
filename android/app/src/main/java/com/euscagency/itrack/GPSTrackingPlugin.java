@@ -46,7 +46,7 @@ public class GPSTrackingPlugin extends Plugin {
         requestBatteryOptimizationExemption();
 
         try {
-            Intent serviceIntent = new Intent(getContext(), GPSForegroundService.class);
+            Intent serviceIntent = new Intent(getContext(), EnhancedGPSService.class);
             serviceIntent.putExtra("action", "START_TRACKING");
             serviceIntent.putExtra("vehicleNumber", vehicleNumber);
             serviceIntent.putExtra("courseId", courseId);
@@ -79,7 +79,7 @@ public class GPSTrackingPlugin extends Plugin {
         Log.d(TAG, "Stopping GPS tracking for course: " + courseId);
 
         try {
-            Intent serviceIntent = new Intent(getContext(), GPSForegroundService.class);
+            Intent serviceIntent = new Intent(getContext(), EnhancedGPSService.class);
             serviceIntent.putExtra("action", "STOP_TRACKING");
             serviceIntent.putExtra("courseId", courseId);
             
