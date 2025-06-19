@@ -1,6 +1,7 @@
 package com.euscagency.itrack;
 
 import android.os.Bundle;
+import android.webkit.WebView;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
@@ -8,15 +9,14 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Register Capacitor GPS wrapper plugin for native background service
-        try {
-            registerPlugin(CapacitorGPSPlugin.class);
-            android.util.Log.d("MainActivity", "✅ CapacitorGPSPlugin registered successfully");
-            android.util.Log.d("MainActivity", "📦 Package: com.euscagency.itrack");
-            android.util.Log.d("MainActivity", "🔌 Plugin class: " + CapacitorGPSPlugin.class.getName());
-            android.util.Log.d("MainActivity", "🚀 Ready for GPS transmission via EnhancedGPSService");
-        } catch (Exception e) {
-            android.util.Log.e("MainActivity", "❌ Failed to register CapacitorGPSPlugin", e);
+        // Setup AndroidBridge for direct GPS service access
+        WebView webView = getBridge().getWebView();
+        if (webView != null) {
+            webView.addJavascriptInterface(new AndroidBridge(this), "AndroidInterface");
+            android.util.Log.d("MainActivity", "✅ AndroidBridge registered successfully");
+            android.util.Log.d("MainActivity", "🎯 Direct GPS service access via window.AndroidInterface");
         }
+        
+        android.util.Log.d("MainActivity", "iTrack app initialized - EnhancedGPSService ready");
     }
 }

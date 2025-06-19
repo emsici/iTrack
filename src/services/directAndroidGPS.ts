@@ -69,28 +69,54 @@ class DirectAndroidGPSService {
     console.log(`UIT: ${course.uit}`);
     console.log(`Status: ${course.status}`);
     
-    // Pentru Android APK, EnhancedGPSService.java va fi activat prin Intent
-    // Serviciul va:
-    // 1. Activa LocationManager pentru GPS real
-    // 2. Configura timer la 60 secunde
-    // 3. Transmite coordonate cu OkHttp direct la server
-    // 4. Rula în background cu wake locks
-    // 5. Continua chiar cu telefonul blocat
-    
-    console.log('Android service will transmit GPS coordinates every 60 seconds');
-    console.log('Background GPS tracking active - works with phone locked');
-    console.log('No JavaScript GPS code - pure Android implementation');
-    
-    // În APK real, aici se va trimite Intent către EnhancedGPSService
-    // cu parametrii pentru pornirea tracking-ului GPS
+    try {
+      // Activare directă EnhancedGPSService prin Intent nativ
+      if ((window as any).AndroidInterface) {
+        // Pentru APK real - activare prin Android Bridge
+        (window as any).AndroidInterface.startGPSService(
+          course.courseId,
+          course.vehicleNumber,
+          course.uit,
+          course.token,
+          course.status
+        );
+        console.log('✅ EnhancedGPSService started via Android Bridge');
+      } else {
+        // Fallback pentru web development
+        console.log('🌐 Web environment: EnhancedGPSService would start in APK');
+        console.log('GPS will transmit coordinates every 60 seconds when built as APK');
+      }
+      
+      console.log('📡 GPS coordinates transmitted every 60 seconds');
+      console.log('🔋 Background tracking with phone locked');
+      console.log('🎯 Direct Android service - no Capacitor plugin');
+      
+    } catch (error) {
+      console.error('Failed to start Android GPS service:', error);
+      throw error;
+    }
   }
 
   private async stopAndroidNativeService(courseId: string): Promise<void> {
     console.log('=== STOPPING ANDROID NATIVE GPS SERVICE ===');
     console.log(`Course: ${courseId}`);
     
-    // În APK real, aici se va trimite STOP Intent către EnhancedGPSService
-    console.log('Android service will stop GPS tracking for this course');
+    try {
+      if ((window as any).AndroidInterface) {
+        // Oprire prin Android Bridge
+        (window as any).AndroidInterface.stopGPSService(courseId);
+        console.log('✅ EnhancedGPSService stopped via Android Bridge');
+      } else {
+        // Fallback pentru web development
+        console.log('🌐 Web environment: EnhancedGPSService would stop in APK');
+      }
+      
+      console.log('🛑 GPS tracking stopped for course');
+      
+    } catch (error) {
+      console.error('Failed to stop Android GPS service:', error);
+      throw error;
+    }
   }
 
   getActiveCourses(): string[] {
