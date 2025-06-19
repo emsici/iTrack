@@ -1,146 +1,146 @@
-# iTrack - Professional Driver GPS Tracking Application
+# iTrack - Aplicație Profesională de Urmărire GPS pentru Șoferi
 
 [![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
 [![Capacitor](https://img.shields.io/badge/Capacitor-7.3.0-green.svg)](https://capacitorjs.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Latest-blue.svg)](https://www.typescriptlang.org/)
 [![Android](https://img.shields.io/badge/Platform-Android-brightgreen.svg)](https://developer.android.com/)
 
-## Overview
+## Prezentare Generală
 
-iTrack is a professional React-based GPS tracking application specifically designed for drivers to track their active transport courses in real-time. Built with Capacitor for native Android deployment, the application features secure authentication, vehicle course management, and continuous background GPS data transmission to the ETSM3 transport management server.
+iTrack este o aplicație profesională de urmărire GPS bazată pe React, proiectată special pentru șoferi să urmărească cursele active de transport în timp real. Construită cu Capacitor pentru deployment nativ Android, aplicația oferă autentificare securizată, gestionarea curselor vehiculelor și transmisia continuă de date GPS în fundal către serverul de management transport ETSM3.
 
-### Key Features
+### Caracteristici Principale
 
-- 🚛 **Vehicle Course Management** - Load and manage transport courses by vehicle number
-- 📍 **Real-time GPS Tracking** - Continuous background location tracking even when phone is locked
-- 🔐 **Secure Authentication** - Token-based authentication with persistent sessions
-- 📱 **Native Android Integration** - Full native Android service for background GPS operation
-- 🔋 **Battery Optimized** - Efficient GPS tracking with wake locks and foreground services
-- 🌐 **Server Integration** - Real-time data transmission to ETSM3 transport management system
+- 🚛 **Gestionarea Curselor Vehiculelor** - Încărcare și gestionare curse transport după numărul vehiculului
+- 📍 **Urmărire GPS în Timp Real** - Localizare continuă în fundal chiar și când telefonul este blocat
+- 🔐 **Autentificare Securizată** - Autentificare bazată pe token cu sesiuni persistente
+- 📱 **Integrare Android Nativă** - Serviciu Android nativ complet pentru operarea GPS în fundal
+- 🔋 **Optimizat pentru Baterie** - Urmărire GPS eficientă cu wake locks și servicii foreground
+- 🌐 **Integrare Server** - Transmisie de date în timp real către sistemul de management transport ETSM3
 
-## Technology Stack
+## Stack Tehnologic
 
 ### Frontend
-- **React 19.1.0** with TypeScript for type-safe development
-- **Vite 6.3.5** for fast development and optimized builds
-- **Bootstrap 5.3.6** for responsive UI design
-- **CSS Modules** with glassmorphism design effects
+- **React 19.1.0** cu TypeScript pentru dezvoltare type-safe
+- **Vite 6.3.5** pentru dezvoltare rapidă și build-uri optimizate
+- **Bootstrap 5.3.6** pentru design UI responsive
+- **Module CSS** cu efecte de design glassmorphism
 
-### Mobile Platform
-- **Capacitor 7.3.0** for cross-platform native mobile deployment
-- **Native Android Services** for true background GPS tracking
-- **Android Foreground Services** for persistent location monitoring
+### Platformă Mobilă
+- **Capacitor 7.3.0** pentru deployment nativ mobile cross-platform
+- **Servicii Android Native** pentru urmărire GPS în fundal adevărată
+- **Servicii Android Foreground** pentru monitorizarea persistentă a locației
 
-### Backend Integration
-- **RESTful API** integration with ETSM3 transport management system
-- **Bearer Token Authentication** for secure API communication
-- **JSON Data Format** for efficient client-server communication
+### Integrare Backend
+- **API RESTful** integrat cu sistemul de management transport ETSM3
+- **Autentificare Bearer Token** pentru comunicare API securizată
+- **Format JSON** pentru comunicare eficientă client-server
 
-## Architecture
+## Arhitectură
 
-### GPS Tracking System
-The application uses a simplified, robust GPS architecture:
+### Sistem de Urmărire GPS
+Aplicația folosește o arhitectură GPS simplificată și robustă:
 
-- **SimpleGPSService.java** - Native Android foreground service for background GPS tracking
-- **SimpleGPSPlugin.java** - Capacitor bridge for JavaScript-Android communication
-- **nativeGPS.ts** - TypeScript interface for GPS service control
+- **SimpleGPSService.java** - Serviciu Android nativ foreground pentru urmărire GPS în fundal
+- **SimpleGPSPlugin.java** - Bridge Capacitor pentru comunicarea JavaScript-Android
+- **nativeGPS.ts** - Interfață TypeScript pentru controlul serviciului GPS
 
-### Authentication Flow
-1. User credentials sent to authentication API
-2. Server returns Bearer token
-3. Token stored locally using Capacitor Preferences
-4. Token used for all subsequent API requests
-5. Secure logout with server notification
+### Fluxul de Autentificare
+1. Credențialele utilizatorului sunt trimise la API-ul de autentificare
+2. Serverul returnează Bearer token
+3. Token-ul este stocat local folosind Capacitor Preferences
+4. Token-ul este folosit pentru toate cererile API ulterioare
+5. Logout securizat cu notificare server
 
-### Course Management
-1. User enters vehicle identification number
-2. System fetches available courses from server
-3. User can start, pause, or stop individual courses
-4. GPS tracking automatically begins for active courses
-5. Real-time status updates sent to server
+### Gestionarea Curselor
+1. Utilizatorul introduce numărul de identificare al vehiculului
+2. Sistemul încarcă cursele disponibile de la server
+3. Utilizatorul poate porni, pausa sau opri cursele individuale
+4. Urmărirea GPS începe automat pentru cursele active
+5. Actualizări de status în timp real trimise la server
 
-## Installation & Development
+## Instalare și Dezvoltare
 
-### Prerequisites
-- Node.js 20 or higher
-- Android Studio with Android SDK
-- Java/OpenJDK for Android compilation
+### Cerințe Preliminare
+- Node.js 20 sau mai recent
+- Android Studio cu Android SDK
+- Java/OpenJDK pentru compilarea Android
 
-### Setup
+### Configurare
 ```bash
-# Clone the repository
+# Clonare repository
 git clone <repository-url>
 cd itrack
 
-# Install dependencies
+# Instalare dependențe
 npm install
 
-# Start development server
+# Pornire server dezvoltare
 npm run dev
 ```
 
-### Android Build
+### Build Android
 ```bash
-# Build web application
+# Build aplicație web
 npm run build
 
-# Sync with Capacitor
+# Sincronizare cu Capacitor
 npx cap sync android
 
-# Open in Android Studio
+# Deschidere în Android Studio
 npx cap open android
 
-# Or build APK directly
+# Sau build APK direct
 ./build-android.sh
 ```
 
-## Configuration
+## Configurare
 
-### Environment Variables
-The application connects to the ETSM3 transport management system:
-- Base URL: `https://www.euscagency.com/etsm3/platforme/transport/apk`
-- Authentication: Bearer token-based
-- GPS Endpoint: `gps.php`
-- Login Endpoint: `login.php`
+### Variabile de Mediu
+Aplicația se conectează la sistemul de management transport ETSM3:
+- URL de bază: `https://www.euscagency.com/etsm3/platforme/transport/apk`
+- Autentificare: Bazată pe Bearer token
+- Endpoint GPS: `gps.php`
+- Endpoint Login: `login.php`
 
-### Android Permissions
-The application requires the following permissions:
-- `ACCESS_FINE_LOCATION` - For precise GPS coordinates
-- `ACCESS_BACKGROUND_LOCATION` - For tracking when app is minimized
-- `FOREGROUND_SERVICE` - For persistent background operation
-- `WAKE_LOCK` - To prevent device sleep during tracking
-- `INTERNET` - For server communication
+### Permisiuni Android
+Aplicația necesită următoarele permisiuni:
+- `ACCESS_FINE_LOCATION` - Pentru coordonate GPS precise
+- `ACCESS_BACKGROUND_LOCATION` - Pentru urmărire când aplicația este minimizată
+- `FOREGROUND_SERVICE` - Pentru operare persistentă în fundal
+- `WAKE_LOCK` - Pentru a preveni adormirea dispozitivului în timpul urmăririi
+- `INTERNET` - Pentru comunicarea cu serverul
 
-## Usage
+## Utilizare
 
-### Authentication
-1. Launch the application
-2. Enter email and password credentials
-3. System validates and stores authentication token
-4. Automatic login on subsequent app launches
+### Autentificare
+1. Lansează aplicația
+2. Introduce credențialele email și parolă
+3. Sistemul validează și stochează token-ul de autentificare
+4. Login automat la următoarele lansări ale aplicației
 
-### Starting GPS Tracking
-1. Enter vehicle identification number
-2. Load available transport courses
-3. Select course and press "Start" button
-4. GPS tracking begins automatically in background
-5. Coordinates transmitted every 60 seconds to server
+### Pornirea Urmăririi GPS
+1. Introduce numărul de identificare al vehiculului
+2. Încarcă cursele de transport disponibile
+3. Selectează cursa și apasă butonul "Start"
+4. Urmărirea GPS începe automat în fundal
+5. Coordonatele sunt transmise la fiecare 60 de secunde către server
 
-### Course Status Management
-- **Available (1)** - Course ready to start
-- **Active (2)** - GPS tracking in progress
-- **Paused (3)** - Temporarily suspended
-- **Finished (4)** - Course completed
+### Gestionarea Statusului Curselor
+- **Disponibilă (1)** - Cursa gata să înceapă
+- **Activă (2)** - Urmărire GPS în progres
+- **Pauzată (3)** - Temporar suspendată
+- **Finalizată (4)** - Cursa completată
 
 ### Logout
-1. Press "Ieșire" (Exit) button in footer
-2. System sends logout notification to server
-3. Local authentication token cleared
-4. User redirected to login screen
+1. Apasă butonul "Ieșire" din footer
+2. Sistemul trimite notificare de logout la server
+3. Token-ul de autentificare local este șters
+4. Utilizatorul este redirecționat la ecranul de login
 
-## GPS Data Transmission
+## Transmisia Datelor GPS
 
-The application transmits comprehensive GPS data:
+Aplicația transmite date GPS cuprinzătoare:
 
 ```json
 {
@@ -159,49 +159,49 @@ The application transmits comprehensive GPS data:
 }
 ```
 
-## Build & Deployment
+## Build și Deployment
 
-### Development Build
+### Build Dezvoltare
 ```bash
 npm run dev
 ```
 
-### Production Build
+### Build Producție
 ```bash
 npm run build
 npx cap sync android
 ```
 
-### Android APK
+### APK Android
 ```bash
-# Full build (recommended)
+# Build complet (recomandat)
 ./build-android.sh
 
-# Quick development build
+# Build rapid dezvoltare
 ./quick-build.bat
 ```
 
-## Project Structure
+## Structura Proiectului
 
 ```
 itrack/
 ├── src/
-│   ├── components/         # React components
-│   ├── services/          # API and GPS services
-│   ├── types/             # TypeScript type definitions
-│   └── App.tsx            # Main application component
+│   ├── components/         # Componente React
+│   ├── services/          # Servicii API și GPS
+│   ├── types/             # Definiții de tipuri TypeScript
+│   └── App.tsx            # Componenta principală a aplicației
 ├── android/
 │   └── app/src/main/java/com/euscagency/itrack/
-│       ├── SimpleGPSService.java    # Native GPS service
-│       ├── SimpleGPSPlugin.java     # Capacitor bridge
-│       └── MainActivity.java        # Main Android activity
-├── public/                # Static assets
-└── build/                 # Production build output
+│       ├── SimpleGPSService.java    # Serviciu GPS nativ
+│       ├── SimpleGPSPlugin.java     # Bridge Capacitor
+│       └── MainActivity.java        # Activitatea Android principală
+├── public/                # Asset-uri statice
+└── build/                 # Output build producție
 ```
 
-## API Integration
+## Integrare API
 
-### Authentication
+### Autentificare
 ```
 POST /login.php
 Content-Type: application/json
@@ -212,13 +212,13 @@ Content-Type: application/json
 }
 ```
 
-### Vehicle Courses
+### Cursele Vehiculului
 ```
 GET /courses.php?vehicle=B123ABC
 Authorization: Bearer <token>
 ```
 
-### GPS Data
+### Date GPS
 ```
 POST /gps.php
 Authorization: Bearer <token>
@@ -238,25 +238,25 @@ Content-Type: application/json
 }
 ```
 
-## Contributing
+## Contribuții
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/new-feature`)
-5. Create a Pull Request
+1. Fork repository-ul
+2. Creează o ramură pentru feature (`git checkout -b feature/functionalitate-noua`)
+3. Commit modificările (`git commit -am 'Adaugă functionalitate nouă'`)
+4. Push către ramură (`git push origin feature/functionalitate-noua`)
+5. Creează un Pull Request
 
-## License
+## Licență
 
-This project is proprietary software developed for EUSC Agency transport management.
+Acest proiect este software proprietar dezvoltat pentru managementul transportului EUSC Agency.
 
-## Support
+## Suport
 
-For technical support and questions, please contact the development team.
+Pentru suport tehnic și întrebări, vă rugăm să contactați echipa de dezvoltare.
 
 ---
 
-**Version:** 1807.99  
+**Versiunea:** 1807.99  
 **Package:** com.euscagency.itrack  
-**Platform:** Android  
-**Minimum SDK:** API 24 (Android 7.0)
+**Platformă:** Android  
+**SDK Minim:** API 24 (Android 7.0)
