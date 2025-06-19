@@ -97,13 +97,25 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
         return responseData.data.map((course: any, index: number) => ({
           id: course.ikRoTrans?.toString() || `course_${index}`,
           name: `Transport ${course.codDeclarant} - ${course.ikRoTrans}`,
-          departure_location: `${course.denumireLocStart || 'Start'}, ${course.Judet || ''}`.trim().replace(/, $/, ''),
-          destination_location: `${course.denumireLocStop || 'Stop'}, ${course.JudetStop || ''}`.trim().replace(/, $/, ''),
+          departure_location: `${course.denumireLocStart || course.Vama}, ${course.Judet || ''}`.trim().replace(/, $/, ''),
+          destination_location: `${course.denumireLocStop || course.VamaStop}, ${course.JudetStop || ''}`.trim().replace(/, $/, ''),
           departure_time: course.dataTransport || null,
-          arrival_time: null, // Not provided by API
-          description: `${course.denumireCui || 'Transport marfă'} - Vehicul: ${course.nrVehicul || 'N/A'}`,
-          status: 1, // Always start as available
-          uit: course.UIT
+          arrival_time: null,
+          description: course.denumireDeclarant || 'Transport marfă',
+          status: 1,
+          uit: course.UIT,
+          // Păstrarea tuturor datelor originale pentru detalii complete
+          ikRoTrans: course.ikRoTrans,
+          codDeclarant: course.codDeclarant,
+          denumireDeclarant: course.denumireDeclarant,
+          nrVehicul: course.nrVehicul,
+          dataTransport: course.dataTransport,
+          vama: course.Vama,
+          birouVamal: course.BirouVamal,
+          judet: course.Judet,
+          vamaStop: course.VamaStop,
+          birouVamalStop: course.BirouVamalStop,
+          judetStop: course.JudetStop
         }));
       } else {
         return [];

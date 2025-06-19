@@ -8,6 +8,18 @@ export interface Course {
   description?: string;
   status: number; // 1: available, 2: in progress, 3: paused, 4: stopped
   uit: string;
+  // Extended data from API
+  ikRoTrans?: number;
+  codDeclarant?: number;
+  denumireDeclarant?: string;
+  nrVehicul?: string;
+  dataTransport?: string;
+  vama?: string;
+  birouVamal?: string;
+  judet?: string;
+  vamaStop?: string;
+  birouVamalStop?: string;
+  judetStop?: string;
 }
 
 export interface GPSPosition {

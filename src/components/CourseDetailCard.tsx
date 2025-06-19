@@ -124,14 +124,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         <div className="card-header-modern d-flex justify-content-between align-items-center">
           <div className="course-header-info">
             <div className="course-name-section">
-              <h5 className="course-title-main">{course.name || 'Transport marfă'}</h5>
-              <span className="course-id-badge">#{course.id}</span>
+              <h5 className="course-title-main">{course.codDeclarant} - {course.ikRoTrans}</h5>
+              <span className="course-id-badge">UIT: {course.uit}</span>
             </div>
             <div className="course-route-info">
               <div className="route-display">
-                <span className="route-start">{course.departure_location || 'Punct plecare'}</span>
+                <span className="route-start">{course.vama} ({course.judet})</span>
                 <i className="fas fa-arrow-right route-arrow"></i>
-                <span className="route-end">{course.destination_location || 'Destinație'}</span>
+                <span className="route-end">{course.vamaStop} ({course.judetStop})</span>
               </div>
             </div>
           </div>
@@ -161,15 +161,20 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           <div className="course-summary mb-3">
             <div className="summary-item">
               <i className="fas fa-calendar text-primary"></i>
-              <span className="summary-label">Data:</span>
+              <span className="summary-label">Data Transport:</span>
               <span className="summary-value">
-                {course.departure_time || 'Nu este specificată'}
+                {course.dataTransport || 'Nu este specificată'}
               </span>
             </div>
             <div className="summary-item">
-              <i className="fas fa-barcode text-primary"></i>
-              <span className="summary-label">UIT:</span>
-              <span className="summary-value font-monospace">{course.uit}</span>
+              <i className="fas fa-truck text-primary"></i>
+              <span className="summary-label">Vehicul:</span>
+              <span className="summary-value font-monospace">{course.nrVehicul}</span>
+            </div>
+            <div className="summary-item">
+              <i className="fas fa-hashtag text-primary"></i>
+              <span className="summary-label">ikRoTrans:</span>
+              <span className="summary-value">{course.ikRoTrans}</span>
             </div>
           </div>
 
@@ -178,71 +183,109 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
             <div className="course-details">
               <h6 className="details-title">
                 <i className="fas fa-info-circle me-2"></i>
-                Informații Complete
+                Informații Complete Transport
               </h6>
               
               <div className="details-grid">
-                <div className="detail-item">
-                  <div className="detail-icon">
-                    <i className="fas fa-map-marker-alt"></i>
-                  </div>
-                  <div className="detail-content">
-                    <div className="detail-label">Punct de plecare</div>
-                    <div className="detail-value">{course.departure_location || 'Nu este specificat'}</div>
-                  </div>
-                </div>
-
-                <div className="detail-item">
-                  <div className="detail-icon">
-                    <i className="fas fa-flag-checkered"></i>
-                  </div>
-                  <div className="detail-content">
-                    <div className="detail-label">Destinație</div>
-                    <div className="detail-value">{course.destination_location || 'Nu este specificat'}</div>
-                  </div>
-                </div>
-
-                <div className="detail-item">
-                  <div className="detail-icon">
-                    <i className="fas fa-calendar-day"></i>
-                  </div>
-                  <div className="detail-content">
-                    <div className="detail-label">Data transport</div>
-                    <div className="detail-value">{course.departure_time || 'Nu este specificată'}</div>
-                  </div>
-                </div>
-
-                <div className="detail-item">
-                  <div className="detail-icon">
-                    <i className="fas fa-building"></i>
-                  </div>
-                  <div className="detail-content">
-                    <div className="detail-label">Companie</div>
-                    <div className="detail-value">{course.description ? course.description.split(' - ')[0] : 'Nu este specificată'}</div>
-                  </div>
-                </div>
-
-                <div className="detail-item">
-                  <div className="detail-icon">
-                    <i className="fas fa-id-card"></i>
-                  </div>
-                  <div className="detail-content">
-                    <div className="detail-label">Identificator UIT</div>
-                    <div className="detail-value font-monospace">{course.uit}</div>
-                  </div>
-                </div>
-
-                {course.description && (
-                  <div className="detail-item full-width">
-                    <div className="detail-icon">
-                      <i className="fas fa-file-text"></i>
-                    </div>
+                {/* Declarant Section */}
+                <div className="detail-group">
+                  <h6 className="group-title">
+                    <i className="fas fa-building me-2"></i>Declarant
+                  </h6>
+                  <div className="detail-item">
                     <div className="detail-content">
-                      <div className="detail-label">Descriere transport</div>
-                      <div className="detail-value">{course.description}</div>
+                      <div className="detail-label">Cod Declarant:</div>
+                      <div className="detail-value">{course.codDeclarant}</div>
                     </div>
                   </div>
-                )}
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Denumire:</div>
+                      <div className="detail-value">{course.denumireDeclarant}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Transport Section */}
+                <div className="detail-group">
+                  <h6 className="group-title">
+                    <i className="fas fa-truck me-2"></i>Transport
+                  </h6>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">ikRoTrans:</div>
+                      <div className="detail-value">{course.ikRoTrans}</div>
+                    </div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Număr Vehicul:</div>
+                      <div className="detail-value">{course.nrVehicul}</div>
+                    </div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Data Transport:</div>
+                      <div className="detail-value">{course.dataTransport}</div>
+                    </div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">UIT:</div>
+                      <div className="detail-value font-monospace">{course.uit}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Departure Section */}
+                <div className="detail-group">
+                  <h6 className="group-title">
+                    <i className="fas fa-map-marker-alt me-2"></i>Plecare
+                  </h6>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Vamă:</div>
+                      <div className="detail-value">{course.vama}</div>
+                    </div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Birou Vamal:</div>
+                      <div className="detail-value">{course.birouVamal}</div>
+                    </div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Județ:</div>
+                      <div className="detail-value">{course.judet}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Destination Section */}
+                <div className="detail-group">
+                  <h6 className="group-title">
+                    <i className="fas fa-flag-checkered me-2"></i>Destinație
+                  </h6>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Vamă Stop:</div>
+                      <div className="detail-value">{course.vamaStop}</div>
+                    </div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Birou Vamal Stop:</div>
+                      <div className="detail-value">{course.birouVamalStop}</div>
+                    </div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Județ Stop:</div>
+                      <div className="detail-value">{course.judetStop}</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
