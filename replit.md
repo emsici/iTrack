@@ -194,6 +194,7 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 15, 2025. Eliminated complex multi-level GPS systems causing conflicts - now uses single robust service
 - June 15, 2025. Simplified architecture: SimpleGPSService + SimpleGPSPlugin + single timer transmission (60 seconds)
 - June 15, 2025. GPS tracking strictly native Android - no JavaScript fallbacks or debugging code
+- June 19, 2025. Updated logout function to send {"iesire": 1} to login.php with Bearer token authentication
 
 ## User Preferences
 

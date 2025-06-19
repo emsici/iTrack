@@ -42,13 +42,16 @@ const App: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      // Call logout API endpoint
-      const response = await fetch('https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php', {
-        method: 'GET',
+      // Send logout request to login.php with iesire: 1
+      const response = await fetch('https://www.euscagency.com/etsm3/platforme/transport/apk/login.php', {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          "iesire": 1
+        })
       });
       
       console.log('Logout API response:', response.status);
