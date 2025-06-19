@@ -941,9 +941,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
 
           .nav-button:hover {
-            background: rgba(79, 70, 229, 0.1);
+            background: rgba(79, 70, 229, 0.15);
             color: #4f46e5;
-            transform: translateY(-2px);
+            transform: translateY(-4px) scale(1.05);
+            border-color: rgba(79, 70, 229, 0.3);
+            box-shadow: 
+              0 8px 25px rgba(79, 70, 229, 0.2),
+              0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+
+          .nav-button:hover::before {
+            left: 100%;
+          }
+
+          .nav-button:active {
+            transform: translateY(-1px) scale(0.98);
+            transition: all 0.1s ease;
           }
 
           .nav-button i {
@@ -960,38 +973,76 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           .logout-nav-button {
             background: rgba(239, 68, 68, 0.1);
             color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.2);
           }
 
           .logout-nav-button:hover {
             background: rgba(239, 68, 68, 0.2);
             color: #dc2626;
+            transform: translateY(-4px) scale(1.05);
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 
+              0 8px 25px rgba(239, 68, 68, 0.3),
+              0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+
+          .logout-nav-button::before {
+            background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.1), transparent);
           }
 
           .version-info-bottom {
             position: fixed;
-            bottom: 120px;
+            bottom: 130px;
             left: 50%;
             transform: translateX(-50%);
             color: #1e3c72;
-            font-size: 0.9rem;
-            font-weight: 600;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px 20px;
-            border-radius: 25px;
-            backdrop-filter: blur(15px);
+            font-size: 1rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 12px 25px;
+            border-radius: 30px;
+            backdrop-filter: blur(20px);
             cursor: pointer;
             user-select: none;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            border: 2px solid rgba(79, 70, 229, 0.3);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+            border: 2px solid rgba(79, 70, 229, 0.4);
+            box-shadow: 
+              0 12px 35px rgba(0, 0, 0, 0.15),
+              0 4px 12px rgba(79, 70, 229, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+          }
+
+          @keyframes pulse {
+            0%, 100% {
+              box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.15),
+                0 4px 12px rgba(79, 70, 229, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            }
+            50% {
+              box-shadow: 
+                0 16px 45px rgba(0, 0, 0, 0.2),
+                0 6px 16px rgba(79, 70, 229, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            }
           }
 
           .version-info-bottom:hover {
             background: rgba(255, 255, 255, 1);
-            transform: translateX(-50%) scale(1.08);
-            border-color: rgba(79, 70, 229, 0.5);
-            box-shadow: 0 12px 35px rgba(79, 70, 229, 0.2);
+            transform: translateX(-50%) scale(1.1) translateY(-3px);
+            border-color: rgba(79, 70, 229, 0.6);
+            box-shadow: 
+              0 20px 50px rgba(79, 70, 229, 0.3),
+              0 8px 20px rgba(0, 0, 0, 0.2),
+              inset 0 2px 0 rgba(255, 255, 255, 0.6);
+            animation: none;
+          }
+
+          .version-info-bottom:active {
+            transform: translateX(-50%) scale(1.05) translateY(-1px);
+            transition: all 0.1s ease;
           }
 
           .debug-prompt-overlay {
