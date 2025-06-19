@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
 
 public class SimpleGPSService extends Service implements LocationListener {
     private static final String TAG = "SimpleGPSService";
@@ -42,12 +44,26 @@ public class SimpleGPSService extends Service implements LocationListener {
     
     // GPS tracking data
     private Location lastLocation;
-    private String vehicleNumber;
-    private String courseId;
-    private String uit;
     private String authToken;
-    private int courseStatus;
     private boolean isServiceActive = false;
+    
+    // Multiple course tracking
+    private Map<String, CourseData> activeCourses = new HashMap<>();
+    
+    // Course data structure
+    private static class CourseData {
+        String vehicleNumber;
+        String courseId;
+        String uit;
+        int status;
+        
+        CourseData(String vehicleNumber, String courseId, String uit, int status) {
+            this.vehicleNumber = vehicleNumber;
+            this.courseId = courseId;
+            this.uit = uit;
+            this.status = status;
+        }
+    }
     
     @Override
     public void onCreate() {
@@ -64,15 +80,40 @@ public class SimpleGPSService extends Service implements LocationListener {
             String action = intent.getStringExtra("action");
             
             if ("start".equals(action)) {
-                vehicleNumber = intent.getStringExtra("vehicleNumber");
-                courseId = intent.getStringExtra("courseId");
-                uit = intent.getStringExtra("uit");
+                String vehicleNumber = intent.getStringExtra("vehicleNumber");
+                String courseId = intent.getStringExtra("courseId");
+                String uit = intent.getStringExtra("uit");
                 authToken = intent.getStringExtra("authToken");
-                courseStatus = intent.getIntExtra("status", 2);
+                int courseStatus = intent.getIntExtra("status", 2);
                 
-                startGPSTracking();
+                // Add course to active tracking
+                CourseData courseData = new CourseData(vehicleNumber, courseId, uit, courseStatus);
+                activeCourses.put(courseId, courseData);
+                
+                Log.d(TAG, "Added course " + courseId + " with UIT " + uit + " to active tracking");
+                
+                // Start GPS tracking if not already active
+                if (!isServiceActive) {
+                    startGPSTracking();
+                } else {
+                    // Update notification to show current course count
+                    updateNotification();
+                }
+                
             } else if ("stop".equals(action)) {
-                stopGPSTracking();
+                String courseId = intent.getStringExtra("courseId");
+                
+                // Remove course from active tracking
+                activeCourses.remove(courseId);
+                Log.d(TAG, "Removed course " + courseId + " from active tracking");
+                
+                // Stop GPS tracking if no more active courses
+                if (activeCourses.isEmpty()) {
+                    stopGPSTracking();
+                } else {
+                    // Update notification to show current course count
+                    updateNotification();
+                }
             }
         }
         
@@ -199,9 +240,9 @@ public class SimpleGPSService extends Service implements LocationListener {
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                if (isServiceActive && lastLocation != null) {
-                    Log.d(TAG, "Transmitting GPS data");
-                    sendGPSToServer();
+                if (isServiceActive && lastLocation != null && !activeCourses.isEmpty()) {
+                    Log.d(TAG, "Transmitting GPS data for " + activeCourses.size() + " active courses");
+                    sendGPSToAllCourses();
                 } else if (isServiceActive) {
                     Log.w(TAG, "No location for transmission");
                     getLastKnownLocation();
@@ -232,14 +273,22 @@ public class SimpleGPSService extends Service implements LocationListener {
             location.getLatitude(), location.getLongitude(), location.getSpeed() * 3.6));
     }
     
-    private void sendGPSToServer() {
+    private void sendGPSToAllCourses() {
         if (lastLocation == null || authToken == null) {
             Log.w(TAG, "No location or auth token");
             return;
         }
         
+        // Send GPS data for each active course separately
+        for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+            CourseData courseData = entry.getValue();
+            sendGPSForCourse(courseData);
+        }
+    }
+    
+    private void sendGPSForCourse(CourseData courseData) {
         try {
-            // Prepare GPS data
+            // Prepare GPS data for this specific course
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
             String timestamp = sdf.format(new Date());
             
@@ -251,9 +300,9 @@ public class SimpleGPSService extends Service implements LocationListener {
             gpsData.put("directie", Math.round(lastLocation.getBearing()));
             gpsData.put("altitudine", Math.round(lastLocation.getAltitude()));
             gpsData.put("baterie", getBatteryLevel());
-            gpsData.put("numar_inmatriculare", vehicleNumber);
-            gpsData.put("uit", uit);
-            gpsData.put("status", String.valueOf(courseStatus));
+            gpsData.put("numar_inmatriculare", courseData.vehicleNumber);
+            gpsData.put("uit", courseData.uit);
+            gpsData.put("status", String.valueOf(courseData.status));
             gpsData.put("hdop", Math.round(lastLocation.getAccuracy()));
             gpsData.put("gsm_signal", getGSMSignal());
             
@@ -273,25 +322,25 @@ public class SimpleGPSService extends Service implements LocationListener {
             httpClient.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    Log.e(TAG, "GPS transmission failed", e);
+                    Log.e(TAG, "GPS transmission failed for UIT " + courseData.uit, e);
                 }
                 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     if (response.isSuccessful()) {
-                        Log.i(TAG, "GPS data transmitted successfully");
+                        Log.i(TAG, "GPS data transmitted successfully for UIT " + courseData.uit);
                     } else {
-                        Log.w(TAG, "GPS transmission failed: " + response.code());
+                        Log.w(TAG, "GPS transmission failed for UIT " + courseData.uit + ": " + response.code());
                     }
                     response.close();
                 }
             });
             
-            Log.i(TAG, String.format("GPS transmitted: %.6f,%.6f UIT=%s", 
-                lastLocation.getLatitude(), lastLocation.getLongitude(), uit));
+            Log.i(TAG, String.format("GPS transmitted for course %s: %.6f,%.6f UIT=%s", 
+                courseData.courseId, lastLocation.getLatitude(), lastLocation.getLongitude(), courseData.uit));
                 
         } catch (Exception e) {
-            Log.e(TAG, "Error sending GPS data", e);
+            Log.e(TAG, "Error sending GPS data for UIT " + courseData.uit, e);
         }
     }
     
@@ -332,9 +381,19 @@ public class SimpleGPSService extends Service implements LocationListener {
             this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE
         );
         
+        String contentText;
+        if (activeCourses.isEmpty()) {
+            contentText = "GPS ready";
+        } else if (activeCourses.size() == 1) {
+            CourseData course = activeCourses.values().iterator().next();
+            contentText = "Vehicul " + course.vehicleNumber + " - 1 cursă activă";
+        } else {
+            contentText = activeCourses.size() + " curse active - GPS tracking";
+        }
+        
         return new NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("iTrack GPS Active")
-            .setContentText("Vehicul " + vehicleNumber + " - GPS activ")
+            .setContentText(contentText)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
