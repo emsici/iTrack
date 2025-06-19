@@ -251,6 +251,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 19, 2025. Improved GPS data validation with fallback values and enhanced request headers for better compatibility
 - June 19, 2025. Added network failure debugging with URL logging and error classification for troubleshooting
 - June 19, 2025. Cleaned Android project structure removing all getcapacitor references and empty folders
+- June 19, 2025. Replaced GPSForegroundService with EnhancedGPSService for improved reliability and multiple course support
+- June 19, 2025. Eliminated old GPS system (GPSForegroundService, GPSAlarmReceiver) and consolidated to single robust service
+- June 19, 2025. Updated AndroidManifest.xml and GPSTrackingPlugin.java to use EnhancedGPSService exclusively
+- June 19, 2025. Enhanced GPS service supports multiple concurrent courses with individual transmission per UIT
+- June 19, 2025. Improved GPS service architecture with transmission counter, uptime tracking, and detailed logging
 
 ## User Preferences
 
