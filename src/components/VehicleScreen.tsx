@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
 import { getVehicleCourses, logout } from '../services/api';
-import { startGPSTracking, stopGPSTracking } from '../services/simpleGPS';
+import { startGPSTracking, stopGPSTracking } from '../services/directAndroidGPS';
 import { clearToken } from '../services/storage';
 import CourseDetailCard from './CourseDetailCard';
 import '../styles/animations.css';

@@ -7,12 +7,7 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https'
   },
-  includePlugins: ['GPSTracking'],
   plugins: {
-    GPSTracking: {
-      requestPermissions: true,
-      enableBackgroundLocationUpdates: true
-    },
     Geolocation: {
       requestPermissions: true,
       enableBackgroundLocationUpdates: true,
