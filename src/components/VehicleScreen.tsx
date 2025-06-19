@@ -169,12 +169,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           {`
             .vehicle-input-container {
               min-height: 100vh;
+              min-height: 100dvh;
               background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
               display: flex;
               flex-direction: column;
               align-items: center;
               justify-content: center;
-              padding: 20px;
+              padding: max(20px, env(safe-area-inset-top)) env(safe-area-inset-right) max(20px, env(safe-area-inset-bottom)) env(safe-area-inset-left);
               position: relative;
               overflow: hidden;
             }

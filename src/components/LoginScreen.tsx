@@ -44,6 +44,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         {`
           .login-container {
             min-height: 100vh;
+            min-height: 100dvh;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #667eea 50%, #764ba2 75%, #1e3c72 100%);
             background-size: 400% 400%;
             animation: gradientShift 20s ease infinite;
@@ -52,6 +53,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             justify-content: center;
             position: relative;
             overflow: hidden;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
           }
           
           .login-container::before {
