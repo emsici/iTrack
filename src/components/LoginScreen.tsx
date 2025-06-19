@@ -439,6 +439,26 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             100% { transform: rotate(360deg); }
           }
 
+          @keyframes iconPulse {
+            0%, 100% { 
+              transform: scale(1); 
+              opacity: 1; 
+            }
+            50% { 
+              transform: scale(1.1); 
+              opacity: 0.8; 
+            }
+          }
+
+          @keyframes inputIconFloat {
+            0%, 100% { 
+              transform: translateY(-50%) scale(1); 
+            }
+            50% { 
+              transform: translateY(-50%) scale(1.05); 
+            }
+          }
+
           @keyframes executiveLEDPulse {
             0%, 100% { 
               opacity: 1; 
