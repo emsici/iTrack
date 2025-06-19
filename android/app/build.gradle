@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.gps.tracker"
+    namespace "com.euscagency.itrack"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.gps.tracker"
+        applicationId "com.euscagency.itrack"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

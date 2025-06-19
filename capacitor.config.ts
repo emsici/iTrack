@@ -9,7 +9,8 @@ const config: CapacitorConfig = {
   },
   plugins: {
     GPSTracking: {
-      // Custom GPS tracking plugin for native Android service
+      requestPermissions: true,
+      enableBackgroundLocationUpdates: true
     },
     Geolocation: {
       requestPermissions: true,

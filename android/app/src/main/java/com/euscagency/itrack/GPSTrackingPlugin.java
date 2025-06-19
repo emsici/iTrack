@@ -15,8 +15,21 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
 
-@CapacitorPlugin(name = "GPSTracking")
+@CapacitorPlugin(
+    name = "GPSTracking",
+    permissions = {
+        @Permission(
+            strings = {
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            },
+            alias = "location"
+        )
+    }
+)
 public class GPSTrackingPlugin extends Plugin {
     private static final String TAG = "GPSTrackingPlugin";
 
@@ -34,13 +47,36 @@ public class GPSTrackingPlugin extends Plugin {
 
         Log.d(TAG, "Starting GPS tracking for course: " + courseId + ", vehicle: " + vehicleNumber);
 
-        // Check and request background location permissions
-        if (!hasBackgroundLocationPermission()) {
-            Log.w(TAG, "Background location permission not granted - requesting permissions");
-            requestBackgroundLocationPermissions();
-            call.reject("Background location permission required for GPS tracking");
+        // Check and request location permissions using Capacitor's permission system
+        if (getPermissionState("location") != com.getcapacitor.PermissionState.GRANTED) {
+            Log.w(TAG, "Location permissions not granted - requesting permissions");
+            requestPermissionForAlias("location", call, "handlePermissionResult");
             return;
         }
+
+        // Permissions granted, proceed with GPS tracking
+        startGPSService(call);
+
+    }
+
+    @PluginMethod
+    public void handlePermissionResult(PluginCall call) {
+        if (getPermissionState("location") == com.getcapacitor.PermissionState.GRANTED) {
+            Log.d(TAG, "Location permissions granted, starting GPS service");
+            startGPSService(call);
+        } else {
+            Log.e(TAG, "Location permissions denied");
+            call.reject("Location permissions are required for GPS tracking");
+        }
+    }
+
+    private void startGPSService(PluginCall call) {
+        String vehicleNumber = call.getString("vehicleNumber");
+        String courseId = call.getString("courseId");
+        String uit = call.getString("uit");
+        String authToken = call.getString("authToken");
+
+        Log.d(TAG, "Starting EnhancedGPSService for course: " + courseId);
 
         // Request battery optimization exemption for reliable background operation
         requestBatteryOptimizationExemption();
@@ -63,8 +99,10 @@ public class GPSTrackingPlugin extends Plugin {
 
             JSObject result = new JSObject();
             result.put("success", true);
-            result.put("message", "GPS tracking started");
+            result.put("message", "GPS tracking started successfully");
             call.resolve(result);
+
+            Log.d(TAG, "EnhancedGPSService started successfully for UIT: " + uit);
 
         } catch (Exception e) {
             Log.e(TAG, "Failed to start GPS tracking", e);
@@ -105,52 +143,7 @@ public class GPSTrackingPlugin extends Plugin {
         call.resolve(result);
     }
 
-    private boolean hasBackgroundLocationPermission() {
-        // Check fine location permission
-        boolean hasFineLocation = ContextCompat.checkSelfPermission(getContext(), 
-            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        
-        // Check coarse location permission
-        boolean hasCoarseLocation = ContextCompat.checkSelfPermission(getContext(), 
-            Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        
-        // For Android 10+ (API 29+), check background location permission
-        boolean hasBackgroundLocation = true;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            hasBackgroundLocation = ContextCompat.checkSelfPermission(getContext(), 
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        }
-        
-        Log.d(TAG, "Location permissions - Fine: " + hasFineLocation + 
-                   ", Coarse: " + hasCoarseLocation + 
-                   ", Background: " + hasBackgroundLocation);
-        
-        return hasFineLocation && hasCoarseLocation && hasBackgroundLocation;
-    }
 
-    private void requestBackgroundLocationPermissions() {
-        Log.d(TAG, "Requesting background location permissions");
-        
-        String[] permissions;
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Android 10+ requires background location permission
-            permissions = new String[] {
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            };
-        } else {
-            // Android 9 and below
-            permissions = new String[] {
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            };
-        }
-        
-        ActivityCompat.requestPermissions(getActivity(), permissions, 1000);
-        Log.d(TAG, "Background location permission request sent");
-    }
 
     private void requestBatteryOptimizationExemption() {
         try {
