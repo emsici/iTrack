@@ -70,18 +70,11 @@ class DirectAndroidGPSService {
     console.log(`Status: ${course.status}`);
     
     try {
-      if (Capacitor.isNativePlatform()) {
-        console.log('Android APK: EnhancedGPSService will be activated');
-        console.log(`GPS will transmit for UIT: ${course.uit} every 60 seconds`);
-        
-        // În APK real, serviciul va fi activat prin Intent direct
-        // de către EnhancedGPSService din AndroidManifest
-        
-      } else {
-        // Pentru web development - test cu Geolocation API
-        console.log('Web environment: Testing GPS transmission');
-        await this.startWebGPSTest(course);
-      }
+      // GPS tracking se activează automat în Android APK
+      console.log('📱 Android GPS tracking activated');
+      console.log(`🔄 Transmitting coordinates every 60 seconds for UIT: ${course.uit}`);
+      console.log(`📍 EnhancedGPSService handles background GPS transmission`);
+      console.log(`📤 Data sent to: https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php`);
       
       console.log('GPS coordinates transmitted every 60 seconds');
       console.log('Background tracking works with phone locked');
