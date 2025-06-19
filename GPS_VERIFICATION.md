@@ -19,11 +19,13 @@
 - ✅ Transmisie HTTP cu OkHttp către server
 - ✅ Gestionarea bateriei și semnalului GSM
 
-### 3. GPSTrackingPlugin.java / CapacitorGPSPlugin.java
+### 3. CapacitorGPSPlugin.java (CONFIRMAT CORECT)
 - ✅ Bridge Capacitor pentru conectarea JavaScript cu serviciul Android
+- ✅ Plugin name: "GPSTracking" (consistent cu JavaScript)
+- ✅ Înregistrat în MainActivity.java ca CapacitorGPSPlugin.class
 - ✅ Cerere automată permisiuni GPS
-- ✅ Înregistrat în MainActivity.java
-- ✅ Configurare excludere optimizări baterie
+- ✅ Conectare directă la EnhancedGPSService
+- ✅ Eliminat duplicatul GPSTrackingPlugin.java pentru evitarea conflictelor
 
 ### 4. nativeGPS.ts
 - ✅ API JavaScript pentru controlul GPS nativ
