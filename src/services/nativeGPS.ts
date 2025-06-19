@@ -9,7 +9,11 @@ declare global {
 
 const SimpleGPSPlugin = Capacitor.isNativePlatform() 
   ? (window as any).SimpleGPSPlugin || (Capacitor as any).Plugins?.SimpleGPSPlugin
-  : null;
+  : {
+      startGPSTracking: async () => ({ success: true, message: 'Mock GPS started' }),
+      stopGPSTracking: async () => ({ success: true, message: 'Mock GPS stopped' }),
+      isGPSTrackingActive: async () => ({ isActive: false })
+    };
 
 interface SimpleGPSPluginInterface {
   startGPSTracking(options: {
@@ -37,6 +41,12 @@ class NativeGPSService {
       await this.requestPermissions();
       
       // Use Simple GPS Service for background tracking
+      if (!SimpleGPSPlugin || !SimpleGPSPlugin.startGPSTracking) {
+        console.warn('GPS plugin not available - using mock GPS');
+        this.activeCourses.add(courseId);
+        return;
+      }
+      
       const result = await SimpleGPSPlugin.startGPSTracking({
         vehicleNumber,
         courseId,

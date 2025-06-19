@@ -3,6 +3,7 @@ import { Course } from '../types';
 import { getVehicleCourses } from '../services/api';
 import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
 import CourseDetailCard from './CourseDetailCard';
+import '../styles/animations.css';
 
 interface VehicleScreenProps {
   token: string;
@@ -454,18 +455,45 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         {`
           .courses-container {
             min-height: 100vh;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #667eea 50%, #764ba2 75%, #1e3c72 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
             position: relative;
+            overflow-x: hidden;
+          }
+          
+          .courses-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+              radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 40% 40%, rgba(79, 70, 229, 0.2) 0%, transparent 50%);
+            animation: backgroundFloat 25s ease-in-out infinite;
+            pointer-events: none;
+          }
+
+          @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
           }
 
           .courses-header {
-            background: linear-gradient(135deg, #4f46e5, #06b6d4);
-            color: white;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            color: #1e3c72;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
           }
 
           .vehicle-header-info {
