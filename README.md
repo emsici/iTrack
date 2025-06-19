@@ -1,146 +1,100 @@
-# iTrack - Aplicație Profesională de Urmărire GPS pentru Șoferi
+# iTrack - Aplicație de Urmărire GPS pentru Transport
 
 [![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
 [![Capacitor](https://img.shields.io/badge/Capacitor-7.3.0-green.svg)](https://capacitorjs.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Latest-blue.svg)](https://www.typescriptlang.org/)
 [![Android](https://img.shields.io/badge/Platform-Android-brightgreen.svg)](https://developer.android.com/)
 
-## Prezentare Generală
+## Despre Aplicație
 
-iTrack este o aplicație profesională de urmărire GPS bazată pe React, proiectată special pentru șoferi să urmărească cursele active de transport în timp real. Construită cu Capacitor pentru deployment nativ Android, aplicația oferă autentificare securizată, gestionarea curselor vehiculelor și transmisia continuă de date GPS în fundal către serverul de management transport ETSM3.
+iTrack este o aplicație mobilă pentru urmărirea vehiculelor de transport în timp real. Șoferii folosesc aplicația pentru a gestiona și monitoriza cursele de transport, cu transmisia automată a coordonatelor GPS către sistemul central ETSM3.
 
-### Caracteristici Principale
+## Funcționalități
 
-- 🚛 **Gestionarea Curselor Vehiculelor** - Încărcare și gestionare curse transport după numărul vehiculului
-- 📍 **Urmărire GPS în Timp Real** - Localizare continuă în fundal chiar și când telefonul este blocat
-- 🔐 **Autentificare Securizată** - Autentificare bazată pe token cu sesiuni persistente
-- 📱 **Integrare Android Nativă** - Serviciu Android nativ complet pentru operarea GPS în fundal
-- 🔋 **Optimizat pentru Baterie** - Urmărire GPS eficientă cu wake locks și servicii foreground
-- 🌐 **Integrare Server** - Transmisie de date în timp real către sistemul de management transport ETSM3
+- **Autentificare securizată** cu email și parolă
+- **Încărcare curse** după numărul vehiculului  
+- **Start/Pauză/Stop curse** cu butoane simple
+- **Urmărire GPS în fundal** chiar când telefonul este blocat
+- **Transmisie automată** coordonate la fiecare 60 secunde
+- **Logout securizat** cu ștergerea datelor locale
 
-## Stack Tehnologic
+## Tehnologii
 
-### Frontend
-- **React 19.1.0** cu TypeScript pentru dezvoltare type-safe
-- **Vite 6.3.5** pentru dezvoltare rapidă și build-uri optimizate
-- **Bootstrap 5.3.6** pentru design UI responsive
-- **Module CSS** cu efecte de design glassmorphism
+- **React 19** - interfața utilizator
+- **TypeScript** - cod type-safe
+- **Capacitor 7** - deployment nativ Android
+- **Bootstrap 5** - design responsive
+- **Servicii Android native** - GPS în fundal
 
-### Platformă Mobilă
-- **Capacitor 7.3.0** pentru deployment nativ mobile cross-platform
-- **Servicii Android Native** pentru urmărire GPS în fundal adevărată
-- **Servicii Android Foreground** pentru monitorizarea persistentă a locației
+## Instalare Dezvoltare
 
-### Integrare Backend
-- **API RESTful** integrat cu sistemul de management transport ETSM3
-- **Autentificare Bearer Token** pentru comunicare API securizată
-- **Format JSON** pentru comunicare eficientă client-server
-
-## Arhitectură
-
-### Sistem de Urmărire GPS
-Aplicația folosește o arhitectură GPS simplificată și robustă:
-
-- **SimpleGPSService.java** - Serviciu Android nativ foreground pentru urmărire GPS în fundal
-- **SimpleGPSPlugin.java** - Bridge Capacitor pentru comunicarea JavaScript-Android
-- **nativeGPS.ts** - Interfață TypeScript pentru controlul serviciului GPS
-
-### Fluxul de Autentificare
-1. Credențialele utilizatorului sunt trimise la API-ul de autentificare
-2. Serverul returnează Bearer token
-3. Token-ul este stocat local folosind Capacitor Preferences
-4. Token-ul este folosit pentru toate cererile API ulterioare
-5. Logout securizat cu notificare server
-
-### Gestionarea Curselor
-1. Utilizatorul introduce numărul de identificare al vehiculului
-2. Sistemul încarcă cursele disponibile de la server
-3. Utilizatorul poate porni, pausa sau opri cursele individuale
-4. Urmărirea GPS începe automat pentru cursele active
-5. Actualizări de status în timp real trimise la server
-
-## Instalare și Dezvoltare
-
-### Cerințe Preliminare
-- Node.js 20 sau mai recent
-- Android Studio cu Android SDK
-- Java/OpenJDK pentru compilarea Android
-
-### Configurare
 ```bash
-# Clonare repository
-git clone <repository-url>
+# Clonare proiect
+git clone <url-repository>
 cd itrack
 
 # Instalare dependențe
 npm install
 
-# Pornire server dezvoltare
+# Rulare aplicație
 npm run dev
 ```
 
-### Build Android
+## Build Android
+
 ```bash
-# Build aplicație web
+# Build pentru producție
 npm run build
 
-# Sincronizare cu Capacitor
+# Sincronizare Capacitor
 npx cap sync android
 
-# Deschidere în Android Studio
+# Deschidere Android Studio
 npx cap open android
-
-# Sau build APK direct
-./build-android.sh
 ```
 
-## Configurare
+## Utilizare Aplicație
 
-### Variabile de Mediu
-Aplicația se conectează la sistemul de management transport ETSM3:
-- URL de bază: `https://www.euscagency.com/etsm3/platforme/transport/apk`
-- Autentificare: Bazată pe Bearer token
-- Endpoint GPS: `gps.php`
-- Endpoint Login: `login.php`
+### 1. Autentificare
+- Deschide aplicația
+- Introduce email și parolă
+- Apasă "Conectare"
+- Token-ul se salvează automat
 
-### Permisiuni Android
-Aplicația necesită următoarele permisiuni:
-- `ACCESS_FINE_LOCATION` - Pentru coordonate GPS precise
-- `ACCESS_BACKGROUND_LOCATION` - Pentru urmărire când aplicația este minimizată
-- `FOREGROUND_SERVICE` - Pentru operare persistentă în fundal
-- `WAKE_LOCK` - Pentru a preveni adormirea dispozitivului în timpul urmăririi
-- `INTERNET` - Pentru comunicarea cu serverul
+### 2. Încărcare Curse
+- Introduce numărul vehiculului (ex: B123ABC)
+- Apasă "Încarcă Curse"
+- Se afișează lista de transporturi disponibile
 
-## Utilizare
+### 3. Gestionare Curse
+- **Start** - pornește urmărirea GPS și schimbă statusul în "Activ"
+- **Pauză** - suspendă temporar cursa
+- **Finalizare** - termină cursa definitiv
+- **Info** - afișează detalii complete despre cursă
 
-### Autentificare
-1. Lansează aplicația
-2. Introduce credențialele email și parolă
-3. Sistemul validează și stochează token-ul de autentificare
-4. Login automat la următoarele lansări ale aplicației
+### 4. Urmărire GPS
+- GPS-ul pornește automat când apesi "Start"
+- Funcționează în fundal chiar dacă minimizezi aplicația
+- Transmite coordonate la fiecare 60 secunde
+- Include: poziție, viteză, direcție, baterie, semnal GSM
 
-### Pornirea Urmăririi GPS
-1. Introduce numărul de identificare al vehiculului
-2. Încarcă cursele de transport disponibile
-3. Selectează cursa și apasă butonul "Start"
-4. Urmărirea GPS începe automat în fundal
-5. Coordonatele sunt transmise la fiecare 60 de secunde către server
+### 5. Logout
+- Apasă butonul "Ieșire" din partea de jos
+- Sistemul anunță serverul despre deconectare
+- Toate datele locale sunt șterse
+- Utilizatorul revine la ecranul de login
 
-### Gestionarea Statusului Curselor
-- **Disponibilă (1)** - Cursa gata să înceapă
-- **Activă (2)** - Urmărire GPS în progres
-- **Pauzată (3)** - Temporar suspendată
-- **Finalizată (4)** - Cursa completată
+## Arhitectura GPS
 
-### Logout
-1. Apasă butonul "Ieșire" din footer
-2. Sistemul trimite notificare de logout la server
-3. Token-ul de autentificare local este șters
-4. Utilizatorul este redirecționat la ecranul de login
+Aplicația folosește servicii Android native pentru urmărire precisă:
 
-## Transmisia Datelor GPS
+- **SimpleGPSService.java** - serviciu de fundal pentru GPS
+- **SimpleGPSPlugin.java** - interfața între JavaScript și Android
+- **nativeGPS.ts** - controlul GPS din TypeScript
 
-Aplicația transmite date GPS cuprinzătoare:
+## Datele Transmise
+
+La fiecare 60 secunde, aplicația trimite:
 
 ```json
 {
@@ -159,104 +113,114 @@ Aplicația transmite date GPS cuprinzătoare:
 }
 ```
 
-## Build și Deployment
-
-### Build Dezvoltare
-```bash
-npm run dev
-```
-
-### Build Producție
-```bash
-npm run build
-npx cap sync android
-```
-
-### APK Android
-```bash
-# Build complet (recomandat)
-./build-android.sh
-
-# Build rapid dezvoltare
-./quick-build.bat
-```
-
-## Structura Proiectului
-
-```
-itrack/
-├── src/
-│   ├── components/         # Componente React
-│   ├── services/          # Servicii API și GPS
-│   ├── types/             # Definiții de tipuri TypeScript
-│   └── App.tsx            # Componenta principală a aplicației
-├── android/
-│   └── app/src/main/java/com/euscagency/itrack/
-│       ├── SimpleGPSService.java    # Serviciu GPS nativ
-│       ├── SimpleGPSPlugin.java     # Bridge Capacitor
-│       └── MainActivity.java        # Activitatea Android principală
-├── public/                # Asset-uri statice
-└── build/                 # Output build producție
-```
-
-## Integrare API
+## API Endpoints
 
 ### Autentificare
 ```
 POST /login.php
-Content-Type: application/json
-
 {
-  "email": "user@company.com",
-  "password": "password"
+  "email": "sofer@firma.com",
+  "password": "parola123"
 }
 ```
 
-### Cursele Vehiculului
+### Încărcare Curse
 ```
 GET /courses.php?vehicle=B123ABC
 Authorization: Bearer <token>
 ```
 
-### Date GPS
+### Transmisie GPS
 ```
 POST /gps.php
 Authorization: Bearer <token>
-Content-Type: application/json
-
-{GPS_DATA_OBJECT}
+{datele_gps}
 ```
 
 ### Logout
 ```
 POST /login.php
 Authorization: Bearer <token>
-Content-Type: application/json
-
 {
   "iesire": 1
 }
 ```
 
-## Contribuții
+## Structura Proiect
 
-1. Fork repository-ul
-2. Creează o ramură pentru feature (`git checkout -b feature/functionalitate-noua`)
-3. Commit modificările (`git commit -am 'Adaugă functionalitate nouă'`)
-4. Push către ramură (`git push origin feature/functionalitate-noua`)
-5. Creează un Pull Request
+```
+itrack/
+├── src/
+│   ├── components/
+│   │   ├── LoginScreen.tsx      # Ecran autentificare
+│   │   ├── VehicleScreen.tsx    # Ecran principal
+│   │   ├── CourseCard.tsx       # Card cursă
+│   │   └── CourseDetailCard.tsx # Detalii cursă
+│   ├── services/
+│   │   ├── api.ts              # Comunicare server
+│   │   ├── nativeGPS.ts        # Control GPS
+│   │   └── storage.ts          # Stocare locală
+│   └── types/
+│       └── index.ts            # Tipuri TypeScript
+├── android/
+│   └── app/src/main/java/com/euscagency/itrack/
+│       ├── SimpleGPSService.java   # Serviciu GPS
+│       ├── SimpleGPSPlugin.java    # Plugin Capacitor
+│       └── MainActivity.java       # Activitate principală
+└── build/                      # Build final
+```
 
-## Licență
+## Permisiuni Android
 
-Acest proiect este software proprietar dezvoltat pentru managementul transportului EUSC Agency.
+Aplicația necesită:
+- `ACCESS_FINE_LOCATION` - GPS precis
+- `ACCESS_BACKGROUND_LOCATION` - GPS în fundal
+- `FOREGROUND_SERVICE` - serviciu persistent
+- `WAKE_LOCK` - prevenire sleep
+- `INTERNET` - comunicare server
+
+## Configurare Server
+
+URL de bază: `https://www.euscagency.com/etsm3/platforme/transport/apk`
+
+Aplicația se conectează la sistemul ETSM3 pentru:
+- Autentificare utilizatori
+- Încărcare curse vehicule
+- Transmisie coordonate GPS
+- Gestionare sesiuni
+
+## Build Scripturi
+
+```bash
+# Build complet Android
+./build-android.sh
+
+# Build rapid dezvoltare
+./quick-build.bat
+
+# Rebuild Android din zero
+./rebuild-android.sh
+```
+
+## Statusuri Curse
+
+- **1 - Disponibilă** - cursa poate fi pornită
+- **2 - Activă** - urmărire GPS în desfășurare  
+- **3 - Pauzată** - temporar oprită
+- **4 - Finalizată** - cursa terminată
 
 ## Suport
 
-Pentru suport tehnic și întrebări, vă rugăm să contactați echipa de dezvoltare.
+Pentru probleme tehnice sau întrebări despre aplicație, contactați echipa de dezvoltare.
+
+## Informații Aplicație
+
+- **Nume Package:** com.euscagency.itrack
+- **Versiune:** 1807.99
+- **Platformă:** Android
+- **SDK Minim:** API 24 (Android 7.0)
+- **Dezvoltat pentru:** EUSC Agency Transport Management
 
 ---
 
-**Versiunea:** 1807.99  
-**Package:** com.euscagency.itrack  
-**Platformă:** Android  
-**SDK Minim:** API 24 (Android 7.0)
+*Aplicație dezvoltată pentru gestionarea eficientă a transporturilor și urmărirea în timp real a vehiculelor comerciale.*
