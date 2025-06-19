@@ -737,6 +737,256 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             padding: 5px 15px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+          }
+
+          .version-info-bottom:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(-50%) scale(1.05);
+          }
+
+          .debug-prompt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+          }
+
+          .debug-prompt-content {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+          }
+
+          .debug-prompt-content h3 {
+            margin: 0 0 15px 0;
+            color: #1e3c72;
+            font-size: 1.2rem;
+          }
+
+          .debug-prompt-content p {
+            margin: 0 0 20px 0;
+            color: #64748b;
+            font-size: 0.9rem;
+          }
+
+          .debug-password-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+          }
+
+          .debug-password-input:focus {
+            border-color: #4f46e5;
+          }
+
+          .debug-prompt-buttons {
+            display: flex;
+            gap: 10px;
+          }
+
+          .debug-submit-btn, .debug-cancel-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+
+          .debug-submit-btn {
+            background: #4f46e5;
+            color: white;
+          }
+
+          .debug-submit-btn:hover {
+            background: #4338ca;
+          }
+
+          .debug-cancel-btn {
+            background: #f1f5f9;
+            color: #64748b;
+          }
+
+          .debug-cancel-btn:hover {
+            background: #e2e8f0;
+          }
+
+          .mobile-debug-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 3000;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 10px;
+            overflow-y: auto;
+          }
+
+          .mobile-debug-panel {
+            background: #1a1a1a;
+            color: #e2e8f0;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
+            max-height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+          }
+
+          .debug-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2d2d2d;
+            border-radius: 12px 12px 0 0;
+          }
+
+          .debug-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #00ff88;
+          }
+
+          .debug-close-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+          }
+
+          .debug-close-btn:hover {
+            background: #cc3333;
+            transform: scale(1.1);
+          }
+
+          .debug-content {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+          }
+
+          .debug-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #2d2d2d;
+            border-radius: 8px;
+            font-size: 0.85rem;
+          }
+
+          .debug-indicator {
+            color: #00ff88;
+            font-weight: 600;
+          }
+
+          .debug-platform {
+            color: #94a3b8;
+          }
+
+          .debug-log-output {
+            background: #0f0f0f;
+            border-radius: 8px;
+            padding: 15px;
+            height: 250px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.8rem;
+            border: 1px solid #333;
+          }
+
+          .debug-log-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid #222;
+          }
+
+          .log-time {
+            color: #64748b;
+            min-width: 60px;
+            font-size: 0.75rem;
+          }
+
+          .log-level {
+            min-width: 50px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: #3b82f6;
+          }
+
+          .debug-log-item.warn .log-level {
+            color: #f59e0b;
+          }
+
+          .debug-log-item.error .log-level {
+            color: #ef4444;
+          }
+
+          .log-message {
+            flex: 1;
+            color: #e2e8f0;
+            font-size: 0.8rem;
+          }
+
+          .debug-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+          }
+
+          .debug-action-btn {
+            padding: 8px 15px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+
+          .debug-action-btn:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
           }
 
           @media (max-width: 768px) {
