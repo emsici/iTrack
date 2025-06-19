@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import LoginScreen from './components/LoginScreen';
 import VehicleScreen from './components/VehicleScreen';
+import AdminPanel from './components/AdminPanel';
 // GPS initialization removed - handled by communityGPS when needed
 import { getStoredToken, clearToken } from './services/storage';
 
-type AppState = 'login' | 'vehicle';
+type AppState = 'login' | 'vehicle' | 'admin';
 
 const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<AppState>('login');
