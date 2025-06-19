@@ -379,6 +379,26 @@
   animation: spin 1s linear infinite;
 }
 
+/* Completion Message */
+.completion-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(40,167,69,0.1) 0%, rgba(40,167,69,0.05) 100%);
+  border: 2px solid rgba(40,167,69,0.3);
+  border-radius: 12px;
+  color: #155724;
+  font-weight: 600;
+  animation: completionPulse 2s ease-in-out infinite;
+}
+
+.completion-message i {
+  font-size: 1.2rem;
+  color: #28a745;
+}
+
 /* Animations */
 @keyframes fadeInUp {
   from {
@@ -422,6 +442,17 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+@keyframes completionPulse {
+  0%, 100% { 
+    transform: scale(1); 
+    box-shadow: 0 4px 16px rgba(40,167,69,0.3);
+  }
+  50% { 
+    transform: scale(1.02); 
+    box-shadow: 0 6px 24px rgba(40,167,69,0.4);
+  }
 }
 
 /* Responsive Design */

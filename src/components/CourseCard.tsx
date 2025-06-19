@@ -29,16 +29,6 @@ const CourseCard: React.FC<CourseCardProps> = ({
     }
   };
 
-  const getStatusBadgeClass = (status: number) => {
-    switch (status) {
-      case 1: return 'bg-secondary';
-      case 2: return 'bg-success';
-      case 3: return 'bg-warning';
-      case 4: return 'bg-danger';
-      default: return 'bg-dark';
-    }
-  };
-
   const handleStatusChange = async (newStatus: number) => {
     setLoading(true);
     try {
@@ -107,8 +97,6 @@ const CourseCard: React.FC<CourseCardProps> = ({
       // Don't throw error - continue with local status update
     }
   };
-
-
 
   return (
     <div className="course-card-modern">
@@ -243,20 +231,23 @@ const CourseCard: React.FC<CourseCardProps> = ({
           </div>
         )}
 
-      <div className="card-footer bg-white">
-        <div className="row g-2">
+        {/* Action Buttons */}
+        <div className="course-actions-footer">
           {/* Status 1 (Available): Show only START button */}
           {course.status === 1 && (
-            <div className="col-12">
+            <div className="action-buttons-grid single">
               <button
-                className="btn btn-course btn-start w-100"
+                className="btn-course-modern btn-start-modern"
                 onClick={() => handleStatusChange(2)}
                 disabled={loading}
               >
                 {loading ? (
-                  <span className="spinner-border spinner-border-sm"></span>
+                  <div className="loading-spinner"></div>
                 ) : (
-                  <>▶️ Start</>
+                  <>
+                    <i className="fas fa-play"></i>
+                    Start Cursă
+                  </>
                 )}
               </button>
             </div>
@@ -264,57 +255,65 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
           {/* Status 2 (In Progress): Show PAUSE and FINISH buttons */}
           {course.status === 2 && (
-            <>
-              <div className="col-6">
-                <button
-                  className="btn btn-course btn-pause w-100"
-                  onClick={() => handleStatusChange(3)}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="spinner-border spinner-border-sm"></span>
-                  ) : (
-                    <>⏸️ Pauză</>
-                  )}
-                </button>
-              </div>
-              <div className="col-6">
-                <button
-                  className="btn btn-course btn-stop w-100"
-                  onClick={() => handleStatusChange(4)}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="spinner-border spinner-border-sm"></span>
-                  ) : (
-                    <>🏁 Termină</>
-                  )}
-                </button>
-              </div>
-            </>
-          )}
-
-          {/* Status 3 (Paused): Show only RESUME button */}
-          {course.status === 3 && (
-            <div className="col-12">
+            <div className="action-buttons-grid double">
               <button
-                className="btn btn-course btn-start w-100"
-                onClick={() => handleStatusChange(2)}
+                className="btn-course-modern btn-pause-modern"
+                onClick={() => handleStatusChange(3)}
                 disabled={loading}
               >
                 {loading ? (
-                  <span className="spinner-border spinner-border-sm"></span>
+                  <div className="loading-spinner"></div>
                 ) : (
-                  <>▶️ Reluare</>
+                  <>
+                    <i className="fas fa-pause"></i>
+                    Pauză
+                  </>
+                )}
+              </button>
+              <button
+                className="btn-course-modern btn-finish-modern"
+                onClick={() => handleStatusChange(4)}
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="loading-spinner"></div>
+                ) : (
+                  <>
+                    <i className="fas fa-flag-checkered"></i>
+                    Finalizează
+                  </>
                 )}
               </button>
             </div>
           )}
 
-          {/* Status 4 (Finished): No buttons */}
+          {/* Status 3 (Paused): Show only RESUME button */}
+          {course.status === 3 && (
+            <div className="action-buttons-grid single">
+              <button
+                className="btn-course-modern btn-resume-modern"
+                onClick={() => handleStatusChange(2)}
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="loading-spinner"></div>
+                ) : (
+                  <>
+                    <i className="fas fa-play"></i>
+                    Continuă
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Status 4 (Stopped): Show completion message */}
           {course.status === 4 && (
-            <div className="col-12 text-center text-muted">
-              <small>Cursă finalizată</small>
+            <div className="action-buttons-grid single">
+              <div className="completion-message">
+                <i className="fas fa-check-circle"></i>
+                <span>Cursă finalizată cu succes</span>
+              </div>
             </div>
           )}
         </div>
