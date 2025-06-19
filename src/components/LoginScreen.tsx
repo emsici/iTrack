@@ -283,7 +283,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             border-radius: 50%;
             position: absolute;
             top: 68px;
-            animation: executiveWheelSpin 1.2s linear infinite;
             box-shadow: 
               0 6px 20px rgba(0, 0, 0, 0.6),
               inset 0 2px 4px rgba(255, 255, 255, 0.1);
@@ -301,6 +300,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             left: 6px;
             border: 2px solid #d1d5db;
             box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            animation: executiveWheelSpin 1.2s linear infinite;
           }
 
           .executive-wheel::after {
@@ -313,6 +313,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             top: 10px;
             left: 10px;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            animation: executiveWheelSpin 1.2s linear infinite;
           }
 
           .executive-wheel.front-executive {
