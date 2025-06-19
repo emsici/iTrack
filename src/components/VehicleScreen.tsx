@@ -19,7 +19,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [coursesLoaded, setCoursesLoaded] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showInfo, setShowInfo] = useState(false);
-  const [versionClickCount, setVersionClickCount] = useState(0);
+  const [infoClickCount, setInfoClickCount] = useState(0);
   const [showDebugPrompt, setShowDebugPrompt] = useState(false);
   const [debugPassword, setDebugPassword] = useState('');
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -165,13 +165,23 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const handleVersionClick = () => {
-    setVersionClickCount(prev => {
+  const handleInfoClick = () => {
+    setInfoClickCount(prev => {
       const newCount = prev + 1;
+      
       if (newCount >= 20) {
         setShowDebugPrompt(true);
-        setVersionClickCount(0);
+        setInfoClickCount(0);
+        return 0;
+      } else if (newCount < 10) {
+        // Normal info functionality for first 9 clicks
+        setShowInfo(true);
+      } else if (newCount === 10) {
+        // Show info modal with counter at 10
+        setShowInfo(true);
       }
+      // For clicks 11-19, just increment counter without showing modal
+      
       return newCount;
     });
   };
@@ -1570,9 +1580,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       )}
       
-      <div className="version-info-bottom" onClick={handleVersionClick}>
-        Versiunea 1807.99{versionClickCount > 0 && `+${versionClickCount}`}
-      </div>
+
 
       {/* Debug Password Prompt */}
       {showDebugPrompt && (
