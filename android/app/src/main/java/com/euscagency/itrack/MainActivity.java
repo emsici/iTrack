@@ -8,10 +8,10 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Register Simple GPS plugin for reliable Android GPS tracking
-        registerPlugin(SimpleGPSPlugin.class);
+        // Register GPS tracking plugin for native background service
+        registerPlugin(GPSTrackingPlugin.class);
         
-        android.util.Log.d("MainActivity", "SimpleGPSPlugin registered successfully");
-        android.util.Log.d("MainActivity", "Ready for GPS coordinate transmission every 60 seconds");
+        android.util.Log.d("MainActivity", "GPSTrackingPlugin registered successfully");
+        android.util.Log.d("MainActivity", "Ready for GPS transmission via EnhancedGPSService");
     }
 }

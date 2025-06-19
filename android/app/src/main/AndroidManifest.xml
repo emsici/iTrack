@@ -28,9 +28,9 @@
 
         </activity>
 
-        <!-- Simple GPS Service for reliable background tracking -->
+        <!-- Enhanced GPS Service for background tracking -->
         <service
-            android:name="com.euscagency.itrack.SimpleGPSService"
+            android:name="com.euscagency.itrack.EnhancedGPSService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />
