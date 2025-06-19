@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
 import { Course } from '../types';
 
@@ -160,7 +160,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
   return (
     <div className="course-card">
-      <style jsx>{`
+      <style>{`
         .course-card {
           background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
           border-radius: 20px;

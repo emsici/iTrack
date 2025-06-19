@@ -175,7 +175,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               flex-direction: column;
               align-items: center;
               justify-content: center;
-              padding: max(20px, env(safe-area-inset-top)) env(safe-area-inset-right) max(20px, env(safe-area-inset-bottom)) env(safe-area-inset-left);
+              padding: calc(env(safe-area-inset-top, 0px) + 60px) env(safe-area-inset-right) max(20px, env(safe-area-inset-bottom)) env(safe-area-inset-left);
               position: relative;
               overflow: hidden;
             }
