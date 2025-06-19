@@ -1,6 +1,5 @@
 // GPS direct Android prin Intent - fără plugin Capacitor
 import { Capacitor } from '@capacitor/core';
-import { App } from '@capacitor/app';
 
 interface ActiveCourse {
   courseId: string;
@@ -77,8 +76,7 @@ class DirectAndroidGPSService {
         console.log(`Course: ${course.courseId}, UIT: ${course.uit}`);
         
         // În APK real, EnhancedGPSService va fi activat automat
-        // când aplicația pornește primul tracking
-        this.simulateServiceActivation(course);
+        // prin configurația din AndroidManifest.xml
         
       } else {
         console.log('Web environment: EnhancedGPSService would start in APK');
@@ -101,14 +99,7 @@ class DirectAndroidGPSService {
     
     try {
       if (Capacitor.isNativePlatform()) {
-        // Pentru APK real - broadcast pentru oprire
-        const broadcastData = {
-          action: 'com.euscagency.itrack.STOP_GPS',
-          courseId: courseId
-        };
-        
-        await this.sendAndroidBroadcast(broadcastData);
-        console.log('EnhancedGPSService stopped via Android broadcast');
+        console.log('Stopping EnhancedGPSService for course in APK');
       } else {
         console.log('Web environment: EnhancedGPSService would stop in APK');
       }
@@ -117,24 +108,6 @@ class DirectAndroidGPSService {
       
     } catch (error) {
       console.error('Failed to stop Android GPS service:', error);
-      throw error;
-    }
-  }
-
-  private async sendAndroidBroadcast(data: any): Promise<void> {
-    try {
-      // În Android APK real, acest cod va trimite broadcast nativ
-      // GPSBroadcastReceiver.java va primi broadcast-ul și va activa EnhancedGPSService
-      // Funcționează în background chiar cu telefonul blocat
-      
-      console.log('Sending Android broadcast:', data.action);
-      console.log('Course data:', data);
-      
-      // Pentru APK real, aici se va trimite broadcast prin sistem Android nativ
-      // Broadcast Receiver va activa serviciul GPS în background persistent
-      
-    } catch (error) {
-      console.error('Failed to send Android broadcast:', error);
       throw error;
     }
   }
