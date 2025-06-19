@@ -116,274 +116,74 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .transport-logo {
-            width: 180px;
+            width: 120px;
             height: 120px;
             margin: 0 auto 25px;
             position: relative;
-            animation: elegantMotion 6s ease-in-out infinite;
+            animation: professionalFloat 4s ease-in-out infinite;
           }
 
-          .corporate-truck {
+          .professional-truck-icon {
             width: 100%;
             height: 100%;
             position: relative;
             cursor: pointer;
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-          }
-
-          .corporate-truck:hover {
-            transform: scale(1.08) translateY(-3px);
-            filter: drop-shadow(0 25px 50px rgba(30, 64, 175, 0.25));
-          }
-
-          /* Cabina corporată elegantă */
-          .executive-cab {
-            width: 45px;
-            height: 55px;
-            background: linear-gradient(145deg, #1e40af 0%, #3b82f6 25%, #60a5fa 50%, #93c5fd 75%, #dbeafe 100%);
-            border-radius: 15px 15px 6px 6px;
-            position: absolute;
-            top: 10px;
-            left: 20px;
-            box-shadow: 
-              0 12px 35px rgba(30, 64, 175, 0.4),
-              inset 0 2px 4px rgba(255, 255, 255, 0.2);
-            animation: executiveFloat 5s ease-in-out infinite;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-          }
-
-          .executive-cab::before {
-            content: '';
-            width: 38px;
-            height: 28px;
-            background: linear-gradient(135deg, rgba(219, 234, 254, 0.95) 0%, rgba(147, 197, 253, 0.9) 100%);
-            border-radius: 8px;
-            position: absolute;
-            top: 8px;
-            left: 3.5px;
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            box-shadow: inset 0 1px 2px rgba(59, 130, 246, 0.2);
-          }
-
-          .executive-cab::after {
-            content: '';
-            width: 8px;
-            height: 4px;
-            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-            border-radius: 2px;
-            position: absolute;
-            top: 20px;
-            left: 18.5px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-          }
-
-          /* Grila premium sofisticată */
-          .executive-grille {
-            width: 10px;
-            height: 30px;
-            background: linear-gradient(145deg, #374151 0%, #1f2937 50%, #111827 100%);
-            border-radius: 4px;
-            position: absolute;
-            top: 25px;
-            left: 10px;
-            box-shadow: 
-              inset 0 2px 4px rgba(255, 255, 255, 0.1),
-              0 2px 8px rgba(0, 0, 0, 0.3);
-          }
-
-          .executive-grille::before {
-            content: '';
-            width: 8px;
-            height: 2px;
-            background: linear-gradient(90deg, #9ca3af 0%, #d1d5db 50%, #9ca3af 100%);
-            border-radius: 1px;
-            position: absolute;
-            top: 6px;
-            left: 1px;
-            box-shadow: 
-              0 6px 0 #9ca3af, 
-              0 12px 0 #9ca3af, 
-              0 18px 0 #9ca3af;
-          }
-
-          /* Șasiu executiv */
-          .executive-chassis {
-            width: 110px;
-            height: 16px;
-            background: linear-gradient(145deg, #4b5563 0%, #374151 30%, #1f2937 70%, #111827 100%);
-            border-radius: 4px;
-            position: absolute;
-            top: 52px;
-            left: 35px;
-            box-shadow: 
-              0 6px 20px rgba(0, 0, 0, 0.4),
-              inset 0 1px 2px rgba(255, 255, 255, 0.1);
-          }
-
-          /* Container corporativ premium */
-          .corporate-container {
-            width: 90px;
-            height: 45px;
-            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 20%, #f1f5f9 40%, #e2e8f0 100%);
-            border-radius: 10px;
-            position: absolute;
-            top: 18px;
-            left: 75px;
-            box-shadow: 
-              0 15px 40px rgba(0, 0, 0, 0.12),
-              inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            border: 2px solid #e2e8f0;
-            animation: corporateGlow 6s ease-in-out infinite;
-          }
-
-          .corporate-container::before {
-            content: '';
-            width: 8px;
-            height: 38px;
-            background: linear-gradient(145deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
-            border-radius: 4px;
-            position: absolute;
-            top: 3.5px;
-            right: 4px;
-            box-shadow: 
-              0 0 15px rgba(220, 38, 38, 0.4),
-              inset 0 1px 2px rgba(255, 255, 255, 0.2);
-          }
-
-          /* Brandingul corporativ */
-          .corporate-branding {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 35px;
-            height: 20px;
-            background: linear-gradient(145deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
-            border-radius: 4px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 
-              0 4px 12px rgba(59, 130, 246, 0.3),
-              inset 0 1px 2px rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
           }
 
-          .corporate-branding::after {
-            content: '🏢';
-            font-size: 10px;
-            filter: brightness(1.2);
+          .professional-truck-icon:hover {
+            transform: scale(1.1) translateY(-5px);
+            filter: drop-shadow(0 20px 40px rgba(30, 64, 175, 0.3));
           }
 
-          /* Roți executive premium */
-          .executive-wheel {
-            width: 26px;
-            height: 26px;
-            background: radial-gradient(circle, #374151 15%, #1f2937 40%, #111827 70%, #000000 90%);
-            border-radius: 50%;
+          .truck-main {
+            font-size: 4rem;
+            background: linear-gradient(145deg, #1e40af 0%, #3b82f6 30%, #60a5fa 70%, #93c5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: truckPulse 3s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(30, 64, 175, 0.3));
+          }
+
+          .truck-details {
             position: absolute;
-            top: 68px;
-            box-shadow: 
-              0 6px 20px rgba(0, 0, 0, 0.6),
-              inset 0 2px 4px rgba(255, 255, 255, 0.1);
-            border: 3px solid #4b5563;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
           }
 
-          .executive-wheel::before {
-            content: '';
-            width: 14px;
-            height: 14px;
-            background: linear-gradient(145deg, #9ca3af 0%, #6b7280 50%, #374151 100%);
-            border-radius: 50%;
+          .gps-indicator {
             position: absolute;
-            top: 6px;
-            left: 6px;
-            border: 2px solid #d1d5db;
-            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
-            animation: executiveWheelSpin 1.2s linear infinite;
+            top: 15px;
+            right: 15px;
+            font-size: 1rem;
+            color: #10b981;
+            animation: gpsPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6));
           }
 
-          .executive-wheel::after {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: radial-gradient(circle, #f3f4f6 30%, #e5e7eb 70%);
-            border-radius: 50%;
+          .cargo-indicator {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-            animation: executiveWheelSpin 1.2s linear infinite;
+            bottom: 25px;
+            right: 20px;
+            font-size: 0.9rem;
+            color: #f59e0b;
+            animation: cargoFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.4));
           }
 
-          .executive-wheel.front-executive {
-            left: 30px;
-          }
-
-          .executive-wheel.rear-executive {
-            left: 55px;
-          }
-
-          .executive-wheel.trailer-front-exec {
-            left: 105px;
-          }
-
-          .executive-wheel.trailer-rear-exec {
-            left: 135px;
-          }
-
-          /* Faruri LED executive */
-          .executive-headlight {
-            width: 10px;
-            height: 12px;
-            background: linear-gradient(145deg, #ffffff 0%, #f0f9ff 30%, #dbeafe 70%, #bfdbfe 100%);
-            border-radius: 6px;
+          .route-indicator {
             position: absolute;
-            top: 20px;
-            left: 12px;
-            animation: executiveLEDPulse 4s ease-in-out infinite;
-            box-shadow: 
-              0 0 25px rgba(255, 255, 255, 0.9),
-              0 0 50px rgba(59, 130, 246, 0.6);
-            border: 2px solid rgba(59, 130, 246, 0.4);
-          }
-
-          .executive-headlight::before {
-            content: '';
-            width: 6px;
-            height: 8px;
-            background: radial-gradient(circle, #ffffff 20%, #3b82f6 80%);
-            border-radius: 3px;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            animation: headlightBeam 3s ease-in-out infinite;
-          }
-
-          /* Comunicații business */
-          .executive-antenna {
-            width: 3px;
-            height: 15px;
-            background: linear-gradient(145deg, #9ca3af 0%, #6b7280 50%, #374151 100%);
-            border-radius: 2px;
-            position: absolute;
-            top: 6px;
-            left: 42px;
-            animation: antennaSignal 5s ease-in-out infinite;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-          }
-
-          .executive-antenna::after {
-            content: '';
-            width: 5px;
-            height: 5px;
-            background: radial-gradient(circle, #10b981 30%, #059669 70%);
-            border-radius: 50%;
-            position: absolute;
-            top: -2px;
-            left: -1px;
-            animation: connectivityPulse 2s ease-in-out infinite;
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+            bottom: 15px;
+            left: 20px;
+            font-size: 0.8rem;
+            color: #6366f1;
+            animation: routePulse 2.5s ease-in-out infinite;
+            filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.4));
           }
 
           .app-title {
@@ -821,19 +621,19 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       <div className="login-card">
         <div className="login-header">
           <div className="transport-logo">
-            <div className="corporate-truck">
-              <div className="executive-cab"></div>
-              <div className="executive-grille"></div>
-              <div className="executive-chassis"></div>
-              <div className="corporate-container">
-                <div className="corporate-branding"></div>
+            <div className="professional-truck-icon">
+              <i className="fas fa-truck truck-main"></i>
+              <div className="truck-details">
+                <div className="gps-indicator">
+                  <i className="fas fa-satellite-dish"></i>
+                </div>
+                <div className="cargo-indicator">
+                  <i className="fas fa-boxes"></i>
+                </div>
+                <div className="route-indicator">
+                  <i className="fas fa-route"></i>
+                </div>
               </div>
-              <div className="executive-wheel front-executive"></div>
-              <div className="executive-wheel rear-executive"></div>
-              <div className="executive-wheel trailer-front-exec"></div>
-              <div className="executive-wheel trailer-rear-exec"></div>
-              <div className="executive-headlight"></div>
-              <div className="executive-antenna"></div>
             </div>
           </div>
           <h1 className="app-title">iTrack</h1>
