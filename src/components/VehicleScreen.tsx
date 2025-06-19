@@ -1517,9 +1517,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       </div>
       
       <div className="courses-bottom-nav">
-        <button className="nav-button" onClick={() => setShowInfo(!showInfo)}>
+        <button className="nav-button" onClick={handleInfoClick}>
           <i className="fas fa-info-circle"></i>
-          <span className="nav-button-label">Info</span>
+          <span className="nav-button-label">
+            Info{infoClickCount >= 10 ? `+${infoClickCount}` : ''}
+          </span>
         </button>
         
         <button className="nav-button logout-nav-button" onClick={handleLogout}>
