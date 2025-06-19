@@ -140,13 +140,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .truck-main {
-            font-size: 4rem;
+            font-size: 4.5rem;
             background: linear-gradient(145deg, #1e40af 0%, #3b82f6 30%, #60a5fa 70%, #93c5fd 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             animation: truckPulse 3s ease-in-out infinite;
             filter: drop-shadow(0 4px 8px rgba(30, 64, 175, 0.3));
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+
+          .truck-main:hover {
+            transform: scale(1.15) rotate(2deg);
+            filter: drop-shadow(0 8px 16px rgba(30, 64, 175, 0.5));
           }
 
           .truck-details {
@@ -158,32 +165,59 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           .gps-indicator {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 1rem;
-            color: #10b981;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+            color: #059669;
             animation: gpsPulse 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6));
+            filter: drop-shadow(0 0 12px rgba(5, 150, 105, 0.8));
+            background: rgba(5, 150, 105, 0.1);
+            padding: 8px;
+            border-radius: 50%;
+            border: 2px solid rgba(5, 150, 105, 0.3);
           }
 
           .cargo-indicator {
             position: absolute;
-            bottom: 25px;
-            right: 20px;
-            font-size: 0.9rem;
-            color: #f59e0b;
+            bottom: 30px;
+            right: 15px;
+            font-size: 1.1rem;
+            color: #d97706;
             animation: cargoFloat 3s ease-in-out infinite;
-            filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.4));
+            filter: drop-shadow(0 2px 8px rgba(217, 119, 6, 0.6));
+            background: rgba(217, 119, 6, 0.1);
+            padding: 6px;
+            border-radius: 8px;
+            border: 2px solid rgba(217, 119, 6, 0.3);
           }
 
           .route-indicator {
             position: absolute;
-            bottom: 15px;
-            left: 20px;
-            font-size: 0.8rem;
-            color: #6366f1;
+            bottom: 10px;
+            left: 15px;
+            font-size: 1rem;
+            color: #4f46e5;
             animation: routePulse 2.5s ease-in-out infinite;
-            filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.4));
+            filter: drop-shadow(0 2px 8px rgba(79, 70, 229, 0.6));
+            background: rgba(79, 70, 229, 0.1);
+            padding: 6px;
+            border-radius: 6px;
+            border: 2px solid rgba(79, 70, 229, 0.3);
+          }
+
+          .professional-truck-icon:hover .gps-indicator {
+            animation: gpsPulse 0.8s ease-in-out infinite;
+            transform: scale(1.3);
+          }
+
+          .professional-truck-icon:hover .cargo-indicator {
+            animation: cargoFloat 1.5s ease-in-out infinite;
+            transform: scale(1.2) translateX(-5px);
+          }
+
+          .professional-truck-icon:hover .route-indicator {
+            animation: routePulse 1.2s ease-in-out infinite;
+            transform: scale(1.25);
           }
 
           .app-title {
@@ -235,19 +269,52 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             }
           }
 
-          @keyframes executiveWheelSpin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+          @keyframes professionalFloat {
+            0%, 100% { 
+              transform: translateY(0px); 
+            }
+            50% { 
+              transform: translateY(-8px); 
+            }
           }
 
-          @keyframes iconPulse {
+          @keyframes truckPulse {
             0%, 100% { 
               transform: scale(1); 
               opacity: 1; 
             }
             50% { 
-              transform: scale(1.1); 
-              opacity: 0.8; 
+              transform: scale(1.05); 
+              opacity: 0.9; 
+            }
+          }
+
+          @keyframes gpsPulse {
+            0%, 100% { 
+              transform: scale(1); 
+              opacity: 1; 
+            }
+            50% { 
+              transform: scale(1.2); 
+              opacity: 0.7; 
+            }
+          }
+
+          @keyframes cargoFloat {
+            0%, 100% { 
+              transform: translateX(0px); 
+            }
+            50% { 
+              transform: translateX(-3px); 
+            }
+          }
+
+          @keyframes routePulse {
+            0%, 100% { 
+              opacity: 1; 
+            }
+            50% { 
+              opacity: 0.6; 
             }
           }
 
