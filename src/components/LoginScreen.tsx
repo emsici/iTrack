@@ -199,11 +199,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           .input-icon {
             position: absolute;
-            left: 16px;
+            left: 18px;
             top: 50%;
             transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1.1rem;
+            color: #4f46e5;
+            font-size: 1.2rem;
             pointer-events: none;
           }
 
@@ -213,22 +213,29 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           .password-toggle {
             position: absolute;
-            right: 16px;
+            right: 18px;
             top: 50%;
             transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.7);
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            color: #64748b;
             cursor: pointer;
             font-size: 1.1rem;
-            padding: 4px;
-            border-radius: 4px;
+            padding: 8px;
+            border-radius: 8px;
             transition: all 0.3s ease;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
 
           .password-toggle:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.1);
+            color: #4f46e5;
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-50%) scale(1.05);
           }
 
           .login-button {
@@ -352,11 +359,124 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           @media (max-width: 768px) {
             .login-card {
               margin: 20px;
-              padding: 30px 20px;
+              padding: 35px 25px;
+              max-width: 90%;
             }
             
             .app-title {
-              font-size: 2rem;
+              font-size: 2.2rem;
+            }
+            
+            .app-subtitle {
+              font-size: 1rem;
+              letter-spacing: 1.5px;
+            }
+            
+            .app-logo {
+              width: 75px;
+              height: 75px;
+              margin-bottom: 20px;
+            }
+            
+            .form-input {
+              padding: 16px 18px 16px 50px;
+              font-size: 1rem;
+            }
+            
+            .input-icon {
+              left: 16px;
+              font-size: 1.1rem;
+            }
+            
+            .password-toggle {
+              right: 16px;
+              width: 34px;
+              height: 34px;
+              padding: 6px;
+            }
+            
+            .login-button {
+              padding: 18px 25px;
+              font-size: 1.1rem;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .login-container {
+              padding: 15px;
+            }
+            
+            .login-card {
+              margin: 15px;
+              padding: 30px 20px;
+              max-width: 95%;
+            }
+            
+            .app-title {
+              font-size: 1.8rem;
+            }
+            
+            .app-subtitle {
+              font-size: 0.9rem;
+              letter-spacing: 1px;
+            }
+            
+            .app-logo {
+              width: 65px;
+              height: 65px;
+              margin-bottom: 15px;
+            }
+            
+            .form-input {
+              padding: 14px 16px 14px 45px;
+              font-size: 0.95rem;
+            }
+            
+            .input-icon {
+              left: 14px;
+              font-size: 1rem;
+            }
+            
+            .password-toggle {
+              right: 14px;
+              width: 32px;
+              height: 32px;
+            }
+            
+            .login-button {
+              padding: 16px 20px;
+              font-size: 1rem;
+            }
+          }
+
+          @media (min-width: 1024px) {
+            .login-card {
+              padding: 60px;
+              max-width: 550px;
+            }
+            
+            .app-title {
+              font-size: 3.2rem;
+            }
+            
+            .app-subtitle {
+              font-size: 1.3rem;
+            }
+            
+            .app-logo {
+              width: 100px;
+              height: 100px;
+              margin-bottom: 30px;
+            }
+          }
+
+          /* Safe area for mobile devices */
+          @supports (padding: max(0px)) {
+            .login-container {
+              padding-top: max(20px, env(safe-area-inset-top));
+              padding-bottom: max(20px, env(safe-area-inset-bottom));
+              padding-left: max(20px, env(safe-area-inset-left));
+              padding-right: max(20px, env(safe-area-inset-right));
             }
           }
         `}
@@ -368,7 +488,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             <i className="fas fa-route"></i>
           </div>
           <h1 className="app-title">iTrack</h1>
-          <p className="app-subtitle">Sistem profesional de urmărire GPS</p>
+          <p className="app-subtitle">Business Transport Solutions</p>
         </div>
 
         <form onSubmit={handleLogin} className="login-form">

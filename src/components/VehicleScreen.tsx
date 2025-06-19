@@ -581,9 +581,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
 
           .courses-content {
-            padding: 20px;
+            padding: 20px 20px 120px 20px;
             max-width: 1200px;
             margin: 0 auto;
+            min-height: calc(100vh - 200px);
           }
 
           .courses-grid {
@@ -623,11 +624,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
             border-top: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 15px 20px;
+            padding: 15px 20px calc(15px + env(safe-area-inset-bottom, 20px)) 20px;
             display: flex;
             justify-content: space-around;
             align-items: center;
             box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
           }
 
           .nav-button {
@@ -687,14 +689,94 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
           @media (max-width: 768px) {
             .courses-content {
-              padding: 15px;
-              margin-bottom: 100px;
+              padding: 15px 15px 140px 15px;
+            }
+            
+            .courses-header {
+              padding: 20px 15px;
             }
             
             .vehicle-header-info {
               flex-direction: column;
               gap: 15px;
+              align-items: stretch;
             }
+            
+            .vehicle-display {
+              padding: 12px 20px;
+            }
+            
+            .vehicle-number-text {
+              font-size: 1.1rem;
+            }
+            
+            .stats-number {
+              font-size: 2rem;
+            }
+            
+            .courses-bottom-nav {
+              padding: 12px 15px calc(12px + env(safe-area-inset-bottom, 25px)) 15px;
+            }
+            
+            .nav-button {
+              min-width: 60px;
+              padding: 8px 10px;
+            }
+            
+            .nav-button i {
+              font-size: 1.1rem;
+            }
+            
+            .nav-button-label {
+              font-size: 0.7rem;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .courses-content {
+              padding: 10px 10px 150px 10px;
+            }
+            
+            .courses-header {
+              padding: 15px 10px;
+            }
+            
+            .vehicle-display {
+              padding: 10px 15px;
+              gap: 10px;
+            }
+            
+            .vehicle-number-text {
+              font-size: 1rem;
+            }
+            
+            .stats-number {
+              font-size: 1.8rem;
+            }
+            
+            .stats-label {
+              font-size: 0.9rem;
+            }
+            
+            .courses-bottom-nav {
+              padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 30px)) 10px;
+            }
+          }
+
+          @media (min-width: 1024px) {
+            .courses-content {
+              padding: 30px 30px 100px 30px;
+            }
+            
+            .courses-header {
+              padding: 30px;
+            }
+            
+            .courses-grid {
+              grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+              gap: 25px;
+            }
+          }
             
             .courses-header {
               padding: 15px;
