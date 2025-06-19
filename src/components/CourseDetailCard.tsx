@@ -102,21 +102,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     }
   };
 
-  const formatTime = (timeString?: string) => {
-    if (!timeString) return 'Nu este specificat';
-    try {
-      const date = new Date(timeString);
-      return date.toLocaleString('ro-RO', {
-        day: '2-digit',
-        month: '2-digit', 
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch {
-      return timeString;
-    }
-  };
+
 
   return (
     <div className="course-detail-card mb-4">
@@ -124,14 +110,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         <div className="card-header-modern d-flex justify-content-between align-items-center">
           <div className="course-header-info">
             <div className="course-name-section">
-              <h5 className="course-title-main">{course.codDeclarant} - {course.ikRoTrans}</h5>
-              <span className="course-id-badge">UIT: {course.uit}</span>
+              <h5 className="course-title-main">ikRoTrans: {course.ikRoTrans}</h5>
+              <span className="course-id-badge">Cod: {course.codDeclarant}</span>
             </div>
             <div className="course-route-info">
               <div className="route-display">
-                <span className="route-start">{course.vama} ({course.judet})</span>
-                <i className="fas fa-arrow-right route-arrow"></i>
-                <span className="route-end">{course.vamaStop} ({course.judetStop})</span>
+                <span className="route-start">UIT: {course.uit}</span>
               </div>
             </div>
           </div>
@@ -167,14 +151,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               </span>
             </div>
             <div className="summary-item">
-              <i className="fas fa-truck text-primary"></i>
-              <span className="summary-label">Vehicul:</span>
-              <span className="summary-value font-monospace">{course.nrVehicul}</span>
-            </div>
-            <div className="summary-item">
-              <i className="fas fa-hashtag text-primary"></i>
-              <span className="summary-label">ikRoTrans:</span>
-              <span className="summary-value">{course.ikRoTrans}</span>
+              <i className="fas fa-map-marker-alt text-primary"></i>
+              <span className="summary-label">Traseu:</span>
+              <span className="summary-value">{course.vama} → {course.vamaStop}</span>
             </div>
           </div>
 
