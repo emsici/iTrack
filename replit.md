@@ -199,6 +199,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 19, 2025. Each active course (UIT) now receives individual GPS coordinates every 60 seconds
 - June 19, 2025. Added CourseData structure to track multiple courses with individual vehicle numbers, UITs, and status
 - June 19, 2025. Notification displays active course count: "3 curse active - GPS tracking"
+- June 19, 2025. Updated all UI components with modern corporate glassmorphism design for professional business appearance
+- June 19, 2025. Implemented responsive design with media queries for optimal display on mobile and desktop devices
+- June 19, 2025. Enhanced course cards with UIT prominently displayed as primary identifier (most important field)
+- June 19, 2025. Structured course information: Header (UIT, ikRoTrans, codDeclarant), Summary (data, traseu), Dropdown (complete details)
+- June 19, 2025. Created consistent corporate design across LoginScreen, VehicleScreen, and course listing with Font Awesome icons
 
 ## User Preferences
 

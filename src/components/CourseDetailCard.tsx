@@ -110,12 +110,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         <div className="card-header-modern d-flex justify-content-between align-items-center">
           <div className="course-header-info">
             <div className="course-name-section">
-              <h5 className="course-title-main">ikRoTrans: {course.ikRoTrans}</h5>
-              <span className="course-id-badge">Cod: {course.codDeclarant}</span>
+              <h5 className="course-title-main">UIT: {course.uit}</h5>
+              <span className="course-id-badge">ikRoTrans: {course.ikRoTrans}</span>
             </div>
             <div className="course-route-info">
               <div className="route-display">
-                <span className="route-start">UIT: {course.uit}</span>
+                <span className="route-start">Cod: {course.codDeclarant}</span>
               </div>
             </div>
           </div>
