@@ -28,18 +28,12 @@
 
         </activity>
 
-        <!-- Simple GPS Service for background tracking -->
+        <!-- GPS Foreground Service for background tracking -->
         <service
-            android:name="com.euscagency.itrack.SimpleGPSService"
+            android:name="com.euscagency.itrack.GPSForegroundService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />
-
-        <!-- GPS Alarm Receiver for backup transmission redundancy -->
-        <receiver
-            android:name="com.euscagency.itrack.GPSAlarmReceiver"
-            android:enabled="true"
-            android:exported="false" />
 
 
 

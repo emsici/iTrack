@@ -115,29 +115,110 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             margin-bottom: 40px;
           }
 
-          .app-logo {
-            width: 90px;
+          .transport-logo {
+            width: 120px;
             height: 90px;
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin: 0 auto 25px;
-            box-shadow: 0 15px 35px rgba(79, 70, 229, 0.4);
-            animation: pulse 2s infinite;
+            position: relative;
+            animation: truckDrive 3s ease-in-out infinite;
+          }
+
+          .truck-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            cursor: pointer;
             transition: all 0.3s ease;
           }
 
-          .app-logo:hover {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.5);
+          .truck-container:hover {
+            transform: scale(1.1);
           }
 
-          .app-logo i {
-            font-size: 2.5rem;
-            color: white;
-            animation: bounce 2s infinite alternate;
+          .truck-body {
+            width: 70px;
+            height: 40px;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            border-radius: 8px;
+            position: absolute;
+            top: 25px;
+            left: 30px;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            animation: truckBounce 2s ease-in-out infinite;
+          }
+
+          .truck-cabin {
+            width: 25px;
+            height: 35px;
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            border-radius: 6px 6px 2px 2px;
+            position: absolute;
+            top: 20px;
+            left: 5px;
+            box-shadow: 0 3px 10px rgba(30, 64, 175, 0.3);
+          }
+
+          .truck-wheel {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #374151 0%, #111827 100%);
+            border-radius: 50%;
+            position: absolute;
+            top: 57px;
+            animation: wheelSpin 1s linear infinite;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          }
+
+          .truck-wheel:before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #6b7280;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            left: 5px;
+          }
+
+          .truck-wheel.front {
+            left: 15px;
+          }
+
+          .truck-wheel.rear {
+            left: 80px;
+          }
+
+          .truck-cargo {
+            width: 45px;
+            height: 30px;
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            border-radius: 4px;
+            position: absolute;
+            top: 30px;
+            left: 55px;
+            box-shadow: 0 3px 12px rgba(5, 150, 105, 0.3);
+          }
+
+          .truck-lights {
+            width: 4px;
+            height: 8px;
+            background: #fbbf24;
+            border-radius: 2px;
+            position: absolute;
+            top: 35px;
+            left: 1px;
+            animation: lightsFlash 2s ease-in-out infinite;
+          }
+
+          .truck-exhaust {
+            width: 3px;
+            height: 3px;
+            background: #9ca3af;
+            border-radius: 50%;
+            position: absolute;
+            top: 15px;
+            left: 102px;
+            animation: exhaustSmoke 1.5s ease-in-out infinite;
           }
 
           .app-title {
@@ -152,13 +233,29 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             letter-spacing: -1px;
           }
 
-          .app-subtitle {
-            font-size: 1.1rem;
-            color: #475569;
-            font-weight: 600;
-            animation: slideInFromRight 0.8s ease-out;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+          @keyframes truckDrive {
+            0%, 100% { transform: translateX(0px); }
+            50% { transform: translateX(10px); }
+          }
+
+          @keyframes truckBounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-2px); }
+          }
+
+          @keyframes wheelSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+
+          @keyframes lightsFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+          }
+
+          @keyframes exhaustSmoke {
+            0% { opacity: 0.8; transform: translateY(0px) scale(1); }
+            100% { opacity: 0; transform: translateY(-15px) scale(1.5); }
           }
 
           .login-form {
@@ -486,11 +583,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       
       <div className="login-card">
         <div className="login-header">
-          <div className="app-logo">
-            <i className="fas fa-route"></i>
+          <div className="transport-logo">
+            <div className="truck-container">
+              <div className="truck-cabin"></div>
+              <div className="truck-body"></div>
+              <div className="truck-cargo"></div>
+              <div className="truck-wheel front"></div>
+              <div className="truck-wheel rear"></div>
+              <div className="truck-lights"></div>
+              <div className="truck-exhaust"></div>
+            </div>
           </div>
           <h1 className="app-title">iTrack</h1>
-          <p className="app-subtitle">Business Transport Solutions</p>
         </div>
 
         <form onSubmit={handleLogin} className="login-form">
