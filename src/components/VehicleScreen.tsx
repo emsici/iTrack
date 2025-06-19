@@ -222,16 +222,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }
 
             .vehicle-card {
-              background: rgba(255, 255, 255, 0.15);
-              backdrop-filter: blur(20px);
-              border-radius: 20px;
-              padding: 40px;
+              background: rgba(255, 255, 255, 0.2);
+              backdrop-filter: blur(30px);
+              border-radius: 25px;
+              padding: 50px 45px;
               width: 100%;
-              max-width: 450px;
-              box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
-              border: 1px solid rgba(255, 255, 255, 0.2);
+              max-width: 520px;
+              box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.15),
+                0 15px 30px rgba(79, 70, 229, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+              border: 2px solid rgba(255, 255, 255, 0.3);
               position: relative;
               z-index: 1;
+              transform: translateY(0);
+              transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             .vehicle-header {
@@ -282,18 +287,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
             .vehicle-form-input {
               width: 100%;
-              padding: 16px 20px 16px 50px;
-              border: 1px solid rgba(255, 255, 255, 0.3);
-              border-radius: 12px;
-              background: rgba(255, 255, 255, 0.1);
+              padding: 18px 25px 18px 55px;
+              border: 2px solid rgba(255, 255, 255, 0.3);
+              border-radius: 15px;
+              background: rgba(255, 255, 255, 0.15);
               color: white;
-              font-size: 1.1rem;
-              font-weight: 600;
+              font-size: 1.2rem;
+              font-weight: 700;
               text-transform: uppercase;
-              letter-spacing: 1px;
-              transition: all 0.3s ease;
-              backdrop-filter: blur(10px);
+              letter-spacing: 2px;
+              transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+              backdrop-filter: blur(15px);
               text-align: center;
+              box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                0 4px 12px rgba(255, 255, 255, 0.1);
             }
 
             .vehicle-form-input::placeholder {
@@ -633,7 +641,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
 
           .courses-content {
-            padding: 20px 20px 120px 20px;
+            padding: 20px 20px 200px 20px;
             max-width: 1200px;
             margin: 0 auto;
             min-height: calc(100vh - 200px);
