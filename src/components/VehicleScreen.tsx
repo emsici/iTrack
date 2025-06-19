@@ -728,23 +728,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
           .version-info-bottom {
             position: fixed;
-            bottom: 80px;
+            bottom: 120px;
             left: 50%;
             transform: translateX(-50%);
-            color: #94a3b8;
-            font-size: 0.8rem;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 5px 15px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
+            color: #1e3c72;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
             cursor: pointer;
             user-select: none;
             transition: all 0.3s ease;
+            z-index: 1000;
+            border: 2px solid rgba(79, 70, 229, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
           }
 
           .version-info-bottom:hover {
-            background: rgba(255, 255, 255, 0.9);
-            transform: translateX(-50%) scale(1.05);
+            background: rgba(255, 255, 255, 1);
+            transform: translateX(-50%) scale(1.08);
+            border-color: rgba(79, 70, 229, 0.5);
+            box-shadow: 0 12px 35px rgba(79, 70, 229, 0.2);
           }
 
           .debug-prompt-overlay {
