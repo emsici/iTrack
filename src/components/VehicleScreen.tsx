@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
 import { getVehicleCourses, logout } from '../services/api';
-import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
+import { startGPSTracking, stopGPSTracking } from '../services/simpleGPS';
 import { clearToken } from '../services/storage';
 import CourseDetailCard from './CourseDetailCard';
 import '../styles/animations.css';
@@ -18,6 +18,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [error, setError] = useState('');
   const [coursesLoaded, setCoursesLoaded] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [showInfo, setShowInfo] = useState(false);
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -808,6 +809,134 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             }
           }
+
+          /* Info Modal Styles */
+          .info-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+          }
+
+          .info-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: slideInUp 0.3s ease;
+          }
+
+          .info-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+
+          .info-header h3 {
+            margin: 0;
+            color: #1e3c72;
+            font-size: 1.3rem;
+            font-weight: 700;
+          }
+
+          .info-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #64748b;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+          }
+
+          .info-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: #1e3c72;
+          }
+
+          .info-body {
+            padding: 20px 25px;
+          }
+
+          .info-section {
+            margin-bottom: 20px;
+          }
+
+          .info-section:last-child {
+            margin-bottom: 0;
+          }
+
+          .info-section h4 {
+            color: #1e3c72;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          .info-section h4 i {
+            color: #4f46e5;
+          }
+
+          .info-section p {
+            margin: 5px 0;
+            color: #64748b;
+            line-height: 1.5;
+          }
+
+          .info-section strong {
+            color: #1e3c72;
+          }
+
+          @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+          }
+
+          @keyframes slideInUp {
+            0% {
+              transform: translateY(30px);
+              opacity: 0;
+            }
+            100% {
+              transform: translateY(0);
+              opacity: 1;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .info-content {
+              margin: 10px;
+              max-height: 85vh;
+            }
+            
+            .info-header {
+              padding: 15px 20px;
+            }
+            
+            .info-body {
+              padding: 15px 20px;
+            }
+          }
         `}
       </style>
       
@@ -847,14 +976,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       </div>
       
       <div className="courses-bottom-nav">
-        <button className="nav-button">
+        <button className="nav-button" onClick={() => setShowInfo(!showInfo)}>
           <i className="fas fa-info-circle"></i>
           <span className="nav-button-label">Info</span>
-        </button>
-        
-        <button className="nav-button">
-          <i className="fas fa-chart-bar"></i>
-          <span className="nav-button-label">Statistici</span>
         </button>
         
         <button className="nav-button logout-nav-button" onClick={handleLogout}>
@@ -862,6 +986,39 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <span className="nav-button-label">Ieșire</span>
         </button>
       </div>
+      
+      {showInfo && (
+        <div className="info-modal" onClick={() => setShowInfo(false)}>
+          <div className="info-content" onClick={(e) => e.stopPropagation()}>
+            <div className="info-header">
+              <h3>iTrack - Informații Aplicație</h3>
+              <button className="info-close" onClick={() => setShowInfo(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="info-body">
+              <div className="info-section">
+                <h4><i className="fas fa-truck"></i> Vehicul</h4>
+                <p>Număr înmatriculare: <strong>{vehicleNumber}</strong></p>
+                <p>Curse active: <strong>{courses.filter(c => c.status === 2).length}</strong></p>
+                <p>Curse în pauză: <strong>{courses.filter(c => c.status === 3).length}</strong></p>
+              </div>
+              <div className="info-section">
+                <h4><i className="fas fa-satellite"></i> GPS Tracking</h4>
+                <p>Status: <strong>Activ</strong></p>
+                <p>Interval transmisie: <strong>60 secunde</strong></p>
+                <p>Background tracking: <strong>Activat</strong></p>
+              </div>
+              <div className="info-section">
+                <h4><i className="fas fa-mobile-alt"></i> Aplicație</h4>
+                <p>Versiune: <strong>1807.99</strong></p>
+                <p>Platform: <strong>Android/Web</strong></p>
+                <p>© 2025 iTrack Business Solutions</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="version-info-bottom">
         Versiunea 1807.99

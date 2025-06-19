@@ -224,6 +224,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 19, 2025. Implemented proper logout functionality with request to login.php sending {"iesire": 1} with Bearer token
 - June 19, 2025. Added automatic token clearing and data cleanup on logout with server communication
 - June 19, 2025. Enhanced logout process: server request → clear stored values → redirect to authentication
+- June 19, 2025. Fixed GPS tracking by switching to SimpleGPS service for reliable coordinate transmission
+- June 19, 2025. Removed Statistics button from navigation bar and implemented functional Info modal
+- June 19, 2025. Added comprehensive Info modal with vehicle details, GPS status, and application information
+- June 19, 2025. GPS now transmits coordinates every 60 seconds for all active courses using SimpleGPSTracker
+- June 19, 2025. Streamlined bottom navigation to Info and Logout buttons only for cleaner interface
 
 ## User Preferences
 
