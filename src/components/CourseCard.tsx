@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Course } from '../types';
 import { startGPSTracking, stopGPSTracking } from '../services/nativeGPS';
+import '../styles/courseCard.css';
 
 interface CourseCardProps {
   course: Course;
@@ -110,61 +111,137 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
 
   return (
-    <div className="card shadow-sm">
-      <div className="card-header bg-white">
-        <div className="course-info">
-          <div>
-            <h6 className="course-title mb-1">
-              🚚 {course.name || `Cursă ${course.id}`}
-            </h6>
-            <div className="d-flex gap-2 align-items-center">
-              <span className={`badge status-badge ${getStatusBadgeClass(course.status)}`}>
-                {getStatusText(course.status)}
-              </span>
-              <span className="course-uit">UIT: {course.uit}</span>
+    <div className="course-card-modern">
+      <div className="course-card-container">
+        {/* Main Course Header */}
+        <div className="course-header">
+          <div className="course-primary-info">
+            <div className="uit-badge-container">
+              <span className="uit-main-badge">UIT: {course.uit}</span>
+              {course.ikRoTrans && (
+                <span className="ikro-badge">#{course.ikRoTrans}</span>
+              )}
             </div>
-          </div>
-          <button
-            className="btn btn-outline-secondary btn-sm"
-            onClick={() => setExpanded(!expanded)}
-          >
-            {expanded ? '▲' : '▼'}
-          </button>
-        </div>
-      </div>
-
-      {expanded && (
-        <div className="card-body">
-          <div className="row mb-3">
-            <div className="col-6">
-              <small className="text-muted">Plecare:</small>
-              <div>{course.departure_location || 'Nu este specificat'}</div>
-            </div>
-            <div className="col-6">
-              <small className="text-muted">Destinație:</small>
-              <div>{course.destination_location || 'Nu este specificat'}</div>
-            </div>
-          </div>
-          
-          <div className="row mb-3">
-            <div className="col-6">
-              <small className="text-muted">Ora plecare:</small>
-              <div>{course.departure_time || 'Nu este specificat'}</div>
-            </div>
-            <div className="col-6">
-              <small className="text-muted">Ora sosire:</small>
-              <div>{course.arrival_time || 'Nu este specificat'}</div>
-            </div>
+            
+            {course.codDeclarant && course.denumireDeclarant && (
+              <div className="declarant-info">
+                <i className="fas fa-building me-2"></i>
+                <span className="declarant-text">
+                  {course.codDeclarant} - {course.denumireDeclarant}
+                </span>
+              </div>
+            )}
+            
+            {course.dataTransport && (
+              <div className="transport-date">
+                <i className="far fa-calendar-alt me-2"></i>
+                <span>{new Date(course.dataTransport).toLocaleDateString('ro-RO')}</span>
+              </div>
+            )}
           </div>
 
-          {course.description && (
-            <div className="mb-3">
-              <small className="text-muted">Descriere:</small>
-              <div>{course.description}</div>
+          <div className="course-actions">
+            <div className={`status-badge status-${course.status}`}>
+              <div className="status-indicator"></div>
+              <span className="status-text">{getStatusText(course.status)}</span>
             </div>
-          )}
+            
+            <button
+              className={`info-toggle-btn ${expanded ? 'expanded' : ''}`}
+              onClick={() => setExpanded(!expanded)}
+              disabled={loading}
+              title="Detalii cursă"
+            >
+              <i className={`fas fa-${expanded ? 'chevron-up' : 'info-circle'}`}></i>
+            </button>
+          </div>
         </div>
-      )}
+
+        {/* Expanded Details */}
+        {expanded && (
+          <div className="course-details-expanded">
+            <div className="course-details-container">
+              <div className="detail-row">
+                <div className="detail-item">
+                  <div className="detail-label">
+                    <i className="fas fa-map-marker-alt"></i>
+                    Plecare
+                  </div>
+                  <div className="detail-value">
+                    {course.departure_location || course.vama || 'Nu este specificat'}
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">
+                    <i className="fas fa-flag-checkered"></i>
+                    Destinație
+                  </div>
+                  <div className="detail-value">
+                    {course.destination_location || course.vamaStop || 'Nu este specificat'}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="detail-row">
+                <div className="detail-item">
+                  <div className="detail-label">
+                    <i className="fas fa-clock"></i>
+                    Ora plecare
+                  </div>
+                  <div className="detail-value">
+                    {course.departure_time || 'Nu este specificat'}
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">
+                    <i className="far fa-clock"></i>
+                    Ora sosire
+                  </div>
+                  <div className="detail-value">
+                    {course.arrival_time || 'Nu este specificat'}
+                  </div>
+                </div>
+              </div>
+
+              {(course.birouVamal || course.judet) && (
+                <div className="detail-row">
+                  <div className="detail-item">
+                    <div className="detail-label">
+                      <i className="fas fa-university"></i>
+                      Birou vamal
+                    </div>
+                    <div className="detail-value">
+                      {course.birouVamal || 'Nu este specificat'}
+                    </div>
+                  </div>
+                  <div className="detail-item">
+                    <div className="detail-label">
+                      <i className="fas fa-map"></i>
+                      Județ
+                    </div>
+                    <div className="detail-value">
+                      {course.judet || 'Nu este specificat'}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {course.description && (
+                <div className="detail-row">
+                  <div className="detail-item">
+                    <div className="detail-label">
+                      <i className="fas fa-info-circle"></i>
+                      Descriere
+                    </div>
+                    <div className="detail-value">
+                      {course.description}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
       <div className="card-footer bg-white">
         <div className="row g-2">
