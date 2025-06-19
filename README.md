@@ -211,5 +211,4 @@ Pentru probleme tehnice sau întrebări despre aplicație, contactați echipa de
 - **Dezvoltat pentru:** EUSC Agency Transport Management
 
 ---
-
 *Aplicație dezvoltată pentru gestionarea eficientă a transporturilor și urmărirea în timp real a vehiculelor comerciale.*
