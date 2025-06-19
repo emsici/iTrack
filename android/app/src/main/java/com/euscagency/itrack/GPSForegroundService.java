@@ -595,34 +595,59 @@ public class GPSForegroundService extends Service implements LocationListener {
     }
 
     private void sendGPSDataToServer() {
-        if (lastLocation == null || authToken == null) {
-            Log.w(TAG, "No location data or auth token available");
+        if (lastLocation == null) {
+            Log.w(TAG, "⚠️ No location data available - trying to get last known location");
+            tryGetLastKnownLocation();
+            return;
+        }
+
+        if (authToken == null || authToken.trim().isEmpty()) {
+            Log.e(TAG, "❌ No auth token available - cannot send GPS data");
             return;
         }
 
         try {
-            // Get battery level
+            // Get battery level with fallback
             int batteryLevel = getBatteryLevel();
+            if (batteryLevel < 0) batteryLevel = 100; // Fallback if battery info unavailable
 
-            // Prepare GPS data
+            // Prepare GPS data with enhanced validation
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
             String timestamp = sdf.format(new Date());
 
+            // Calculate speed with validation
+            float speedMs = lastLocation.hasSpeed() ? lastLocation.getSpeed() : 0.0f;
+            int speedKmh = Math.max(0, Math.round(speedMs * 3.6f)); // Convert m/s to km/h
+
+            // Calculate altitude with validation
+            double altitude = lastLocation.hasAltitude() ? lastLocation.getAltitude() : 0.0;
+
+            // Calculate accuracy with validation
+            float accuracy = lastLocation.hasAccuracy() ? lastLocation.getAccuracy() : 999.0f;
+
             JSONObject gpsData = new JSONObject();
-            gpsData.put("lat", lastLocation.getLatitude());
-            gpsData.put("lng", lastLocation.getLongitude());
+            gpsData.put("lat", String.format("%.8f", lastLocation.getLatitude()));
+            gpsData.put("lng", String.format("%.8f", lastLocation.getLongitude()));
             gpsData.put("timestamp", timestamp);
-            gpsData.put("viteza", Math.round(lastLocation.getSpeed() * 3.6)); // km/h
+            gpsData.put("viteza", speedKmh);
             gpsData.put("directie", Math.round(lastValidBearing));
-            gpsData.put("altitudine", Math.round(lastLocation.getAltitude()));
+            gpsData.put("altitudine", Math.round(altitude));
             gpsData.put("baterie", batteryLevel);
-            gpsData.put("numar_inmatriculare", vehicleNumber);
-            gpsData.put("uit", uit);
+            gpsData.put("numar_inmatriculare", vehicleNumber != null ? vehicleNumber : "UNKNOWN");
+            gpsData.put("uit", uit != null ? uit : "0");
             gpsData.put("status", String.valueOf(courseStatus));
-            gpsData.put("hdop", Math.round(lastLocation.getAccuracy()));
+            gpsData.put("hdop", Math.round(accuracy));
             gpsData.put("gsm_signal", getGSMSignalStrength());
 
-            // Send to server
+            // Log detailed GPS data being sent
+            Log.i(TAG, "📡 Preparing GPS transmission:");
+            Log.i(TAG, "   📍 Location: " + lastLocation.getLatitude() + ", " + lastLocation.getLongitude());
+            Log.i(TAG, "   🚗 Vehicle: " + vehicleNumber + " | UIT: " + uit + " | Status: " + courseStatus);
+            Log.i(TAG, "   📊 Speed: " + speedKmh + " km/h | Bearing: " + Math.round(lastValidBearing) + "°");
+            Log.i(TAG, "   🔋 Battery: " + batteryLevel + "% | GSM: " + getGSMSignalStrength());
+            Log.i(TAG, "   🎯 Accuracy: " + Math.round(accuracy) + "m | Altitude: " + Math.round(altitude) + "m");
+
+            // Send to server with enhanced error handling
             RequestBody body = RequestBody.create(
                 gpsData.toString(),
                 MediaType.get("application/json; charset=utf-8")
@@ -631,33 +656,60 @@ public class GPSForegroundService extends Service implements LocationListener {
             Request request = new Request.Builder()
                 .url("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php")
                 .addHeader("Authorization", "Bearer " + authToken)
-                .addHeader("Content-Type", "application/json")
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("User-Agent", "iTrack/1.0 Android GPS Service")
+                .addHeader("Accept", "application/json")
+                .addHeader("X-Requested-With", "iTrack")
                 .post(body)
                 .build();
+
+            Log.d(TAG, "🌐 Sending GPS request to: " + request.url());
+            Log.d(TAG, "🔑 Auth token: " + authToken.substring(0, Math.min(10, authToken.length())) + "...");
 
             httpClient.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    Log.e(TAG, "Failed to send GPS data", e);
+                    Log.e(TAG, "❌ Network failure sending GPS data: " + e.getMessage());
+                    Log.e(TAG, "🔗 Failed URL: " + call.request().url());
+                    Log.e(TAG, "🏥 Network error details: " + e.getClass().getSimpleName());
+                    
+                    // Try to get a fresh location for next attempt
+                    tryGetLastKnownLocation();
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    if (response.isSuccessful()) {
-                        Log.d(TAG, "GPS data sent successfully");
-                    } else {
-                        Log.w(TAG, "GPS data send failed with code: " + response.code());
+                    String responseBody = "";
+                    try {
+                        if (response.body() != null) {
+                            responseBody = response.body().string();
+                        }
+
+                        if (response.isSuccessful()) {
+                            Log.i(TAG, "✅ GPS data sent successfully!");
+                            Log.i(TAG, "📋 Server response: " + responseBody);
+                            Log.i(TAG, "📍 Transmitted location: " + lastLocation.getLatitude() + "," + lastLocation.getLongitude());
+                        } else {
+                            Log.e(TAG, "❌ Server error " + response.code() + " - " + response.message());
+                            Log.e(TAG, "📋 Error response: " + responseBody);
+                            Log.e(TAG, "🔍 Request headers: " + call.request().headers());
+                            Log.e(TAG, "🔍 Response headers: " + response.headers());
+                            
+                            // Log the actual request data for debugging
+                            Log.e(TAG, "📤 Request data sent: " + gpsData.toString());
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "💥 Error processing server response", e);
+                    } finally {
+                        response.close();
                     }
-                    response.close();
                 }
             });
 
-            Log.i(TAG, String.format("GPS data transmitted: lat=%.6f, lng=%.6f, speed=%.1f km/h, course=%s, UIT=%s", 
-                lastLocation.getLatitude(), lastLocation.getLongitude(), 
-                lastLocation.getSpeed() * 3.6, courseId, uit));
-
         } catch (Exception e) {
-            Log.e(TAG, "Error sending GPS data", e);
+            Log.e(TAG, "💥 Critical error creating GPS payload", e);
+            Log.e(TAG, "🔧 Location details: lat=" + lastLocation.getLatitude() + 
+                     ", lng=" + lastLocation.getLongitude() + ", provider=" + lastLocation.getProvider());
         }
     }
 
