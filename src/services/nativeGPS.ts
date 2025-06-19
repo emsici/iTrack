@@ -49,10 +49,24 @@ class NativeGPSService {
     
     this.activeCourses.set(courseId, courseData);
     
+    // Detailed plugin diagnostics for APK debugging
+    console.log(`Plugin Diagnostics:`);
+    console.log(`- Window object exists: ${typeof window !== 'undefined'}`);
+    console.log(`- GPSTracking plugin available: ${!!(window as any)?.GPSTracking}`);
+    console.log(`- Plugin methods: ${Object.keys((window as any)?.GPSTracking || {})}`);
+    console.log(`- User agent: ${navigator.userAgent}`);
+    console.log(`- Platform: ${(window as any)?.Capacitor?.platform || 'unknown'}`);
+    
     // Connect to native Android GPS plugin
-    if (typeof window !== 'undefined' && window.GPSTracking) {
+    if (typeof window !== 'undefined' && (window as any).GPSTracking) {
       try {
-        const result = await window.GPSTracking.startGPSTracking({
+        console.log(`Calling native GPS plugin with parameters:`);
+        console.log(`- Vehicle: ${vehicleNumber}`);
+        console.log(`- Course: ${courseId}`);
+        console.log(`- UIT: ${uit}`);
+        console.log(`- Status: ${status}`);
+        
+        const result = await (window as any).GPSTracking.startGPSTracking({
           vehicleNumber,
           courseId,
           uit,
@@ -60,19 +74,29 @@ class NativeGPSService {
           status
         });
         
+        console.log(`Native GPS plugin response:`, result);
+        
         if (result && result.success) {
           console.log(`GPS tracking started successfully for UIT: ${uit}`);
           console.log(`EnhancedGPSService will transmit coordinates every 60 seconds`);
         } else {
-          console.warn(`GPS tracking setup failed: ${result?.message || 'Unknown error'}`);
+          console.error(`GPS tracking setup failed: ${result?.message || 'Unknown error'}`);
+          console.error(`Full response:`, result);
         }
-      } catch (nativeError) {
-        console.warn('GPS plugin error:', nativeError);
-        console.log('Course tracking continues in app state');
+      } catch (nativeError: any) {
+        console.error('GPS plugin error:', nativeError);
+        console.error('Error details:', {
+          name: nativeError?.name,
+          message: nativeError?.message,
+          stack: nativeError?.stack
+        });
       }
     } else {
-      console.log('Running in web environment - GPS tracking simulated');
-      console.log(`Course ${courseId} with UIT ${uit} marked as active`);
+      console.warn('GPS plugin not available - diagnostics:');
+      console.warn(`- Window: ${typeof window}`);
+      console.warn(`- GPSTracking: ${typeof (window as any)?.GPSTracking}`);
+      console.warn(`- Available plugins: ${Object.keys((window as any)?.Capacitor?.Plugins || {})}`);
+      console.log(`Course ${courseId} with UIT ${uit} marked as active (web mode)`);
     }
   }
 
