@@ -65,7 +65,7 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
       }
 
       updateStatus();
-      interval = setInterval(updateStatus, 3000);
+      interval = setInterval(updateStatus, 5000);
 
       return () => {
         clearInterval(interval);

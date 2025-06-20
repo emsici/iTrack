@@ -157,7 +157,7 @@ class OfflineSyncStatusService {
       } catch (error) {
         console.error('❌ Error tracking sync progress:', error);
       }
-    }, 2000); // Check every 2 seconds
+    }, 5000); // Check every 5 seconds
   }
 
   /**

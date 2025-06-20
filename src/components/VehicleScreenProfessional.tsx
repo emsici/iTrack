@@ -10,7 +10,7 @@ import { clearToken } from "../services/storage";
 import { getOfflineGPSCount, getOfflineGPSInfo } from "../services/offlineGPS";
 import CourseStatsModal from "./CourseStatsModal";
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
-import "../styles/professionalVehicleScreen.css";
+
 
 interface VehicleScreenProps {
   token: string;

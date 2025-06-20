@@ -361,8 +361,10 @@ class DirectAndroidGPSService {
       const offlineCount = await getOfflineGPSCount();
       console.log(`Current offline coordinates: ${offlineCount}`);
 
-      // Test HTTP transmission
+      // Primary GPS transmission logic - no conflicts
       try {
+        console.log("Attempting GPS transmission to server...");
+        
         const response = await fetch(
           "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php",
           {
@@ -377,23 +379,28 @@ class DirectAndroidGPSService {
         );
 
         if (response.ok) {
-          console.log("GPS test transmission successful!");
-          console.log("Response status:", response.status);
+          console.log("✅ GPS transmission successful! Server response:", response.status);
           
-          // Test sync offline coordinates
+          // After successful transmission, sync any existing offline coordinates
           if (offlineCount > 0) {
-            await syncOfflineGPS();
+            console.log(`🔄 Syncing ${offlineCount} stored offline coordinates`);
+            setTimeout(async () => {
+              try {
+                await syncOfflineGPS();
+                console.log("✅ Offline coordinates sync completed");
+              } catch (syncError) {
+                console.error("❌ Offline sync failed:", syncError);
+              }
+            }, 1000); // Delay to avoid conflicts
           }
         } else {
-          console.log("GPS test transmission failed:", response.status);
-          
-          // Save to offline storage when transmission fails
+          console.log("❌ GPS transmission failed - Status:", response.status);
+          console.log("💾 Saving coordinate to offline storage");
           await saveGPSCoordinateOffline(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
         }
-      } catch (fetchError) {
-        console.log("Network error during test transmission:", fetchError);
-        
-        // Save to offline storage when network error
+      } catch (networkError) {
+        console.log("🔌 Network error - No internet connection");
+        console.log("💾 Saving coordinate to offline storage");
         await saveGPSCoordinateOffline(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
       }
     } catch (error) {
