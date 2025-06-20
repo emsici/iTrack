@@ -333,6 +333,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 20, 2025. COURSE STATISTICS SYSTEM: Individual and total metrics for distance, time, speed, fuel, stops per course
 - June 20, 2025. Added STATS modal with interactive course analytics using Haversine distance calculation
 - June 20, 2025. Fixed CSS production build error - removed orphan margin declaration causing compilation failure
+- June 20, 2025. SIMPLIFIED STATISTICS: Removed fuel consumption estimates (too variable for trucks without real data)
+- June 20, 2025. Removed GPS points count from statistics display - kept internally for calculations
+- June 20, 2025. Increased offline sync batch size from 5 to 50 coordinates for better efficiency
+- June 20, 2025. Enhanced course details display includes complete customs office information (BirouVamal, BirouVamalStop)
+- June 20, 2025. Real GSM signal strength reading from Android TelephonyManager replaces all hardcoded values
 
 ## User Preferences
 
