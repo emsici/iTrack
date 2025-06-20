@@ -1062,6 +1062,160 @@ html, body {
   100% { transform: translateY(1px); }
 }
 
+/* Debug Panel Styles */
+.debug-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.debug-stat-item {
+  font-size: 14px;
+  color: #374151;
+}
+
+.debug-stat-item strong {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.debug-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.debug-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.debug-btn.copy-logs {
+  background: #3b82f6;
+  color: white;
+}
+
+.debug-btn.copy-logs:hover {
+  background: #2563eb;
+}
+
+.debug-btn.refresh-data {
+  background: #10b981;
+  color: white;
+}
+
+.debug-btn.refresh-data:hover {
+  background: #059669;
+}
+
+.debug-logs-container {
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.debug-logs-container h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.debug-logs-list {
+  max-height: 350px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.debug-log-item {
+  display: grid;
+  grid-template-columns: 80px 60px 1fr;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 12px;
+  align-items: center;
+}
+
+.debug-log-item:last-child {
+  border-bottom: none;
+}
+
+.debug-log-item.error {
+  background: #fef2f2;
+  border-left: 3px solid #ef4444;
+}
+
+.debug-log-item.warn {
+  background: #fffbeb;
+  border-left: 3px solid #f59e0b;
+}
+
+.debug-log-item.info {
+  background: #eff6ff;
+  border-left: 3px solid #3b82f6;
+}
+
+.debug-log-item.debug {
+  background: #f0fdf4;
+  border-left: 3px solid #10b981;
+}
+
+.log-time {
+  font-size: 11px;
+  color: #6b7280;
+  font-family: monospace;
+}
+
+.log-level {
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.debug-log-item.error .log-level {
+  color: #dc2626;
+}
+
+.debug-log-item.warn .log-level {
+  color: #d97706;
+}
+
+.debug-log-item.info .log-level {
+  color: #2563eb;
+}
+
+.debug-log-item.debug .log-level {
+  color: #059669;
+}
+
+.log-message {
+  color: #374151;
+  word-break: break-word;
+}
+
+.no-logs {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+}
+
 /* Professional Course Card */
 .professional-course-card {
   background: white;

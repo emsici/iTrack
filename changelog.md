@@ -425,6 +425,8 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Logo corporatist unificat: Aplicat același logo iTrack cu camion pe toate paginile - login, input vehicul, listă curse
 - 20 iunie. Design consistent complet: Logo animat cu efecte corporatiste și poziționare identică în toate header-urile
 - 20 iunie. Cardurile curse îmbunătățite: Design corporatist avansat cu glassmorphism, gradiente și animații business
+- 20 iunie. Debug panel funcțional: Implementat complet cu modal overlay, logging persistent și funcții Copy/Refresh
+- 20 iunie. Activare debug fixată: 50 click-uri pe logo-ul corporatist activează debug panel cu logs aplicație
 
 ### Versiune Curentă: iTrack v1807.99
 

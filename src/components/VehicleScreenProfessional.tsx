@@ -27,6 +27,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [infoClickCount, setInfoClickCount] = useState(0);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [debugLogs, setDebugLogs] = useState<any[]>([]);
   const [showStatsModal, setShowStatsModal] = useState(false);
 
   const handleLoadCourses = async () => {
@@ -79,11 +81,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const handleTimestampClick = () => {
+  const handleTimestampClick = async () => {
     setInfoClickCount(prev => prev + 1);
     if (infoClickCount >= 49) {
-      // Debug panel functionality would be activated here
-      setInfoClickCount(0);
+      // Load debug logs and show panel
+      try {
+        const { getAppLogs } = await import('../services/appLogger');
+        const logs = await getAppLogs();
+        setDebugLogs(logs);
+        setShowDebugPanel(true);
+        setInfoClickCount(0);
+      } catch (error) {
+        console.error('Error loading debug logs:', error);
+        setShowDebugPanel(true);
+        setInfoClickCount(0);
+      }
     }
   };
 
@@ -231,8 +243,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
               </div>
               <div className="header-text-section">
-                <h1 className="header-title">iTrack</h1>
-                <p className="header-subtitle">Sistem Enterprise GPS</p>
               </div>
               {infoClickCount >= 30 && (
                 <div className="click-counter-badge">
@@ -458,6 +468,82 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         isOnline={isOnline}
         coursesActive={coursesLoaded}
       />
+
+      {/* Debug Panel Modal */}
+      {showDebugPanel && (
+        <div className="admin-modal-overlay" onClick={() => setShowDebugPanel(false)}>
+          <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h3>Debug Panel iTrack</h3>
+              <button className="modal-close" onClick={() => setShowDebugPanel(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="admin-modal-body">
+              <div className="debug-stats">
+                <div className="debug-stat-item">
+                  <strong>Total Logs:</strong> {debugLogs.length}
+                </div>
+                <div className="debug-stat-item">
+                  <strong>Vehicul:</strong> {vehicleNumber || 'Nespecificat'}
+                </div>
+                <div className="debug-stat-item">
+                  <strong>Status:</strong> {isOnline ? 'Online' : 'Offline'}
+                </div>
+                <div className="debug-stat-item">
+                  <strong>Curse:</strong> {courses.length}
+                </div>
+              </div>
+              
+              <div className="debug-actions">
+                <button 
+                  className="debug-btn copy-logs"
+                  onClick={() => {
+                    const logsText = debugLogs.map(log => 
+                      `[${log.timestamp}] ${log.level}: ${log.message}`
+                    ).join('\n');
+                    navigator.clipboard.writeText(logsText);
+                    alert('Logs copied to clipboard!');
+                  }}
+                >
+                  <i className="fas fa-copy"></i> Copy Logs
+                </button>
+                
+                <button 
+                  className="debug-btn refresh-data"
+                  onClick={async () => {
+                    if (vehicleNumber) {
+                      await handleLoadCourses();
+                    }
+                    const { getAppLogs } = await import('../services/appLogger');
+                    const logs = await getAppLogs();
+                    setDebugLogs(logs);
+                  }}
+                >
+                  <i className="fas fa-sync"></i> Refresh Data
+                </button>
+              </div>
+
+              <div className="debug-logs-container">
+                <h4>Application Logs</h4>
+                <div className="debug-logs-list">
+                  {debugLogs.length === 0 ? (
+                    <div className="no-logs">No logs available</div>
+                  ) : (
+                    debugLogs.slice(-50).reverse().map((log, index) => (
+                      <div key={index} className={`debug-log-item ${log.level.toLowerCase()}`}>
+                        <span className="log-time">{log.timestamp}</span>
+                        <span className="log-level">{log.level}</span>
+                        <span className="log-message">{log.message}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
