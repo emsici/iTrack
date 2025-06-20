@@ -317,7 +317,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
               </div>
               <div className="header-text-section">
-                <h1 className="header-title">iTrack</h1>
                 <p className="header-subtitle">Vehicul: {vehicleNumber}</p>
               </div>
               {infoClickCount >= 30 && (

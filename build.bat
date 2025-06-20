@@ -11,7 +11,7 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo ✓ Dependinte instalate
+echo - Dependinte instalate
 
 echo.
 echo [2/4] Build proiect...
@@ -21,7 +21,7 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo ✓ Proiect compilat
+echo - Proiect compilat
 
 echo.
 echo [3/4] Sincronizare cu Android...
@@ -31,7 +31,7 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo ✓ Android sincronizat
+echo - Android sincronizat
 
 echo.
 echo [4/4] Deschidere Android Studio...
@@ -41,7 +41,7 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-echo ✓ Android Studio deschis
+echo - Android Studio deschis
 
 echo.
 echo ========================================
