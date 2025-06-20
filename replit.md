@@ -196,6 +196,7 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Safe-area positioning complet**: Header poziționat sub bara nativă de sus, footer și conținut poziționat deasupra barei native de jos
 - **Logo centrat perfect**: Header redesignat cu logo-ul centrat absolut stânga-dreapta folosind transform: translateX(-50%)
 - **Design carduri optimizat**: Eliminat suprapunerile, spacing organizat, folosește doar datele reale din API fără câmpuri inventate
+- **GPS testing validat**: Testat cu curl statusurile 2→3→2 folosind token real, transmisie coordonate confirmată la server
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin
