@@ -38,27 +38,19 @@
             android:fillColor="#E0E7FF"/>
         
         <!-- Front Wheel -->
-        <circle
-            android:cx="7"
-            android:cy="3"
-            android:radius="2.5"
+        <path
+            android:pathData="M7,0.5 A2.5,2.5 0 1,1 7,5.5 A2.5,2.5 0 1,1 7,0.5 Z"
             android:fillColor="#374151"/>
-        <circle
-            android:cx="7"
-            android:cy="3"
-            android:radius="1.5"
+        <path
+            android:pathData="M7,1.5 A1.5,1.5 0 1,1 7,4.5 A1.5,1.5 0 1,1 7,1.5 Z"
             android:fillColor="#9CA3AF"/>
         
         <!-- Rear Wheel -->
-        <circle
-            android:cx="-9"
-            android:cy="3"
-            android:radius="2.5"
+        <path
+            android:pathData="M-9,0.5 A2.5,2.5 0 1,1 -9,5.5 A2.5,2.5 0 1,1 -9,0.5 Z"
             android:fillColor="#374151"/>
-        <circle
-            android:cx="-9"
-            android:cy="3"
-            android:radius="1.5"
+        <path
+            android:pathData="M-9,1.5 A1.5,1.5 0 1,1 -9,4.5 A1.5,1.5 0 1,1 -9,1.5 Z"
             android:fillColor="#9CA3AF"/>
         
         <!-- Cabin Window -->
@@ -67,10 +59,8 @@
             android:fillColor="#60A5FA"/>
         
         <!-- Headlight -->
-        <circle
-            android:cx="8"
-            android:cy="-4"
-            android:radius="1"
+        <path
+            android:pathData="M8,-5 A1,1 0 1,1 8,-3 A1,1 0 1,1 8,-5 Z"
             android:fillColor="#FEF3C7"/>
             
         <!-- Front Grille Lines -->
