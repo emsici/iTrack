@@ -281,29 +281,69 @@ public class EnhancedGPSService extends Service implements LocationListener {
         try {
             Location gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             Location networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            Location passiveLocation = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
             
-            if (gpsLocation != null) {
-                lastKnownLocation = gpsLocation;
-            } else if (networkLocation != null) {
-                lastKnownLocation = networkLocation;
+            // Priority: GPS > Network > Passive, but prefer recent locations
+            Location bestLocation = null;
+            
+            if (gpsLocation != null && isFreshLocation(gpsLocation)) {
+                bestLocation = gpsLocation;
+                Log.d(TAG, "📍 Using fresh GPS location");
+            } else if (networkLocation != null && isFreshLocation(networkLocation)) {
+                bestLocation = networkLocation;
+                Log.d(TAG, "📶 Using fresh network location");
+            } else if (passiveLocation != null && isFreshLocation(passiveLocation)) {
+                bestLocation = passiveLocation;
+                Log.d(TAG, "🔄 Using fresh passive location");
+            } else {
+                // Use any available location if no fresh ones
+                bestLocation = gpsLocation != null ? gpsLocation : 
+                              networkLocation != null ? networkLocation : passiveLocation;
+                if (bestLocation != null) {
+                    Log.w(TAG, "⚠️ Using older location (no fresh location available)");
+                }
             }
             
-            if (lastKnownLocation != null) {
-                Log.d(TAG, "📍 Last known location acquired: " + 
-                      lastKnownLocation.getLatitude() + ", " + lastKnownLocation.getLongitude());
+            if (bestLocation != null) {
+                lastKnownLocation = bestLocation;
+                long ageMinutes = (System.currentTimeMillis() - bestLocation.getTime()) / (1000 * 60);
+                Log.i(TAG, "📍 Location acquired: " + 
+                      String.format("%.6f, %.6f", bestLocation.getLatitude(), bestLocation.getLongitude()) +
+                      " | Age: " + ageMinutes + " minutes" +
+                      " | Provider: " + bestLocation.getProvider());
+            } else {
+                Log.e(TAG, "❌ No location available from any provider");
             }
         } catch (SecurityException e) {
             Log.e(TAG, "❌ Cannot access last known location", e);
         }
     }
     
+    private boolean isFreshLocation(Location location) {
+        if (location == null) return false;
+        long locationAge = System.currentTimeMillis() - location.getTime();
+        return locationAge < 5 * 60 * 1000; // 5 minutes
+    }
+    
 
     
     private void transmitGPSDataForAllCourses() {
         if (lastKnownLocation == null) {
-            Log.w(TAG, "⚠️ No location available for transmission");
+            Log.w(TAG, "⚠️ No location available - attempting to get fresh location");
             getLastKnownLocation();
-            return;
+            
+            // Wait briefly and try again
+            try {
+                Thread.sleep(2000);
+                getLastKnownLocation();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            
+            if (lastKnownLocation == null) {
+                Log.e(TAG, "❌ Still no location available - skipping transmission cycle");
+                return;
+            }
         }
         
         if (activeCourses.isEmpty()) {
@@ -600,14 +640,23 @@ public class EnhancedGPSService extends Service implements LocationListener {
     
     @Override
     public void onLocationChanged(Location location) {
-        if (location != null && isBetterLocation(location, lastKnownLocation)) {
+        if (location != null) {
+            // Always update location to prevent timeout issues
             lastKnownLocation = location;
             
-            Log.i(TAG, "📍 HIGH-PRECISION GPS: " + 
+            Log.i(TAG, "📍 GPS UPDATE: " + 
                   String.format("Lat: %.8f, Lng: %.8f", location.getLatitude(), location.getLongitude()) +
                   " | Accuracy: " + String.format("%.2f", location.getAccuracy()) + "m" +
                   " | Provider: " + location.getProvider() +
-                  " | Speed: " + String.format("%.2f", location.getSpeed() * 3.6f) + " km/h");
+                  " | Age: " + ((System.currentTimeMillis() - location.getTime()) / 1000) + "s");
+                  
+            // Log additional location details for debugging
+            if (location.hasSpeed()) {
+                Log.d(TAG, "Speed: " + String.format("%.2f", location.getSpeed() * 3.6f) + " km/h");
+            }
+            if (location.hasBearing()) {
+                Log.d(TAG, "Bearing: " + String.format("%.2f", location.getBearing()) + "°");
+            }
         }
     }
     

@@ -195,8 +195,6 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                       <div className="detail-value">{course.dataTransport}</div>
                     </div>
                   </div>
-                </div>
-
                   <div className="detail-item">
                     <div className="detail-content">
                       <div className="detail-label">Număr Vehicul:</div>
