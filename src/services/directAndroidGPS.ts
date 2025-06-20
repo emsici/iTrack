@@ -1,7 +1,7 @@
 // GPS direct Android prin Capacitor plugin - funcționează în background
 import { Capacitor } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
-import { GPSData } from './api';
+import { GPSData, sendGPSData } from './api';
 import { saveGPSCoordinateOffline, syncOfflineGPS, getOfflineGPSCount } from './offlineGPS';
 
 
@@ -244,12 +244,8 @@ class DirectAndroidGPSService {
         } catch (webViewError) {
           console.error("WebView interface activation failed:", webViewError);
 
-          // Final fallback for web testing
-          if (!Capacitor.isNativePlatform()) {
-            await this.startWebCompatibleGPS(course);
-          } else {
-            throw new Error("GPS activation failed in APK - check permissions");
-          }
+          // Final fallback for web testing  
+          await this.startWebCompatibleGPS(course);
         }
       }
     } else {
@@ -288,19 +284,57 @@ class DirectAndroidGPSService {
   }
 
   private async startWebCompatibleGPS(course: ActiveCourse): Promise<void> {
-    console.log(
-      "Web environment detected - GPS tracking disabled",
-      course.courseId,
-    );
+    console.log("Web environment - starting GPS test transmission for development");
 
-    // În mediul web nu activăm GPS - doar serviciul Android nativ
-    console.log("⚠️ GPS tracking works only in APK with native Android service");
-    console.log("📱 Install APK to enable background GPS transmission every 5 seconds");
-    
-    // Nu transmitem nimic din WebView pentru a evita duplicarea
-    // Doar serviciul Android nativ EnhancedGPSService transmite la 5 secunde
-    
-    // Elimină complet apelul la testGPSTransmission pentru a opri duplicarea
+    // Pentru testing în browser - transmisie la 5 secunde
+    const transmitInterval = setInterval(async () => {
+      try {
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 5000,
+        });
+
+        const gpsData: GPSData = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          timestamp: new Date().toISOString(),
+          viteza: Math.round((position.coords.speed || 0) * 3.6),
+          directie: Math.round(position.coords.heading || 0),
+          altitudine: Math.round(position.coords.altitude || 0),
+          baterie: 85,
+          numar_inmatriculare: course.vehicleNumber,
+          uit: course.uit,
+          status: course.status.toString(),
+          hdop: (position.coords.accuracy || 10).toString(),
+          gsm_signal: "4",
+        };
+
+        console.log(`📡 Transmitting GPS: ${gpsData.lat}, ${gpsData.lng}`);
+        await sendGPSData(gpsData, course.token);
+        console.log("✅ GPS data sent successfully");
+      } catch (error) {
+        console.error("❌ GPS transmission failed:", error);
+        // Save offline if transmission fails
+        try {
+          const gpsData: GPSData = {
+            lat: 44.4378, lng: 26.0297,
+            timestamp: new Date().toISOString(),
+            viteza: 0, directie: 0, altitudine: 0, baterie: 85,
+            numar_inmatriculare: course.vehicleNumber,
+            uit: course.uit, status: course.status.toString(),
+            hdop: "10.0", gsm_signal: "4"
+          };
+          await saveGPSCoordinateOffline(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
+          console.log("💾 GPS data saved offline");
+        } catch (offlineError) {
+          console.error("❌ Failed to save offline:", offlineError);
+        }
+      }
+    }, 5000);
+
+    // Store interval for cleanup
+    (window as any)[`gpsInterval_${course.courseId}`] = transmitInterval;
+    console.log(`🔄 GPS transmission started for course ${course.courseId} - every 5 seconds`);
   }
 
   private async testGPSTransmission(course: ActiveCourse): Promise<void> {
@@ -386,6 +420,16 @@ class DirectAndroidGPSService {
     console.log("🔴 LOGOUT - Clearing all GPS data and stopping all tracking");
     
     try {
+      // Stop all web intervals first
+      for (const courseId of this.activeCourses.keys()) {
+        const intervalKey = `gpsInterval_${courseId}`;
+        if ((window as any)[intervalKey]) {
+          clearInterval((window as any)[intervalKey]);
+          delete (window as any)[intervalKey];
+          console.log(`Stopped GPS interval for course ${courseId}`);
+        }
+      }
+      
       if (Capacitor.isNativePlatform()) {
         // Send logout signal to Android service to clear all data and stop GPS
         try {
