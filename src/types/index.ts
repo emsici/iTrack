@@ -17,9 +17,11 @@ export interface Course {
   vama?: string;
   birouVamal?: string;
   judet?: string;
+  denumireLocStart?: string;
   vamaStop?: string;
   birouVamalStop?: string;
   judetStop?: string;
+  denumireLocStop?: string;
 }
 
 export interface GPSPosition {

@@ -166,11 +166,17 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               </h6>
               
               <div className="details-grid">
-                {/* Declarant Section */}
+                {/* Informații Transport */}
                 <div className="detail-group">
                   <h6 className="group-title">
-                    <i className="fas fa-building me-2"></i>Declarant
+                    <i className="fas fa-info-circle me-2"></i>Informații Transport
                   </h6>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">ikRoTrans:</div>
+                      <div className="detail-value font-weight-bold text-primary">{course.ikRoTrans}</div>
+                    </div>
+                  </div>
                   <div className="detail-item">
                     <div className="detail-content">
                       <div className="detail-label">Cod Declarant:</div>
@@ -179,49 +185,22 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   </div>
                   <div className="detail-item">
                     <div className="detail-content">
-                      <div className="detail-label">Denumire:</div>
+                      <div className="detail-label">Denumire Declarant:</div>
                       <div className="detail-value">{course.denumireDeclarant}</div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Transport Section */}
-                <div className="detail-group">
-                  <h6 className="group-title">
-                    <i className="fas fa-truck me-2"></i>Transport
-                  </h6>
-                  {course.name && (
-                    <div className="detail-item">
-                      <div className="detail-content">
-                        <div className="detail-label">Nume Transport:</div>
-                        <div className="detail-value">{course.name}</div>
-                      </div>
-                    </div>
-                  )}
-                  {course.description && (
-                    <div className="detail-item">
-                      <div className="detail-content">
-                        <div className="detail-label">Descriere:</div>
-                        <div className="detail-value">{course.description}</div>
-                      </div>
-                    </div>
-                  )}
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">ikRoTrans:</div>
-                      <div className="detail-value">{course.ikRoTrans}</div>
-                    </div>
-                  </div>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">Număr Vehicul:</div>
-                      <div className="detail-value">{course.nrVehicul}</div>
                     </div>
                   </div>
                   <div className="detail-item">
                     <div className="detail-content">
                       <div className="detail-label">Data Transport:</div>
                       <div className="detail-value">{course.dataTransport}</div>
+                    </div>
+                  </div>
+                </div>
+
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Număr Vehicul:</div>
+                      <div className="detail-value">{course.nrVehicul}</div>
                     </div>
                   </div>
                   <div className="detail-item">
@@ -255,6 +234,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                       <div className="detail-value">{course.judet}</div>
                     </div>
                   </div>
+                  {course.denumireLocStart && (
+                    <div className="detail-item">
+                      <div className="detail-content">
+                        <div className="detail-label">Denumire Locație Start:</div>
+                        <div className="detail-value">{course.denumireLocStart}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Destination Section */}
@@ -280,6 +267,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                       <div className="detail-value">{course.judetStop}</div>
                     </div>
                   </div>
+                  {course.denumireLocStop && (
+                    <div className="detail-item">
+                      <div className="detail-content">
+                        <div className="detail-label">Denumire Locație Stop:</div>
+                        <div className="detail-value">{course.denumireLocStop}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

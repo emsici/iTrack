@@ -96,15 +96,15 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
       if (responseData.status === 'success' && Array.isArray(responseData.data)) {
         return responseData.data.map((course: any, index: number) => ({
           id: course.ikRoTrans?.toString() || `course_${index}`,
-          name: `Transport ${course.codDeclarant} - ${course.ikRoTrans}`,
-          departure_location: `${course.denumireLocStart || course.Vama}, ${course.Judet || ''}`.trim().replace(/, $/, ''),
-          destination_location: `${course.denumireLocStop || course.VamaStop}, ${course.JudetStop || ''}`.trim().replace(/, $/, ''),
+          name: `ikRoTrans: ${course.ikRoTrans}`,
+          departure_location: course.denumireLocStart || course.Vama,
+          destination_location: course.denumireLocStop || course.VamaStop,
           departure_time: course.dataTransport || null,
           arrival_time: null,
-          description: course.denumireDeclarant || 'Transport marfă',
+          description: course.denumireDeclarant,
           status: 1,
           uit: course.UIT,
-          // Păstrarea tuturor datelor originale pentru detalii complete
+          // Toate datele originale din API pentru detalii complete
           ikRoTrans: course.ikRoTrans,
           codDeclarant: course.codDeclarant,
           denumireDeclarant: course.denumireDeclarant,
@@ -113,9 +113,11 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
           vama: course.Vama,
           birouVamal: course.BirouVamal,
           judet: course.Judet,
+          denumireLocStart: course.denumireLocStart,
           vamaStop: course.VamaStop,
           birouVamalStop: course.BirouVamalStop,
-          judetStop: course.JudetStop
+          judetStop: course.JudetStop,
+          denumireLocStop: course.denumireLocStop
         }));
       } else {
         return [];
