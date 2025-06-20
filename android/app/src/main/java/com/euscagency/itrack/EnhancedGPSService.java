@@ -297,14 +297,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
         }
     }
     
-    @Override
-    public void onLocationChanged(Location location) {
-        lastKnownLocation = location;
-        Log.d(TAG, "📍 Location updated: " + 
-              String.format("%.6f, %.6f", location.getLatitude(), location.getLongitude()) +
-              " | Accuracy: " + Math.round(location.getAccuracy()) + "m" +
-              " | Speed: " + Math.round(location.getSpeed() * 3.6) + " km/h");
-    }
+
     
     private void transmitGPSDataForAllCourses() {
         if (lastKnownLocation == null) {
