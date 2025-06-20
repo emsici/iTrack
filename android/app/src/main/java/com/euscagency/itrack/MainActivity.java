@@ -9,11 +9,35 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Register GPS plugin for Capacitor bridge
-        registerPlugin(GPSPlugin.class);
+        android.util.Log.d("MainActivity", "iTrack app initialized");
+        android.util.Log.d("MainActivity", "EnhancedGPSService ready for broadcast activation");
+    }
+    
+    // Metoda publică pentru activarea GPS din JavaScript prin evaluateJavaScript
+    public void startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
+        android.util.Log.d("MainActivity", "Starting GPS through direct method call");
         
-        android.util.Log.d("MainActivity", "iTrack app initialized with GPS plugin");
-        android.util.Log.d("MainActivity", "EnhancedGPSService ready for activation");
+        Intent broadcastIntent = new Intent(GPSBroadcastReceiver.ACTION_START_GPS);
+        broadcastIntent.putExtra("courseId", courseId);
+        broadcastIntent.putExtra("vehicleNumber", vehicleNumber);
+        broadcastIntent.putExtra("uit", uit);
+        broadcastIntent.putExtra("authToken", authToken);
+        broadcastIntent.putExtra("status", status);
+        
+        sendBroadcast(broadcastIntent);
+        
+        android.util.Log.d("MainActivity", "GPS start broadcast sent for course: " + courseId);
+    }
+    
+    public void stopGPS(String courseId) {
+        android.util.Log.d("MainActivity", "Stopping GPS through direct method call");
+        
+        Intent broadcastIntent = new Intent(GPSBroadcastReceiver.ACTION_STOP_GPS);
+        broadcastIntent.putExtra("courseId", courseId);
+        
+        sendBroadcast(broadcastIntent);
+        
+        android.util.Log.d("MainActivity", "GPS stop broadcast sent for course: " + courseId);
     }
     
     public void startGPSTracking(String courseId, String vehicleNumber, String uit, String authToken, int status) {

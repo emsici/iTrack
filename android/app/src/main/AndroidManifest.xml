@@ -34,6 +34,17 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />
+            
+        <!-- GPS Broadcast Receiver for independent activation -->
+        <receiver
+            android:name="com.euscagency.itrack.GPSBroadcastReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.euscagency.itrack.START_GPS" />
+                <action android:name="com.euscagency.itrack.STOP_GPS" />
+            </intent-filter>
+        </receiver>
 
 
 
