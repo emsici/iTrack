@@ -321,7 +321,7 @@ iTrack GPS este o aplicație enterprise avansată pentru monitorizarea și manag
 
 #### Base URL
 ```
-https://www.euscagency.com/etsm3/platforme/transport/apk
+Base URL configurat în aplicație pentru comunicarea cu serverul backend
 ```
 
 #### Headers Comune
@@ -613,47 +613,256 @@ Gestionarea erorilor la nivel de componentă cu fallback UI și logging.
 
 ## Instalare și Setup
 
-### Cerințe Sistem
-- **Node.js**: versiunea 18+ pentru dezvoltare
-- **Android Studio**: pentru build și testing nativ
-- **JDK**: versiunea 11+ pentru compilarea Android
-- **Git**: pentru version control
+### Cerințe de Sistem
 
-### Instalare Dependencies
+#### Pentru Dezvoltare
+- **Node.js**: 20.0+ (recomandat versiunea LTS)
+- **npm**: 9.0+ sau **yarn**: 1.22+
+- **Android Studio**: Arctic Fox sau mai nou
+- **Java JDK**: 17+ pentru compilarea Android
+- **Git**: Pentru clonarea repository-ului
+
+#### Pentru Dispozitive Target
+- **Android**: API Level 23+ (Android 6.0+)
+- **RAM**: Minim 2GB, recomandat 4GB+
+- **Storage**: 100MB spațiu liber pentru aplicație
+- **GPS**: Hardware GPS obligatoriu
+- **Internet**: WiFi sau date mobile pentru sincronizare
+
+### Instalare Rapidă
+
+#### 1. Clonare Repository
 ```bash
-# Clonare repository
+# Clonare din GitHub
 git clone <repository-url>
 cd itrack-gps
 
-# Instalare dependencies Node.js
+# Verificare structura proiect
+ls -la
+```
+
+#### 2. Instalare Dependencies
+```bash
+# Instalare packages Node.js
 npm install
 
-# Setup Android (prima dată)
-npx cap add android
-npx cap sync android
+# Sau cu yarn
+yarn install
+
+# Verificare instalare
+npm list --depth=0
 ```
 
-### Dezvoltare
+#### 3. Configurare Capacitor
 ```bash
-# Start dev server (port 5000)
+# Sincronizare proiect Android
+npx cap sync android
+
+# Verificare configurare
+npx cap doctor
+```
+
+#### 4. Rulare Dezvoltare
+```bash
+# Start dev server
 npm run dev
 
-# Sync cu proiectul Android
-npx cap sync android
-
-# Deschidere Android Studio
-npx cap open android
+# Aplicația va fi disponibilă pe http://localhost:5000
 ```
 
-### Build Producție
+### Configurare Detaliată
+
+#### Configurare Environment Variables
+Creați fișierul `.env` în root-ul proiectului:
+
+```env
+# Development Settings
+VITE_DEV_MODE=true
+VITE_MOCK_API=false
+
+# GPS Configuration
+VITE_GPS_INTERVAL=5000
+VITE_GPS_HIGH_ACCURACY=true
+
+# Logging
+VITE_LOG_LEVEL=debug
+VITE_PERSISTENT_LOGS=true
+```
+
+#### Configurare Android
+
+##### Android SDK Setup
 ```bash
-# Build web assets optimizat
+# Verificare Android SDK în Android Studio
+# Tools > SDK Manager > Android SDK
+
+# SDK Platforms necesare:
+# - Android 15.0 (API Level 35) - Target
+# - Android 6.0 (API Level 23) - Minimum
+
+# SDK Tools necesare:
+# - Android SDK Build-Tools 35.0.0
+# - Android Emulator
+# - Android SDK Platform-Tools
+```
+
+##### Configurare build.gradle
+În `android/app/build.gradle`:
+
+```gradle
+android {
+    namespace "com.euscagency.itrack"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.euscagency.itrack"
+        minSdk 23
+        targetSdk 35
+        versionCode 180799
+        versionName "1807.99"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             additionalParameters '--no-version-vectors'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+}
+```
+
+### Build pentru Producție
+
+#### 1. Build Web Assets
+```bash
+# Build optimizat pentru producție
 npm run build
 
-# Sincronizare cu Android
+# Verificare build
+ls -la dist/
+```
+
+#### 2. Sincronizare Android
+```bash
+# Copiere assets în proiectul Android
 npx cap sync android
 
-# Build APK din Android Studio cu signing
+# Verificare sincronizare
+npx cap copy android
+```
+
+#### 3. Build APK în Android Studio
+```bash
+# Deschidere Android Studio
+npx cap open android
+
+# În Android Studio:
+# 1. Build > Generate Signed Bundle / APK
+# 2. Selectați APK
+# 3. Configurați key store pentru signing
+# 4. Selectați Release build type
+# 5. Build APK
+```
+
+#### 4. Script Build Automat (build.bat)
+```bash
+# Rulare script automat în Windows
+build.bat
+
+# Procesul include:
+# [1/4] Instalare dependinte
+# [2/4] Build proiect
+# [3/4] Sincronizare cu Android
+# [4/4] Deschidere Android Studio
+```
+
+### Testing și Debugging
+
+#### Testing Local
+```bash
+# Rulare teste unit
+npm test
+
+# Testing pe dispozitiv
+npx cap sync android
+npx cap copy android
+
+# În Android Studio:
+# Build > Build Bundle(s) / APK(s) > Build APK(s)
+```
+
+#### Debugging GPS
+Pentru debugging probleme GPS:
+
+```javascript
+// Activare debug mode în aplicație
+localStorage.setItem('debug_mode', 'true');
+
+// Accesare debug panel
+// 50 click-uri pe timestamp în dashboard
+
+// Verificare logs GPS în Chrome DevTools
+// chrome://inspect > Inspect device WebView
+```
+
+#### Network Debugging
+```bash
+# Monitoring request-uri API
+# Chrome DevTools > Network tab
+
+# Testing offline mode
+# Chrome DevTools > Network > Throttling > Offline
+
+# Verificare cache offline
+# Chrome DevTools > Storage > Local Storage
+```
+
+### Depanare Probleme Comune
+
+#### Probleme Node.js
+```bash
+# Verificare versiune Node.js
+node --version  # Trebuie 20.0+
+
+# Curățare npm cache
+npm cache clean --force
+
+# Reinstalare dependencies
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### Probleme Android
+```bash
+# Verificare Android SDK
+echo $ANDROID_HOME
+
+# Curățare cache Gradle
+cd android
+./gradlew clean
+
+# Reset Capacitor
+npx cap sync android --force
+```
+
+#### Probleme GPS
+```javascript
+// Verificare permisiuni în cod
+if (navigator.permissions) {
+  navigator.permissions.query({name: 'geolocation'})
+    .then(result => console.log('GPS permission:', result.state));
+}
+
+// Testing GPS în browser
+navigator.geolocation.getCurrentPosition(
+  position => console.log('GPS works:', position.coords),
+  error => console.error('GPS error:', error)
+);
 ```
 
 ## Configurare Android
