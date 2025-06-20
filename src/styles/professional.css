@@ -19,30 +19,89 @@ body {
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
 }
 
-/* Vehicle Screen Professional Layout */
+/* Courses List Design - Different from Vehicle Input */
+.vehicle-screen.courses-loaded {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  animation: none;
+  padding: 0;
+  display: block;
+  position: relative;
+  overflow: auto;
+}
+
+.vehicle-screen.courses-loaded::before {
+  display: none;
+}
+
+.vehicle-screen.courses-loaded .vehicle-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  border: none;
+  padding: 0;
+}
+
+/* Vehicle Screen Professional Layout - Matching Login Design */
 .vehicle-screen {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 25%, #475569 50%, #64748b 100%);
-  padding: 0;
+  min-height: 100dvh;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #667eea 50%, #764ba2 75%, #1e3c72 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.vehicle-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(79, 70, 229, 0.2) 0%, transparent 50%);
+  animation: backgroundFloat 25s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes backgroundFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -30px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
 }
 
 .vehicle-container {
   width: 100%;
-  max-width: 440px;
+  max-width: 420px;
   margin: 0 20px;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
   border-radius: 24px;
   box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.3),
-    0 8px 32px rgba(0, 0, 0, 0.2),
-    inset 0 1px 2px rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+    0 25px 80px rgba(0, 0, 0, 0.3),
+    0 15px 40px rgba(0, 0, 0, 0.15),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   overflow: hidden;
   position: relative;
+  z-index: 1;
 }
 
 /* Vehicle Input Section - Professional Design */

@@ -403,7 +403,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   };
 
   return (
-    <div className="vehicle-screen">
+    <div className={`vehicle-screen ${coursesLoaded ? 'courses-loaded' : ''}`}>
       <div className="vehicle-container">
         {!coursesLoaded ? (
           <>
