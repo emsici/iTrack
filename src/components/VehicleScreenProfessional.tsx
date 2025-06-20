@@ -7,9 +7,9 @@ import {
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
 import { clearToken } from "../services/storage";
-import { getOfflineGPSCount, getOfflineGPSInfo, syncOfflineGPS } from "../services/offlineGPS";
-import { subscribeToSyncProgress } from "../services/offlineSyncStatus";
+import { getOfflineGPSCount, getOfflineGPSInfo } from "../services/offlineGPS";
 import CourseStatsModal from "./CourseStatsModal";
+import OfflineGPSMonitor from "./OfflineGPSMonitor";
 import "../styles/professionalVehicleScreen.css";
 
 interface VehicleScreenProps {
@@ -33,8 +33,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncInProgress, setSyncInProgress] = useState(false);
   const [lastCoursesSync, setLastCoursesSync] = useState<string>('');
-  const [syncProgress, setSyncProgress] = useState({ synced: 0, failed: 0, total: 0 });
-  const [showOfflineStatus, setShowOfflineStatus] = useState(false);
+
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -110,76 +109,37 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
   }, []);
 
-  // Monitor offline GPS count and auto-sync
+  // Monitor offline GPS count  
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    let syncSubscription: (() => void) | null = null;
     
     if (coursesLoaded) {
-      const updateOfflineStatus = async () => {
+      const updateOfflineCount = async () => {
         try {
           const count = await getOfflineGPSCount();
           setOfflineCount(count);
-          
-          // Arată bara offline dacă există coordonate sau suntem offline
-          setShowOfflineStatus(count > 0 || !isOnline);
           
           // Check sync status
           const syncInfo = await getOfflineGPSInfo();
           setSyncInProgress(syncInfo.syncInProgress);
           
-          // Auto-sync când revine internetul și avem coordonate offline
-          if (isOnline && count > 0 && !syncInfo.syncInProgress) {
-            console.log(`🔄 Auto-sync: Trimit ${count} coordonate GPS offline...`);
-            try {
-              const result = await syncOfflineGPS();
-              console.log(`✅ Sincronizare completă: ${result.success}/${result.total} coordonate trimise`);
-              setSyncProgress({ synced: result.success, failed: result.failed, total: result.total });
-            } catch (error) {
-              console.error("❌ Eroare auto-sync GPS:", error);
-            }
+          if (count > 0) {
+            console.log(`📍 GPS Offline: ${count} coordonate salvate local`);
           }
         } catch (error) {
-          console.error("Error checking offline GPS status:", error);
+          console.error("Error checking offline GPS count:", error);
         }
       };
       
-      // Sync progress monitoring
-      if (subscribeToSyncProgress) {
-        syncSubscription = subscribeToSyncProgress({
-          onProgressUpdate: (progress) => {
-            setSyncProgress({ 
-              synced: progress.synced, 
-              failed: progress.failed, 
-              total: progress.totalToSync 
-            });
-            setSyncInProgress(progress.isActive);
-            console.log(`🔄 Progres sync: ${progress.synced}/${progress.totalToSync} (${progress.percentage}%)`);
-          },
-          onSyncComplete: () => {
-            console.log("✅ Sincronizare GPS offline completă");
-            setSyncInProgress(false);
-            setShowOfflineStatus(false);
-          },
-          onSyncError: (error) => {
-            console.error("❌ Eroare sincronizare GPS:", error);
-            setSyncInProgress(false);
-          }
-        });
-      }
-      
-      // Update immediately and then every 3 seconds
-      updateOfflineStatus();
-      interval = setInterval(updateOfflineStatus, 3000);
+      // Update immediately and then every 5 seconds
+      updateOfflineCount();
+      interval = setInterval(updateOfflineCount, 5000);
       
       return () => {
         clearInterval(interval);
-        if (syncSubscription) {
-          syncSubscription();
-        }
       };
     }
-  }, [coursesLoaded, isOnline]);
+  }, [coursesLoaded]);
 
   // Auto-refresh effect
   useEffect(() => {
@@ -820,6 +780,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         onClose={() => setShowStats(false)}
         courses={courses}
         vehicleNumber={vehicleNumber}
+      />
+
+      {/* Monitorizare GPS Offline */}
+      <OfflineGPSMonitor 
+        isOnline={isOnline}
+        coursesActive={coursesLoaded}
       />
     </div>
   );
