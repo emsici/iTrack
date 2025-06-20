@@ -12,6 +12,7 @@ import { getAppLogs } from "../services/appLogger";
 
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
 import CourseStatsModal from "./CourseStatsModal";
+import CourseDetailCard from "./CourseDetailCard";
 
 interface VehicleScreenProps {
   token: string;
@@ -25,12 +26,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [error, setError] = useState("");
   const [coursesLoaded, setCoursesLoaded] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [infoClickCount, setInfoClickCount] = useState(0);
+  const [showStatsModal, setShowStatsModal] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [debugLogs, setDebugLogs] = useState<any[]>([]);
-  const [showStatsModal, setShowStatsModal] = useState(false);
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -231,93 +231,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const renderCourseActions = (course: Course) => {
-    const isLoading = actionLoading === course.id;
-
-    if (course.status === 1) {
-      return (
-        <div className="course-actions">
-          <button
-            className="action-button start-button"
-            onClick={() => handleStatusUpdate(course.id, 2)}
-            disabled={isLoading}
-          >
-            <i
-              className={`fas ${isLoading ? "fa-spinner spinning" : "fa-play"}`}
-            ></i>
-            <span>Start</span>
-          </button>
-        </div>
-      );
-    }
-    
-    if (course.status === 2) {
-      return (
-        <div className="course-actions">
-          <button
-            className="action-button pause-button"
-            onClick={() => handleStatusUpdate(course.id, 3)}
-            disabled={isLoading}
-          >
-            <i
-              className={`fas ${isLoading ? "fa-spinner spinning" : "fa-pause"}`}
-            ></i>
-            <span>Pauză</span>
-          </button>
-          <button
-            className="action-button stop-button"
-            onClick={() => handleStatusUpdate(course.id, 4)}
-            disabled={isLoading}
-          >
-            <i
-              className={`fas ${isLoading ? "fa-spinner spinning" : "fa-stop"}`}
-            ></i>
-            <span>Stop</span>
-          </button>
-        </div>
-      );
-    }
-    
-    if (course.status === 3) {
-      return (
-        <div className="course-actions">
-          <button
-            className="action-button resume-button"
-            onClick={() => handleStatusUpdate(course.id, 2)}
-            disabled={isLoading}
-          >
-            <i
-              className={`fas ${isLoading ? "fa-spinner spinning" : "fa-play"}`}
-            ></i>
-            <span>Continuă</span>
-          </button>
-          <button
-            className="action-button stop-button"
-            onClick={() => handleStatusUpdate(course.id, 4)}
-            disabled={isLoading}
-          >
-            <i
-              className={`fas ${isLoading ? "fa-spinner spinning" : "fa-stop"}`}
-            ></i>
-            <span>Stop</span>
-          </button>
-        </div>
-      );
-    }
-    
-    if (course.status === 4) {
-      return (
-        <div className="course-actions">
-          <div className="status-badge completed">
-            <i className="fas fa-check-circle"></i>
-            <span>Finalizat</span>
-          </div>
-        </div>
-      );
-    }
-
-    return null;
-  };
+  // Course actions handled by CourseDetailCard component
 
   return (
     <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""}`}>
@@ -512,79 +426,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
                 <div className="courses-list">
                   {courses.map((course) => (
-                    <div
+                    <CourseDetailCard
                       key={course.id}
-                      className={`course-card-enhanced status-${course.status}`}
-                    >
-                      <div className="course-header-enhanced">
-                        <div className="course-info-section">
-                          <h3 className="course-title-enhanced">
-                            {course.name}
-                          </h3>
-                          <div className="course-metadata-enhanced">
-                            <span className="course-uit">
-                              UIT: {course.uit}
-                            </span>
-                            <span
-                              className={`status-badge-enhanced status-${course.status}`}
-                            >
-                              {course.status === 1 && "Disponibil"}
-                              {course.status === 2 && "Activ"}
-                              {course.status === 3 && "Pauză"}
-                              {course.status === 4 && "Oprit"}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="course-status-section">
-                          <button
-                            className="toggle-details-button"
-                            onClick={() =>
-                              setExpandedCourse(
-                                expandedCourse === course.id ? null : course.id,
-                              )
-                            }
-                          >
-                            <i
-                              className={`fas fa-chevron-${expandedCourse === course.id ? "up" : "down"}`}
-                            ></i>
-                          </button>
-                        </div>
-                      </div>
-
-                      {expandedCourse === course.id && (
-                        <div className="course-details-enhanced">
-                          <div className="details-grid">
-                            <div className="detail-item">
-                              <strong>Declarant:</strong>{" "}
-                              {course.denumireDeclarant || "N/A"}
-                            </div>
-                            <div className="detail-item">
-                              <strong>Loc Start:</strong>{" "}
-                              {course.denumireLocStart || "N/A"}
-                            </div>
-                            <div className="detail-item">
-                              <strong>Loc Stop:</strong>{" "}
-                              {course.denumireLocStop || "N/A"}
-                            </div>
-                            <div className="detail-item">
-                              <strong>Vamă Start:</strong>{" "}
-                              {course.vama || "N/A"}
-                            </div>
-                            <div className="detail-item">
-                              <strong>Vamă Stop:</strong>{" "}
-                              {course.vamaStop || "N/A"}
-                            </div>
-                            <div className="detail-item">
-                              <strong>Data Transport:</strong>{" "}
-                              {course.dataTransport || "N/A"}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {renderCourseActions(course)}
-                    </div>
+                      course={course}
+                      onStatusUpdate={handleStatusUpdate}
+                      isLoading={actionLoading === course.id}
+                    />
                   ))}
                 </div>
               </div>
