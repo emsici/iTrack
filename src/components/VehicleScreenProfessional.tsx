@@ -471,13 +471,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <p>• Timestamp și date autentificare</p>
               </div>
 
-              <div className="info-section">
-                <h4><i className="fas fa-building"></i> Despre Companie</h4>
-                <p><strong>Dezvoltator:</strong> EUSC Agency</p>
-                <p><strong>Platforma:</strong> ETSM3 Transport Management</p>
-                <p><strong>Tip licență:</strong> Profesională pentru flote</p>
-                <p><strong>Support:</strong> Business 24/7</p>
-              </div>
+
             </div>
           </div>
         </div>
