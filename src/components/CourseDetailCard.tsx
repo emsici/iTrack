@@ -106,182 +106,114 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
   return (
     <div className="course-detail-card mb-4">
-      <div className="card shadow-lg border-0 course-card-modern">
-        <div className="card-header-modern d-flex justify-content-between align-items-center">
-          <div className="course-header-info">
-            <div className="course-name-section">
-              <h5 className="course-title-main">UIT: {course.uit}</h5>
-              <span className="course-id-badge">ikRoTrans: {course.ikRoTrans}</span>
-            </div>
-            <div className="course-route-info">
-              <div className="route-display">
-                <span className="route-start">Cod: {course.codDeclarant}</span>
-              </div>
-            </div>
+      <div className="course-card-header-style">
+        <div className="course-header-content">
+          <div className="course-primary-info">
+            <h5 className="course-title-header">UIT: {course.uit}</h5>
+            <span className="course-subtitle-header">ikRoTrans: {course.ikRoTrans}</span>
           </div>
           
           <div className="course-header-actions">
-            <span 
-              className={`status-badge-modern status-${course.status}`}
-            >
-              <i className="fas fa-circle status-indicator"></i>
+            <span className={`status-badge-header status-${course.status}`}>
+              <i className="fas fa-circle status-dot"></i>
               {getStatusText(course.status)}
             </span>
             <button 
-              className="btn-info-toggle"
-              onClick={() => {
-                console.log('Info button clicked, current state:', showDetails);
-                setShowDetails(!showDetails);
-              }}
-              title="Afișează/Ascunde detalii complete"
+              className="btn-toggle-header"
+              onClick={() => setShowDetails(!showDetails)}
+              title="Afișează/Ascunde detalii"
             >
-              <i className={`fas fa-${showDetails ? 'chevron-up' : 'info-circle'}`}></i>
+              <i className={`fas fa-${showDetails ? 'chevron-up' : 'chevron-down'}`}></i>
             </button>
           </div>
         </div>
 
-        <div className="card-body">
-          {/* Quick Info Summary */}
-          <div className="course-summary mb-3">
-            <div className="summary-item">
-              <i className="fas fa-calendar text-primary"></i>
-              <span className="summary-label">Data Transport:</span>
-              <span className="summary-value">
-                {course.dataTransport || 'Nu este specificată'}
-              </span>
-            </div>
-            <div className="summary-item">
-              <i className="fas fa-map-marker-alt text-primary"></i>
-              <span className="summary-label">Traseu:</span>
-              <span className="summary-value">{course.vama} → {course.vamaStop}</span>
-            </div>
+        <div className="course-summary-header">
+          <div className="summary-item-header">
+            <i className="fas fa-calendar"></i>
+            <span>Data: {course.dataTransport || 'N/A'}</span>
           </div>
+          <div className="summary-item-header">
+            <i className="fas fa-route"></i>
+            <span>{course.vama} → {course.vamaStop}</span>
+          </div>
+        </div>
 
-          {/* Detailed Info - Collapsible */}
-          {showDetails && (
-            <div className="course-details">
-              <h6 className="details-title">
-                <i className="fas fa-info-circle me-2"></i>
-                Informații Complete Transport
+        {showDetails && (
+          <div className="course-details-header">
+            <div className="details-section-header">
+              <h6 className="section-title-header">
+                <i className="fas fa-info-circle"></i>
+                Informații Transport
               </h6>
-              
-              <div className="details-grid">
-                {/* Informații Transport */}
-                <div className="detail-group">
-                  <h6 className="group-title">
-                    <i className="fas fa-info-circle me-2"></i>Informații Transport
-                  </h6>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">ikRoTrans:</div>
-                      <div className="detail-value font-weight-bold text-primary">{course.ikRoTrans}</div>
-                    </div>
-                  </div>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">Cod Declarant:</div>
-                      <div className="detail-value">{course.codDeclarant}</div>
-                    </div>
-                  </div>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">Denumire Declarant:</div>
-                      <div className="detail-value">{course.denumireDeclarant}</div>
-                    </div>
-                  </div>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">Data Transport:</div>
-                      <div className="detail-value">{course.dataTransport}</div>
-                    </div>
-                  </div>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">Număr Vehicul:</div>
-                      <div className="detail-value">{course.nrVehicul}</div>
-                    </div>
-                  </div>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">UIT:</div>
-                      <div className="detail-value font-monospace">{course.uit}</div>
-                    </div>
-                  </div>
+              <div className="details-grid-header">
+                <div className="detail-row-header">
+                  <span className="detail-label-header">Cod Declarant:</span>
+                  <span className="detail-value-header">{course.codDeclarant}</span>
                 </div>
-
-                {/* Departure Section */}
-                <div className="detail-group">
-                  <h6 className="group-title">
-                    <i className="fas fa-map-marker-alt me-2"></i>Plecare
-                  </h6>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">Vamă:</div>
-                      <div className="detail-value">{course.vama}</div>
-                    </div>
-                  </div>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">Birou Vamal:</div>
-                      <div className="detail-value">{course.BirouVamal || course.birouVamal || 'Nu este specificat'}</div>
-                    </div>
-                  </div>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">Județ:</div>
-                      <div className="detail-value">{course.judet}</div>
-                    </div>
-                  </div>
-                  {course.denumireLocStart && (
-                    <div className="detail-item">
-                      <div className="detail-content">
-                        <div className="detail-label">Denumire Locație Start:</div>
-                        <div className="detail-value">{course.denumireLocStart}</div>
-                      </div>
-                    </div>
-                  )}
+                <div className="detail-row-header">
+                  <span className="detail-label-header">Denumire:</span>
+                  <span className="detail-value-header">{course.denumireDeclarant}</span>
                 </div>
-
-                {/* Destination Section */}
-                <div className="detail-group">
-                  <h6 className="group-title">
-                    <i className="fas fa-flag-checkered me-2"></i>Destinație
-                  </h6>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">Vamă Stop:</div>
-                      <div className="detail-value">{course.vamaStop}</div>
-                    </div>
-                  </div>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">Birou Vamal Stop:</div>
-                      <div className="detail-value">{course.BirouVamalStop || course.birouVamalStop || 'Nu este specificat'}</div>
-                    </div>
-                  </div>
-                  <div className="detail-item">
-                    <div className="detail-content">
-                      <div className="detail-label">Județ Stop:</div>
-                      <div className="detail-value">{course.judetStop}</div>
-                    </div>
-                  </div>
-                  {course.denumireLocStop && (
-                    <div className="detail-item">
-                      <div className="detail-content">
-                        <div className="detail-label">Denumire Locație Stop:</div>
-                        <div className="detail-value">{course.denumireLocStop}</div>
-                      </div>
-                    </div>
-                  )}
+                <div className="detail-row-header">
+                  <span className="detail-label-header">Vehicul:</span>
+                  <span className="detail-value-header">{course.nrVehicul}</span>
                 </div>
               </div>
             </div>
-          )}
 
-          {/* Action Buttons */}
-          <div className="course-actions">
-            {renderActionButtons()}
+            <div className="details-section-header">
+              <h6 className="section-title-header">
+                <i className="fas fa-map-marker-alt"></i>
+                Plecare
+              </h6>
+              <div className="details-grid-header">
+                <div className="detail-row-header">
+                  <span className="detail-label-header">Vamă:</span>
+                  <span className="detail-value-header">{course.vama}</span>
+                </div>
+                <div className="detail-row-header">
+                  <span className="detail-label-header">Birou Vamal:</span>
+                  <span className="detail-value-header">{course.BirouVamal || 'N/A'}</span>
+                </div>
+                <div className="detail-row-header">
+                  <span className="detail-label-header">Județ:</span>
+                  <span className="detail-value-header">{course.judet}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="details-section-header">
+              <h6 className="section-title-header">
+                <i className="fas fa-flag-checkered"></i>
+                Destinație
+              </h6>
+              <div className="details-grid-header">
+                <div className="detail-row-header">
+                  <span className="detail-label-header">Vamă Stop:</span>
+                  <span className="detail-value-header">{course.vamaStop}</span>
+                </div>
+                <div className="detail-row-header">
+                  <span className="detail-label-header">Birou Vamal:</span>
+                  <span className="detail-value-header">{course.BirouVamalStop || 'N/A'}</span>
+                </div>
+                <div className="detail-row-header">
+                  <span className="detail-label-header">Județ:</span>
+                  <span className="detail-value-header">{course.judetStop}</span>
+                </div>
+                {course.denumireLocStop && (
+                  <div className="detail-row-header">
+                    <span className="detail-label-header">Locație:</span>
+                    <span className="detail-value-header">{course.denumireLocStop}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
+        )}
+
+        <div className="course-actions-header">
+          {renderActionButtons()}
         </div>
       </div>
     </div>

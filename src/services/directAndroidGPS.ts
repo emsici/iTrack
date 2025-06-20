@@ -54,7 +54,6 @@ class DirectAndroidGPSService {
 
     try {
       if (Capacitor.isNativePlatform()) {
-        // Restart tracking with new status - reuses existing startTracking method
         await this.startAndroidNativeService(course);
         console.log(
           `Status updated: ${courseId} from ${oldStatus} to ${newStatus}`,
@@ -66,7 +65,6 @@ class DirectAndroidGPSService {
       }
     } catch (error) {
       console.error(`Failed to update course status:`, error);
-      // Revert status on error
       course.status = oldStatus;
       throw error;
     }
@@ -134,9 +132,11 @@ class DirectAndroidGPSService {
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
     console.log("=== STARTING ANDROID NATIVE GPS SERVICE ===");
+    console.log(`Course ID: ${course.courseId}`);
     console.log(`Vehicle: ${course.vehicleNumber}`);
     console.log(`UIT: ${course.uit}`);
-    console.log(`Status: ${course.status}`);
+    console.log(`Status: ${course.status} (${course.status === 2 ? 'ACTIVE' : course.status === 3 ? 'PAUSED' : 'OTHER'})`);
+    console.log(`Token: ${course.token.substring(0, 20)}...`);
 
     try {
       // Cerere permisiuni GPS prin Capacitor

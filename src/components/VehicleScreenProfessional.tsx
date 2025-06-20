@@ -112,6 +112,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       const courseToUpdate = courses.find((c) => c.id === courseId);
       if (!courseToUpdate) return;
 
+      console.log(`=== STATUS UPDATE ===`);
+      console.log(`Course: ${courseId}, Status: ${courseToUpdate.status} → ${newStatus}`);
+      console.log(`UIT: ${courseToUpdate.uit}, Vehicle: ${vehicleNumber}`);
+
       if (newStatus === 2) {
         await startGPSTracking(
           courseId,
@@ -120,17 +124,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           token,
           newStatus,
         );
+      } else if (newStatus === 3) {
+        // Pause - GPS continues with new status
+        const { updateCourseStatus } = await import('../services/directAndroidGPS');
+        await updateCourseStatus(courseId, newStatus);
       } else if (newStatus === 4) {
         await stopGPSTracking(courseId);
       }
 
+      // Update local state
       setCourses((prev) =>
         prev.map((course) =>
           course.id === courseId ? { ...course, status: newStatus } : course,
         ),
       );
+
+      console.log(`Status transition completed: ${courseToUpdate.status} → ${newStatus}`);
     } catch (error) {
       console.error("Eroare la actualizarea statusului:", error);
+      alert(`Eroare la actualizarea statusului: ${error}`);
     } finally {
       setActionLoading(null);
     }
