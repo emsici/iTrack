@@ -1112,6 +1112,7 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
+  padding-top: calc(40px + env(safe-area-inset-top));
   position: relative;
   overflow: hidden;
 }
@@ -1135,6 +1136,7 @@ html, body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   padding: 48px;
+  padding-top: calc(48px + env(safe-area-inset-top, 24px));
   max-width: 520px;
   width: 100%;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
@@ -1145,6 +1147,8 @@ html, body {
 .brand-identity-section {
   text-align: center;
   margin-bottom: 40px;
+  margin-top: env(safe-area-inset-top, 0px);
+  padding-top: 20px;
 }
 
 .corporate-logo {
