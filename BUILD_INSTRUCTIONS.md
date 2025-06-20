@@ -20,8 +20,8 @@ Ghid complet pentru compilarea aplicației profesionale de urmărire GPS iTrack 
 
 ### 1. Clonare Repository
 ```bash
-git clone <url-repository>
-cd itrack-gps
+git clone https://github.com/emsici/iTrack
+cd iTrack
 ```
 
 ### 2. Instalare Dependențe Complete
