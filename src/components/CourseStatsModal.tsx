@@ -104,92 +104,262 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
   const totalStats = calculateTotalStats();
 
   return (
-    <div className="stats-modal-overlay" onClick={onClose}>
-      <div className="stats-modal-container" onClick={(e) => e.stopPropagation()}>
-        <div className="stats-modal-header">
-          <div className="stats-modal-title">
-            <div className="stats-icon-container">
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    }} onClick={onClose}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '16px',
+        width: '100%',
+        maxWidth: '900px',
+        maxHeight: '90vh',
+        overflow: 'hidden',
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)'
+      }} onClick={(e) => e.stopPropagation()}>
+        <div style={{
+          background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+          color: 'white',
+          padding: '20px 24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '18px'
+            }}>
               <i className="fas fa-chart-line"></i>
             </div>
-            <div className="stats-title-text">
-              <h2>Statistici Curse</h2>
-              <span className="vehicle-identifier">{vehicleNumber}</span>
+            <div>
+              <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '700' }}>Statistici Curse</h2>
+              <span style={{ fontSize: '14px', color: '#cbd5e1' }}>{vehicleNumber}</span>
             </div>
           </div>
-          <button className="stats-modal-close" onClick={onClose}>
+          <button style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: 'none',
+            color: 'white',
+            width: '36px',
+            height: '36px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '16px'
+          }} onClick={onClose}>
             <i className="fas fa-times"></i>
           </button>
         </div>
 
-        <div className="stats-modal-content">
+        <div style={{
+          padding: '24px',
+          overflowY: 'auto',
+          maxHeight: 'calc(90vh - 80px)'
+        }}>
           {loading ? (
-            <div className="stats-loading-container">
-              <div className="stats-loading-spinner">
-                <i className="fas fa-spinner fa-spin"></i>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px',
+              padding: '40px',
+              color: '#64748b'
+            }}>
+              <div style={{
+                fontSize: '24px',
+                animation: 'spin 1s linear infinite'
+              }}>
+                <i className="fas fa-spinner"></i>
               </div>
-              <span className="stats-loading-text">Încărcare statistici...</span>
+              <span style={{ fontSize: '16px', fontWeight: '500' }}>Încărcare statistici...</span>
             </div>
           ) : (
             <>
               {/* Total Statistics */}
-              <div className="stats-section">
-                <div className="stats-section-header">
-                  <div className="stats-section-icon">
+              <div style={{ marginBottom: '32px' }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginBottom: '20px',
+                  paddingBottom: '12px',
+                  borderBottom: '2px solid #e2e8f0'
+                }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '14px'
+                  }}>
                     <i className="fas fa-calculator"></i>
                   </div>
-                  <h3 className="stats-section-title">Statistici Totale</h3>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>Statistici Totale</h3>
                 </div>
-                <div className="stats-grid">
-                  <div className="stat-card">
-                    <div className="stat-card-icon">
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '16px'
+                }}>
+                  <div style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                      borderRadius: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 12px',
+                      color: 'white',
+                      fontSize: '16px'
+                    }}>
                       <i className="fas fa-route"></i>
                     </div>
-                    <div className="stat-card-content">
-                      <div className="stat-card-value">{totalStats.totalDistance.toFixed(1)} km</div>
-                      <div className="stat-card-label">Distanță Totală</div>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                      {totalStats.totalDistance.toFixed(1)} km
                     </div>
+                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Distanță Totală</div>
                   </div>
                   
-                  <div className="stat-card">
-                    <div className="stat-card-icon">
+                  <div style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      borderRadius: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 12px',
+                      color: 'white',
+                      fontSize: '16px'
+                    }}>
                       <i className="fas fa-clock"></i>
                     </div>
-                    <div className="stat-card-content">
-                      <div className="stat-card-value">{formatTime(totalStats.totalTime)}</div>
-                      <div className="stat-card-label">Timp Conducere</div>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                      {formatTime(totalStats.totalTime)}
                     </div>
+                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Timp Conducere</div>
                   </div>
                   
-                  <div className="total-stat-card">
-                    <div className="stat-icon">
+                  <div style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                      borderRadius: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 12px',
+                      color: 'white',
+                      fontSize: '16px'
+                    }}>
                       <i className="fas fa-tachometer-alt"></i>
                     </div>
-                    <div className="stat-info">
-                      <div className="stat-value">{totalStats.avgSpeed.toFixed(1)} km/h</div>
-                      <div className="stat-label">Viteză Medie</div>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                      {totalStats.avgSpeed.toFixed(1)} km/h
                     </div>
+                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Viteză Medie</div>
                   </div>
                   
-                  {/* Combustibil card removed - too variable for trucks */}
-                  
-                  <div className="total-stat-card">
-                    <div className="stat-icon">
+                  <div style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                      borderRadius: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 12px',
+                      color: 'white',
+                      fontSize: '16px'
+                    }}>
                       <i className="fas fa-pause-circle"></i>
                     </div>
-                    <div className="stat-info">
-                      <div className="stat-value">{totalStats.totalStops}</div>
-                      <div className="stat-label">Opriri Totale</div>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                      {totalStats.totalStops}
                     </div>
+                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Opriri Totale</div>
                   </div>
                   
-                  <div className="total-stat-card">
-                    <div className="stat-icon">
+                  <div style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    padding: '20px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                      borderRadius: '10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 12px',
+                      color: 'white',
+                      fontSize: '16px'
+                    }}>
                       <i className="fas fa-list"></i>
                     </div>
-                    <div className="stat-info">
-                      <div className="stat-value">{totalStats.coursesTracked}</div>
-                      <div className="stat-label">Curse Urmărite</div>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                      {totalStats.coursesTracked}
                     </div>
+                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Curse Urmărite</div>
                   </div>
                 </div>
               </div>

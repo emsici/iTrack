@@ -79,24 +79,74 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
   if (!showStatus) return null;
 
   return (
-    <div className="offline-gps-status">
+    <div style={{
+      position: 'fixed',
+      top: '20px',
+      right: '20px',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      border: '1px solid #e5e7eb',
+      borderRadius: '12px',
+      padding: '12px 16px',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      zIndex: 1000,
+      minWidth: '280px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }}>
       {!isOnline && (
-        <div className="offline-indicator">
-          <i className="fas fa-wifi-slash"></i>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          color: '#dc2626',
+          fontSize: '14px',
+          fontWeight: '500',
+          marginBottom: offlineCount > 0 || syncInProgress ? '8px' : '0'
+        }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            backgroundColor: '#dc2626',
+            borderRadius: '50%'
+          }}></div>
           <span>Offline - GPS salvat local</span>
         </div>
       )}
       
       {offlineCount > 0 && (
-        <div className="offline-count">
-          <i className="fas fa-database"></i>
-          <span>{offlineCount} coordonate GPS offline</span>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          color: '#0f172a',
+          fontSize: '14px',
+          fontWeight: '500',
+          marginBottom: syncInProgress ? '8px' : '0'
+        }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            backgroundColor: '#f59e0b',
+            borderRadius: '50%'
+          }}></div>
+          <span>{offlineCount} coordonate GPS salvate</span>
         </div>
       )}
 
       {syncInProgress && (
-        <div className="sync-progress">
-          <i className="fas fa-sync fa-spin"></i>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          color: '#0f172a',
+          fontSize: '14px',
+          fontWeight: '500'
+        }}>
+          <div style={{
+            width: '8px',
+            height: '8px',
+            backgroundColor: '#10b981',
+            borderRadius: '50%'
+          }}></div>
           <span>
             Sincronizare: {syncProgress.synced}/{syncProgress.total}
             {syncProgress.failed > 0 && ` (${syncProgress.failed} eșecuri)`}
