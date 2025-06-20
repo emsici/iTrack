@@ -365,19 +365,47 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
               </div>
 
               {/* Individual Course Statistics */}
-              <div className="individual-stats-section">
-                <h3>
-                  <i className="fas fa-list-alt"></i>
-                  Statistici pe Cursă
-                </h3>
+              <div>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginBottom: '20px',
+                  paddingBottom: '12px',
+                  borderBottom: '2px solid #e2e8f0'
+                }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '14px'
+                  }}>
+                    <i className="fas fa-list-alt"></i>
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>Statistici pe Cursă</h3>
+                </div>
                 
                 {courses.length === 0 ? (
-                  <div className="no-courses">
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '20px',
+                    background: '#f8fafc',
+                    borderRadius: '12px',
+                    color: '#64748b',
+                    justifyContent: 'center'
+                  }}>
                     <i className="fas fa-info-circle"></i>
                     <span>Nu există curse încărcate</span>
                   </div>
                 ) : (
-                  <div className="courses-stats-list">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {courses.map((course) => {
                       const stats = courseStats[course.id];
                       const statusInfo = getStatusIcon(course.status);
@@ -385,85 +413,139 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
                       return (
                         <div 
                           key={course.id} 
-                          className={`course-stats-item ${selectedCourse === course.id ? 'selected' : ''}`}
+                          style={{
+                            background: selectedCourse === course.id ? '#f1f5f9' : 'white',
+                            border: selectedCourse === course.id ? '2px solid #3b82f6' : '1px solid #e2e8f0',
+                            borderRadius: '12px',
+                            padding: '16px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
                           onClick={() => setSelectedCourse(selectedCourse === course.id ? null : course.id)}
                         >
-                          <div className="course-stats-header">
-                            <div className="course-basic-info">
-                              <div className="course-uit">UIT: {course.uit}</div>
-                              <div className="course-name">{course.denumireDeclarant || 'Transport comercial'}</div>
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: stats ? '12px' : '0'
+                          }}>
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: '600', color: '#3b82f6', marginBottom: '4px' }}>
+                                UIT: {course.uit}
+                              </div>
+                              <div style={{ fontSize: '13px', color: '#64748b' }}>
+                                {course.denumireDeclarant || 'Transport comercial'}
+                              </div>
                             </div>
-                            <div className="course-status-info">
-                              <i className={`fas ${statusInfo.icon}`} style={{ color: statusInfo.color }}></i>
-                              <span className="toggle-indicator">
-                                <i className={`fas ${selectedCourse === course.id ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
-                              </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <i className={`fas ${statusInfo.icon}`} style={{ color: statusInfo.color, fontSize: '16px' }}></i>
+                              <i className={`fas ${selectedCourse === course.id ? 'fa-chevron-up' : 'fa-chevron-down'}`} 
+                                 style={{ color: '#9ca3af', fontSize: '12px' }}></i>
                             </div>
                           </div>
 
                           {stats ? (
-                            <div className="course-stats-summary">
-                              <div className="stat-item">
-                                <span className="stat-icon"><i className="fas fa-route"></i></span>
+                            <div style={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(3, 1fr)',
+                              gap: '12px',
+                              marginBottom: selectedCourse === course.id ? '16px' : '0'
+                            }}>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                fontSize: '13px',
+                                color: '#374151'
+                              }}>
+                                <i className="fas fa-route" style={{ color: '#6b7280', width: '14px' }}></i>
                                 <span>{stats.totalDistance.toFixed(1)} km</span>
                               </div>
-                              <div className="stat-item">
-                                <span className="stat-icon"><i className="fas fa-clock"></i></span>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                fontSize: '13px',
+                                color: '#374151'
+                              }}>
+                                <i className="fas fa-clock" style={{ color: '#6b7280', width: '14px' }}></i>
                                 <span>{formatTime(stats.drivingTime)}</span>
                               </div>
-                              <div className="stat-item">
-                                <span className="stat-icon"><i className="fas fa-tachometer-alt"></i></span>
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                fontSize: '13px',
+                                color: '#374151'
+                              }}>
+                                <i className="fas fa-tachometer-alt" style={{ color: '#6b7280', width: '14px' }}></i>
                                 <span>{stats.averageSpeed.toFixed(1)} km/h</span>
                               </div>
                             </div>
                           ) : (
-                            <div className="no-stats">
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              fontSize: '13px',
+                              color: '#9ca3af',
+                              fontStyle: 'italic'
+                            }}>
                               <i className="fas fa-info-circle"></i>
                               <span>Nu există date de urmărire</span>
                             </div>
                           )}
 
                           {selectedCourse === course.id && stats && (
-                            <div className="course-details-stats">
-                              <div className="details-grid">
-                                <div className="detail-item">
-                                  <span className="detail-label">Început urmărire:</span>
-                                  <span className="detail-value">
+                            <div style={{
+                              background: '#f8fafc',
+                              border: '1px solid #e2e8f0',
+                              borderRadius: '8px',
+                              padding: '16px',
+                              marginTop: '12px'
+                            }}>
+                              <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                                gap: '12px'
+                              }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                  <span style={{ color: '#64748b', fontWeight: '500' }}>Început urmărire:</span>
+                                  <span style={{ color: '#1e293b', fontWeight: '600' }}>
                                     {new Date(stats.startTime).toLocaleString('ro-RO')}
                                   </span>
                                 </div>
                                 
                                 {stats.endTime && (
-                                  <div className="detail-item">
-                                    <span className="detail-label">Sfârșit urmărire:</span>
-                                    <span className="detail-value">
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                    <span style={{ color: '#64748b', fontWeight: '500' }}>Sfârșit urmărire:</span>
+                                    <span style={{ color: '#1e293b', fontWeight: '600' }}>
                                       {new Date(stats.endTime).toLocaleString('ro-RO')}
                                     </span>
                                   </div>
                                 )}
                                 
-                                <div className="detail-item">
-                                  <span className="detail-label">Viteză maximă:</span>
-                                  <span className="detail-value">{stats.maxSpeed.toFixed(1)} km/h</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                  <span style={{ color: '#64748b', fontWeight: '500' }}>Viteză maximă:</span>
+                                  <span style={{ color: '#1e293b', fontWeight: '600' }}>{stats.maxSpeed.toFixed(1)} km/h</span>
                                 </div>
                                 
-                                <div className="detail-item">
-                                  <span className="detail-label">Număr opriri:</span>
-                                  <span className="detail-value">{stats.totalStops}</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                  <span style={{ color: '#64748b', fontWeight: '500' }}>Număr opriri:</span>
+                                  <span style={{ color: '#1e293b', fontWeight: '600' }}>{stats.totalStops}</span>
                                 </div>
                                 
-                                <div className="detail-item">
-                                  <span className="detail-label">Timp opriri:</span>
-                                  <span className="detail-value">{formatTime(stats.stopDuration)}</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                  <span style={{ color: '#64748b', fontWeight: '500' }}>Timp opriri:</span>
+                                  <span style={{ color: '#1e293b', fontWeight: '600' }}>{formatTime(stats.stopDuration)}</span>
                                 </div>
                                 
-                                {/* Combustibil removed - too variable for trucks */}
-                                
-                                {/* GPS points removed from display */}
-                                
-                                <div className="detail-item">
-                                  <span className="detail-label">Status:</span>
-                                  <span className="detail-value">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                  <span style={{ color: '#64748b', fontWeight: '500' }}>Status:</span>
+                                  <span style={{ 
+                                    color: stats.isActive ? '#10b981' : '#dc2626', 
+                                    fontWeight: '600' 
+                                  }}>
                                     {stats.isActive ? 'Activ' : 'Oprit'}
                                   </span>
                                 </div>
@@ -480,12 +562,44 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
           )}
         </div>
 
-        <div className="stats-modal-footer">
-          <button className="refresh-stats-btn" onClick={loadCourseStatistics} disabled={loading}>
-            <i className={`fas fa-sync-alt ${loading ? 'spinning' : ''}`}></i>
+        <div style={{
+          background: '#f8fafc',
+          borderTop: '1px solid #e2e8f0',
+          padding: '16px 24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: '12px'
+        }}>
+          <button style={{
+            background: '#10b981',
+            color: 'white',
+            border: 'none',
+            padding: '10px 20px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            fontWeight: '600',
+            opacity: loading ? 0.6 : 1
+          }} onClick={loadCourseStatistics} disabled={loading}>
+            <i className={`fas fa-sync-alt ${loading ? 'fa-spin' : ''}`}></i>
             <span>Actualizează</span>
           </button>
-          <button className="close-stats-btn" onClick={onClose}>
+          <button style={{
+            background: '#6b7280',
+            color: 'white',
+            border: 'none',
+            padding: '10px 20px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            fontWeight: '600'
+          }} onClick={onClose}>
             <i className="fas fa-times"></i>
             <span>Închide</span>
           </button>
