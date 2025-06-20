@@ -141,6 +141,9 @@ public class EnhancedGPSService extends Service implements LocationListener {
                 String courseId = intent.getStringExtra("courseId");
                 int newStatus = intent.getIntExtra("status", 2);
                 updateCourseStatus(courseId, newStatus);
+                
+            } else if ("LOGOUT_CLEAR_ALL".equals(action)) {
+                clearAllDataOnLogout();
             }
         }
         
@@ -429,6 +432,59 @@ public class EnhancedGPSService extends Service implements LocationListener {
         }
         
         // coursesToRemove list is no longer used - removal is handled with delayed timing
+    }
+    
+    // Clear all data and stop GPS completely on logout
+    private void clearAllDataOnLogout() {
+        Log.i(TAG, "🔴 LOGOUT - Clearing all GPS data and stopping service");
+        
+        // Stop all GPS tracking immediately
+        try {
+            locationManager.removeUpdates(this);
+            Log.i(TAG, "📍 Location updates stopped");
+        } catch (Exception e) {
+            Log.e(TAG, "Error stopping location updates: " + e.getMessage());
+        }
+        
+        // Stop transmission timer
+        if (transmissionHandler != null && transmissionRunnable != null) {
+            transmissionHandler.removeCallbacks(transmissionRunnable);
+            Log.i(TAG, "⏹️ Transmission timer stopped");
+        }
+        
+        // Stop sync timer
+        if (syncHandler != null && syncRunnable != null) {
+            syncHandler.removeCallbacks(syncRunnable);
+            Log.i(TAG, "⏹️ Sync timer stopped");
+        }
+        
+        // Clear all active courses
+        int coursesCleared = activeCourses.size();
+        activeCourses.clear();
+        singleTransmissionSent.clear();
+        Log.i(TAG, "🗑️ Cleared " + coursesCleared + " active courses");
+        
+        // Clear all offline stored GPS coordinates
+        if (offlineStorage != null) {
+            try {
+                SharedPreferences.Editor editor = offlineStorage.edit();
+                editor.clear();
+                editor.apply();
+                Log.i(TAG, "💾 All offline GPS coordinates deleted");
+            } catch (Exception e) {
+                Log.e(TAG, "❌ Error clearing offline storage: " + e.getMessage());
+            }
+        }
+        
+        // Reset counters
+        transmissionCounter = 0;
+        
+        // Update notification to show service stopped
+        updateNotification();
+        
+        // Stop the foreground service completely
+        Log.i(TAG, "🛑 Stopping GPS service completely after logout");
+        stopSelf();
     }
     
     private void sendGPSDataForCourse(CourseData course, Location location) {

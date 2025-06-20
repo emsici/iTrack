@@ -400,6 +400,38 @@ class DirectAndroidGPSService {
     }
   }
 
+  async logoutClearAll(): Promise<void> {
+    console.log("🔴 LOGOUT - Clearing all GPS data and stopping all tracking");
+    
+    try {
+      if (Capacitor.isNativePlatform()) {
+        // Send logout signal to Android service to clear all data and stop GPS
+        try {
+          // Use DirectGPS plugin with special logout courseId
+          await DirectGPS.stopTracking({ courseId: "LOGOUT_CLEAR_ALL" });
+          console.log("✅ Android service notified to clear all data");
+        } catch (error) {
+          console.log("DirectGPS logout failed, trying WebView interface");
+          
+          // Fallback to WebView interface
+          if ((window as any).AndroidGPS && (window as any).AndroidGPS.clearAllOnLogout) {
+            (window as any).AndroidGPS.clearAllOnLogout();
+            console.log("✅ WebView interface logout called");
+          }
+        }
+      }
+      
+      // Clear local tracking data
+      this.activeCourses.clear();
+      console.log("✅ All local GPS tracking data cleared");
+      
+    } catch (error) {
+      console.error("❌ Error during logout cleanup:", error);
+      // Force clear local data even if Android call fails
+      this.activeCourses.clear();
+    }
+  }
+
   getServiceInfo() {
     return {
       platform: Capacitor.getPlatform(),
@@ -447,3 +479,6 @@ export const getDirectGPSInfo = () => directAndroidGPSService.getServiceInfo();
 
 export const updateCourseStatus = (courseId: string, newStatus: number) =>
   directAndroidGPSService.updateCourseStatus(courseId, newStatus);
+
+export const logoutClearAllGPS = () =>
+  directAndroidGPSService.logoutClearAll();

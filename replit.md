@@ -341,6 +341,10 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 20, 2025. IMPROVED MOBILE INTERFACE: Fixed status bar overlap, reduced excessive animations, optimized padding for mobile
 - June 20, 2025. Enhanced vehicle switching - single click resets courses and allows new vehicle number entry with fresh API query
 - June 20, 2025. Stabilized button hover effects - reduced "flying" animations and improved visual feedback on mobile devices
+- June 20, 2025. FIXED OFFLINE GPS STORAGE: Added missing initializeOfflineStorage() method to EnhancedGPSService
+- June 20, 2025. Resolved offline coordinate saving issues - coordinates now properly stored when internet connection lost
+- June 20, 2025. Enhanced offline GPS system with SharedPreferences storage and automatic sync when connection restored
+- June 20, 2025. Fixed BirouVamal and BirouVamalStop display in course details with proper API field mapping
 
 ## User Preferences
 
