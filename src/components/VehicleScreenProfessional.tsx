@@ -7,7 +7,7 @@ import {
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
 import { clearToken } from "../services/storage";
-import { getOfflineGPSCount, getOfflineGPSInfo } from "../services/offlineGPS";
+import { getOfflineGPSCount } from "../services/offlineGPS";
 
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
 import CourseStatsModal from "./CourseStatsModal";
@@ -25,13 +25,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [coursesLoaded, setCoursesLoaded] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
-  const [offlineCount, setOfflineCount] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [syncInProgress, setSyncInProgress] = useState(false);
-  const [lastCoursesSync, setLastCoursesSync] = useState<string>('');
   const [infoClickCount, setInfoClickCount] = useState(0);
-  const [showDebugPanel, setShowDebugPanel] = useState(false);
-  const [debugLogs, setDebugLogs] = useState<any[]>([]);
   const [showStatsModal, setShowStatsModal] = useState(false);
 
   const handleLoadCourses = async () => {

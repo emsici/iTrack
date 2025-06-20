@@ -418,6 +418,8 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Design corporatist finalizat: Header cu iconițe în partea de sus pe fundal închis, fără suprapuneri cu barele native
 - 20 iunie. Debug pe logo iTrack: 50 click-uri pe logo-ul cub din stânga activează debug panel cu badge counter vizibil
 - 20 iunie. Spațiu header optimizat: 40px sub bara nativă pentru poziționare perfectă pe toate dispozitivele
+- 20 iunie. Formular în header: Eliminat cardul deranjant, mutat formularul în header pe fundalul închis pentru design curat
+- 20 iunie. API funcțional verificat: Endpoint vehicul.php?nr= funcționează corect cu Bearer token pentru IF03CWT
 
 ### Versiune Curentă: iTrack v1807.99
 
