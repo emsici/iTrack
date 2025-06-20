@@ -388,6 +388,9 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Redenumit replit.md în changelog.md pentru organizare mai bună a istoricului dezvoltării aplicației
 - 20 iunie. IMPLEMENTAT SISTEM ACTIVARE ADMIN: 20 click-uri pe butonul "Info" activează panoul admin cu log-uri
 - 20 iunie. Acces admin prin credențiale admin@itrack.app / parola123 pentru debugging mobil și monitorizare aplicație
+- 20 iunie. FINALIZAT SISTEM LOGGING PERSISTENT: Toate log-urile se salvează local și apar în AdminPanel pentru debugging APK
+- 20 iunie. Contorul vizual admin: După 10 click-uri pe "Info" apare numărul care crește până la 20 pentru activare
+- 20 iunie. AppLogger integrat complet: Capturează console.log/warn/error și le stochează persistent în Capacitor storage
 
 ## Starea Actuală - Iunie 2024
 

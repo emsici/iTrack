@@ -11,71 +11,41 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('');
 
-  // Capture console logs and store them
+  // Load logs from persistent storage
   useEffect(() => {
-    const capturedLogs: AppLog[] = [];
+    const loadLogs = async () => {
+      try {
+        const appLogs = await getAppLogs();
+        setLogs(appLogs);
+      } catch (error) {
+        console.error('Failed to load logs:', error);
+      }
+    };
+
+    loadLogs();
     
-    // Override console methods to capture logs
-    const originalConsole = {
-      log: console.log,
-      warn: console.warn,
-      error: console.error,
-      debug: console.debug,
-      info: console.info
-    };
-
-    const addLog = (level: AppLog['level'], message: string) => {
-      const newLog: AppLog = {
-        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-        timestamp: new Date().toLocaleString('ro-RO'),
-        level,
-        message
-      };
-      
-      capturedLogs.unshift(newLog);
-      if (capturedLogs.length > 200) capturedLogs.pop(); // Keep only last 200 logs
-      setLogs([...capturedLogs]);
-    };
-
-    console.log = (...args) => {
-      originalConsole.log(...args);
-      addLog('INFO', args.join(' '));
-    };
-
-    console.warn = (...args) => {
-      originalConsole.warn(...args);
-      addLog('WARN', args.join(' '));
-    };
-
-    console.error = (...args) => {
-      originalConsole.error(...args);
-      addLog('ERROR', args.join(' '));
-    };
-
-    console.debug = (...args) => {
-      originalConsole.debug(...args);
-      addLog('DEBUG', args.join(' '));
-    };
-
-    // Add initial logs
-    addLog('INFO', 'Admin Panel - Console logging started');
-    addLog('INFO', 'Ready for debugging on mobile device');
+    // Refresh logs every 2 seconds to show new entries
+    const interval = setInterval(loadLogs, 2000);
     
-    // Cleanup function
-    return () => {
-      console.log = originalConsole.log;
-      console.warn = originalConsole.warn;
-      console.error = originalConsole.error;
-      console.debug = originalConsole.debug;
-    };
+    return () => clearInterval(interval);
   }, []);
+
+  // Clear logs functionality
+  const handleClearLogs = async () => {
+    try {
+      await clearAppLogs();
+      setLogs([]);
+    } catch (error) {
+      console.error('Failed to clear logs:', error);
+    }
+  };
 
   // Filter logs based on search criteria
   useEffect(() => {
     let filtered = logs;
 
     if (searchTerm) {
-      filtered = filtered.filter(log => 
+      filtered = filtered.filter(log =>
         log.message.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -89,188 +59,153 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'INFO': return '#10b981';
+      case 'ERROR': return '#dc2626';
       case 'WARN': return '#f59e0b';
-      case 'ERROR': return '#ef4444';
+      case 'INFO': return '#2563eb';
       case 'DEBUG': return '#6b7280';
-      default: return '#6b7280';
+      default: return '#374151';
     }
   };
 
   const clearLogs = () => {
     setLogs([]);
-    console.log('Logs cleared by admin');
   };
 
   return (
     <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)',
       padding: '20px',
-      fontFamily: 'Arial, sans-serif'
+      backgroundColor: '#f8fafc',
+      minHeight: '100vh',
+      fontFamily: 'monospace'
     }}>
-      {/* Header */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '15px',
-        padding: '20px',
         marginBottom: '20px',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
       }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '15px'
-        }}>
-          <h2 style={{ margin: 0, color: '#1e293b' }}>
-            🔧 Admin Debug Panel
-          </h2>
-          <button
-            onClick={onLogout}
-            style={{
-              background: '#ef4444',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            Logout
-          </button>
-        </div>
-
-        {/* Filters */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr auto',
-          gap: '10px',
-          marginBottom: '10px'
-        }}>
-          <input
-            type="text"
-            placeholder="Caută în logs..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: '10px',
-              borderRadius: '8px',
-              border: '2px solid #e5e7eb',
-              fontSize: '14px'
-            }}
-          />
-          
-          <select
-            value={selectedLevel}
-            onChange={(e) => setSelectedLevel(e.target.value)}
-            style={{
-              padding: '10px',
-              borderRadius: '8px',
-              border: '2px solid #e5e7eb',
-              fontSize: '14px'
-            }}
-          >
-            <option value="">Toate nivelurile</option>
-            <option value="INFO">INFO</option>
-            <option value="WARN">WARN</option>
-            <option value="ERROR">ERROR</option>
-            <option value="DEBUG">DEBUG</option>
-          </select>
-
-          <button
-            onClick={clearLogs}
-            style={{
-              background: '#6b7280',
-              color: 'white',
-              border: 'none',
-              padding: '10px 15px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            Clear
-          </button>
-        </div>
-
-        <div style={{ color: '#6b7280', fontSize: '14px' }}>
-          📊 Total logs: {filteredLogs.length}
-        </div>
+        <h2 style={{ margin: 0, color: '#1e293b' }}>Admin Panel - Log Console</h2>
+        <button
+          onClick={onLogout}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#dc2626',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          Logout
+        </button>
       </div>
 
-      {/* Logs Container */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        borderRadius: '15px',
-        overflow: 'hidden',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-        maxHeight: 'calc(100vh - 200px)',
-        overflowY: 'auto'
+        marginBottom: '20px',
+        display: 'flex',
+        gap: '12px',
+        flexWrap: 'wrap'
       }}>
-        {filteredLogs.length > 0 ? (
-          <div>
-            {filteredLogs.map(log => (
-              <div
-                key={log.id}
-                style={{
-                  padding: '12px 15px',
-                  borderBottom: '1px solid #e5e7eb',
-                  fontSize: '13px',
-                  lineHeight: '1.4'
-                }}
-              >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '8px',
-                  marginBottom: '4px'
-                }}>
-                  <span style={{
-                    background: getLevelColor(log.level),
-                    color: 'white',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    minWidth: '45px',
-                    textAlign: 'center'
-                  }}>
-                    {log.level}
-                  </span>
-                  <span style={{
-                    color: '#6b7280',
-                    fontSize: '11px',
-                    minWidth: '120px'
-                  }}>
-                    {log.timestamp}
-                  </span>
-                </div>
-                <div style={{
-                  color: '#374151',
-                  marginLeft: '57px',
-                  wordBreak: 'break-word',
-                  fontFamily: 'Monaco, Menlo, monospace',
-                  fontSize: '12px'
-                }}>
-                  {log.message}
-                </div>
-              </div>
-            ))}
+        <input
+          type="text"
+          placeholder="Search logs..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            padding: '8px 12px',
+            border: '1px solid #d1d5db',
+            borderRadius: '6px',
+            flex: '1',
+            minWidth: '200px'
+          }}
+        />
+        
+        <select
+          value={selectedLevel}
+          onChange={(e) => setSelectedLevel(e.target.value)}
+          style={{
+            padding: '8px 12px',
+            border: '1px solid #d1d5db',
+            borderRadius: '6px'
+          }}
+        >
+          <option value="">All Levels</option>
+          <option value="ERROR">Error</option>
+          <option value="WARN">Warning</option>
+          <option value="INFO">Info</option>
+          <option value="DEBUG">Debug</option>
+        </select>
+
+        <button
+          onClick={handleClearLogs}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#f59e0b',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          Clear Logs
+        </button>
+      </div>
+
+      <div style={{
+        backgroundColor: '#1e293b',
+        color: '#e2e8f0',
+        padding: '16px',
+        borderRadius: '8px',
+        height: 'calc(100vh - 200px)',
+        overflow: 'auto',
+        fontSize: '14px',
+        lineHeight: '1.5'
+      }}>
+        <div style={{ marginBottom: '12px', color: '#64748b' }}>
+          Showing {filteredLogs.length} of {logs.length} logs
+        </div>
+        
+        {filteredLogs.length === 0 ? (
+          <div style={{ color: '#64748b', textAlign: 'center', marginTop: '40px' }}>
+            No logs available. GPS and app activities will appear here.
           </div>
         ) : (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            color: '#6b7280'
-          }}>
-            <div style={{ fontSize: '48px', marginBottom: '10px' }}>📱</div>
-            <div>Niciun log găsit</div>
-            <div style={{ fontSize: '12px', marginTop: '5px' }}>
-              Interacționează cu aplicația pentru a vedea log-urile
+          filteredLogs.map((log) => (
+            <div
+              key={log.id}
+              style={{
+                marginBottom: '8px',
+                padding: '8px',
+                backgroundColor: '#334155',
+                borderRadius: '4px',
+                borderLeft: `4px solid ${getLevelColor(log.level)}`
+              }}
+            >
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '4px'
+              }}>
+                <span style={{
+                  color: getLevelColor(log.level),
+                  fontWeight: 'bold',
+                  fontSize: '12px'
+                }}>
+                  [{log.level}] {log.category || 'APP'}
+                </span>
+                <span style={{
+                  color: '#94a3b8',
+                  fontSize: '11px'
+                }}>
+                  {new Date(log.timestamp).toLocaleString('ro-RO')}
+                </span>
+              </div>
+              <div style={{ color: '#f1f5f9', wordBreak: 'break-word' }}>
+                {log.message}
+              </div>
             </div>
-          </div>
+          ))
         )}
       </div>
     </div>

@@ -269,7 +269,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
     
     if (newClickCount >= 10 && newClickCount < 20) {
-      console.log(`🔄 Admin activation: ${newClickCount}/20 clicks`);
       // Reset counter after 5 seconds if not continued
       setTimeout(() => {
         setInfoClickCount(0);
