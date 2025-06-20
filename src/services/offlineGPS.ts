@@ -70,7 +70,7 @@ class OfflineGPSService {
         value: JSON.stringify(updatedCoordinates)
       });
 
-      console.log(`🔄 Coordinate saved offline: ${coordinate.id} (Total: ${updatedCoordinates.length})`);
+      console.log(`💾 OFFLINE GPS SAVED: ${coordinate.lat}, ${coordinate.lng} (UIT: ${coordinate.uit}, Total: ${updatedCoordinates.length})`);
     } catch (error) {
       console.error('❌ Error saving coordinate offline:', error);
     }

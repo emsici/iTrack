@@ -172,7 +172,10 @@ Persistare localStorage → Afișare CourseStatsModal
 ## Versioning și Updates
 
 ### Versiunea Curentă: 1807.99 (June 20, 2025)
-- **Design unificat**: Lista de curse folosește același stil închis ca header-ul pentru consistență vizuală
+- **Design unificat complet**: Lista de curse, GPS monitor și footer cu același stil închis ca header-ul
+- **Sistem offline robust**: Detectare reală conexiune + salvare automată coordonate când pică internetul
+- **Sincronizare automată**: Progress bar cu shimmer animation când revine conexiunea
+- **Centrare perfectă**: Conținut centrat uniform fără spații laterale
 - **Design enterprise**: Pagină input vehicul redesigned complet business
 - **Debug panel**: 50 click-uri cu modal overlay și logging persistent
 - **Al 5-lea card**: "STATISTICI" clickabil cu CourseStatsModal analytics
