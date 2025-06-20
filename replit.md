@@ -191,6 +191,8 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Design corporatist finalizat**: Header cu iconițe în partea de sus pe fundal închis, fără suprapuneri cu barele native Android
 - **Iconiță Android unificată**: Implementat același design corporatist ca logo-ul iTrack cu camion în cerc, adaptive icon complet pentru toate dimensiunile
 - **Request deduplication implementat**: Eliminat cererile multiple simultane care cauzau răspunsuri goale prin sistem de blocare și refolosire cereri active
+- **Problemă API rezolvată**: Corectat verificarea response.data -> response direct în VehicleScreenProfessional pentru încărcarea curselor
+- **Iconița Android regenerată**: Rezolvat problema afișării iconița default prin rebuild iconițelor cu designul corporatist iTrack
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin
