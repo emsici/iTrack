@@ -182,6 +182,7 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Consolidare documentație**: API.md și ARCHITECTURE.md integrate în README.md pentru organizare simplificată
 - **Localizare completă**: build.bat tradus în română pentru consistență cu toate textele aplicației
 - **Consolidare finală documentație**: SETUP.md și BUILD_INSTRUCTIONS.md integrate în README.md, eliminat linkul API din prezentări
+- **Validare input îmbunătățită**: Eliminare automată spații din câmpul email/telefon pentru autentificare corectă
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin

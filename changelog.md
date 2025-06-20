@@ -1,9 +1,9 @@
-# iTrack - Changelog și Evoluția Aplicației GPS
+# iTrack - Changelog
 
 ## Descrierea Generală
 Aceasta este o aplicație profesională de urmărire GPS construită cu React și Capacitor pentru implementare mobilă cross-platform. Aplicația este special concepută pentru șoferi să urmărească cursele lor de transport active în timp real. Include autentificare securizată, gestionarea curselor vehiculelor și transmisia continuă a datelor GPS către serverul de management transport ETSM3.
 
-## Arhitectura Sistemului
+## Arhitectura 
 
 ### Arhitectura Frontend
 - **Framework**: React 19.1.0 cu TypeScript pentru siguranță tipurilor și performanță
@@ -12,7 +12,7 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - **Iconografie**: Font Awesome 6.4.0 pentru consistență vizuală
 - **Stilizare**: CSS avansat cu backdrop-filter, conic-gradient și animații 3D moderne
 
-### Integrarea Platformei Mobile
+### Integrarea platformei mobile
 - **Framework Cross-Platform**: Capacitor 7.3.0 pentru implementare aplicații mobile native
 - **Platforme Țintă**: Android (principal), cu capabilitate iOS
 - **Plugin-uri Native**: 
@@ -27,7 +27,7 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - **Autentificare**: Sistem de autentificare bazat pe token-uri JWT
 - **Format Date**: JSON pentru comunicare API cu validare completă
 
-## Componentele Cheie
+## Componentele
 
 ### Sistemul de Autentificare
 - Ecran de login cu autentificare email/parolă și validare completă
@@ -406,6 +406,7 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Eliminat endpoint inexistent /update_course_status.php din documentație pentru acuratețe
 - 20 iunie. SETUP.md și BUILD_INSTRUCTIONS.md combinate în README.md pentru consolidare completă
 - 20 iunie. Eliminat linkul API din toate prezentările pentru securitate și confidențialitate enhanced
+- 20 iunie. Eliminare automată spații din câmpul email/telefon în LoginScreen pentru validare corectă credentials
 
 ### Versiune Curentă: iTrack v1807.99
 

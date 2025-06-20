@@ -1,22 +1,22 @@
-# iTrack GPS - Aplicație Enterprise de Monitorizare Vehicule
+# iTrack GPS -
 
 ## Descriere
 
 iTrack GPS este o aplicație enterprise avansată pentru monitorizarea și managementul flotelor de vehicule comerciale, dezvoltată special pentru companiile de transport din România. Aplicația combină tehnologiile web moderne React cu servicii GPS native Android pentru a oferi o soluție completă și robustă de tracking vehicular.
 
-### Arhitectura Hibridă
+### Arhitectura 
 - **Frontend React**: Interfață utilizator modernă cu TypeScript și design enterprise
 - **Serviciu GPS Nativ Android**: Tracking continuu în fundal cu optimizare baterie
 - **Capacități Offline Robuste**: Cache automat coordonate cu sincronizare inteligentă
 - **Analytics în Timp Real**: Calcule statistici Haversine cu monitoring performanță
 
-### Funcționalități Enterprise
+### Funcționalități 
 - **Detecție Offline Redundantă**: JavaScript + Android NetworkStateReceiver
 - **Debug Infrastructure**: Panel avansat cu logging persistent (50 click-uri)
 - **Course Analytics**: Statistici comprehensive cu algoritmi de calcul distanță
 - **Professional UI**: Design glassmorphism cu safe-area protection
 
-## Caracteristici Principale
+## Caracteristici 
 
 ### 🔐 Sistem Autentificare Enterprise
 - Login corporatist cu design glassmorphism profesional
@@ -93,7 +93,7 @@ iTrack GPS este o aplicație enterprise avansată pentru monitorizarea și manag
 
 ## Arhitectura Tehnică Detaliată
 
-### Arhitectura de Nivel Înalt
+### Arhitectura
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -634,8 +634,8 @@ Gestionarea erorilor la nivel de componentă cu fallback UI și logging.
 #### 1. Clonare Repository
 ```bash
 # Clonare din GitHub
-git clone <repository-url>
-cd itrack-gps
+git clone https://github.com/emsici/iTrack
+cd iTrack
 
 # Verificare structura proiect
 ls -la
