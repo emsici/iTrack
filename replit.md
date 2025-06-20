@@ -307,6 +307,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 20, 2025. Added proper padding-bottom (120px) to vehicle screen to prevent content overlap
 - June 20, 2025. Enhanced mobile responsive design with increased bottom margins for different screen sizes
 - June 20, 2025. Implemented safe-area-inset-bottom support for modern mobile devices with navigation gestures
+- June 20, 2025. FIXED GPS STATUS LOGIC: Corrected continuous transmission issue with status 3 (pause)
+- June 20, 2025. GPS now sends coordinates continuously only for status 2 (active tracking)
+- June 20, 2025. Status 3 (pause) and 4 (stop) send single transmission when button pressed, then stop
+- June 20, 2025. Implemented single transmission tracking to prevent duplicate pause/stop transmissions
+- June 20, 2025. Courses with status 4 are automatically removed from active tracking after final transmission
 
 ## User Preferences
 
