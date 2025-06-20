@@ -1,48 +1,166 @@
-# iTrack
+# iTrack GPS - Aplicație de Monitorizare Vehicule
 
-Aplicație modernă pentru urmărirea vehiculelor de transport în timp real, cu design contemporan și funcționalități GPS avansate. Destinată șoferilor profesioniști pentru gestionarea completă a curselor de transport cu transmisie automată către sistemul ETSM3.
+## Descriere
 
-## Funcționalități 
+iTrack este o aplicație profesională de monitorizare GPS pentru managementul flotelor de vehicule, dezvoltată special pentru companiile de transport din România. Aplicația oferă urmărire GPS în timp real, gestionarea curselor și capabilități offline pentru colectarea fiabilă a datelor chiar și fără conexiune la internet.
 
-- **Urmărire GPS ultra-precisă** cu transmisie la 5 secunde și coordonate de 8 zecimale
-- **Sistem offline complet** - salvează automat coordonatele când nu există internet
-- **Sincronizare automată** în batch-uri de 50 coordonate când revine conexiunea
-- **Design holografic modern** cu efecte shimmer și glassmorphism contemporan
-- **Statistici detaliate curse** - distanță, timp, viteză, opriri pentru fiecare cursă
-- **Citire GSM reală** din TelephonyManager Android pentru precizie maximă
-- **Serviciu GPS nativ** independent care funcționează când telefonul este blocat
-- **Interfață profesională** optimizată pentru șoferii de camioane
-- **Sistem triplu de backup** pentru activarea GPS garantată în APK
-- **Cleanup complet la logout** - zero date GPS sau coordonate rămase
+## Caracteristici Principale
 
-## Stack 
+### 🚛 Urmărire GPS Avansată
+- **Serviciu GPS nativ Android** cu operare continuă în fundal
+- **Transmisie coordonate** la interval de 5 secunde cu precizie de 8 decimale
+- **Operare în fundal** când telefonul este blocat
+- **Optimizare baterie** cu serviciu foreground și notificări
+- **GPS singular** - doar serviciul Android nativ transmite (WebView GPS dezactivat pentru evitarea duplicatelor)
 
-- **React 19.1.0** cu TypeScript pentru interfață avansată și siguranță tipurilor
-- **Vite 6.3.5** pentru build rapid și optimizat cu tree-shaking
-- **Capacitor 7.3.0** pentru integrare nativă Android completă
-- **Servicii GPS native** cu EnhancedGPSService și DirectGPSPlugin
-- **Tipografie Inter** cu font-variation-settings pentru claritate maximă
-- **CSS modern** cu backdrop-filter, conic-gradient și animații 3D
-- **Offline storage** cu SharedPreferences Android pentru persistență
+### 📱 Capabilități Offline
+- **Cache automat** al coordonatelor când internetul nu este disponibil
+- **Sincronizare în lot** - până la 50 de coordonate când conexiunea revine
+- **Stocare persistentă** în SharedPreferences Android
+- **Monitor vizual** al statusului offline cu progress în timp real
+- **Auto-sync** transparent când conexiunea este restabilită
 
-## Instalare 
+### 🎯 Gestionare Curse Profesională
+- **Încărcare curse** specifice vehiculului cu validare
+- **Managementul statusurilor** în timp real (Disponibil, Activ, Pauză, Oprit)
+- **Analytics course** cu distanță, timp și calcule de viteză
+- **Interfață șofer** optimizată pentru operațiuni de transport
 
+### 📊 Analytics și Statistici
+- **Dashboard cu 5 carduri**: Total Curse, Activ, Pauză, Disponibil, Statistici
+- **Modal statistici detaliate** cu analytics comprehensive
+- **Calcul automat**: distanță parcursă, timp de conducere, viteză medie/maximă
+- **Rapoarte în timp real** pentru management și clienți
+
+### 🔧 Panel de Debug
+- **Acces debug** prin 50 click-uri pe timestamp (counter de la 30)
+- **Modal overlay** cu toate logurile aplicației persistent
+- **Funcții utile**: Copiază logs, Refresh data
+- **Logging persistent** - logurile nu se șterg la logout
+
+### 🏢 Design Enterprise
+- **Pagină login** profesională cu branding corporatist
+- **Input vehicul** redesignat cu aspect business
+- **Tema dark** cu glassmorphism și animații moderne
+- **Safe-area protection** pentru barele native Android
+- **Design responsive** pentru toate dimensiunile de ecran
+
+## Arhitectura Tehnică
+
+### Frontend
+```
+React 19.1.0 + TypeScript
+├── Vite 6.3.5 (build tool)
+├── Bootstrap 5.3.6 (UI framework)
+├── Capacitor 7.3.0 (mobile platform)
+└── CSS modern cu backdrop-filter și animații
+```
+
+### Backend Integration
+```
+API RESTful
+├── Base URL: https://www.euscagency.com/etsm3/platforme/transport/apk
+├── Autentificare: JWT token cu persistență
+├── Format date: JSON pentru toate comunicările
+└── Endpoints: login, logout, getVehicleCourses, sendGPSData
+```
+
+### Mobile Platform
+```
+Android (target principal)
+├── API Level 35 (Android 15) target
+├── API Level 23 (Android 6.0) minimum
+├── Capacitor pentru integrare nativă
+└── Capabilități iOS prin Capacitor
+```
+
+## Structura Proiectului
+
+```
+src/
+├── components/                    # Componente React
+│   ├── LoginScreen.tsx           # Ecran autentificare enterprise
+│   ├── VehicleScreenProfessional.tsx  # Dashboard principal curse
+│   ├── CourseStatsModal.tsx      # Modal statistici detaliate
+│   ├── CourseCard.tsx            # Card individual cursă
+│   ├── CourseDetailCard.tsx      # Detalii extinse cursă
+│   ├── AdminPanel.tsx            # Panel administrare (nefolosit)
+│   └── OfflineGPSMonitor.tsx     # Monitor status offline
+│
+├── services/                     # Servicii aplicație
+│   ├── api.ts                   # Comunicare server API
+│   ├── directAndroidGPS.ts      # Serviciu GPS nativ Android
+│   ├── offlineGPS.ts            # Gestionare GPS offline
+│   ├── offlineSyncStatus.ts     # Monitor progres sincronizare
+│   ├── courseAnalytics.ts       # Analytics și statistici curse
+│   ├── appLogger.ts             # Logging persistent aplicație
+│   └── storage.ts               # Stocare locală (tokens)
+│
+├── types/                       # Tipuri TypeScript
+│   └── index.ts                 # Interfețe Course, GPSPosition, etc.
+│
+├── styles/                      # Stiluri CSS
+│   └── professional.css         # Tema enterprise completa
+│
+└── main.tsx                     # Entry point aplicație
+```
+
+```
+android/                         # Proiect Android nativ
+├── app/src/main/java/com/euscagency/itrack/
+│   └── EnhancedGPSService.java  # Serviciu GPS nativ Android
+├── app/build.gradle             # Configurare build Android
+└── capacitor.config.ts          # Configurare Capacitor
+```
+
+## Fluxurile de Date
+
+### 1. Fluxul de Autentificare
+```
+Utilizator → Login Screen → Validare credențiale → JWT token → Stocare locală → Auto-login
+```
+
+### 2. Fluxul GPS Tracking
+```
+Start cursă → Activare serviciu GPS → Colectare coordonate (5s) → Transmisie timp real
+              ↓ (offline)
+          Stocare locală → Sincronizare automată (când online)
+```
+
+### 3. Fluxul Gestionare Curse
+```
+Număr vehicul → Încărcare curse → Gestionare status → Analytics tracking → Finalizare
+```
+
+## API Endpoints
+
+### Autentificare
+- `POST /api_login.php` - Login utilizator
+- `POST /api_logout.php` - Logout utilizator
+
+### Gestionare Curse
+- `GET /get_courses_by_vehicle.php?vehicle={nr}` - Încărcare curse vehicul
+- `POST /update_course_status.php` - Actualizare status cursă
+
+### GPS Tracking
+- `POST /gps.php` - Transmisie coordonate GPS
+
+## Configurare și Rulare
+
+### Dezvoltare Locală
 ```bash
-# Clonare proiect
-git clone https://github.com/emsici/iTrack
-cd itrack
-
 # Instalare dependențe
 npm install
 
-# Rulare aplicație
+# Rulare server dezvoltare
 npm run dev
+
+# Server disponibil pe http://localhost:5000
 ```
 
-## Build Android
-
+### Build Android
 ```bash
-# Build pentru producție
+# Build web assets
 npm run build
 
 # Sincronizare Capacitor
@@ -50,212 +168,59 @@ npx cap sync android
 
 # Deschidere Android Studio
 npx cap open android
+
+# Build APK din Android Studio
 ```
 
-## Utilizare 
+## Funcționalități Avansate
 
-### 1. Autentificare
-- Deschide aplicația
-- Introduce email și parolă
-- Apasă "Conectare"
-- Token-ul se salvează automat
+### Debug și Logging
+- **Activare debug**: 50 click-uri pe timestamp
+- **Counter vizibil**: de la 30 la 50 click-uri
+- **Modal debug**: overlay cu toate logurile
+- **Persistență logs**: păstrare între sesiuni
+- **Export logs**: funcție copiere în clipboard
 
-### 2. Încărcare Curse
-- Introduce numărul vehiculului (ex: B123ABC)
-- Apasă "Încarcă Curse"
-- Se afișează lista de transporturi disponibile
+### Analytics Curse
+- **Tracking automat**: distanță, timp, viteză pentru fiecare cursă
+- **Calcule în timp real**: folosind formula Haversine pentru distanță
+- **Statistici cumulative**: pentru toate cursele vehiculului
+- **Rapoarte detaliate**: în modal dedicat statistici
 
-### 3. Gestionare Curse
-- **Start** - pornește urmărirea GPS și schimbă statusul în "Activ"
-- **Pauză** - suspendă temporar cursa
-- **Finalizează** - termină cursa definitiv
-- **Info** - afișează detalii complete despre cursă
+### Gestionare Offline
+- **Detecție conexiune**: monitor automat status online/offline
+- **Cache inteligent**: coordonate GPS salvate automat offline
+- **Progres vizual**: indicator sincronizare cu progres în timp real
+- **Recuperare automată**: re-transmisie coordonate când conexiunea revine
 
-### 4. Urmărire GPS
-- GPS-ul pornește automat când apesi "Start"
-- Funcționează în fundal chiar dacă minimizezi aplicația
-- Transmite coordonate la fiecare 60 secunde
-- Include: poziție, viteză, direcție, baterie, semnal GSM
+## Securitate și Performanță
 
-### 5. Logout
-- Apasă butonul "Ieșire" din partea de jos
-- Sistemul anunță serverul despre deconectare
-- Toate datele locale sunt șterse
-- Utilizatorul revine la ecranul de login
+### Securitate
+- **Token JWT**: autentificare sigură cu expirare
+- **Stocare locală**: Capacitor Preferences pentru date sensibile
+- **Validare input**: sanitizare toate inputurile utilizator
+- **HTTPS**: toate comunicările API securizate
 
-## Arhitectura GPS
+### Performanță
+- **Optimizare baterie**: serviciu foreground cu notificări eficiente
+- **Interval GPS optim**: 5 secunde pentru echilibru precizie/baterie
+- **Cache inteligent**: evitarea request-urilor inutile
+- **Lazy loading**: încărcare componente la cerere
 
-Aplicația folosește servicii Android native pentru urmărire precisă cu sistem offline complet:
+## Versioning și Releases
 
-- **EnhancedGPSService.java** - serviciu de fundal pentru GPS cu stocare offline
-- **DirectGPSPlugin.java** - interfața între JavaScript și Android
-- **directAndroidGPS.ts** - controlul GPS din TypeScript
-- **offlineGPS.ts** - sistem stocare și sincronizare offline automată
-- **OfflineGPSMonitor.tsx** - monitorizare vizuală în timp real
+### Versiunea Curentă: 1807.99
+- Design enterprise pentru input vehicul
+- Debug panel cu 50 click-uri și modal overlay
+- Al 5-lea card "STATISTICI" cu modal analytics
+- GPS transmission optimizat la 5 secunde
+- Texte în română și safe-area protection
 
-## Funcționalități GPS
+### Istoric Versiuni
+Consultă `changelog.md` pentru istoric complet al versiunilor.
 
-### Transmisia Coordonatelor
-La fiecare 5 secunde, aplicația trimite coordonate GPS:
+## Licență și Suport
 
-```json
-{
-  "lat": 44.426765,
-  "lng": 26.102538,
-  "timestamp": "2024-06-20 10:30:00",
-  "viteza": 45,
-  "directie": 180,
-  "altitudine": 85,
-  "baterie": 87,
-  "numar_inmatriculare": "B123ABC",
-  "uit": "UIT123456",
-  "status": "2",
-  "hdop": "5",
-  "gsm_signal": "75"
-}
-```
+Aplicația iTrack este dezvoltată pentru EuscAgency și companiile partenere de transport.
 
-### Sistem GPS Offline
-Aplicația include sistem complet de stocare offline și sincronizare automată:
-
-- **Stocare automată offline**: Coordonatele GPS se salvează local când nu există internet
-- **Sincronizare automată**: Când revine conexiunea, coordonatele se trimit automat (50/batch)
-- **Monitorizare vizuală în timp real**: 
-  - Indicator "OFFLINE" când se pierde internetul
-  - Contorul coordonatelor salvate local se actualizează live
-  - Progresul sincronizării cu bara de progres animată
-  - Dispare automat când sincronizarea e completă
-
-### Separare Sisteme
-- **GPS Offline**: Sincronizare automată în fundal
-- **Refresh Curselor**: Control manual/auto independent (30s interval)
-
-## Componente 
-
-### Interface Utilizator
-- **VehicleScreenProfessional.tsx** - ecranul principal cu design glassmorphism modern
-- **CourseDetailCard.tsx** - carduri curse interactive cu detalii expandabile
-- **CourseStatsModal.tsx** - modal statistici profesional cu analitică cursă
-- **AdminPanel.tsx** - console debug pentru dezvoltatori
-- **OfflineGPSMonitor.tsx** - monitorizare GPS offline în timp real
-
-### Servicii Backend
-- **directAndroidGPS.ts** - integrare GPS Android nativă
-- **offlineGPS.ts** - stocare offline și sincronizare automată
-- **courseAnalytics.ts** - calculul statisticilor curselor în timp real
-- **api.ts** - comunicare cu serverul de transport ETSM3
-
-### Versiune Actuală
-**iTrack v1807.99** - Include monitorizare GPS offline completă și eficiență îmbunătățită
-
-## API Endpoints
-
-### Autentificare
-```
-POST /login.php
-{
-  "email": "sofer@firma.com",
-  "password": "parola123"
-}
-```
-
-### Încărcare Curse
-```
-GET /courses.php?vehicle=B123ABC
-Authorization: Bearer <token>
-```
-
-### Transmisie GPS
-```
-POST /gps.php
-Authorization: Bearer <token>
-{datele_gps}
-```
-
-### Logout
-```
-POST /login.php
-Authorization: Bearer <token>
-{
-  "iesire": 1
-}
-```
-
-## Structura proiect
-
-```
-itrack/
-├── src/
-│   ├── components/
-│   │   ├── LoginScreen.tsx           # Ecran autentificare
-│   │   ├── VehicleScreenProfessional.tsx # Ecran principal
-│   │   ├── CourseCard.tsx            # Card cursă
-│   │   ├── CourseDetailCard.tsx      # Detalii cursă expandabile
-│   │   ├── CourseStatsModal.tsx      # Statistici course
-│   │   ├── AdminPanel.tsx            # Console debug mobil
-│   │   └── OfflineSyncProgress.tsx   # Progress sincronizare
-│   ├── services/
-│   │   ├── api.ts                    # Comunicare server
-│   │   ├── directAndroidGPS.ts       # Control GPS nativ
-│   │   ├── offlineGPS.ts             # Stocare GPS offline
-│   │   ├── offlineSyncStatus.ts      # Monitorizare sincronizare
-│   │   ├── courseAnalytics.ts        # Statistici cursă
-│   │   └── storage.ts                # Stocare locală
-│   ├── styles/
-│   │   └── professionalVehicleScreen.css # Design glassmorphism
-│   └── types/
-│       └── index.ts                  # Tipuri TypeScript
-├── android/
-│   └── app/src/main/java/com/euscagency/itrack/
-│       ├── EnhancedGPSService.java   # Serviciu GPS principal
-│       ├── DirectGPSPlugin.java      # Plugin Capacitor
-│       └── MainActivity.java         # Activitate principală
-├── dist/                             # Build final web
-└── build/                            # Build Android
-```
-
-## Permisiuni Android
-
-Aplicația necesită:
-- `ACCESS_FINE_LOCATION` - GPS precis
-- `ACCESS_BACKGROUND_LOCATION` - GPS în fundal
-- `FOREGROUND_SERVICE` - serviciu persistent
-- `WAKE_LOCK` - prevenire sleep
-- `INTERNET` - comunicare server
-
-## Configurare Server
-
-URL de bază: `https://www.euscagency.com/etsm3/platforme/transport/apk`
-
-Aplicația se conectează la sistemul ETSM3 pentru:
-- Autentificare utilizatori
-- Încărcare curse vehicule
-- Transmisie coordonate GPS
-- Gestionare sesiuni
-
-## Build Scripturi
-
-```bash
-# Build 
-./build.bat
-
-
-```
-
-## Statusuri Curse
-
-- **1 - Disponibilă** - cursa poate fi pornită
-- **2 - Activă** - urmărire GPS în desfășurare  
-- **3 - Pauzată** - temporar oprită
-- **4 - Finalizată** - cursa terminată
-
-## Informații Aplicație
-
-- **Nume Package:** com.euscagency.itrack
-- **Versiune:** 1807.99
-- **Platformă:** Android
-- **SDK Minim:** API 24 (Android 7.0)
-- **Dezvoltat pentru:** EUSC Agency Transport Management
-
----
-*Aplicație dezvoltată pentru gestionarea eficientă a transporturilor și urmărirea în timp real a vehiculelor comerciale.*
+Pentru suport tehnic sau întrebări, contactați echipa de dezvoltare.
