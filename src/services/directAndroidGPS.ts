@@ -342,7 +342,7 @@ class DirectAndroidGPSService {
         uit: course.uit,
         status: course.status.toString(),
         hdop: (position.coords.accuracy || 999).toString(),
-        gsm_signal: "100",
+        gsm_signal: "0", // Placeholder - real GSM value comes from Android service
       };
 
       console.log("Test GPS data prepared:", gpsData);
