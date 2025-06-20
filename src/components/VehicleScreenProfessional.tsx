@@ -117,6 +117,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`UIT: ${courseToUpdate.uit}, Vehicle: ${vehicleNumber}`);
 
       if (newStatus === 2) {
+        // Start/Resume - GPS transmite continuu coordonate
         await startGPSTracking(
           courseId,
           vehicleNumber,
@@ -125,11 +126,43 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           newStatus,
         );
       } else if (newStatus === 3) {
-        // Pause - GPS continues with new status
-        const { updateCourseStatus } = await import('../services/directAndroidGPS');
-        await updateCourseStatus(courseId, newStatus);
+        // Pause - Trimite UN update cu status 3, apoi oprește coordonatele
+        const { sendGPSData } = await import('../services/api');
+        const gpsData = {
+          lat: 0,
+          lng: 0,
+          timestamp: new Date().toISOString(),
+          viteza: 0,
+          directie: 0,
+          altitudine: 0,
+          baterie: 100,
+          numar_inmatriculare: vehicleNumber,
+          uit: courseToUpdate.uit,
+          status: "3",
+          hdop: "1.0",
+          gsm_signal: "4"
+        };
+        await sendGPSData(gpsData, token);
+        await stopGPSTracking(courseId); // Oprește coordonatele continue
       } else if (newStatus === 4) {
-        await stopGPSTracking(courseId);
+        // Finish - Trimite UN update cu status 4, apoi oprește
+        const { sendGPSData } = await import('../services/api');
+        const gpsData = {
+          lat: 0,
+          lng: 0,
+          timestamp: new Date().toISOString(),
+          viteza: 0,
+          directie: 0,
+          altitudine: 0,
+          baterie: 100,
+          numar_inmatriculare: vehicleNumber,
+          uit: courseToUpdate.uit,
+          status: "4",
+          hdop: "1.0",
+          gsm_signal: "4"
+        };
+        await sendGPSData(gpsData, token);
+        await stopGPSTracking(courseId); // Oprește coordonatele continue
       }
 
       // Update local state
