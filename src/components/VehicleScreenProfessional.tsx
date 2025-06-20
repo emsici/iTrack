@@ -268,8 +268,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const [showAdminModal, setShowAdminModal] = useState(false);
 
-  const handleShowInfo = async () => {
-    // Check for admin mode activation (20 clicks)
+  const handleTimestampClick = async () => {
+    // Admin access only on timestamp clicks
     const newClickCount = infoClickCount + 1;
     setInfoClickCount(newClickCount);
     
@@ -280,30 +280,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       return;
     }
     
-    if (newClickCount >= 10 && newClickCount < 20) {
+    if (newClickCount >= 10) {
       // Reset counter after 5 seconds if not continued
       setTimeout(() => {
         setInfoClickCount(0);
       }, 5000);
-      
-      // Don't show info modal when counting for admin
-      return;
     }
+    
+    console.log(`🔄 Admin click count: ${newClickCount}/20`);
+  };
 
-    if (newClickCount < 10) {
-      console.log(`🔄 Click count: ${newClickCount}`);
-      // Reset counter after 5 seconds if not continued
-      setTimeout(() => {
-        setInfoClickCount(0);
-      }, 5000);
-      
-      // Show normal info modal for regular clicks
-      setShowInfo(true);
-      return;
-    }
-
-    // Default: show info modal
-    setInfoClickCount(0);
+  const handleShowInfo = () => {
+    // Regular info modal - no admin logic
     setShowInfo(true);
   };
 
@@ -702,7 +690,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
             <span 
               className="nav-timestamp"
-              onClick={handleShowInfo}
+              onClick={handleTimestampClick}
               style={{ 
                 fontSize: '13px', 
                 color: '#64748b', 
