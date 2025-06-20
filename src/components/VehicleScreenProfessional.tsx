@@ -169,9 +169,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const renderCourseActions = (course: Course) => {
     const isLoading = actionLoading === course.id;
 
-    return (
-      <div className="course-actions">
-        {course.status === 1 && (
+    if (course.status === 1) {
+      return (
+        <div className="course-actions">
           <button
             className="action-button start-button"
             onClick={() => handleStatusUpdate(course.id, 2)}
@@ -182,63 +182,76 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             ></i>
             <span>Start</span>
           </button>
-        )}
-        {course.status === 2 && (
-          <>
-            <button
-              className="action-button pause-button"
-              onClick={() => handleStatusUpdate(course.id, 3)}
-              disabled={isLoading}
-            >
-              <i
-                className={`fas ${isLoading ? "fa-spinner spinning" : "fa-pause"}`}
-              ></i>
-              <span>Pauză</span>
-            </button>
-            <button
-              className="action-button stop-button"
-              onClick={() => handleStatusUpdate(course.id, 4)}
-              disabled={isLoading}
-            >
-              <i
-                className={`fas ${isLoading ? "fa-spinner spinning" : "fa-stop"}`}
-              ></i>
-              <span>Stop</span>
-            </button>
-          </>
-        )}
-        {course.status === 3 && (
-          <>
-            <button
-              className="action-button resume-button"
-              onClick={() => handleStatusUpdate(course.id, 2)}
-              disabled={isLoading}
-            >
-              <i
-                className={`fas ${isLoading ? "fa-spinner spinning" : "fa-play"}`}
-              ></i>
-              <span>Continuă</span>
-            </button>
-            <button
-              className="action-button stop-button"
-              onClick={() => handleStatusUpdate(course.id, 4)}
-              disabled={isLoading}
-            >
-              <i
-                className={`fas ${isLoading ? "fa-spinner spinning" : "fa-stop"}`}
-              ></i>
-              <span>Stop</span>
-            </button>
-          </>
-        )}
-        {course.status === 4 && (
+        </div>
+      );
+    }
+    
+    if (course.status === 2) {
+      return (
+        <div className="course-actions">
+          <button
+            className="action-button pause-button"
+            onClick={() => handleStatusUpdate(course.id, 3)}
+            disabled={isLoading}
+          >
+            <i
+              className={`fas ${isLoading ? "fa-spinner spinning" : "fa-pause"}`}
+            ></i>
+            <span>Pauză</span>
+          </button>
+          <button
+            className="action-button stop-button"
+            onClick={() => handleStatusUpdate(course.id, 4)}
+            disabled={isLoading}
+          >
+            <i
+              className={`fas ${isLoading ? "fa-spinner spinning" : "fa-stop"}`}
+            ></i>
+            <span>Stop</span>
+          </button>
+        </div>
+      );
+    }
+    
+    if (course.status === 3) {
+      return (
+        <div className="course-actions">
+          <button
+            className="action-button resume-button"
+            onClick={() => handleStatusUpdate(course.id, 2)}
+            disabled={isLoading}
+          >
+            <i
+              className={`fas ${isLoading ? "fa-spinner spinning" : "fa-play"}`}
+            ></i>
+            <span>Continuă</span>
+          </button>
+          <button
+            className="action-button stop-button"
+            onClick={() => handleStatusUpdate(course.id, 4)}
+            disabled={isLoading}
+          >
+            <i
+              className={`fas ${isLoading ? "fa-spinner spinning" : "fa-stop"}`}
+            ></i>
+            <span>Stop</span>
+          </button>
+        </div>
+      );
+    }
+    
+    if (course.status === 4) {
+      return (
+        <div className="course-actions">
           <div className="status-badge completed">
             <i className="fas fa-check-circle"></i>
             <span>Finalizat</span>
           </div>
-        )}
-      </div>
-    );
+        </div>
+      );
+    }
+
+    return null;
   };
 
   return (

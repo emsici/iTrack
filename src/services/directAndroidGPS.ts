@@ -163,7 +163,7 @@ class DirectAndroidGPSService {
         await this.activateAndroidGPSService(course);
 
         console.log("EnhancedGPSService activated for UIT:", course.uit);
-        console.log("GPS will transmit every 60 seconds to server");
+        console.log("GPS will transmit every 5 seconds to server");
       } else {
         throw new Error("GPS permissions not granted");
       }
@@ -232,7 +232,7 @@ class DirectAndroidGPSService {
 
         console.log("GPS tracking started:", result.message);
         console.log(
-          "EnhancedGPSService running in background - coordinates transmit every 60s",
+          "EnhancedGPSService running in background - coordinates transmit every 5s",
         );
       } catch (error) {
         console.error("DirectGPS plugin failed:", error);
