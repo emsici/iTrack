@@ -392,8 +392,6 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Contorul vizual admin: După 10 click-uri pe "Info" apare numărul care crește până la 20 pentru activare
 - 20 iunie. AppLogger integrat complet: Capturează console.log/warn/error și le stochează persistent în Capacitor storage
 
-## Starea Actuală - Iunie 2024
-
 ### Versiune Curentă: iTrack v1807.99
 
 **Funcționalități GPS Offline Complete:**

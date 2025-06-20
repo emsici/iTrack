@@ -531,7 +531,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             )}
 
-
+            {/* Central Offline GPS Status Indicator */}
+            <div className="offline-status-central">
+              <OfflineGPSMonitor 
+                isOnline={isOnline} 
+                coursesActive={courses.some(c => c.status === 2)}
+              />
+            </div>
 
             <div className="courses-grid">
               {courses.map((course) => (

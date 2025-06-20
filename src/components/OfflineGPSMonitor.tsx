@@ -11,7 +11,6 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
   const [offlineCount, setOfflineCount] = useState(0);
   const [syncInProgress, setSyncInProgress] = useState(false);
   const [syncProgress, setSyncProgress] = useState({ synced: 0, failed: 0, total: 0 });
-  const [showStatus, setShowStatus] = useState(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -23,7 +22,6 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
         try {
           const count = await getOfflineGPSCount();
           setOfflineCount(count);
-          setShowStatus(count > 0 || !isOnline);
 
           // Auto-sync when online and have offline coordinates
           if (isOnline && count > 0 && !syncInProgress) {
@@ -40,32 +38,31 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
         }
       };
 
-      // Subscribe to sync progress
-      if (subscribeToSyncProgress) {
-        syncSubscription = subscribeToSyncProgress({
-          onProgressUpdate: (progress) => {
-            setSyncProgress({
-              synced: progress.synced,
-              failed: progress.failed,
-              total: progress.totalToSync
-            });
-            setSyncInProgress(progress.isActive);
-            console.log(`🔄 Progres: ${progress.synced}/${progress.totalToSync} (${progress.percentage}%)`);
-          },
-          onSyncComplete: () => {
-            console.log("✅ Sincronizare GPS completă");
-            setSyncInProgress(false);
-            setShowStatus(false);
-          },
-          onSyncError: (error) => {
-            console.error("❌ Eroare sync:", error);
-            setSyncInProgress(false);
-          }
-        });
-      }
-
+      // Initial status check
       updateStatus();
-      interval = setInterval(updateStatus, 5000);
+
+      // Set up periodic monitoring
+      interval = setInterval(updateStatus, 3000);
+
+      // Subscribe to sync progress updates
+      syncSubscription = subscribeToSyncProgress({
+        onProgressUpdate: (progress) => {
+          setSyncInProgress(progress.isActive);
+          setSyncProgress({
+            synced: progress.synced,
+            failed: progress.failed,
+            total: progress.totalToSync
+          });
+        },
+        onSyncComplete: () => {
+          setSyncInProgress(false);
+          console.log("✅ Sincronizare offline GPS completă");
+        },
+        onSyncError: (error) => {
+          setSyncInProgress(false);
+          console.error("❌ Eroare sincronizare:", error);
+        }
+      });
 
       return () => {
         clearInterval(interval);
@@ -76,81 +73,82 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
     }
   }, [coursesActive, isOnline, syncInProgress]);
 
-  if (!showStatus) return null;
+  // Always show the central status indicator when courses are loaded
+  if (!coursesActive) {
+    return null;
+  }
+
+  const getStatusIcon = () => {
+    if (syncInProgress) return 'fas fa-sync-alt';
+    if (!isOnline) return 'fas fa-wifi-slash';
+    return 'fas fa-wifi';
+  };
+
+  const getStatusClass = () => {
+    if (syncInProgress) return 'syncing';
+    if (!isOnline) return 'offline';
+    return 'online';
+  };
+
+  const getMainStatusText = () => {
+    if (syncInProgress) {
+      return `Sincronizare GPS în curs...`;
+    }
+    if (!isOnline) {
+      return 'Modul Offline Activ';
+    }
+    return 'Conexiune GPS Stabilă';
+  };
+
+  const getSubStatusText = () => {
+    if (syncInProgress) {
+      const percentage = syncProgress.total > 0 ? Math.round((syncProgress.synced / syncProgress.total) * 100) : 0;
+      return `${syncProgress.synced}/${syncProgress.total} coordonate (${percentage}%)`;
+    }
+    if (!isOnline && offlineCount > 0) {
+      return `${offlineCount} coordonate salvate local`;
+    }
+    if (isOnline && offlineCount === 0) {
+      return 'Toate datele sincronizate';
+    }
+    return 'Gata pentru urmărire GPS';
+  };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: '20px',
-      right: '20px',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      border: '1px solid #e5e7eb',
-      borderRadius: '12px',
-      padding: '12px 16px',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-      zIndex: 1000,
-      minWidth: '280px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    }}>
-      {!isOnline && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          color: '#dc2626',
-          fontSize: '14px',
-          fontWeight: '500',
-          marginBottom: offlineCount > 0 || syncInProgress ? '8px' : '0'
-        }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            backgroundColor: '#dc2626',
-            borderRadius: '50%'
-          }}></div>
-          <span>Offline - GPS salvat local</span>
+    <div className="offline-monitor">
+      <div className="offline-status-display">
+        <div className={`status-indicator-icon ${getStatusClass()}`}>
+          <i className={getStatusIcon()}></i>
         </div>
-      )}
-      
-      {offlineCount > 0 && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          color: '#0f172a',
-          fontSize: '14px',
-          fontWeight: '500',
-          marginBottom: syncInProgress ? '8px' : '0'
-        }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            backgroundColor: '#f59e0b',
-            borderRadius: '50%'
-          }}></div>
-          <span>{offlineCount} coordonate GPS salvate</span>
+        
+        <div className="status-text-group">
+          <div className="status-main-text">
+            {getMainStatusText()}
+          </div>
+          <div className="status-sub-text">
+            {getSubStatusText()}
+          </div>
+        </div>
+      </div>
+
+      {offlineCount > 0 && !syncInProgress && (
+        <div className={`offline-counter ${offlineCount < 50 ? 'low-count' : ''}`}>
+          <i className="fas fa-database"></i>
+          <span>{offlineCount}</span>
         </div>
       )}
 
-      {syncInProgress && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          color: '#0f172a',
-          fontSize: '14px',
-          fontWeight: '500'
-        }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            backgroundColor: '#10b981',
-            borderRadius: '50%'
-          }}></div>
-          <span>
-            Sincronizare: {syncProgress.synced}/{syncProgress.total}
-            {syncProgress.failed > 0 && ` (${syncProgress.failed} eșecuri)`}
-          </span>
+      {syncInProgress && syncProgress.total > 0 && (
+        <div className="sync-progress-container">
+          <div 
+            className="sync-progress-bar" 
+            style={{ 
+              width: `${Math.round((syncProgress.synced / syncProgress.total) * 100)}%` 
+            }}
+          ></div>
+          <div className="sync-progress-text">
+            {Math.round((syncProgress.synced / syncProgress.total) * 100)}%
+          </div>
         </div>
       )}
     </div>
