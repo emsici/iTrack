@@ -284,6 +284,20 @@
 }
 
 .load-button:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 
+    0 20px 45px rgba(66, 153, 225, 0.5),
+    0 12px 20px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: linear-gradient(145deg, #3182ce, #5a67d8, #9f7aea);
+}
+
+.load-button:active {
+  transform: translateY(-2px) scale(1.02);
+  transition: all 0.1s ease;
+}
+
+.load-button:hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
 }
@@ -663,11 +677,118 @@
   }
 }
 
+/* Tablet Responsive Design */
+@media (max-width: 768px) {
+  .vehicle-screen {
+    padding-top: max(120px, calc(120px + env(safe-area-inset-top)));
+    padding-bottom: max(180px, calc(180px + env(safe-area-inset-bottom)));
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .vehicle-header {
+    padding: 30px;
+    margin-bottom: 25px;
+    border-radius: 20px;
+  }
+  
+  .header-title {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .header-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
+  }
+  
+  .header-text h1 {
+    font-size: 24px;
+  }
+  
+  .header-text p {
+    font-size: 14px;
+  }
+  
+  .vehicle-input-section {
+    padding: 30px;
+    margin-bottom: 25px;
+    border-radius: 20px;
+  }
+  
+  .input-group {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .input-field {
+    min-width: unset;
+  }
+  
+  .vehicle-input {
+    font-size: 16px;
+    padding: 18px 20px;
+    letter-spacing: 1.5px;
+  }
+  
+  .load-button {
+    width: 100%;
+    min-width: unset;
+    height: 55px;
+    font-size: 16px;
+  }
+}
+
+/* Mobile Phone Responsive Design */
 @media (max-width: 480px) {
   .vehicle-screen {
     padding-top: max(140px, calc(140px + env(safe-area-inset-top)));
     padding-left: 12px;
     padding-right: 12px;
+  }
+  
+  .vehicle-header {
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 18px;
+  }
+  
+  .header-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+  
+  .header-text h1 {
+    font-size: 20px;
+  }
+  
+  .header-text p {
+    font-size: 12px;
+  }
+  
+  .vehicle-input-section {
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 18px;
+  }
+  
+  .input-label {
+    font-size: 14px;
+  }
+  
+  .vehicle-input {
+    font-size: 14px;
+    padding: 16px 18px;
+    letter-spacing: 1px;
+  }
+  
+  .load-button {
+    height: 50px;
+    font-size: 14px;
+    padding: 16px 25px;
   }
   
   .action-button {

@@ -199,11 +199,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div className="vehicle-header">
               <div className="header-title">
                 <div className="header-icon">
-                  <i className="fas fa-truck"></i>
+                  <i className="fas fa-route"></i>
                 </div>
                 <div className="header-text">
-                  <h1>Transport Management</h1>
-                  <p>Sistem profesional de urmărire GPS</p>
+                  <h1>iTrack Professional</h1>
+                  <p>Advanced GPS Tracking & Fleet Management</p>
                 </div>
               </div>
               
@@ -214,7 +214,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <input
                       type="text"
                       className="vehicle-input"
-                      placeholder="Introduceți numărul (ex: B123ABC)"
+                      placeholder="🚛 B123ABC / CJ45DEF / TM67GHI"
                       value={vehicleNumber}
                       onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
                       onKeyPress={(e) => e.key === 'Enter' && handleLoadCourses()}
