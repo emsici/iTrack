@@ -78,7 +78,7 @@ class DirectAndroidGPSService {
     status: number = 2,
   ): Promise<void> {
     console.log(
-      `Starting direct Android GPS for course ${courseId}, UIT: ${uit}`,
+      `Starting direct Android GPS for course ${courseId}, UIT REAL: ${uit}`,
     );
 
     const courseData: ActiveCourse = {

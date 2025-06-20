@@ -220,8 +220,8 @@ public class EnhancedGPSService extends Service implements LocationListener {
             transmitGPSData(gpsData);
             transmissionCount++;
             
-            Log.d(TAG, String.format("GPS transmitted #%d: %.6f, %.6f (UIT: %s)", 
-                transmissionCount, lastLocation.getLatitude(), lastLocation.getLongitude(), uit));
+            Log.d(TAG, String.format("GPS transmitted #%d: %.6f, %.6f (UIT REAL: %s, Status: %d)", 
+                transmissionCount, lastLocation.getLatitude(), lastLocation.getLongitude(), uit, status));
                 
         } catch (Exception e) {
             Log.e(TAG, "Error preparing GPS data", e);
@@ -245,7 +245,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
             statusData.put("gsm_signal", "4");
 
             transmitGPSData(statusData);
-            Log.d(TAG, String.format("Status update sent: %d for UIT: %s", status, uit));
+            Log.d(TAG, String.format("Status update sent: %d for UIT REAL: %s", status, uit));
             
         } catch (Exception e) {
             Log.e(TAG, "Error sending status update", e);

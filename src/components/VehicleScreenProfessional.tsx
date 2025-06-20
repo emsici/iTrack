@@ -114,7 +114,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       console.log(`=== STATUS UPDATE ===`);
       console.log(`Course: ${courseId}, Status: ${courseToUpdate.status} → ${newStatus}`);
-      console.log(`UIT: ${courseToUpdate.uit}, Vehicle: ${vehicleNumber}`);
+      console.log(`UIT REAL: ${courseToUpdate.uit}, Vehicle: ${vehicleNumber}`);
 
       if (newStatus === 2) {
         // Start/Resume - GPS transmite continuu coordonate
