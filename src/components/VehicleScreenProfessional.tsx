@@ -204,10 +204,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <div className="header-icon">
                   <i className="fas fa-route"></i>
                 </div>
-                <div className="header-text">
-                  <h1>iTrack Professional</h1>
-                  <p>Advanced GPS Tracking & Fleet Management</p>
-                </div>
               </div>
               
               <div className="vehicle-input-section">
