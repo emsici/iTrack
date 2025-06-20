@@ -401,6 +401,11 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Progress bar enhanced: Animații shimmer și tranziții smooth 0.5s pentru status sincronizare
 - 20 iunie. Documentation completă: README.md actualizat cu structura detaliată a tuturor componentelor TSX și serviciilor
 - 20 iunie. Consolidare documentație: API.md și ARCHITECTURE.md integrate în README.md pentru organizare simplificată
+- 20 iunie. Corectare endpoint-uri API: /login.php, /vehicul.php, /gps.php conform implementării din cod
+- 20 iunie. Actualizare headers Bearer token: Login fără Bearer, toate celelalte cu Authorization Bearer token
+- 20 iunie. Eliminat endpoint inexistent /update_course_status.php din documentație pentru acuratețe
+- 20 iunie. SETUP.md și BUILD_INSTRUCTIONS.md combinate în README.md pentru consolidare completă
+- 20 iunie. Eliminat linkul API din toate prezentările pentru securitate și confidențialitate enhanced
 
 ### Versiune Curentă: iTrack v1807.99
 
