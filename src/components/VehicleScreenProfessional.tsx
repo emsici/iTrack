@@ -335,11 +335,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
               </div>
               <div className="header-text-section">
-                <p className="header-subtitle">Vehicul: {vehicleNumber}</p>
+                <h1 className="header-title">iTrack</h1>
+                <p className="header-subtitle">GPS Professional</p>
               </div>
               {infoClickCount >= 30 && (
                 <div className="click-counter-badge">{infoClickCount}/50</div>
               )}
+            </div>
+
+            <div className="header-vehicle-display">
+              <span className="vehicle-number-clickable" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
+                🚛 {vehicleNumber}
+                <i className="edit-icon fas fa-edit"></i>
+              </span>
             </div>
 
             <div className="header-actions">
@@ -373,12 +381,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   className={`status-indicator ${isOnline ? "online" : "offline"}`}
                 ></div>
                 <span>{isOnline ? "Online" : "Offline"}</span>
-              </div>
-              <div className="header-timestamp">
-                {new Date().toLocaleTimeString("ro-RO", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
               </div>
             </div>
           </div>
@@ -456,8 +458,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                           </div>
                         </div>
 
-                        <div className="course-actions-section">
-                          {renderCourseActions(course)}
+                        <div className="course-status-section">
                           <button
                             className="toggle-details-button"
                             onClick={() =>
@@ -477,33 +478,34 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         <div className="course-details-enhanced">
                           <div className="details-grid">
                             <div className="detail-item">
-                              <strong>Plecare:</strong>{" "}
-                              {course.departure_location || "N/A"}
+                              <strong>Declarant:</strong>{" "}
+                              {course.denumireDeclarant || "N/A"}
                             </div>
                             <div className="detail-item">
-                              <strong>Destinație:</strong>{" "}
-                              {course.destination_location || "N/A"}
+                              <strong>Loc Start:</strong>{" "}
+                              {course.denumireLocStart || "N/A"}
                             </div>
-                            {course.departure_time && (
-                              <div className="detail-item">
-                                <strong>Ora plecare:</strong>{" "}
-                                {course.departure_time}
-                              </div>
-                            )}
-                            {course.arrival_time && (
-                              <div className="detail-item">
-                                <strong>Ora sosire:</strong>{" "}
-                                {course.arrival_time}
-                              </div>
-                            )}
-                            {course.description && (
-                              <div className="detail-item full-width">
-                                <strong>Descriere:</strong> {course.description}
-                              </div>
-                            )}
+                            <div className="detail-item">
+                              <strong>Loc Stop:</strong>{" "}
+                              {course.denumireLocStop || "N/A"}
+                            </div>
+                            <div className="detail-item">
+                              <strong>Vamă Start:</strong>{" "}
+                              {course.vama || "N/A"}
+                            </div>
+                            <div className="detail-item">
+                              <strong>Vamă Stop:</strong>{" "}
+                              {course.vamaStop || "N/A"}
+                            </div>
+                            <div className="detail-item">
+                              <strong>Data Transport:</strong>{" "}
+                              {course.dataTransport || "N/A"}
+                            </div>
                           </div>
                         </div>
                       )}
+
+                      {renderCourseActions(course)}
                     </div>
                   ))}
                 </div>
