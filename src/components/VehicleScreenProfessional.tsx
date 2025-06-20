@@ -239,11 +239,37 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
             
+            <div className="header-vehicle-form">
+              <div className="vehicle-input-container">
+                <input
+                  type="text"
+                  className="header-vehicle-input"
+                  placeholder="Nr. înmatriculare"
+                  value={vehicleNumber}
+                  onChange={(e) => {
+                    const cleanValue = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                    setVehicleNumber(cleanValue);
+                  }}
+                  onKeyPress={(e) => e.key === "Enter" && handleLoadCourses()}
+                />
+                <button
+                  className={`header-load-btn ${loading ? 'loading' : ''}`}
+                  onClick={handleLoadCourses}
+                  disabled={loading || !vehicleNumber.trim()}
+                >
+                  {loading ? (
+                    <i className="fas fa-spinner spinning"></i>
+                  ) : (
+                    <i className="fas fa-search"></i>
+                  )}
+                </button>
+              </div>
+              {error && (
+                <div className="header-error">{error}</div>
+              )}
+            </div>
+            
             <div className="header-actions">
-              <button className="header-icon-btn" onClick={() => setShowStatsModal(true)} title="Statistici Curse">
-                <i className="fas fa-chart-line"></i>
-                <span>Statistici</span>
-              </button>
               <button className="header-icon-btn" onClick={handleLogout} title="Logout">
                 <i className="fas fa-sign-out-alt"></i>
                 <span>Ieșire</span>
@@ -255,90 +281,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
           </div>
           
-          <div className="vehicle-container">
-            <div className="enterprise-vehicle-access">
-              <div className="brand-identity-section">
-                <div className="corporate-logo">
-                  <div className="logo-symbol">
-                    <i className="fas fa-cube"></i>
-                  </div>
-                  <div className="brand-name">iTrack</div>
-                </div>
-              </div>
-              
-              <div className="access-control-panel">
-                <div className="panel-header">
-                  <h2 className="panel-title">Acces vehicul</h2>
-                  <p className="panel-description">Introduceți numărul de înmatriculare pentru a accesa cursele vehiculului</p>
-                </div>
-                
-                <div className="input-control-group">
-                  <div className="form-field-enhanced">
-                    <label className="field-label">Număr de înmatriculare</label>
-                    <div className="input-wrapper-professional">
-                      <div className="input-prefix">
-                        <i className="fas fa-truck"></i>
-                      </div>
-                      <input
-                        type="text"
-                        className="enterprise-input"
-                        placeholder="B123ABC"
-                        value={vehicleNumber}
-                        onChange={(e) => {
-                          const cleanValue = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-                          setVehicleNumber(cleanValue);
-                        }}
-                        onKeyPress={(e) => e.key === "Enter" && handleLoadCourses()}
-                      />
-                    </div>
-                  </div>
-                  
-                  <button
-                    className={`access-button ${loading ? 'loading' : ''}`}
-                    onClick={handleLoadCourses}
-                    disabled={loading || !vehicleNumber.trim()}
-                  >
-                    {loading ? (
-                      <>
-                        <i className="fas fa-spinner spinning"></i>
-                        <span>Se încarcă...</span>
-                      </>
-                    ) : (
-                      <>
-                        <i className="fas fa-search"></i>
-                        <span>Accesează cursele</span>
-                      </>
-                    )}
-                  </button>
-                </div>
 
-                {error && (
-                  <div className="enterprise-error-alert">
-                    <div className="alert-icon">
-                      <i className="fas fa-exclamation-circle"></i>
-                    </div>
-                    <div className="alert-content">
-                      <div className="alert-title">Eroare de acces</div>
-                      <div className="alert-message">{error}</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <div className="system-info-footer">
-                <div className="version-info">
-                  <span className="version-label">Versiune</span>
-                  <span className="version-number">1807.99</span>
-                </div>
-                <div className="connection-status">
-                  <div className={`status-indicator ${isOnline ? 'online' : 'offline'}`}></div>
-                  <span className="status-text">
-                    {isOnline ? 'Conectat' : 'Offline'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
         </>
       ) : (
         <>
