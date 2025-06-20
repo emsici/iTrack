@@ -159,12 +159,11 @@ class DirectAndroidGPSService {
     console.log('Activating Android GPS service for course:', course.courseId);
     
     if (Capacitor.isNativePlatform()) {
-      // Pentru Android APK - activare prin Intent direct la EnhancedGPSService
+      // Pentru Android APK - activare prin GPSPlugin către EnhancedGPSService
       try {
-        // Simulare activare serviciu prin Intent Android
-        console.log('Sending START intent to EnhancedGPSService');
-        console.log('Intent extras:', {
-          action: 'START_TRACKING',
+        console.log('Starting EnhancedGPSService through GPSPlugin');
+        
+        const result = await GPSPlugin.startGPS({
           courseId: course.courseId,
           vehicleNumber: course.vehicleNumber,
           uit: course.uit,
@@ -172,8 +171,8 @@ class DirectAndroidGPSService {
           status: course.status
         });
         
-        // În APK real, aici se va trimite Intent către EnhancedGPSService
-        // care va activa foreground service și va începe transmisia GPS
+        console.log('GPS service started:', result.message);
+        console.log('GPS will transmit coordinates every 60 seconds');
         
       } catch (error) {
         console.error('Failed to activate Android GPS service:', error);
