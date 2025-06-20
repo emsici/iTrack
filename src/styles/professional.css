@@ -78,7 +78,7 @@ html, body {
 .vehicle-screen-header {
   width: 100%;
   background: linear-gradient(135deg, #0f172a, #1e293b);
-  padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px;
+  padding: calc(env(safe-area-inset-top) + 40px) 20px 20px 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   z-index: 100;
   display: flex;

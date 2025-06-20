@@ -416,6 +416,8 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Progress bar îmbunătățit: Animații shimmer și statistici detaliate pentru sincronizare GPS când revine internetul
 - 20 iunie. Design simplificat: Un singur card central elegant cu logo iTrack și formular - eliminat cardurile suplimentare
 - 20 iunie. Design corporatist finalizat: Header cu iconițe în partea de sus pe fundal închis, fără suprapuneri cu barele native
+- 20 iunie. Debug pe logo iTrack: 50 click-uri pe logo-ul cub din stânga activează debug panel cu badge counter vizibil
+- 20 iunie. Spațiu header optimizat: 40px sub bara nativă pentru poziționare perfectă pe toate dispozitivele
 
 ### Versiune Curentă: iTrack v1807.99
 
