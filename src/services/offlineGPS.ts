@@ -122,8 +122,8 @@ class OfflineGPSService {
       let failedCount = 0;
       const remainingCoordinates: OfflineGPSCoordinate[] = [];
 
-      // Process coordinates in batches of 5 to avoid overwhelming the server
-      const batchSize = 5;
+      // Process coordinates in batches of 50 for better efficiency
+      const batchSize = 50;
       for (let i = 0; i < coordinates.length; i += batchSize) {
         const batch = coordinates.slice(i, i + batchSize);
         

@@ -161,15 +161,7 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
                     </div>
                   </div>
                   
-                  <div className="total-stat-card">
-                    <div className="stat-icon">
-                      <i className="fas fa-gas-pump"></i>
-                    </div>
-                    <div className="stat-info">
-                      <div className="stat-value">{totalStats.totalFuel.toFixed(1)} L</div>
-                      <div className="stat-label">Combustibil Est.</div>
-                    </div>
-                  </div>
+                  {/* Combustibil card removed - too variable for trucks */}
                   
                   <div className="total-stat-card">
                     <div className="stat-icon">
@@ -286,15 +278,9 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
                                   <span className="detail-value">{formatTime(stats.stopDuration)}</span>
                                 </div>
                                 
-                                <div className="detail-item">
-                                  <span className="detail-label">Combustibil estimat:</span>
-                                  <span className="detail-value">{stats.fuelEstimate.toFixed(1)} L</span>
-                                </div>
+                                {/* Combustibil removed - too variable for trucks */}
                                 
-                                <div className="detail-item">
-                                  <span className="detail-label">Puncte GPS:</span>
-                                  <span className="detail-value">{stats.gpsPoints.length}</span>
-                                </div>
+                                {/* GPS points removed from display */}
                                 
                                 <div className="detail-item">
                                   <span className="detail-label">Status:</span>
