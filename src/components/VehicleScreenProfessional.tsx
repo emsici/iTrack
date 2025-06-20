@@ -7,7 +7,7 @@ import {
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
 import { clearToken } from "../services/storage";
-import OfflineSyncProgress from "./OfflineSyncProgress";
+
 import CourseStatsModal from "./CourseStatsModal";
 import "../styles/professionalVehicleScreen.css";
 
@@ -27,6 +27,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>('');
+  const [showSyncInfo, setShowSyncInfo] = useState(false);
   const [showStats, setShowStats] = useState(false);
 
   const handleLoadCourses = async () => {
@@ -353,40 +354,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         {/* <div className="system-edition">Enterprise Edition</div> */}
                       </div>
                     </div>
-                    
-                    <div className="system-controls">
-                      <button 
-                        className="refresh-button"
-                        onClick={handleLoadCourses}
-                        disabled={loading}
-                        title="Reîncarcă cursele"
-                      >
-                        <i className={`fas fa-sync-alt ${loading ? 'spinning' : ''}`}></i>
-                        <span>REFRESH</span>
-                      </button>
-                      
-                      <button 
-                        className={`auto-refresh-toggle ${autoRefresh ? 'active' : ''}`}
-                        onClick={() => setAutoRefresh(!autoRefresh)}
-                        title={autoRefresh ? 'Dezactivează auto-refresh' : 'Activează auto-refresh'}
-                      >
-                        <i className="fas fa-clock"></i>
-                        <span>AUTO</span>
-                      </button>
-                      
-                      <div className="operational-badge">
-                        <div className="status-pulse">
-                          <div className="pulse-ring"></div>
-                          <div className="status-core"></div>
-                        </div>
-                        <div className="status-info">
-                          <span className="operation-text">OPERATIONAL</span>
-                          {lastUpdate && (
-                            <span className="last-sync">Sync: {lastUpdate}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+
                   </div>
 
                   <div className="vehicle-management-panel">
@@ -444,7 +412,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             )}
 
-            <OfflineSyncProgress />
+
 
             <div className="courses-grid">
               {courses.map((course) => (

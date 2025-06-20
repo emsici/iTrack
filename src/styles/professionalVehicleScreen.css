@@ -2479,6 +2479,15 @@
     top: 0;
     left: 0;
     transform: none;
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(120px, calc(120px + env(safe-area-inset-bottom)));
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+  
+  .stats-modal-content {
+    padding: 20px;
+    max-height: calc(100vh - 140px - max(0px, env(safe-area-inset-top)) - max(120px, calc(120px + env(safe-area-inset-bottom))));
   }
   
   .total-stats-grid {
