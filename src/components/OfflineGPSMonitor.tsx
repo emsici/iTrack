@@ -94,8 +94,11 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
     if (syncInProgress) {
       return `Sincronizare GPS în curs...`;
     }
-    if (!isOnline) {
+    if (!isOnline || !navigator.onLine) {
       return 'Modul Offline Activ';
+    }
+    if (offlineCount > 0) {
+      return 'Date GPS în așteptare';
     }
     return 'Conexiune GPS Stabilă';
   };

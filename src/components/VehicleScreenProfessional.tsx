@@ -703,15 +703,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </button>
             )}
 
-            <button
-              className="nav-button info-nav-button"
+            <span 
+              className="nav-timestamp"
               onClick={handleShowInfo}
+              style={{ 
+                fontSize: '13px', 
+                color: '#64748b', 
+                cursor: 'pointer',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                transition: 'background 0.2s ease'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
             >
-              <i className="fas fa-info-circle"></i>
+              {new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
               {infoClickCount >= 10 && (
                 <span className="admin-counter">{infoClickCount}</span>
               )}
-            </button>
+            </span>
             <button
               className="nav-button logout-nav-button"
               onClick={handleLogout}
