@@ -1,23 +1,29 @@
-# iTrack - Aplicație de Urmărire GPS pentru Transport
+# iTrack - Aplicația Profesională de Urmărire GPS 2025
 
-iTrack este o aplicație mobilă pentru urmărirea vehiculelor de transport în timp real. Șoferii folosesc aplicația pentru a gestiona și monitoriza cursele de transport, cu transmisia automată a coordonatelor GPS către sistemul central ETSM3.
+Aplicație de ultimă generație pentru urmărirea vehiculelor de transport în timp real, cu design modern holografic și funcționalități GPS avansate. Destinată șoferilor profesioniști pentru gestionarea completă a curselor de transport cu transmisie automată către sistemul ETSM3.
 
-## Funcționalități
+## Funcționalități Avansate 2025
 
-- **Autentificare securizată** cu email și parolă
-- **Încărcare curse** după numărul vehiculului  
-- **Start/Pauză/Stop curse** cu butoane simple
-- **Urmărire GPS în fundal** chiar când telefonul este blocat
-- **Transmisie automată** coordonate la fiecare 60 secunde
-- **Logout securizat** cu ștergerea datelor locale
+- **Urmărire GPS ultra-precisă** cu transmisie la 5 secunde și coordonate de 8 zecimale
+- **Sistem offline complet** - salvează automat coordonatele când nu există internet
+- **Sincronizare automată** în batch-uri de 50 coordonate când revine conexiunea
+- **Design holografic modern** cu efecte shimmer și glassmorphism contemporan
+- **Statistici detaliate curse** - distanță, timp, viteză, opriri pentru fiecare cursă
+- **Citire GSM reală** din TelephonyManager Android pentru precizie maximă
+- **Serviciu GPS nativ** independent care funcționează când telefonul este blocat
+- **Interfață profesională** optimizată pentru șoferii de camioane
+- **Sistem triplu de backup** pentru activarea GPS garantată în APK
+- **Cleanup complet la logout** - zero date GPS sau coordonate rămase
 
-## Tehnologii
+## Stack Tehnologic Modern
 
-- **React 19** - interfața utilizator
-- **TypeScript** - cod type-safe
-- **Capacitor 7** - deployment nativ Android
-- **Bootstrap 5** - design responsive
-- **Servicii Android native** - GPS în fundal
+- **React 19.1.0** cu TypeScript pentru interfață avansată și siguranță tipurilor
+- **Vite 6.3.5** pentru build rapid și optimizat cu tree-shaking
+- **Capacitor 7.3.0** pentru integrare nativă Android completă
+- **Servicii GPS native** cu EnhancedGPSService și DirectGPSPlugin
+- **Tipografie Inter** cu font-variation-settings pentru claritate maximă
+- **CSS modern** cu backdrop-filter, conic-gradient și animații 3D
+- **Offline storage** cu SharedPreferences Android pentru persistență
 
 ## Instalare Dezvoltare
 

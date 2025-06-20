@@ -1,58 +1,64 @@
-# iTrack - Professional Driver Tracking Application
+# iTrack - Aplicația Profesională de Urmărire GPS pentru Șoferi
 
-## Overview
-This is a professional React-based GPS tracking application built with Capacitor for cross-platform mobile deployment. The application is specifically designed for drivers to track their active transport courses in real-time. It features secure authentication, vehicle course management, and continuous GPS data transmission to the ETSM3 transport management server.
+## Descrierea Generală
+Aceasta este o aplicație profesională de urmărire GPS construită cu React și Capacitor pentru implementare mobilă cross-platform. Aplicația este special concepută pentru șoferi să urmărească cursele lor de transport active în timp real. Include autentificare securizată, gestionarea curselor vehiculelor și transmisia continuă a datelor GPS către serverul de management transport ETSM3.
 
-## System Architecture
+## Arhitectura Sistemului
 
-### Frontend Architecture
-- **Framework**: React 19.1.0 with TypeScript
-- **Build Tool**: Vite 6.3.5 for fast development and optimized builds
-- **UI Framework**: Bootstrap 5.3.6 for responsive design
-- **Icons**: Font Awesome 6.4.0 for consistent iconography
-- **Styling**: CSS modules with custom styling for platform-specific appearance
+### Arhitectura Frontend
+- **Framework**: React 19.1.0 cu TypeScript pentru siguranță tipurilor și performanță
+- **Instrument Build**: Vite 6.3.5 pentru dezvoltare rapidă și build-uri optimizate
+- **Framework UI**: Design responsiv cu stiluri glassmorphism moderne 2025
+- **Iconografie**: Font Awesome 6.4.0 pentru consistență vizuală
+- **Stilizare**: CSS avansat cu backdrop-filter, conic-gradient și animații 3D
 
-### Mobile Platform Integration
-- **Cross-Platform Framework**: Capacitor 7.3.0 for native mobile app deployment
-- **Target Platforms**: Android (primary), with iOS capability
-- **Native Plugins**: 
-  - Geolocation for GPS tracking
-  - Device info for hardware identification
-  - Preferences for local data storage
+### Integrarea Platformei Mobile
+- **Framework Cross-Platform**: Capacitor 7.3.0 pentru implementare aplicații mobile native
+- **Platforme Țintă**: Android (principal), cu capabilitate iOS
+- **Plugin-uri Native**: 
+  - Geolocation pentru urmărire GPS precisă
+  - Device info pentru identificarea hardware
+  - Preferences pentru stocare date locale
+  - Background Geolocation pentru urmărire continuă
 
-### Backend Integration
-- **API Communication**: RESTful API integration with external transport management system
-- **Base URL**: `https://www.euscagency.com/etsm3/platforme/transport/apk`
-- **Authentication**: Token-based authentication system
-- **Data Format**: JSON for API communication
+### Integrarea Backend
+- **Comunicare API**: Integrare API RESTful cu sistemul extern de management transport
+- **URL de Bază**: `https://www.euscagency.com/etsm3/platforme/transport/apk`
+- **Autentificare**: Sistem de autentificare bazat pe token-uri JWT
+- **Format Date**: JSON pentru comunicare API cu validare completă
 
-## Key Components
+## Componentele Cheie
 
-### Authentication System
-- Login screen with email/password authentication
-- Token-based session management
-- Secure token storage using Capacitor Preferences
-- Automatic session persistence across app restarts
+### Sistemul de Autentificare
+- Ecran de login cu autentificare email/parolă și validare completă
+- Gestionarea sesiunilor bazată pe token-uri JWT
+- Stocare securizată token folosind Capacitor Preferences
+- Persistența automată a sesiunii la restartarea aplicației
+- Sistem logout cu curățare completă date și notificare server
 
-### GPS Tracking Service
-- Native Android location tracking with persistent background operation
-- Continues tracking even when phone is locked or app is minimized
-- Optimized for battery efficiency with 1-minute interval updates
-- Automatic battery optimization exemption requests
-- watchPosition implementation for continuous location monitoring
-- Robust error handling and recovery mechanisms
+### Serviciul de Urmărire GPS
+- Urmărire locație Android nativă cu operare persistentă în fundal
+- Continuă urmărirea chiar când telefonul este blocat sau aplicația minimizată
+- Optimizat pentru eficiența bateriei cu actualizări la 5 secunde
+- Cereri automate de exceptare optimizare baterie
+- Implementare watchPosition pentru monitorizare continuă locație
+- Mecanisme robuste de gestionare erori și recuperare
+- Sistem offline complet cu sincronizare automată batch
 
-### Course Management
-- Vehicle-specific course loading
-- Course status management (Available, In Progress, Paused, Stopped)
-- Real-time course status updates
-- Integration with GPS tracking for active courses
+### Gestionarea Curselor
+- Încărcare curse specifice vehiculului cu validare strictă
+- Gestionarea statusului curselor (Disponibil, În Progres, Pauzat, Oprit)
+- Actualizări în timp real ale statusului curselor
+- Integrare cu urmărirea GPS pentru cursele active
+- Statistici detaliate pentru fiecare cursă
 
-### User Interface Components
-- **LoginScreen**: Handles user authentication with form validation
-- **VehicleScreen**: Main dashboard for vehicle and course management
-- **CourseCard**: Individual course display and control component
-- Responsive design for various screen sizes
+### Componentele Interfeței Utilizator
+- **LoginScreen**: Gestionează autentificarea utilizatorilor cu validare formular și animație truck
+- **VehicleScreenProfessional**: Dashboard principal pentru gestionarea vehiculelor și curselor
+- **CourseDetailCard**: Afișare și control curs individual cu detalii expandabile
+- **CourseStatsModal**: Statistici profesionale cu design glassmorphism
+- **AdminPanel**: Console debug pentru dezvoltatori mobil
+- Design responsiv pentru diverse mărimi de ecran cu efecte moderne
 
 ## Data Flow
 
