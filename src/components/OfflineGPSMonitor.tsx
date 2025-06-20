@@ -159,15 +159,23 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
       )}
 
       {syncInProgress && syncProgress.total > 0 && (
-        <div className="sync-progress-container">
-          <div 
-            className="sync-progress-bar" 
-            style={{ 
-              width: `${Math.round((syncProgress.synced / syncProgress.total) * 100)}%` 
-            }}
-          ></div>
-          <div className="sync-progress-text">
-            {Math.round((syncProgress.synced / syncProgress.total) * 100)}%
+        <div className="enhanced-sync-progress">
+          <div className="progress-header">
+            <span className="progress-label">Sincronizare în curs</span>
+            <span className="progress-stats">{syncProgress.synced}/{syncProgress.total}</span>
+          </div>
+          <div className="progress-bar-container">
+            <div 
+              className="progress-bar-fill" 
+              style={{ 
+                width: `${Math.round((syncProgress.synced / syncProgress.total) * 100)}%` 
+              }}
+            >
+              <div className="progress-bar-shimmer"></div>
+            </div>
+            <div className="progress-percentage">
+              {Math.round((syncProgress.synced / syncProgress.total) * 100)}%
+            </div>
           </div>
         </div>
       )}

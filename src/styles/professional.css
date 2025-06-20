@@ -68,11 +68,36 @@ html, body {
   background-size: 400% 400%;
   animation: gradientShift 20s ease infinite;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   position: relative;
   overflow: hidden;
-  padding: max(60px, calc(60px + env(safe-area-inset-top))) env(safe-area-inset-right) max(180px, calc(180px + env(safe-area-inset-bottom))) env(safe-area-inset-left);
+  padding: 0;
+}
+
+.vehicle-container {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+}
+
+/* Header corporativ poziționat exact sub bara nativă */
+.corporate-header-zone {
+  width: 100%;
+  margin-top: 0;
+  padding-top: 20px;
 }
 
 .vehicle-screen::before {
@@ -1965,5 +1990,84 @@ html, body {
     max-width: 100%;
     margin: 0;
     padding: 24px 16px;
+  }
+}
+
+/* Enhanced Sync Progress Bar */
+.enhanced-sync-progress {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-top: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.progress-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.progress-stats {
+  font-size: 12px;
+  font-weight: 500;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.progress-bar-container {
+  position: relative;
+  height: 12px;
+  background: rgba(226, 232, 240, 0.8);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 6px;
+  position: relative;
+  transition: width 0.5s ease;
+  overflow: hidden;
+}
+
+.progress-bar-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.progress-percentage {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
   }
 }
