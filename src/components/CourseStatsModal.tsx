@@ -54,28 +54,29 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
         avgSpeed: 0,
         maxSpeed: 0,
         totalStops: 0,
-        totalFuel: 0,
         coursesTracked: 0
       };
     }
 
-    const totals = activeCourses.reduce((acc, stats) => {
-      acc.totalDistance += stats.totalDistance;
-      acc.totalTime += stats.drivingTime;
-      acc.maxSpeed = Math.max(acc.maxSpeed, stats.maxSpeed);
-      acc.totalStops += stats.totalStops;
-      // Fuel consumption removed
-      return acc;
-    }, {
-      totalDistance: 0,
-      totalTime: 0,
-      maxSpeed: 0,
-      totalStops: 0
+    // Simplified statistics calculation
+    let totalDistance = 0;
+    let totalTime = 0;
+    let maxSpeed = 0;
+    let totalStops = 0;
+
+    activeCourses.forEach(stats => {
+      totalDistance += stats.totalDistance;
+      totalTime += stats.drivingTime;
+      maxSpeed = Math.max(maxSpeed, stats.maxSpeed);
+      totalStops += stats.totalStops;
     });
 
     return {
-      ...totals,
-      avgSpeed: totals.totalTime > 0 ? (totals.totalDistance / (totals.totalTime / 60)) : 0,
+      totalDistance,
+      totalTime,
+      avgSpeed: totalTime > 0 ? totalDistance / (totalTime / 60) : 0,
+      maxSpeed,
+      totalStops,
       coursesTracked: activeCourses.length
     };
   };
