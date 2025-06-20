@@ -117,6 +117,9 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
           vamaStop: course.VamaStop,
           birouVamalStop: course.BirouVamalStop,
           judetStop: course.JudetStop,
+          // Keep original API field names as well
+          BirouVamal: course.BirouVamal,
+          BirouVamalStop: course.BirouVamalStop,
           denumireLocStop: course.denumireLocStop
         }));
       } else {

@@ -359,6 +359,10 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 20, 2025. Enhanced auto-refresh button visibility with "AUTO" indicator when active
 - June 20, 2025. Added last sync timestamp display under refresh button showing when courses were loaded
 - June 20, 2025. Improved GPS offline monitoring with 5-second status updates and console logging
+- June 20, 2025. FIXED BIROU VAMAL DISPLAY: Corrected API field mapping for BirouVamal and BirouVamalStop in course details
+- June 20, 2025. Updated CourseStatsModal with modern corporate glassmorphism design matching main interface
+- June 20, 2025. Enhanced course details display with proper customs office information from API data
+- June 20, 2025. Verified API integration shows complete address data: "TRIBUNUL CORCHES NR 2 B" and "FAGULUI NR 52"
 
 ## User Preferences
 

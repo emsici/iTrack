@@ -223,7 +223,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   <div className="detail-item">
                     <div className="detail-content">
                       <div className="detail-label">Birou Vamal:</div>
-                      <div className="detail-value">{course.birouVamal || course.BirouVamal || 'Nu este specificat'}</div>
+                      <div className="detail-value">{course.BirouVamal || course.birouVamal || 'Nu este specificat'}</div>
                     </div>
                   </div>
                   <div className="detail-item">
@@ -256,7 +256,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   <div className="detail-item">
                     <div className="detail-content">
                       <div className="detail-label">Birou Vamal Stop:</div>
-                      <div className="detail-value">{course.birouVamalStop || course.BirouVamalStop || 'Nu este specificat'}</div>
+                      <div className="detail-value">{course.BirouVamalStop || course.birouVamalStop || 'Nu este specificat'}</div>
                     </div>
                   </div>
                   <div className="detail-item">
