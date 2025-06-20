@@ -421,13 +421,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <i className="fas fa-cube"></i>
                   </div>
                   <div className="brand-name">iTrack</div>
-                  <div className="brand-subtitle">Fleet Management System</div>
                 </div>
               </div>
               
               <div className="access-control-panel">
                 <div className="panel-header">
-                  <h2 className="panel-title">Acces Vehicul</h2>
+                  <h2 className="panel-title">Acces vehicul</h2>
                   <p className="panel-description">Introduceți numărul de înmatriculare pentru a accesa cursele vehiculului</p>
                 </div>
                 
@@ -465,7 +464,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     ) : (
                       <>
                         <i className="fas fa-arrow-right"></i>
-                        <span>Accesează Cursele</span>
+                        <span>Accesează cursele</span>
                       </>
                     )}
                   </button>
