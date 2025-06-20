@@ -34,14 +34,13 @@ html, body {
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
 }
 
-/* Courses List Design - Different from Vehicle Input */
+/* Courses List Design - Enhanced Safe Area Support */
 .vehicle-screen.courses-loaded {
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   animation: none;
   padding: 0;
-  padding-top: env(safe-area-inset-top, 20px);
-  padding-bottom: env(safe-area-inset-bottom, 90px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 120px);
   display: block;
   position: relative;
   overflow: auto;
@@ -803,10 +802,10 @@ html, body {
 .card-indicator.paused { background: #f59e0b; }
 .card-indicator.ready { background: #3b82f6; }
 
-/* Courses Grid - Enhanced Organization */
+/* Courses Grid - Enhanced Safe Area Protection */
 .courses-grid {
   padding: 20px;
-  padding-bottom: env(safe-area-inset-bottom, 100px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 120px);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 18px;
@@ -1412,21 +1411,21 @@ html, body {
   100% { transform: rotate(360deg); }
 }
 
-/* Professional Bottom Navigation */
+/* Professional Bottom Navigation - Enhanced Safe Area */
 .bottom-navigation {
   position: fixed;
-  bottom: 0;
+  bottom: env(safe-area-inset-bottom, 0px);
   left: 0;
   right: 0;
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-top: 1px solid #e2e8f0;
-  padding: 12px 20px 24px;
+  padding: 16px 20px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 20px));
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 100;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-  padding-bottom: max(24px, env(safe-area-inset-bottom));
 }
 
 .nav-container {
@@ -2211,6 +2210,7 @@ html, body {
   .courses-grid {
     grid-template-columns: 1fr;
     padding: 15px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 15px) + 100px);
     gap: 15px;
   }
 }

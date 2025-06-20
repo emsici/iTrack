@@ -193,6 +193,9 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Request deduplication implementat**: Eliminat cererile multiple simultane care cauzau răspunsuri goale prin sistem de blocare și refolosire cereri active
 - **Problemă API rezolvată**: Corectat verificarea response.data -> response direct în VehicleScreenProfessional pentru încărcarea curselor
 - **Iconița Android regenerată**: Rezolvat problema afișării iconița default prin rebuild iconițelor cu designul corporatist iTrack
+- **Safe-area positioning complet**: Header poziționat sub bara nativă de sus, footer și conținut poziționat deasupra barei native de jos
+- **Logo centrat perfect**: Header redesignat cu logo-ul centrat absolut stânga-dreapta folosind transform: translateX(-50%)
+- **Design carduri optimizat**: Eliminat suprapunerile, spacing organizat, folosește doar datele reale din API fără câmpuri inventate
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin
