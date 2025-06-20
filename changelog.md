@@ -431,6 +431,8 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Corectat importuri: Eliminat avertismentul Vite pentru importuri dinamice vs statice appLogger
 - 20 iunie. Iconiță Android corporatistă: Implementat același design ca logo-ul iTrack cu camion în cerc pentru aplicația Android
 - 20 iunie. Adaptive icon complet: Background gradient și foreground cu camion detaliat pentru toate dimensiunile Android
+- 20 iunie. API cache fix implementat: Cache busting cu timestamps și retry logic pentru rezolvarea problemei de golire API după prima apelare
+- 20 iunie. Enhanced logging: Monitorizare completă comportament API cu loguri detaliate pentru prima și a doua încercare
 
 ### Versiune Curentă: iTrack v1807.99
 

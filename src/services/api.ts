@@ -1,4 +1,5 @@
 import { CapacitorHttp, Capacitor } from '@capacitor/core';
+import { logAPI } from './appLogger';
 
 const API_BASE_URL = 'https://www.euscagency.com/etsm3/platforme/transport/apk';
 
@@ -83,21 +84,33 @@ export const login = async (email: string, password: string): Promise<LoginRespo
 
 export const getVehicleCourses = async (vehicleNumber: string, token: string) => {
   try {
+    // Add cache busting timestamp to prevent server cache issues
+    const timestamp = Date.now();
+    const urlWithCacheBuster = `${API_BASE_URL}/vehicul.php?nr=${vehicleNumber}&_t=${timestamp}`;
+    
     console.log('=== VEHICLE COURSES REQUEST ===');
-    console.log('URL:', `${API_BASE_URL}/vehicul.php?nr=${vehicleNumber}`);
+    console.log('URL:', urlWithCacheBuster);
     console.log('Token:', token.substring(0, 20) + '...');
+    console.log('Cache Buster:', timestamp);
+    
+    logAPI(`Vehicle courses request for ${vehicleNumber} with cache buster ${timestamp}`);
     
     const response = await CapacitorHttp.get({
-      url: `${API_BASE_URL}/vehicul.php?nr=${vehicleNumber}`,
+      url: urlWithCacheBuster,
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     });
 
     console.log('=== VEHICLE COURSES RESPONSE ===');
     console.log('Status:', response.status);
     console.log('Response Data:', JSON.stringify(response.data, null, 2));
+    
+    logAPI(`Initial response: status=${response.status}, data=${JSON.stringify(response.data)}`);
 
     if (response.status === 200) {
       const responseData = response.data;
@@ -165,8 +178,64 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
           denumireLocStop: course.denumireLocStop
         }));
       } else {
-        console.log('No valid data found in response');
-        return [];
+        console.log('No valid data found in response - attempting retry');
+        logAPI(`No data in initial response for ${vehicleNumber} - attempting retry in 1 second`);
+        
+        // Retry once more with a small delay to handle server cache issues
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const retryTimestamp = Date.now();
+        const retryResponse = await CapacitorHttp.get({
+          url: `${API_BASE_URL}/vehicul.php?nr=${vehicleNumber}&_retry=${retryTimestamp}`,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        
+        console.log('=== RETRY RESPONSE ===');
+        console.log('Retry Status:', retryResponse.status);
+        console.log('Retry Data:', JSON.stringify(retryResponse.data, null, 2));
+        
+        logAPI(`Retry response: status=${retryResponse.status}, data=${JSON.stringify(retryResponse.data)}`);
+        
+        if (retryResponse.status === 200 && retryResponse.data?.status === 'success' && 
+            Array.isArray(retryResponse.data.data) && retryResponse.data.data.length > 0) {
+          console.log('Retry successful - processing data');
+          return retryResponse.data.data.map((course: any, index: number) => ({
+            id: course.ikRoTrans?.toString() || `course_${index}`,
+            name: `ikRoTrans: ${course.ikRoTrans}`,
+            departure_location: course.denumireLocStart || course.Vama,
+            destination_location: course.denumireLocStop || course.VamaStop,
+            departure_time: course.dataTransport || null,
+            arrival_time: null,
+            description: course.denumireDeclarant,
+            status: 1,
+            uit: course.UIT,
+            ikRoTrans: course.ikRoTrans,
+            codDeclarant: course.codDeclarant,
+            denumireDeclarant: course.denumireDeclarant,
+            nrVehicul: course.nrVehicul,
+            dataTransport: course.dataTransport,
+            vama: course.Vama,
+            birouVamal: course.BirouVamal,
+            judet: course.Judet,
+            denumireLocStart: course.denumireLocStart,
+            vamaStop: course.VamaStop,
+            birouVamalStop: course.BirouVamalStop,
+            judetStop: course.JudetStop,
+            BirouVamal: course.BirouVamal,
+            BirouVamalStop: course.BirouVamalStop,
+            denumireLocStop: course.denumireLocStop
+          }));
+        } else {
+          console.log('Retry also failed - no courses available for this vehicle');
+          return [];
+        }
       }
     } else {
       throw new Error('Eroare la încărcarea curselor');
