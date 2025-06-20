@@ -252,6 +252,18 @@ public class EnhancedGPSService extends Service implements LocationListener {
                 Log.d(TAG, "📶 Network provider backup started (5s interval)");
             }
             
+            // Passive provider as emergency backup (uses other apps' location requests)
+            if (locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+                locationManager.requestLocationUpdates(
+                    LocationManager.PASSIVE_PROVIDER,
+                    10000, // 10 seconds for passive backup (low frequency)
+                    MIN_DISTANCE, // 0.5m distance filter
+                    this,
+                    Looper.getMainLooper()
+                );
+                Log.d(TAG, "🔄 Passive provider emergency backup started (10s interval)");
+            }
+            
             // Try to get last known location immediately
             getLastKnownLocation();
             
@@ -646,11 +658,13 @@ public class EnhancedGPSService extends Service implements LocationListener {
             // Only update location, DO NOT transmit here - transmission is timer-based only
             lastKnownLocation = location;
             
-            Log.d(TAG, "📍 Location updated: " + 
+            String providerIcon = location.getProvider().equals("gps") ? "🛰️" : 
+                                 location.getProvider().equals("network") ? "📶" : "🔄";
+            Log.d(TAG, providerIcon + " Location updated: " + 
                   String.format("%.6f, %.6f", location.getLatitude(), location.getLongitude()) +
                   " | Provider: " + location.getProvider() +
                   " | Accuracy: " + String.format("%.1f", location.getAccuracy()) + "m" +
-                  " | (Update only - transmission via 5s timer)");
+                  " | (Cached for 5s timer transmission)");
         }
     }
     

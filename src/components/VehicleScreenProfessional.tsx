@@ -416,7 +416,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <h4><i className="fas fa-shield-alt"></i> Caracteristici Avansate</h4>
                 <p>• <strong>Background tracking:</strong> GPS funcționează cu telefonul blocat</p>
                 <p>• <strong>Multi-task:</strong> Urmărește multiple curse simultan</p>
-                <p>• <strong>Auto-sync:</strong> Sincronizare automată cu serverul</p>
+                <p>• <strong>Triple backup system:</strong> GPS → Network → Passive providers</p>
+                <p>• <strong>Auto-failover:</strong> Comută automat între surse GPS</p>
                 <p>• <strong>Real-time:</strong> Transmisie coordonate în timp real</p>
                 <p>• <strong>Battery optimized:</strong> Optimizat pentru baterie</p>
               </div>
