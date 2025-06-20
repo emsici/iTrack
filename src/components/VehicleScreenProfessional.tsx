@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
-import { Course } from '../types';
-import { getVehicleCourses, logout } from '../services/api';
-import { startGPSTracking, stopGPSTracking } from '../services/directAndroidGPS';
-import { clearToken } from '../services/storage';
-import '../styles/professionalVehicleScreen.css';
+import React, { useState } from "react";
+import { Course } from "../types";
+import { getVehicleCourses, logout } from "../services/api";
+import {
+  startGPSTracking,
+  stopGPSTracking,
+} from "../services/directAndroidGPS";
+import { clearToken } from "../services/storage";
+import "../styles/professionalVehicleScreen.css";
 
 interface VehicleScreenProps {
   token: string;
@@ -11,10 +14,10 @@ interface VehicleScreenProps {
 }
 
 const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
-  const [vehicleNumber, setVehicleNumber] = useState('');
+  const [vehicleNumber, setVehicleNumber] = useState("");
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [coursesLoaded, setCoursesLoaded] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showInfo, setShowInfo] = useState(false);
@@ -22,28 +25,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
-      setError('Introduceți numărul vehiculului');
+      setError("Introduceți numărul vehiculului");
       return;
     }
 
     setLoading(true);
-    setError('');
-    
+    setError("");
+
     try {
       const data = await getVehicleCourses(vehicleNumber, token);
-      
+
       if (!data || data.length === 0) {
-        setError('Nu există curse disponibile pentru acest vehicul');
+        setError("Nu există curse disponibile pentru acest vehicul");
         setCourses([]);
         setCoursesLoaded(false);
         return;
       }
-      
+
       setCourses(data);
       setCoursesLoaded(true);
     } catch (error: any) {
-      console.error('Error loading courses:', error);
-      setError(error.message || 'Eroare la încărcarea curselor');
+      console.error("Error loading courses:", error);
+      setError(error.message || "Eroare la încărcarea curselor");
       setCourses([]);
       setCoursesLoaded(false);
     } finally {
@@ -51,39 +54,65 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const handleCourseAction = async (course: Course, action: 'start' | 'pause' | 'resume' | 'finish') => {
+  const handleCourseAction = async (
+    course: Course,
+    action: "start" | "pause" | "resume" | "finish",
+  ) => {
     setActionLoading(course.id);
-    setError('');
+    setError("");
 
     try {
       let newStatus = course.status;
 
-      if (action === 'start') {
+      if (action === "start") {
         newStatus = 2;
-        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
-      } else if (action === 'pause') {
+        await startGPSTracking(
+          course.id,
+          vehicleNumber,
+          token,
+          course.uit,
+          newStatus,
+        );
+      } else if (action === "pause") {
         newStatus = 3;
-        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
-      } else if (action === 'resume') {
+        await startGPSTracking(
+          course.id,
+          vehicleNumber,
+          token,
+          course.uit,
+          newStatus,
+        );
+      } else if (action === "resume") {
         newStatus = 2;
-        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
-      } else if (action === 'finish') {
+        await startGPSTracking(
+          course.id,
+          vehicleNumber,
+          token,
+          course.uit,
+          newStatus,
+        );
+      } else if (action === "finish") {
         newStatus = 4;
         // First send status 4 to server, then stop tracking
-        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
+        await startGPSTracking(
+          course.id,
+          vehicleNumber,
+          token,
+          course.uit,
+          newStatus,
+        );
         // Small delay to ensure status 4 transmission completes
         setTimeout(() => stopGPSTracking(course.id), 1000);
       }
 
-      setCourses(prevCourses =>
-        prevCourses.map(c =>
-          c.id === course.id ? { ...c, status: newStatus } : c
-        )
+      setCourses((prevCourses) =>
+        prevCourses.map((c) =>
+          c.id === course.id ? { ...c, status: newStatus } : c,
+        ),
       );
-
     } catch (error: any) {
-      console.error('Course action error:', error);
-      setError(error.message || 'Eroare la executarea acțiunii');
+      console.error("Course action error:", error);
+      setError(error.message || "Eroare la executarea acțiunii");
     } finally {
       setActionLoading(null);
     }
@@ -95,7 +124,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       await clearToken();
       onLogout();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       await clearToken();
       onLogout();
     }
@@ -107,22 +136,27 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const getStatusText = (status: number): string => {
     switch (status) {
-      case 1: return 'Disponibilă';
-      case 2: return 'În curs';
-      case 3: return 'Pauză';
-      case 4: return 'Finalizată';
-      default: return 'Necunoscută';
+      case 1:
+        return "Disponibilă";
+      case 2:
+        return "În curs";
+      case 3:
+        return "Pauză";
+      case 4:
+        return "Finalizată";
+      default:
+        return "Necunoscută";
     }
   };
 
   const renderCourseActions = (course: Course) => {
     const isLoading = actionLoading === course.id;
-    
+
     if (course.status === 1) {
       return (
         <button
           className="action-button start-button"
-          onClick={() => handleCourseAction(course, 'start')}
+          onClick={() => handleCourseAction(course, "start")}
           disabled={isLoading}
         >
           {isLoading ? (
@@ -136,13 +170,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </button>
       );
     }
-    
+
     if (course.status === 2) {
       return (
         <div className="course-actions">
           <button
             className="action-button pause-button"
-            onClick={() => handleCourseAction(course, 'pause')}
+            onClick={() => handleCourseAction(course, "pause")}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -156,7 +190,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </button>
           <button
             className="action-button finish-button"
-            onClick={() => handleCourseAction(course, 'finish')}
+            onClick={() => handleCourseAction(course, "finish")}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -171,12 +205,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       );
     }
-    
+
     if (course.status === 3) {
       return (
         <button
           className="action-button resume-button"
-          onClick={() => handleCourseAction(course, 'resume')}
+          onClick={() => handleCourseAction(course, "resume")}
           disabled={isLoading}
         >
           {isLoading ? (
@@ -190,7 +224,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </button>
       );
     }
-    
+
     return null;
   };
 
@@ -205,7 +239,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <i className="fas fa-route"></i>
                 </div>
               </div>
-              
+
               <div className="vehicle-input-section">
                 <div className="input-group">
                   <div className="input-field">
@@ -215,8 +249,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       className="vehicle-input"
                       placeholder="🚛 B123ABC / CJ45DEF / TM67GHI"
                       value={vehicleNumber}
-                      onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
-                      onKeyPress={(e) => e.key === 'Enter' && handleLoadCourses()}
+                      onChange={(e) =>
+                        setVehicleNumber(e.target.value.toUpperCase())
+                      }
+                      onKeyPress={(e) =>
+                        e.key === "Enter" && handleLoadCourses()
+                      }
                     />
                   </div>
                   <button
@@ -235,7 +273,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </button>
                 </div>
               </div>
-              
+
               {error && (
                 <div className="error-message">
                   <i className="fas fa-exclamation-triangle"></i>
@@ -246,62 +284,71 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </>
         ) : (
           <div className="courses-section">
-            <div className="courses-header-premium">
-              <div className="header-gradient-bg">
-                <div className="floating-elements">
-                  <div className="floating-circle circle-1"></div>
-                  <div className="floating-circle circle-2"></div>
-                  <div className="floating-circle circle-3"></div>
-                </div>
-                
-                <div className="header-content">
-                  <div className="header-top-row">
-                    <div className="vehicle-info-card">
-                      <div className="vehicle-icon-container">
-                        <i className="fas fa-truck vehicle-icon"></i>
+            <div className="executive-control-center">
+              <div className="command-dashboard">
+                <div className="control-header">
+                  <div className="system-identity">
+                    <div className="corporate-logo">
+                      <div className="logo-emblem">
+                        <i className="fas fa-cube"></i>
                       </div>
-                      <div className="vehicle-details">
-                        <div className="vehicle-label">Vehicul activ</div>
-                        <div className="vehicle-number-display">
+                      <div className="brand-text">
+                        <div className="company-name">FLEET COMMAND</div>
+                        <div className="system-edition">Enterprise Edition</div>
+                      </div>
+                    </div>
+                    
+                    <div className="operational-badge">
+                      <div className="status-pulse">
+                        <div className="pulse-ring"></div>
+                        <div className="status-core"></div>
+                      </div>
+                      <span className="operation-text">OPERATIONAL</span>
+                    </div>
+                  </div>
+
+                  <div className="vehicle-management-panel">
+                    <div className="active-unit-section">
+                      <div className="section-header">ACTIVE UNIT</div>
+                      <div className="unit-control">
+                        <div className="unit-display">
+                          <i className="fas fa-truck-moving unit-icon"></i>
                           <span 
                             onClick={() => {
                               setCoursesLoaded(false);
                               setCourses([]);
                               setVehicleNumber('');
                             }}
-                            className="vehicle-number-clickable"
+                            className="unit-identifier"
                           >
                             {vehicleNumber}
-                            <i className="fas fa-edit edit-icon"></i>
                           </span>
+                          <i className="fas fa-exchange-alt change-unit"></i>
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="stats-dashboard">
-                      <div className="stat-item">
-                        <div className="stat-number">{courses.length}</div>
-                        <div className="stat-label">{courses.length === 1 ? 'Cursă' : 'Curse'}</div>
+
+                    <div className="analytics-grid">
+                      <div className="analytics-card total-routes">
+                        <div className="card-value">{courses.length}</div>
+                        <div className="card-label">TOTAL ROUTES</div>
+                        <div className="card-indicator"></div>
                       </div>
-                      <div className="stat-item">
-                        <div className="stat-number">{courses.filter(c => c.status === 2).length}</div>
-                        <div className="stat-label">Active</div>
+                      <div className="analytics-card active-tracking">
+                        <div className="card-value">{courses.filter(c => c.status === 2).length}</div>
+                        <div className="card-label">TRACKING</div>
+                        <div className="card-indicator active"></div>
                       </div>
-                      <div className="stat-item">
-                        <div className="stat-number">{courses.filter(c => c.status === 3).length}</div>
-                        <div className="stat-label">Pauză</div>
+                      <div className="analytics-card standby-routes">
+                        <div className="card-value">{courses.filter(c => c.status === 3).length}</div>
+                        <div className="card-label">STANDBY</div>
+                        <div className="card-indicator paused"></div>
                       </div>
-                    </div>
-                  </div>
-                  
-                  <div className="header-bottom-row">
-                    <div className="status-indicator">
-                      <div className="pulse-dot"></div>
-                      <span>Sistem GPS activ</span>
-                    </div>
-                    <div className="brand-badge">
-                      <i className="fas fa-satellite-dish"></i>
-                      <span>iTrack Professional</span>
+                      <div className="analytics-card ready-routes">
+                        <div className="card-value">{courses.filter(c => c.status === 1).length}</div>
+                        <div className="card-label">READY</div>
+                        <div className="card-indicator ready"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -322,10 +369,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <div>
                       <div className="course-id">UIT: {course.uit}</div>
                       <div className="course-declarant">
-                        {course.denumireDeclarant || 'Transport comercial'}
+                        {course.denumireDeclarant || "Transport comercial"}
                       </div>
                     </div>
-                    <div className={`course-status-badge status-${course.status}`}>
+                    <div
+                      className={`course-status-badge status-${course.status}`}
+                    >
                       {getStatusText(course.status)}
                     </div>
                   </div>
@@ -339,7 +388,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         </span>
                       </div>
                     )}
-                    
+
                     {course.description && (
                       <div className="detail-row">
                         <i className="fas fa-info-circle detail-icon"></i>
@@ -348,7 +397,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         </span>
                       </div>
                     )}
-                    
+
                     {course.vama && course.vamaStop && (
                       <div className="detail-row">
                         <i className="fas fa-route detail-icon"></i>
@@ -357,12 +406,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         </span>
                       </div>
                     )}
-                    
+
                     {course.dataTransport && (
                       <div className="detail-row">
                         <i className="fas fa-calendar detail-icon"></i>
                         <span className="detail-text">
-                          Data transport: {new Date(course.dataTransport).toLocaleDateString('ro-RO')}
+                          Data transport:{" "}
+                          {new Date(course.dataTransport).toLocaleDateString(
+                            "ro-RO",
+                          )}
                         </span>
                       </div>
                     )}
@@ -372,9 +424,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     {renderCourseActions(course)}
                     <button
                       className="action-button info-button"
-                      onClick={() => setExpandedCourse(
-                        expandedCourse === course.id ? null : course.id
-                      )}
+                      onClick={() =>
+                        setExpandedCourse(
+                          expandedCourse === course.id ? null : course.id,
+                        )
+                      }
                     >
                       <i className="fas fa-info"></i>
                     </button>
@@ -384,11 +438,31 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <div className="course-expanded-details">
                       <div className="expanded-content">
                         <h4>Detalii complete cursă</h4>
-                        {course.name && <p><strong>Nume:</strong> {course.name}</p>}
-                        {course.description && <p><strong>Descriere:</strong> {course.description}</p>}
-                        {course.ikRoTrans && <p><strong>ikRoTrans:</strong> {course.ikRoTrans}</p>}
-                        {course.vama && <p><strong>Vamă:</strong> {course.vama}</p>}
-                        {course.judet && <p><strong>Județ:</strong> {course.judet}</p>}
+                        {course.name && (
+                          <p>
+                            <strong>Nume:</strong> {course.name}
+                          </p>
+                        )}
+                        {course.description && (
+                          <p>
+                            <strong>Descriere:</strong> {course.description}
+                          </p>
+                        )}
+                        {course.ikRoTrans && (
+                          <p>
+                            <strong>ikRoTrans:</strong> {course.ikRoTrans}
+                          </p>
+                        )}
+                        {course.vama && (
+                          <p>
+                            <strong>Vamă:</strong> {course.vama}
+                          </p>
+                        )}
+                        {course.judet && (
+                          <p>
+                            <strong>Județ:</strong> {course.judet}
+                          </p>
+                        )}
                       </div>
                     </div>
                   )}
@@ -406,11 +480,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <span>iTrack GPS</span>
           </div>
           <div className="nav-actions">
-            <button className="nav-button info-nav-button" onClick={handleShowInfo}>
+            <button
+              className="nav-button info-nav-button"
+              onClick={handleShowInfo}
+            >
               <i className="fas fa-info-circle"></i>
               Info
             </button>
-            <button className="nav-button logout-nav-button" onClick={handleLogout}>
+            <button
+              className="nav-button logout-nav-button"
+              onClick={handleLogout}
+            >
               <i className="fas fa-sign-out-alt"></i>
               Ieșire
             </button>
@@ -429,40 +509,93 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
             <div className="info-body">
               <div className="info-section">
-                <h4><i className="fas fa-truck"></i> Vehicul Current</h4>
-                <p><strong>Numărul de înmatriculare:</strong> {vehicleNumber}</p>
-                <p><strong>Status:</strong> Conectat și operațional</p>
+                <h4>
+                  <i className="fas fa-truck"></i> Vehicul Current
+                </h4>
+                <p>
+                  <strong>Numărul de înmatriculare:</strong> {vehicleNumber}
+                </p>
+                <p>
+                  <strong>Status:</strong> Conectat și operațional
+                </p>
               </div>
 
               <div className="info-section">
-                <h4><i className="fas fa-route"></i> Status Curse</h4>
-                <p><strong>Curse active (GPS pornit):</strong> {courses.filter(c => c.status === 2).length}</p>
-                <p><strong>Curse în pauză:</strong> {courses.filter(c => c.status === 3).length}</p>
-                <p><strong>Curse disponibile:</strong> {courses.filter(c => c.status === 1).length}</p>
-                <p><strong>Total curse înregistrate:</strong> {courses.length}</p>
+                <h4>
+                  <i className="fas fa-route"></i> Status Curse
+                </h4>
+                <p>
+                  <strong>Curse active (GPS pornit):</strong>{" "}
+                  {courses.filter((c) => c.status === 2).length}
+                </p>
+                <p>
+                  <strong>Curse în pauză:</strong>{" "}
+                  {courses.filter((c) => c.status === 3).length}
+                </p>
+                <p>
+                  <strong>Curse disponibile:</strong>{" "}
+                  {courses.filter((c) => c.status === 1).length}
+                </p>
+                <p>
+                  <strong>Total curse înregistrate:</strong> {courses.length}
+                </p>
               </div>
 
               <div className="info-section">
-                <h4><i className="fas fa-satellite-dish"></i> Tehnologie GPS</h4>
-                <p><strong>Sistem:</strong> iTrack Professional v2.0</p>
-                <p><strong>Precizie:</strong> GPS de înaltă precizie (±1-3m)</p>
-                <p><strong>Interval transmisie:</strong> La fiecare 5 secunde (optimizat)</p>
-                <p><strong>Funcționare background:</strong> Activ permanent</p>
-                <p><strong>Compatibilitate:</strong> Android nativ</p>
+                <h4>
+                  <i className="fas fa-satellite-dish"></i> Tehnologie GPS
+                </h4>
+                <p>
+                  <strong>Sistem:</strong> iTrack
+                </p>
+                <p>
+                  <strong>Precizie:</strong> GPS de înaltă precizie (±1-3m)
+                </p>
+                <p>
+                  <strong>Interval transmisie:</strong> La fiecare 5 secunde
+                  (optimizat)
+                </p>
+                <p>
+                  <strong>Funcționare background:</strong> Activ permanent
+                </p>
+                <p>
+                  <strong>Compatibilitate:</strong> Android nativ
+                </p>
               </div>
 
               <div className="info-section">
-                <h4><i className="fas fa-shield-alt"></i> Caracteristici Avansate</h4>
-                <p>• <strong>Background tracking:</strong> GPS funcționează cu telefonul blocat</p>
-                <p>• <strong>Multi-task:</strong> Urmărește multiple curse simultan</p>
-                <p>• <strong>Triple backup system:</strong> GPS → Network → Passive providers</p>
-                <p>• <strong>Auto-failover:</strong> Comută automat între surse GPS</p>
-                <p>• <strong>Real-time:</strong> Transmisie coordonate în timp real</p>
-                <p>• <strong>Battery optimized:</strong> Optimizat pentru baterie</p>
+                <h4>
+                  <i className="fas fa-shield-alt"></i> Caracteristici Avansate
+                </h4>
+                <p>
+                  • <strong>Background tracking:</strong> GPS funcționează cu
+                  telefonul blocat
+                </p>
+                <p>
+                  • <strong>Multi-task:</strong> Urmărește multiple curse
+                  simultan
+                </p>
+                <p>
+                  • <strong>Triple backup system:</strong> GPS → Network →
+                  Passive providers
+                </p>
+                <p>
+                  • <strong>Auto-failover:</strong> Comută automat între surse
+                  GPS
+                </p>
+                <p>
+                  • <strong>Real-time:</strong> Transmisie coordonate în timp
+                  real
+                </p>
+                <p>
+                  • <strong>Battery optimized:</strong> Optimizat pentru baterie
+                </p>
               </div>
 
               <div className="info-section">
-                <h4><i className="fas fa-cogs"></i> Date Transmise</h4>
+                <h4>
+                  <i className="fas fa-cogs"></i> Date Transmise
+                </h4>
                 <p>• Coordonate GPS (latitudine, longitudine)</p>
                 <p>• Altitudine precisă din senzori</p>
                 <p>• Viteză și direcție de deplasare</p>
@@ -470,8 +603,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <p>• Status cursă și UIT individual</p>
                 <p>• Timestamp și date autentificare</p>
               </div>
-
-
             </div>
           </div>
         </div>
