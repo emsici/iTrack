@@ -104,50 +104,59 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
   const totalStats = calculateTotalStats();
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="stats-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="stats-modal-overlay" onClick={onClose}>
+      <div className="stats-modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="stats-modal-header">
-          <div className="modal-title">
-            <i className="fas fa-chart-line"></i>
-            <span>Statistici Curse - {vehicleNumber}</span>
+          <div className="stats-modal-title">
+            <div className="stats-icon-container">
+              <i className="fas fa-chart-line"></i>
+            </div>
+            <div className="stats-title-text">
+              <h2>Statistici Curse</h2>
+              <span className="vehicle-identifier">{vehicleNumber}</span>
+            </div>
           </div>
-          <button className="modal-close" onClick={onClose}>
+          <button className="stats-modal-close" onClick={onClose}>
             <i className="fas fa-times"></i>
           </button>
         </div>
 
         <div className="stats-modal-content">
           {loading ? (
-            <div className="stats-loading">
-              <i className="fas fa-spinner fa-spin"></i>
-              <span>Încărcare statistici...</span>
+            <div className="stats-loading-container">
+              <div className="stats-loading-spinner">
+                <i className="fas fa-spinner fa-spin"></i>
+              </div>
+              <span className="stats-loading-text">Încărcare statistici...</span>
             </div>
           ) : (
             <>
               {/* Total Statistics */}
-              <div className="total-stats-section">
-                <h3>
-                  <i className="fas fa-calculator"></i>
-                  Statistici Totale
-                </h3>
-                <div className="total-stats-grid">
-                  <div className="total-stat-card">
-                    <div className="stat-icon">
+              <div className="stats-section">
+                <div className="stats-section-header">
+                  <div className="stats-section-icon">
+                    <i className="fas fa-calculator"></i>
+                  </div>
+                  <h3 className="stats-section-title">Statistici Totale</h3>
+                </div>
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <div className="stat-card-icon">
                       <i className="fas fa-route"></i>
                     </div>
-                    <div className="stat-info">
-                      <div className="stat-value">{totalStats.totalDistance.toFixed(1)} km</div>
-                      <div className="stat-label">Distanță Totală</div>
+                    <div className="stat-card-content">
+                      <div className="stat-card-value">{totalStats.totalDistance.toFixed(1)} km</div>
+                      <div className="stat-card-label">Distanță Totală</div>
                     </div>
                   </div>
                   
-                  <div className="total-stat-card">
-                    <div className="stat-icon">
+                  <div className="stat-card">
+                    <div className="stat-card-icon">
                       <i className="fas fa-clock"></i>
                     </div>
-                    <div className="stat-info">
-                      <div className="stat-value">{formatTime(totalStats.totalTime)}</div>
-                      <div className="stat-label">Timp Conducere</div>
+                    <div className="stat-card-content">
+                      <div className="stat-card-value">{formatTime(totalStats.totalTime)}</div>
+                      <div className="stat-card-label">Timp Conducere</div>
                     </div>
                   </div>
                   

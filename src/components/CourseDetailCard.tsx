@@ -165,6 +165,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 Informații Complete Transport
               </h6>
               
+              {/* Debug: Log course data */}
+              {console.log('Course data for debugging:', {
+                birouVamal: course.birouVamal,
+                birouVamalStop: course.birouVamalStop,
+                allData: course
+              })}
+              
               <div className="details-grid">
                 {/* Informații Transport */}
                 <div className="detail-group">
@@ -223,7 +230,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   <div className="detail-item">
                     <div className="detail-content">
                       <div className="detail-label">Birou Vamal:</div>
-                      <div className="detail-value">{course.birouVamal || 'Nu este disponibil'}</div>
+                      <div className="detail-value">{course.birouVamal || course.BirouVamal || 'Nu este specificat'}</div>
                     </div>
                   </div>
                   <div className="detail-item">
@@ -256,7 +263,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   <div className="detail-item">
                     <div className="detail-content">
                       <div className="detail-label">Birou Vamal Stop:</div>
-                      <div className="detail-value">{course.birouVamalStop || 'Nu este disponibil'}</div>
+                      <div className="detail-value">{course.birouVamalStop || course.BirouVamalStop || 'Nu este specificat'}</div>
                     </div>
                   </div>
                   <div className="detail-item">
