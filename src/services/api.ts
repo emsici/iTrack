@@ -3,6 +3,10 @@ import { logAPI } from './appLogger';
 
 const API_BASE_URL = 'https://www.euscagency.com/etsm3/platforme/transport/apk';
 
+// Single request management to prevent conflicts
+let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null = null;
+let requestInProgress = false;
+
 export interface LoginResponse {
   status?: string;
   token?: string;
@@ -83,10 +87,44 @@ export const login = async (email: string, password: string): Promise<LoginRespo
 };
 
 export const getVehicleCourses = async (vehicleNumber: string, token: string) => {
+  // Prevent multiple simultaneous requests
+  if (requestInProgress) {
+    console.log('=== REQUEST ALREADY IN PROGRESS - WAITING ===');
+    logAPI(`Request already in progress for vehicle operations - waiting`);
+    while (requestInProgress) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+
+  // Check if there's already a request for this vehicle
+  if (currentVehicleRequest && currentVehicleRequest.vehicle === vehicleNumber) {
+    console.log('=== REUSING ACTIVE REQUEST ===');
+    logAPI(`Reusing active request for vehicle ${vehicleNumber}`);
+    return await currentVehicleRequest.promise;
+  }
+  
+  // Mark request as in progress
+  requestInProgress = true;
+  
+  // Create new request
+  const requestPromise = performVehicleCoursesRequest(vehicleNumber, token);
+  currentVehicleRequest = { vehicle: vehicleNumber, promise: requestPromise };
+  
+  try {
+    const result = await requestPromise;
+    return result;
+  } finally {
+    // Clear current request and progress flag
+    currentVehicleRequest = null;
+    requestInProgress = false;
+  }
+};
+
+const performVehicleCoursesRequest = async (vehicleNumber: string, token: string) => {
   try {
     // Add cache busting timestamp to prevent server cache issues
     const timestamp = Date.now();
-    const urlWithCacheBuster = `${API_BASE_URL}/vehicul.php?nr=${vehicleNumber}&_t=${timestamp}`;
+    const urlWithCacheBuster = `${API_BASE_URL}/vehicul.php?nr=${vehicleNumber}&t=${timestamp}`;
     
     console.log('=== VEHICLE COURSES REQUEST ===');
     console.log('URL:', urlWithCacheBuster);
@@ -102,7 +140,8 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
-        'Expires': '0'
+        'Expires': '0',
+        'X-Requested-With': 'XMLHttpRequest'
       }
     });
 

@@ -190,6 +190,7 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Design simplificat**: Un singur card central elegant cu logo iTrack și formular - eliminat cardurile suplimentare pentru aspect mai curat
 - **Design corporatist finalizat**: Header cu iconițe în partea de sus pe fundal închis, fără suprapuneri cu barele native Android
 - **Iconiță Android unificată**: Implementat același design corporatist ca logo-ul iTrack cu camion în cerc, adaptive icon complet pentru toate dimensiunile
+- **Request deduplication implementat**: Eliminat cererile multiple simultane care cauzau răspunsuri goale prin sistem de blocare și refolosire cereri active
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin
