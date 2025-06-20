@@ -183,6 +183,7 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Localizare completă**: build.bat tradus în română pentru consistență cu toate textele aplicației
 - **Consolidare finală documentație**: SETUP.md și BUILD_INSTRUCTIONS.md integrate în README.md, eliminat linkul API din prezentări
 - **Validare input îmbunătățită**: Suport complet rețele mobile RO - Orange, Vodafone, Telekom, Digi, RCS&RDS cu formatare automată la +40
+- **Documentație Google Play Protect**: Ghid complet pentru rezolvarea problemelor de instalare APK din afara Play Store
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin

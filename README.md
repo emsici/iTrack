@@ -18,21 +18,21 @@ iTrack GPS este o aplicație enterprise avansată pentru monitorizarea și manag
 
 ## Caracteristici 
 
-### 🔐 Sistem Autentificare Enterprise
+### 🔐 Sistem 
 - Login corporatist cu design glassmorphism profesional
 - Suport credențiale admin pentru testing: `admin@itrack.app` / `parola123`
 - JWT token management cu persistență automată în Capacitor Preferences
 - Auto-login la deschiderea aplicației
 - Logout securizat cu curățarea completă a datelor locale
 
-### 📍 GPS Tracking Avansat
+### 📍 GPS Tracking 
 - **Serviciu nativ Android**: EnhancedGPSService pentru tracking continuu în fundal
 - **Interval optimizat**: Transmisie coordonate la exact 5 secunde
 - **Precizie înaltă**: Coordonate cu 8 decimale și metadate complete
 - **Single source GPS**: Evitarea duplicatelor prin coordonare Android-WebView
 - **Battery optimization**: Management inteligent energie cu foreground service
 
-### 🚛 Gestionare Curse Profesională
+### 🚛 Gestionare Curse 
 - Dashboard cu 5 carduri analytics: Total Curse, Activ, Pauză, Disponibil, Statistici
 - Input profesional număr vehicul cu design enterprise
 - Management status curse în timp real (Disponibil → Activ → Pauză → Oprit)
@@ -1007,6 +1007,51 @@ npx cap open android
 - **Performance Analytics**: Monitoring timp real și statistici usage
 
 Pentru suport tehnic avansat sau customizări enterprise, contactați echipa de dezvoltare.
+
+## Probleme Instalare APK
+
+### Google Play Protect blochează instalarea
+**Problema**: "A apărut o problemă și verificarea nu a reușit sau a fost întreruptă"
+
+**Explicație**: Google Play Protect este un sistem de securitate Android care verifică automat toate APK-urile instalate din afara Google Play Store. Nu este o problemă din codul aplicației.
+
+**Soluții**:
+
+#### 1. Dezactivare temporară Play Protect
+```
+1. Deschide Google Play Store
+2. Tap pe profilul tău (colțul din dreapta sus)
+3. Selectează "Play Protect"
+4. Dezactivează "Scan apps with Play Protect"
+5. Instalează APK-ul
+6. Reactivează Play Protect după instalare
+```
+
+#### 2. Permite surse necunoscute
+```
+Android 8+:
+Settings → Apps → Special access → Install unknown apps → 
+Chrome/File Manager → Allow from this source
+
+Android 7 și mai vechi:
+Settings → Security → Unknown sources → Enable
+```
+
+#### 3. Bypass warning Play Protect
+```
+1. Când apare warning-ul, tap "More details"
+2. Tap "Install anyway"
+3. Sau direct "Install anyway" dacă opțiunea e disponibilă
+```
+
+#### 4. Alternative browser pentru download
+```
+- Încearcă download cu Firefox sau alt browser
+- Sau folosește File Manager pentru instalare
+- Verifică că APK-ul este complet descărcat
+```
+
+**Important**: Reactivează Play Protect după instalare pentru securitate.
 
 ---
 
