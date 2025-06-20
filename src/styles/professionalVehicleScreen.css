@@ -2575,6 +2575,13 @@
 }
 
 /* Navigation Button Styles */
+.nav-button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
 .refresh-nav-button {
   background: linear-gradient(145deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15)) !important;
   border: 1px solid rgba(59, 130, 246, 0.3) !important;
@@ -2587,17 +2594,48 @@
   transform: translateY(-1px);
 }
 
+.last-sync-time {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 6px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
 .auto-refresh-nav-button {
   background: linear-gradient(145deg, rgba(168, 85, 247, 0.15), rgba(147, 51, 234, 0.15)) !important;
   border: 1px solid rgba(168, 85, 247, 0.3) !important;
   color: rgba(168, 85, 247, 0.9) !important;
+  position: relative;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .auto-refresh-nav-button:hover,
 .auto-refresh-nav-button.active {
-  background: linear-gradient(145deg, rgba(168, 85, 247, 0.25), rgba(147, 51, 234, 0.25)) !important;
+  background: linear-gradient(145deg, rgba(168, 85, 247, 0.35), rgba(147, 51, 234, 0.35)) !important;
   color: #9333ea !important;
   transform: translateY(-1px);
+  border-color: rgba(168, 85, 247, 0.6) !important;
+}
+
+.auto-refresh-nav-button.active {
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+}
+
+.auto-indicator {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #9333ea;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1px 4px;
+  border-radius: 4px;
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
 }
 
 /* Stats Navigation Button */

@@ -354,6 +354,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 20, 2025. Added intelligent offline status bar showing network loss, offline count, and sync progress
 - June 20, 2025. Offline bar appears automatically when internet lost or coordinates need syncing
 - June 20, 2025. Enhanced safe area padding for statistics modal on mobile devices
+- June 20, 2025. IMPROVED VEHICLE INPUT: Only alphanumeric characters allowed, automatic uppercase conversion
+- June 20, 2025. Fixed single-click vehicle number change - no double-click required
+- June 20, 2025. Enhanced auto-refresh button visibility with "AUTO" indicator when active
+- June 20, 2025. Added last sync timestamp display under refresh button showing when courses were loaded
+- June 20, 2025. Improved GPS offline monitoring with 5-second status updates and console logging
 
 ## User Preferences
 

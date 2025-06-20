@@ -26,7 +26,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showInfo, setShowInfo] = useState(false);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState<string>('');
+
   const [showStats, setShowStats] = useState(false);
   const [offlineCount, setOfflineCount] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -128,6 +128,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Update immediately and then every 5 seconds
       updateOfflineCount();
       interval = setInterval(updateOfflineCount, 5000);
+      
+      // Also log GPS activity for debugging
+      const logGPSActivity = async () => {
+        try {
+          const count = await getOfflineGPSCount();
+          if (count > 0) {
+            console.log(`📍 GPS Offline: ${count} coordonate salvate local`);
+          }
+        } catch (error) {
+          // Silent error to avoid spam
+        }
+      };
+      
+      const gpsLogInterval = setInterval(logGPSActivity, 15000); // Every 15 seconds
+      
+      return () => {
+        clearInterval(interval);
+        clearInterval(gpsLogInterval);
+      };
     }
     
     return () => {
@@ -367,9 +386,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       className="vehicle-input"
                       placeholder="🚛 B123ABC / CJ45DEF / TM67GHI"
                       value={vehicleNumber}
-                      onChange={(e) =>
-                        setVehicleNumber(e.target.value.toUpperCase())
-                      }
+                      onChange={(e) => {
+                        // Allow only alphanumeric characters, convert to uppercase
+                        const cleanValue = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                        setVehicleNumber(cleanValue);
+                      }}
                       onKeyPress={(e) =>
                         e.key === "Enter" && handleLoadCourses()
                       }
@@ -422,16 +443,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <div className="active-unit-section">
                       <div className="section-header">ACTIVE UNIT</div>
                       <div className="unit-control">
-                        <div className="unit-display">
+                        <div 
+                          className="unit-display"
+                          onClick={() => {
+                            setCoursesLoaded(false);
+                            setCourses([]);
+                            setVehicleNumber('');
+                          }}
+                        >
                           <i className="fas fa-truck-moving unit-icon"></i>
-                          <span 
-                            onClick={() => {
-                              setCoursesLoaded(false);
-                              setCourses([]);
-                              setVehicleNumber('');
-                            }}
-                            className="unit-identifier"
-                          >
+                          <span className="unit-identifier">
                             {vehicleNumber}
                           </span>
                           <i className="fas fa-exchange-alt change-unit"></i>
