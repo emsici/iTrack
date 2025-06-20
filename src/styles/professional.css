@@ -804,6 +804,264 @@ html, body {
   gap: 20px;
 }
 
+/* Course Cards Enhanced - Corporate Business Design */
+.course-card-enhanced {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 24px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 15px 50px rgba(0, 0, 0, 0.2),
+    0 5px 15px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  position: relative;
+}
+
+.course-card-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8, #60a5fa);
+  border-radius: 24px 24px 0 0;
+}
+
+.course-card-enhanced:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.25),
+    0 10px 30px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.course-header-enhanced {
+  padding: 28px 32px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.course-info-section {
+  flex: 1;
+}
+
+.course-title-enhanced {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 12px 0;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.course-metadata-enhanced {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.course-uit {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.status-badge-enhanced {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.status-badge-enhanced.status-1 {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  color: white;
+}
+
+.status-badge-enhanced.status-2 {
+  background: linear-gradient(135deg, #34d399, #10b981);
+  color: white;
+}
+
+.status-badge-enhanced.status-3 {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: white;
+}
+
+.status-badge-enhanced.status-4 {
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
+  color: white;
+}
+
+.course-actions-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle-details-button {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.toggle-details-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.1);
+}
+
+.course-details-enhanced {
+  padding: 24px 32px 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.detail-item {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.detail-item strong {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.detail-item:not(strong) {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Corporate Logo for Header */
+.header-logo-corporate {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  margin-right: 16px;
+}
+
+.header-logo-corporate:hover {
+  transform: scale(1.1);
+}
+
+.corporate-emblem-small {
+  width: 48px;
+  height: 48px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.corporate-emblem-small:hover {
+  transform: scale(1.08) translateY(-2px);
+  filter: drop-shadow(0 15px 30px rgba(30, 64, 175, 0.25));
+}
+
+.emblem-ring-small {
+  width: 44px;
+  height: 44px;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-radius: 50%;
+  position: relative;
+  background: linear-gradient(145deg, rgba(248, 250, 252, 0.95), rgba(226, 232, 240, 0.9));
+  box-shadow: 
+    0 6px 20px rgba(30, 64, 175, 0.15),
+    inset 0 1px 4px rgba(255, 255, 255, 0.7);
+  animation: emblemPulse 3s ease-in-out infinite;
+}
+
+.emblem-core-small {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 4px 15px rgba(59, 130, 246, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.emblem-center-small {
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  animation: iconFloat 2s ease-in-out infinite alternate;
+}
+
+.header-text-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@keyframes emblemPulse {
+  0%, 100% { 
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 
+      0 6px 20px rgba(30, 64, 175, 0.15),
+      inset 0 1px 4px rgba(255, 255, 255, 0.7);
+  }
+  50% { 
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 
+      0 8px 25px rgba(30, 64, 175, 0.25),
+      inset 0 1px 4px rgba(255, 255, 255, 0.7);
+  }
+}
+
+@keyframes iconFloat {
+  0% { transform: translateY(-1px); }
+  100% { transform: translateY(1px); }
+}
+
 /* Professional Course Card */
 .professional-course-card {
   background: white;

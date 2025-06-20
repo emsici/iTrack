@@ -422,6 +422,9 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. API funcțional verificat: Endpoint vehicul.php?nr= funcționează corect cu Bearer token pentru IF03CWT
 - 20 iunie. GPS endpoint complet: gps.php acceptă toate datele (hdop, gsm_signal, baterie) și returnează HTTP 200
 - 20 iunie. Proiect curățat: Eliminat fișierele backup/broken VehicleScreenProfessional - verificat că nu sunt folosite
+- 20 iunie. Logo corporatist unificat: Aplicat același logo iTrack cu camion pe toate paginile - login, input vehicul, listă curse
+- 20 iunie. Design consistent complet: Logo animat cu efecte corporatiste și poziționare identică în toate header-urile
+- 20 iunie. Cardurile curse îmbunătățite: Design corporatist avansat cu glassmorphism, gradiente și animații business
 
 ### Versiune Curentă: iTrack v1807.99
 

@@ -132,7 +132,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   useEffect(() => {
     const updateOfflineCount = async () => {
       try {
-        const count = await getOfflineGPSCount();
+        await getOfflineGPSCount();
         // Offline count updated
       } catch (error) {
         console.error("Error getting offline count:", error);
@@ -216,14 +216,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <div className="vehicle-screen-header">
             <div className="header-brand">
               <div 
-                className="header-logo"
+                className="header-logo-corporate"
                 onClick={handleTimestampClick}
                 title="Click 50 de ori pentru debug logs"
               >
-                <i className="fas fa-cube"></i>
+                <div className="corporate-emblem-small">
+                  <div className="emblem-ring-small">
+                    <div className="emblem-core-small">
+                      <div className="emblem-center-small">
+                        <i className="fas fa-truck"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h1 className="header-title">iTrack</h1>
-              <p className="header-subtitle">Sistem Enterprise GPS</p>
+              <div className="header-text-section">
+                <h1 className="header-title">iTrack</h1>
+                <p className="header-subtitle">Sistem Enterprise GPS</p>
+              </div>
               {infoClickCount >= 30 && (
                 <div className="click-counter-badge">
                   {infoClickCount}/50
@@ -280,14 +290,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <div className="vehicle-screen-header">
             <div className="header-brand">
               <div 
-                className="header-logo"
+                className="header-logo-corporate"
                 onClick={handleTimestampClick}
                 title="Click 50 de ori pentru debug logs"
               >
-                <i className="fas fa-cube"></i>
+                <div className="corporate-emblem-small">
+                  <div className="emblem-ring-small">
+                    <div className="emblem-core-small">
+                      <div className="emblem-center-small">
+                        <i className="fas fa-truck"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h1 className="header-title">iTrack</h1>
-              <p className="header-subtitle">Vehicul: {vehicleNumber}</p>
+              <div className="header-text-section">
+                <h1 className="header-title">iTrack</h1>
+                <p className="header-subtitle">Vehicul: {vehicleNumber}</p>
+              </div>
               {infoClickCount >= 30 && (
                 <div className="click-counter-badge">
                   {infoClickCount}/50
