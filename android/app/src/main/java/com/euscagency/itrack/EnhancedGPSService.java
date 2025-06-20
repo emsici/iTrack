@@ -164,6 +164,12 @@ public class EnhancedGPSService extends Service implements LocationListener {
     }
     
     private void removeCourse(String courseId) {
+        // Handle special logout command
+        if ("LOGOUT_CLEAR_ALL".equals(courseId)) {
+            clearAllDataOnLogout();
+            return;
+        }
+        
         CourseData removed = activeCourses.remove(courseId);
         if (removed != null) {
             Log.i(TAG, "➖ Course removed: " + courseId + " | Vehicle: " + removed.vehicleNumber);
@@ -713,12 +719,6 @@ public class EnhancedGPSService extends Service implements LocationListener {
     private void updateNotification() {
         NotificationManager manager = getSystemService(NotificationManager.class);
         manager.notify(NOTIFICATION_ID, createNotification());
-    }
-    
-    // Initialize offline storage
-    private void initializeOfflineStorage() {
-        offlineStorage = getSharedPreferences(OFFLINE_GPS_PREFS, Context.MODE_PRIVATE);
-        Log.i(TAG, "📱 Offline GPS storage initialized");
     }
     
     // Initialize connectivity manager

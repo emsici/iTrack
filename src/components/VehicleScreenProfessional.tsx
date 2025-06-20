@@ -4,6 +4,7 @@ import { getVehicleCourses, logout } from "../services/api";
 import {
   startGPSTracking,
   stopGPSTracking,
+  logoutClearAllGPS,
 } from "../services/directAndroidGPS";
 import { clearToken } from "../services/storage";
 import OfflineSyncProgress from "./OfflineSyncProgress";
@@ -157,11 +158,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const handleLogout = async () => {
     try {
+      console.log("🔴 Starting logout process - stopping all GPS tracking");
+      
+      // First, stop all GPS tracking and clear all data
+      await logoutClearAllGPS();
+      
+      // Then send logout to server
       await logout(token);
+      
+      // Clear local token storage
       await clearToken();
+      
+      console.log("✅ Logout completed - all GPS data cleared");
       onLogout();
     } catch (error) {
       console.error("Logout error:", error);
+      
+      // Force clear GPS and token even if server logout fails
+      try {
+        await logoutClearAllGPS();
+      } catch (gpsError) {
+        console.error("Error clearing GPS on logout:", gpsError);
+      }
+      
       await clearToken();
       onLogout();
     }
