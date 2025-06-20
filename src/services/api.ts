@@ -83,6 +83,10 @@ export const login = async (email: string, password: string): Promise<LoginRespo
 
 export const getVehicleCourses = async (vehicleNumber: string, token: string) => {
   try {
+    console.log('=== VEHICLE COURSES REQUEST ===');
+    console.log('URL:', `${API_BASE_URL}/vehicul.php?nr=${vehicleNumber}`);
+    console.log('Token:', token.substring(0, 20) + '...');
+    
     const response = await CapacitorHttp.get({
       url: `${API_BASE_URL}/vehicul.php?nr=${vehicleNumber}`,
       headers: {
@@ -91,8 +95,16 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
       }
     });
 
+    console.log('=== VEHICLE COURSES RESPONSE ===');
+    console.log('Status:', response.status);
+    console.log('Response Data:', JSON.stringify(response.data, null, 2));
+
     if (response.status === 200) {
       const responseData = response.data;
+      console.log('Response Data Status:', responseData.status);
+      console.log('Response Data Array Check:', Array.isArray(responseData.data));
+      console.log('Response Data Length:', responseData.data?.length);
+      
       if (responseData.status === 'success' && Array.isArray(responseData.data)) {
         return responseData.data.map((course: any, index: number) => ({
           id: course.ikRoTrans?.toString() || `course_${index}`,

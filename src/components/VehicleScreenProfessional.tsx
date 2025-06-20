@@ -59,6 +59,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         setCoursesLoaded(true);
         // Courses loaded successfully
       } else {
+        console.log('No courses found - API returned empty or invalid data');
         setError("Nu s-au găsit curse pentru acest vehicul");
       }
     } catch (error: any) {
