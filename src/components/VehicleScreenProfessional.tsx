@@ -423,6 +423,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             )}
 
+            <OfflineSyncProgress />
+
             <div className="courses-grid">
               {courses.map((course) => (
                 <div key={course.id} className="professional-course-card">

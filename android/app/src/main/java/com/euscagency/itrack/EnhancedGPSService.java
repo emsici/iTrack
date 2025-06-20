@@ -643,9 +643,198 @@ public class EnhancedGPSService extends Service implements LocationListener {
         manager.notify(NOTIFICATION_ID, createNotification());
     }
     
+    // Initialize offline storage
+    private void initializeOfflineStorage() {
+        offlineStorage = getSharedPreferences(OFFLINE_GPS_PREFS, Context.MODE_PRIVATE);
+        Log.i(TAG, "📱 Offline GPS storage initialized");
+    }
+    
+    // Initialize connectivity manager
+    private void initializeConnectivityManager() {
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        
+        // Setup sync handler for periodic offline sync attempts
+        syncHandler = new Handler(Looper.getMainLooper());
+        syncRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isNetworkAvailable()) {
+                    syncOfflineCoordinates();
+                }
+                // Check again in 30 seconds
+                syncHandler.postDelayed(this, 30000);
+            }
+        };
+        
+        // Start periodic sync checks
+        syncHandler.postDelayed(syncRunnable, 10000); // Start after 10 seconds
+        Log.i(TAG, "🌐 Connectivity manager and sync scheduler initialized");
+    }
+    
+    // Check if network is available
+    private boolean isNetworkAvailable() {
+        try {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            boolean isConnected = activeNetworkInfo != null && activeNetworkInfo.isConnected();
+            if (!isConnected) {
+                Log.w(TAG, "🔌 No internet connection available");
+            }
+            return isConnected;
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error checking network connectivity: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    // Save GPS coordinate to offline storage
+    private void saveCoordinateOffline(JSONObject gpsData, CourseData course) {
+        try {
+            JSONObject offlineCoordinate = new JSONObject();
+            offlineCoordinate.put("id", course.uit + "_" + System.currentTimeMillis());
+            offlineCoordinate.put("courseId", course.courseId);
+            offlineCoordinate.put("vehicleNumber", course.vehicleNumber);
+            offlineCoordinate.put("authToken", course.authToken);
+            offlineCoordinate.put("gpsData", gpsData);
+            offlineCoordinate.put("savedAt", System.currentTimeMillis());
+            offlineCoordinate.put("retryCount", 0);
+            
+            // Get existing coordinates
+            String existingData = offlineStorage.getString(OFFLINE_COORDS_KEY, "[]");
+            JSONArray coordinates = new JSONArray(existingData);
+            
+            // Add new coordinate
+            coordinates.put(offlineCoordinate);
+            
+            // Limit to MAX_OFFLINE_COORDINATES
+            if (coordinates.length() > MAX_OFFLINE_COORDINATES) {
+                JSONArray trimmed = new JSONArray();
+                int startIndex = coordinates.length() - MAX_OFFLINE_COORDINATES;
+                for (int i = startIndex; i < coordinates.length(); i++) {
+                    trimmed.put(coordinates.get(i));
+                }
+                coordinates = trimmed;
+            }
+            
+            // Save back to storage
+            offlineStorage.edit()
+                .putString(OFFLINE_COORDS_KEY, coordinates.toString())
+                .apply();
+            
+            Log.i(TAG, "💾 GPS coordinate saved offline for UIT: " + course.uit + 
+                       " | Total offline: " + coordinates.length());
+                       
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error saving coordinate offline: " + e.getMessage());
+        }
+    }
+    
+    // Sync offline coordinates to server
+    private void syncOfflineCoordinates() {
+        try {
+            String offlineData = offlineStorage.getString(OFFLINE_COORDS_KEY, "[]");
+            JSONArray coordinates = new JSONArray(offlineData);
+            
+            if (coordinates.length() == 0) {
+                return; // Nothing to sync
+            }
+            
+            Log.i(TAG, "📡 Starting offline sync of " + coordinates.length() + " coordinates");
+            
+            JSONArray remainingCoordinates = new JSONArray();
+            int successCount = 0;
+            int failedCount = 0;
+            
+            for (int i = 0; i < coordinates.length(); i++) {
+                try {
+                    JSONObject coord = coordinates.getJSONObject(i);
+                    JSONObject gpsData = coord.getJSONObject("gpsData");
+                    String authToken = coord.getString("authToken");
+                    int retryCount = coord.optInt("retryCount", 0);
+                    
+                    if (retryCount >= 3) {
+                        Log.w(TAG, "⚠️ Coordinate exceeded max retries, discarding: " + coord.getString("id"));
+                        continue; // Skip this coordinate
+                    }
+                    
+                    // Try to send coordinate
+                    boolean success = syncSingleCoordinate(gpsData, authToken);
+                    
+                    if (success) {
+                        successCount++;
+                        Log.d(TAG, "✅ Synced offline coordinate: " + coord.getString("id"));
+                    } else {
+                        // Increment retry count and keep for later
+                        coord.put("retryCount", retryCount + 1);
+                        remainingCoordinates.put(coord);
+                        failedCount++;
+                        Log.w(TAG, "⚠️ Failed to sync coordinate: " + coord.getString("id") + 
+                                   " | Retry " + (retryCount + 1) + "/3");
+                    }
+                    
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ Error processing offline coordinate: " + e.getMessage());
+                    failedCount++;
+                }
+            }
+            
+            // Update storage with remaining coordinates
+            offlineStorage.edit()
+                .putString(OFFLINE_COORDS_KEY, remainingCoordinates.toString())
+                .apply();
+            
+            if (successCount > 0 || failedCount > 0) {
+                Log.i(TAG, "🎯 Offline sync complete: " + successCount + " success, " + 
+                           failedCount + " failed, " + remainingCoordinates.length() + " remaining");
+            }
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error during offline sync: " + e.getMessage());
+        }
+    }
+    
+    // Sync a single coordinate to server
+    private boolean syncSingleCoordinate(JSONObject gpsData, String authToken) {
+        try {
+            RequestBody body = RequestBody.create(
+                gpsData.toString(),
+                MediaType.get("application/json; charset=utf-8")
+            );
+            
+            Request request = new Request.Builder()
+                .url("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php")
+                .addHeader("Authorization", "Bearer " + authToken)
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .addHeader("User-Agent", "iTrack/2.0 Enhanced-Offline")
+                .addHeader("Accept", "application/json")
+                .post(body)
+                .build();
+            
+            Response response = httpClient.newCall(request).execute();
+            boolean success = response.isSuccessful();
+            
+            if (success) {
+                Log.d(TAG, "✅ Offline coordinate synced successfully");
+            } else {
+                Log.w(TAG, "⚠️ Server error " + response.code() + " syncing offline coordinate");
+            }
+            
+            response.close();
+            return success;
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Network error syncing offline coordinate: " + e.getMessage());
+            return false;
+        }
+    }
+
     @Override
     public void onDestroy() {
         Log.i(TAG, "🛑 Enhanced GPS Service stopping...");
+        
+        // Stop sync handler
+        if (syncHandler != null && syncRunnable != null) {
+            syncHandler.removeCallbacks(syncRunnable);
+        }
         
         if (locationManager != null) {
             locationManager.removeUpdates(this);
