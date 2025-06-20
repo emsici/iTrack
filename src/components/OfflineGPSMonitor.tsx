@@ -23,8 +23,11 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
           const count = await getOfflineGPSCount();
           setOfflineCount(count);
 
+          // Debug logging pentru detecția offline
+          console.log(`📊 Status GPS: online=${isOnline}, navigator.onLine=${navigator.onLine}, count=${count}`);
+          
           // Auto-sync when online and have offline coordinates
-          if (isOnline && count > 0 && !syncInProgress) {
+          if (isOnline && navigator.onLine && count > 0 && !syncInProgress) {
             console.log(`🔄 Auto-sync GPS: ${count} coordonate offline`);
             try {
               const result = await syncOfflineGPS();
@@ -80,13 +83,17 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
 
   const getStatusIcon = () => {
     if (syncInProgress) return 'fas fa-sync-alt';
-    if (!isOnline) return 'fas fa-wifi-slash';
+    // Verificare dublă detecție offline
+    const actuallyOffline = !navigator.onLine || !isOnline;
+    if (actuallyOffline) return 'fas fa-wifi-slash';
     return 'fas fa-wifi';
   };
 
   const getStatusClass = () => {
     if (syncInProgress) return 'syncing';
-    if (!isOnline) return 'offline';
+    // Verificare dublă detecție offline
+    const actuallyOffline = !navigator.onLine || !isOnline;
+    if (actuallyOffline) return 'offline';
     return 'online';
   };
 
@@ -94,7 +101,9 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
     if (syncInProgress) {
       return `Sincronizare GPS în curs...`;
     }
-    if (!isOnline || !navigator.onLine) {
+    // Verificare dublă detecție offline
+    const actuallyOffline = !navigator.onLine || !isOnline;
+    if (actuallyOffline) {
       return 'MODUL OFFLINE ACTIV';
     }
     if (offlineCount > 0) {
@@ -108,16 +117,18 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
       const percentage = syncProgress.total > 0 ? Math.round((syncProgress.synced / syncProgress.total) * 100) : 0;
       return `${syncProgress.synced}/${syncProgress.total} coordonate (${percentage}%)`;
     }
-    if (!isOnline || !navigator.onLine) {
+    // Verificare dublă detecție offline
+    const actuallyOffline = !navigator.onLine || !isOnline;
+    if (actuallyOffline) {
       if (offlineCount > 0) {
         return `${offlineCount} coordonate salvate local`;
       }
       return 'GPS se va salva local când cursele sunt active';
     }
-    if (isOnline && offlineCount === 0) {
+    if (offlineCount === 0) {
       return 'Toate datele sincronizate';
     }
-    if (isOnline && offlineCount > 0) {
+    if (offlineCount > 0) {
       return `${offlineCount} coordonate în așteptare sincronizare`;
     }
     return 'Gata pentru urmărire GPS';

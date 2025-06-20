@@ -72,7 +72,7 @@ html, body {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding: max(60px, calc(60px + env(safe-area-inset-top))) env(safe-area-inset-right) max(180px, calc(180px + env(safe-area-inset-bottom))) env(safe-area-inset-left);
 }
 
 .vehicle-screen::before {

@@ -184,6 +184,8 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Consolidare finală documentație**: SETUP.md și BUILD_INSTRUCTIONS.md integrate în README.md, eliminat linkul API din prezentări
 - **Validare input îmbunătățită**: Suport complet rețele mobile RO - Orange, Vodafone, Telekom, Digi, RCS&RDS cu formatare automată la +40
 - **Documentație Google Play Protect**: Ghid complet pentru rezolvarea problemelor de instalare APK din afara Play Store
+- **Safe-area protection îmbunătățită**: Padding mărit 60px top și 180px bottom pentru protecție bara nativă Android
+- **Detecție offline robustă**: Verificare dublă navigator.onLine + isOnline pentru afișare corectă status offline
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin

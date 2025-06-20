@@ -411,6 +411,8 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Validare avansată telefoane românești: 0733112233 → +40733112233, 40723112233 → +40723112233 automat
 - 20 iunie. Suport complet rețele mobile RO: Orange (074x), Vodafone (072x, 075x), Telekom (073x, 076x), Digi (037x), RCS&RDS (077x)
 - 20 iunie. Documentație Google Play Protect: Adăugat ghid complet pentru rezolvarea problemelor de instalare APK
+- 20 iunie. Rezolvat safe-area padding insuficient: Mărit la 60px top și 180px bottom pentru protecție bara nativă
+- 20 iunie. Corectat detecția offline: Verificare dublă navigator.onLine + isOnline pentru afișare corectă "MODUL OFFLINE ACTIV"
 
 ### Versiune Curentă: iTrack v1807.99
 
