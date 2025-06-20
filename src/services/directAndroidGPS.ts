@@ -3,8 +3,8 @@ import { Capacitor } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
 import { GPSData } from './api';
 import { saveGPSCoordinateOffline, syncOfflineGPS, getOfflineGPSCount } from './offlineGPS';
-import { startCourseAnalytics, updateCourseGPS, stopCourseAnalytics } from './courseAnalytics';
-import { logGPS, logGPSError } from './appLogger';
+
+
 
 
 // DirectGPS Plugin pentru activarea EnhancedGPSService
@@ -94,10 +94,6 @@ class DirectAndroidGPSService {
     this.activeCourses.set(courseId, courseData);
 
     try {
-      // Start course analytics tracking
-      await startCourseAnalytics(courseId, uit, vehicleNumber);
-      console.log(`📊 Started analytics tracking for course: ${courseId}`);
-
       if (Capacitor.isNativePlatform()) {
         // Pentru Android APK - activează serviciul nativ direct
         await this.startAndroidNativeService(courseData);
@@ -123,10 +119,6 @@ class DirectAndroidGPSService {
     if (!course) return;
 
     try {
-      // Stop course analytics tracking
-      await stopCourseAnalytics(courseId);
-      console.log(`📊 Stopped analytics tracking for course: ${courseId}`);
-
       if (Capacitor.isNativePlatform()) {
         await this.stopAndroidNativeService(courseId);
       } else {
@@ -349,14 +341,7 @@ class DirectAndroidGPSService {
 
       console.log("Test GPS data prepared:", gpsData);
 
-      // Update course analytics with GPS data
-      await updateCourseGPS(
-        course.courseId,
-        gpsData.lat,
-        gpsData.lng,
-        gpsData.viteza,
-        position.coords.accuracy || 0
-      );
+      console.log("GPS data prepared for transmission");
 
       // Test offline storage functionality
       const offlineCount = await getOfflineGPSCount();

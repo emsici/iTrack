@@ -8,7 +8,7 @@ import {
 } from "../services/directAndroidGPS";
 import { clearToken } from "../services/storage";
 import { getOfflineGPSCount, getOfflineGPSInfo } from "../services/offlineGPS";
-import CourseStatsModal from "./CourseStatsModal";
+
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
 
 
@@ -28,7 +28,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
 
-  const [showStats, setShowStats] = useState(false);
+
   const [offlineCount, setOfflineCount] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncInProgress, setSyncInProgress] = useState(false);
@@ -812,12 +812,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       )}
 
-      <CourseStatsModal
-        isOpen={showStats}
-        onClose={() => setShowStats(false)}
-        courses={courses}
-        vehicleNumber={vehicleNumber}
-      />
+
 
       {/* Monitorizare GPS Offline */}
       <OfflineGPSMonitor 
