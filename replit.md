@@ -303,6 +303,10 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 20, 2025. Added fallback GSM reading for older Android versions using CellInfo and dBm conversion
 - June 20, 2025. GSM percentage calculated from actual signal strength: GSM (-113 to -51 dBm), LTE (-140 to -44 dBm)
 - June 20, 2025. Enhanced logging shows real GSM values being transmitted instead of static fallback values
+- June 20, 2025. FIXED NAVIGATION OVERLAP: Resolved bottom navigation bar covering course content
+- June 20, 2025. Added proper padding-bottom (120px) to vehicle screen to prevent content overlap
+- June 20, 2025. Enhanced mobile responsive design with increased bottom margins for different screen sizes
+- June 20, 2025. Implemented safe-area-inset-bottom support for modern mobile devices with navigation gestures
 
 ## User Preferences
 
