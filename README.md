@@ -85,21 +85,24 @@ npx cap open android
 
 ## Arhitectura GPS
 
-Aplicația folosește servicii Android native pentru urmărire precisă:
+Aplicația folosește servicii Android native pentru urmărire precisă cu sistem offline complet:
 
-- **SimpleGPSService.java** - serviciu de fundal pentru GPS
-- **SimpleGPSPlugin.java** - interfața între JavaScript și Android
-- **nativeGPS.ts** - controlul GPS din TypeScript
+- **EnhancedGPSService.java** - serviciu de fundal pentru GPS cu stocare offline
+- **DirectGPSPlugin.java** - interfața între JavaScript și Android
+- **directAndroidGPS.ts** - controlul GPS din TypeScript
+- **offlineGPS.ts** - sistem stocare și sincronizare offline automată
+- **OfflineGPSMonitor.tsx** - monitorizare vizuală în timp real
 
-## Datele Transmise
+## Funcționalități GPS
 
-La fiecare 60 secunde, aplicația trimite:
+### Transmisia Coordonatelor
+La fiecare 5 secunde, aplicația trimite coordonate GPS:
 
 ```json
 {
   "lat": 44.426765,
   "lng": 26.102538,
-  "timestamp": "2025-06-19 10:30:00",
+  "timestamp": "2024-06-20 10:30:00",
   "viteza": 45,
   "directie": 180,
   "altitudine": 85,
@@ -111,6 +114,39 @@ La fiecare 60 secunde, aplicația trimite:
   "gsm_signal": "75"
 }
 ```
+
+### Sistem GPS Offline
+Aplicația include sistem complet de stocare offline și sincronizare automată:
+
+- **Stocare automată offline**: Coordonatele GPS se salvează local când nu există internet
+- **Sincronizare automată**: Când revine conexiunea, coordonatele se trimit automat (50/batch)
+- **Monitorizare vizuală în timp real**: 
+  - Indicator "OFFLINE" când se pierde internetul
+  - Contorul coordonatelor salvate local se actualizează live
+  - Progresul sincronizării cu bara de progres animată
+  - Dispare automat când sincronizarea e completă
+
+### Separare Sisteme
+- **GPS Offline**: Sincronizare automată în fundal
+- **Refresh Curselor**: Control manual/auto independent (30s interval)
+
+## Componente Cheie
+
+### Interface Utilizator
+- **VehicleScreenProfessional.tsx** - ecranul principal cu design glassmorphism modern
+- **CourseDetailCard.tsx** - carduri curse interactive cu detalii expandabile
+- **CourseStatsModal.tsx** - modal statistici profesional cu analitică cursă
+- **AdminPanel.tsx** - console debug pentru dezvoltatori
+- **OfflineGPSMonitor.tsx** - monitorizare GPS offline în timp real
+
+### Servicii Backend
+- **directAndroidGPS.ts** - integrare GPS Android nativă
+- **offlineGPS.ts** - stocare offline și sincronizare automată
+- **courseAnalytics.ts** - calculul statisticilor curselor în timp real
+- **api.ts** - comunicare cu serverul de transport ETSM3
+
+### Versiune Actuală
+**iTrack v1807.99** - Include monitorizare GPS offline completă și eficiență îmbunătățită
 
 ## API Endpoints
 
