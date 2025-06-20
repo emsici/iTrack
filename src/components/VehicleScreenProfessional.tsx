@@ -7,7 +7,7 @@ import {
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
 import { clearToken } from "../services/storage";
-
+import { getOfflineGPSCount, getOfflineGPSInfo } from "../services/offlineGPS";
 import CourseStatsModal from "./CourseStatsModal";
 import "../styles/professionalVehicleScreen.css";
 
@@ -27,8 +27,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>('');
-  const [showSyncInfo, setShowSyncInfo] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [offlineCount, setOfflineCount] = useState(0);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [syncInProgress, setSyncInProgress] = useState(false);
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -75,6 +77,57 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       setLoading(false);
     }
   };
+
+  // Network status monitoring
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      console.log("📶 Internet connection restored - starting offline sync");
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+      console.log("🔌 Internet connection lost - GPS will save offline");
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Monitor offline GPS count
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (coursesLoaded) {
+      const updateOfflineCount = async () => {
+        try {
+          const count = await getOfflineGPSCount();
+          setOfflineCount(count);
+          
+          // Check sync status
+          const syncInfo = await getOfflineGPSInfo();
+          setSyncInProgress(syncInfo.isActive);
+        } catch (error) {
+          console.error("Error checking offline GPS count:", error);
+        }
+      };
+      
+      // Update immediately and then every 5 seconds
+      updateOfflineCount();
+      interval = setInterval(updateOfflineCount, 5000);
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [coursesLoaded]);
 
   // Auto-refresh effect
   useEffect(() => {
@@ -528,6 +581,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       <div className="bottom-navigation">
         <div className="nav-container">
           <div className="nav-actions">
+            {coursesLoaded && (
+              <button
+                className="nav-button refresh-nav-button"
+                onClick={handleLoadCourses}
+                disabled={loading}
+                title="Reîncarcă cursele"
+              >
+                <i className={`fas fa-sync-alt ${loading ? 'spinning' : ''}`}></i>
+              </button>
+            )}
+            {coursesLoaded && (
+              <button
+                className={`nav-button auto-refresh-nav-button ${autoRefresh ? 'active' : ''}`}
+                onClick={() => setAutoRefresh(!autoRefresh)}
+                title={autoRefresh ? 'Dezactivează auto-refresh' : 'Activează auto-refresh'}
+              >
+                <i className="fas fa-clock"></i>
+              </button>
+            )}
             <button
               className="nav-button stats-nav-button"
               onClick={() => setShowStats(true)}
