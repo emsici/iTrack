@@ -1,4 +1,4 @@
-# iTrack GPS - Aplicație de Monitorizare Vehicule
+# iTrack GPS - Aplicație Enterprise de Monitorizare Vehicule
 
 ## Descriere
 
@@ -18,72 +18,111 @@ iTrack GPS este o aplicație enterprise avansată pentru monitorizarea și manag
 
 ## Caracteristici Principale
 
-### 🚛 Urmărire GPS Avansată
-- **Serviciu GPS nativ Android** cu operare continuă în fundal
-- **Transmisie coordonate** la interval de 5 secunde cu precizie de 8 decimale
-- **Operare în fundal** când telefonul este blocat
-- **Optimizare baterie** cu serviciu foreground și notificări
-- **GPS singular** - doar serviciul Android nativ transmite (WebView GPS dezactivat pentru evitarea duplicatelor)
+### 🔐 Sistem Autentificare Enterprise
+- Login corporatist cu design glassmorphism profesional
+- Suport credențiale admin pentru testing: `admin@itrack.app` / `parola123`
+- JWT token management cu persistență automată în Capacitor Preferences
+- Auto-login la deschiderea aplicației
+- Logout securizat cu curățarea completă a datelor locale
 
-### 📱 Capabilități Offline
-- **Cache automat** al coordonatelor când internetul nu este disponibil
-- **Sincronizare în lot** - până la 50 de coordonate când conexiunea revine
-- **Stocare persistentă** în SharedPreferences Android
-- **Monitor vizual** al statusului offline cu progress în timp real
-- **Auto-sync** transparent când conexiunea este restabilită
+### 📍 GPS Tracking Avansat
+- **Serviciu nativ Android**: EnhancedGPSService pentru tracking continuu în fundal
+- **Interval optimizat**: Transmisie coordonate la exact 5 secunde
+- **Precizie înaltă**: Coordonate cu 8 decimale și metadate complete
+- **Single source GPS**: Evitarea duplicatelor prin coordonare Android-WebView
+- **Battery optimization**: Management inteligent energie cu foreground service
 
-### 🎯 Gestionare Curse Profesională
-- **Încărcare curse** specifice vehiculului cu validare
-- **Managementul statusurilor** în timp real (Disponibil, Activ, Pauză, Oprit)
-- **Analytics course** cu distanță, timp și calcule de viteză
-- **Interfață șofer** optimizată pentru operațiuni de transport
+### 🚛 Gestionare Curse Profesională
+- Dashboard cu 5 carduri analytics: Total Curse, Activ, Pauză, Disponibil, Statistici
+- Input profesional număr vehicul cu design enterprise
+- Management status curse în timp real (Disponibil → Activ → Pauză → Oprit)
+- Încărcare automată curse specifice vehiculului cu validare server
+- Acțiuni curse: Start, Pauză, Resume, Stop cu feedback vizual
 
 ### 📊 Analytics și Statistici
-- **Dashboard cu 5 carduri**: Total Curse, Activ, Pauză, Disponibil, Statistici
-- **Modal statistici detaliate** cu analytics comprehensive
-- **Calcul automat**: distanță parcursă, timp de conducere, viteză medie/maximă
-- **Rapoarte în timp real** pentru management și clienți
+- **CourseStatsModal**: Modal dedicat cu statistici detaliate pentru fiecare cursă
+- **Calcule automate**: Distanță parcursă folosind algoritmul Haversine
+- **Tracking timp real**: Timp conducere, viteză medie/maximă, opriri detectate
+- **Rapoarte cumulative**: Pentru toate cursele vehiculului
+- **Al 5-lea card "STATISTICI"**: Clickabil pentru acces rapid la analytics
 
-### 🔧 Panel de Debug
-- **Acces debug** prin 50 click-uri pe timestamp (counter de la 30)
-- **Modal overlay** cu toate logurile aplicației persistent
-- **Funcții utile**: Copiază logs, Refresh data
-- **Logging persistent** - logurile nu se șterg la logout
+### 🌐 Capabilități Offline Robuste
+- **Detecție automată**: Monitor dual JavaScript + Android NetworkStateReceiver
+- **Cache inteligent**: Salvare coordonate GPS cu metadate complete în SharedPreferences
+- **Sincronizare vizuală**: Progress bar cu animații shimmer pentru sync status
+- **Batch sync**: Până la 50 coordonate transmise simultan când revine online
+- **Retry logic**: Maximum 3 încercări per coordonată cu exponential backoff
 
-### 🏢 Design Enterprise
-- **Pagină login** profesională cu branding corporatist
-- **Input vehicul** redesignat cu aspect business
-- **Tema dark** cu glassmorphism și animații moderne
-- **Safe-area protection** pentru barele native Android
-- **Design responsive** pentru toate dimensiunile de ecran
+### 🐛 Debug Infrastructure
+- **Panel avansat**: Modal overlay cu toate logurile persistente
+- **Acces special**: 50 click-uri pe timestamp cu counter vizibil de la 30-50
+- **Logging categorization**: GPS, API, OFFLINE_SYNC, APP, ERROR cu timestamping
+- **Export functions**: Copiază logs și Refresh data cu interfață intuitivă
+- **Persistență**: Logurile nu se șterg la logout pentru debugging continuu
 
-## Arhitectura Tehnică
+## Tehnologii și Dependencies
 
-### Frontend
-```
-React 19.1.0 + TypeScript
-├── Vite 6.3.5 (build tool)
-├── Bootstrap 5.3.6 (UI framework)
-├── Capacitor 7.3.0 (mobile platform)
-└── CSS modern cu backdrop-filter și animații
-```
-
-### Backend Integration
-```
-API RESTful
-├── Base URL: https://www.euscagency.com/etsm3/platforme/transport/apk
-├── Autentificare: JWT token cu persistență
-├── Format date: JSON pentru toate comunicările
-└── Endpoints: login, logout, getVehicleCourses, sendGPSData
+### Core Stack
+```json
+{
+  "React": "19.1.0",
+  "TypeScript": "Pentru type safety și tooling avansat",
+  "Vite": "6.3.5 - Build system modern cu HMR",
+  "Bootstrap": "5.3.6 - Framework UI responsive",
+  "Capacitor": "7.3.0 - Bridge layer pentru integrare nativă"
+}
 ```
 
-### Mobile Platform
+### Capacitor Plugins
 ```
-Android (target principal)
-├── API Level 35 (Android 15) target
-├── API Level 23 (Android 6.0) minimum
-├── Capacitor pentru integrare nativă
-└── Capabilități iOS prin Capacitor
+├── @capacitor/core - Abstracție platformă mobilă
+├── @capacitor/android - Implementări specifice Android
+├── @capacitor/geolocation - Servicii GPS native
+├── @capacitor/preferences - Stocare locală securizată
+├── @capacitor/device - Info device și capabilități
+└── @capacitor-community/background-geolocation - Enhanced tracking
+```
+
+### Android Native
+```
+├── Target SDK: API Level 35 (Android 15) pentru features latest
+├── Minimum SDK: API Level 23 (Android 6.0) pentru compatibilitate largă
+├── Version Code: 180799, Version Name: "1807.99"
+└── ProGuard optimization pentru release builds
+```
+
+## Arhitectura Tehnică Detaliată
+
+### Arhitectura de Nivel Înalt
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    iTrack GPS Application                   │
+├─────────────────────────────────────────────────────────────┤
+│  React Frontend (TypeScript)                               │
+│  ├── Login Enterprise                                      │
+│  ├── Vehicle Dashboard                                     │
+│  ├── Course Management                                     │
+│  ├── Statistics & Analytics                               │
+│  └── Debug Panel                                          │
+├─────────────────────────────────────────────────────────────┤
+│  Capacitor Bridge Layer                                    │
+│  ├── GPS Services                                         │
+│  ├── Storage (Preferences)                                │
+│  ├── Device Info                                          │
+│  └── Background Processing                                │
+├─────────────────────────────────────────────────────────────┤
+│  Android Native Layer                                      │
+│  ├── EnhancedGPSService.java                             │
+│  ├── Background Location                                   │
+│  ├── Battery Optimization                                 │
+│  └── Notification Management                              │
+├─────────────────────────────────────────────────────────────┤
+│  External API Integration                                  │
+│  ├── Authentication Server                                │
+│  ├── Course Management API                                │
+│  └── GPS Data Transmission                                │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## Structura Detaliată a Proiectului
@@ -231,6 +270,16 @@ Android (target principal)
 - **Offline Storage**: Cache coordonate în SharedPreferences
 - **Course Management**: Tracking multiplu curse simultane
 
+**Configurare Android**:
+```xml
+<!-- Permisiuni în AndroidManifest.xml -->
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+```
+
 #### build.gradle
 **Configurare build Android cu versioning**:
 - Target SDK 35 (Android 15), Min SDK 23 (Android 6.0)
@@ -266,99 +315,340 @@ Android (target principal)
 - Module resolution pentru imports
 - Target ES2020 pentru compatibilitate
 
+## Documentația API
+
+### Configurare API
+
+#### Base URL
+```
+https://www.euscagency.com/etsm3/platforme/transport/apk
+```
+
+#### Headers Comune
+```javascript
+{
+  'Content-Type': 'application/json',
+  'Authorization': 'Bearer {jwt_token}' // Pentru endpoint-urile autentificate
+}
+```
+
+#### Timeout și Retry
+- **Timeout**: 10 secunde pentru toate request-urile
+- **Retry Logic**: Maximum 3 încercări pentru request-urile eșuate
+- **Exponential Backoff**: Delay crescător între retry-uri
+
+### Endpoint-uri API
+
+#### 1. Autentificare
+
+##### POST /api_login.php
+Autentifică utilizatorul și returnează JWT token.
+
+**Request Body:**
+```json
+{
+  "email": "sofer@company.ro",
+  "password": "parola123"
+}
+```
+
+**Response Success (200):**
+```json
+{
+  "status": "success",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user_id": "12345",
+  "expires_in": 3600
+}
+```
+
+**Credențiale Admin pentru Testing:**
+- Email: `admin@itrack.app`
+- Password: `parola123`
+- Token returnat: `ADMIN_TOKEN`
+
+##### POST /api_logout.php
+Invalidează token-ul JWT și curăță sesiunea server.
+
+**Headers:**
+```
+Authorization: Bearer {jwt_token}
+```
+
+#### 2. Gestionare Curse
+
+##### GET /get_courses_by_vehicle.php
+Încarcă toate cursele disponibile pentru un vehicul specific.
+
+**URL Parameters:**
+```
+?vehicle={numar_inmatriculare}&token={jwt_token}
+```
+
+**Response Success (200):**
+```json
+[
+  {
+    "id": "course_001",
+    "name": "Transport Bucuresti - Cluj",
+    "departure_location": "Bucuresti",
+    "destination_location": "Cluj-Napoca",
+    "departure_time": "2025-06-20 08:00:00",
+    "arrival_time": "2025-06-20 16:00:00",
+    "description": "Transport marfa generala",
+    "status": 1,
+    "uit": "UIT123456789",
+    "ikRoTrans": 1001,
+    "codDeclarant": 2001,
+    "denumireDeclarant": "Transport Express SRL",
+    "nrVehicul": "B123ABC",
+    "dataTransport": "2025-06-20",
+    "vama": "Bucuresti",
+    "birouVamal": "Bucuresti Nord",
+    "judet": "Bucuresti",
+    "denumireLocStart": "Depozit Bucuresti",
+    "vamaStop": "Cluj",
+    "birouVamalStop": "Cluj Est",
+    "judetStop": "Cluj",
+    "denumireLocStop": "Magazin Cluj"
+  }
+]
+```
+
+**Statusuri Curse:**
+- `1`: Disponibil (poate fi începută)
+- `2`: Activ (în desfășurare)
+- `3`: Pauză (întreruptă temporar)
+- `4`: Oprită (finalizată)
+
+##### POST /update_course_status.php
+Actualizează statusul unei curse.
+
+**Request Body:**
+```json
+{
+  "course_id": "course_001",
+  "status": 2,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "timestamp": "2025-06-20T10:30:00Z"
+}
+```
+
+#### 3. GPS Tracking
+
+##### POST /gps.php
+Transmite coordonatele GPS cu metadate complete.
+
+**Request Body:**
+```json
+{
+  "lat": 44.426767,
+  "lng": 26.102538,
+  "timestamp": "2025-06-20T10:30:15Z",
+  "viteza": 85,
+  "directie": 45,
+  "altitudine": 95,
+  "baterie": 78,
+  "numar_inmatriculare": "B123ABC",
+  "uit": "UIT123456789",
+  "status": "2",
+  "hdop": "1.2",
+  "gsm_signal": "4",
+  "course_id": "course_001",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Parametri GPS:**
+- **lat/lng**: Coordonate cu precizie 8 decimale
+- **timestamp**: ISO 8601 format cu timezone UTC
+- **viteza**: Viteza în km/h (integer)
+- **directie**: Direcția în grade (0-360)
+- **altitudine**: Altitudinea în metri
+- **baterie**: Procentaj baterie (0-100)
+- **hdop**: Horizontal Dilution of Precision
+- **gsm_signal**: Puterea semnalului GSM (1-5)
+
+### Gestionarea Erorilor
+
+#### Coduri de Status HTTP
+- **200**: Success - Request procesat cu succes
+- **400**: Bad Request - Date invalide în request
+- **401**: Unauthorized - Token JWT invalid sau expirat
+- **403**: Forbidden - Acces interzis pentru resursa solicitată
+- **404**: Not Found - Endpoint-ul nu există
+- **429**: Too Many Requests - Rate limiting activ
+- **500**: Internal Server Error - Eroare server
+
+#### Rate Limiting
+- **Login**: 5 încercări per minut per IP
+- **GPS Data**: 1 request per 5 secunde per vehicul
+- **Course Management**: 10 request-uri per minut per token
+- **General**: 100 request-uri per minut per token
+
+### Autentificare JWT
+
+#### Token Format
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+```
+
+#### Gestionare Token
+- **Stocare**: Capacitor Preferences (securizat)
+- **Expirare**: Verificare automată înaintea fiecărui request
+- **Refresh**: Re-login automat când token expiră
+- **Cleanup**: Ștergere la logout
+
 ## Fluxurile de Date
 
-### 1. Fluxul de Autentificare
+### 1. Flux Autentificare Enterprise
 ```
-Utilizator → Login Screen → Validare credențiale → JWT token → Stocare locală → Auto-login
-```
-
-### 2. Fluxul GPS Tracking
-```
-Start cursă → Activare serviciu GPS → Colectare coordonate (5s) → Transmisie timp real
-              ↓ (offline)
-          Stocare locală → Sincronizare automată (când online)
+User input → LoginScreen.tsx → Validare credențiale → JWT token → 
+Stocare Capacitor Preferences → Auto-login setup → Navigation dashboard
 ```
 
-### 3. Fluxul Gestionare Curse
+### 2. Flux GPS Tracking
 ```
-Număr vehicul → Încărcare curse → Gestionare status → Analytics tracking → Finalizare
+Start cursă → Activare EnhancedGPSService → Colectare coordonate (5s) → 
+Transmisie timp real → [Offline] Cache local → Sync automat când online
 ```
 
-## API Endpoints
+### 3. Flux Gestionare Curse
+```
+Număr vehicul → Încărcare curse API → Status management → 
+Analytics tracking → Completion cu statistici
+```
+
+### 4. Flux Analytics
+```
+Start tracking → Calculare distanță Haversine → Update statistici timp real → 
+Persistare localStorage → Afișare CourseStatsModal
+```
+
+### 5. Flux Offline/Online
+```
+Detecție offline → Salvare coordonate local → Progress bar sync → 
+Reconectare → Batch sync până la 50 coordonate → Cleanup după success
+```
+
+## Patterns de Design
+
+### 1. Service Layer Pattern
+Toate operațiunile business sunt abstractizate în servicii dedicate:
+- `api.ts` - Comunicare externă
+- `directAndroidGPS.ts` - GPS native
+- `offlineGPS.ts` - Gestionare offline
+- `courseAnalytics.ts` - Calcule statistici
+
+### 2. Observer Pattern
+Utilizat pentru monitorizarea statusului online/offline:
+```typescript
+window.addEventListener('online', handleOnlineStatus);
+window.addEventListener('offline', handleOfflineStatus);
+```
+
+### 3. State Management Local
+Utilizarea useState și useEffect pentru managementul stării componentelor fără library-uri externe.
+
+### 4. Error Boundaries
+Gestionarea erorilor la nivel de componentă cu fallback UI și logging.
+
+## Securitate
 
 ### Autentificare
-- `POST /api_login.php` - Login utilizator
-- `POST /api_logout.php` - Logout utilizator
+- **JWT Token**: Stocare sigură în Capacitor Preferences
+- **Expirare**: Token-urile au expirare și refresh automat
+- **Logout securizat**: Curățarea completă a datelor locale
 
-### Gestionare Curse
-- `GET /get_courses_by_vehicle.php?vehicle={nr}` - Încărcare curse vehicul
-- `POST /update_course_status.php` - Actualizare status cursă
+### Validare Input
+- **Sanitizare**: Toate inputurile sunt sanitizate
+- **Validare server-side**: Double validation pe backend
+- **XSS Protection**: Escape-ul tuturor datelor afișate
 
-### GPS Tracking
-- `POST /gps.php` - Transmisie coordonate GPS
+### Comunicare API
+- **HTTPS obligatoriu**: Toate endpoint-urile folosesc SSL
+- **Timeout-uri**: Previne hanging requests
+- **Rate limiting**: Gestionarea la nivel de client
 
-## Configurare și Rulare
+## Performanță
 
-### Dezvoltare Locală
+### Optimizări Frontend
+- **Lazy Loading**: Componentele se încarcă la cerere
+- **Memoization**: Utilizarea React.memo pentru componente costisitoare
+- **Bundle splitting**: Vite optimizează automat bundle-ul
+
+### Optimizări GPS
+- **Interval optim**: 5 secunde echilibrează precizia cu consumul de baterie
+- **Provider selection**: Utilizarea celui mai precis provider disponibil
+- **Foreground service**: Previne kill-ul aplicației de către sistem
+
+### Optimizări Storage
+- **Batch operations**: Salvarea în lot a coordonatelor offline
+- **Cleanup automat**: Ștergerea datelor vechi și inutile
+- **Compression**: Minimizarea dimensiunii datelor stocate
+
+## Instalare și Setup
+
+### Cerințe Sistem
+- **Node.js**: versiunea 18+ pentru dezvoltare
+- **Android Studio**: pentru build și testing nativ
+- **JDK**: versiunea 11+ pentru compilarea Android
+- **Git**: pentru version control
+
+### Instalare Dependencies
 ```bash
-# Instalare dependențe
+# Clonare repository
+git clone <repository-url>
+cd itrack-gps
+
+# Instalare dependencies Node.js
 npm install
 
-# Rulare server dezvoltare
-npm run dev
-
-# Server disponibil pe http://localhost:5000
+# Setup Android (prima dată)
+npx cap add android
+npx cap sync android
 ```
 
-### Build Android
+### Dezvoltare
 ```bash
-# Build web assets
-npm run build
+# Start dev server (port 5000)
+npm run dev
 
-# Sincronizare Capacitor
+# Sync cu proiectul Android
 npx cap sync android
 
 # Deschidere Android Studio
 npx cap open android
-
-# Build APK din Android Studio
 ```
 
-## Funcționalități Avansate
+### Build Producție
+```bash
+# Build web assets optimizat
+npm run build
 
-### Debug și Logging
-- **Activare debug**: 50 click-uri pe timestamp
-- **Counter vizibil**: de la 30 la 50 click-uri
-- **Modal debug**: overlay cu toate logurile
-- **Persistență logs**: păstrare între sesiuni
-- **Export logs**: funcție copiere în clipboard
+# Sincronizare cu Android
+npx cap sync android
 
-### Analytics Curse
-- **Tracking automat**: distanță, timp, viteză pentru fiecare cursă
-- **Calcule în timp real**: folosind formula Haversine pentru distanță
-- **Statistici cumulative**: pentru toate cursele vehiculului
-- **Rapoarte detaliate**: în modal dedicat statistici
+# Build APK din Android Studio cu signing
+```
 
-### Gestionare Offline
-- **Detecție conexiune**: monitor automat status online/offline
-- **Cache inteligent**: coordonate GPS salvate automat offline
-- **Progres vizual**: indicator sincronizare cu progres în timp real
-- **Recuperare automată**: re-transmisie coordonate când conexiunea revine
+## Configurare Android
 
-## Securitate și Performanță
+### Permisiuni Necesare
+```xml
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+```
 
-### Securitate
-- **Token JWT**: autentificare sigură cu expirare
-- **Stocare locală**: Capacitor Preferences pentru date sensibile
-- **Validare input**: sanitizare toate inputurile utilizator
-- **HTTPS**: toate comunicările API securizate
-
-### Performanță
-- **Optimizare baterie**: serviciu foreground cu notificări eficiente
-- **Interval GPS optim**: 5 secunde pentru echilibru precizie/baterie
-- **Cache inteligent**: evitarea request-urilor inutile
-- **Lazy loading**: încărcare componente la cerere
+### Target Configuration
+- **Target SDK**: API 35 (Android 15)
+- **Min SDK**: API 23 (Android 6.0)
+- **Compile SDK**: API 35
 
 ## Exemple de Utilizare
 
@@ -459,6 +749,23 @@ npx cap open android
 - **Permissions**: Location, Background Location, Battery Optimization
 - **Signing**: Certificat de producție pentru Play Store
 
+## Monitoring și Debugging
+
+### Logging
+- **Categorii**: GPS, API, OFFLINE_SYNC, APP, ERROR
+- **Persistență**: Logurile supraviețuiesc logout-ului
+- **Export**: Copiere în clipboard pentru debugging
+
+### Debug Panel
+- **Activare**: 50 click-uri pe timestamp
+- **Counter vizual**: De la 30 la 50 click-uri
+- **Modal overlay**: Afișare toate logurile cu funcții export/refresh
+
+### Performance Monitoring
+- **Memory usage**: Tracking în debug panel
+- **API response times**: Logging pentru toate request-urile
+- **GPS accuracy**: Monitoring precizia coordonatelor
+
 ## Licență și Suport
 
 ### Dezvoltat pentru
@@ -467,9 +774,13 @@ npx cap open android
 - **Șoferi profesioniști** - Interfață optimizată pentru operațiuni zilnice
 
 ### Suport Tehnic
-- **Documentație**: README.md, ARCHITECTURE.md, API.md, SETUP.md
+- **Documentație**: README.md completă cu toate specificațiile
 - **Debug Tools**: Panel integrat cu logging persistent
 - **Network Monitoring**: Detecție robustă offline/online status
 - **Performance Analytics**: Monitoring timp real și statistici usage
 
 Pentru suport tehnic avansat sau customizări enterprise, contactați echipa de dezvoltare.
+
+---
+
+*Documentația este actualizată pentru versiunea 1807.99 - Iunie 2025*

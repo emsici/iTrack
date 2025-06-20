@@ -179,6 +179,7 @@ Persistare localStorage → Afișare CourseStatsModal
 - **UI îmbunătățiri**: Safe-area protection, texte română, responsive design
 - **Architecture updates**: Service layer pattern, error boundaries, optimization
 - **Documentation completă**: README.md actualizat cu structura detaliată a tuturor componentelor
+- **Consolidare documentație**: API.md și ARCHITECTURE.md integrate în README.md pentru organizare simplificată
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin
