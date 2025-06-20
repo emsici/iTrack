@@ -378,22 +378,22 @@ public class EnhancedGPSService extends Service implements LocationListener {
                 singleTransmissionSent.add(courseKey);
                 Log.i(TAG, "📤 Single transmission sent for UIT: " + course.uit + " | Status: " + course.status);
                 
-                // Mark course for removal if status is 4 (stopped)
+                // Mark course for removal if status is 4 (stopped) - delay removal to ensure transmission
                 if (course.status == 4) {
-                    coursesToRemove.add(course.courseId);
+                    // Delay removal by 3 seconds to ensure GPS transmission completes
+                    transmissionHandler.postDelayed(() -> {
+                        CourseData courseToRemove = activeCourses.remove(course.courseId);
+                        if (courseToRemove != null) {
+                            Log.i(TAG, "🛑 Course removed after status 4 transmission: " + courseToRemove.uit);
+                        }
+                    }, 3000);
                 }
             } else {
                 Log.d(TAG, "⏸️ Status " + course.status + " - No GPS transmission for UIT: " + course.uit);
             }
         }
         
-        // Remove stopped courses after iteration
-        for (String courseId : coursesToRemove) {
-            CourseData removedCourse = activeCourses.remove(courseId);
-            if (removedCourse != null) {
-                Log.i(TAG, "🛑 Course removed from active tracking: " + removedCourse.uit + " (Status 4)");
-            }
-        }
+        // coursesToRemove list is no longer used - removal is handled with delayed timing
     }
     
     private void sendGPSDataForCourse(CourseData course, Location location) {
@@ -445,11 +445,12 @@ public class EnhancedGPSService extends Service implements LocationListener {
                 .post(body)
                 .build();
             
+            String statusText = course.status == 2 ? "ACTIVE" : course.status == 3 ? "PAUSED" : course.status == 4 ? "FINISHED" : "UNKNOWN";
             Log.d(TAG, "🚗 Sending HIGH-PRECISION GPS for Vehicle: " + course.vehicleNumber + 
                        " | UIT: " + course.uit + 
-                       " | Status: " + course.status +
+                       " | Status: " + course.status + " (" + statusText + ")" +
                        " | Coordinates: " + String.format("%.8f, %.8f", lat, lng) +
-                       " | Altitude: " + String.format("%.1f", rawAltitude) + "→" + Math.round(altitude) + "m" +
+                       " | Altitude: " + String.format("%.1f", rawAltitude) + "m" +
                        " | Speed: " + Math.round(speed) + "km/h" +
                        " | Accuracy: " + String.format("%.2f", accuracy) + "m");
             

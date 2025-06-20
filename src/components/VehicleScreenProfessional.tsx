@@ -69,7 +69,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
       } else if (action === 'finish') {
         newStatus = 4;
-        await stopGPSTracking(course.id);
+        // First send status 4 to server, then stop tracking
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
+        // Small delay to ensure status 4 transmission completes
+        setTimeout(() => stopGPSTracking(course.id), 1000);
       }
 
       setCourses(prevCourses =>
@@ -386,9 +389,55 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </button>
             </div>
             <div className="info-body">
-              <p><strong>Vehicul:</strong> {vehicleNumber}</p>
-              <p><strong>Curse active:</strong> {courses.filter(c => c.status === 2).length}</p>
-              <p><strong>Total curse:</strong> {courses.length}</p>
+              <div className="info-section">
+                <h4><i className="fas fa-truck"></i> Vehicul Current</h4>
+                <p><strong>Numărul de înmatriculare:</strong> {vehicleNumber}</p>
+                <p><strong>Status:</strong> Conectat și operațional</p>
+              </div>
+
+              <div className="info-section">
+                <h4><i className="fas fa-route"></i> Status Curse</h4>
+                <p><strong>Curse active (GPS pornit):</strong> {courses.filter(c => c.status === 2).length}</p>
+                <p><strong>Curse în pauză:</strong> {courses.filter(c => c.status === 3).length}</p>
+                <p><strong>Curse disponibile:</strong> {courses.filter(c => c.status === 1).length}</p>
+                <p><strong>Total curse înregistrate:</strong> {courses.length}</p>
+              </div>
+
+              <div className="info-section">
+                <h4><i className="fas fa-satellite-dish"></i> Tehnologie GPS</h4>
+                <p><strong>Sistem:</strong> iTrack Professional v2.0</p>
+                <p><strong>Precizie:</strong> GPS de înaltă precizie (±1-3m)</p>
+                <p><strong>Interval transmisie:</strong> La fiecare 5 secunde</p>
+                <p><strong>Funcționare background:</strong> Activ permanent</p>
+                <p><strong>Compatibilitate:</strong> Android nativ</p>
+              </div>
+
+              <div className="info-section">
+                <h4><i className="fas fa-shield-alt"></i> Caracteristici Avansate</h4>
+                <p>• <strong>Background tracking:</strong> GPS funcționează cu telefonul blocat</p>
+                <p>• <strong>Multi-task:</strong> Urmărește multiple curse simultan</p>
+                <p>• <strong>Auto-sync:</strong> Sincronizare automată cu serverul</p>
+                <p>• <strong>Real-time:</strong> Transmisie coordonate în timp real</p>
+                <p>• <strong>Battery optimized:</strong> Optimizat pentru baterie</p>
+              </div>
+
+              <div className="info-section">
+                <h4><i className="fas fa-cogs"></i> Date Transmise</h4>
+                <p>• Coordonate GPS (latitudine, longitudine)</p>
+                <p>• Altitudine precisă din senzori</p>
+                <p>• Viteză și direcție de deplasare</p>
+                <p>• Nivel semnal GSM real</p>
+                <p>• Status cursă și UIT individual</p>
+                <p>• Timestamp și date autentificare</p>
+              </div>
+
+              <div className="info-section">
+                <h4><i className="fas fa-building"></i> Despre Companie</h4>
+                <p><strong>Dezvoltator:</strong> EUSC Agency</p>
+                <p><strong>Platforma:</strong> ETSM3 Transport Management</p>
+                <p><strong>Tip licență:</strong> Profesională pentru flote</p>
+                <p><strong>Support:</strong> Business 24/7</p>
+              </div>
             </div>
           </div>
         </div>
