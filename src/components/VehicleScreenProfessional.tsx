@@ -330,8 +330,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         <i className="fas fa-cube"></i>
                       </div>
                       <div className="brand-text">
-                        <div className="company-name">FLEET COMMAND</div>
-                        <div className="system-edition">Enterprise Edition</div>
+                        <div className="company-name">iTrack</div>
+                        {/* <div className="system-edition">Enterprise Edition</div> */}
                       </div>
                     </div>
                     
@@ -377,16 +377,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         <div className="unit-display">
                           <i className="fas fa-truck-moving unit-icon"></i>
                           <span 
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
                               setCoursesLoaded(false);
                               setCourses([]);
                               setVehicleNumber('');
                             }}
-                            className="unit-identifier"
+                            className="unit-identifier clickable"
+                            title="Schimbă vehiculul"
                           >
                             {vehicleNumber}
                           </span>
-                          <i className="fas fa-exchange-alt change-unit"></i>
                         </div>
                       </div>
                     </div>
