@@ -34,10 +34,14 @@ html, body {
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
 }
 
-/* Courses List Design - Different from Vehicle Input */
+/* Courses List Design - Same as Header (Dark Theme) */
 .vehicle-screen.courses-loaded {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.95) 0%, 
+    rgba(30, 41, 59, 0.95) 50%,
+    rgba(15, 23, 42, 0.95) 100%);
+  backdrop-filter: blur(20px);
   animation: none;
   padding: 0;
   padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 90px);
@@ -802,21 +806,26 @@ html, body {
 .courses-grid {
   padding: 20px;
   padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 100px);
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
 /* Course Cards Enhanced - Matching Header Design */
 .course-card-enhanced {
-  background: linear-gradient(135deg, #0f172a, #1e293b);
+  background: linear-gradient(135deg, 
+    rgba(20, 25, 40, 0.95) 0%,
+    rgba(25, 30, 50, 0.95) 100%);
+  backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   overflow: hidden;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
 }
 
@@ -842,8 +851,8 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  background: rgba(255, 255, 255, 0.05);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .course-info-section {
