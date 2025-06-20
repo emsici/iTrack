@@ -110,11 +110,13 @@ iTrack is a professional GPS tracking application designed for drivers and fleet
 
 - June 20, 2025: Versiunea 1807.99 completă
   - Design hibrid: input vehicul elegant (ca login), listă curse funcțională
-  - Admin access mutat la timestamp (20 click-uri)  
+  - Admin access mutat la timestamp (20 click-uri) cu modal elegant fără delogare
   - GPS transmission optimizat la exact 5 secunde (eliminat WebView GPS)
   - Texte în română: TOTAL CURSE, ACTIV, PAUZĂ, DISPONIBIL
   - Bottom navigation cu safe-area pentru telefoane
   - Versiune Android actualizată la 1807.99
+  - UI îmbunătățiri: bara de sus ascunsă, header centrat, iconițe expand/collapse
+  - Placeholder simplificat pentru numărul de înmatriculare
 - June 20, 2025. Initial setup
 
 ## User Preferences

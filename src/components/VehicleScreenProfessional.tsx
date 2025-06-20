@@ -416,11 +416,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <div className="vehicle-input-section">
                 <div className="input-group">
                   <div className="input-field">
-                    <label className="input-label">Numărul Vehiculului</label>
+                    <label className="input-label">Număr înmatriculare</label>
                     <input
                       type="text"
                       className="vehicle-input"
-                      placeholder="🚛 B123ABC / CJ45DEF / TM67GHI"
+                      placeholder="B123ABC"
                       value={vehicleNumber}
                       onChange={(e) => {
                         // Allow only alphanumeric characters, convert to uppercase
@@ -851,7 +851,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </button>
             </div>
             <div className="admin-modal-body">
-              <p>Acces admin activat prin 20 click-uri pe timestamp!</p>
               <div className="admin-options">
                 <button 
                   className="admin-option-btn logs-btn"
