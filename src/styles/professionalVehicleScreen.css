@@ -1740,3 +1740,332 @@
     align-items: flex-start;
   }
 }
+
+/* Executive Corporate Design CSS */
+.control-header {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.system-identity {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 2px solid rgba(148, 163, 184, 0.2);
+}
+
+.corporate-logo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo-emblem {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(145deg, #1e293b, #334155);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e2e8f0;
+  font-size: 28px;
+  box-shadow: 
+    0 10px 25px rgba(30, 41, 59, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.logo-emblem::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  animation: shimmer 4s infinite;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.company-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 2px rgba(30, 41, 59, 0.1);
+}
+
+.system-edition {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.operational-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: linear-gradient(145deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1));
+  border-radius: 12px;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.status-pulse {
+  position: relative;
+  width: 12px;
+  height: 12px;
+}
+
+.pulse-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(34, 197, 94, 0.4);
+  border-radius: 50%;
+  animation: pulseRing 2s infinite;
+}
+
+.status-core {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+}
+
+.operation-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: #16a34a;
+  letter-spacing: 1px;
+}
+
+.vehicle-management-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
+}
+
+.active-unit-section {
+  flex: 1;
+}
+
+.section-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.unit-control {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.6), rgba(248, 250, 252, 0.4));
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(203, 213, 225, 0.5);
+  box-shadow: 
+    0 8px 20px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.unit-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.unit-display:hover {
+  transform: translateY(-1px);
+}
+
+.unit-icon {
+  font-size: 24px;
+  color: #3b82f6;
+}
+
+.unit-identifier {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 1px;
+}
+
+.change-unit {
+  font-size: 16px;
+  color: #64748b;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+
+.unit-display:hover .change-unit {
+  opacity: 1;
+  color: #3b82f6;
+  transform: rotate(180deg);
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  flex: 2;
+}
+
+.analytics-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(248, 250, 252, 0.6));
+  border-radius: 16px;
+  padding: 20px 16px;
+  border: 1px solid rgba(203, 213, 225, 0.4);
+  box-shadow: 
+    0 6px 16px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  text-align: center;
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.analytics-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #94a3b8;
+  transition: all 0.3s ease;
+}
+
+.analytics-card.total-routes::before {
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+}
+
+.analytics-card.active-tracking::before {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.analytics-card.standby-routes::before {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.analytics-card.ready-routes::before {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+}
+
+.analytics-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 12px 28px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.card-value {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.card-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.card-indicator {
+  width: 100%;
+  height: 4px;
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 2px;
+  margin-top: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-indicator::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 60%;
+  background: linear-gradient(90deg, #94a3b8, transparent);
+  border-radius: 2px;
+  animation: progressBar 3s ease-in-out infinite;
+}
+
+.card-indicator.active::after {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  width: 85%;
+}
+
+.card-indicator.paused::after {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  width: 40%;
+}
+
+.card-indicator.ready::after {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  width: 70%;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes progressBar {
+  0%, 100% {
+    transform: translateX(-10%);
+  }
+  50% {
+    transform: translateX(10%);
+  }
+}
+
+/* Mobile responsive for executive design */
+@media (max-width: 768px) {
+  .vehicle-management-panel {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .analytics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .system-identity {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+}
