@@ -31,6 +31,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [offlineCount, setOfflineCount] = useState(0);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncInProgress, setSyncInProgress] = useState(false);
+  const [lastCoursesSync, setLastCoursesSync] = useState<string>('');
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -67,7 +68,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       
       setCourses(mergedCourses);
       setCoursesLoaded(true);
-      setLastUpdate(new Date().toLocaleTimeString('ro-RO'));
+      
+      // Update last sync timestamp
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('ro-RO', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+      setLastCoursesSync(timeString);
     } catch (error: any) {
       console.error("Error loading courses:", error);
       setError(error.message || "Eroare la încărcarea curselor");
@@ -606,22 +614,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         <div className="nav-container">
           <div className="nav-actions">
             {coursesLoaded && (
-              <button
-                className="nav-button refresh-nav-button"
-                onClick={handleLoadCourses}
-                disabled={loading}
-                title="Reîncarcă cursele de la server"
-              >
-                <i className={`fas fa-sync-alt ${loading ? 'spinning' : ''}`}></i>
-              </button>
+              <div className="nav-button-group">
+                <button
+                  className="nav-button refresh-nav-button"
+                  onClick={handleLoadCourses}
+                  disabled={loading}
+                  title="Reîncarcă cursele de la server"
+                >
+                  <i className={`fas fa-sync-alt ${loading ? 'spinning' : ''}`}></i>
+                </button>
+                {lastCoursesSync && (
+                  <span className="last-sync-time">{lastCoursesSync}</span>
+                )}
+              </div>
             )}
             {coursesLoaded && (
               <button
                 className={`nav-button auto-refresh-nav-button ${autoRefresh ? 'active' : ''}`}
                 onClick={() => setAutoRefresh(!autoRefresh)}
-                title={autoRefresh ? 'Dezactivează auto-refresh curse' : 'Activează auto-refresh curse'}
+                title={autoRefresh ? 'Dezactivează auto-refresh curse (30s)' : 'Activează auto-refresh curse (30s)'}
               >
                 <i className="fas fa-clock"></i>
+                {autoRefresh && <span className="auto-indicator">AUTO</span>}
               </button>
             )}
             <button
