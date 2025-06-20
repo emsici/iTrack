@@ -2,8 +2,6 @@ package com.euscagency.itrack;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
@@ -11,43 +9,11 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Add WebView interface for GPS control
-        WebView webView = getBridge().getWebView();
-        webView.addJavascriptInterface(new AndroidGPSInterface(), "AndroidGPS");
+        // Register DirectGPS plugin for background-independent operation
+        registerPlugin(DirectGPSPlugin.class);
         
-        android.util.Log.d("MainActivity", "iTrack app initialized with GPS interface");
-        android.util.Log.d("MainActivity", "EnhancedGPSService ready for activation");
-    }
-    
-    public class AndroidGPSInterface {
-        @JavascriptInterface
-        public void startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
-            android.util.Log.d("AndroidGPS", "Starting GPS for course: " + courseId);
-            android.util.Log.d("AndroidGPS", "Vehicle: " + vehicleNumber + ", UIT: " + uit);
-            
-            Intent broadcastIntent = new Intent(GPSBroadcastReceiver.ACTION_START_GPS);
-            broadcastIntent.putExtra("courseId", courseId);
-            broadcastIntent.putExtra("vehicleNumber", vehicleNumber);
-            broadcastIntent.putExtra("uit", uit);
-            broadcastIntent.putExtra("authToken", authToken);
-            broadcastIntent.putExtra("status", status);
-            
-            sendBroadcast(broadcastIntent);
-            
-            android.util.Log.d("AndroidGPS", "GPS start broadcast sent successfully");
-        }
-        
-        @JavascriptInterface
-        public void stopGPS(String courseId) {
-            android.util.Log.d("AndroidGPS", "Stopping GPS for course: " + courseId);
-            
-            Intent broadcastIntent = new Intent(GPSBroadcastReceiver.ACTION_STOP_GPS);
-            broadcastIntent.putExtra("courseId", courseId);
-            
-            sendBroadcast(broadcastIntent);
-            
-            android.util.Log.d("AndroidGPS", "GPS stop broadcast sent successfully");
-        }
+        android.util.Log.d("MainActivity", "iTrack app initialized with DirectGPS plugin");
+        android.util.Log.d("MainActivity", "EnhancedGPSService ready for background activation");
     }
     
     // Metoda publică pentru activarea GPS din JavaScript prin evaluateJavaScript

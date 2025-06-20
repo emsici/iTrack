@@ -1,6 +1,23 @@
-// GPS direct Android prin broadcast independent
+// GPS direct Android prin Capacitor plugin - funcționează în background
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
+
+// DirectGPS Plugin pentru activarea EnhancedGPSService
+interface DirectGPSPlugin {
+  startTracking(options: {
+    courseId: string;
+    vehicleNumber: string;
+    uit: string;
+    authToken: string;
+    status: number;
+  }): Promise<{ success: boolean; message: string }>;
+  
+  stopTracking(options: {
+    courseId: string;
+  }): Promise<{ success: boolean; message: string }>;
+}
+
+const DirectGPS = Capacitor.registerPlugin<DirectGPSPlugin>('DirectGPS');
 
 interface ActiveCourse {
   courseId: string;
@@ -113,13 +130,12 @@ class DirectAndroidGPSService {
     
     try {
       if (Capacitor.isNativePlatform()) {
-        // Oprire prin AndroidGPS WebView interface
-        if ((window as any).AndroidGPS && (window as any).AndroidGPS.stopGPS) {
-          (window as any).AndroidGPS.stopGPS(courseId);
-          console.log('GPS stopped through Android WebView interface');
-        } else {
-          console.log('AndroidGPS interface not available for stop');
-        }
+        // Oprire prin DirectGPS plugin
+        const result = await DirectGPS.stopTracking({
+          courseId: courseId
+        });
+        
+        console.log('GPS tracking stopped:', result.message);
       } else {
         console.log('Web environment: GPS would stop in APK');
       }
@@ -149,40 +165,23 @@ class DirectAndroidGPSService {
     
     if (Capacitor.isNativePlatform()) {
       try {
-        console.log('Starting EnhancedGPSService through WebView interface');
+        console.log('Starting EnhancedGPSService through DirectGPS plugin');
         
-        // Activare directă prin AndroidGPS WebView interface
-        if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-          (window as any).AndroidGPS.startGPS(
-            course.courseId, 
-            course.vehicleNumber, 
-            course.uit, 
-            course.token, 
-            course.status
-          );
-          console.log('GPS started through Android WebView interface');
-        } else {
-          console.log('AndroidGPS interface not available - using fallback');
-          // Fallback prin Geolocation pentru web testing
-          await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
-        }
+        // Activare prin DirectGPS plugin - funcționează în background
+        const result = await DirectGPS.startTracking({
+          courseId: course.courseId,
+          vehicleNumber: course.vehicleNumber,
+          uit: course.uit,
+          authToken: course.token,
+          status: course.status
+        });
         
-        console.log('GPS service activation command executed');
-        console.log('EnhancedGPSService should start background tracking');
+        console.log('GPS tracking started:', result.message);
+        console.log('EnhancedGPSService running in background - coordinates transmit every 60s');
         
       } catch (error) {
-        console.error('Failed to activate GPS service:', error);
-        // Fallback: încercare prin Geolocation pentru a obține poziția
-        try {
-          const position = await Geolocation.getCurrentPosition({ 
-            enableHighAccuracy: true,
-            timeout: 10000
-          });
-          console.log('GPS position obtained - service should activate');
-          console.log('Position:', position.coords.latitude, position.coords.longitude);
-        } catch (geoError) {
-          console.error('GPS activation failed completely:', geoError);
-        }
+        console.error('Failed to start DirectGPS plugin:', error);
+        throw error;
       }
     } else {
       console.log('Web environment: Testing GPS transmission');
