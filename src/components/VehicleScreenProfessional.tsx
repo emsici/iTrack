@@ -462,18 +462,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <div className="courses-section">
             <div className="executive-control-center">
               <div className="command-dashboard">
-                <div className="control-header">
-                  <div className="system-identity">
+                <div className="control-header-centered">
+                  <div className="system-identity-centered">
                     <div className="corporate-logo">
                       <div className="logo-emblem">
                         <i className="fas fa-cube"></i>
                       </div>
                       <div className="brand-text">
                         <div className="company-name">iTrack</div>
-                        {/* <div className="system-edition">Enterprise Edition</div> */}
                       </div>
                     </div>
-
                   </div>
 
                   <div className="vehicle-management-panel">
@@ -600,14 +598,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <div className="course-actions">
                     {renderCourseActions(course)}
                     <button
-                      className="action-button info-button"
+                      className="action-button expand-button"
                       onClick={() =>
                         setExpandedCourse(
                           expandedCourse === course.id ? null : course.id,
                         )
                       }
                     >
-                      <i className="fas fa-info"></i>
+                      <i className={`fas ${expandedCourse === course.id ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
                     </button>
                   </div>
 
