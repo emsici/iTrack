@@ -23,17 +23,37 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
           const count = await getOfflineGPSCount();
           setOfflineCount(count);
 
-          // Debug logging pentru detecția offline
-          console.log(`📊 Status GPS: online=${isOnline}, navigator.onLine=${navigator.onLine}, count=${count}`);
+          // Debug logging pentru detecția offline - ENHANCED
+          const actuallyOnline = navigator.onLine && isOnline;
+          console.log(`📊 Status GPS: isOnline=${isOnline}, navigator.onLine=${navigator.onLine}, actuallyOnline=${actuallyOnline}, count=${count}`);
           
-          // Auto-sync when online and have offline coordinates
-          if (isOnline && navigator.onLine && count > 0 && !syncInProgress) {
+          // Test real network connection
+          let networkTest = false;
+          try {
+            await fetch('https://www.google.com/favicon.ico', { 
+              method: 'HEAD', 
+              mode: 'no-cors',
+              cache: 'no-cache',
+              signal: AbortSignal.timeout(3000)
+            });
+            networkTest = true;
+            console.log('🌐 Network test: ONLINE');
+          } catch (error) {
+            networkTest = false;
+            console.log('🔌 Network test: OFFLINE');
+          }
+          
+          // Auto-sync when truly online and have offline coordinates
+          if (actuallyOnline && networkTest && count > 0 && !syncInProgress) {
             console.log(`🔄 Auto-sync GPS: ${count} coordonate offline`);
             try {
+              setSyncInProgress(true);
               const result = await syncOfflineGPS();
               console.log(`✅ Sincronizare: ${result.success}/${result.total} coordonate`);
             } catch (error) {
               console.error("❌ Eroare sync GPS:", error);
+            } finally {
+              setSyncInProgress(false);
             }
           }
         } catch (error) {
@@ -91,8 +111,9 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
 
   const getStatusClass = () => {
     if (syncInProgress) return 'syncing';
-    // Verificare dublă detecție offline
+    // Verificare strictă detecție offline - ENHANCED
     const actuallyOffline = !navigator.onLine || !isOnline;
+    console.log(`Status class: navigator.onLine=${navigator.onLine}, isOnline=${isOnline}, actuallyOffline=${actuallyOffline}`);
     if (actuallyOffline) return 'offline';
     return 'online';
   };

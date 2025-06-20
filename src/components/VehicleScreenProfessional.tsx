@@ -128,6 +128,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       } else if (newStatus === 3) {
         // Pause - Trimite UN update cu status 3, apoi oprește coordonatele
         const { sendGPSData } = await import('../services/api');
+        const { saveGPSCoordinateOffline } = await import('../services/offlineGPS');
+        
         const gpsData = {
           lat: 0,
           lng: 0,
@@ -142,11 +144,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           hdop: "1.0",
           gsm_signal: "4"
         };
-        await sendGPSData(gpsData, token);
+        
+        try {
+          await sendGPSData(gpsData, token);
+          console.log('✅ Status 3 trimis online');
+        } catch (error) {
+          console.log('💾 Status 3 salvat offline');
+          await saveGPSCoordinateOffline(gpsData, courseId, vehicleNumber, token, 3);
+        }
+        
         await stopGPSTracking(courseId); // Oprește coordonatele continue
       } else if (newStatus === 4) {
         // Finish - Trimite UN update cu status 4, apoi oprește
         const { sendGPSData } = await import('../services/api');
+        const { saveGPSCoordinateOffline } = await import('../services/offlineGPS');
+        
         const gpsData = {
           lat: 0,
           lng: 0,
@@ -161,7 +173,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           hdop: "1.0",
           gsm_signal: "4"
         };
-        await sendGPSData(gpsData, token);
+        
+        try {
+          await sendGPSData(gpsData, token);
+          console.log('✅ Status 4 trimis online');
+        } catch (error) {
+          console.log('💾 Status 4 salvat offline');
+          await saveGPSCoordinateOffline(gpsData, courseId, vehicleNumber, token, 4);
+        }
+        
         await stopGPSTracking(courseId); // Oprește coordonatele continue
       }
 

@@ -368,12 +368,13 @@ class DirectAndroidGPSService {
           }
         } else {
           console.log("❌ GPS transmission failed - Status:", response.status);
-          console.log("💾 Saving coordinate to offline storage");
+          console.log("💾 FORCED: Saving coordinate to offline storage");
           await saveGPSCoordinateOffline(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
         }
       } catch (networkError) {
-        console.log("🔌 Network error - No internet connection");
-        console.log("💾 Saving coordinate to offline storage");
+        console.log("🔌 NETWORK ERROR - No internet connection detected");
+        console.log("💾 FORCED: Saving coordinate to offline storage due to network error");
+        console.log("Error details:", networkError);
         await saveGPSCoordinateOffline(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
       }
     } catch (error) {
