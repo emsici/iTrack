@@ -255,9 +255,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     setCourses([]);
                     setVehicleNumber('');
                   }}
-                  style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                  className="vehicle-number-clickable"
                 >
                   {vehicleNumber}
+                  <i className="fas fa-edit edit-icon"></i>
                 </span>
               </h2>
               <div className="courses-stats">
