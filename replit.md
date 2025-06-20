@@ -338,6 +338,9 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 20, 2025. Increased offline sync batch size from 5 to 50 coordinates for better efficiency
 - June 20, 2025. Enhanced course details display includes complete customs office information (BirouVamal, BirouVamalStop)
 - June 20, 2025. Real GSM signal strength reading from Android TelephonyManager replaces all hardcoded values
+- June 20, 2025. IMPROVED MOBILE INTERFACE: Fixed status bar overlap, reduced excessive animations, optimized padding for mobile
+- June 20, 2025. Enhanced vehicle switching - single click resets courses and allows new vehicle number entry with fresh API query
+- June 20, 2025. Stabilized button hover effects - reduced "flying" animations and improved visual feedback on mobile devices
 
 ## User Preferences
 

@@ -6,8 +6,8 @@
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
   padding: 20px;
-  padding-top: max(100px, calc(100px + env(safe-area-inset-top)));
-  padding-bottom: max(220px, calc(220px + env(safe-area-inset-bottom)));
+  padding-top: max(80px, calc(80px + env(safe-area-inset-top)));
+  padding-bottom: max(180px, calc(180px + env(safe-area-inset-bottom)));
   font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   position: relative;
   overflow-x: hidden;
@@ -30,7 +30,7 @@
 
 .vehicle-container {
   max-width: 1200px;
-  margin: 30px auto 0;
+  margin: 20px auto 0;
   position: relative;
   z-index: 1;
 }
@@ -1834,7 +1834,7 @@
 .refresh-button:hover {
   background: linear-gradient(145deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15));
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
 }
 
 .refresh-button:disabled {
@@ -1873,7 +1873,7 @@
 
 .auto-refresh-toggle:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
+  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.15);
 }
 
 .auto-refresh-toggle.active:hover {
@@ -2611,8 +2611,8 @@
 .unit-identifier.clickable:hover {
   background: linear-gradient(145deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2));
   border-color: rgba(59, 130, 246, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
 }
 
 .unit-identifier.clickable:active {
@@ -2764,6 +2764,22 @@
 
 /* Mobile responsive for executive design */
 @media (max-width: 768px) {
+  .vehicle-screen {
+    padding: 15px;
+    padding-top: max(40px, calc(40px + env(safe-area-inset-top)));
+    padding-bottom: max(140px, calc(140px + env(safe-area-inset-bottom)));
+  }
+  
+  .vehicle-container {
+    margin: 10px auto 0;
+  }
+  
+  .vehicle-header {
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 16px;
+  }
+  
   .vehicle-management-panel {
     flex-direction: column;
     gap: 20px;
@@ -2771,11 +2787,38 @@
   
   .analytics-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .analytics-card {
+    padding: 16px 12px;
   }
   
   .system-identity {
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
     text-align: center;
+  }
+  
+  .header-controls {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .auto-refresh-toggle,
+  .refresh-button {
+    padding: 10px 16px;
+    font-size: 11px;
+    min-height: 40px;
+  }
+  
+  .operational-badge {
+    padding: 10px 16px;
+    min-height: 40px;
+  }
+  
+  .unit-identifier.clickable {
+    padding: 6px 10px;
+    font-size: 18px;
   }
 }
