@@ -45,7 +45,9 @@ html, body {
   animation: none;
   padding: 0;
   padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 90px);
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: relative;
   overflow: auto;
 }
@@ -590,6 +592,12 @@ html, body {
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   padding: 32px 24px 24px;
   color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .control-header {
@@ -671,6 +679,8 @@ html, body {
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .system-identity {
@@ -809,7 +819,9 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-bottom: 20px;
+  margin: 0 auto 20px auto;
+  max-width: 600px;
+  width: 100%;
 }
 
 /* Course Cards Enhanced - Matching Header Design */
@@ -820,7 +832,9 @@ html, body {
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  margin-bottom: 16px;
+  margin: 0 auto 16px auto;
+  max-width: 600px;
+  width: calc(100% - 40px);
   overflow: hidden;
   transition: all 0.3s ease;
   box-shadow: 

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles/professional.css';
 
+
 // Import Capacitor plugins
 import { Capacitor } from '@capacitor/core';
 
