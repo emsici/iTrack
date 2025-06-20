@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.ArrayList;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
 
 import okhttp3.*;
 import org.json.JSONObject;
@@ -79,6 +80,8 @@ public class EnhancedGPSService extends Service implements LocationListener {
     private ConnectivityManager connectivityManager;
     private Handler syncHandler;
     private Runnable syncRunnable;
+    private NetworkStateReceiver networkStateReceiver;
+    private boolean isNetworkAvailable = true;
     
     private static class CourseData {
         String vehicleNumber;
@@ -97,6 +100,37 @@ public class EnhancedGPSService extends Service implements LocationListener {
             this.startTime = System.currentTimeMillis();
         }
     }
+
+    // Network State Receiver pentru detecția offline robustă
+    private class NetworkStateReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
+                boolean wasNetworkAvailable = isNetworkAvailable;
+                isNetworkAvailable = isNetworkConnected();
+                
+                if (wasNetworkAvailable != isNetworkAvailable) {
+                    Log.i(TAG, "Network state changed: " + (isNetworkAvailable ? "ONLINE" : "OFFLINE"));
+                    
+                    if (isNetworkAvailable) {
+                        Log.i(TAG, "📶 Network restored - attempting offline GPS sync");
+                        // Start immediate sync when network returns
+                        if (syncHandler != null) {
+                            syncHandler.removeCallbacks(syncRunnable);
+                            syncHandler.post(syncRunnable);
+                        }
+                        updateNotification("GPS Activ - Conexiune restabilită");
+                    } else {
+                        Log.w(TAG, "🔌 Network lost - GPS will save offline");
+                        updateNotification("GPS Activ - Salvare offline");
+                    }
+                    
+                    // Notify WebView about network status change
+                    notifyWebViewNetworkStatus(isNetworkAvailable);
+                }
+            }
+        }
+    }
     
     @Override
     public void onCreate() {
@@ -112,6 +146,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
         initializeTransmissionHandler();
         initializeOfflineStorage();
         initializeConnectivityManager();
+        registerNetworkReceiver();
         
         startLocationTracking();
         startForeground(NOTIFICATION_ID, createNotification());
@@ -922,6 +957,16 @@ public class EnhancedGPSService extends Service implements LocationListener {
         
         activeCourses.clear();
         
+        // Unregister network receiver
+        if (networkStateReceiver != null) {
+            try {
+                unregisterReceiver(networkStateReceiver);
+                Log.i(TAG, "📡 Network receiver unregistered");
+            } catch (Exception e) {
+                Log.e(TAG, "Error unregistering network receiver: " + e.getMessage());
+            }
+        }
+        
         Log.i(TAG, "✅ Enhanced GPS Service stopped cleanly");
         super.onDestroy();
     }
@@ -992,5 +1037,61 @@ public class EnhancedGPSService extends Service implements LocationListener {
 
         // If both from same type, prefer more accurate
         return isMoreAccurate || (timeDelta > 0 && accuracyDelta < 50); // Accept if newer and not much worse
+    }
+
+    // Network connectivity methods for robust offline detection
+    private void registerNetworkReceiver() {
+        networkStateReceiver = new NetworkStateReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        
+        registerReceiver(networkStateReceiver, filter);
+        isNetworkAvailable = isNetworkConnected();
+        Log.i(TAG, "📡 Network receiver registered. Initial status: " + (isNetworkAvailable ? "ONLINE" : "OFFLINE"));
+    }
+
+    private boolean isNetworkConnected() {
+        try {
+            if (connectivityManager != null) {
+                NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+                boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+                Log.d(TAG, "Network check: " + (isConnected ? "CONNECTED" : "DISCONNECTED"));
+                return isConnected;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error checking network connectivity: " + e.getMessage());
+        }
+        return false;
+    }
+
+    private void notifyWebViewNetworkStatus(boolean isOnline) {
+        // This would notify the WebView about network status changes
+        // For now, we log it and update the notification
+        Log.i(TAG, "📱 Network status for WebView: " + (isOnline ? "ONLINE" : "OFFLINE"));
+        
+        // Update notification to reflect network status
+        if (isOnline) {
+            updateNotification("GPS Activ - Conexiune restabilită");
+        } else {
+            updateNotification("GPS Activ - Modul offline");
+        }
+    }
+
+    private void updateNotification(String customText) {
+        if (customText != null) {
+            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("iTrack GPS v1807.99")
+                .setContentText(customText)
+                .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+                .setOngoing(true)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .build();
+            
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(NOTIFICATION_ID, notification);
+        }
     }
 }
