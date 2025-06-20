@@ -628,6 +628,37 @@
   box-shadow: 0 6px 20px rgba(229, 62, 62, 0.3);
 }
 
+/* Vehicle Number Clickable Styles */
+.vehicle-number-clickable {
+  cursor: pointer;
+  text-decoration: underline;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.vehicle-number-clickable:hover {
+  background-color: rgba(66, 153, 225, 0.1);
+  text-decoration: underline;
+  color: #4299e1;
+}
+
+.edit-icon {
+  font-size: 14px;
+  color: #4299e1;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.vehicle-number-clickable:hover .edit-icon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
 .info-button {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;

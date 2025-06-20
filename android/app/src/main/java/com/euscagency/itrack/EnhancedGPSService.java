@@ -404,7 +404,11 @@ public class EnhancedGPSService extends Service implements LocationListener {
             
             float speed = location.hasSpeed() ? location.getSpeed() * 3.6f : 0.0f; // km/h
             float bearing = location.hasBearing() ? location.getBearing() : 0.0f;
-            double altitude = location.hasAltitude() ? location.getAltitude() : 0.0;
+            // Fix altitude - ensure positive values and realistic range
+            double rawAltitude = location.hasAltitude() ? location.getAltitude() : 0.0;
+            double altitude = rawAltitude < 0 ? Math.abs(rawAltitude) : rawAltitude;
+            // Clamp to reasonable range for Romania (0-2500m)
+            altitude = Math.max(0, Math.min(altitude, 2500));
             float accuracy = location.hasAccuracy() ? location.getAccuracy() : 999.0f;
             
             // Coordonate precise cu 8 zecimale pentru precizie maximă
@@ -447,6 +451,8 @@ public class EnhancedGPSService extends Service implements LocationListener {
                        " | UIT: " + course.uit + 
                        " | Status: " + course.status +
                        " | Coordinates: " + String.format("%.8f, %.8f", lat, lng) +
+                       " | Altitude: " + String.format("%.1f", rawAltitude) + "→" + Math.round(altitude) + "m" +
+                       " | Speed: " + Math.round(speed) + "km/h" +
                        " | Accuracy: " + String.format("%.2f", accuracy) + "m");
             
             httpClient.newCall(request).enqueue(new Callback() {
