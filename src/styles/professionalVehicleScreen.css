@@ -6,8 +6,8 @@
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
   padding: 20px;
-  padding-top: calc(60px + env(safe-area-inset-top));
-  padding-bottom: calc(120px + env(safe-area-inset-bottom));
+  padding-top: max(100px, calc(100px + env(safe-area-inset-top)));
+  padding-bottom: max(160px, calc(160px + env(safe-area-inset-bottom)));
   font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   position: relative;
   overflow-x: hidden;
@@ -30,7 +30,7 @@
 
 .vehicle-container {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 30px auto 0;
   position: relative;
   z-index: 1;
 }
@@ -536,7 +536,7 @@
 /* Îmbunătățiri pentru responsive design */
 @media (max-width: 768px) {
   .vehicle-screen {
-    padding-top: calc(80px + env(safe-area-inset-top));
+    padding-top: max(120px, calc(120px + env(safe-area-inset-top)));
     padding-left: 15px;
     padding-right: 15px;
   }
@@ -563,7 +563,7 @@
 
 @media (max-width: 480px) {
   .vehicle-screen {
-    padding-top: calc(100px + env(safe-area-inset-top));
+    padding-top: max(140px, calc(140px + env(safe-area-inset-top)));
     padding-left: 12px;
     padding-right: 12px;
   }
