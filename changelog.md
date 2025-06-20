@@ -386,6 +386,8 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Validat progresul sincronizării în timp real: "Sincronizare: X/Y coordonate trimise" cu animații și dispariție automată
 - 20 iunie. Actualizat documentația README.md cu sistemul GPS offline complet și componente cheie
 - 20 iunie. Redenumit replit.md în changelog.md pentru organizare mai bună a istoricului dezvoltării aplicației
+- 20 iunie. IMPLEMENTAT SISTEM ACTIVARE ADMIN: 20 click-uri pe butonul "Info" activează panoul admin cu log-uri
+- 20 iunie. Acces admin prin credențiale admin@itrack.app / parola123 pentru debugging mobil și monitorizare aplicație
 
 ## Starea Actuală - Iunie 2024
 

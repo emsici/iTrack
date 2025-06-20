@@ -1,14 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { getAppLogs, clearAppLogs, AppLog } from '../services/appLogger';
 
 interface AdminPanelProps {
   onLogout: () => void;
-}
-
-interface AppLog {
-  id: string;
-  timestamp: string;
-  level: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
-  message: string;
 }
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {

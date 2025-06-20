@@ -33,7 +33,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncInProgress, setSyncInProgress] = useState(false);
   const [lastCoursesSync, setLastCoursesSync] = useState<string>('');
-  const [logoutClickCount, setLogoutClickCount] = useState(0);
+  const [infoClickCount, setInfoClickCount] = useState(0);
 
 
   const handleLoadCourses = async () => {
@@ -253,7 +253,46 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const handleShowInfo = () => {
+  const handleShowInfo = async () => {
+    // Check for admin mode activation (20 clicks)
+    const newClickCount = infoClickCount + 1;
+    setInfoClickCount(newClickCount);
+    
+    if (newClickCount === 20) {
+      console.log("🔓 Admin mode activated - redirecting to admin login");
+      setInfoClickCount(0);
+      
+      // Navigate to admin login by clearing everything and forcing login screen
+      await clearToken();
+      onLogout();
+      return;
+    }
+    
+    if (newClickCount >= 10 && newClickCount < 20) {
+      console.log(`🔄 Admin activation: ${newClickCount}/20 clicks`);
+      // Reset counter after 5 seconds if not continued
+      setTimeout(() => {
+        setInfoClickCount(0);
+      }, 5000);
+      
+      // Don't show info modal when counting for admin
+      return;
+    }
+
+    if (newClickCount < 10) {
+      console.log(`🔄 Click count: ${newClickCount}`);
+      // Reset counter after 5 seconds if not continued
+      setTimeout(() => {
+        setInfoClickCount(0);
+      }, 5000);
+      
+      // Show normal info modal for regular clicks
+      setShowInfo(true);
+      return;
+    }
+
+    // Default: show info modal
+    setInfoClickCount(0);
     setShowInfo(true);
   };
 
