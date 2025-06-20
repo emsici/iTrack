@@ -1,4 +1,4 @@
-# iTrack GPS -
+# iTrack GPS
 
 ## Descriere
 
@@ -91,9 +91,7 @@ iTrack GPS este o aplicație enterprise avansată pentru monitorizarea și manag
 └── ProGuard optimization pentru release builds
 ```
 
-## Arhitectura Tehnică Detaliată
-
-### Arhitectura
+## Arhitectura 
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -375,10 +373,6 @@ Autentifică utilizatorul și returnează JWT token.
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
-
-**Credențiale Admin pentru Testing:**
-- Email: `admin@itrack.app`
-- Password: `parola123`
 
 ##### POST /login.php (Logout)
 Invalidează token-ul JWT și curăță sesiunea server.

@@ -718,7 +718,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 type="text"
                 className="form-input"
                 value={email}
-                onChange={(e) => setEmail(e.target.value.replace(/\s+/g, ''))}
+                onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
                 disabled={loading}
                 placeholder="Email sau telefon (0733547739)"
                 autoComplete="username"
