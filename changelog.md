@@ -427,6 +427,8 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Cardurile curse îmbunătățite: Design corporatist avansat cu glassmorphism, gradiente și animații business
 - 20 iunie. Debug panel funcțional: Implementat complet cu modal overlay, logging persistent și funcții Copy/Refresh
 - 20 iunie. Activare debug fixată: 50 click-uri pe logo-ul corporatist activează debug panel cu logs aplicație
+- 20 iunie. API debugging implementat: Logging complet pentru vehicul.php cu fallback CapacitorHttp și verificare răspuns
+- 20 iunie. Corectat importuri: Eliminat avertismentul Vite pentru importuri dinamice vs statice appLogger
 
 ### Versiune Curentă: iTrack v1807.99
 

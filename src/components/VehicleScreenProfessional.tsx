@@ -8,6 +8,7 @@ import {
 } from "../services/directAndroidGPS";
 import { clearToken } from "../services/storage";
 import { getOfflineGPSCount } from "../services/offlineGPS";
+import { getAppLogs } from "../services/appLogger";
 
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
 import CourseStatsModal from "./CourseStatsModal";
@@ -87,7 +88,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     if (infoClickCount >= 49) {
       // Load debug logs and show panel
       try {
-        const { getAppLogs } = await import('../services/appLogger');
         const logs = await getAppLogs();
         setDebugLogs(logs);
         setShowDebugPanel(true);
@@ -516,7 +516,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     if (vehicleNumber) {
                       await handleLoadCourses();
                     }
-                    const { getAppLogs } = await import('../services/appLogger');
                     const logs = await getAppLogs();
                     setDebugLogs(logs);
                   }}
