@@ -2715,6 +2715,23 @@
   50% { opacity: 0.5; }
 }
 
+/* Admin Counter Badge */
+.admin-counter {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(145deg, #dc2626, #b91c1c);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.5);
+  animation: pulse 1s infinite;
+  z-index: 10;
+}
+
 /* Navigation Button Styles - 2025 Holographic */
 .nav-button-group {
   display: flex;

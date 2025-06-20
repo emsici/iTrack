@@ -4,6 +4,7 @@ import { Geolocation } from "@capacitor/geolocation";
 import { GPSData } from './api';
 import { saveGPSCoordinateOffline, syncOfflineGPS, getOfflineGPSCount } from './offlineGPS';
 import { startCourseAnalytics, updateCourseGPS, stopCourseAnalytics } from './courseAnalytics';
+import { logGPS, logGPSError } from './appLogger';
 
 // DirectGPS Plugin pentru activarea EnhancedGPSService
 interface DirectGPSPlugin {
