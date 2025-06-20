@@ -64,81 +64,189 @@ html, body {
 .vehicle-screen {
   min-height: 100vh;
   min-height: 100dvh;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #667eea 50%, #764ba2 75%, #1e3c72 100%);
-  background-size: 400% 400%;
-  animation: gradientShift 20s ease infinite;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 25%, #334155 50%, #475569 75%, #64748b 100%);
+  background-attachment: fixed;
   display: flex;
-  align-items: stretch;
-  justify-content: center;
+  flex-direction: column;
   position: relative;
   overflow: hidden;
   padding: 0;
+  margin: 0;
+}
+
+/* Header top fix - poziționat exact sub bara nativă */
+.vehicle-screen-header {
+  width: 100%;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-brand {
+  text-align: center;
+  color: white;
+}
+
+.header-logo {
+  font-size: 48px;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+.header-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.header-subtitle {
+  font-size: 16px;
+  margin: 5px 0 0 0;
+  color: #94a3b8;
+  font-weight: 300;
+}
+
+/* Iconițe interactive în header - aranjate frumos */
+.header-actions {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.header-icon-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 80px;
+}
+
+.header-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.header-icon-btn i {
+  font-size: 20px;
+  margin-bottom: 2px;
+}
+
+.header-icon-btn span {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-status .status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+.header-status .status-indicator.online {
+  background: #22c55e;
+}
+
+/* Debug trigger în header */
+.debug-trigger {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #94a3b8;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: monospace;
+}
+
+.debug-trigger:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.click-counter {
+  color: #f59e0b;
+  font-weight: bold;
+  margin-left: 5px;
 }
 
 .vehicle-container {
+  flex: 1;
   width: 100%;
-  max-width: 500px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  z-index: 1;
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-  min-height: 100vh;
-  min-height: 100dvh;
-  box-sizing: border-box;
+  padding: 20px;
+  overflow-y: auto;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
-/* Card central unic - design simplificat */
+/* Design corporatist modern - fără margini albe */
 .enterprise-vehicle-access {
-  width: 100%;
-  max-width: 450px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(25px);
-  border-radius: 25px;
-  padding: 50px;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  animation: fadeInUp 0.8s ease-out;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 40px 20px;
 }
 
 .corporate-header-zone {
   width: 100%;
-  margin: 0;
-  padding: 0;
-  background: none;
-  backdrop-filter: none;
-  box-shadow: none;
-  border: none;
+  text-align: center;
+  margin-bottom: 40px;
 }
 
 .brand-identity-section {
-  margin-bottom: 40px;
-  text-align: center;
-  background: none;
-  backdrop-filter: none;
-  border-radius: 0;
-  padding: 0;
-  box-shadow: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 30px;
 }
 
 .access-control-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   width: 100%;
-  background: none;
-  backdrop-filter: none;
-  border-radius: 0;
-  padding: 0;
-  box-shadow: none;
-  border: none;
 }
 
 .vehicle-screen::before {
