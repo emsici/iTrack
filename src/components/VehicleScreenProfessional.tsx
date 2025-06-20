@@ -55,10 +55,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         setCourses(mergedCourses);
         setCoursesLoaded(true);
-        setLastCoursesSync(new Date().toLocaleTimeString('ro-RO', { 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        }));
+        // Courses loaded successfully
       } else {
         setError("Nu s-au găsit curse pentru acest vehicul");
       }
@@ -85,7 +82,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const handleTimestampClick = () => {
     setInfoClickCount(prev => prev + 1);
     if (infoClickCount >= 49) {
-      setShowDebugPanel(true);
+      // Debug panel functionality would be activated here
       setInfoClickCount(0);
     }
   };
@@ -136,7 +133,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     const updateOfflineCount = async () => {
       try {
         const count = await getOfflineGPSCount();
-        setOfflineCount(count);
+        // Offline count updated
       } catch (error) {
         console.error("Error getting offline count:", error);
       }

@@ -420,6 +420,8 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Spațiu header optimizat: 40px sub bara nativă pentru poziționare perfectă pe toate dispozitivele
 - 20 iunie. Formular în header: Eliminat cardul deranjant, mutat formularul în header pe fundalul închis pentru design curat
 - 20 iunie. API funcțional verificat: Endpoint vehicul.php?nr= funcționează corect cu Bearer token pentru IF03CWT
+- 20 iunie. GPS endpoint complet: gps.php acceptă toate datele (hdop, gsm_signal, baterie) și returnează HTTP 200
+- 20 iunie. Proiect curățat: Eliminat fișierele backup/broken VehicleScreenProfessional - verificat că nu sunt folosite
 
 ### Versiune Curentă: iTrack v1807.99
 
