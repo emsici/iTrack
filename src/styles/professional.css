@@ -1343,66 +1343,108 @@ html, body {
   text-align: center;
 }
 
-/* Action Buttons - Matching Card Design */
+/* Action Buttons - Enhanced Course Actions */
 .course-actions {
   display: flex;
-  gap: 12px;
-  padding: 16px 24px;
-  background: rgba(255, 255, 255, 0.03);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 8px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .action-button {
   flex: 1;
-  padding: 12px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  min-height: 38px;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.start-button {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.start-button:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+}
+
+.pause-button {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.pause-button:hover {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+}
+
+.finish-button, .stop-button {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.finish-button:hover, .stop-button:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+}
+
+.resume-button {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.resume-button:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.action-button .spinning {
+  animation: spin 1s linear infinite;
+}
+
+/* Status Badge pentru Finalizat */
+.status-badge {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
+  padding: 12px 16px;
+  background: rgba(156, 163, 175, 0.2);
+  color: #9ca3af;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.start-button {
-  background: #10b981;
-  color: white;
-}
-
-.start-button:hover {
-  background: #059669;
-}
-
-.pause-button {
-  background: #f59e0b;
-  color: white;
-}
-
-.pause-button:hover {
-  background: #d97706;
-}
-
-.finish-button {
-  background: #dc2626;
-  color: white;
-}
-
-.finish-button:hover {
-  background: #b91c1c;
-}
-
-.resume-button {
-  background: #3b82f6;
-  color: white;
-}
-
-.resume-button:hover {
-  background: #2563eb;
+.status-badge.completed {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 /* Loading States */
@@ -2221,6 +2263,16 @@ html, body {
     padding: 15px;
     padding-bottom: calc(env(safe-area-inset-bottom, 15px) + 100px);
     gap: 15px;
+  }
+  
+  .course-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .action-button {
+    width: 100%;
+    flex: none;
   }
 }
 
