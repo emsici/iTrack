@@ -180,6 +180,7 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Architecture updates**: Service layer pattern, error boundaries, optimization
 - **Documentation completă**: README.md actualizat cu structura detaliată a tuturor componentelor
 - **Consolidare documentație**: API.md și ARCHITECTURE.md integrate în README.md pentru organizare simplificată
+- **Localizare completă**: build.bat tradus în română pentru consistență cu toate textele aplicației
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin

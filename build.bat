@@ -1,51 +1,51 @@
 @echo off
 echo ========================================
-echo      iTrack - Build and Open Android
+echo     iTrack - Build si Deschidere Android
 echo ========================================
 echo.
 
-echo [1/4] Installing dependencies...
+echo [1/4] Instalare dependinte...
 call npm install
 if %errorlevel% neq 0 (
-    echo ERROR: npm install failed
+    echo EROARE: npm install esuat
     pause
     exit /b 1
 )
-echo ✓ Dependencies installed
+echo ✓ Dependinte instalate
 
 echo.
-echo [2/4] Building project...
+echo [2/4] Build proiect...
 call npx vite build
 if %errorlevel% neq 0 (
-    echo ERROR: vite build failed
+    echo EROARE: vite build esuat
     pause
     exit /b 1
 )
-echo ✓ Project built
+echo ✓ Proiect compilat
 
 echo.
-echo [3/4] Syncing with Android...
+echo [3/4] Sincronizare cu Android...
 call npx cap sync android
 if %errorlevel% neq 0 (
-    echo ERROR: capacitor sync failed
+    echo EROARE: capacitor sync esuat
     pause
     exit /b 1
 )
-echo ✓ Android synced
+echo ✓ Android sincronizat
 
 echo.
-echo [4/4] Opening Android Studio...
+echo [4/4] Deschidere Android Studio...
 call npx cap open android
 if %errorlevel% neq 0 (
-    echo ERROR: failed to open Android Studio
+    echo EROARE: deschiderea Android Studio esuata
     pause
     exit /b 1
 )
-echo ✓ Android Studio opened
+echo ✓ Android Studio deschis
 
 echo.
 echo ========================================
-echo           Build Complete!
+echo           Build Finalizat!
 echo ========================================
-echo Project ready for testing in Android Studio
+echo Proiect gata pentru testare in Android Studio
 pause
