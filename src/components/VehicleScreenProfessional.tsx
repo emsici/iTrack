@@ -500,22 +500,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <div className="analytics-grid">
                       <div className="analytics-card total-routes">
                         <div className="card-value">{courses.length}</div>
-                        <div className="card-label">CURSE</div>
+                        <div className="card-label">TOTAL CURSE</div>
                         <div className="card-indicator"></div>
                       </div>
                       <div className="analytics-card active-tracking">
                         <div className="card-value">{courses.filter(c => c.status === 2).length}</div>
-                        <div className="card-label">ACTIVE</div>
+                        <div className="card-label">ACTIV</div>
                         <div className="card-indicator active"></div>
                       </div>
                       <div className="analytics-card standby-routes">
                         <div className="card-value">{courses.filter(c => c.status === 3).length}</div>
-                        <div className="card-label">ÎN PAUZĂ</div>
+                        <div className="card-label">PAUZĂ</div>
                         <div className="card-indicator paused"></div>
                       </div>
                       <div className="analytics-card ready-routes">
                         <div className="card-value">{courses.filter(c => c.status === 1).length}</div>
-                        <div className="card-label">DISPONIBILE</div>
+                        <div className="card-label">DISPONIBIL</div>
                         <div className="card-indicator ready"></div>
                       </div>
                     </div>
