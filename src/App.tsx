@@ -11,6 +11,7 @@ const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<AppState>('login');
   const [token, setToken] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [previousToken, setPreviousToken] = useState<string>('');
 
   useEffect(() => {
     const initApp = async () => {
@@ -37,10 +38,12 @@ const App: React.FC = () => {
   }, []);
 
   const handleLogin = (authToken: string) => {
-    setToken(authToken);
     if (authToken === 'ADMIN_TOKEN') {
+      setPreviousToken(token); // Store current session
+      setToken(authToken);
       setCurrentScreen('admin');
     } else {
+      setToken(authToken);
       setCurrentScreen('vehicle');
     }
   };
@@ -66,8 +69,20 @@ const App: React.FC = () => {
       // Clear local storage and reset state regardless of API response
       await clearToken();
       setToken('');
+      setPreviousToken('');
       setCurrentScreen('login');
       console.log('Logged out - cleared local storage');
+    }
+  };
+
+  const handleAdminClose = () => {
+    // Return to previous session if exists, otherwise go to login
+    if (previousToken) {
+      setToken(previousToken);
+      setPreviousToken('');
+      setCurrentScreen('vehicle');
+    } else {
+      setCurrentScreen('login');
     }
   };
 
@@ -88,7 +103,7 @@ const App: React.FC = () => {
         <VehicleScreen token={token} onLogout={handleLogout} />
       )}
       {currentScreen === 'admin' && (
-        <AdminPanel onLogout={handleLogout} />
+        <AdminPanel onLogout={handleLogout} onClose={handleAdminClose} />
       )}
     </div>
   );

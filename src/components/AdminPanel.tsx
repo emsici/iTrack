@@ -3,9 +3,10 @@ import { getAppLogs, clearAppLogs, AppLog } from '../services/appLogger';
 
 interface AdminPanelProps {
   onLogout: () => void;
+  onClose?: () => void;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
+const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
   const [logs, setLogs] = useState<AppLog[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<AppLog[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -85,19 +86,38 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout }) => {
         alignItems: 'center'
       }}>
         <h2 style={{ margin: 0, color: '#1e293b' }}>Admin Panel - Log Console</h2>
-        <button
-          onClick={onLogout}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: '#dc2626',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer'
-          }}
-        >
-          Logout
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {onClose && (
+            <button
+              onClick={onClose}
+              style={{
+                padding: '8px 12px',
+                backgroundColor: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '18px'
+              }}
+              title="Înapoi la aplicație"
+            >
+              ✕
+            </button>
+          )}
+          <button
+            onClick={onLogout}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       <div style={{
