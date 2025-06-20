@@ -2598,6 +2598,28 @@
   letter-spacing: 1px;
 }
 
+.unit-identifier.clickable {
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  user-select: none;
+}
+
+.unit-identifier.clickable:hover {
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2));
+  border-color: rgba(59, 130, 246, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.unit-identifier.clickable:active {
+  transform: translateY(0);
+  transition: all 0.1s ease;
+}
+
 .change-unit {
   font-size: 16px;
   color: #64748b;
