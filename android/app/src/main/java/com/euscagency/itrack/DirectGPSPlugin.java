@@ -73,4 +73,30 @@ public class DirectGPSPlugin extends Plugin {
             call.reject("Failed to stop GPS tracking: " + e.getMessage());
         }
     }
+
+    @PluginMethod
+    public void updateCourseStatus(PluginCall call) {
+        String courseId = call.getString("courseId");
+        Integer status = call.getInt("status");
+
+        Log.d(TAG, "Updating course status: " + courseId + " → Status: " + status);
+
+        try {
+            Intent serviceIntent = new Intent(getContext(), EnhancedGPSService.class);
+            serviceIntent.putExtra("action", "UPDATE_STATUS");
+            serviceIntent.putExtra("courseId", courseId);
+            serviceIntent.putExtra("status", status);
+            
+            getContext().startService(serviceIntent);
+
+            JSObject ret = new JSObject();
+            ret.put("success", true);
+            ret.put("message", "Course status updated successfully");
+            call.resolve(ret);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to update course status: " + e.getMessage());
+            call.reject("Failed to update course status: " + e.getMessage());
+        }
+    }
 }

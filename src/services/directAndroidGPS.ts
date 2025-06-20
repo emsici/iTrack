@@ -30,6 +30,34 @@ interface ActiveCourse {
 class DirectAndroidGPSService {
   private activeCourses: Map<string, ActiveCourse> = new Map();
 
+  async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
+    console.log(`Updating course ${courseId} status to ${newStatus}`);
+    
+    const course = this.activeCourses.get(courseId);
+    if (!course) {
+      console.warn(`Course ${courseId} not found for status update`);
+      return;
+    }
+
+    course.status = newStatus;
+    
+    try {
+      if (Capacitor.isNativePlatform()) {
+        // Call DirectGPS plugin to update status
+        const result = await DirectGPS.updateCourseStatus({
+          courseId: courseId,
+          status: newStatus
+        });
+        console.log('Status update result:', result);
+      } else {
+        console.log(`Web environment: Status would be updated to ${newStatus} in APK`);
+      }
+    } catch (error) {
+      console.error(`Failed to update course status:`, error);
+      throw error;
+    }
+  }
+
   async startTracking(courseId: string, vehicleNumber: string, uit: string, token: string, status: number = 2): Promise<void> {
     console.log(`Starting direct Android GPS for course ${courseId}, UIT: ${uit}`);
     
@@ -341,3 +369,6 @@ export const isGPSTrackingActive = () =>
 
 export const getDirectGPSInfo = () => 
   directAndroidGPSService.getServiceInfo();
+
+export const updateCourseStatus = (courseId: string, newStatus: number) => 
+  directAndroidGPSService.updateCourseStatus(courseId, newStatus);

@@ -158,12 +158,31 @@ public class EnhancedGPSService extends Service implements LocationListener {
     private void updateCourseStatus(String courseId, int newStatus) {
         CourseData course = activeCourses.get(courseId);
         if (course != null) {
+            int oldStatus = course.status;
             course.status = newStatus;
-            Log.i(TAG, "🔄 Course status updated: " + courseId + " → Status: " + newStatus);
+            Log.i(TAG, "🔄 Course status updated: " + courseId + " → Status: " + oldStatus + " → " + newStatus);
+            
+            // Clear single transmission tracking for this status change
+            String oldStatusKey = course.uit + "_" + oldStatus;
+            String newStatusKey = course.uit + "_" + newStatus;
+            singleTransmissionSent.remove(oldStatusKey);
+            singleTransmissionSent.remove(newStatusKey);
             
             // Send immediate GPS update for status change
             if (lastKnownLocation != null) {
                 sendGPSDataForCourse(course, lastKnownLocation);
+                Log.i(TAG, "📤 Immediate status change transmission sent: UIT " + course.uit + " | Status: " + newStatus);
+                
+                // Mark as sent for single transmission tracking
+                if (newStatus == 3 || newStatus == 4) {
+                    singleTransmissionSent.add(newStatusKey);
+                }
+                
+                // Remove course if stopped
+                if (newStatus == 4) {
+                    activeCourses.remove(courseId);
+                    Log.i(TAG, "🛑 Course removed after stop: " + course.uit);
+                }
             }
         }
     }
