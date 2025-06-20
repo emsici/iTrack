@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Course } from "../types";
-import { getVehicleCourses, logout } from "../services/api";
+import { getVehicleCourses, logout, sendGPSData } from "../services/api";
 import {
   startGPSTracking,
   stopGPSTracking,
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
 import { clearToken } from "../services/storage";
-import { getOfflineGPSCount } from "../services/offlineGPS";
+import { getOfflineGPSCount, saveGPSCoordinateOffline } from "../services/offlineGPS";
 import { getAppLogs } from "../services/appLogger";
 
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
@@ -127,9 +127,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         );
       } else if (newStatus === 3) {
         // Pause - Trimite UN update cu status 3, apoi oprește coordonatele
-        const { sendGPSData } = await import('../services/api');
-        const { saveGPSCoordinateOffline } = await import('../services/offlineGPS');
-        
         const gpsData = {
           lat: 0,
           lng: 0,
@@ -156,9 +153,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         await stopGPSTracking(courseId); // Oprește coordonatele continue
       } else if (newStatus === 4) {
         // Finish - Trimite UN update cu status 4, apoi oprește
-        const { sendGPSData } = await import('../services/api');
-        const { saveGPSCoordinateOffline } = await import('../services/offlineGPS');
-        
         const gpsData = {
           lat: 0,
           lng: 0,
