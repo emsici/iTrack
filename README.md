@@ -1,8 +1,8 @@
-# iTrack - Aplicația Profesională de Urmărire GPS 2025
+# iTrack - Aplicația Profesională de Urmărire GPS
 
-Aplicație de ultimă generație pentru urmărirea vehiculelor de transport în timp real, cu design modern holografic și funcționalități GPS avansate. Destinată șoferilor profesioniști pentru gestionarea completă a curselor de transport cu transmisie automată către sistemul ETSM3.
+Aplicație modernă pentru urmărirea vehiculelor de transport în timp real, cu design contemporan și funcționalități GPS avansate. Destinată șoferilor profesioniști pentru gestionarea completă a curselor de transport cu transmisie automată către sistemul ETSM3.
 
-## Funcționalități Avansate 2025
+## Funcționalități Avansate
 
 - **Urmărire GPS ultra-precisă** cu transmisie la 5 secunde și coordonate de 8 zecimale
 - **Sistem offline complet** - salvează automat coordonatele când nu există internet
@@ -151,22 +151,31 @@ Authorization: Bearer <token>
 itrack/
 ├── src/
 │   ├── components/
-│   │   ├── LoginScreen.tsx      # Ecran autentificare
-│   │   ├── VehicleScreen.tsx    # Ecran principal
-│   │   ├── CourseCard.tsx       # Card cursă
-│   │   └── CourseDetailCard.tsx # Detalii cursă
+│   │   ├── LoginScreen.tsx           # Ecran autentificare
+│   │   ├── VehicleScreenProfessional.tsx # Ecran principal
+│   │   ├── CourseCard.tsx            # Card cursă
+│   │   ├── CourseDetailCard.tsx      # Detalii cursă expandabile
+│   │   ├── CourseStatsModal.tsx      # Statistici course
+│   │   ├── AdminPanel.tsx            # Console debug mobil
+│   │   └── OfflineSyncProgress.tsx   # Progress sincronizare
 │   ├── services/
-│   │   ├── api.ts              # Comunicare server
-│   │   ├── nativeGPS.ts        # Control GPS
-│   │   └── storage.ts          # Stocare locală
+│   │   ├── api.ts                    # Comunicare server
+│   │   ├── directAndroidGPS.ts       # Control GPS nativ
+│   │   ├── offlineGPS.ts             # Stocare GPS offline
+│   │   ├── offlineSyncStatus.ts      # Monitorizare sincronizare
+│   │   ├── courseAnalytics.ts        # Statistici cursă
+│   │   └── storage.ts                # Stocare locală
+│   ├── styles/
+│   │   └── professionalVehicleScreen.css # Design glassmorphism
 │   └── types/
-│       └── index.ts            # Tipuri TypeScript
+│       └── index.ts                  # Tipuri TypeScript
 ├── android/
 │   └── app/src/main/java/com/euscagency/itrack/
-│       ├── SimpleGPSService.java   # Serviciu GPS
-│       ├── SimpleGPSPlugin.java    # Plugin Capacitor
-│       └── MainActivity.java       # Activitate principală
-└── build/                      # Build final
+│       ├── EnhancedGPSService.java   # Serviciu GPS principal
+│       ├── DirectGPSPlugin.java      # Plugin Capacitor
+│       └── MainActivity.java         # Activitate principală
+├── dist/                             # Build final web
+└── build/                            # Build Android
 ```
 
 ## Permisiuni Android

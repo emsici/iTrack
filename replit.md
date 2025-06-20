@@ -10,7 +10,7 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - **Instrument Build**: Vite 6.3.5 pentru dezvoltare rapidă și build-uri optimizate
 - **Framework UI**: Design responsiv cu stiluri glassmorphism moderne 2025
 - **Iconografie**: Font Awesome 6.4.0 pentru consistență vizuală
-- **Stilizare**: CSS avansat cu backdrop-filter, conic-gradient și animații 3D
+- **Stilizare**: CSS avansat cu backdrop-filter, conic-gradient și animații 3D moderne
 
 ### Integrarea Platformei Mobile
 - **Framework Cross-Platform**: Capacitor 7.3.0 pentru implementare aplicații mobile native

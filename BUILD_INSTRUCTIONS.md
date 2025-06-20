@@ -1,4 +1,4 @@
-# Instrucțiuni de Compilare iTrack GPS 2025
+# Instrucțiuni de Compilare iTrack GPS
 
 Ghid complet pentru compilarea aplicației profesionale de urmărire GPS iTrack pentru implementare Android cu funcționalități native avansate.
 
@@ -116,7 +116,7 @@ npx cap open android
 ### Build Complet Windows (build.bat)
 ```bash
 @echo off
-echo === iTrack GPS Build Process 2025 ===
+echo === iTrack GPS Build Process ===
 
 echo [1/4] Curățare build anterior...
 if exist dist rmdir /s /q dist
@@ -224,7 +224,7 @@ npx cap build android
    # - FOREGROUND_SERVICE permission
    ```
 
-## Optimizări Performanță 2025
+## Optimizări Performanță
 
 ### Optimizări Build Size
 ```bash
