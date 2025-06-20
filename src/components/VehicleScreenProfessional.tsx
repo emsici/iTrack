@@ -269,25 +269,27 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showAdminModal, setShowAdminModal] = useState(false);
 
   const handleTimestampClick = async () => {
-    // Admin access only on timestamp clicks
+    // Debug logs access with 50 clicks
     const newClickCount = infoClickCount + 1;
     setInfoClickCount(newClickCount);
     
-    if (newClickCount === 20) {
-      console.log("🔓 Admin mode activated - showing admin modal");
+    if (newClickCount === 50) {
+      console.log("🔧 Debug logs activated");
       setInfoClickCount(0);
-      setShowAdminModal(true);
+      // Show logs directly in console and activate debug mode
+      console.log("📊 Debug Mode Activated - Enhanced logging enabled");
+      localStorage.setItem('debug_mode', 'true');
       return;
     }
     
-    if (newClickCount >= 10) {
+    if (newClickCount >= 25) {
       // Reset counter after 5 seconds if not continued
       setTimeout(() => {
         setInfoClickCount(0);
       }, 5000);
     }
     
-    console.log(`🔄 Admin click count: ${newClickCount}/20`);
+    console.log(`🔄 Debug click count: ${newClickCount}/50`);
   };
 
   const handleShowInfo = () => {
@@ -449,60 +451,52 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <div className="courses-section">
             <div className="executive-control-center">
               <div className="command-dashboard">
-                <div className="control-header-centered">
-                  <div className="system-identity-centered">
-                    <div className="corporate-logo">
-                      <div className="logo-emblem">
-                        <i className="fas fa-cube"></i>
-                      </div>
-                      <div className="brand-text">
-                        <div className="company-name">iTrack</div>
-                      </div>
+                <div className="control-header-redesigned">
+                  <div className="header-brand-section">
+                    <div className="logo-emblem">
+                      <i className="fas fa-cube"></i>
+                    </div>
+                    <div className="company-name">iTrack</div>
+                  </div>
+
+                  
+                  <div className="vehicle-number-section">
+                    <div className="vehicle-display-centered">
+                      <i className="fas fa-truck-moving vehicle-icon"></i>
+                      <span className="vehicle-number">{vehicleNumber}</span>
+                      <span 
+                        className="admin-timestamp"
+                        onClick={handleTimestampClick}
+                        title="Click 50 de ori pentru debug logs"
+                      >
+                        {new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
+                        {infoClickCount >= 25 && (
+                          <span className="admin-counter">{infoClickCount}</span>
+                        )}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="vehicle-management-panel">
-                    <div className="active-unit-section">
-                      <div className="section-header">ACTIVE UNIT</div>
-                      <div className="unit-control">
-                        <div 
-                          className="unit-display"
-                          onClick={() => {
-                            setCoursesLoaded(false);
-                            setCourses([]);
-                            setVehicleNumber('');
-                          }}
-                        >
-                          <i className="fas fa-truck-moving unit-icon"></i>
-                          <span className="unit-identifier">
-                            {vehicleNumber}
-                          </span>
-                          <i className="fas fa-exchange-alt change-unit"></i>
-                        </div>
-                      </div>
+                  <div className="analytics-grid-centered">
+                    <div className="analytics-card total-routes">
+                      <div className="card-value">{courses.length}</div>
+                      <div className="card-label">TOTAL CURSE</div>
+                      <div className="card-indicator"></div>
                     </div>
-
-                    <div className="analytics-grid">
-                      <div className="analytics-card total-routes">
-                        <div className="card-value">{courses.length}</div>
-                        <div className="card-label">TOTAL CURSE</div>
-                        <div className="card-indicator"></div>
-                      </div>
-                      <div className="analytics-card active-tracking">
-                        <div className="card-value">{courses.filter(c => c.status === 2).length}</div>
-                        <div className="card-label">ACTIV</div>
-                        <div className="card-indicator active"></div>
-                      </div>
-                      <div className="analytics-card standby-routes">
-                        <div className="card-value">{courses.filter(c => c.status === 3).length}</div>
-                        <div className="card-label">PAUZĂ</div>
-                        <div className="card-indicator paused"></div>
-                      </div>
-                      <div className="analytics-card ready-routes">
-                        <div className="card-value">{courses.filter(c => c.status === 1).length}</div>
-                        <div className="card-label">DISPONIBIL</div>
-                        <div className="card-indicator ready"></div>
-                      </div>
+                    <div className="analytics-card active-tracking">
+                      <div className="card-value">{courses.filter(c => c.status === 2).length}</div>
+                      <div className="card-label">ACTIV</div>
+                      <div className="card-indicator active"></div>
+                    </div>
+                    <div className="analytics-card standby-routes">
+                      <div className="card-value">{courses.filter(c => c.status === 3).length}</div>
+                      <div className="card-label">PAUZĂ</div>
+                      <div className="card-indicator paused"></div>
+                    </div>
+                    <div className="analytics-card ready-routes">
+                      <div className="card-value">{courses.filter(c => c.status === 1).length}</div>
+                      <div className="card-label">DISPONIBIL</div>
+                      <div className="card-indicator ready"></div>
                     </div>
                   </div>
                 </div>
@@ -688,25 +682,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </button>
             )}
 
-            <span 
-              className="nav-timestamp"
-              onClick={handleTimestampClick}
-              style={{ 
-                fontSize: '13px', 
-                color: '#64748b', 
-                cursor: 'pointer',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                transition: 'background 0.2s ease'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              {new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
-              {infoClickCount >= 10 && (
-                <span className="admin-counter">{infoClickCount}</span>
-              )}
-            </span>
+
             <button
               className="nav-button logout-nav-button"
               onClick={handleLogout}
@@ -828,50 +804,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
 
 
-      {/* Admin Access Modal */}
-      {showAdminModal && (
-        <div className="admin-modal-overlay" onClick={() => setShowAdminModal(false)}>
-          <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h3>🔐 Acces Administrator</h3>
-              <button onClick={() => setShowAdminModal(false)} className="modal-close">
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            <div className="admin-modal-body">
-              <div className="admin-options">
-                <button 
-                  className="admin-option-btn logs-btn"
-                  onClick={() => {
-                    setShowAdminModal(false);
-                    console.log("🔧 Debug logs activated - check browser console");
-                    // Activate enhanced logging
-                    localStorage.setItem('debug_mode', 'true');
-                  }}
-                >
-                  <i className="fas fa-bug"></i>
-                  Activează Debug Logs
-                </button>
-                <button 
-                  className="admin-option-btn info-btn"
-                  onClick={() => {
-                    setShowAdminModal(false);
-                    console.log("📱 System info:", {
-                      userAgent: navigator.userAgent,
-                      online: navigator.onLine,
-                      courses: courses.length,
-                      vehicleNumber
-                    });
-                  }}
-                >
-                  <i className="fas fa-info-circle"></i>
-                  System Info
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Monitorizare GPS Offline */}
       <OfflineGPSMonitor 

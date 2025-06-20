@@ -100,7 +100,7 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
     if (offlineCount > 0) {
       return 'Date GPS în așteptare';
     }
-    return 'Conexiune GPS Stabilă';
+    return 'GPS Activ';
   };
 
   const getSubStatusText = () => {

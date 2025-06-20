@@ -2,7 +2,7 @@
 
 Aplicație modernă pentru urmărirea vehiculelor de transport în timp real, cu design contemporan și funcționalități GPS avansate. Destinată șoferilor profesioniști pentru gestionarea completă a curselor de transport cu transmisie automată către sistemul ETSM3.
 
-## Funcționalități Avansate
+## Funcționalități 
 
 - **Urmărire GPS ultra-precisă** cu transmisie la 5 secunde și coordonate de 8 zecimale
 - **Sistem offline complet** - salvează automat coordonatele când nu există internet
@@ -15,7 +15,7 @@ Aplicație modernă pentru urmărirea vehiculelor de transport în timp real, cu
 - **Sistem triplu de backup** pentru activarea GPS garantată în APK
 - **Cleanup complet la logout** - zero date GPS sau coordonate rămase
 
-## Stack Tehnologic Modern
+## Stack 
 
 - **React 19.1.0** cu TypeScript pentru interfață avansată și siguranță tipurilor
 - **Vite 6.3.5** pentru build rapid și optimizat cu tree-shaking
@@ -25,7 +25,7 @@ Aplicație modernă pentru urmărirea vehiculelor de transport în timp real, cu
 - **CSS modern** cu backdrop-filter, conic-gradient și animații 3D
 - **Offline storage** cu SharedPreferences Android pentru persistență
 
-## Instalare Dezvoltare
+## Instalare 
 
 ```bash
 # Clonare proiect
@@ -52,7 +52,7 @@ npx cap sync android
 npx cap open android
 ```
 
-## Utilizare Aplicație
+## Utilizare 
 
 ### 1. Autentificare
 - Deschide aplicația
@@ -130,7 +130,7 @@ Aplicația include sistem complet de stocare offline și sincronizare automată:
 - **GPS Offline**: Sincronizare automată în fundal
 - **Refresh Curselor**: Control manual/auto independent (30s interval)
 
-## Componente Cheie
+## Componente 
 
 ### Interface Utilizator
 - **VehicleScreenProfessional.tsx** - ecranul principal cu design glassmorphism modern
@@ -181,7 +181,7 @@ Authorization: Bearer <token>
 }
 ```
 
-## Structura Proiect
+## Structura proiect
 
 ```
 itrack/
