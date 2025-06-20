@@ -33,6 +33,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncInProgress, setSyncInProgress] = useState(false);
   const [lastCoursesSync, setLastCoursesSync] = useState<string>('');
+  const [logoutClickCount, setLogoutClickCount] = useState(0);
 
 
   const handleLoadCourses = async () => {
