@@ -266,7 +266,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
 
   const handleTimestampClick = async () => {
     // Debug logs access with 50 clicks
@@ -274,15 +275,32 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     setInfoClickCount(newClickCount);
     
     if (newClickCount === 50) {
-      console.log("🔧 Debug logs activated");
+      console.log("🔧 Debug panel activated");
       setInfoClickCount(0);
-      // Show logs directly in console and activate debug mode
-      console.log("📊 Debug Mode Activated - Enhanced logging enabled");
-      localStorage.setItem('debug_mode', 'true');
+      // Collect logs and show debug panel
+      const logs = [
+        `${new Date().toLocaleString()} - Debug panel activated`,
+        `Vehicle: ${vehicleNumber}`,
+        `Courses loaded: ${courses.length}`,
+        `Online status: ${isOnline}`,
+        `Navigator online: ${navigator.onLine}`,
+        `User agent: ${navigator.userAgent}`,
+        `Local storage debug mode: ${localStorage.getItem('debug_mode')}`,
+        `Offline GPS count: ${offlineCount}`,
+        `Sync in progress: ${syncInProgress}`,
+        `Auto refresh: ${autoRefresh}`,
+        `Last courses sync: ${lastCoursesSync}`,
+        `Current timestamp: ${new Date().toISOString()}`,
+        `Active courses: ${courses.filter(c => c.status === 2).length}`,
+        `Available courses: ${courses.filter(c => c.status === 1).length}`,
+        `Paused courses: ${courses.filter(c => c.status === 3).length}`,
+      ];
+      setDebugLogs(logs);
+      setShowDebugPanel(true);
       return;
     }
     
-    if (newClickCount >= 25) {
+    if (newClickCount >= 30) {
       // Reset counter after 5 seconds if not continued
       setTimeout(() => {
         setInfoClickCount(0);
@@ -470,7 +488,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         title="Click 50 de ori pentru debug logs"
                       >
                         {new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
-                        {infoClickCount >= 25 && (
+                        {infoClickCount >= 30 && (
                           <span className="admin-counter">{infoClickCount}</span>
                         )}
                       </span>
@@ -805,6 +823,59 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
 
 
+
+      {/* Debug Panel Overlay */}
+      {showDebugPanel && (
+        <div className="debug-panel-overlay" onClick={() => setShowDebugPanel(false)}>
+          <div className="debug-panel-content" onClick={(e) => e.stopPropagation()}>
+            <div className="debug-panel-header">
+              <h3>🔧 Debug Logs - iTrack v1807.99</h3>
+              <button onClick={() => setShowDebugPanel(false)} className="debug-close-btn">
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="debug-panel-body">
+              <div className="debug-logs-container">
+                {debugLogs.map((log, index) => (
+                  <div key={index} className="debug-log-entry">
+                    <span className="debug-log-index">{index + 1}</span>
+                    <span className="debug-log-text">{log}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="debug-panel-footer">
+                <button 
+                  className="debug-action-btn"
+                  onClick={() => {
+                    const allLogs = debugLogs.join('\n');
+                    navigator.clipboard.writeText(allLogs);
+                    console.log("📋 Logs copied to clipboard");
+                  }}
+                >
+                  <i className="fas fa-copy"></i>
+                  Copiază Logs
+                </button>
+                <button 
+                  className="debug-action-btn"
+                  onClick={() => {
+                    console.log("🔄 Refreshing debug data...");
+                    const newLogs = [
+                      ...debugLogs,
+                      `${new Date().toLocaleString()} - Debug data refreshed`,
+                      `Memory usage: ${(performance as any).memory ? Math.round((performance as any).memory.usedJSHeapSize / 1024 / 1024) + ' MB' : 'N/A'}`,
+                      `Page load time: ${performance.now().toFixed(2)}ms`
+                    ];
+                    setDebugLogs(newLogs);
+                  }}
+                >
+                  <i className="fas fa-refresh"></i>
+                  Refresh Data
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Monitorizare GPS Offline */}
       <OfflineGPSMonitor 
