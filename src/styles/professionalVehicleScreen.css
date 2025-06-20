@@ -27,11 +27,32 @@
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 80%, rgba(120, 119, 198, 0.2) 0%, transparent 50%);
+    radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.4) 0%, transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 45%),
+    radial-gradient(circle at 40% 80%, rgba(245, 93, 251, 0.3) 0%, transparent 40%),
+    radial-gradient(circle at 60% 30%, rgba(79, 172, 254, 0.25) 0%, transparent 35%);
+  animation: particleFloat 25s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
+}
+
+@keyframes particleFloat {
+  0%, 100% {
+    background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    background-position: 25% 25%, 75% 25%, 25% 75%, 75% 75%;
+    transform: scale(1.1) rotate(90deg);
+  }
+  50% {
+    background-position: 50% 50%, 50% 50%, 50% 50%, 50% 50%;
+    transform: scale(0.9) rotate(180deg);
+  }
+  75% {
+    background-position: 75% 75%, 25% 75%, 75% 25%, 25% 25%;
+    transform: scale(1.05) rotate(270deg);
+  }
 }
 
 .vehicle-container {
@@ -41,24 +62,27 @@
   z-index: 1;
 }
 
-/* Header Section - 2025 Neomorphism */
+/* Header Section - 2025 Neomorphism with Depth */
 .vehicle-header {
   background: 
-    linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05)),
-    linear-gradient(145deg, rgba(120, 119, 198, 0.1), rgba(255, 255, 255, 0.1));
-  backdrop-filter: blur(40px) saturate(1.8);
-  border-radius: 32px;
-  padding: 40px;
-  margin-bottom: 40px;
+    linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08)),
+    linear-gradient(145deg, rgba(120, 119, 198, 0.12), rgba(255, 255, 255, 0.12)),
+    radial-gradient(circle at 30% 30%, rgba(79, 172, 254, 0.15) 0%, transparent 70%);
+  backdrop-filter: blur(60px) saturate(2);
+  border-radius: 40px;
+  padding: 48px;
+  margin-bottom: 48px;
   box-shadow: 
-    0 32px 64px rgba(0, 0, 0, 0.25),
-    0 16px 32px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+    0 40px 80px rgba(0, 0, 0, 0.3),
+    0 20px 40px rgba(0, 0, 0, 0.2),
+    inset 0 2px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.15),
+    0 0 0 2px rgba(255, 255, 255, 0.25),
+    0 0 100px rgba(120, 119, 198, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.35);
   position: relative;
   overflow: hidden;
+  transform-style: preserve-3d;
   animation: slideInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
