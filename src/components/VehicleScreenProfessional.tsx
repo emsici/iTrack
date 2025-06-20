@@ -42,6 +42,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       return;
     }
 
+    // Check network connectivity before attempting to load
+    if (!isOnline || !navigator.onLine) {
+      console.log("🔌 No internet connection - cannot load courses");
+      setError("Nu există conexiune la internet. Cursele nu pot fi încărcate.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -142,14 +149,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   }, [coursesLoaded]);
 
-  // Auto-refresh effect
+  // Auto-refresh effect with network check
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
     if (autoRefresh && coursesLoaded && vehicleNumber) {
       interval = setInterval(() => {
-        handleLoadCourses();
-      }, 30000); // Refresh every 30 seconds
+        // Only refresh if online
+        if (isOnline && navigator.onLine) {
+          console.log("🔄 Auto-refresh: reloading courses");
+          handleLoadCourses();
+        } else {
+          console.log("⏸️ Auto-refresh: skipped (no internet connection)");
+        }
+      }, 30000); // Check every 30 seconds
     }
     
     return () => {
@@ -157,7 +170,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         clearInterval(interval);
       }
     };
-  }, [autoRefresh, coursesLoaded, vehicleNumber]);
+  }, [autoRefresh, coursesLoaded, vehicleNumber, isOnline]);
 
   const handleCourseAction = async (
     course: Course,

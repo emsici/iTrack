@@ -442,22 +442,31 @@ body {
 .login-screen {
   min-height: 100vh;
   min-height: 100dvh; /* Dynamic viewport height for mobile */
+  width: 100vw;
+  max-width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 20px;
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  position: relative;
-  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .login-container {
   background: white;
-  padding: 40px;
+  padding: 32px 24px;
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .login-header {
@@ -604,7 +613,7 @@ body {
   cursor: not-allowed;
 }
 
-/* Responsive Design */
+/* Mobile Responsive Design */
 @media (max-width: 768px) {
   .vehicle-screen {
     padding: 8px;
@@ -628,6 +637,16 @@ body {
   .course-actions {
     flex-direction: column;
   }
+  
+  .login-screen {
+    padding: 16px;
+  }
+  
+  .login-container {
+    padding: 24px 20px;
+    max-width: 100%;
+    margin: 0;
+  }
 }
 
 @media (max-width: 480px) {
@@ -646,5 +665,45 @@ body {
   
   .card-value {
     font-size: 18px;
+  }
+  
+  .login-screen {
+    padding: 12px;
+  }
+  
+  .login-container {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+  
+  .login-title {
+    font-size: 20px;
+  }
+}
+
+/* iPhone specific fixes */
+@media screen and (max-width: 414px) {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .login-screen {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px;
+    margin: 0;
+  }
+  
+  .login-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 24px 16px;
   }
 }
