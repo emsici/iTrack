@@ -1,7 +1,9 @@
 // GPS direct Android prin Capacitor plugin - funcționează în background
 import { Capacitor } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
-// Offline GPS imports will be integrated when needed
+import { GPSData } from './api';
+import { saveGPSCoordinateOffline, syncOfflineGPS, getOfflineGPSCount } from './offlineGPS';
+import { startCourseAnalytics, updateCourseGPS, stopCourseAnalytics } from './courseAnalytics';
 
 // DirectGPS Plugin pentru activarea EnhancedGPSService
 interface DirectGPSPlugin {
@@ -90,6 +92,10 @@ class DirectAndroidGPSService {
     this.activeCourses.set(courseId, courseData);
 
     try {
+      // Start course analytics tracking
+      await startCourseAnalytics(courseId, uit, vehicleNumber);
+      console.log(`📊 Started analytics tracking for course: ${courseId}`);
+
       if (Capacitor.isNativePlatform()) {
         // Pentru Android APK - activează serviciul nativ direct
         await this.startAndroidNativeService(courseData);
@@ -97,6 +103,9 @@ class DirectAndroidGPSService {
         // Pentru web - doar logging
         console.log("Web environment: Android service would start in APK");
         console.log(`GPS tracking configured for UIT: ${uit}`);
+        
+        // Start web-compatible GPS for development/testing
+        await this.startWebCompatibleGPS(courseData);
       }
     } catch (error) {
       console.error(`Failed to start Android GPS service:`, error);
@@ -112,6 +121,10 @@ class DirectAndroidGPSService {
     if (!course) return;
 
     try {
+      // Stop course analytics tracking
+      await stopCourseAnalytics(courseId);
+      console.log(`📊 Stopped analytics tracking for course: ${courseId}`);
+
       if (Capacitor.isNativePlatform()) {
         await this.stopAndroidNativeService(courseId);
       } else {
@@ -317,7 +330,7 @@ class DirectAndroidGPSService {
         timeout: 10000,
       });
 
-      const gpsData = {
+      const gpsData: GPSData = {
         lat: position.coords.latitude,
         lng: position.coords.longitude,
         timestamp: new Date().toISOString(),
@@ -328,35 +341,59 @@ class DirectAndroidGPSService {
         numar_inmatriculare: course.vehicleNumber,
         uit: course.uit,
         status: course.status.toString(),
-        hdop: Math.round(position.coords.accuracy || 999),
+        hdop: (position.coords.accuracy || 999).toString(),
         gsm_signal: "100",
       };
 
       console.log("Test GPS data prepared:", gpsData);
 
-      // Test HTTP transmission
-      const response = await fetch(
-        "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${course.token}`,
-            "User-Agent": "iTrack/2.0 Web-Test-ALIN",
-          },
-          body: JSON.stringify(gpsData),
-        },
+      // Update course analytics with GPS data
+      await updateCourseGPS(
+        course.courseId,
+        gpsData.lat,
+        gpsData.lng,
+        gpsData.viteza,
+        position.coords.accuracy || 0
       );
 
-      if (response.ok) {
-        console.log("GPS test transmission successful!");
-        console.log("Response status:", response.status);
-      } else {
-        console.log(
-          "GPS test transmission failed:",
-          response.status,
-          response.statusText,
+      // Test offline storage functionality
+      const offlineCount = await getOfflineGPSCount();
+      console.log(`Current offline coordinates: ${offlineCount}`);
+
+      // Test HTTP transmission
+      try {
+        const response = await fetch(
+          "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${course.token}`,
+              "User-Agent": "iTrack/2.0 Web-Test",
+            },
+            body: JSON.stringify(gpsData),
+          },
         );
+
+        if (response.ok) {
+          console.log("GPS test transmission successful!");
+          console.log("Response status:", response.status);
+          
+          // Test sync offline coordinates
+          if (offlineCount > 0) {
+            await syncOfflineGPS();
+          }
+        } else {
+          console.log("GPS test transmission failed:", response.status);
+          
+          // Save to offline storage when transmission fails
+          await saveGPSCoordinateOffline(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
+        }
+      } catch (fetchError) {
+        console.log("Network error during test transmission:", fetchError);
+        
+        // Save to offline storage when network error
+        await saveGPSCoordinateOffline(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
       }
     } catch (error) {
       console.error("GPS test transmission error:", error);
