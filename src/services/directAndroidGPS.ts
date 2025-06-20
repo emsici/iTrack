@@ -6,6 +6,7 @@ import { saveGPSCoordinateOffline, syncOfflineGPS, getOfflineGPSCount } from './
 import { startCourseAnalytics, updateCourseGPS, stopCourseAnalytics } from './courseAnalytics';
 import { logGPS, logGPSError } from './appLogger';
 
+
 // DirectGPS Plugin pentru activarea EnhancedGPSService
 interface DirectGPSPlugin {
   startTracking(options: {

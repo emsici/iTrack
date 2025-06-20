@@ -683,12 +683,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 {autoRefresh && <span className="auto-indicator">AUTO</span>}
               </button>
             )}
-            <button
-              className="nav-button stats-nav-button"
-              onClick={() => setShowStats(true)}
-            >
-              <i className="fas fa-chart-line"></i>
-            </button>
+
             <button
               className="nav-button info-nav-button"
               onClick={handleShowInfo}
