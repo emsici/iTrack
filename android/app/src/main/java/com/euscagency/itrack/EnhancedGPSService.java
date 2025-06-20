@@ -245,6 +245,22 @@ public class EnhancedGPSService extends Service implements LocationListener {
         };
     }
     
+    private void initializeOfflineStorage() {
+        offlineStorage = getSharedPreferences(OFFLINE_GPS_PREFS, Context.MODE_PRIVATE);
+        Log.i(TAG, "💾 Offline storage initialized");
+        
+        // Check existing offline coordinates count
+        try {
+            String existingData = offlineStorage.getString(OFFLINE_COORDS_KEY, "[]");
+            JSONArray coordinates = new JSONArray(existingData);
+            if (coordinates.length() > 0) {
+                Log.i(TAG, "📦 Found " + coordinates.length() + " offline coordinates waiting for sync");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error reading offline coordinates: " + e.getMessage());
+        }
+    }
+    
     private void startLocationTracking() {
         try {
             // GPS provider optimized for 5-second transmission intervals

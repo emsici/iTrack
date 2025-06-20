@@ -220,14 +220,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                       <div className="detail-value">{course.vama}</div>
                     </div>
                   </div>
-                  {course.birouVamal && (
-                    <div className="detail-item">
-                      <div className="detail-content">
-                        <div className="detail-label">Birou Vamal:</div>
-                        <div className="detail-value">{course.birouVamal}</div>
-                      </div>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Birou Vamal:</div>
+                      <div className="detail-value">{course.birouVamal || 'Nu este disponibil'}</div>
                     </div>
-                  )}
+                  </div>
                   <div className="detail-item">
                     <div className="detail-content">
                       <div className="detail-label">Județ:</div>
@@ -255,14 +253,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                       <div className="detail-value">{course.vamaStop}</div>
                     </div>
                   </div>
-                  {course.birouVamalStop && (
-                    <div className="detail-item">
-                      <div className="detail-content">
-                        <div className="detail-label">Birou Vamal Stop:</div>
-                        <div className="detail-value">{course.birouVamalStop}</div>
-                      </div>
+                  <div className="detail-item">
+                    <div className="detail-content">
+                      <div className="detail-label">Birou Vamal Stop:</div>
+                      <div className="detail-value">{course.birouVamalStop || 'Nu este disponibil'}</div>
                     </div>
-                  )}
+                  </div>
                   <div className="detail-item">
                     <div className="detail-content">
                       <div className="detail-label">Județ Stop:</div>
