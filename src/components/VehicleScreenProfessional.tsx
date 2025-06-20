@@ -377,18 +377,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         <div className="unit-display">
                           <i className="fas fa-truck-moving unit-icon"></i>
                           <span 
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
+                            onClick={() => {
                               setCoursesLoaded(false);
                               setCourses([]);
                               setVehicleNumber('');
                             }}
-                            className="unit-identifier clickable"
-                            title="Schimbă vehiculul"
+                            className="unit-identifier"
                           >
                             {vehicleNumber}
                           </span>
+                          <i className="fas fa-exchange-alt change-unit"></i>
                         </div>
                       </div>
                     </div>
@@ -542,17 +540,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       <div className="bottom-navigation">
         <div className="nav-container">
-          <div className="app-branding">
-            <i className="fas fa-location-arrow"></i>
-            <span>iTrack GPS</span>
-          </div>
           <div className="nav-actions">
             <button
               className="nav-button stats-nav-button"
               onClick={() => setShowStats(true)}
             >
               <i className="fas fa-chart-line"></i>
-              Stats
             </button>
             <button
               className="nav-button info-nav-button"

@@ -94,6 +94,7 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
     if (response.status === 200) {
       const responseData = response.data;
       if (responseData.status === 'success' && Array.isArray(responseData.data)) {
+        console.log('API Response - First course data:', JSON.stringify(responseData.data[0], null, 2));
         return responseData.data.map((course: any, index: number) => ({
           id: course.ikRoTrans?.toString() || `course_${index}`,
           name: `ikRoTrans: ${course.ikRoTrans}`,
