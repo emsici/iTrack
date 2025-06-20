@@ -1456,6 +1456,11 @@ html, body {
   }
 }
 
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 /* Grid responsive pentru 5 carduri */
 .analytics-grid-centered {
   display: grid;
@@ -1600,18 +1605,21 @@ html, body {
   width: 100%;
   max-width: 200px;
   background: #f1f5f9;
-  border-radius: 6px;
-  height: 8px;
+  border-radius: 8px;
+  height: 12px;
   overflow: hidden;
   position: relative;
+  border: 1px solid #e2e8f0;
+  margin-top: 8px;
 }
 
 .sync-progress-bar {
   height: 100%;
   background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-  border-radius: 6px;
-  transition: width 0.3s ease;
+  border-radius: 7px;
+  transition: width 0.5s ease;
   position: relative;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
 }
 
 .sync-progress-bar::after {
@@ -1629,8 +1637,9 @@ html, body {
   font-size: 12px;
   color: #475569;
   font-weight: 600;
-  margin-top: 4px;
+  margin-top: 6px;
   text-align: center;
+  letter-spacing: 0.5px;
 }
 
 /* Responsive Design */
