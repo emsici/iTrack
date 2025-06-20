@@ -148,17 +148,27 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
     console.log('=== VEHICLE COURSES RESPONSE ===');
     console.log('Status:', response.status);
     console.log('Response Data:', JSON.stringify(response.data, null, 2));
+    console.log('Response Type:', typeof response.data);
+    console.log('Response Keys:', Object.keys(response.data || {}));
     
-    logAPI(`Initial response: status=${response.status}, data=${JSON.stringify(response.data)}`);
+    logAPI(`Initial response: status=${response.status}, type=${typeof response.data}, keys=[${Object.keys(response.data || {}).join(',')}]`);
+    logAPI(`Response data: ${JSON.stringify(response.data).substring(0, 200)}...`);
 
     if (response.status === 200) {
       const responseData = response.data;
       console.log('Response Data Status:', responseData.status);
       console.log('Response Data Array Check:', Array.isArray(responseData.data));
       console.log('Response Data Length:', responseData.data?.length);
+      console.log('Status check:', responseData.status === 'success');
+      console.log('Array check:', Array.isArray(responseData.data));
+      console.log('Length check:', responseData.data && responseData.data.length > 0);
+      
+      logAPI(`Validation: status=${responseData.status}, isArray=${Array.isArray(responseData.data)}, length=${responseData.data?.length}`);
       
       // Check if we have valid data - either direct array or success with data array
       if (responseData.status === 'success' && Array.isArray(responseData.data) && responseData.data.length > 0) {
+        console.log('=== VALIDATION PASSED - PROCESSING DATA ===');
+        logAPI(`Validation passed - processing ${responseData.data.length} courses`);
         return responseData.data.map((course: any, index: number) => ({
           id: course.ikRoTrans?.toString() || `course_${index}`,
           name: `ikRoTrans: ${course.ikRoTrans}`,
@@ -217,7 +227,14 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
           denumireLocStop: course.denumireLocStop
         }));
       } else {
-        console.log('No valid data found in response - attempting retry');
+        console.log('=== VALIDATION FAILED - DETAILED ANALYSIS ===');
+        console.log('Failed conditions:');
+        console.log('  - status === "success":', responseData.status === 'success', `(actual: "${responseData.status}")`);
+        console.log('  - Array.isArray(data):', Array.isArray(responseData.data), `(actual type: ${typeof responseData.data})`);
+        console.log('  - data.length > 0:', responseData.data?.length > 0, `(actual length: ${responseData.data?.length})`);
+        console.log('Full response structure:', JSON.stringify(responseData, null, 2));
+        
+        logAPI(`VALIDATION FAILED: status="${responseData.status}", isArray=${Array.isArray(responseData.data)}, length=${responseData.data?.length}`);
         logAPI(`No data in initial response for ${vehicleNumber} - attempting retry in 1 second`);
         
         // Retry once more with a small delay to handle server cache issues
