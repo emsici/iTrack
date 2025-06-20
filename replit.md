@@ -8,7 +8,7 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 ### Arhitectura Frontend
 - **Framework**: React 19.1.0 cu TypeScript pentru siguranță tipurilor și performanță
 - **Instrument Build**: Vite 6.3.5 pentru dezvoltare rapidă și build-uri optimizate
-- **Framework UI**: Design responsiv cu stiluri glassmorphism moderne 2025
+- **Framework UI**: Design responsiv cu stiluri glassmorphism moderne
 - **Iconografie**: Font Awesome 6.4.0 pentru consistență vizuală
 - **Stilizare**: CSS avansat cu backdrop-filter, conic-gradient și animații 3D moderne
 
@@ -369,11 +369,17 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - June 20, 2025. Updated CourseStatsModal with modern corporate glassmorphism design matching main interface
 - June 20, 2025. Enhanced course details display with proper customs office information from API data
 - June 20, 2025. Verified API integration shows complete address data: "TRIBUNUL CORCHES NR 2 B" and "FAGULUI NR 52"
-- June 20, 2025. MODERNIZED 2025 DESIGN: Implemented cutting-edge visual elements with conic gradients and particle animations
+- June 20, 2025. MODERNIZED DESIGN: Implemented cutting-edge visual elements with conic gradients and particle animations
 - June 20, 2025. Added holographic shimmer effects, neomorphism depth mapping, and floating navigation design
 - June 20, 2025. Enhanced with contemporary typography (Inter font), backdrop blur saturation, and micro-interactions
 - June 20, 2025. Implemented advanced CSS animations: particle float, shimmer effects, and 3D transform perspectives
+- June 20, 2025. DOCUMENTATION UPDATE: Corrected project structure in README.md and BUILD_INSTRUCTIONS.md
+- June 20, 2025. Eliminated all "2025" references from documentation per user preference (sounds unprofessional)
+- June 20, 2025. Updated all documentation to Romanian language for consistency
+- June 20, 2025. Fixed project structure to reflect actual components: VehicleScreenProfessional, CourseStatsModal, AdminPanel, etc.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Avoid using "2025" references in documentation as they sound unprofessional ("manelist").
+Documentation language: Romanian (română) for all project files.
