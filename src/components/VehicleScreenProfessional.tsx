@@ -3,7 +3,6 @@ import { Course } from '../types';
 import { getVehicleCourses, logout } from '../services/api';
 import { startGPSTracking, stopGPSTracking } from '../services/directAndroidGPS';
 import { clearToken } from '../services/storage';
-import CourseDetailCard from './CourseDetailCard';
 import '../styles/professionalVehicleScreen.css';
 
 interface VehicleScreenProps {
@@ -54,43 +53,34 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const handleCourseAction = async (course: Course, action: 'start' | 'pause' | 'resume' | 'finish') => {
     setActionLoading(course.id);
-    
+    setError('');
+
     try {
-      let newStatus: number;
-      
-      switch (action) {
-        case 'start':
-        case 'resume':
-          newStatus = 2; // active
-          console.log(`🚀 Starting GPS tracking for course ${course.id}`);
-          await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
-          break;
-        case 'pause':
-          newStatus = 3; // paused
-          console.log(`⏸️ Pausing GPS tracking for course ${course.id}`);
-          // Update status but keep GPS running
-          break;
-        case 'finish':
-          newStatus = 4; // finished
-          console.log(`🏁 Stopping GPS tracking for course ${course.id}`);
-          await stopGPSTracking(course.id);
-          break;
-        default:
-          return;
+      let newStatus = course.status;
+
+      if (action === 'start') {
+        newStatus = 2;
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
+      } else if (action === 'pause') {
+        newStatus = 3;
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
+      } else if (action === 'resume') {
+        newStatus = 2;
+        await startGPSTracking(course.id, vehicleNumber, token, course.uit, newStatus);
+      } else if (action === 'finish') {
+        newStatus = 4;
+        await stopGPSTracking(course.id);
       }
 
-      // Update course status locally
       setCourses(prevCourses =>
         prevCourses.map(c =>
           c.id === course.id ? { ...c, status: newStatus } : c
         )
       );
 
-      console.log(`Course ${course.id} status updated to ${newStatus}`);
-      
-    } catch (error) {
-      console.error(`Failed to ${action} course:`, error);
-      setError(`Eroare la ${action === 'start' ? 'pornirea' : action === 'pause' ? 'pauza' : action === 'resume' ? 'reluarea' : 'oprirea'} cursei`);
+    } catch (error: any) {
+      console.error('Course action error:', error);
+      setError(error.message || 'Eroare la executarea acțiunii');
     } finally {
       setActionLoading(null);
     }
@@ -103,27 +93,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       onLogout();
     } catch (error) {
       console.error('Logout error:', error);
+      await clearToken();
       onLogout();
     }
   };
 
-  const getStatusText = (status: number) => {
+  const handleShowInfo = () => {
+    setShowInfo(true);
+  };
+
+  const getStatusText = (status: number): string => {
     switch (status) {
       case 1: return 'Disponibilă';
-      case 2: return 'În progres';
+      case 2: return 'În curs';
       case 3: return 'Pauză';
       case 4: return 'Finalizată';
       default: return 'Necunoscută';
-    }
-  };
-
-  const getStatusClass = (status: number) => {
-    switch (status) {
-      case 1: return 'status-1';
-      case 2: return 'status-2';
-      case 3: return 'status-3';
-      case 4: return 'status-4';
-      default: return 'status-1';
     }
   };
 
@@ -133,12 +118,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     if (course.status === 1) {
       return (
         <button
-          className="action-btn-new btn-start"
+          className="action-button start-button"
           onClick={() => handleCourseAction(course, 'start')}
           disabled={isLoading}
         >
           {isLoading ? (
-            <div className="spinner"></div>
+            <div className="loading-spinner"></div>
           ) : (
             <>
               <i className="fas fa-play"></i>
@@ -151,14 +136,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     if (course.status === 2) {
       return (
-        <>
+        <div className="course-actions">
           <button
-            className="action-btn-new btn-pause"
+            className="action-button pause-button"
             onClick={() => handleCourseAction(course, 'pause')}
             disabled={isLoading}
           >
             {isLoading ? (
-              <div className="spinner"></div>
+              <div className="loading-spinner"></div>
             ) : (
               <>
                 <i className="fas fa-pause"></i>
@@ -167,26 +152,32 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             )}
           </button>
           <button
-            className="action-btn-new btn-finish"
+            className="action-button finish-button"
             onClick={() => handleCourseAction(course, 'finish')}
             disabled={isLoading}
           >
-            <i className="fas fa-stop"></i>
-            Finalizează
+            {isLoading ? (
+              <div className="loading-spinner"></div>
+            ) : (
+              <>
+                <i className="fas fa-stop"></i>
+                Finalizează
+              </>
+            )}
           </button>
-        </>
+        </div>
       );
     }
     
     if (course.status === 3) {
       return (
         <button
-          className="action-btn-new btn-resume"
+          className="action-button resume-button"
           onClick={() => handleCourseAction(course, 'resume')}
           disabled={isLoading}
         >
           {isLoading ? (
-            <div className="spinner"></div>
+            <div className="loading-spinner"></div>
           ) : (
             <>
               <i className="fas fa-play"></i>
@@ -305,163 +296,91 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         </span>
                       </div>
                     )}
-                  
-                  <div className="course-details">
-                    {course.ikRoTrans && (
-                      <div className="detail-item">
-                        <i className="fas fa-hashtag"></i>
-                        <span>ID: {course.ikRoTrans}</span>
-                      </div>
-                    )}
-                    {course.codDeclarant && (
-                      <div className="detail-item">
-                        <i className="fas fa-user"></i>
-                        <span>Cod: {course.codDeclarant}</span>
-                      </div>
-                    )}
+                    
                     {course.dataTransport && (
-                      <div className="detail-item">
-                        <i className="fas fa-calendar"></i>
-                        <span>{new Date(course.dataTransport).toLocaleDateString('ro-RO')}</span>
+                      <div className="detail-row">
+                        <i className="fas fa-calendar detail-icon"></i>
+                        <span className="detail-text">
+                          Data transport: {new Date(course.dataTransport).toLocaleDateString('ro-RO')}
+                        </span>
                       </div>
                     )}
-                    {course.nrVehicul && (
-                      <div className="detail-item">
-                        <i className="fas fa-truck"></i>
-                        <span>{course.nrVehicul}</span>
+                    
+                    {course.codDeclarant && (
+                      <div className="detail-row">
+                        <i className="fas fa-building detail-icon"></i>
+                        <span className="detail-text">
+                          Cod declarant: {course.codDeclarant}
+                        </span>
                       </div>
                     )}
                   </div>
-                </div>
 
-                <div className="course-actions-new">
-                  {renderCourseActions(course)}
-                  <button
-                    className="action-btn-new btn-info"
-                    onClick={() => setExpandedCourse(expandedCourse === course.id ? null : course.id)}
-                  >
-                    <i className="fas fa-info"></i>
-                  </button>
-                </div>
+                  <div className="course-actions">
+                    {renderCourseActions(course)}
+                    <button
+                      className="action-button info-button"
+                      onClick={() => setExpandedCourse(
+                        expandedCourse === course.id ? null : course.id
+                      )}
+                    >
+                      <i className="fas fa-info"></i>
+                    </button>
+                  </div>
 
-                {expandedCourse === course.id && (
-                  <CourseDetailCard
-                    course={course}
-                    onStatusUpdate={() => {}}
-                    isLoading={false}
-                  />
-                )}
-              </div>
-            ))}
+                  {expandedCourse === course.id && (
+                    <div className="course-expanded-details">
+                      <div className="expanded-content">
+                        <h4>Detalii complete cursă</h4>
+                        {course.name && <p><strong>Nume:</strong> {course.name}</p>}
+                        {course.description && <p><strong>Descriere:</strong> {course.description}</p>}
+                        {course.ikRoTrans && <p><strong>ikRoTrans:</strong> {course.ikRoTrans}</p>}
+                        {course.vama && <p><strong>Vamă:</strong> {course.vama}</p>}
+                        {course.judet && <p><strong>Județ:</strong> {course.judet}</p>}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Bottom Navigation */}
-      <div 
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(20px)',
-          padding: '16px',
-          borderTop: '1px solid rgba(0, 0, 0, 0.1)',
-          paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
-          zIndex: 1000
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-around', maxWidth: '400px', margin: '0 auto' }}>
-          <button
-            onClick={() => setShowInfo(!showInfo)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#667eea',
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
-            <i className="fas fa-info-circle" style={{ fontSize: '20px' }}></i>
-            <span>Info</span>
-          </button>
-          
-          <button
-            onClick={handleLogout}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#e74c3c',
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
-            <i className="fas fa-sign-out-alt" style={{ fontSize: '20px' }}></i>
-            <span>Ieșire</span>
-          </button>
+      <div className="bottom-navigation">
+        <div className="nav-container">
+          <div className="app-branding">
+            <i className="fas fa-location-arrow"></i>
+            <span>iTrack GPS</span>
+          </div>
+          <div className="nav-actions">
+            <button className="nav-button info-nav-button" onClick={handleShowInfo}>
+              <i className="fas fa-info-circle"></i>
+              Info
+            </button>
+            <button className="nav-button logout-nav-button" onClick={handleLogout}>
+              <i className="fas fa-sign-out-alt"></i>
+              Ieșire
+            </button>
+          </div>
         </div>
       </div>
 
       {showInfo && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 2000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px'
-          }}
-          onClick={() => setShowInfo(false)}
-        >
-          <div 
-            style={{
-              background: 'white',
-              borderRadius: '20px',
-              padding: '30px',
-              maxWidth: '400px',
-              width: '100%',
-              textAlign: 'center'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ color: '#2c3e50', marginBottom: '20px' }}>iTrack GPS</h3>
-            <p style={{ color: '#7f8c8d', marginBottom: '20px' }}>
-              Aplicație profesională pentru urmărirea vehiculelor în timp real
-            </p>
-            <p style={{ color: '#95a5a6', fontSize: '14px' }}>
-              Vehicul activ: {vehicleNumber}<br/>
-              Curse încărcate: {courses.length}<br/>
-              Versiunea 1.0
-            </p>
-            <button
-              onClick={() => setShowInfo(false)}
-              style={{
-                background: '#667eea',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '10px',
-                marginTop: '20px',
-                cursor: 'pointer'
-              }}
-            >
-              Închide
-            </button>
+        <div className="info-modal" onClick={() => setShowInfo(false)}>
+          <div className="info-content" onClick={(e) => e.stopPropagation()}>
+            <div className="info-header">
+              <h3>Informații Aplicație</h3>
+              <button onClick={() => setShowInfo(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="info-body">
+              <p><strong>Vehicul:</strong> {vehicleNumber}</p>
+              <p><strong>Curse active:</strong> {courses.filter(c => c.status === 2).length}</p>
+              <p><strong>Total curse:</strong> {courses.length}</p>
+              <p><strong>Versiune:</strong> 2.0 Professional</p>
+            </div>
           </div>
         </div>
       )}

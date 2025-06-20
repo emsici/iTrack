@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import LoginScreen from './components/LoginScreen';
-import VehicleScreen from './components/VehicleScreen';
+import VehicleScreen from './components/VehicleScreenProfessional';
 import AdminPanel from './components/AdminPanel';
 // GPS initialization removed - handled by communityGPS when needed
 import { getStoredToken, clearToken } from './services/storage';
