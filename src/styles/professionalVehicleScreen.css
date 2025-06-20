@@ -587,8 +587,20 @@
 /* Fix pentru dispozitive cu notch */
 @supports (padding: max(0px)) {
   .vehicle-screen {
-    padding-top: max(60px, calc(60px + env(safe-area-inset-top)));
-    padding-bottom: max(120px, calc(120px + env(safe-area-inset-bottom)));
+    padding-top: max(100px, calc(100px + env(safe-area-inset-top)));
+    padding-bottom: max(160px, calc(160px + env(safe-area-inset-bottom)));
+  }
+  
+  @media (max-width: 768px) {
+    .vehicle-screen {
+      padding-bottom: max(180px, calc(180px + env(safe-area-inset-bottom)));
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .vehicle-screen {
+      padding-bottom: max(200px, calc(200px + env(safe-area-inset-bottom)));
+    }
   }
 }
 
