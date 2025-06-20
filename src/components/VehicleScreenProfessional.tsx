@@ -10,6 +10,7 @@ import { clearToken } from "../services/storage";
 import { getOfflineGPSCount, getOfflineGPSInfo } from "../services/offlineGPS";
 
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
+import CourseStatsModal from "./CourseStatsModal";
 
 
 interface VehicleScreenProps {
@@ -268,6 +269,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [debugLogs, setDebugLogs] = useState<string[]>([]);
+  const [showStatsModal, setShowStatsModal] = useState(false);
 
   const handleTimestampClick = async () => {
     // Debug logs access with 50 clicks
@@ -547,6 +549,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       <div className="card-value">{courses.filter(c => c.status === 1).length}</div>
                       <div className="card-label">DISPONIBIL</div>
                       <div className="card-indicator ready"></div>
+                    </div>
+                    <div 
+                      className="analytics-card stats-card clickable" 
+                      onClick={() => setShowStatsModal(true)}
+                      title="Click pentru statistici detaliate"
+                    >
+                      <div className="card-icon">
+                        <i className="fas fa-chart-bar"></i>
+                      </div>
+                      <div className="card-label">STATISTICI</div>
+                      <div className="card-indicator stats"></div>
                     </div>
                   </div>
                 </div>
@@ -908,6 +921,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </div>
         </div>
       )}
+
+      {/* Course Statistics Modal */}
+      <CourseStatsModal
+        isOpen={showStatsModal}
+        onClose={() => setShowStatsModal(false)}
+        courses={courses}
+        vehicleNumber={vehicleNumber}
+      />
 
       {/* Monitorizare GPS Offline */}
       <OfflineGPSMonitor 

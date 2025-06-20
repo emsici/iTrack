@@ -1397,6 +1397,82 @@ html, body {
   font-weight: 500;
 }
 
+/* Stats Card Styles */
+.analytics-card.stats-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.analytics-card.stats-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.analytics-card.clickable {
+  position: relative;
+  overflow: hidden;
+}
+
+.analytics-card.clickable::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.analytics-card.clickable:hover::before {
+  left: 100%;
+}
+
+.card-icon {
+  font-size: 24px;
+  color: #8b5cf6;
+  margin-bottom: 8px;
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+.card-indicator.stats {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+@keyframes iconPulse {
+  0%, 100% { 
+    transform: scale(1); 
+    opacity: 1; 
+  }
+  50% { 
+    transform: scale(1.1); 
+    opacity: 0.8; 
+  }
+}
+
+/* Grid responsive pentru 5 carduri */
+.analytics-grid-centered {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin: 0 auto;
+  max-width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .analytics-grid-centered {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .analytics-card.stats-card {
+    grid-column: span 1;
+  }
+}
+
 /* Central Offline GPS Status Indicator */
 .offline-status-central {
   margin: 20px 0;
