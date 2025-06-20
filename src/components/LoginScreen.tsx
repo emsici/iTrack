@@ -725,13 +725,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           <div className="form-group">
             <div className="input-container">
               <input
-                type="email"
+                type="text"
                 className="form-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                placeholder="Email"
-                autoComplete="email"
+                placeholder="Email sau telefon (0733547739)"
+                autoComplete="username"
               />
               <i className="fas fa-user input-icon"></i>
             </div>
