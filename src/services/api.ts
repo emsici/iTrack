@@ -184,20 +184,20 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
         logAPI(`Validation passed - processing ${responseData.data.length} courses`);
         const processedCourses = responseData.data.map((course: any, index: number) => ({
           id: course.ikRoTrans?.toString() || `course_${index}`,
-          name: `ikRoTrans: ${course.ikRoTrans}`,
-          departure_location: course.denumireLocStart || course.Vama,
-          destination_location: course.denumireLocStop || course.VamaStop,
-          departure_time: course.dataTransport || null,
-          arrival_time: null,
+          name: `Transport ${course.ikRoTrans}`,
+          departure_location: course.Vama || 'Punct plecare',
+          destination_location: course.VamaStop || course.denumireLocStop || 'Destinație',
+          departure_time: null, // Nu există în API
+          arrival_time: null,   // Nu există în API
           description: course.denumireDeclarant,
           status: 1,
           uit: course.UIT,
-          // Toate datele originale din API pentru detalii complete
+          // Toate datele reale din API
           ikRoTrans: course.ikRoTrans,
           codDeclarant: course.codDeclarant,
           denumireDeclarant: course.denumireDeclarant,
           nrVehicul: course.nrVehicul,
-          dataTransport: course.dataTransport,
+          dataTransport: course.dataTransport, // Data transportului (nu ora)
           vama: course.Vama,
           birouVamal: course.BirouVamal,
           judet: course.Judet,

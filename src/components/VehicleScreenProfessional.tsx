@@ -318,6 +318,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
               <div className="header-text-section">
                 <p className="header-subtitle">Vehicul: {vehicleNumber}</p>
+                <button 
+                  className="change-vehicle-btn"
+                  onClick={() => {
+                    setCourses([]);
+                    setCoursesLoaded(false);
+                    setVehicleNumber("");
+                    setError("");
+                  }}
+                  title="Schimbă vehiculul"
+                >
+                  <i className="fas fa-edit"></i>
+                  <span>Schimbă</span>
+                </button>
               </div>
               {infoClickCount >= 30 && (
                 <div className="click-counter-badge">
