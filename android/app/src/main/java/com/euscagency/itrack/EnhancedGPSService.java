@@ -228,40 +228,28 @@ public class EnhancedGPSService extends Service implements LocationListener {
     
     private void startLocationTracking() {
         try {
-            // GPS provider with high accuracy and fast updates
+            // GPS provider optimized for 5-second transmission intervals
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
-                    1000, // 1 second for maximum responsiveness
-                    0.0f, // No distance filter for maximum precision
+                    3000, // 3 seconds - slightly faster than transmission for fresh data
+                    MIN_DISTANCE, // 0.5m distance filter to reduce unnecessary updates
                     this,
                     Looper.getMainLooper()
                 );
-                Log.d(TAG, "📡 High-precision GPS provider tracking started (1s interval)");
+                Log.d(TAG, "📡 GPS provider tracking started (3s interval, 0.5m distance filter)");
             }
             
-            // Network provider as backup
+            // Network provider as backup with reduced frequency
             if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                 locationManager.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER,
-                    2000, // 2 seconds for network
-                    0.0f, // No distance filter
+                    5000, // 5 seconds for network backup
+                    MIN_DISTANCE, // 0.5m distance filter
                     this,
                     Looper.getMainLooper()
                 );
-                Log.d(TAG, "📶 Network provider tracking started (2s interval)");
-            }
-            
-            // Passive provider for additional data
-            if (locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
-                locationManager.requestLocationUpdates(
-                    LocationManager.PASSIVE_PROVIDER,
-                    1000,
-                    0.0f,
-                    this,
-                    Looper.getMainLooper()
-                );
-                Log.d(TAG, "🔄 Passive provider tracking started");
+                Log.d(TAG, "📶 Network provider backup started (5s interval)");
             }
             
             // Try to get last known location immediately
@@ -274,7 +262,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
     
     private void startTransmissionTimer() {
         transmissionHandler.post(transmissionRunnable);
-        Log.i(TAG, "⏱️ GPS transmission timer started (60s intervals)");
+        Log.i(TAG, "⏱️ GPS transmission timer started (5s intervals)");
     }
     
     private void getLastKnownLocation() {
@@ -356,7 +344,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
         
         Log.i(TAG, "📡 GPS Transmission #" + transmissionCounter + 
               " | Uptime: " + (uptime/1000) + "s | Active courses: " + activeCourses.size() +
-              " | Interval: 5s");
+              " | Interval: " + (TRANSMISSION_INTERVAL/1000) + "s");
         
         // Collect courses to remove after iteration
         List<String> coursesToRemove = new ArrayList<>();
@@ -655,22 +643,14 @@ public class EnhancedGPSService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
-            // Always update location to prevent timeout issues
+            // Only update location, DO NOT transmit here - transmission is timer-based only
             lastKnownLocation = location;
             
-            Log.i(TAG, "📍 GPS UPDATE: " + 
-                  String.format("Lat: %.8f, Lng: %.8f", location.getLatitude(), location.getLongitude()) +
-                  " | Accuracy: " + String.format("%.2f", location.getAccuracy()) + "m" +
+            Log.d(TAG, "📍 Location updated: " + 
+                  String.format("%.6f, %.6f", location.getLatitude(), location.getLongitude()) +
                   " | Provider: " + location.getProvider() +
-                  " | Age: " + ((System.currentTimeMillis() - location.getTime()) / 1000) + "s");
-                  
-            // Log additional location details for debugging
-            if (location.hasSpeed()) {
-                Log.d(TAG, "Speed: " + String.format("%.2f", location.getSpeed() * 3.6f) + " km/h");
-            }
-            if (location.hasBearing()) {
-                Log.d(TAG, "Bearing: " + String.format("%.2f", location.getBearing()) + "°");
-            }
+                  " | Accuracy: " + String.format("%.1f", location.getAccuracy()) + "m" +
+                  " | (Update only - transmission via 5s timer)");
         }
     }
     

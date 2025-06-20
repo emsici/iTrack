@@ -407,7 +407,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <h4><i className="fas fa-satellite-dish"></i> Tehnologie GPS</h4>
                 <p><strong>Sistem:</strong> iTrack Professional v2.0</p>
                 <p><strong>Precizie:</strong> GPS de înaltă precizie (±1-3m)</p>
-                <p><strong>Interval transmisie:</strong> La fiecare 5 secunde</p>
+                <p><strong>Interval transmisie:</strong> La fiecare 5 secunde (optimizat)</p>
                 <p><strong>Funcționare background:</strong> Activ permanent</p>
                 <p><strong>Compatibilitate:</strong> Android nativ</p>
               </div>
