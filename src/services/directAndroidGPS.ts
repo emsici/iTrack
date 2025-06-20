@@ -15,6 +15,11 @@ interface DirectGPSPlugin {
   stopTracking(options: {
     courseId: string;
   }): Promise<{ success: boolean; message: string }>;
+  
+  updateCourseStatus(options: {
+    courseId: string;
+    status: number;
+  }): Promise<{ success: boolean; message: string }>;
 }
 
 const DirectGPS = Capacitor.registerPlugin<DirectGPSPlugin>('DirectGPS');
@@ -39,21 +44,21 @@ class DirectAndroidGPSService {
       return;
     }
 
+    const oldStatus = course.status;
     course.status = newStatus;
     
     try {
       if (Capacitor.isNativePlatform()) {
-        // Call DirectGPS plugin to update status
-        const result = await DirectGPS.updateCourseStatus({
-          courseId: courseId,
-          status: newStatus
-        });
-        console.log('Status update result:', result);
+        // Restart tracking with new status - reuses existing startTracking method
+        await this.startAndroidNativeService(course);
+        console.log(`Status updated: ${courseId} from ${oldStatus} to ${newStatus}`);
       } else {
         console.log(`Web environment: Status would be updated to ${newStatus} in APK`);
       }
     } catch (error) {
       console.error(`Failed to update course status:`, error);
+      // Revert status on error
+      course.status = oldStatus;
       throw error;
     }
   }
