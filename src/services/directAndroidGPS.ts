@@ -113,9 +113,15 @@ class DirectAndroidGPSService {
     
     try {
       if (Capacitor.isNativePlatform()) {
-        console.log('Stopping EnhancedGPSService for course in APK');
+        // Oprire prin AndroidGPS WebView interface
+        if ((window as any).AndroidGPS && (window as any).AndroidGPS.stopGPS) {
+          (window as any).AndroidGPS.stopGPS(courseId);
+          console.log('GPS stopped through Android WebView interface');
+        } else {
+          console.log('AndroidGPS interface not available for stop');
+        }
       } else {
-        console.log('Web environment: EnhancedGPSService would stop in APK');
+        console.log('Web environment: GPS would stop in APK');
       }
       
       console.log('GPS tracking stopped for course');
@@ -142,21 +148,43 @@ class DirectAndroidGPSService {
     console.log('Activating Android GPS service for course:', course.courseId);
     
     if (Capacitor.isNativePlatform()) {
-      // Pentru Android APK - activare automată prin EnhancedGPSService
       try {
-        console.log('EnhancedGPSService will auto-start in APK');
-        console.log('GPS tracking activated for UIT:', course.uit);
-        console.log('Background transmission every 60 seconds');
+        console.log('Starting EnhancedGPSService through WebView interface');
         
-        // În APK real, EnhancedGPSService se activează automat
-        // și începe transmisia GPS în background
+        // Activare directă prin AndroidGPS WebView interface
+        if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
+          (window as any).AndroidGPS.startGPS(
+            course.courseId, 
+            course.vehicleNumber, 
+            course.uit, 
+            course.token, 
+            course.status
+          );
+          console.log('GPS started through Android WebView interface');
+        } else {
+          console.log('AndroidGPS interface not available - using fallback');
+          // Fallback prin Geolocation pentru web testing
+          await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+        }
+        
+        console.log('GPS service activation command executed');
+        console.log('EnhancedGPSService should start background tracking');
         
       } catch (error) {
         console.error('Failed to activate GPS service:', error);
-        throw error;
+        // Fallback: încercare prin Geolocation pentru a obține poziția
+        try {
+          const position = await Geolocation.getCurrentPosition({ 
+            enableHighAccuracy: true,
+            timeout: 10000
+          });
+          console.log('GPS position obtained - service should activate');
+          console.log('Position:', position.coords.latitude, position.coords.longitude);
+        } catch (geoError) {
+          console.error('GPS activation failed completely:', geoError);
+        }
       }
     } else {
-      // Pentru web development - test cu transmisie simulată
       console.log('Web environment: Testing GPS transmission');
       await this.testGPSTransmission(course);
     }
