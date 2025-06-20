@@ -726,7 +726,7 @@ const handleTimestampClick = () => {
 
 ### Istoric Versiuni
 - **v1807.99**: Versiune enterprise completă cu toate funcționalitățile
-- Consultă `changelog.md` pentru istoric detaliat al versiunilor
+- **[📋 Consultă Changelog Complet](./changelog.md)** pentru istoric detaliat al tuturor versiunilor și modificărilor
 
 ## Deployment și Distribuție
 
