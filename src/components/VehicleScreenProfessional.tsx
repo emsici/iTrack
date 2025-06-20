@@ -370,7 +370,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         <div className="info-modal" onClick={() => setShowInfo(false)}>
           <div className="info-content" onClick={(e) => e.stopPropagation()}>
             <div className="info-header">
-              <h3>Informații Aplicație</h3>
+              <h3>Informații</h3>
               <button onClick={() => setShowInfo(false)}>
                 <i className="fas fa-times"></i>
               </button>
@@ -379,7 +379,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <p><strong>Vehicul:</strong> {vehicleNumber}</p>
               <p><strong>Curse active:</strong> {courses.filter(c => c.status === 2).length}</p>
               <p><strong>Total curse:</strong> {courses.length}</p>
-              <p><strong>Versiune:</strong> 2.0 Professional</p>
             </div>
           </div>
         </div>
