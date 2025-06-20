@@ -26,6 +26,9 @@ import android.telephony.CellInfoLte;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.ArrayList;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
 
@@ -58,6 +61,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
     private Location lastKnownLocation;
     private int transmissionCounter = 0;
     private long serviceStartTime;
+    private Set<String> singleTransmissionSent = new HashSet<>(); // Track single transmissions sent
     
     private static class CourseData {
         String vehicleNumber;
@@ -302,8 +306,41 @@ public class EnhancedGPSService extends Service implements LocationListener {
               " | Uptime: " + (uptime/1000) + "s | Active courses: " + activeCourses.size() +
               " | Interval: 5s");
         
+        // Collect courses to remove after iteration
+        List<String> coursesToRemove = new ArrayList<>();
+        
         for (CourseData course : activeCourses.values()) {
-            sendGPSDataForCourse(course, lastKnownLocation);
+            String courseKey = course.uit + "_" + course.status;
+            
+            // Only send GPS continuously for status 2 (active)
+            if (course.status == 2) {
+                sendGPSDataForCourse(course, lastKnownLocation);
+                Log.d(TAG, "🟢 Status 2 - Continuous GPS for UIT: " + course.uit);
+                // Remove from single transmission tracking when status 2 is active
+                singleTransmissionSent.remove(course.uit + "_3");
+                singleTransmissionSent.remove(course.uit + "_4");
+            } else if ((course.status == 3 || course.status == 4) && 
+                      !singleTransmissionSent.contains(courseKey)) {
+                // Send single transmission for pause (3) or stop (4) status
+                sendGPSDataForCourse(course, lastKnownLocation);
+                singleTransmissionSent.add(courseKey);
+                Log.i(TAG, "📤 Single transmission sent for UIT: " + course.uit + " | Status: " + course.status);
+                
+                // Mark course for removal if status is 4 (stopped)
+                if (course.status == 4) {
+                    coursesToRemove.add(course.courseId);
+                }
+            } else {
+                Log.d(TAG, "⏸️ Status " + course.status + " - No GPS transmission for UIT: " + course.uit);
+            }
+        }
+        
+        // Remove stopped courses after iteration
+        for (String courseId : coursesToRemove) {
+            CourseData removedCourse = activeCourses.remove(courseId);
+            if (removedCourse != null) {
+                Log.i(TAG, "🛑 Course removed from active tracking: " + removedCourse.uit + " (Status 4)");
+            }
         }
     }
     
