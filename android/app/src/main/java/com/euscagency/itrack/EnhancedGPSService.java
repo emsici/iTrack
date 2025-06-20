@@ -25,9 +25,15 @@ import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellSignalStrengthGsm;
 import android.telephony.CellSignalStrengthLte;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.content.SharedPreferences;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.ArrayList;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
@@ -62,6 +68,17 @@ public class EnhancedGPSService extends Service implements LocationListener {
     private int transmissionCounter = 0;
     private long serviceStartTime;
     private Set<String> singleTransmissionSent = new HashSet<>(); // Track single transmissions sent
+    
+    // Offline GPS storage
+    private SharedPreferences offlineStorage;
+    private static final String OFFLINE_GPS_PREFS = "offline_gps_coordinates";
+    private static final String OFFLINE_COORDS_KEY = "coordinates";
+    private static final int MAX_OFFLINE_COORDINATES = 1000;
+    
+    // Network connectivity
+    private ConnectivityManager connectivityManager;
+    private Handler syncHandler;
+    private Runnable syncRunnable;
     
     private static class CourseData {
         String vehicleNumber;

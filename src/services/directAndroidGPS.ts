@@ -1,6 +1,8 @@
 // GPS direct Android prin Capacitor plugin - funcționează în background
 import { Capacitor } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
+import { GPSData } from './api';
+import { saveGPSCoordinateOffline, syncOfflineGPS, getOfflineGPSCount } from './offlineGPS';
 
 // DirectGPS Plugin pentru activarea EnhancedGPSService
 interface DirectGPSPlugin {
