@@ -64,14 +64,13 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
       acc.totalTime += stats.drivingTime;
       acc.maxSpeed = Math.max(acc.maxSpeed, stats.maxSpeed);
       acc.totalStops += stats.totalStops;
-      acc.totalFuel += stats.fuelEstimate;
+      // Fuel consumption removed
       return acc;
     }, {
       totalDistance: 0,
       totalTime: 0,
       maxSpeed: 0,
-      totalStops: 0,
-      totalFuel: 0
+      totalStops: 0
     });
 
     return {

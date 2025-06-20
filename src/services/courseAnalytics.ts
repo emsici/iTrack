@@ -25,7 +25,7 @@ export interface CourseStatistics {
   maxSpeed: number; // km/h
   totalStops: number;
   stopDuration: number; // minutes
-  fuelEstimate: number; // liters (estimated)
+  // Removed fuel estimate - too variable for trucks without real data
   gpsPoints: GPSPoint[];
   isActive: boolean;
   lastUpdateTime: string;
@@ -33,7 +33,7 @@ export interface CourseStatistics {
 
 class CourseAnalyticsService {
   private readonly STORAGE_KEY_PREFIX = 'course_analytics_';
-  private readonly FUEL_CONSUMPTION_RATE = 0.35; // liters per km (average truck)
+  // Removed fuel consumption - too variable for trucks without real data
   private readonly MIN_SPEED_THRESHOLD = 5; // km/h - below this is considered stopped
   private readonly MIN_DISTANCE_THRESHOLD = 0.01; // km - minimum distance to count
 
@@ -53,7 +53,7 @@ class CourseAnalyticsService {
         maxSpeed: 0,
         totalStops: 0,
         stopDuration: 0,
-        fuelEstimate: 0,
+        // Removed fuel estimate field
         gpsPoints: [],
         isActive: true,
         lastUpdateTime: new Date().toISOString()
@@ -121,8 +121,7 @@ class CourseAnalyticsService {
         analytics.averageSpeed = (analytics.totalDistance / (analytics.drivingTime / 60));
       }
 
-      // Estimate fuel consumption
-      analytics.fuelEstimate = analytics.totalDistance * this.FUEL_CONSUMPTION_RATE;
+      // Fuel consumption removed - too variable for trucks without real data
 
       // Keep only last 1000 GPS points for performance
       if (analytics.gpsPoints.length > 1000) {
@@ -328,15 +327,13 @@ class CourseAnalyticsService {
     avgSpeed: string;
     maxSpeed: string;
     stops: string;
-    fuel: string;
   } {
     return {
       distance: analytics.totalDistance.toFixed(2) + ' km',
       time: this.formatDuration(analytics.drivingTime),
       avgSpeed: analytics.averageSpeed.toFixed(1) + ' km/h',
       maxSpeed: analytics.maxSpeed.toFixed(1) + ' km/h',
-      stops: `${analytics.totalStops} (${this.formatDuration(analytics.stopDuration)})`,
-      fuel: analytics.fuelEstimate.toFixed(1) + ' L'
+      stops: `${analytics.totalStops} (${this.formatDuration(analytics.stopDuration)})`
     };
   }
 
