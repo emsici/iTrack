@@ -713,7 +713,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <i className="fas fa-satellite-dish"></i> Tehnologie GPS
                 </h4>
                 <p>
-                  <strong>Sistem:</strong> iTrack
+                  <strong>Sistem:</strong> iTrack v1807.99
                 </p>
                 <p>
                   <strong>Precizie:</strong> GPS de înaltă precizie (±1-3m)
