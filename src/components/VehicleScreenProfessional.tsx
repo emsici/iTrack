@@ -44,7 +44,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         return;
       }
 
-      setCourses(data);
+      // Smart merge: păstrează statusurile curselor existente, adaugă cursele noi
+      const mergedCourses = data.map((newCourse: Course) => {
+        const existingCourse = courses.find(existing => existing.uit === newCourse.uit);
+        if (existingCourse) {
+          // Păstrează statusul și datele cursului existent
+          return {
+            ...newCourse,
+            status: existingCourse.status
+          };
+        }
+        // Cursă nouă - se afișează cu status 1 (disponibilă)
+        return newCourse;
+      });
+      
+      setCourses(mergedCourses);
       setCoursesLoaded(true);
       setLastUpdate(new Date().toLocaleTimeString('ro-RO'));
     } catch (error: any) {
@@ -56,6 +70,23 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       setLoading(false);
     }
   };
+
+  // Auto-refresh effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (autoRefresh && coursesLoaded && vehicleNumber) {
+      interval = setInterval(() => {
+        handleLoadCourses();
+      }, 30000); // Refresh every 30 seconds
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [autoRefresh, coursesLoaded, vehicleNumber]);
 
   const handleCourseAction = async (
     course: Course,
@@ -326,7 +357,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                           <div className="pulse-ring"></div>
                           <div className="status-core"></div>
                         </div>
-                        <span className="operation-text">OPERATIONAL</span>
+                        <div className="status-info">
+                          <span className="operation-text">OPERATIONAL</span>
+                          {lastUpdate && (
+                            <span className="last-sync">Sync: {lastUpdate}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
