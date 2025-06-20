@@ -726,8 +726,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                     // Elimină toate caracterele non-numerice except +
                     value = value.replace(/[^0-9+]/g, '');
                     
-                    // Dacă începe cu 07 (număr românesc), adaugă +40
-                    if (value.startsWith('07')) {
+                    // Dacă începe cu 07 (toate rețelele românești), adaugă +40
+                    // Orange: 0740-0749, Vodafone: 0720-0729, 0750-0759, Telekom: 0730-0739, 0760-0769
+                    // Digi: 0370-0379, RCS&RDS: 0770-0779
+                    if (value.startsWith('07') || value.startsWith('037')) {
                       value = '+40' + value.substring(1);
                     }
                     // Dacă începe cu 40 (fără +), adaugă +
@@ -743,7 +745,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                   setEmail(value);
                 }}
                 disabled={loading}
-                placeholder="40723112233 sau email@email.ro"
+                placeholder="0723112233 sau email@email.ro"
                 autoComplete="username"
               />
               <i className="fas fa-user input-icon"></i>

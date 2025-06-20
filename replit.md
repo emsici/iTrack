@@ -182,7 +182,7 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Consolidare documentație**: API.md și ARCHITECTURE.md integrate în README.md pentru organizare simplificată
 - **Localizare completă**: build.bat tradus în română pentru consistență cu toate textele aplicației
 - **Consolidare finală documentație**: SETUP.md și BUILD_INSTRUCTIONS.md integrate în README.md, eliminat linkul API din prezentări
-- **Validare input îmbunătățită**: Formatare automată telefoane românești - "0733112233" → "+40733112233", "40723112233" → "+40723112233"
+- **Validare input îmbunătățită**: Suport complet rețele mobile RO - Orange, Vodafone, Telekom, Digi, RCS&RDS cu formatare automată la +40
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin
