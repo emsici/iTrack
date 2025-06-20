@@ -109,14 +109,31 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log("🔌 Internet connection lost - GPS will save offline");
     };
     
+    // Check initial online status
+    setIsOnline(navigator.onLine);
+    
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    
+    // Additional polling for more reliable detection
+    const statusCheck = setInterval(() => {
+      const currentOnlineStatus = navigator.onLine;
+      if (currentOnlineStatus !== isOnline) {
+        setIsOnline(currentOnlineStatus);
+        console.log(`🔄 Network status changed: ${currentOnlineStatus ? 'ONLINE' : 'OFFLINE'}`);
+        console.log(`📊 Debug info: navigator.onLine=${navigator.onLine}, isOnline=${isOnline}`);
+      }
+    }, 2000);
+    
+    // Debug log initial status
+    console.log(`🔍 Initial network status: navigator.onLine=${navigator.onLine}, isOnline=${isOnline}`);
     
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      clearInterval(statusCheck);
     };
-  }, []);
+  }, [isOnline]);
 
   // Monitor offline GPS count  
   useEffect(() => {

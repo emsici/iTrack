@@ -95,7 +95,7 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
       return `Sincronizare GPS în curs...`;
     }
     if (!isOnline || !navigator.onLine) {
-      return 'Modul Offline Activ';
+      return 'MODUL OFFLINE ACTIV';
     }
     if (offlineCount > 0) {
       return 'Date GPS în așteptare';
@@ -108,11 +108,17 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
       const percentage = syncProgress.total > 0 ? Math.round((syncProgress.synced / syncProgress.total) * 100) : 0;
       return `${syncProgress.synced}/${syncProgress.total} coordonate (${percentage}%)`;
     }
-    if (!isOnline && offlineCount > 0) {
-      return `${offlineCount} coordonate salvate local`;
+    if (!isOnline || !navigator.onLine) {
+      if (offlineCount > 0) {
+        return `${offlineCount} coordonate salvate local`;
+      }
+      return 'GPS se va salva local când cursele sunt active';
     }
     if (isOnline && offlineCount === 0) {
       return 'Toate datele sincronizate';
+    }
+    if (isOnline && offlineCount > 0) {
+      return `${offlineCount} coordonate în așteptare sincronizare`;
     }
     return 'Gata pentru urmărire GPS';
   };
