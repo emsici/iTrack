@@ -808,19 +808,15 @@ html, body {
   margin-bottom: 20px;
 }
 
-/* Course Cards Enhanced - Corporate Business Design */
+/* Course Cards Enhanced - Matching Header Design */
 .course-card-enhanced {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 24px;
-  margin-bottom: 24px;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  margin-bottom: 20px;
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
-    0 15px 50px rgba(0, 0, 0, 0.2),
-    0 5px 15px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   position: relative;
 }
 
@@ -830,27 +826,24 @@ html, body {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
+  height: 3px;
   background: linear-gradient(90deg, #3b82f6, #1d4ed8, #60a5fa);
-  border-radius: 24px 24px 0 0;
+  border-radius: 16px 16px 0 0;
 }
 
 .course-card-enhanced:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 
-    0 25px 60px rgba(0, 0, 0, 0.25),
-    0 10px 30px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .course-header-enhanced {
-  padding: 28px 32px 20px;
+  padding: 20px 24px 16px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .course-info-section {
@@ -858,29 +851,44 @@ html, body {
 }
 
 .course-title-enhanced {
-  font-size: 20px;
-  font-weight: 700;
-  color: white;
-  margin: 0 0 12px 0;
-  letter-spacing: 0.5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 16px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.course-transport-number {
+  font-size: 16px;
+  color: #60a5fa;
+  font-weight: 600;
+  background: rgba(96, 165, 250, 0.1);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  margin-top: 8px;
+  display: inline-block;
 }
 
 .course-metadata-enhanced {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
 }
 
 .course-uit {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 6px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 18px;
+  color: #ffffff;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .status-badge-enhanced {
@@ -1335,25 +1343,30 @@ html, body {
   text-align: center;
 }
 
-/* Action Buttons */
+/* Action Buttons - Matching Card Design */
 .course-actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .action-button {
   flex: 1;
-  padding: 10px 16px;
-  border: none;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
 }
 
 .start-button {
