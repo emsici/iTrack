@@ -288,11 +288,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
 
                   <div className="course-details">
-                    {course.departure_location && course.destination_location && (
+                    {course.name && (
+                      <div className="detail-row">
+                        <i className="fas fa-truck detail-icon"></i>
+                        <span className="detail-text">
+                          Transport: {course.name}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {course.description && (
+                      <div className="detail-row">
+                        <i className="fas fa-info-circle detail-icon"></i>
+                        <span className="detail-text">
+                          {course.description}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {course.vama && course.vamaStop && (
                       <div className="detail-row">
                         <i className="fas fa-route detail-icon"></i>
                         <span className="detail-text">
-                          {course.departure_location} → {course.destination_location}
+                          {course.vama} → {course.vamaStop}
                         </span>
                       </div>
                     )}
@@ -302,15 +320,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         <i className="fas fa-calendar detail-icon"></i>
                         <span className="detail-text">
                           Data transport: {new Date(course.dataTransport).toLocaleDateString('ro-RO')}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {course.codDeclarant && (
-                      <div className="detail-row">
-                        <i className="fas fa-building detail-icon"></i>
-                        <span className="detail-text">
-                          Cod declarant: {course.codDeclarant}
                         </span>
                       </div>
                     )}

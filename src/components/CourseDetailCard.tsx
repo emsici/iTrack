@@ -190,6 +190,22 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   <h6 className="group-title">
                     <i className="fas fa-truck me-2"></i>Transport
                   </h6>
+                  {course.name && (
+                    <div className="detail-item">
+                      <div className="detail-content">
+                        <div className="detail-label">Nume Transport:</div>
+                        <div className="detail-value">{course.name}</div>
+                      </div>
+                    </div>
+                  )}
+                  {course.description && (
+                    <div className="detail-item">
+                      <div className="detail-content">
+                        <div className="detail-label">Descriere:</div>
+                        <div className="detail-value">{course.description}</div>
+                      </div>
+                    </div>
+                  )}
                   <div className="detail-item">
                     <div className="detail-content">
                       <div className="detail-label">ikRoTrans:</div>
