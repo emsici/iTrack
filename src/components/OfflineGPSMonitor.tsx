@@ -23,11 +23,10 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
           const count = await getOfflineGPSCount();
           setOfflineCount(count);
 
-          // Debug logging pentru detecția offline - ENHANCED
+          // Verificare detecție offline - optimizată fără spam
           const actuallyOnline = navigator.onLine && isOnline;
-          console.log(`📊 Status GPS: isOnline=${isOnline}, navigator.onLine=${navigator.onLine}, actuallyOnline=${actuallyOnline}, count=${count}`);
           
-          // Test real network connection
+          // Test real network connection - log doar la schimbări
           let networkTest = false;
           try {
             await fetch('https://www.google.com/favicon.ico', { 
@@ -37,10 +36,8 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
               signal: AbortSignal.timeout(3000)
             });
             networkTest = true;
-            console.log('🌐 Network test: ONLINE');
           } catch (error) {
             networkTest = false;
-            console.log('🔌 Network test: OFFLINE');
           }
           
           // Auto-sync when truly online and have offline coordinates
@@ -64,8 +61,8 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
       // Initial status check
       updateStatus();
 
-      // Set up periodic monitoring
-      interval = setInterval(updateStatus, 3000);
+      // Set up periodic monitoring - reduced frequency to avoid log spam
+      interval = setInterval(updateStatus, 10000);
 
       // Subscribe to sync progress updates
       syncSubscription = subscribeToSyncProgress({
@@ -111,9 +108,8 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
 
   const getStatusClass = () => {
     if (syncInProgress) return 'syncing';
-    // Verificare strictă detecție offline - ENHANCED
+    // Verificare strictă detecție offline
     const actuallyOffline = !navigator.onLine || !isOnline;
-    console.log(`Status class: navigator.onLine=${navigator.onLine}, isOnline=${isOnline}, actuallyOffline=${actuallyOffline}`);
     if (actuallyOffline) return 'offline';
     return 'online';
   };

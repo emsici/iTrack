@@ -62,11 +62,10 @@ class OfflineSyncStatusService {
       const offlineCount = await getOfflineGPSCount();
       
       if (offlineCount === 0) {
-        console.log('📊 No offline coordinates to sync');
         return;
       }
 
-      console.log(`📊 Starting sync monitoring for ${offlineCount} offline coordinates`);
+      console.log(`📊 GPS sync: ${offlineCount} coordinates`);
       
       this.currentProgress = {
         isActive: true,
