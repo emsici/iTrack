@@ -250,22 +250,65 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </>
         ) : (
           <div className="courses-section">
-            <div className="courses-header">
-              <h2 className="courses-title">
-                Vehicul: <span 
-                  onClick={() => {
-                    setCoursesLoaded(false);
-                    setCourses([]);
-                    setVehicleNumber('');
-                  }}
-                  className="vehicle-number-clickable"
-                >
-                  {vehicleNumber}
-                  <i className="fas fa-edit edit-icon"></i>
-                </span>
-              </h2>
-              <div className="courses-stats">
-                {courses.length} {courses.length === 1 ? 'cursă' : 'curse'} disponibile
+            <div className="courses-header-premium">
+              <div className="header-gradient-bg">
+                <div className="floating-elements">
+                  <div className="floating-circle circle-1"></div>
+                  <div className="floating-circle circle-2"></div>
+                  <div className="floating-circle circle-3"></div>
+                </div>
+                
+                <div className="header-content">
+                  <div className="header-top-row">
+                    <div className="vehicle-info-card">
+                      <div className="vehicle-icon-container">
+                        <i className="fas fa-truck vehicle-icon"></i>
+                      </div>
+                      <div className="vehicle-details">
+                        <div className="vehicle-label">Vehicul activ</div>
+                        <div className="vehicle-number-display">
+                          <span 
+                            onClick={() => {
+                              setCoursesLoaded(false);
+                              setCourses([]);
+                              setVehicleNumber('');
+                            }}
+                            className="vehicle-number-clickable"
+                          >
+                            {vehicleNumber}
+                            <i className="fas fa-edit edit-icon"></i>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="stats-dashboard">
+                      <div className="stat-item">
+                        <div className="stat-number">{courses.length}</div>
+                        <div className="stat-label">{courses.length === 1 ? 'Cursă' : 'Curse'}</div>
+                      </div>
+                      <div className="stat-item">
+                        <div className="stat-number">{courses.filter(c => c.status === 2).length}</div>
+                        <div className="stat-label">Active</div>
+                      </div>
+                      <div className="stat-item">
+                        <div className="stat-number">{courses.filter(c => c.status === 3).length}</div>
+                        <div className="stat-label">Pauză</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="header-bottom-row">
+                    <div className="status-indicator">
+                      <div className="pulse-dot"></div>
+                      <span>Sistem GPS activ</span>
+                    </div>
+                    <div className="brand-badge">
+                      <i className="fas fa-satellite-dish"></i>
+                      <span>iTrack Professional</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
