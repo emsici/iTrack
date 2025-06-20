@@ -522,10 +522,19 @@ public class EnhancedGPSService extends Service implements LocationListener {
                                         return String.valueOf(percentage);
                                     } else if (cellInfo instanceof CellInfoLte) {
                                         CellSignalStrengthLte lteStrength = ((CellInfoLte) cellInfo).getCellSignalStrength();
-                                        int rsrp = lteStrength.getRsrp();
-                                        int percentage = calculateLteSignalPercentage(rsrp);
-                                        Log.d(TAG, "📶 Real LTE Signal: " + percentage + "% (" + rsrp + " dBm)");
-                                        return String.valueOf(percentage);
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                            // API 26+ method
+                                            int rsrp = lteStrength.getRsrp();
+                                            int percentage = calculateLteSignalPercentage(rsrp);
+                                            Log.d(TAG, "📶 Real LTE Signal: " + percentage + "% (" + rsrp + " dBm)");
+                                            return String.valueOf(percentage);
+                                        } else {
+                                            // Fallback for API < 26
+                                            int dbm = lteStrength.getDbm();
+                                            int percentage = calculateLteSignalPercentage(dbm);
+                                            Log.d(TAG, "📶 LTE Signal (legacy): " + percentage + "% (" + dbm + " dBm)");
+                                            return String.valueOf(percentage);
+                                        }
                                     }
                                 }
                             }
