@@ -110,6 +110,8 @@ public class EnhancedGPSService extends Service implements LocationListener {
         initializeTelephonyManager();
         initializeHttpClient();
         initializeTransmissionHandler();
+        initializeOfflineStorage();
+        initializeConnectivityManager();
         
         startLocationTracking();
         startForeground(NOTIFICATION_ID, createNotification());
@@ -471,30 +473,42 @@ public class EnhancedGPSService extends Service implements LocationListener {
                        " | Speed: " + Math.round(speed) + "km/h" +
                        " | Accuracy: " + String.format("%.2f", accuracy) + "m");
             
-            httpClient.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    Log.e(TAG, "❌ GPS transmission failed for UIT: " + course.uit + " - " + e.getMessage());
-                }
-                
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    try {
-                        String responseBody = response.body() != null ? response.body().string() : "";
-                        
-                        if (response.isSuccessful()) {
-                            Log.i(TAG, "✅ GPS sent successfully for UIT: " + course.uit + 
-                                       " | Response: " + responseBody);
-                        } else {
-                            Log.e(TAG, "❌ Server error " + response.code() + 
-                                       " for UIT: " + course.uit + 
-                                       " | Response: " + responseBody);
-                        }
-                    } finally {
-                        response.close();
+            // Check network connectivity before sending
+            if (isNetworkAvailable()) {
+                httpClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.e(TAG, "❌ GPS transmission failed for UIT: " + course.uit + " - " + e.getMessage());
+                        // Save to offline storage when network request fails
+                        saveCoordinateOffline(gpsData, course);
                     }
-                }
-            });
+                    
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        try {
+                            String responseBody = response.body() != null ? response.body().string() : "";
+                            
+                            if (response.isSuccessful()) {
+                                Log.i(TAG, "✅ GPS sent successfully for UIT: " + course.uit + 
+                                           " | Response: " + responseBody);
+                                // Try to sync any offline coordinates when we have successful connection
+                                syncOfflineCoordinates();
+                            } else {
+                                Log.e(TAG, "❌ Server error " + response.code() + 
+                                           " for UIT: " + course.uit + 
+                                           " | Response: " + responseBody);
+                                // Save to offline storage on server error
+                                saveCoordinateOffline(gpsData, course);
+                            }
+                        } finally {
+                            response.close();
+                        }
+                    }
+                });
+            } else {
+                Log.w(TAG, "🔌 No internet connection - saving GPS coordinate offline for UIT: " + course.uit);
+                saveCoordinateOffline(gpsData, course);
+            }
             
         } catch (Exception e) {
             Log.e(TAG, "💥 Error sending GPS data for UIT: " + course.uit, e);

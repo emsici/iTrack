@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Course } from "../types";
 import { getVehicleCourses, logout } from "../services/api";
 import {
@@ -6,6 +6,7 @@ import {
   stopGPSTracking,
 } from "../services/directAndroidGPS";
 import { clearToken } from "../services/storage";
+import OfflineSyncProgress from "./OfflineSyncProgress";
 import "../styles/professionalVehicleScreen.css";
 
 interface VehicleScreenProps {
