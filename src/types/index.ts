@@ -22,6 +22,9 @@ export interface Course {
   birouVamalStop?: string;
   judetStop?: string;
   denumireLocStop?: string;
+  // API original field names (with capital letters)
+  BirouVamal?: string;
+  BirouVamalStop?: string;
 }
 
 export interface GPSPosition {

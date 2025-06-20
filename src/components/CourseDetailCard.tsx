@@ -165,13 +165,6 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 Informații Complete Transport
               </h6>
               
-              {/* Debug: Log course data */}
-              {console.log('Course data for debugging:', {
-                birouVamal: course.birouVamal,
-                birouVamalStop: course.birouVamalStop,
-                allData: course
-              })}
-              
               <div className="details-grid">
                 {/* Informații Transport */}
                 <div className="detail-group">
