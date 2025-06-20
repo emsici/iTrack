@@ -1,45 +1,45 @@
-import React, { useState } from 'react';
-import { login } from '../services/api';
+import React, { useState } from "react";
+import { login } from "../services/api";
 
 interface LoginScreenProps {
   onLogin: (token: string) => void;
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
-      setError('Te rog să completezi toate câmpurile');
+      setError("Te rog să completezi toate câmpurile");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       // Check for admin credentials
-      if (email === 'admin@itrack.app' && password === 'parola123') {
-        console.log('Admin login detected');
-        onLogin('ADMIN_TOKEN');
+      if (email === "admin@itrack.app" && password === "parola123") {
+        console.log("Admin login detected");
+        onLogin("ADMIN_TOKEN");
         return;
       }
 
       const response = await login(email, password);
-      
+
       if (response.token) {
         onLogin(response.token);
       } else {
-        setError(response.error || 'Date de conectare incorecte');
+        setError(response.error || "Date de conectare incorecte");
       }
     } catch (err: any) {
-      setError(err.message || 'Eroare la conectare');
+      setError(err.message || "Eroare la conectare");
     } finally {
       setLoading(false);
     }
@@ -687,7 +687,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
         `}
       </style>
-      
+
       <div className="login-card">
         <div className="login-header">
           <div className="transport-logo">
@@ -718,9 +718,32 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 type="text"
                 className="form-input"
                 value={email}
-                onChange={(e) => setEmail(e.target.value.replace(/\s/g, ''))}
+                onChange={(e) => {
+                  let value = e.target.value.replace(/\s/g, ''); // Elimină spațiile
+                  
+                  // Dacă este număr de telefon (începe cu cifră sau +)
+                  if (/^[0-9+]/.test(value)) {
+                    // Elimină toate caracterele non-numerice except +
+                    value = value.replace(/[^0-9+]/g, '');
+                    
+                    // Dacă începe cu 07 (număr românesc), adaugă +40
+                    if (value.startsWith('07')) {
+                      value = '+40' + value.substring(1);
+                    }
+                    // Dacă începe cu 40 (fără +), adaugă +
+                    else if (value.startsWith('40') && !value.startsWith('+40')) {
+                      value = '+' + value;
+                    }
+                    // Limitează la lungimea unui număr de telefon valid
+                    if (value.startsWith('+40')) {
+                      value = value.substring(0, 12); // +40xxxxxxxxx (12 caractere)
+                    }
+                  }
+                  
+                  setEmail(value);
+                }}
                 disabled={loading}
-                placeholder="Email sau telefon (0733547739)"
+                placeholder="40723112233 sau email@email.ro"
                 autoComplete="username"
               />
               <i className="fas fa-user input-icon"></i>
@@ -746,16 +769,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                 disabled={loading}
                 title={showPassword ? "Ascunde parola" : "Afișează parola"}
               >
-                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                <i
+                  className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}
+                ></i>
               </button>
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="login-button"
-            disabled={loading}
-          >
+          <button type="submit" className="login-button" disabled={loading}>
             {loading ? (
               <>
                 <div className="loading-spinner"></div>
@@ -775,7 +796,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             <i className="fas fa-code-branch"></i>
             <span>Versiunea 1807.99</span>
           </div>
-        
         </div>
       </div>
     </div>

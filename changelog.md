@@ -408,6 +408,7 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Eliminat linkul API din toate prezentările pentru securitate și confidențialitate enhanced
 - 20 iunie. Eliminare automată spații din câmpul email/telefon în LoginScreen pentru validare corectă credentials
 - 20 iunie. Optimizare regex eliminare spații: 40723 11 22 33 → 40723112233 automat în timp real
+- 20 iunie. Validare avansată telefoane românești: 0733112233 → +40733112233, 40723112233 → +40723112233 automat
 
 ### Versiune Curentă: iTrack v1807.99
 
