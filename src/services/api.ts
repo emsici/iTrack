@@ -105,7 +105,8 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
       console.log('Response Data Array Check:', Array.isArray(responseData.data));
       console.log('Response Data Length:', responseData.data?.length);
       
-      if (responseData.status === 'success' && Array.isArray(responseData.data)) {
+      // Check if we have valid data - either direct array or success with data array
+      if (responseData.status === 'success' && Array.isArray(responseData.data) && responseData.data.length > 0) {
         return responseData.data.map((course: any, index: number) => ({
           id: course.ikRoTrans?.toString() || `course_${index}`,
           name: `ikRoTrans: ${course.ikRoTrans}`,
@@ -134,7 +135,37 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
           BirouVamalStop: course.BirouVamalStop,
           denumireLocStop: course.denumireLocStop
         }));
+      } else if (Array.isArray(responseData) && responseData.length > 0) {
+        // Handle case where response is directly an array (some HTTP clients do this)
+        console.log('Processing direct array response');
+        return responseData.map((course: any, index: number) => ({
+          id: course.ikRoTrans?.toString() || `course_${index}`,
+          name: `ikRoTrans: ${course.ikRoTrans}`,
+          departure_location: course.denumireLocStart || course.Vama,
+          destination_location: course.denumireLocStop || course.VamaStop,
+          departure_time: course.dataTransport || null,
+          arrival_time: null,
+          description: course.denumireDeclarant,
+          status: 1,
+          uit: course.UIT,
+          ikRoTrans: course.ikRoTrans,
+          codDeclarant: course.codDeclarant,
+          denumireDeclarant: course.denumireDeclarant,
+          nrVehicul: course.nrVehicul,
+          dataTransport: course.dataTransport,
+          vama: course.Vama,
+          birouVamal: course.BirouVamal,
+          judet: course.Judet,
+          denumireLocStart: course.denumireLocStart,
+          vamaStop: course.VamaStop,
+          birouVamalStop: course.BirouVamalStop,
+          judetStop: course.JudetStop,
+          BirouVamal: course.BirouVamal,
+          BirouVamalStop: course.BirouVamalStop,
+          denumireLocStop: course.denumireLocStop
+        }));
       } else {
+        console.log('No valid data found in response');
         return [];
       }
     } else {
