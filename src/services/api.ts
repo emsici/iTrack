@@ -87,8 +87,6 @@ export const login = async (email: string, password: string): Promise<LoginRespo
 };
 
 export const getVehicleCourses = async (vehicleNumber: string, token: string) => {
-  const requestKey = `${vehicleNumber}_${token}`;
-  
   // Check if there's already a pending request for this exact vehicle+token combination
   if (currentVehicleRequest && currentVehicleRequest.vehicle === vehicleNumber) {
     console.log('=== BLOCKING DUPLICATE REQUEST - REUSING ACTIVE ===');
@@ -180,7 +178,7 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
       
       logAPI(`Validation: status=${responseData.status}, isArray=${Array.isArray(responseData.data)}, length=${responseData.data?.length}`);
       
-      // Check if we have valid data - either direct array or success with data array
+      // Check if we have valid data - status success and data array
       if (responseData.status === 'success' && Array.isArray(responseData.data) && responseData.data.length > 0) {
         console.log('=== VALIDATION PASSED - PROCESSING DATA ===');
         logAPI(`Validation passed - processing ${responseData.data.length} courses`);
