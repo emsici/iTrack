@@ -266,18 +266,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
+  const [showAdminModal, setShowAdminModal] = useState(false);
+
   const handleShowInfo = async () => {
     // Check for admin mode activation (20 clicks)
     const newClickCount = infoClickCount + 1;
     setInfoClickCount(newClickCount);
     
     if (newClickCount === 20) {
-      console.log("🔓 Admin mode activated - redirecting to admin login");
+      console.log("🔓 Admin mode activated - showing admin modal");
       setInfoClickCount(0);
-      
-      // Navigate to admin login by clearing everything and forcing login screen
-      await clearToken();
-      onLogout();
+      setShowAdminModal(true);
       return;
     }
     
@@ -840,6 +839,52 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       )}
 
 
+
+      {/* Admin Access Modal */}
+      {showAdminModal && (
+        <div className="admin-modal-overlay" onClick={() => setShowAdminModal(false)}>
+          <div className="admin-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h3>🔐 Acces Administrator</h3>
+              <button onClick={() => setShowAdminModal(false)} className="modal-close">
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="admin-modal-body">
+              <p>Acces admin activat prin 20 click-uri pe timestamp!</p>
+              <div className="admin-options">
+                <button 
+                  className="admin-option-btn logs-btn"
+                  onClick={() => {
+                    setShowAdminModal(false);
+                    console.log("🔧 Debug logs activated - check browser console");
+                    // Activate enhanced logging
+                    localStorage.setItem('debug_mode', 'true');
+                  }}
+                >
+                  <i className="fas fa-bug"></i>
+                  Activează Debug Logs
+                </button>
+                <button 
+                  className="admin-option-btn info-btn"
+                  onClick={() => {
+                    setShowAdminModal(false);
+                    console.log("📱 System info:", {
+                      userAgent: navigator.userAgent,
+                      online: navigator.onLine,
+                      courses: courses.length,
+                      vehicleNumber
+                    });
+                  }}
+                >
+                  <i className="fas fa-info-circle"></i>
+                  System Info
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Monitorizare GPS Offline */}
       <OfflineGPSMonitor 
