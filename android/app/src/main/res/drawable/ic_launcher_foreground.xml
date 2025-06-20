@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer Ring - Corporate Style -->
+    <path
+        android:pathData="M54,54m-44,0a44,44 0,1 1,88 0a44,44 0,1 1,-88 0"
+        android:fillColor="#F8FAFC"
+        android:strokeColor="#3B82F6"
+        android:strokeWidth="2"/>
+    
+    <!-- Inner Core Circle -->
+    <path
+        android:pathData="M54,54m-32,0a32,32 0,1 1,64 0a32,32 0,1 1,-64 0"
+        android:fillColor="#3B82F6"/>
+    
+    <!-- Truck Icon - Detailed like FontAwesome -->
+    <group
+        android:translateX="54"
+        android:translateY="54">
+        
+        <!-- Main Truck Body -->
+        <path
+            android:pathData="M-14,-6 L-8,-6 L-8,-8 L8,-8 L8,-2 L12,-2 L12,2 L10,2 L10,3 C10,4.7 8.7,6 7,6 S4,4.7 4,3 L-6,3 C-6,4.7 -7.3,6 -9,6 S-12,4.7 -12,3 L-14,3 L-14,-6 Z"
+            android:fillColor="#FFFFFF"/>
+        
+        <!-- Cabin -->
+        <path
+            android:pathData="M-14,-4 L-8,-4 L-8,1 L-14,1 Z"
+            android:fillColor="#DBEAFE"/>
+        
+        <!-- Cargo Area -->
+        <path
+            android:pathData="M-6,-6 L6,-6 L6,1 L-6,1 Z"
+            android:fillColor="#E0E7FF"/>
+        
+        <!-- Front Wheel -->
+        <circle
+            android:cx="7"
+            android:cy="3"
+            android:radius="2.5"
+            android:fillColor="#374151"/>
+        <circle
+            android:cx="7"
+            android:cy="3"
+            android:radius="1.5"
+            android:fillColor="#9CA3AF"/>
+        
+        <!-- Rear Wheel -->
+        <circle
+            android:cx="-9"
+            android:cy="3"
+            android:radius="2.5"
+            android:fillColor="#374151"/>
+        <circle
+            android:cx="-9"
+            android:cy="3"
+            android:radius="1.5"
+            android:fillColor="#9CA3AF"/>
+        
+        <!-- Cabin Window -->
+        <path
+            android:pathData="M-12,-3 L-10,-3 L-10,0 L-12,0 Z"
+            android:fillColor="#60A5FA"/>
+        
+        <!-- Headlight -->
+        <circle
+            android:cx="8"
+            android:cy="-4"
+            android:radius="1"
+            android:fillColor="#FEF3C7"/>
+            
+        <!-- Front Grille Lines -->
+        <path
+            android:pathData="M6,-7 L6,-3 M7,-7 L7,-3"
+            android:strokeColor="#6B7280"
+            android:strokeWidth="0.5"/>
+    </group>
+</vector>
