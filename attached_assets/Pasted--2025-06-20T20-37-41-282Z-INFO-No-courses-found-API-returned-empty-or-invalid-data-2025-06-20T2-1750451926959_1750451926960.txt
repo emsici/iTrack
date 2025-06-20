@@ -1,0 +1,47 @@
+[2025-06-20T20:37:41.282Z] INFO: No courses found - API returned empty or invalid data
+[2025-06-20T20:37:41.282Z] INFO: Request completed for IF03CWT - all locks cleared
+[2025-06-20T20:37:41.282Z] INFO: === REQUEST COMPLETED - LOCKS CLEARED ===
+[2025-06-20T20:37:41.279Z] INFO: Validation passed - processing 1 courses
+[2025-06-20T20:37:41.278Z] INFO: === VALIDATION PASSED - PROCESSING DATA ===
+[2025-06-20T20:37:41.278Z] INFO: Validation: status=success, isArray=true, length=1
+[2025-06-20T20:37:41.278Z] INFO: Length check: true
+[2025-06-20T20:37:41.278Z] INFO: Array check: true
+[2025-06-20T20:37:41.278Z] INFO: Status check: true
+[2025-06-20T20:37:41.278Z] INFO: Response Data Length: 1
+[2025-06-20T20:37:41.278Z] INFO: Response Data Array Check: true
+[2025-06-20T20:37:41.278Z] INFO: Response Data Status: success
+[2025-06-20T20:37:41.278Z] INFO: Response data: {"status":"success","count":1,"data":[{"ikRoTrans":4243,"codDeclarant":16539878,"denumireDeclarant":"EPRS.RO SRL","nrVehicul":"IF03CWT","UIT":"6E8W324493000172","dataTransport":"2025-06-18","Vama":"BV...
+[2025-06-20T20:37:41.278Z] INFO: Initial response: status=200, type=object, keys=[status,count,data]
+[2025-06-20T20:37:41.278Z] INFO: Response Keys: status,count,data
+[2025-06-20T20:37:41.278Z] INFO: Response Type: object
+[2025-06-20T20:37:41.278Z] INFO: Response Data: {
+  "status": "success",
+  "count": 1,
+  "data": [
+    {
+      "ikRoTrans": 4243,
+      "codDeclarant": 16539878,
+      "denumireDeclarant": "EPRS.RO SRL",
+      "nrVehicul": "IF03CWT",
+      "UIT": "6E8W324493000172",
+      "dataTransport": "2025-06-18",
+      "Vama": "BV",
+      "BirouVamal": "BV Otopeni C?l?tori, Jud. Ilfov",
+      "Judet": "IF",
+      "denumireLocStart": null,
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Strada Tebea, nr. 14 nr. -, Otopeni, Jud. Ilfov, Cod po?tal 075100",
+      "JudetStop": "IF",
+      "denumireLocStop": "OTOPENI"
+    }
+  ]
+}
+[2025-06-20T20:37:41.277Z] INFO: Status: 200
+[2025-06-20T20:37:41.277Z] INFO: === VEHICLE COURSES RESPONSE ===
+[2025-06-20T20:37:40.854Z] INFO: Vehicle courses request for IF03CWT with cache buster 1750451860852
+[2025-06-20T20:37:40.854Z] INFO: Cache Buster: 1750451860852
+[2025-06-20T20:37:40.854Z] INFO: Token: eyJhbGciOiJIUzI1NiIs...
+[2025-06-20T20:37:40.854Z] INFO: URL: https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php?nr=IF03CWT&t=1750451860852
+[2025-06-20T20:37:40.852Z] INFO: === VEHICLE COURSES REQUEST ===
+[2025-06-20T20:37:12.205Z] INFO: No stored token - showing login
+[2025-06-20T20:37:12.183Z] INFO: AppLogger initialized

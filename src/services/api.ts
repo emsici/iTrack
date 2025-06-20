@@ -182,7 +182,7 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
       if (responseData.status === 'success' && Array.isArray(responseData.data) && responseData.data.length > 0) {
         console.log('=== VALIDATION PASSED - PROCESSING DATA ===');
         logAPI(`Validation passed - processing ${responseData.data.length} courses`);
-        return responseData.data.map((course: any, index: number) => ({
+        const processedCourses = responseData.data.map((course: any, index: number) => ({
           id: course.ikRoTrans?.toString() || `course_${index}`,
           name: `ikRoTrans: ${course.ikRoTrans}`,
           departure_location: course.denumireLocStart || course.Vama,
@@ -210,6 +210,13 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
           BirouVamalStop: course.BirouVamalStop,
           denumireLocStop: course.denumireLocStop
         }));
+        
+        console.log('=== PROCESSED COURSES READY TO RETURN ===');
+        console.log('Processed courses count:', processedCourses.length);
+        console.log('First course sample:', JSON.stringify(processedCourses[0], null, 2));
+        logAPI(`Returning ${processedCourses.length} processed courses to UI`);
+        
+        return processedCourses;
       } else if (Array.isArray(responseData) && responseData.length > 0) {
         // Handle case where response is directly an array (some HTTP clients do this)
         console.log('Processing direct array response');

@@ -50,17 +50,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     try {
       const response = await getVehicleCourses(vehicleNumber, token);
       
-      if (response && response.data) {
-        const mergedCourses = response.data.map((newCourse: Course) => {
+      if (response && Array.isArray(response) && response.length > 0) {
+        const mergedCourses = response.map((newCourse: Course) => {
           const existingCourse = courses.find(c => c.id === newCourse.id);
           return existingCourse ? { ...newCourse, status: existingCourse.status } : newCourse;
         });
         
         setCourses(mergedCourses);
         setCoursesLoaded(true);
+        console.log(`=== UI: Successfully loaded ${mergedCourses.length} courses ===`);
         // Courses loaded successfully
       } else {
         console.log('No courses found - API returned empty or invalid data');
+        logAPI('UI: No courses found - API returned empty or invalid data');
         setError("Nu s-au găsit curse pentru acest vehicul");
       }
     } catch (error: any) {
