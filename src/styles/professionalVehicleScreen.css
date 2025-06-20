@@ -2494,6 +2494,19 @@
   }
 }
 
+/* Stats Navigation Button */
+.stats-nav-button {
+  background: linear-gradient(145deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.15)) !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+  color: rgba(34, 197, 94, 0.9) !important;
+}
+
+.stats-nav-button:hover {
+  background: linear-gradient(145deg, rgba(34, 197, 94, 0.25), rgba(22, 163, 74, 0.25)) !important;
+  color: #16a34a !important;
+  transform: translateY(-1px);
+}
+
 .status-pulse {
   position: relative;
   width: 12px;
