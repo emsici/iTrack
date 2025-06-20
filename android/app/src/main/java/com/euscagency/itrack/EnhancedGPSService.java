@@ -37,7 +37,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
     private static final String TAG = "EnhancedGPSService";
     private static final String CHANNEL_ID = "enhanced_gps_channel";
     private static final int NOTIFICATION_ID = 2;
-    private static final long TRANSMISSION_INTERVAL = 60000; // 60 seconds
+    private static final long TRANSMISSION_INTERVAL = 5000; // 5 seconds
     private static final float MIN_DISTANCE = 0.5f; // Minimum 0.5m movement
     
     private LocationManager locationManager;
@@ -199,26 +199,40 @@ public class EnhancedGPSService extends Service implements LocationListener {
     
     private void startLocationTracking() {
         try {
+            // GPS provider with high accuracy and fast updates
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
-                    5000, // 5 seconds
-                    MIN_DISTANCE,
+                    1000, // 1 second for maximum responsiveness
+                    0.0f, // No distance filter for maximum precision
                     this,
                     Looper.getMainLooper()
                 );
-                Log.d(TAG, "📡 GPS provider tracking started");
+                Log.d(TAG, "📡 High-precision GPS provider tracking started (1s interval)");
             }
             
+            // Network provider as backup
             if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                 locationManager.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER,
-                    5000,
-                    MIN_DISTANCE,
+                    2000, // 2 seconds for network
+                    0.0f, // No distance filter
                     this,
                     Looper.getMainLooper()
                 );
-                Log.d(TAG, "📶 Network provider tracking started");
+                Log.d(TAG, "📶 Network provider tracking started (2s interval)");
+            }
+            
+            // Passive provider for additional data
+            if (locationManager.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)) {
+                locationManager.requestLocationUpdates(
+                    LocationManager.PASSIVE_PROVIDER,
+                    1000,
+                    0.0f,
+                    this,
+                    Looper.getMainLooper()
+                );
+                Log.d(TAG, "🔄 Passive provider tracking started");
             }
             
             // Try to get last known location immediately
@@ -279,7 +293,8 @@ public class EnhancedGPSService extends Service implements LocationListener {
         long uptime = System.currentTimeMillis() - serviceStartTime;
         
         Log.i(TAG, "📡 GPS Transmission #" + transmissionCounter + 
-              " | Uptime: " + (uptime/1000) + "s | Active courses: " + activeCourses.size());
+              " | Uptime: " + (uptime/1000) + "s | Active courses: " + activeCourses.size() +
+              " | Interval: 5s");
         
         for (CourseData course : activeCourses.values()) {
             sendGPSDataForCourse(course, lastKnownLocation);
@@ -297,9 +312,13 @@ public class EnhancedGPSService extends Service implements LocationListener {
             double altitude = location.hasAltitude() ? location.getAltitude() : 0.0;
             float accuracy = location.hasAccuracy() ? location.getAccuracy() : 999.0f;
             
+            // Coordonate precise cu 8 zecimale pentru precizie maximă
+            double lat = location.getLatitude();
+            double lng = location.getLongitude();
+            
             JSONObject gpsData = new JSONObject();
-            gpsData.put("lat", String.format("%.8f", location.getLatitude()));
-            gpsData.put("lng", String.format("%.8f", location.getLongitude()));
+            gpsData.put("lat", lat); // Trimite ca număr pentru precizie maximă
+            gpsData.put("lng", lng); // Trimite ca număr pentru precizie maximă
             gpsData.put("timestamp", timestamp);
             gpsData.put("viteza", Math.round(speed));
             gpsData.put("directie", Math.round(bearing));
@@ -326,9 +345,11 @@ public class EnhancedGPSService extends Service implements LocationListener {
                 .post(body)
                 .build();
             
-            Log.d(TAG, "🚗 Sending GPS for Vehicle: " + course.vehicleNumber + 
+            Log.d(TAG, "🚗 Sending HIGH-PRECISION GPS for Vehicle: " + course.vehicleNumber + 
                        " | UIT: " + course.uit + 
-                       " | Status: " + course.status);
+                       " | Status: " + course.status +
+                       " | Coordinates: " + String.format("%.8f, %.8f", lat, lng) +
+                       " | Accuracy: " + String.format("%.2f", accuracy) + "m");
             
             httpClient.newCall(request).enqueue(new Callback() {
                 @Override
@@ -411,7 +432,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
             PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
         );
         
-        String contentText = activeCourses.size() + " active courses - GPS tracking";
+        String contentText = activeCourses.size() + " active courses - GPS every 5s";
         
         return new NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("iTrack Enhanced GPS")
@@ -467,5 +488,52 @@ public class EnhancedGPSService extends Service implements LocationListener {
     @Override
     public void onProviderDisabled(String provider) {
         Log.w(TAG, "📡 Provider disabled: " + provider);
+    }
+    
+    @Override
+    public void onLocationChanged(Location location) {
+        if (location != null && isBetterLocation(location, lastKnownLocation)) {
+            lastKnownLocation = location;
+            
+            Log.i(TAG, "📍 HIGH-PRECISION GPS: " + 
+                  String.format("Lat: %.8f, Lng: %.8f", location.getLatitude(), location.getLongitude()) +
+                  " | Accuracy: " + String.format("%.2f", location.getAccuracy()) + "m" +
+                  " | Provider: " + location.getProvider() +
+                  " | Speed: " + String.format("%.2f", location.getSpeed() * 3.6f) + " km/h");
+        }
+    }
+    
+    // Algorithm to determine if new location is more accurate
+    private boolean isBetterLocation(Location location, Location currentBestLocation) {
+        if (currentBestLocation == null) {
+            return true; // Any location is better than no location
+        }
+
+        // Check if the new location is significantly newer
+        long timeDelta = location.getTime() - currentBestLocation.getTime();
+        boolean isSignificantlyNewer = timeDelta > 2 * 60 * 1000; // 2 minutes
+        boolean isSignificantlyOlder = timeDelta < -2 * 60 * 1000; // 2 minutes
+
+        if (isSignificantlyNewer) {
+            return true;
+        } else if (isSignificantlyOlder) {
+            return false;
+        }
+
+        // Check accuracy - prefer GPS over Network
+        float accuracyDelta = location.getAccuracy() - currentBestLocation.getAccuracy();
+        boolean isMoreAccurate = accuracyDelta < 0;
+        boolean isFromGPS = LocationManager.GPS_PROVIDER.equals(location.getProvider());
+        boolean currentFromGPS = LocationManager.GPS_PROVIDER.equals(currentBestLocation.getProvider());
+
+        // Always prefer GPS provider over others
+        if (isFromGPS && !currentFromGPS) {
+            return true;
+        } else if (!isFromGPS && currentFromGPS) {
+            return false;
+        }
+
+        // If both from same type, prefer more accurate
+        return isMoreAccurate || (timeDelta > 0 && accuracyDelta < 50); // Accept if newer and not much worse
     }
 }
