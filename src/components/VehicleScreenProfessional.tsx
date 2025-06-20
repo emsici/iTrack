@@ -7,7 +7,8 @@ import {
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
 import { clearToken } from "../services/storage";
-import { getOfflineGPSCount, getOfflineGPSInfo } from "../services/offlineGPS";
+import { getOfflineGPSCount, getOfflineGPSInfo, syncOfflineGPS } from "../services/offlineGPS";
+import { subscribeToSyncProgress } from "../services/offlineSyncStatus";
 import CourseStatsModal from "./CourseStatsModal";
 import "../styles/professionalVehicleScreen.css";
 
@@ -32,6 +33,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncInProgress, setSyncInProgress] = useState(false);
   const [lastCoursesSync, setLastCoursesSync] = useState<string>('');
+  const [syncProgress, setSyncProgress] = useState({ synced: 0, failed: 0, total: 0 });
+  const [showOfflineStatus, setShowOfflineStatus] = useState(false);
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -107,54 +110,76 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
   }, []);
 
-  // Monitor offline GPS count
+  // Monitor offline GPS count and auto-sync
   useEffect(() => {
     let interval: NodeJS.Timeout;
+    let syncSubscription: (() => void) | null = null;
     
     if (coursesLoaded) {
-      const updateOfflineCount = async () => {
+      const updateOfflineStatus = async () => {
         try {
           const count = await getOfflineGPSCount();
           setOfflineCount(count);
           
+          // Arată bara offline dacă există coordonate sau suntem offline
+          setShowOfflineStatus(count > 0 || !isOnline);
+          
           // Check sync status
           const syncInfo = await getOfflineGPSInfo();
           setSyncInProgress(syncInfo.syncInProgress);
-        } catch (error) {
-          console.error("Error checking offline GPS count:", error);
-        }
-      };
-      
-      // Update immediately and then every 5 seconds
-      updateOfflineCount();
-      interval = setInterval(updateOfflineCount, 5000);
-      
-      // Also log GPS activity for debugging
-      const logGPSActivity = async () => {
-        try {
-          const count = await getOfflineGPSCount();
-          if (count > 0) {
-            console.log(`📍 GPS Offline: ${count} coordonate salvate local`);
+          
+          // Auto-sync când revine internetul și avem coordonate offline
+          if (isOnline && count > 0 && !syncInfo.syncInProgress) {
+            console.log(`🔄 Auto-sync: Trimit ${count} coordonate GPS offline...`);
+            try {
+              const result = await syncOfflineGPS();
+              console.log(`✅ Sincronizare completă: ${result.success}/${result.total} coordonate trimise`);
+              setSyncProgress({ synced: result.success, failed: result.failed, total: result.total });
+            } catch (error) {
+              console.error("❌ Eroare auto-sync GPS:", error);
+            }
           }
         } catch (error) {
-          // Silent error to avoid spam
+          console.error("Error checking offline GPS status:", error);
         }
       };
       
-      const gpsLogInterval = setInterval(logGPSActivity, 15000); // Every 15 seconds
+      // Sync progress monitoring
+      if (subscribeToSyncProgress) {
+        syncSubscription = subscribeToSyncProgress({
+          onProgressUpdate: (progress) => {
+            setSyncProgress({ 
+              synced: progress.synced, 
+              failed: progress.failed, 
+              total: progress.totalToSync 
+            });
+            setSyncInProgress(progress.isActive);
+            console.log(`🔄 Progres sync: ${progress.synced}/${progress.totalToSync} (${progress.percentage}%)`);
+          },
+          onSyncComplete: () => {
+            console.log("✅ Sincronizare GPS offline completă");
+            setSyncInProgress(false);
+            setShowOfflineStatus(false);
+          },
+          onSyncError: (error) => {
+            console.error("❌ Eroare sincronizare GPS:", error);
+            setSyncInProgress(false);
+          }
+        });
+      }
+      
+      // Update immediately and then every 3 seconds
+      updateOfflineStatus();
+      interval = setInterval(updateOfflineStatus, 3000);
       
       return () => {
         clearInterval(interval);
-        clearInterval(gpsLogInterval);
+        if (syncSubscription) {
+          syncSubscription();
+        }
       };
     }
-    
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [coursesLoaded]);
+  }, [coursesLoaded, isOnline]);
 
   // Auto-refresh effect
   useEffect(() => {

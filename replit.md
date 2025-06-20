@@ -344,7 +344,6 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Crescut mărimea batch sincronizare offline de la 5 la 50 coordonate pentru eficiență mai bună
 - 20 iunie. Îmbunătățit afișarea detaliilor cursă include informații complete birou vamal (BirouVamal, BirouVamalStop)
 - 20 iunie. Citirea puterii semnalului GSM real din Android TelephonyManager înlocuiește toate valorile hardcoded
-- 20 iunie. INTERFAȚĂ MOBILĂ ÎMBUNĂTĂȚITĂ: Rezolvat suprapunerea status bar, redus animațiile excesive, optimizat padding pentru mobil
 - 20 iunie. Îmbunătățit schimbarea vehiculului - un singur click resetează cursele și permite intrarea numărului vehicul nou cu interogare API fresh
 - 20 iunie. Stabilizat efectele hover butoane - redus animațiile "zburătoare" și îmbunătățit feedback-ul vizual pe dispozitive mobile
 - 20 iunie. REZOLVAT STOCAREA GPS OFFLINE: Adăugat metoda initializeOfflineStorage() lipsă la EnhancedGPSService
@@ -368,7 +367,7 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. REZOLVAT AFIȘAREA BIROU VAMAL: Corectat maparea câmp API pentru BirouVamal și BirouVamalStop în detaliile cursă
 - 20 iunie. Actualizat CourseStatsModal cu design corporatist glassmorphism modern potrivind interfața principală
 - 20 iunie. Îmbunătățit afișarea detaliilor cursă cu informații corecte birou vamal din datele API
-- 20 iunie. Verificat integrarea API arată date adresă complete: "TRIBUNUL CORCHES NR 2 B" și "FAGULUI NR 52"
+- 20 iunie. Verificat integrarea API arată date adresă complete
 - 20 iunie. DESIGN MODERNIZAT: Implementat elemente vizuale de ultimă generație cu gradient-uri conice și animații particule
 - 20 iunie. Adăugat efecte shimmer holografice, mapare profunzime neomorphism și design navigare plutitoare
 - 20 iunie. Îmbunătățit cu tipografie contemporană (font Inter), saturație blur backdrop și micro-interacțiuni
@@ -377,9 +376,3 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Eliminat toate referințele la "2025" din documentație conform preferinței utilizatorului (sună neprofesional)
 - 20 iunie. Actualizat toată documentația în limba română pentru consistență
 - 20 iunie. Rezolvat structura proiect pentru a reflecta componentele reale: VehicleScreenProfessional, CourseStatsModal, AdminPanel, etc.
-
-## User Preferences
-
-Preferred communication style: Simple, everyday language.
-Avoid using "2025" references in documentation as they sound unprofessional ("manelist").
-Documentation language: Romanian (română) for all project files.
