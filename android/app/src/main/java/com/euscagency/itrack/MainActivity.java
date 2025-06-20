@@ -9,8 +9,11 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        android.util.Log.d("MainActivity", "iTrack app initialized");
-        android.util.Log.d("MainActivity", "EnhancedGPSService ready for direct activation");
+        // Register GPS plugin for Capacitor bridge
+        registerPlugin(GPSPlugin.class);
+        
+        android.util.Log.d("MainActivity", "iTrack app initialized with GPS plugin");
+        android.util.Log.d("MainActivity", "EnhancedGPSService ready for activation");
     }
     
     public void startGPSTracking(String courseId, String vehicleNumber, String uit, String authToken, int status) {

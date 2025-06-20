@@ -1,6 +1,23 @@
-// GPS direct Android prin Intent - fără plugin Capacitor
+// GPS direct Android prin plugin Capacitor
 import { Capacitor } from '@capacitor/core';
 import { Geolocation } from '@capacitor/geolocation';
+
+// GPS Plugin pentru Android
+interface GPSPlugin {
+  startGPS(options: {
+    courseId: string;
+    vehicleNumber: string;
+    uit: string;
+    authToken: string;
+    status: number;
+  }): Promise<{ success: boolean; message: string }>;
+  
+  stopGPS(options: {
+    courseId: string;
+  }): Promise<{ success: boolean; message: string }>;
+}
+
+const GPSPlugin = Capacitor.registerPlugin<GPSPlugin>('GPSPlugin');
 
 interface ActiveCourse {
   courseId: string;
