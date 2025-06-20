@@ -289,31 +289,18 @@ class DirectAndroidGPSService {
 
   private async startWebCompatibleGPS(course: ActiveCourse): Promise<void> {
     console.log(
-      "Starting web-compatible GPS simulation for course:",
+      "Web environment detected - GPS tracking disabled",
       course.courseId,
     );
 
-    try {
-      // Request GPS permissions first
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-      });
-
-      console.log(
-        "GPS position obtained:",
-        position.coords.latitude,
-        position.coords.longitude,
-      );
-      console.log("In APK: DirectGPS plugin will activate EnhancedGPSService");
-      console.log("Web simulation: GPS would transmit every 60s in background");
-
-      // Simulate successful activation
-      await this.testGPSTransmission(course);
-    } catch (error) {
-      console.error("GPS permission or location error:", error);
-      throw new Error("GPS permissions required for tracking");
-    }
+    // În mediul web nu activăm GPS - doar serviciul Android nativ
+    console.log("⚠️ GPS tracking works only in APK with native Android service");
+    console.log("📱 Install APK to enable background GPS transmission every 5 seconds");
+    
+    // Nu transmitem nimic din WebView pentru a evita duplicarea
+    // Doar serviciul Android nativ EnhancedGPSService transmite la 5 secunde
+    
+    // Elimină complet apelul la testGPSTransmission pentru a opri duplicarea
   }
 
   private async testGPSTransmission(course: ActiveCourse): Promise<void> {

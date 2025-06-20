@@ -40,7 +40,7 @@ iTrack is a professional GPS tracking application designed for drivers and fleet
 - **Batch Synchronization**: Automatic sync of up to 50 cached coordinates when online
 - **High Precision**: 5-second intervals with 8-decimal coordinate precision
 - **Battery Optimization**: Smart power management with foreground service
-- **Multiple Activation Methods**: Plugin-based and WebView backup systems
+- **Single Source GPS**: Only Android native service transmits (WebView GPS disabled to prevent duplicates)
 
 ### Course Management
 - Vehicle-specific course loading with validation
