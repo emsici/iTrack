@@ -325,10 +325,19 @@ https://www.euscagency.com/etsm3/platforme/transport/apk
 ```
 
 #### Headers Comune
-```javascript
+
+**Pentru autentificare (login):**
+```json
 {
-  'Content-Type': 'application/json',
-  'Authorization': 'Bearer {jwt_token}' // Pentru endpoint-urile autentificate
+  "Content-Type": "application/json"
+}
+```
+
+**Pentru toate celelalte endpoint-uri:**
+```json
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer {jwt_token}"
 }
 ```
 
@@ -341,7 +350,7 @@ https://www.euscagency.com/etsm3/platforme/transport/apk
 
 #### 1. Autentificare
 
-##### POST /api_login.php
+##### POST /login.php
 Autentifică utilizatorul și returnează JWT token.
 
 **Request Body:**
@@ -352,37 +361,59 @@ Autentifică utilizatorul și returnează JWT token.
 }
 ```
 
+**Headers:**
+```json
+{
+  "Content-Type": "application/json"
+}
+```
+
 **Response Success (200):**
 ```json
 {
   "status": "success",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user_id": "12345",
-  "expires_in": 3600
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
 **Credențiale Admin pentru Testing:**
 - Email: `admin@itrack.app`
 - Password: `parola123`
-- Token returnat: `ADMIN_TOKEN`
 
-##### POST /api_logout.php
+##### POST /login.php (Logout)
 Invalidează token-ul JWT și curăță sesiunea server.
 
-**Headers:**
+**Request Body:**
+```json
+{
+  "iesire": 1
+}
 ```
-Authorization: Bearer {jwt_token}
+
+**Headers:**
+```json
+{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer {jwt_token}"
+}
 ```
 
 #### 2. Gestionare Curse
 
-##### GET /get_courses_by_vehicle.php
+##### GET /vehicul.php
 Încarcă toate cursele disponibile pentru un vehicul specific.
 
 **URL Parameters:**
 ```
-?vehicle={numar_inmatriculare}&token={jwt_token}
+?nr={numar_inmatriculare}
+```
+
+**Headers:**
+```json
+{
+  "Authorization": "Bearer {jwt_token}",
+  "Content-Type": "application/json"
+}
 ```
 
 **Response Success (200):**
@@ -400,7 +431,7 @@ Authorization: Bearer {jwt_token}
     "uit": "UIT123456789",
     "ikRoTrans": 1001,
     "codDeclarant": 2001,
-    "denumireDeclarant": "Transport Express SRL",
+    "denumireDeclarant": "Transport SRL",
     "nrVehicul": "B123ABC",
     "dataTransport": "2025-06-20",
     "vama": "Bucuresti",
@@ -421,23 +452,18 @@ Authorization: Bearer {jwt_token}
 - `3`: Pauză (întreruptă temporar)
 - `4`: Oprită (finalizată)
 
-##### POST /update_course_status.php
-Actualizează statusul unei curse.
-
-**Request Body:**
-```json
-{
-  "course_id": "course_001",
-  "status": 2,
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "timestamp": "2025-06-20T10:30:00Z"
-}
-```
-
-#### 3. GPS Tracking
+#### 2. GPS Tracking
 
 ##### POST /gps.php
 Transmite coordonatele GPS cu metadate complete.
+
+**Headers:**
+```json
+{
+  "Authorization": "Bearer {jwt_token}",
+  "Content-Type": "application/json"
+}
+```
 
 **Request Body:**
 ```json
@@ -453,9 +479,7 @@ Transmite coordonatele GPS cu metadate complete.
   "uit": "UIT123456789",
   "status": "2",
   "hdop": "1.2",
-  "gsm_signal": "4",
-  "course_id": "course_001",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "gsm_signal": "4"
 }
 ```
 
@@ -490,7 +514,7 @@ Transmite coordonatele GPS cu metadate complete.
 
 #### Token Format
 ```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf3sddassV_adQssw5c
 ```
 
 #### Gestionare Token
