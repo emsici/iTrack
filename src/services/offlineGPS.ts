@@ -28,7 +28,7 @@ export interface OfflineGPSCoordinate {
 
 class OfflineGPSService {
   private readonly STORAGE_KEY = 'offline_gps_coordinates';
-  private readonly MAX_COORDINATES = 1000; // Maximum coordinates to store offline
+  private readonly MAX_COORDINATES = 10000; // Maximum coordinates to store offline
   private readonly MAX_RETRY_COUNT = 3;
   private syncInProgress = false;
 

@@ -7,6 +7,7 @@ import {
 } from "../services/directAndroidGPS";
 import { clearToken } from "../services/storage";
 import OfflineSyncProgress from "./OfflineSyncProgress";
+import CourseStatsModal from "./CourseStatsModal";
 import "../styles/professionalVehicleScreen.css";
 
 interface VehicleScreenProps {
@@ -25,6 +26,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>('');
+  const [showStats, setShowStats] = useState(false);
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -544,6 +546,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </div>
           <div className="nav-actions">
             <button
+              className="nav-button stats-nav-button"
+              onClick={() => setShowStats(true)}
+            >
+              <i className="fas fa-chart-line"></i>
+              Stats
+            </button>
+            <button
               className="nav-button info-nav-button"
               onClick={handleShowInfo}
             >
@@ -670,6 +679,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </div>
         </div>
       )}
+
+      <CourseStatsModal
+        isOpen={showStats}
+        onClose={() => setShowStats(false)}
+        courses={courses}
+        vehicleNumber={vehicleNumber}
+      />
     </div>
   );
 };
