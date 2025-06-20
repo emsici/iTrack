@@ -298,6 +298,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 20, 2025. Enhanced coordinate precision - sends 8-decimal GPS coordinates as numbers (not strings)
 - June 20, 2025. Optimized GPS configuration: 1s GPS updates, 0m distance filter for maximum accuracy
 - June 20, 2025. Intelligent location selection algorithm prioritizes GPS satellite over network location
+- June 20, 2025. REAL GSM SIGNAL IMPLEMENTATION: Replaced hardcoded GSM value (75) with actual signal strength reading
+- June 20, 2025. GSM signal now reads real values from TelephonyManager using SignalStrength API for Android P+
+- June 20, 2025. Added fallback GSM reading for older Android versions using CellInfo and dBm conversion
+- June 20, 2025. GSM percentage calculated from actual signal strength: GSM (-113 to -51 dBm), LTE (-140 to -44 dBm)
+- June 20, 2025. Enhanced logging shows real GSM values being transmitted instead of static fallback values
 
 ## User Preferences
 

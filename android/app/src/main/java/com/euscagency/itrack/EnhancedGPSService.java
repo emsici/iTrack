@@ -20,6 +20,12 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.telephony.SignalStrength;
+import android.telephony.CellInfo;
+import android.telephony.CellInfoGsm;
+import android.telephony.CellInfoLte;
+import android.telephony.CellSignalStrengthGsm;
+import android.telephony.CellSignalStrengthLte;
+import java.util.List;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
 
@@ -328,7 +334,10 @@ public class EnhancedGPSService extends Service implements LocationListener {
             gpsData.put("uit", course.uit);
             gpsData.put("status", String.valueOf(course.status));
             gpsData.put("hdop", Math.round(accuracy));
-            gpsData.put("gsm_signal", getGSMSignalStrength());
+            String gsmSignal = getGSMSignalStrength();
+            gpsData.put("gsm_signal", gsmSignal);
+            
+            Log.d(TAG, "📶 GSM Signal being sent: " + gsmSignal + "%");
             
             // Create request
             RequestBody body = RequestBody.create(
@@ -400,13 +409,63 @@ public class EnhancedGPSService extends Service implements LocationListener {
     private String getGSMSignalStrength() {
         try {
             if (telephonyManager != null) {
-                // For newer Android versions, this would need additional permission handling
-                return "75"; // Default good signal strength
+                // Get signal strength using newer API
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    SignalStrength signalStrength = telephonyManager.getSignalStrength();
+                    if (signalStrength != null) {
+                        int level = signalStrength.getLevel(); // 0-4 scale
+                        int percentage = (level * 100) / 4; // Convert to 0-100%
+                        Log.d(TAG, "📶 Real GSM Signal: " + percentage + "% (Level " + level + "/4)");
+                        return String.valueOf(percentage);
+                    }
+                } else {
+                    // Fallback for older Android versions
+                    try {
+                        List<CellInfo> cellInfos = telephonyManager.getAllCellInfo();
+                        if (cellInfos != null && !cellInfos.isEmpty()) {
+                            for (CellInfo cellInfo : cellInfos) {
+                                if (cellInfo.isRegistered()) {
+                                    if (cellInfo instanceof CellInfoGsm) {
+                                        CellSignalStrengthGsm gsmStrength = ((CellInfoGsm) cellInfo).getCellSignalStrength();
+                                        int dbm = gsmStrength.getDbm();
+                                        int percentage = calculateSignalPercentage(dbm);
+                                        Log.d(TAG, "📶 Real GSM Signal: " + percentage + "% (" + dbm + " dBm)");
+                                        return String.valueOf(percentage);
+                                    } else if (cellInfo instanceof CellInfoLte) {
+                                        CellSignalStrengthLte lteStrength = ((CellInfoLte) cellInfo).getCellSignalStrength();
+                                        int rsrp = lteStrength.getRsrp();
+                                        int percentage = calculateLteSignalPercentage(rsrp);
+                                        Log.d(TAG, "📶 Real LTE Signal: " + percentage + "% (" + rsrp + " dBm)");
+                                        return String.valueOf(percentage);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (SecurityException e) {
+                        Log.w(TAG, "Permission denied for cell info access", e);
+                    }
+                }
             }
         } catch (Exception e) {
-            Log.w(TAG, "Cannot get GSM signal strength", e);
+            Log.w(TAG, "Cannot get real GSM signal strength", e);
         }
-        return "50"; // Default moderate signal strength
+        
+        Log.w(TAG, "📶 Using fallback GSM value: 75%");
+        return "75"; // Fallback when real signal unavailable
+    }
+    
+    // Convert GSM dBm to percentage (typical range: -113 to -51 dBm)
+    private int calculateSignalPercentage(int dbm) {
+        if (dbm <= -113) return 0;
+        if (dbm >= -51) return 100;
+        return (int) (((dbm + 113) / 62.0) * 100);
+    }
+    
+    // Convert LTE RSRP to percentage (typical range: -140 to -44 dBm)
+    private int calculateLteSignalPercentage(int rsrp) {
+        if (rsrp <= -140) return 0;
+        if (rsrp >= -44) return 100;
+        return (int) (((rsrp + 140) / 96.0) * 100);
     }
     
     private void createNotificationChannel() {
