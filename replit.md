@@ -187,6 +187,7 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Poziționare nativă optimizată**: Aplicația se poziționează exact sub bara nativă de sus și deasupra celei de jos pentru aspect nativ
 - **Detecție offline robustă**: Verificare dublă navigator.onLine + isOnline pentru afișare corectă status offline
 - **Progress bar sincronizare îmbunătățit**: Animații shimmer și statistici detaliate când revine internetul pentru sincronizare GPS
+- **Design simplificat**: Un singur card central elegant cu logo iTrack și formular - eliminat cardurile suplimentare pentru aspect mai curat
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin

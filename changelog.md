@@ -414,6 +414,7 @@ Aceasta este o aplicație profesională de urmărire GPS construită cu React ș
 - 20 iunie. Poziționare nativă optimizată: Aplicația se poziționează exact sub bara nativă de sus și deasupra celei de jos
 - 20 iunie. Corectat detecția offline: Verificare dublă navigator.onLine + isOnline pentru afișare corectă "MODUL OFFLINE ACTIV"
 - 20 iunie. Progress bar îmbunătățit: Animații shimmer și statistici detaliate pentru sincronizare GPS când revine internetul
+- 20 iunie. Design simplificat: Un singur card central elegant cu logo iTrack și formular - eliminat cardurile suplimentare
 
 ### Versiune Curentă: iTrack v1807.99
 
