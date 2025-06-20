@@ -1503,8 +1503,9 @@
   border-radius: 28px;
   max-width: 600px;
   width: 100%;
-  max-height: 85vh;
-  overflow-y: auto;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: 
     0 30px 60px rgba(0, 0, 0, 0.2),
     0 15px 35px rgba(0, 0, 0, 0.1),
@@ -1585,6 +1586,58 @@
 
 .info-body {
   padding: 20px 25px 25px 25px;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
+}
+
+.info-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.info-body::-webkit-scrollbar-track {
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 4px;
+}
+
+.info-body::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 4px;
+}
+
+.info-body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+}
+
+.info-section {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.03), rgba(118, 75, 162, 0.03));
+  border-radius: 16px;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  transition: all 0.3s ease;
+}
+
+.info-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.1);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+}
+
+.info-section h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-section h4 i {
+  color: #667eea;
+  font-size: 18px;
 }
 
 .info-body p {
