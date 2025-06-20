@@ -22,6 +22,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showInfo, setShowInfo] = useState(false);
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<string>('');
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -44,6 +46,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       setCourses(data);
       setCoursesLoaded(true);
+      setLastUpdate(new Date().toLocaleTimeString('ro-RO'));
     } catch (error: any) {
       console.error("Error loading courses:", error);
       setError(error.message || "Eroare la încărcarea curselor");
@@ -298,12 +301,33 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       </div>
                     </div>
                     
-                    <div className="operational-badge">
-                      <div className="status-pulse">
-                        <div className="pulse-ring"></div>
-                        <div className="status-core"></div>
+                    <div className="system-controls">
+                      <button 
+                        className="refresh-button"
+                        onClick={handleLoadCourses}
+                        disabled={loading}
+                        title="Reîncarcă cursele"
+                      >
+                        <i className={`fas fa-sync-alt ${loading ? 'spinning' : ''}`}></i>
+                        <span>REFRESH</span>
+                      </button>
+                      
+                      <button 
+                        className={`auto-refresh-toggle ${autoRefresh ? 'active' : ''}`}
+                        onClick={() => setAutoRefresh(!autoRefresh)}
+                        title={autoRefresh ? 'Dezactivează auto-refresh' : 'Activează auto-refresh'}
+                      >
+                        <i className="fas fa-clock"></i>
+                        <span>AUTO</span>
+                      </button>
+                      
+                      <div className="operational-badge">
+                        <div className="status-pulse">
+                          <div className="pulse-ring"></div>
+                          <div className="status-core"></div>
+                        </div>
+                        <span className="operation-text">OPERATIONAL</span>
                       </div>
-                      <span className="operation-text">OPERATIONAL</span>
                     </div>
                   </div>
 
