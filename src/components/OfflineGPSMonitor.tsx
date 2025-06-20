@@ -135,45 +135,45 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
   };
 
   return (
-    <div className="offline-monitor">
-      <div className="offline-status-display">
-        <div className={`status-indicator-icon ${getStatusClass()}`}>
+    <div className="offline-monitor-header-style">
+      <div className="gps-status-header-style">
+        <div className={`gps-status-icon-header ${getStatusClass()}`}>
           <i className={getStatusIcon()}></i>
         </div>
         
-        <div className="status-text-group">
-          <div className="status-main-text">
+        <div className="gps-status-content-header">
+          <div className="gps-status-main-header">
             {getMainStatusText()}
           </div>
-          <div className="status-sub-text">
+          <div className="gps-status-detail-header">
             {getSubStatusText()}
           </div>
         </div>
+
+        {offlineCount > 0 && !syncInProgress && (
+          <div className="gps-offline-badge-header">
+            <i className="fas fa-database"></i>
+            <span>{offlineCount}</span>
+          </div>
+        )}
       </div>
 
-      {offlineCount > 0 && !syncInProgress && (
-        <div className={`offline-counter ${offlineCount < 50 ? 'low-count' : ''}`}>
-          <i className="fas fa-database"></i>
-          <span>{offlineCount}</span>
-        </div>
-      )}
-
       {syncInProgress && syncProgress.total > 0 && (
-        <div className="enhanced-sync-progress">
-          <div className="progress-header">
-            <span className="progress-label">Sincronizare în curs</span>
-            <span className="progress-stats">{syncProgress.synced}/{syncProgress.total}</span>
+        <div className="gps-sync-progress-header">
+          <div className="sync-progress-info-header">
+            <span className="sync-progress-label-header">Sincronizare GPS</span>
+            <span className="sync-progress-count-header">{syncProgress.synced}/{syncProgress.total}</span>
           </div>
-          <div className="progress-bar-container">
+          <div className="sync-progress-bar-header">
             <div 
-              className="progress-bar-fill" 
+              className="sync-progress-fill-header" 
               style={{ 
                 width: `${Math.round((syncProgress.synced / syncProgress.total) * 100)}%` 
               }}
             >
-              <div className="progress-bar-shimmer"></div>
+              <div className="sync-progress-shimmer-header"></div>
             </div>
-            <div className="progress-percentage">
+            <div className="sync-progress-percentage-header">
               {Math.round((syncProgress.synced / syncProgress.total) * 100)}%
             </div>
           </div>
