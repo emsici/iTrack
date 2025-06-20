@@ -413,58 +413,91 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     <div className={`vehicle-screen ${coursesLoaded ? 'courses-loaded' : ''}`}>
       <div className="vehicle-container">
         {!coursesLoaded ? (
-          <>
-            <div className="vehicle-header">
-              <div className="header-title">
-                <div className="header-icon">
-                  <i className="fas fa-route"></i>
+          <div className="enterprise-vehicle-access">
+            <div className="corporate-header-zone">
+              <div className="brand-identity-section">
+                <div className="corporate-logo">
+                  <div className="logo-symbol">
+                    <i className="fas fa-cube"></i>
+                  </div>
+                  <div className="brand-name">iTrack</div>
+                  <div className="brand-subtitle">Fleet Management System</div>
                 </div>
               </div>
-
-              <div className="vehicle-input-section">
-                <div className="input-group">
-                  <div className="input-field">
-                    <label className="input-label">Număr înmatriculare</label>
-                    <input
-                      type="text"
-                      className="vehicle-input"
-                      placeholder="B123ABC"
-                      value={vehicleNumber}
-                      onChange={(e) => {
-                        // Allow only alphanumeric characters, convert to uppercase
-                        const cleanValue = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-                        setVehicleNumber(cleanValue);
-                      }}
-                      onKeyPress={(e) =>
-                        e.key === "Enter" && handleLoadCourses()
-                      }
-                    />
+              
+              <div className="access-control-panel">
+                <div className="panel-header">
+                  <h2 className="panel-title">Acces Vehicul</h2>
+                  <p className="panel-description">Introduceți numărul de înmatriculare pentru a accesa cursele vehiculului</p>
+                </div>
+                
+                <div className="input-control-group">
+                  <div className="form-field-enhanced">
+                    <label className="field-label">Număr de înmatriculare</label>
+                    <div className="input-wrapper-professional">
+                      <div className="input-prefix">
+                        <i className="fas fa-truck"></i>
+                      </div>
+                      <input
+                        type="text"
+                        className="enterprise-input"
+                        placeholder="B123ABC"
+                        value={vehicleNumber}
+                        onChange={(e) => {
+                          const cleanValue = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+                          setVehicleNumber(cleanValue);
+                        }}
+                        onKeyPress={(e) => e.key === "Enter" && handleLoadCourses()}
+                      />
+                    </div>
                   </div>
+                  
                   <button
-                    className="load-button"
+                    className="enterprise-action-button"
                     onClick={handleLoadCourses}
                     disabled={loading || !vehicleNumber.trim()}
                   >
                     {loading ? (
-                      <div className="loading-spinner"></div>
+                      <>
+                        <div className="enterprise-spinner"></div>
+                        <span>Se încarcă...</span>
+                      </>
                     ) : (
                       <>
-                        <i className="fas fa-search"></i>
-                        Încarcă Cursele
+                        <i className="fas fa-arrow-right"></i>
+                        <span>Accesează Cursele</span>
                       </>
                     )}
                   </button>
                 </div>
-              </div>
 
-              {error && (
-                <div className="error-message">
-                  <i className="fas fa-exclamation-triangle"></i>
-                  {error}
+                {error && (
+                  <div className="enterprise-error-alert">
+                    <div className="alert-icon">
+                      <i className="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div className="alert-content">
+                      <div className="alert-title">Eroare de acces</div>
+                      <div className="alert-message">{error}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="system-info-footer">
+                <div className="version-info">
+                  <span className="version-label">Versiune</span>
+                  <span className="version-number">1807.99</span>
                 </div>
-              )}
+                <div className="connection-status">
+                  <div className={`status-indicator ${isOnline ? 'online' : 'offline'}`}></div>
+                  <span className="status-text">
+                    {isOnline ? 'Conectat' : 'Offline'}
+                  </span>
+                </div>
+              </div>
             </div>
-          </>
+          </div>
         ) : (
           <div className="courses-section">
             <div className="executive-control-center">
