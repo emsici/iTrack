@@ -349,6 +349,11 @@ This is a professional React-based GPS tracking application built with Capacitor
 - June 20, 2025. Added clearAllDataOnLogout() method to stop all location tracking, clear coordinates, stop timers
 - June 20, 2025. Enhanced logout process stops GPS transmission, removes all courses, deletes offline storage
 - June 20, 2025. Logout now ensures zero background GPS activity and complete data cleanup for privacy
+- June 20, 2025. REORGANIZED INTERFACE: Moved refresh controls to bottom navigation, cleaned header design
+- June 20, 2025. Separated course refresh (reload from server) from GPS sync (offline coordinate transmission)
+- June 20, 2025. Added intelligent offline status bar showing network loss, offline count, and sync progress
+- June 20, 2025. Offline bar appears automatically when internet lost or coordinates need syncing
+- June 20, 2025. Enhanced safe area padding for statistics modal on mobile devices
 
 ## User Preferences
 

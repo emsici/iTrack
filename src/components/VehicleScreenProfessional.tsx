@@ -111,7 +111,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           
           // Check sync status
           const syncInfo = await getOfflineGPSInfo();
-          setSyncInProgress(syncInfo.isActive);
+          setSyncInProgress(syncInfo.syncInProgress);
         } catch (error) {
           console.error("Error checking offline GPS count:", error);
         }
@@ -578,6 +578,30 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         )}
       </div>
 
+      {/* Offline GPS Status Bar - appears above navigation when needed */}
+      {(offlineCount > 0 || !isOnline || syncInProgress) && (
+        <div className="offline-status-bar">
+          {!isOnline && (
+            <div className="offline-indicator">
+              <i className="fas fa-wifi-slash"></i>
+              <span>Fără internet - GPS se salvează offline</span>
+            </div>
+          )}
+          {offlineCount > 0 && (
+            <div className="offline-count-indicator">
+              <i className="fas fa-database"></i>
+              <span>{offlineCount} coordonate offline</span>
+            </div>
+          )}
+          {syncInProgress && (
+            <div className="sync-indicator">
+              <i className="fas fa-sync-alt spinning"></i>
+              <span>Sincronizare în progres...</span>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="bottom-navigation">
         <div className="nav-container">
           <div className="nav-actions">
@@ -586,7 +610,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 className="nav-button refresh-nav-button"
                 onClick={handleLoadCourses}
                 disabled={loading}
-                title="Reîncarcă cursele"
+                title="Reîncarcă cursele de la server"
               >
                 <i className={`fas fa-sync-alt ${loading ? 'spinning' : ''}`}></i>
               </button>
@@ -595,7 +619,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <button
                 className={`nav-button auto-refresh-nav-button ${autoRefresh ? 'active' : ''}`}
                 onClick={() => setAutoRefresh(!autoRefresh)}
-                title={autoRefresh ? 'Dezactivează auto-refresh' : 'Activează auto-refresh'}
+                title={autoRefresh ? 'Dezactivează auto-refresh curse' : 'Activează auto-refresh curse'}
               >
                 <i className="fas fa-clock"></i>
               </button>
@@ -610,16 +634,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               className="nav-button info-nav-button"
               onClick={handleShowInfo}
             >
-              <i className="fas fa-info-circle"></i>
-              Info
+              <i className="fas fa-info-circle"></i>           
             </button>
             <button
               className="nav-button logout-nav-button"
               onClick={handleLogout}
             >
-              <i className="fas fa-sign-out-alt"></i>
-              Ieșire
-            </button>
+              <i className="fas fa-sign-out-alt"></i>                      </button>
           </div>
         </div>
       </div>
