@@ -1,4 +1,4 @@
-# iTrack - Aplicația Profesională de Urmărire GPS
+# iTrack
 
 Aplicație modernă pentru urmărirea vehiculelor de transport în timp real, cu design contemporan și funcționalități GPS avansate. Destinată șoferilor profesioniști pentru gestionarea completă a curselor de transport cu transmisie automată către sistemul ETSM3.
 
@@ -248,10 +248,6 @@ Aplicația se conectează la sistemul ETSM3 pentru:
 - **2 - Activă** - urmărire GPS în desfășurare  
 - **3 - Pauzată** - temporar oprită
 - **4 - Finalizată** - cursa terminată
-
-## Suport
-
-Pentru probleme tehnice sau întrebări despre aplicație, contactați echipa de dezvoltare.
 
 ## Informații Aplicație
 
