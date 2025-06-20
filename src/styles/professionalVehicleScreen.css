@@ -446,7 +446,6 @@
 .professional-course-card:hover::before {
   left: 100%;
 }
-}
 
 .professional-course-card::before {
   content: '';
