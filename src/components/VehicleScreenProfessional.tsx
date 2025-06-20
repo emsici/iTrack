@@ -223,11 +223,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         <>
           <div className="vehicle-screen-header">
             <div className="header-brand">
-              <div className="header-logo">
+              <div 
+                className="header-logo"
+                onClick={handleTimestampClick}
+                title="Click 50 de ori pentru debug logs"
+              >
                 <i className="fas fa-cube"></i>
               </div>
               <h1 className="header-title">iTrack</h1>
               <p className="header-subtitle">Sistem Enterprise GPS</p>
+              {infoClickCount >= 30 && (
+                <div className="click-counter-badge">
+                  {infoClickCount}/50
+                </div>
+              )}
             </div>
             
             <div className="header-actions">
@@ -335,11 +344,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         <>
           <div className="vehicle-screen-header">
             <div className="header-brand">
-              <div className="header-logo">
+              <div 
+                className="header-logo"
+                onClick={handleTimestampClick}
+                title="Click 50 de ori pentru debug logs"
+              >
                 <i className="fas fa-cube"></i>
               </div>
               <h1 className="header-title">iTrack</h1>
               <p className="header-subtitle">Vehicul: {vehicleNumber}</p>
+              {infoClickCount >= 30 && (
+                <div className="click-counter-badge">
+                  {infoClickCount}/50
+                </div>
+              )}
             </div>
             
             <div className="header-actions">
@@ -359,13 +377,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <div className={`status-indicator ${isOnline ? 'online' : 'offline'}`}></div>
                 <span>{isOnline ? 'Online' : 'Offline'}</span>
               </div>
-              <div 
-                className="debug-trigger"
-                onClick={handleTimestampClick}
-                title="Click 50 de ori pentru debug logs"
-              >
+              <div className="header-timestamp">
                 {new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
-                {infoClickCount >= 30 && <span className="click-counter">({infoClickCount}/50)</span>}
               </div>
             </div>
           </div>

@@ -96,6 +96,16 @@ html, body {
   font-size: 48px;
   margin-bottom: 10px;
   opacity: 0.9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 10px;
+  border-radius: 50%;
+}
+
+.header-logo:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
 }
 
 .header-title {
@@ -199,6 +209,36 @@ html, body {
   color: #f59e0b;
   font-weight: bold;
   margin-left: 5px;
+}
+
+/* Click counter badge pentru logo */
+.click-counter-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #f59e0b;
+  color: #1e293b;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.header-brand {
+  position: relative;
+}
+
+/* Header timestamp styling */
+.header-timestamp {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-family: monospace;
 }
 
 .vehicle-container {
