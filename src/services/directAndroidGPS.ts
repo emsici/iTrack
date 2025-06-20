@@ -173,13 +173,7 @@ class DirectAndroidGPSService {
       try {
         console.log('Starting EnhancedGPSService through DirectGPS plugin');
         
-        // Check if DirectGPS plugin is available
-        if (!DirectGPS) {
-          console.error('DirectGPS plugin not available');
-          throw new Error('DirectGPS plugin not registered');
-        }
-        
-        // Activare prin DirectGPS plugin - funcționează în background
+        // Primary method: DirectGPS plugin
         const result = await DirectGPS.startTracking({
           courseId: course.courseId,
           vehicleNumber: course.vehicleNumber,
@@ -192,15 +186,52 @@ class DirectAndroidGPSService {
         console.log('EnhancedGPSService running in background - coordinates transmit every 60s');
         
       } catch (error) {
-        console.error('Failed to start DirectGPS plugin:', error);
-        console.log('Fallback: Using web-compatible GPS simulation');
+        console.error('DirectGPS plugin failed:', error);
+        console.log('Trying direct MainActivity method activation');
         
-        // Fallback for web environment or plugin issues
-        await this.startWebCompatibleGPS(course);
+        // Backup method: WebView AndroidGPS interface
+        try {
+          await this.activateViaWebViewInterface(course);
+        } catch (webViewError) {
+          console.error('WebView interface activation failed:', webViewError);
+          
+          // Final fallback for web testing
+          if (!Capacitor.isNativePlatform()) {
+            await this.startWebCompatibleGPS(course);
+          } else {
+            throw new Error('GPS activation failed in APK - check permissions');
+          }
+        }
       }
     } else {
       console.log('Web environment: Using web-compatible GPS simulation');
       await this.startWebCompatibleGPS(course);
+    }
+  }
+
+  private async activateViaWebViewInterface(course: ActiveCourse): Promise<void> {
+    console.log('Activating GPS through WebView AndroidGPS interface');
+    
+    try {
+      // Check if AndroidGPS interface is available
+      if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
+        (window as any).AndroidGPS.startGPS(
+          course.courseId,
+          course.vehicleNumber,
+          course.uit,
+          course.token,
+          course.status
+        );
+        
+        console.log('GPS started via AndroidGPS WebView interface');
+        console.log('EnhancedGPSService activated through WebView backup method');
+        
+      } else {
+        throw new Error('AndroidGPS WebView interface not available');
+      }
+    } catch (error) {
+      console.error('WebView AndroidGPS interface failed:', error);
+      throw error;
     }
   }
   
