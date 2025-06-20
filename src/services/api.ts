@@ -87,26 +87,39 @@ export const login = async (email: string, password: string): Promise<LoginRespo
 };
 
 export const getVehicleCourses = async (vehicleNumber: string, token: string) => {
-  // Prevent multiple simultaneous requests
-  if (requestInProgress) {
-    console.log('=== REQUEST ALREADY IN PROGRESS - WAITING ===');
-    logAPI(`Request already in progress for vehicle operations - waiting`);
-    while (requestInProgress) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-  }
-
-  // Check if there's already a request for this vehicle
+  const requestKey = `${vehicleNumber}_${token}`;
+  
+  // Check if there's already a pending request for this exact vehicle+token combination
   if (currentVehicleRequest && currentVehicleRequest.vehicle === vehicleNumber) {
-    console.log('=== REUSING ACTIVE REQUEST ===');
-    logAPI(`Reusing active request for vehicle ${vehicleNumber}`);
+    console.log('=== BLOCKING DUPLICATE REQUEST - REUSING ACTIVE ===');
+    logAPI(`BLOCKING duplicate request for vehicle ${vehicleNumber} - reusing active promise`);
     return await currentVehicleRequest.promise;
   }
   
-  // Mark request as in progress
+  // Check global request lock to prevent any simultaneous API calls
+  if (requestInProgress) {
+    console.log('=== GLOBAL REQUEST LOCK - WAITING FOR COMPLETION ===');
+    logAPI(`Global request lock active - waiting for completion before processing ${vehicleNumber}`);
+    
+    // Wait for current request to complete with timeout protection
+    let waitCount = 0;
+    while (requestInProgress && waitCount < 50) { // Max 5 seconds wait
+      await new Promise(resolve => setTimeout(resolve, 100));
+      waitCount++;
+    }
+    
+    // If still locked after timeout, force unlock
+    if (requestInProgress) {
+      console.log('=== TIMEOUT - FORCING REQUEST UNLOCK ===');
+      logAPI('Request timeout - forcing unlock to prevent deadlock');
+      requestInProgress = false;
+      currentVehicleRequest = null;
+    }
+  }
+  
+  // Set global lock and create new request
   requestInProgress = true;
   
-  // Create new request
   const requestPromise = performVehicleCoursesRequest(vehicleNumber, token);
   currentVehicleRequest = { vehicle: vehicleNumber, promise: requestPromise };
   
@@ -114,9 +127,11 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
     const result = await requestPromise;
     return result;
   } finally {
-    // Clear current request and progress flag
+    // Always clear locks, even on error
     currentVehicleRequest = null;
     requestInProgress = false;
+    console.log('=== REQUEST COMPLETED - LOCKS CLEARED ===');
+    logAPI(`Request completed for ${vehicleNumber} - all locks cleared`);
   }
 };
 
