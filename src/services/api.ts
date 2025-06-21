@@ -1,5 +1,6 @@
 import { CapacitorHttp, Capacitor } from '@capacitor/core';
 import { logAPI } from './appLogger';
+import { isNativeHttpAvailable, loginNative, getVehicleCoursesNative, logoutNative, nativeHttpPost } from './nativeHttp';
 
 export const API_BASE_URL = 'https://www.euscagency.com/etsm3/platforme/transport/apk';
 
@@ -30,6 +31,13 @@ export interface GPSData {
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
+    // Try native HTTP first if available
+    if (isNativeHttpAvailable()) {
+      console.log('🔥 Using native HTTP for login');
+      const response = await loginNative(email, password);
+      return response;
+    }
+    
     let response;
     
     if (Capacitor.isNativePlatform()) {
