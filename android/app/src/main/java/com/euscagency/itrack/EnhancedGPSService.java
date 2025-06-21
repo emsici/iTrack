@@ -423,10 +423,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
         PendingIntent pendingIntent = PendingIntent.getActivity(
             this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        String statusText = getStatusText();
-        String contentText = isTracking ? 
-            String.format("UIT: %s • Status: %s • Transmisii: %d", uit, statusText, transmissionCount) :
-            String.format("UIT: %s • Status: %s", uit, statusText);
+        String contentText = buildNotificationText();
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("iTrack GPS Activ")
@@ -437,6 +434,35 @@ public class EnhancedGPSService extends Service implements LocationListener {
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .build();
+    }
+
+    private String buildNotificationText() {
+        if (activeCourses.isEmpty()) {
+            return "Serviciu GPS pornit - Așteptare curse";
+        }
+
+        int activeCourseCount = 0;
+        int pausedCourseCount = 0;
+        
+        for (CourseData course : activeCourses.values()) {
+            if (course.status == 2) {
+                activeCourseCount++;
+            } else if (course.status == 3) {
+                pausedCourseCount++;
+            }
+        }
+
+        if (activeCourseCount > 0 && pausedCourseCount > 0) {
+            return String.format("%d curse active • %d în pauză • Transmisii: %d", 
+                activeCourseCount, pausedCourseCount, transmissionCount);
+        } else if (activeCourseCount > 0) {
+            return String.format("%d curse active • Transmisii: %d", 
+                activeCourseCount, transmissionCount);
+        } else if (pausedCourseCount > 0) {
+            return String.format("%d curse în pauză", pausedCourseCount);
+        } else {
+            return "Curse încărcate - Așteptare activare";
+        }
     }
 
     private String getStatusText() {
