@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import "../styles/corporate-light.css";
 import { CapacitorHttp } from '@capacitor/core';
 import { Course } from "../types";
 import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";

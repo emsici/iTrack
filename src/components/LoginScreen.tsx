@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../styles/corporate-light.css";
+import "../styles/professional.css";
 import { login } from "../services/api";
 
 interface LoginScreenProps {
@@ -47,7 +47,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="login-screen-corporate">
+    <div className="login-screen">
       <style>
         {`
           .login-container {
