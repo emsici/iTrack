@@ -103,7 +103,7 @@ class DirectAndroidGPSService {
 
       // 2. APOI ANDROIDGPS PENTRU ENHANCED GPS SERVICE
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
-        console.log("✅ AndroidGPS.updateStatus called for EnhancedGPSService");
+        console.log("✅ AndroidGPS.updateStatus called for SimpleGPSService");
         (window as any).AndroidGPS.updateStatus(courseId, newStatus);
       } else {
         console.log("⚠️ AndroidGPS not available - APK only feature");
@@ -257,9 +257,9 @@ class DirectAndroidGPSService {
     try {
       // PRIORITATE 1: AndroidGPS nativ (doar în APK)
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.stopGPS) {
-        console.log("✅ AndroidGPS available - stopping EnhancedGPSService");
+        console.log("✅ AndroidGPS available - stopping SimpleGPSService");
         const result = (window as any).AndroidGPS.stopGPS(courseId);
-        console.log("✅ EnhancedGPSService stopped via AndroidGPS:", result);
+        console.log("✅ SimpleGPSService stopped via AndroidGPS:", result);
       } else {
         // FALLBACK pentru browser: oprește interval-ul GPS
         console.log("⚠️ AndroidGPS not available - stopping browser GPS interval");
@@ -380,7 +380,7 @@ class DirectAndroidGPSService {
           // Fallback to WebView interface
           if ((window as any).AndroidGPS && (window as any).AndroidGPS.clearAllOnLogout) {
             (window as any).AndroidGPS.clearAllOnLogout();
-            console.log("✅ WebView interface logout called");
+            console.log("✅ SimpleGPSService WebView interface logout called");
           }
         }
       }

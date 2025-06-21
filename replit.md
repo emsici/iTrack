@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.36 (June 21, 2025) - APK BUILD COMPLET FUNCȚIONAL
+### Versiunea Curentă: 1808.37 (June 21, 2025) - GPS WRAPPER COMPLET VERIFICAT
+- **GPS wrapper inconsistencies fixed**: Toate referințele la EnhancedGPSService actualizate la SimpleGPSService
+- **Build dependencies cleaned**: Removut duplicate OkHttp entries din build.gradle
+- **Android GPS interface verified**: MainActivity.java conectat corect la SimpleGPSService
+- **TypeScript wrapper aligned**: directAndroidGPS.ts sincronizat cu serviciul Android
+- **APK build ready**: Toate componentele GPS wrapper verificate și funcționale
+
+### Versiunea Precedentă: 1808.36 (June 21, 2025) - APK BUILD COMPLET FUNCȚIONAL
 - **OkHttp dependency adăugată**: build.gradle actualizat cu com.squareup.okhttp3:okhttp:4.12.0
 - **Build Android reușit**: APK construit cu succes cu toate dependențele
 - **SimpleGPSService complet funcțional**: Service GPS nativ Android fără erori
