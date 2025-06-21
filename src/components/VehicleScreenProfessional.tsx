@@ -171,41 +171,58 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`Token available: ${!!token}, Token length: ${token?.length || 0}`);
 
       // Update server status first
-      const response = await fetch(`${API_BASE_URL}/update_course_status.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          course_id: courseId,
-          status: newStatus
-        })
-      });
+      try {
+        const response = await fetch(`${API_BASE_URL}/update_course_status.php`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            course_id: courseId,
+            status: newStatus
+          }),
+          signal: AbortSignal.timeout(10000) // 10 second timeout
+        });
 
-      if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Server error response:', errorText);
+          throw new Error(`Server error ${response.status}: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('Server response:', result);
+
+        if (result.status !== 'success' && !result.success) {
+          throw new Error(result.message || result.error || 'Server rejected status update');
+        }
+      } catch (fetchError) {
+        console.error('Network error:', fetchError);
+        if (fetchError.name === 'AbortError') {
+          throw new Error('Request timeout - server nu răspunde');
+        }
+        throw new Error(`Network error: ${fetchError.message}`);
       }
 
-      const result = await response.json();
-      console.log('Server response:', result);
-
-      if (result.status !== 'success' && !result.success) {
-        throw new Error(result.message || result.error || 'Server rejected status update');
-      }
-
-      // Update GPS service
-      if (newStatus === 2) {
-        console.log(`Starting GPS tracking for course ${courseId}`);
-        await startGPSTracking(courseId, courseToUpdate.uit, newStatus, vehicleNumber, token);
-        await startCourseAnalytics(courseId, courseToUpdate.uit, vehicleNumber);
-      } else if (newStatus === 3) {
-        console.log(`Pausing GPS tracking for course ${courseId}`);
-        await updateCourseStatus(courseId, newStatus);
-      } else if (newStatus === 4) {
-        console.log(`Stopping GPS tracking for course ${courseId}`);
-        await stopGPSTracking(courseId);
-        await stopCourseAnalytics(courseId);
+      // Update GPS service (non-blocking)
+      try {
+        if (newStatus === 2) {
+          console.log(`Starting GPS tracking for course ${courseId}`);
+          await startGPSTracking(courseId, courseToUpdate.uit, newStatus, vehicleNumber, token);
+          await startCourseAnalytics(courseId, courseToUpdate.uit, vehicleNumber);
+        } else if (newStatus === 3) {
+          console.log(`Pausing GPS tracking for course ${courseId}`);
+          await updateCourseStatus(courseId, newStatus);
+        } else if (newStatus === 4) {
+          console.log(`Stopping GPS tracking for course ${courseId}`);
+          await stopGPSTracking(courseId);
+          await stopCourseAnalytics(courseId);
+        }
+      } catch (gpsError) {
+        console.warn('GPS service error (non-critical):', gpsError);
+        logAPIError(`GPS service warning: ${gpsError}`);
+        // Continuă execuția - nu blocheze UI-ul pentru probleme GPS
       }
 
       // Update local state

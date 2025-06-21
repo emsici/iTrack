@@ -1,7 +1,7 @@
 import { CapacitorHttp, Capacitor } from '@capacitor/core';
 import { logAPI } from './appLogger';
 
-const API_BASE_URL = 'https://www.euscagency.com/etsm3/platforme/transport/apk';
+export const API_BASE_URL = 'https://www.euscagency.com/etsm3/platforme/transport/apk';
 
 // Single request management to prevent conflicts
 let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null = null;
