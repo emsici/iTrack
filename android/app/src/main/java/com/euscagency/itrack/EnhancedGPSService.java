@@ -419,18 +419,22 @@ public class EnhancedGPSService extends Service implements LocationListener {
     }
 
     private void createNotificationChannel() {
-        NotificationChannel channel = new NotificationChannel(
-            CHANNEL_ID,
-            "iTrack GPS Tracking",
-            NotificationManager.IMPORTANCE_LOW
-        );
-        channel.setDescription("GPS tracking pentru curse active");
-        channel.setShowBadge(false);
-        channel.enableLights(false);
-        channel.enableVibration(false);
-        
-        NotificationManager manager = getSystemService(NotificationManager.class);
-        manager.createNotificationChannel(channel);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID,
+                "iTrack GPS Tracking",
+                NotificationManager.IMPORTANCE_LOW
+            );
+            channel.setDescription("GPS tracking pentru curse active");
+            channel.setShowBadge(false);
+            channel.enableLights(false);
+            channel.enableVibration(false);
+            
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
+        }
     }
 
     private Notification createNotification() {
