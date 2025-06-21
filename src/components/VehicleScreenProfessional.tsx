@@ -51,7 +51,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     setLoading(true);
     setError("");
-
+    
     try {
       console.log(`=== DEBUGGING: Loading courses for vehicle: ${vehicleNumber} ===`);
       const response = await getVehicleCourses(vehicleNumber, token);
@@ -93,20 +93,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     } catch (error: any) {
       console.error("=== APK DEBUG: Error loading courses ===", error);
       console.log("=== APK DEBUG: Setting coursesLoaded to TRUE on error ===");
-      setCoursesLoaded(true); // Set this even on error
+      // CRITICA: Setează coursesLoaded = true chiar și pe eroare pentru a evita ecranul alb
+      setCoursesLoaded(true);
       setCourses([]);
       setError(error.message || "Eroare la încărcarea curselor");
     } finally {
       setLoading(false);
       console.log("=== APK DEBUG: Loading finished, coursesLoaded should be TRUE ===");
       
-      // Debug current state after a short delay to see actual values
+      // EMERGENCY FIX pentru WebView Android - forțează coursesLoaded după delay
       setTimeout(() => {
-        console.log("=== APK DEBUG: DELAYED CHECK - coursesLoaded:", coursesLoaded);
-        console.log("=== APK DEBUG: DELAYED CHECK - courses length:", courses.length);
-        console.log("=== APK DEBUG: DELAYED CHECK - error:", error);
-        console.log("=== APK DEBUG: DELAYED CHECK - loading:", loading);
-      }, 200);
+        console.log("=== APK DEBUG: EMERGENCY FIX - Always force coursesLoaded = true ===");
+        setCoursesLoaded(true);
+      }, 100);
     }
   };
 
@@ -219,6 +218,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   console.log("=== APK DEBUG: RENDER - courses.length:", courses.length);
   console.log("=== APK DEBUG: RENDER - error:", error);
   console.log("=== APK DEBUG: RENDER - loading:", loading);
+
+  // SIMPLIFICARE: Elimină logica complexă și folosește doar coursesLoaded
+  console.log("=== APK DEBUG: RENDER DECISION ===");
+  console.log("coursesLoaded:", coursesLoaded);
+  console.log("loading:", loading);
+  console.log("courses.length:", courses.length);
+
+  // FALLBACK pentru WebView Android: Dacă nu se încarcă nimic timp de 5 secunde
+  React.useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      if (!coursesLoaded && !loading) {
+        console.log("=== APK DEBUG: FALLBACK TIMER - Force coursesLoaded = true ===");
+        setCoursesLoaded(true);
+      }
+    }, 5000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, [coursesLoaded, loading]);
 
   return (
     <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""}`}>
