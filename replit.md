@@ -171,7 +171,7 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.28 (June 21, 2025) - CORS ERROR REPARAT: ANDROID GPS INTERFACE FIX
+### Versiunea Curentă: 1808.29 (June 21, 2025) - GPS FLUX COMPLET REPARAT: PARAMETRI & BACKGROUND SERVICE
 - **Eliminat iconița statistici**: Scos al 5-lea card cu iconița fa-chart-line din dashboard pentru design mai curat
 - **Eliminat indicator Online/Offline redundant**: Scos statusul de conectivitate din header, păstrat doar cel functional pentru debug (50 click-uri)
 - **Eliminat OfflineGPSMonitor**: Scos complet mesajul "GPS activ - toate datele sincronizate" de sub cardurile de transport
@@ -195,6 +195,13 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Doar Android nativ**: GPS funcționează exclusiv prin EnhancedGPSService.java pentru evitarea CORS
 - **Android rebuild**: Sync Capacitor și clean pentru activarea corectă a AndroidGPS interface
 - **Error handling strict**: Aplicația se oprește dacă AndroidGPS interface nu este disponibil
+
+### Versiunea Precedentă: 1808.28 (June 21, 2025) - GPS FLUX COMPLET REPARAT: PARAMETRI & BACKGROUND SERVICE
+- **Parametri GPS corecți**: Reparat ordinea parametrilor la startGPSTracking() care cauza erori
+- **Flux GPS verificat complet**: VehicleScreen → directAndroidGPS → MainActivity → EnhancedGPSService
+- **Background service confirmat**: EnhancedGPSService pornește ca FOREGROUND și transmite la 5 secunde
+- **CORS eliminat definitiv**: Doar serviciul Android nativ transmite - zero fallback web
+- **AndroidGPS interface verificat**: MainActivity.java adaugă corect interfața pentru JavaScript
 
 ### Versiunea Precedentă: 1808.25 (June 21, 2025) - GPS PERMISSIONS & DEBUG COUNTER FIX
 - **GPS permissions reparat**: Revenit la logica simplă de cerere permisiuni care funcționa, eliminat timeout-urile complexe
