@@ -224,15 +224,35 @@ public class EnhancedGPSService extends Service implements LocationListener {
     private void startLocationUpdates() {
         if (locationManager != null) {
             try {
+                // Request both GPS and Network provider for better coverage
                 locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER,
                     1000, // 1 second
                     1,    // 1 meter
                     this
                 );
-                Log.d(TAG, "Location updates started");
+                locationManager.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER,
+                    1000, // 1 second
+                    1,    // 1 meter
+                    this
+                );
+                
+                // Get last known location immediately
+                Location lastGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Location lastNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                
+                if (lastGPS != null) {
+                    lastLocation = lastGPS;
+                    Log.d(TAG, "📍 Using last known GPS location: " + lastGPS.getLatitude() + ", " + lastGPS.getLongitude());
+                } else if (lastNetwork != null) {
+                    lastLocation = lastNetwork;
+                    Log.d(TAG, "📍 Using last known Network location: " + lastNetwork.getLatitude() + ", " + lastNetwork.getLongitude());
+                }
+                
+                Log.d(TAG, "✅ Location updates started (GPS + Network)");
             } catch (SecurityException e) {
-                Log.e(TAG, "Location permission denied", e);
+                Log.e(TAG, "❌ Location permission denied", e);
             }
         }
     }
