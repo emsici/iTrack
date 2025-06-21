@@ -300,7 +300,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <div
                 className="header-logo-corporate"
                 onClick={handleTimestampClick}
-                title="Click 50 de ori pentru debug logs"
+                title=""
               >
                 <div className="corporate-emblem-small">
                   <div className="emblem-ring-small">
@@ -555,7 +555,33 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     }}>DISPONIBIL</div>
                   </div>
                   
+                  <div 
+                    onClick={() => setShowStatsModal(true)}
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.3) 100%)',
+                      backdropFilter: 'blur(12px)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      borderRadius: '6px',
+                      padding: '6px 2px',
+                      textAlign: 'center',
+                      minHeight: '40px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    <div style={{
+                      fontSize: '1rem',
+                      fontWeight: '700',
+                      color: '#60a5fa',
+                      lineHeight: '1'
+                    }}>
+                      <i className="fas fa-chart-line"></i>
+                    </div>
 
+                  </div>
                 </div>
 
                 {courses.length > 0 ? (
