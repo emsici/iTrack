@@ -46,8 +46,8 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
   };
 
   const calculateTotalStats = () => {
-    const activeCourses = Object.values(courseStats);
-    if (activeCourses.length === 0) {
+    const statsArray = Object.values(courseStats);
+    if (statsArray.length === 0) {
       return {
         totalDistance: 0,
         totalTime: 0,
@@ -58,13 +58,13 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
       };
     }
 
-    // Simplified statistics calculation
+    // Calculate totals from courseStats
     let totalDistance = 0;
     let totalTime = 0;
     let maxSpeed = 0;
     let totalStops = 0;
 
-    activeCourses.forEach(stats => {
+    statsArray.forEach(stats => {
       totalDistance += stats.totalDistance;
       totalTime += stats.drivingTime;
       maxSpeed = Math.max(maxSpeed, stats.maxSpeed);
@@ -77,7 +77,7 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
       avgSpeed: totalTime > 0 ? totalDistance / (totalTime / 60) : 0,
       maxSpeed,
       totalStops,
-      coursesTracked: activeCourses.length
+      coursesTracked: statsArray.length
     };
   };
 
