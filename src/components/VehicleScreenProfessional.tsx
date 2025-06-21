@@ -483,12 +483,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <i className="fas fa-sign-out-alt"></i>
                 <span>Ieșire</span>
               </button>
-              <div className="header-status">
-                <div
-                  className={`status-indicator ${isOnline ? "online" : "offline"}`}
-                ></div>
-                <span>{isOnline ? "Online" : "Offline"}</span>
-              </div>
             </div>
           </div>
         </>
@@ -544,10 +538,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                 )}
               </div>
+
             </div>
 
             <div className="header-actions">
-
               <button
                 className="header-icon-btn"
                 onClick={handleLoadCourses}
@@ -565,12 +559,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <i className="fas fa-sign-out-alt"></i>
                 <span>Ieșire</span>
               </button>
-              <div className="header-status">
-                <div
-                  className={`status-indicator ${isOnline ? "online" : "offline"}`}
-                ></div>
-                <span>{isOnline ? "Online" : "Offline"}</span>
-              </div>
             </div>
           </div>
 
