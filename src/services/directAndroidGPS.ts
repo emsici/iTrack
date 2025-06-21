@@ -54,15 +54,38 @@ class DirectAndroidGPSService {
 
     try {
       if (Capacitor.isNativePlatform()) {
-        // Pentru Android nativ, folosește UPDATE_STATUS action
-        // Folosește interfața WebView direct
-        if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
-          (window as any).AndroidGPS.updateStatus(courseId, newStatus);
-        } else {
-          console.warn('AndroidGPS interface not available');
-        }
+        console.log("📱 Native Android platform - updating GPS service status");
         
-        console.log(`✅ Android GPS status updated: ${courseId} (${oldStatus} → ${newStatus})`);
+        // Check AndroidGPS interface availability with timeout
+        const checkInterface = () => {
+          return new Promise((resolve) => {
+            let attempts = 0;
+            const maxAttempts = 10;
+            
+            const check = () => {
+              if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
+                resolve(true);
+              } else if (attempts < maxAttempts) {
+                attempts++;
+                setTimeout(check, 100);
+              } else {
+                resolve(false);
+              }
+            };
+            check();
+          });
+        };
+        
+        const interfaceAvailable = await checkInterface();
+        
+        if (interfaceAvailable) {
+          console.log("✅ AndroidGPS interface found - sending status update");
+          (window as any).AndroidGPS.updateStatus(courseId, newStatus);
+          console.log(`📡 Status update sent: ${courseId} (${oldStatus} → ${newStatus})`);
+        } else {
+          console.warn("⚠️ AndroidGPS interface not available - status update skipped");
+          console.warn("This is normal in web environment or if service hasn't started yet");
+        }
         
         // Logica pentru status:
         if (newStatus === 2) {
@@ -71,18 +94,17 @@ class DirectAndroidGPSService {
           console.log("⏸️ PAUSE: Single status update sent, GPS stopped");
         } else if (newStatus === 4) {
           console.log("🏁 FINISH: Final status sent, removing from active courses");
-          // Pentru status 4, elimină cursul din lista activă
           setTimeout(() => {
             this.activeCourses.delete(courseId);
           }, 3000);
         }
       } else {
-        console.log(`Web environment: Status ${newStatus} would be sent in APK`);
+        console.log(`🌐 Web environment: Status ${newStatus} update completed (no native GPS)`);
       }
     } catch (error) {
-      console.error(`Failed to update course status:`, error);
+      console.error(`❌ Failed to update course status:`, error);
       course.status = oldStatus;
-      throw error;
+      throw new Error(`Network error - verificați conexiunea la internet și permisiunile aplicației`);
     }
   }
 
@@ -158,38 +180,46 @@ class DirectAndroidGPSService {
     console.log(`Token: ${course.token.substring(0, 20)}...`);
 
     try {
-      // Cerere permisiuni GPS prin Capacitor
-      console.log("Requesting GPS permissions...");
-      const permissions = await Geolocation.requestPermissions();
-      console.log("GPS permissions result:", permissions);
+      // Auto-grant permissions approach for better UX
+      console.log("📍 Requesting GPS permissions...");
+      
+      let permissionGranted = false;
+      try {
+        const permissions = await Geolocation.requestPermissions();
+        console.log("GPS permissions result:", permissions);
+        permissionGranted = permissions.location === "granted";
+      } catch (permError) {
+        console.warn("Permission request failed, trying to get position directly:", permError);
+        // Continue anyway - some devices work without explicit permission request
+      }
 
-      if (permissions.location === "granted") {
-        console.log("GPS permissions granted - starting location tracking");
-
-        // Start location tracking pentru a activa serviciul
+      // Try to get position even if permission request failed
+      console.log("📡 Getting initial GPS position...");
+      try {
         const position = await Geolocation.getCurrentPosition({
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 15000,
+          maximumAge: 30000
         });
 
-        console.log("Current position obtained:", {
+        console.log("✅ Current position obtained:", {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
           accuracy: position.coords.accuracy,
         });
+        permissionGranted = true; // If we got position, permissions are working
+      } catch (posError) {
+        console.error("❌ Failed to get GPS position:", posError);
+        throw new Error("GPS permissions required - please enable location access in device settings");
+      }
 
-        // TEST: Verifică dacă AndroidGPS interface există
-        console.log("=== ANDROID GPS INTERFACE TEST ===");
-        console.log("window.AndroidGPS exists:", !!(window as any).AndroidGPS);
-        if ((window as any).AndroidGPS) {
-          console.log("AndroidGPS.startGPS function exists:", typeof (window as any).AndroidGPS.startGPS);
-          console.log("AndroidGPS.stopGPS function exists:", typeof (window as any).AndroidGPS.stopGPS);
-          console.log("AndroidGPS.updateStatus function exists:", typeof (window as any).AndroidGPS.updateStatus);
-        }
+      if (permissionGranted) {
+        // Wait for AndroidGPS interface to be available
+        console.log("⏳ Waiting for AndroidGPS interface...");
+        const interfaceReady = await this.waitForAndroidGPSInterface();
         
-        // Activare serviciu Android nativ direct
-        if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-          console.log("✅ AndroidGPS interface available - starting native service");
+        if (interfaceReady) {
+          console.log("✅ AndroidGPS interface ready - starting native service");
           const result = (window as any).AndroidGPS.startGPS(
             course.courseId,
             course.vehicleNumber, 
