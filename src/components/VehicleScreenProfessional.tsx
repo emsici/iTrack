@@ -33,6 +33,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [infoClickCount, setInfoClickCount] = useState(0);
+  const [clickCount, setClickCount] = useState(0);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [debugLogs, setDebugLogs] = useState<any[]>([]);
@@ -241,6 +242,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   };
 
   const handleTimestampClick = async () => {
+    setClickCount(prev => prev + 1);
     const newCount = infoClickCount + 1;
     setInfoClickCount(newCount);
     
@@ -305,7 +307,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             JSON.stringify(gpsPayload),
             token
           );
-          response = { status: 200, data: JSON.parse(nativeResult) };
+          response = { status: 200, data: nativeResult };
         } else {
           // Fallback to CapacitorHttp only in browser
           response = await CapacitorHttp.post({
@@ -323,7 +325,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`📡 Response status: ${response.status}`);
         console.log(`📋 Response headers:`, response.headers);
         
-        if (response.status < 200 || response.status >= 300) {
+        // Accept status 200, 201, 204 as success (204 is common for GPS updates)
+        if (response.status !== 200 && response.status !== 201 && response.status !== 204) {
           console.error(`❌ Server error ${response.status}:`, response.data);
           console.error(`🔍 Full response:`, {
             status: response.status,
@@ -334,10 +337,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }
 
         console.log(`📥 Response data:`, response.data);
-        const result = response.data;
-
-        if (result.status !== 'success' && !result.success) {
-          throw new Error(result.message || result.error || 'Server rejected status update');
+        
+        // For status 204 (No Content), there's no response data to check
+        if (response.status === 204) {
+          console.log(`✅ Status update sent successfully (204 No Content) for UIT: ${courseToUpdate.uit}`);
+          logAPI(`Status update success: Course ${courseId} → Status ${newStatus}`);
+        } else {
+          // For other successful statuses, check response data
+          const result = response.data;
+          if (result && result.status !== 'success' && !result.success) {
+            throw new Error(result.message || result.error || 'Server rejected status update');
+          }
+          console.log(`✅ Status update sent successfully for UIT: ${courseToUpdate.uit}`);
+          logAPI(`Status update success: Course ${courseId} → Status ${newStatus}`);
         }
       } catch (fetchError) {
         console.error(`❌ Network/Fetch error:`, fetchError);
@@ -469,56 +481,270 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   return (
     <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""}`}>
       {!coursesLoaded ? (
-        <>
-          <div className="corporate-header-professional">
-            <div className="header-brand-section">
-              <div className="brand-logo-container" onClick={handleTimestampClick}>
-                <div className="logo-emblem">
-                  <i className="fas fa-truck"></i>
-                </div>
-                <div className="brand-text">
-                  <span className="brand-name">iTrack</span>
-                </div>
+        <div style={{
+          minHeight: '100dvh',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)',
+          backgroundAttachment: 'fixed',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px 20px',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <style>
+            {`
+              .vehicle-input-container {
+                background: linear-gradient(135deg, 
+                  rgba(15, 23, 42, 0.95) 0%,
+                  rgba(30, 41, 59, 0.95) 100%);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 24px;
+                padding: 60px 40px;
+                width: 100%;
+                max-width: 480px;
+                box-shadow: 
+                  0 8px 32px rgba(0, 0, 0, 0.3),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                position: relative;
+                margin: 0 auto;
+              }
+              
+              .vehicle-input-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+                border-radius: 24px;
+                pointer-events: none;
+              }
+
+              .vehicle-brand-section {
+                text-align: center;
+                margin-bottom: 48px;
+                position: relative;
+                z-index: 2;
+              }
+
+              .vehicle-logo-emblem {
+                width: 80px;
+                height: 80px;
+                background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+                border-radius: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 36px;
+                margin: 0 auto 24px;
+                box-shadow: 
+                  0 8px 32px rgba(14, 165, 233, 0.4),
+                  0 4px 16px rgba(14, 165, 233, 0.2);
+                border: 2px solid rgba(255, 255, 255, 0.2);
+                transition: all 0.3s ease;
+              }
+
+              .vehicle-brand-title {
+                font-size: 32px;
+                font-weight: 700;
+                color: #ffffff;
+                margin-bottom: 8px;
+                letter-spacing: -0.5px;
+              }
+
+              .vehicle-brand-subtitle {
+                font-size: 16px;
+                color: #94a3b8;
+                font-weight: 400;
+              }
+
+              .vehicle-form-group {
+                position: relative;
+                z-index: 2;
+                margin-bottom: 32px;
+              }
+
+              .vehicle-input-field {
+                width: 100%;
+                padding: 18px 24px 18px 60px;
+                background: rgba(30, 41, 59, 0.6);
+                border: 2px solid rgba(148, 163, 184, 0.2);
+                border-radius: 16px;
+                color: #ffffff;
+                font-size: 16px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                backdrop-filter: blur(10px);
+                outline: none;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+              }
+
+              .vehicle-input-field::placeholder {
+                color: #64748b;
+                font-weight: 400;
+                text-transform: none;
+                letter-spacing: normal;
+              }
+
+              .vehicle-input-field:focus {
+                border-color: #0ea5e9;
+                background: rgba(30, 41, 59, 0.8);
+                box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+                transform: translateY(-2px);
+              }
+
+              .vehicle-input-icon {
+                position: absolute;
+                left: 24px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #64748b;
+                font-size: 18px;
+                z-index: 3;
+                transition: color 0.3s ease;
+              }
+
+              .vehicle-input-field:focus + .vehicle-input-icon {
+                color: #0ea5e9;
+              }
+
+              .vehicle-submit-button {
+                width: 100%;
+                padding: 18px 32px;
+                background: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
+                border: none;
+                border-radius: 16px;
+                color: white;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+                position: relative;
+                overflow: hidden;
+              }
+
+              .vehicle-submit-button:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 32px rgba(14, 165, 233, 0.4);
+              }
+
+              .vehicle-submit-button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+              }
+
+              .vehicle-error-message {
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+                border: 1px solid rgba(239, 68, 68, 0.3);
+                border-radius: 12px;
+                padding: 16px 20px;
+                color: #fca5a5;
+                font-size: 14px;
+                margin-top: 16px;
+                text-align: center;
+                backdrop-filter: blur(10px);
+              }
+
+              .debug-counter {
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+                color: #64748b;
+                font-size: 12px;
+                cursor: pointer;
+                z-index: 10;
+              }
+
+              @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+              }
+
+              .spinning {
+                animation: spin 1s linear infinite;
+              }
+            `}
+          </style>
+
+          {/* Background Effects */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: `
+              radial-gradient(circle at 20% 80%, rgba(15, 23, 42, 0.8) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(55, 65, 81, 0.4) 0%, transparent 50%)
+            `,
+            pointerEvents: 'none'
+          }} />
+
+          <div className="vehicle-input-container">
+            <div className="vehicle-brand-section" onClick={handleTimestampClick}>
+              <div className="vehicle-logo-emblem">
+                <i className="fas fa-truck"></i>
               </div>
+              <div className="vehicle-brand-title">iTrack</div>
+              <div className="vehicle-brand-subtitle">Monitorizare GPS Profesională</div>
             </div>
 
-            <div className="header-vehicle-form-section">
-              <div className="vehicle-input-group">
-                <div className="input-field-container">
-                  <i className="fas fa-truck input-icon"></i>
-                  <input
-                    type="text"
-                    className="vehicle-input-professional"
-                    placeholder="Introduceți numărul de înmatriculare"
-                    value={vehicleNumber}
-                    onChange={(e) => {
-                      const cleanValue = e.target.value
-                        .replace(/[^A-Za-z0-9]/g, "")
-                        .toUpperCase();
-                      setVehicleNumber(cleanValue);
-                    }}
-                    onKeyPress={(e) => e.key === "Enter" && handleLoadCourses()}
-                  />
-                  <button
-                    className={`search-button-professional ${loading ? "loading" : ""}`}
-                    onClick={handleLoadCourses}
-                    disabled={loading || !vehicleNumber.trim()}
-                  >
-                    {loading ? (
-                      <i className="fas fa-spinner spinning"></i>
-                    ) : (
-                      <i className="fas fa-search"></i>
-                    )}
-                    <span className="button-text">Încarcă Curse</span>
-                  </button>
-                </div>
-                {error && <div className="error-message-professional">{error}</div>}
+            <div className="vehicle-form-group">
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  className="vehicle-input-field"
+                  placeholder="Introduceți numărul de înmatriculare"
+                  value={vehicleNumber}
+                  onChange={(e) => {
+                    const cleanValue = e.target.value
+                      .replace(/[^A-Za-z0-9]/g, "")
+                      .toUpperCase();
+                    setVehicleNumber(cleanValue);
+                  }}
+                  onKeyPress={(e) => e.key === "Enter" && handleLoadCourses()}
+                />
+                <i className="fas fa-truck vehicle-input-icon"></i>
               </div>
+              
+              <button
+                className="vehicle-submit-button"
+                onClick={handleLoadCourses}
+                disabled={loading || !vehicleNumber.trim()}
+              >
+                {loading ? (
+                  <>
+                    <i className="fas fa-spinner spinning" style={{ marginRight: '12px' }}></i>
+                    Se încarcă cursele...
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-search" style={{ marginRight: '12px' }}></i>
+                    Încarcă Cursele
+                  </>
+                )}
+              </button>
+
+              {error && <div className="vehicle-error-message">{error}</div>}
             </div>
-
-
           </div>
-        </>
+
+          {/* Debug Counter */}
+          {clickCount >= 30 && (
+            <div className="debug-counter">
+              {clickCount}/50
+            </div>
+          )}
+        </div>
       ) : (
         <>
           <div className="corporate-header-professional loaded">

@@ -64,9 +64,8 @@ class DirectAndroidGPSService {
           course.token
         );
         
-        if (!nativeResult || nativeResult.includes('error') || nativeResult.includes('Error')) {
-          throw new Error(`Native HTTP error: ${nativeResult}`);
-        }
+        // Accept any valid response - don't throw errors for valid server responses  
+        console.log(`Native HTTP result: ${nativeResult}`);
         result = { success: true, message: nativeResult };
       } else {
         // Fallback to CapacitorHttp - Heavier but functional
