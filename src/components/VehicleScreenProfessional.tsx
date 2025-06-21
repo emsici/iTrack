@@ -708,93 +708,93 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                   
                   <div style={{
-                    background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(21, 128, 61, 0.1) 100%)',
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
                     backdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(34, 197, 94, 0.3)',
-                    borderRadius: '8px',
-                    padding: '12px 8px',
+                    border: '1px solid rgba(34, 197, 94, 0.2)',
+                    borderRadius: '12px',
+                    padding: '16px 12px',
                     textAlign: 'center',
-                    minHeight: '50px',
+                    minHeight: '60px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 16px rgba(34, 197, 94, 0.1)'
+                    boxShadow: '0 4px 20px rgba(34, 197, 94, 0.08)'
                   }}>
                     <div style={{
-                      fontSize: '1.1rem',
-                      fontWeight: '700',
-                      color: '#4ade80',
+                      fontSize: '1.4rem',
+                      fontWeight: '800',
+                      color: '#22c55e',
                       lineHeight: '1',
-                      marginBottom: '2px'
+                      marginBottom: '4px'
                     }}>{courses.filter(c => c.status === 2).length}</div>
                     <div style={{
-                      fontSize: '0.6rem',
-                      color: '#94a3b8',
-                      fontWeight: '600',
-                      letterSpacing: '0.3px',
+                      fontSize: '0.7rem',
+                      color: '#64748b',
+                      fontWeight: '700',
+                      letterSpacing: '0.5px',
                       textTransform: 'uppercase',
                       lineHeight: '1'
                     }}>ACTIV</div>
                   </div>
                   
                   <div style={{
-                    background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(217, 119, 6, 0.1) 100%)',
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
                     backdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(251, 191, 36, 0.3)',
-                    borderRadius: '8px',
-                    padding: '12px 8px',
+                    border: '1px solid rgba(251, 191, 36, 0.2)',
+                    borderRadius: '12px',
+                    padding: '16px 12px',
                     textAlign: 'center',
-                    minHeight: '50px',
+                    minHeight: '60px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 16px rgba(251, 191, 36, 0.1)'
+                    boxShadow: '0 4px 20px rgba(251, 191, 36, 0.08)'
                   }}>
                     <div style={{
-                      fontSize: '1.1rem',
-                      fontWeight: '700',
-                      color: '#fbbf24',
+                      fontSize: '1.4rem',
+                      fontWeight: '800',
+                      color: '#f59e0b',
                       lineHeight: '1',
-                      marginBottom: '2px'
+                      marginBottom: '4px'
                     }}>{courses.filter(c => c.status === 3).length}</div>
                     <div style={{
-                      fontSize: '0.6rem',
-                      color: '#94a3b8',
-                      fontWeight: '600',
-                      letterSpacing: '0.3px',
+                      fontSize: '0.7rem',
+                      color: '#64748b',
+                      fontWeight: '700',
+                      letterSpacing: '0.5px',
                       textTransform: 'uppercase',
                       lineHeight: '1'
                     }}>PAUZĂ</div>
                   </div>
                   
                   <div style={{
-                    background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(126, 34, 206, 0.1) 100%)',
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
                     backdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(168, 85, 247, 0.3)',
-                    borderRadius: '8px',
-                    padding: '12px 8px',
+                    border: '1px solid rgba(168, 85, 247, 0.2)',
+                    borderRadius: '12px',
+                    padding: '16px 12px',
                     textAlign: 'center',
-                    minHeight: '50px',
+                    minHeight: '60px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 16px rgba(168, 85, 247, 0.1)'
+                    boxShadow: '0 4px 20px rgba(168, 85, 247, 0.08)'
                   }}>
                     <div style={{
-                      fontSize: '1.1rem',
-                      fontWeight: '700',
+                      fontSize: '1.4rem',
+                      fontWeight: '800',
                       color: '#a855f7',
                       lineHeight: '1',
-                      marginBottom: '2px'
+                      marginBottom: '4px'
                     }}>{courses.filter(c => c.status === 1).length}</div>
                     <div style={{
-                      fontSize: '0.6rem',
-                      color: '#94a3b8',
-                      fontWeight: '600',
-                      letterSpacing: '0.3px',
+                      fontSize: '0.7rem',
+                      color: '#64748b',
+                      fontWeight: '700',
+                      letterSpacing: '0.5px',
                       textTransform: 'uppercase',
                       lineHeight: '1'
                     }}>DISPONIBIL</div>
