@@ -224,7 +224,9 @@ public class EnhancedGPSService extends Service implements LocationListener {
         
         CourseData course = activeCourses.get(courseId);
         if (course == null) {
-            Log.w(TAG, "Course not found for status update: " + courseId);
+            Log.e(TAG, "❌ CRITICAL: Course not found for status update: " + courseId);
+            Log.e(TAG, "Available courses: " + activeCourses.keySet().toString());
+            Log.e(TAG, "This indicates PAUSE/STOP was called without START first");
             return;
         }
         

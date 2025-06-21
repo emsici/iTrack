@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.32 (June 21, 2025) - ANDROID GPS NATIV REPARAT
+### Versiunea Curentă: 1808.33 (June 21, 2025) - CICLU GPS LOGIC COMPLET REPARAT
+- **PAUSE/STOP logic fix**: Verifică activeCourses înainte de operație, pornește GPS dacă nu există
+- **Error logic strict**: updateCourseStatus() throw error dacă course nu există în loc de fallback
+- **Android debugging îmbunătățit**: Loguri CRITICAL pentru identificarea problemelor de flow
+- **Flow garantat**: START→Map populated → PAUSE/STOP verifică Map → Success garantat
+- **Eliminat async issues**: Removut logica async problematică din updateCourseStatus
+
+### Versiunea Precedentă: 1808.32 (June 21, 2025) - ANDROID GPS NATIV REPARAT
 - **GPS permissions verification**: Verificare explicită permisiuni GPS înainte de start serviciu
 - **Foreground service prioritar**: startForeground() apelat imediat în onStartCommand pentru stabilitate
 - **Exception handling îmbunătățit**: Try-catch pentru SecurityException și alte erori GPS
