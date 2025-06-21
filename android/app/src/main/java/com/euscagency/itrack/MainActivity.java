@@ -6,6 +6,13 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import com.getcapacitor.BridgeActivity;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.Context;
+import android.app.ActivityManager;
+import android.os.Handler;
+import android.os.Looper;
+import android.content.pm.PackageManager;
 // EnhancedGPSService is now in the same package
 
 /**
@@ -13,6 +20,13 @@ import com.getcapacitor.BridgeActivity;
  * Oferă interfață WebView pentru activarea serviciului GPS din JavaScript
  */
 public class MainActivity extends BridgeActivity {
+    
+    // Register DirectGPS plugin
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        registerPlugin(DirectGPSPlugin.class);
+    }
     private static final String TAG = "iTrackMainActivity";
 
     @Override
