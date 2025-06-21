@@ -178,8 +178,18 @@ class DirectAndroidGPSService {
           accuracy: position.coords.accuracy,
         });
 
+        // TEST: Verifică dacă AndroidGPS interface există
+        console.log("=== ANDROID GPS INTERFACE TEST ===");
+        console.log("window.AndroidGPS exists:", !!(window as any).AndroidGPS);
+        if ((window as any).AndroidGPS) {
+          console.log("AndroidGPS.startGPS function exists:", typeof (window as any).AndroidGPS.startGPS);
+          console.log("AndroidGPS.stopGPS function exists:", typeof (window as any).AndroidGPS.stopGPS);
+          console.log("AndroidGPS.updateStatus function exists:", typeof (window as any).AndroidGPS.updateStatus);
+        }
+        
         // Activare serviciu Android nativ direct
         if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
+          console.log("✅ AndroidGPS interface available - starting native service");
           const result = (window as any).AndroidGPS.startGPS(
             course.courseId,
             course.vehicleNumber, 
@@ -187,11 +197,26 @@ class DirectAndroidGPSService {
             course.token,
             course.status
           );
-          console.log("AndroidGPS.startGPS result:", result);
-          console.log("EnhancedGPSService activated for background GPS");
+          console.log("🚀 AndroidGPS.startGPS called with result:", result);
+          console.log("📱 EnhancedGPSService should now be running in background");
+          
+          // Test dacă serviciul chiar rulează
+          setTimeout(() => {
+            console.log("=== GPS SERVICE STATUS CHECK (5s later) ===");
+            if ((window as any).AndroidGPS && (window as any).AndroidGPS.getStatus) {
+              const status = (window as any).AndroidGPS.getStatus();
+              console.log("GPS Service status:", status);
+            }
+          }, 5000);
+          
         } else {
-          console.log("AndroidGPS interface not available - using web GPS for testing");
-          // Pentru testare în browser, simulez transmisia GPS
+          console.log("❌ AndroidGPS interface NOT available");
+          console.log("Platform info:", {
+            isNativePlatform: Capacitor.isNativePlatform(),
+            platform: Capacitor.getPlatform(),
+            userAgent: navigator.userAgent
+          });
+          console.log("Using web GPS fallback for testing");
           await this.startWebCompatibleGPS(course);
         }
 
