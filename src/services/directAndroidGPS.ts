@@ -216,14 +216,15 @@ class DirectAndroidGPSService {
       }
 
       // FALLBACK pentru browser: GPS prin Capacitor Geolocation
-      console.log("Starting browser GPS - requesting permissions...");
+      console.log("📱 Browser mode - requesting GPS permissions...");
       
+      // Cere permisiuni GPS IMEDIAT când apeși START
       const permissions = await Geolocation.requestPermissions();
-      console.log("GPS permissions granted - starting tracking");
+      console.log("✅ GPS permissions requested");
 
-      // Start GPS interval imediat
+      // Pornește GPS tracking imediat după permisiuni
       this.startBrowserGPSInterval(course);
-      console.log("Browser GPS activated for UIT:", course.uit);
+      console.log("🚀 GPS tracking started for UIT:", course.uit);
     } catch (error) {
       console.error("Failed to start GPS tracking:", error);
       throw error;
