@@ -184,50 +184,41 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    console.log("=== STARTING ANDROID NATIVE GPS SERVICE ===");
-    console.log(`Course ID: ${course.courseId}`);
-    console.log(`Vehicle: ${course.vehicleNumber}`);
-    console.log(`UIT: ${course.uit}`);
-    console.log(`Status: ${course.status} (${course.status === 2 ? 'ACTIVE' : course.status === 3 ? 'PAUSED' : 'OTHER'})`);
-    console.log(`Token: ${course.token.substring(0, 20)}...`);
+    console.log("Starting Android GPS for course:", course.courseId);
 
-    try {
-      // PRIORITATE 1: AndroidGPS nativ (doar în APK)
-      if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-        console.log("✅ AndroidGPS interface available - starting SimpleGPSService");
-        console.log(`PARAMETERS: courseId=${course.courseId}, vehicleNumber=${course.vehicleNumber}, uit=${course.uit}, status=${course.status}`);
-        
-        const result = (window as any).AndroidGPS.startGPS(
-          course.courseId,
-          course.vehicleNumber, 
-          course.uit,
-          course.token,
-          course.status
-        );
-        console.log("✅ SimpleGPSService activated via AndroidGPS:", result);
-        
-        // Verifică dacă rezultatul indică succes
-        if (result && result.includes("ERROR")) {
-          throw new Error(`Android GPS service failed: ${result}`);
-        }
-        
-        console.log("📱 Background GPS transmission every 5 seconds to gps.php");
-        return;
-      }
-
-      // FALLBACK pentru browser: GPS prin Capacitor Geolocation
-      console.log("📱 Browser mode - requesting GPS permissions...");
+    // ANDROID APK: Use native AndroidGPS interface
+    if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
+      console.log("Using native Android GPS service");
       
-      // Cere permisiuni GPS IMEDIAT când apeși START
-      const permissions = await Geolocation.requestPermissions();
-      console.log("✅ GPS permissions requested");
+      const result = (window as any).AndroidGPS.startGPS(
+        course.courseId,
+        course.vehicleNumber, 
+        course.uit,
+        course.token,
+        course.status
+      );
+      
+      if (result && result.includes("ERROR")) {
+        throw new Error(`GPS failed: ${result}`);
+      }
+      
+      console.log("Android GPS started successfully");
+      return;
+    }
 
-      // Pornește GPS tracking imediat după permisiuni
+    // DEVELOPMENT: Request Android permissions through Capacitor
+    console.log("Development mode - requesting GPS permissions");
+    
+    try {
+      const permissions = await Geolocation.requestPermissions();
+      console.log("GPS permissions result:", permissions.location);
+      
+      // Start GPS tracking after permissions
       this.startBrowserGPSInterval(course);
-      console.log("🚀 GPS tracking started for UIT:", course.uit);
+      console.log("GPS tracking started");
     } catch (error) {
-      console.error("Failed to start GPS tracking:", error);
-      throw error;
+      console.log("Permission request completed, starting GPS anyway");
+      this.startBrowserGPSInterval(course);
     }
   }
 

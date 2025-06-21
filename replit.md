@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.48 (June 21, 2025) - GPS START SIMPLIFIED & RESTORED TO ORIGINAL BEHAVIOR
+### Versiunea Curentă: 1808.49 (June 21, 2025) - ANDROID-ONLY GPS SIMPLIFIED
+- **Android-focused logic**: Removed complex browser fallbacks, app is Android-only
+- **Native permissions**: Uses AndroidGPS interface directly on device, Capacitor for development
+- **Simplified flow**: START → Request permissions → GPS starts (exactly like before)
+- **Clean implementation**: No unnecessary browser code, focused on Android platform
+- **Original behavior restored**: Simple permission request → immediate GPS start pattern
+
+### Versiunea Precedentă: 1808.48 (June 21, 2025) - GPS START SIMPLIFIED & RESTORED TO ORIGINAL BEHAVIOR
 - **GPS logic simplified**: Removed complex permission checks that were blocking GPS start
 - **Direct start behavior**: GPS starts immediately when user clicks START, just like before
 - **Permissions simplified**: Continues even without perfect permissions, requests them and proceeds
