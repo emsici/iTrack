@@ -456,7 +456,22 @@ public class EnhancedGPSService extends Service implements LocationListener {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "GPS transmission failed - Network error", e);
-                // TODO: Save to offline storage
+                Log.d(TAG, "💾 Saving GPS coordinate to offline storage");
+                
+                // Save to offline storage via WebView interface
+                try {
+                    // Call WebView JavaScript function to save offline
+                    webView.post(() -> {
+                        String jsCode = String.format(
+                            "window.saveGPSOffline && window.saveGPSOffline(%s);",
+                            gpsData.toString()
+                        );
+                        webView.evaluateJavascript(jsCode, null);
+                    });
+                    Log.d(TAG, "✅ GPS coordinate queued for offline storage");
+                } catch (Exception offlineError) {
+                    Log.e(TAG, "Failed to save GPS coordinate offline", offlineError);
+                }
             }
 
             @Override
