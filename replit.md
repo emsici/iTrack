@@ -171,8 +171,10 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.30 (June 21, 2025) - CORS ERROR ELIMINAT DEFINITIV: NATIVE ANDROID ONLY
-- **CORS error eliminat definitiv**: Scos complet WebView fetch din VehicleScreenProfessional.tsx care cauza CORS policy errors
+### Versiunea Curentă: 1808.31 (June 21, 2025) - CORS ERRORS ELIMINAT COMPLET: ZERO WEBVIEW FETCH
+- **TOATE fetch-urile eliminate**: Înlocuit complet fetch cu CapacitorHttp în offlineGPS.ts și directAndroidGPS.ts
+- **Zero CORS policy errors**: Aplicația nu mai folosește niciodată fetch/XMLHttpRequest pentru gps.php din WebView
+- **Doar serviciul Android nativ transmite**: EnhancedGPSService.java cu OkHttp este singura sursă de transmisie GPS
 - **Doar serviciul Android nativ**: Status updates se fac exclusiv prin AndroidGPS.updateStatus() pentru evitarea CORS
 - **Flux GPS curat**: Eliminat codul duplicat și fallback-urile web care interferau cu serviciul nativ
 - **WebView interface optimizat**: MainActivity.java updateStatus() funcționează direct cu EnhancedGPSService

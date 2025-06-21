@@ -4,6 +4,7 @@
  */
 
 import { Preferences } from '@capacitor/preferences';
+import { CapacitorHttp } from '@capacitor/core';
 import { GPSData } from './api';
 
 export interface OfflineGPSCoordinate {
@@ -203,18 +204,18 @@ class OfflineGPSService {
         gsm_signal: coordinate.gsm_signal
       };
 
-      const response = await fetch('https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php', {
-        method: 'POST',
+      const response = await CapacitorHttp.post({
+        url: 'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${coordinate.token}`,
           'Accept': 'application/json',
           'User-Agent': 'iTrack-Android-GPS/1.0'
         },
-        body: JSON.stringify(gpsData)
+        data: gpsData
       });
 
-      return response.ok;
+      return response.status === 200;
     } catch (error) {
       console.error('❌ Network error transmitting coordinate:', error);
       return false;
