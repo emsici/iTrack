@@ -297,17 +297,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           await startCourseAnalytics(courseId, courseToUpdate.uit, vehicleNumber);
         } else if (newStatus === 3) {
           console.log(`Pausing GPS tracking for course ${courseId}`);
-          // LOGIC FIX: Asigură că course este în activeCourses înainte de PAUSE
+          // Ensure course is active before PAUSE
           if (!hasActiveCourses() || !getActiveCourses().includes(courseId)) {
-            console.log(`Course ${courseId} not active - starting tracking first for PAUSE`);
+            console.log(`Course ${courseId} not active - starting first for PAUSE`);
             await startGPSTracking(courseId, vehicleNumber, token, courseToUpdate.uit, 2);
           }
           await updateCourseStatus(courseId, newStatus);
         } else if (newStatus === 4) {
           console.log(`Stopping GPS tracking for course ${courseId}`);
-          // LOGIC FIX: Asigură că course este în activeCourses înainte de STOP
+          // Ensure course is active before STOP
           if (!hasActiveCourses() || !getActiveCourses().includes(courseId)) {
-            console.log(`Course ${courseId} not active - starting tracking first for STOP`);
+            console.log(`Course ${courseId} not active - starting first for STOP`);
             await startGPSTracking(courseId, vehicleNumber, token, courseToUpdate.uit, 2);
           }
           await updateCourseStatus(courseId, newStatus);

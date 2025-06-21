@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.39 (June 21, 2025) - STATUS UPDATE COMPLET REPARAT
+### Versiunea Curentă: 1808.40 (June 21, 2025) - FLUX GPS LOGIC COMPLET REPARAT
+- **GPS flow logic fixed**: PAUSE/STOP verifică dacă course este activ și pornește GPS dacă necesar
+- **Error handling refined**: Server errors nu blochează GPS service, error messages clarified
+- **updateCourseStatus simplified**: Verificare simplă dacă course există în activeCourses Map
+- **START→PAUSE→STOP flow guaranteed**: Fiecare operație asigură că course este în activeCourses înainte
+- **APK ready for testing**: Toate erorile de status update reparate complet
+
+### Versiunea Precedentă: 1808.39 (June 21, 2025) - STATUS UPDATE COMPLET REPARAT
 - **AndroidGPS interface fixed**: MainActivity.java returnează rezultate String pentru toate operațiile GPS
 - **Status update logic repaired**: SimpleGPSService primește și procesează UPDATE_STATUS corect
 - **Error handling enhanced**: Wrapper-ul verifică rezultatul AndroidGPS și raportează erori

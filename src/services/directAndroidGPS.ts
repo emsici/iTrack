@@ -46,10 +46,7 @@ class DirectAndroidGPSService {
     
     let course = this.activeCourses.get(courseId);
     if (!course) {
-      // PROBLEMA CRITICĂ: Course nu există în activeCourses
-      console.error(`CRITICAL: Course ${courseId} not in activeCourses - this should not happen`);
-      console.error(`Available courses: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
-      throw new Error(`Course ${courseId} not found - startGPSTracking() must be called first`);
+      throw new Error(`Course ${courseId} not found in active courses - call startGPSTracking first`);
     }
 
     const oldStatus = course.status;
