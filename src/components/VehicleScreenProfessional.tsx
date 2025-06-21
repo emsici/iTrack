@@ -262,21 +262,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           throw new Error('Request timeout - server nu răspunde în 10 secunde');
         }
         if (fetchError.name === 'TypeError' && fetchError.message.includes('fetch')) {
-          console.error(`🚫 Network fetch failed - checking connectivity`);
+          console.error(`🚫 Network fetch failed`);
           console.error(`📶 Navigator online: ${navigator.onLine}`);
-          console.error(`🌐 Trying simple connectivity test...`);
-          
-          // Test basic connectivity
-          try {
-            const testResponse = await fetch('https://www.google.com', { 
-              method: 'HEAD', 
-              signal: AbortSignal.timeout(5000) 
-            });
-            console.log(`✅ Internet connectivity test: ${testResponse.status}`);
-          } catch (connectivityError) {
-            console.error(`❌ No internet connectivity: ${connectivityError.message}`);
-          }
-          
           throw new Error(`Network error - verificați conexiunea la internet și permisiunile aplicației`);
         }
         throw new Error(`Network error: ${fetchError.message}`);
