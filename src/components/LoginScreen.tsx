@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "../styles/corporate-light.css";
 import { login } from "../services/api";
 
 interface LoginScreenProps {
@@ -46,19 +47,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div style={{
-      minHeight: '100dvh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)',
-      backgroundAttachment: 'fixed',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '0',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
+    <div className="login-screen-corporate">
       <style>
         {`
           .login-container {
