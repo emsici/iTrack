@@ -201,14 +201,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .status-badge-enhanced {
           background: ${getStatusColor(course.status)};
           color: white;
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 0.8rem;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-size: 0.7rem;
           font-weight: 600;
           display: flex;
           align-items: center;
-          gap: 6px;
-          box-shadow: 0 2px 8px ${getStatusColor(course.status)}33;
+          gap: 4px;
+          box-shadow: 0 1px 4px ${getStatusColor(course.status)}33;
         }
 
         .toggle-btn-enhanced {

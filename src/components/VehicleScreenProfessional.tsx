@@ -373,41 +373,159 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <div className="courses-section">
             <div className="executive-control-center">
               <div className="command-dashboard">
-                <div className="analytics-grid-centered">
-                  <div className="analytics-card">
-                    <div className="analytics-number">{courses.length}</div>
-                    <div className="analytics-label">TOTAL</div>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(5, 1fr)',
+                  gap: '4px',
+                  maxWidth: '320px',
+                  margin: '0 auto',
+                  padding: '0 8px'
+                }}>
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(148, 163, 184, 0.2)',
+                    borderRadius: '6px',
+                    padding: '6px 2px',
+                    textAlign: 'center',
+                    minHeight: '40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                  }}>
+                    <div style={{
+                      fontSize: '1rem',
+                      fontWeight: '700',
+                      color: '#ffffff',
+                      lineHeight: '1'
+                    }}>{courses.length}</div>
+                    <div style={{
+                      fontSize: '0.5rem',
+                      color: '#94a3b8',
+                      fontWeight: '600',
+                      letterSpacing: '0.2px',
+                      textTransform: 'uppercase',
+                      lineHeight: '1'
+                    }}>TOTAL</div>
                   </div>
-                  <div className="analytics-card">
-                    <div className="analytics-number">{courses.filter(c => c.status === 2).length}</div>
-                    <div className="analytics-label">ACTIV</div>
+                  
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(148, 163, 184, 0.2)',
+                    borderRadius: '6px',
+                    padding: '6px 2px',
+                    textAlign: 'center',
+                    minHeight: '40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                  }}>
+                    <div style={{
+                      fontSize: '1rem',
+                      fontWeight: '700',
+                      color: '#ffffff',
+                      lineHeight: '1'
+                    }}>{courses.filter(c => c.status === 2).length}</div>
+                    <div style={{
+                      fontSize: '0.5rem',
+                      color: '#94a3b8',
+                      fontWeight: '600',
+                      letterSpacing: '0.2px',
+                      textTransform: 'uppercase',
+                      lineHeight: '1'
+                    }}>ACTIV</div>
                   </div>
-                  <div className="analytics-card">
-                    <div className="analytics-number">{courses.filter(c => c.status === 3).length}</div>
-                    <div className="analytics-label">PAUZĂ</div>
+                  
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(148, 163, 184, 0.2)',
+                    borderRadius: '6px',
+                    padding: '6px 2px',
+                    textAlign: 'center',
+                    minHeight: '40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                  }}>
+                    <div style={{
+                      fontSize: '1rem',
+                      fontWeight: '700',
+                      color: '#ffffff',
+                      lineHeight: '1'
+                    }}>{courses.filter(c => c.status === 3).length}</div>
+                    <div style={{
+                      fontSize: '0.5rem',
+                      color: '#94a3b8',
+                      fontWeight: '600',
+                      letterSpacing: '0.2px',
+                      textTransform: 'uppercase',
+                      lineHeight: '1'
+                    }}>PAUZĂ</div>
                   </div>
-                  <div className="analytics-card">
-                    <div className="analytics-number">{courses.filter(c => c.status === 1).length}</div>
-                    <div className="analytics-label">DISPONIBIL</div>
+                  
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+                    backdropFilter: 'blur(12px)',
+                    border: '1px solid rgba(148, 163, 184, 0.2)',
+                    borderRadius: '6px',
+                    padding: '6px 2px',
+                    textAlign: 'center',
+                    minHeight: '40px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center'
+                  }}>
+                    <div style={{
+                      fontSize: '1rem',
+                      fontWeight: '700',
+                      color: '#ffffff',
+                      lineHeight: '1'
+                    }}>{courses.filter(c => c.status === 1).length}</div>
+                    <div style={{
+                      fontSize: '0.5rem',
+                      color: '#94a3b8',
+                      fontWeight: '600',
+                      letterSpacing: '0.2px',
+                      textTransform: 'uppercase',
+                      lineHeight: '1'
+                    }}>DISPONIBIL</div>
                   </div>
-                </div>
-
-                {/* Al 5-lea card pentru Statistici - centrat */}
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '8px', padding: '0 16px' }}>
+                  
                   <div 
-                    className="analytics-card"
                     onClick={() => setShowStatsModal(true)}
-                    style={{ 
-                      width: '140px',
-                      minHeight: '70px',
+                    style={{
                       background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.3) 100%)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)'
+                      backdropFilter: 'blur(12px)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      borderRadius: '6px',
+                      padding: '6px 2px',
+                      textAlign: 'center',
+                      minHeight: '40px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
                     }}
                   >
-                    <div className="analytics-number" style={{ color: '#60a5fa', fontSize: '1.5rem' }}>
+                    <div style={{
+                      fontSize: '1rem',
+                      fontWeight: '700',
+                      color: '#60a5fa',
+                      lineHeight: '1'
+                    }}>
                       <i className="fas fa-chart-line"></i>
                     </div>
-                    <div className="analytics-label" style={{ color: '#93c5fd', fontSize: '0.65rem' }}>STATISTICI</div>
+                    <div style={{
+                      fontSize: '0.5rem',
+                      color: '#93c5fd',
+                      fontWeight: '600',
+                      letterSpacing: '0.2px',
+                      textTransform: 'uppercase',
+                      lineHeight: '1'
+                    }}>STATS</div>
                   </div>
                 </div>
 
