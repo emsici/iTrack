@@ -444,25 +444,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       ) : (
         <>
           <div className="vehicle-screen-header">
-            <div className="header-brand">
-              <div
-                className="header-logo-corporate"
-                onClick={handleTimestampClick}
-              >
-                <div className="corporate-emblem-small">
-                  <div className="emblem-ring-small">
-                    <div className="emblem-core-small">
-                      <div className="emblem-center-small">
-                        <i className="fas fa-truck"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {infoClickCount >= 30 && (
-                <div className="click-counter-badge">{infoClickCount}/50</div>
-              )}
-            </div>
 
             <div className="header-vehicle-display">
               <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
