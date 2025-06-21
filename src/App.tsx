@@ -3,7 +3,7 @@ import LoginScreen from './components/LoginScreen';
 import VehicleScreen from './components/VehicleScreenProfessional';
 import AdminPanel from './components/AdminPanel';
 // GPS initialization removed - handled by communityGPS when needed
-import { getStoredToken, clearToken } from './services/storage';
+import { getStoredToken, storeToken, clearToken } from './services/storage';
 
 type AppState = 'login' | 'vehicle' | 'admin';
 
@@ -37,14 +37,24 @@ const App: React.FC = () => {
     initApp();
   }, []);
 
-  const handleLogin = (authToken: string) => {
-    if (authToken === 'ADMIN_TOKEN') {
-      setPreviousToken(token); // Store current session
+  const handleLogin = async (authToken: string) => {
+    console.log("Login successful, storing token...");
+    try {
+      if (authToken === 'ADMIN_TOKEN') {
+        setPreviousToken(token); // Store current session
+        setToken(authToken);
+        setCurrentScreen('admin');
+      } else {
+        await storeToken(authToken);
+        console.log("Token stored successfully");
+        setToken(authToken);
+        setCurrentScreen('vehicle');
+      }
+    } catch (error) {
+      console.error("Failed to store token:", error);
+      // Continue anyway
       setToken(authToken);
-      setCurrentScreen('admin');
-    } else {
-      setToken(authToken);
-      setCurrentScreen('vehicle');
+      setCurrentScreen(authToken === 'ADMIN_TOKEN' ? 'admin' : 'vehicle');
     }
   };
 
