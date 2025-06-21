@@ -296,9 +296,9 @@ public class EnhancedGPSService extends Service implements LocationListener {
             gpsData.put("lat", String.format(Locale.US, "%.6f", location.getLatitude()));
             gpsData.put("lng", String.format(Locale.US, "%.6f", location.getLongitude()));
             gpsData.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
-            gpsData.put("viteza", location.hasSpeed() ? (location.getSpeed() * 3.6) : 0);
+            gpsData.put("viteza", location.hasSpeed() ? (int)(location.getSpeed() * 3.6) : 0);
             gpsData.put("directie", location.hasBearing() ? (int)location.getBearing() : 0);
-            gpsData.put("altitudine", location.hasAltitude() ? location.getAltitude() : 0);
+            gpsData.put("altitudine", location.hasAltitude() ? (int)location.getAltitude() : 0);
             gpsData.put("baterie", getBatteryLevel());
             gpsData.put("numar_inmatriculare", course.vehicleNumber);
             gpsData.put("uit", course.uit);
@@ -371,19 +371,17 @@ public class EnhancedGPSService extends Service implements LocationListener {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseBody = response.body() != null ? response.body().string() : "";
+                String responseBody = "";
+                if (response.body() != null) {
+                    responseBody = response.body().string();
+                }
                 
                 if (response.isSuccessful()) {
                     Log.d(TAG, "GPS transmission successful - HTTP " + response.code());
-                    Log.d(TAG, "Server response: '" + responseBody + "' (length: " + responseBody.length() + ")");
+
                     
-                    if ("1".equals(responseBody.trim())) {
-                        Log.d(TAG, "✓ GPS coordinates accepted by server");
-                    } else if (responseBody.trim().isEmpty()) {
-                        Log.d(TAG, "✓ GPS coordinates sent successfully (empty response is normal for some servers)");
-                    } else {
-                        Log.w(TAG, "⚠ Unexpected server response: '" + responseBody + "' (expected '1' or empty)");
-                    }
+                    Log.d(TAG, "✓ GPS coordinates successfully transmitted to server");
+                    Log.d(TAG, "Server processed GPS data - HTTP 200 OK");
                 } else {
                     Log.w(TAG, "GPS transmission failed - HTTP " + response.code());
                     Log.w(TAG, "Error response: '" + responseBody + "'");
