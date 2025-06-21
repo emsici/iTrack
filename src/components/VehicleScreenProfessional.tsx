@@ -116,9 +116,23 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       if (coursesArray.length > 0) {
         const mergedCourses = coursesArray.map((newCourse: Course) => {
           const existingCourse = courses.find((c) => c.id === newCourse.id);
+          
+          // Restore saved status from localStorage
+          let savedStatus = newCourse.status || 1; // Default to available
+          try {
+            const statusKey = `course_status_${newCourse.uit}`;
+            const storedStatus = localStorage.getItem(statusKey);
+            if (storedStatus) {
+              savedStatus = parseInt(storedStatus);
+              console.log(`📋 Restored status ${savedStatus} for UIT ${newCourse.uit}`);
+            }
+          } catch (error) {
+            console.error('Failed to restore course status:', error);
+          }
+          
           return existingCourse
-            ? { ...newCourse, status: existingCourse.status }
-            : { ...newCourse, isNew: true }; // Mark new courses
+            ? { ...newCourse, status: savedStatus }
+            : { ...newCourse, status: savedStatus, isNew: true }; // Mark new courses
         });
 
         // Sort: new courses first, then existing ones
@@ -234,6 +248,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       await logoutClearAllGPS();
       await logout(token);
       await clearToken();
+      
+      // Clear all saved course statuses on logout
+      try {
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+          if (key.startsWith('course_status_')) {
+            localStorage.removeItem(key);
+            console.log(`🧹 Cleared saved status for ${key}`);
+          }
+        });
+      } catch (error) {
+        console.error('Failed to clear course statuses:', error);
+      }
+      
       onLogout();
     } catch (error) {
       console.error("Eroare la logout:", error);
@@ -268,6 +296,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       if (!courseToUpdate) {
         console.error("Course not found:", courseId);
         return;
+      }
+
+      // Update course status immediately in UI for responsive feel
+      setCourses(prevCourses => 
+        prevCourses.map(course => 
+          course.id === courseId 
+            ? { ...course, status: newStatus }
+            : course
+        )
+      );
+
+      // Store the status in localStorage for persistence
+      try {
+        const statusKey = `course_status_${courseToUpdate.uit}`;
+        localStorage.setItem(statusKey, newStatus.toString());
+        console.log(`💾 Saved status ${newStatus} for UIT ${courseToUpdate.uit}`);
+      } catch (error) {
+        console.error('Failed to save course status:', error);
       }
 
       console.log(`=== STATUS UPDATE START ===`);
