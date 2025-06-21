@@ -40,6 +40,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [syncProgress, setSyncProgress] = useState<any>(null);
   const [offlineCount, setOfflineCount] = useState(0);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
+  const [autoRefreshInterval, setAutoRefreshInterval] = useState<NodeJS.Timeout | null>(null);
+  const [backgroundRefreshActive, setBackgroundRefreshActive] = useState(false);
 
   // Load stored vehicle number on component mount
   useEffect(() => {
@@ -56,7 +58,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
     
     loadStoredVehicleNumber();
-  }, []);
+    
+    // Listen for background refresh events from Android
+    const handleBackgroundRefresh = () => {
+      console.log('Background refresh event received from Android');
+      if (vehicleNumber && token && coursesLoaded) {
+        performBackgroundRefresh();
+      }
+    };
+    
+    window.addEventListener('backgroundRefresh', handleBackgroundRefresh);
+    
+    return () => {
+      window.removeEventListener('backgroundRefresh', handleBackgroundRefresh);
+    };
+  }, [vehicleNumber, token, coursesLoaded]);
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -131,6 +147,71 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         // Update last refresh timestamp
         setLastRefreshTime(new Date());
+        
+        // Setup robust auto-refresh for Android (works with phone locked)
+        if (autoRefreshInterval) {
+          clearInterval(autoRefreshInterval);
+        }
+        
+        // Create persistent interval that survives app minimizing/screen lock
+        const createRobustInterval = () => {
+          return setInterval(async () => {
+            const currentTime = new Date();
+            console.log(`[${currentTime.toLocaleTimeString()}] Auto-refresh starting (Android background)...`);
+            
+            try {
+              const response = await getVehicleCourses(vehicleNumber, token);
+              if (response && Array.isArray(response)) {
+                // Capture current state to avoid race conditions
+                setCourses(currentCourses => {
+                  const existingUITs = new Set(currentCourses.map(course => course.uit));
+                  
+                  // Process new courses and mark new ones
+                  const newCoursesData = response.map((course: any) => ({
+                    ...course,
+                    isNew: !existingUITs.has(course.uit) // Mark as new if UIT doesn't exist
+                  }));
+                  
+                  // Sort: new courses first, then existing ones
+                  const sortedCourses = newCoursesData.sort((a: Course, b: Course) => {
+                    if (a.isNew && !b.isNew) return -1;
+                    if (!a.isNew && b.isNew) return 1;
+                    return 0;
+                  });
+                  
+                  const newCount = newCoursesData.filter((c: Course) => c.isNew).length;
+                  if (newCount > 0) {
+                    console.log(`🆕 Auto-refresh: ${newCount} new UIT courses added (may be background)`);
+                  } else {
+                    console.log(`✅ Auto-refresh: ${sortedCourses.length} courses updated (no new UITs)`);
+                  }
+                  
+                  return sortedCourses;
+                });
+                
+                setLastRefreshTime(new Date());
+              }
+            } catch (error) {
+              console.log('Auto-refresh failed (will retry in 5 minutes):', error);
+            }
+          }, 5 * 60 * 1000); // 5 minutes
+        };
+        
+        const interval = createRobustInterval();
+        setAutoRefreshInterval(interval);
+        setBackgroundRefreshActive(true);
+        
+        // Start native Android background refresh service
+        if (window.AndroidGPS && window.AndroidGPS.startBackgroundRefresh) {
+          try {
+            const result = window.AndroidGPS.startBackgroundRefresh(vehicleNumber, token);
+            console.log('Native Android background refresh:', result);
+          } catch (error) {
+            console.log('Native background refresh not available (browser mode)');
+          }
+        }
+        
+        console.log('🔄 Android background auto-refresh activated (5 min intervals)');
         
         console.log(`Successfully loaded ${finalCourses.length} courses for ${vehicleNumber} (sorted: new first)`);
         
@@ -486,14 +567,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       ) : (
         <>
           <div className="vehicle-screen-header">
-
-            <div className="header-vehicle-display">
-              <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
-                <i className="fas fa-truck vehicle-icon"></i>
-                <span className="vehicle-number">{vehicleNumber}</span>
-                <i className="edit-icon fas fa-edit"></i>
+            <div className="header-cards-layout">
+              <div className="vehicle-card" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
+                <i className="fas fa-truck" style={{color: '#60a5fa', fontSize: '18px'}}></i>
+                <span style={{color: '#ffffff', fontWeight: '600', fontSize: '16px'}}>{vehicleNumber}</span>
+                <i className="fas fa-edit" style={{color: '#94a3b8', fontSize: '12px', marginLeft: 'auto'}}></i>
               </div>
               
+              <div className="logout-card" onClick={handleLogout} title="Logout">
+                <i className="fas fa-sign-out-alt"></i>
+              </div>
+            </div>
+
+            <div className="hidden-for-debug">
               <div className="online-status-display">
                 <div 
                   className="status-indicator-wrapper"
@@ -547,21 +633,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
             <div className="header-actions">
               <button
-                className="header-icon-btn"
-                onClick={handleLoadCourses}
-                disabled={loading}
-                title="Refresh Curse"
-              >
-                <i className="fas fa-sync-alt"></i>
-                <span>Refresh</span>
-              </button>
-              <button
-                className="header-icon-btn"
+                className="header-logout-btn"
                 onClick={handleLogout}
                 title="Logout"
               >
                 <i className="fas fa-sign-out-alt"></i>
-                <span>Ieșire</span>
               </button>
             </div>
           </div>

@@ -35,6 +35,17 @@
             android:exported="false"
             android:foregroundServiceType="location" />
             
+        <!-- Background Auto-Refresh Service -->
+        <service
+            android:name="com.itrack.BackgroundRefreshService"
+            android:enabled="true"
+            android:exported="false" />
+            
+        <receiver
+            android:name="com.itrack.BackgroundRefreshService$RefreshReceiver"
+            android:enabled="true"
+            android:exported="false" />
+            
         <!-- GPS Broadcast Receiver for independent activation -->
 
 
@@ -78,6 +89,10 @@
     <!-- Storage permissions for app data -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
+    <!-- Background refresh permissions -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     
     <!-- Real device data permissions for authentic GPS transmission -->
     <uses-permission android:name="android.permission.BATTERY_STATS" />
