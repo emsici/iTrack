@@ -391,15 +391,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <div className="analytics-label">TOTAL</div>
                   </div>
                   <div className="analytics-card">
-                    <div className="analytics-number">{activeCourses}</div>
+                    <div className="analytics-number">{courses.filter(c => c.status === 2).length}</div>
                     <div className="analytics-label">ACTIV</div>
                   </div>
                   <div className="analytics-card">
-                    <div className="analytics-number">{pausedCourses}</div>
+                    <div className="analytics-number">{courses.filter(c => c.status === 3).length}</div>
                     <div className="analytics-label">PAUZĂ</div>
                   </div>
                   <div className="analytics-card">
-                    <div className="analytics-number">{availableCourses}</div>
+                    <div className="analytics-number">{courses.filter(c => c.status === 1).length}</div>
                     <div className="analytics-label">DISPONIBIL</div>
                   </div>
                 </div>
