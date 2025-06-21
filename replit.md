@@ -171,7 +171,7 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.03 (June 21, 2025)
+### Versiunea Curentă: 1808.04 (June 21, 2025)
 - **Design unificat complet**: Lista de curse, GPS monitor și footer cu același stil închis ca header-ul
 - **Sistem offline robust**: Detectare reală conexiune + salvare automată coordonate când pică internetul
 - **Sincronizare automată**: Progress bar cu shimmer animation când revine conexiunea
@@ -213,6 +213,8 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Background GPS verificat**: Build Android reușit cu toate permisiunile și serviciile native configurate pentru funcționare cu telefon blocat
 - **Transmisie separată UIT**: Fiecare cursă activă transmite coordonate individual la 5 secunde cu UIT-ul său specific către gps.php
 - **Serviciu persistent**: GPS rulează cât timp există curse active, se oprește automat doar când toate cursele sunt finalizate
+- **EnhancedGPSService complet reparat**: Eliminat toate erorile de compilare, CourseData class finalizată, notificare multi-cursă funcțională
+- **Multi-course logic verificat**: Suport simultan pentru multiple UIT-uri active - fiecare cu propriul token și status independent
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin
