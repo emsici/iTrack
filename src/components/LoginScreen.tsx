@@ -378,26 +378,26 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           .form-input {
             width: 100%;
             padding: 18px 20px 18px 55px;
-            border: 2px solid #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 15px;
-            background: #ffffff;
-            color: #1e293b;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
             font-size: 1.1rem;
             font-weight: 500;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
           }
 
           .form-input::placeholder {
-            color: #94a3b8;
+            color: rgba(255, 255, 255, 0.6);
             font-weight: 400;
           }
 
           .form-input:focus {
             outline: none;
-            border-color: #4f46e5;
-            background: #ffffff;
-            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15);
+            border-color: rgba(59, 130, 246, 0.6);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
             transform: translateY(-2px);
           }
 
@@ -406,7 +406,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             left: 18px;
             top: 50%;
             transform: translateY(-50%);
-            color: #4f46e5;
+            color: rgba(255, 255, 255, 0.7);
             font-size: 1.2rem;
             pointer-events: none;
           }
@@ -443,9 +443,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .login-button {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
-            border: none;
+            border: 1px solid rgba(59, 130, 246, 0.3);
             padding: 20px 30px;
             border-radius: 18px;
             font-size: 1.2rem;
@@ -457,7 +457,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             justify-content: center;
             gap: 12px;
             margin-top: 15px;
-            box-shadow: 0 15px 35px rgba(79, 70, 229, 0.4);
+            box-shadow: 
+              0 4px 16px rgba(59, 130, 246, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
             letter-spacing: 0.5px;
             text-transform: uppercase;
             position: relative;
@@ -477,7 +479,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           .login-button:hover:not(:disabled) {
             transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 25px 50px rgba(79, 70, 229, 0.5);
+            box-shadow: 
+              0 8px 32px rgba(59, 130, 246, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
           }
 
           .login-button:hover:not(:disabled)::before {
