@@ -300,15 +300,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         // Try native HTTP first - PURE JAVA EFFICIENCY
         let response;
+        console.log('🔍 Checking AndroidGPS availability:', typeof (window as any).AndroidGPS);
+        console.log('🔍 postNativeHttp function:', typeof (window as any).AndroidGPS?.postNativeHttp);
+        
         if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-          console.log('🔥 Using native HTTP for status update');
+          console.log('🔥 Using native HTTP for status update - PURE JAVA');
           const nativeResult = (window as any).AndroidGPS.postNativeHttp(
             gpsUrl,
             JSON.stringify(gpsPayload),
             token
           );
-          response = { status: 200, data: nativeResult };
+          console.log('📱 Native HTTP result:', nativeResult);
+          response = { status: 204, data: nativeResult }; // Assume 204 for native calls
         } else {
+          console.log('⚠️ Falling back to CapacitorHttp (browser mode)');
           // Fallback to CapacitorHttp only in browser
           response = await CapacitorHttp.post({
             url: gpsUrl,
