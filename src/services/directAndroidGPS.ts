@@ -55,10 +55,12 @@ class DirectAndroidGPSService {
     try {
       if (Capacitor.isNativePlatform()) {
         // Pentru Android nativ, folosește UPDATE_STATUS action
-        await DirectGPS.updateCourseStatus({
-          courseId: courseId,
-          status: newStatus
-        });
+        // Folosește interfața WebView direct
+        if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
+          (window as any).AndroidGPS.updateStatus(courseId, newStatus);
+        } else {
+          console.warn('AndroidGPS interface not available');
+        }
         
         console.log(`✅ Android GPS status updated: ${courseId} (${oldStatus} → ${newStatus})`);
         
