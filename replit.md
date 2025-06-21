@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.28 (June 21, 2025) - STATUS UPDATE API REPARAT
+### Versiunea Curentă: 1808.29 (June 21, 2025) - REPARAT ACTIVECOURSES MAP
+- **Identificat problema**: updateCourseStatus() eșua cu "Course not found" în activeCourses Map
+- **Cauza**: PAUSE/STOP apelau updateCourseStatus() fără ca startGPSTracking() să fi fost apelat primul
+- **Soluția**: Pentru PAUSE/STOP se asigură că startGPSTracking() rulează primul pentru a popula activeCourses Map
+- **Debugging îmbunătățit**: Afișează course-urile active în Map pentru debugging mai facil
+- **Flow reparat**: START→Map populated → PAUSE/STOP→Map available → Success
+
+### Versiunea Precedentă: 1808.28 (June 21, 2025) - STATUS UPDATE API REPARAT
 - **Reparat updateCourseStatus**: Funcția trimite acum status la server prin gps.php înainte de AndroidGPS
 - **API consistent**: Folosește același endpoint gps.php ca VehicleScreenProfessional pentru status updates
 - **Eliminat eroarea**: Funcția updateCourseStatus avea doar AndroidGPS, acum are și call-ul de server complet

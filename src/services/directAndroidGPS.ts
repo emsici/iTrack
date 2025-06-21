@@ -42,11 +42,13 @@ class DirectAndroidGPSService {
 
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
     console.log(`=== UPDATING STATUS: ${courseId} → ${newStatus} ===`);
+    console.log(`Active courses in map: ${Array.from(this.activeCourses.keys()).join(', ')}`);
     
     const course = this.activeCourses.get(courseId);
     if (!course) {
-      console.warn(`Course ${courseId} not found for status update`);
-      return;
+      console.error(`❌ Course ${courseId} not found in activeCourses Map!`);
+      console.error(`Available courses: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
+      throw new Error(`Course ${courseId} not found - GPS service not started`);
     }
 
     const oldStatus = course.status;
