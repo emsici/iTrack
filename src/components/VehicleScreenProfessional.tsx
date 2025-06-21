@@ -56,45 +56,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`=== DEBUGGING: Loading courses for vehicle: ${vehicleNumber} ===`);
       const response = await getVehicleCourses(vehicleNumber, token);
       
-      console.log("=== DEBUGGING: Raw API response ===", response);
-      console.log("=== DEBUGGING: Response type ===", typeof response);
-      console.log("=== DEBUGGING: Is array ===", Array.isArray(response));
-      console.log("=== DEBUGGING: Response length ===", response?.length);
-      console.log("=== DEBUGGING: Response JSON ===", JSON.stringify(response, null, 2));
-
-      // SCHIMBARE: Nu setez coursesLoaded = true automat
-      // Se va seta doar dacă găsesc curse valide
-      console.log("=== APK DEBUG: Checking if courses found before allowing access ===");
-
-      // CRITICAL FIX: Proper handling of API response format
+      // Handle API response format
       let coursesArray = [];
-      
-      console.log("=== CRITICAL DEBUG: Analyzing response structure ===");
-      console.log("=== CRITICAL DEBUG: response ===", response);
-      console.log("=== CRITICAL DEBUG: response.data ===", response?.data);
-      console.log("=== CRITICAL DEBUG: Array.isArray(response) ===", Array.isArray(response));
-      console.log("=== CRITICAL DEBUG: Array.isArray(response.data) ===", Array.isArray(response?.data));
       
       if (Array.isArray(response)) {
         coursesArray = response;
-        console.log("=== APK DEBUG: Direct array response ===");
       } else if (response && typeof response === 'object' && Array.isArray(response.data)) {
         coursesArray = response.data;
-        console.log("=== APK DEBUG: Object response with data array ===");
       } else if (response && typeof response === 'object' && response.data) {
-        // Handle single object in data
         coursesArray = [response.data];
-        console.log("=== APK DEBUG: Single object in data converted to array ===");
       } else if (response && typeof response === 'object') {
         coursesArray = [response];
-        console.log("=== APK DEBUG: Single object response converted to array ===");
       }
 
-      console.log("=== CRITICAL DEBUG: Final coursesArray ===", coursesArray);
-      console.log("=== APK DEBUG: Courses array length:", coursesArray.length);
+      console.log("Courses found:", coursesArray.length);
 
       if (coursesArray.length > 0) {
-        console.log("=== APK DEBUG: Processing courses ===");
         const mergedCourses = coursesArray.map((newCourse: Course) => {
           const existingCourse = courses.find((c) => c.id === newCourse.id);
           return existingCourse
@@ -103,10 +80,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         });
 
         setCourses(mergedCourses);
-        setError(""); // Clear any previous errors
-        setCoursesLoaded(true); // CRITICA: Setez coursesLoaded = true când găsesc curse
-        console.log(`=== APK DEBUG: Successfully loaded ${mergedCourses.length} courses ===`);
-        console.log("=== APK DEBUG: coursesLoaded set to TRUE - access granted ===");
+        setError("");
+        setCoursesLoaded(true);
+        console.log(`Successfully loaded ${mergedCourses.length} courses for ${vehicleNumber}`);
       } else {
         console.log("=== APK DEBUG: No courses found - BLOCKING access ===");
         // IMPORTANT: Nu setează coursesLoaded = true când nu există curse
