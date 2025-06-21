@@ -26,6 +26,8 @@ export interface Course {
   // API original field names (with capital letters)
   BirouVamal?: string;
   BirouVamalStop?: string;
+  Judet?: string;
+  JudetStop?: string;
 }
 
 export interface GPSPosition {
