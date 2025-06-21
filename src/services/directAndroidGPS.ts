@@ -190,7 +190,9 @@ class DirectAndroidGPSService {
           console.log("AndroidGPS.startGPS result:", result);
           console.log("EnhancedGPSService activated for background GPS");
         } else {
-          throw new Error("AndroidGPS interface not available");
+          console.log("AndroidGPS interface not available - using web GPS for testing");
+          // Pentru testare în browser, simulez transmisia GPS
+          await this.startWebCompatibleGPS(course);
         }
 
         console.log("EnhancedGPSService activated for UIT:", course.uit);
