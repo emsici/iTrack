@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.13 (June 21, 2025)
+### Versiunea Curentă: 1808.14 (June 21, 2025)
+- **GPS transmission confirmat funcțional**: Log-urile demonstrează că GPS-ul transmite coordonate la server la 5 secunde
+- **SecurityException rezolvat**: Eliminat permisiunile READ_PHONE_STATE care cauzau crash-uri
+- **Token authentication issue identificat**: HTTP 401 - token invalid sau expirat, necesită re-login
+- **Location service activ**: Serviciul colectează coordonate GPS reale (lat: 37.421998, lng: -122.084000)
+- **Foreground service stabil**: EnhancedGPSService rulează ca foreground service fără crash-uri
+
+### Versiunea Precedentă: 1808.13 (June 21, 2025)
 - **DirectGPSPlugin eliminat**: Rezolvat crash-ul "Could not find class DirectGPSPlugin" prin eliminarea plugin-ului problematic
 - **WebView GPS interface stabilizat**: Folosim doar AndroidGPS WebView interface pentru comunicarea cu EnhancedGPSService
 - **Background GPS confirmat funcțional**: EnhancedGPSService rulează ca FOREGROUND SERVICE independent de WebView

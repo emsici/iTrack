@@ -80,11 +80,11 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     
     <!-- Real device data permissions for authentic GPS transmission -->
-    <uses-permission android:name="android.permission.BATTERY_STATS" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!-- <uses-permission android:name="android.permission.BATTERY_STATS" /> Commented out - causes SecurityException -->
+    <!-- <uses-permission android:name="android.permission.READ_PHONE_STATE" /> Commented out - causes SecurityException -->
     
-    <!-- Phone state for GSM signal strength -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!-- Phone state for GSM signal strength - disabled due to permission issues -->
+    <!-- <uses-permission android:name="android.permission.READ_PHONE_STATE" /> -->
     
     <!-- TransistorSoft Background Geolocation permissions -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
