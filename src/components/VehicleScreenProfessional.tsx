@@ -219,22 +219,50 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           signal: AbortSignal.timeout(10000) // 10 second timeout
         });
 
+        console.log(`📡 Response status: ${response.status} ${response.statusText}`);
+        console.log(`📋 Response headers:`, Object.fromEntries(response.headers.entries()));
+        
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('Server error response:', errorText);
+          console.error(`❌ Server error ${response.status}:`, errorText);
+          console.error(`🔍 Full response:`, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries()),
+            body: errorText
+          });
           throw new Error(`Server error ${response.status}: ${errorText}`);
         }
 
-        const result = await response.json();
-        console.log('Server response:', result);
+        const responseText = await response.text();
+        console.log(`📥 Raw response text:`, responseText);
+        
+        let result;
+        try {
+          result = JSON.parse(responseText);
+          console.log(`✅ Parsed response:`, result);
+        } catch (parseError) {
+          console.error(`❌ JSON parse error:`, parseError);
+          console.error(`📄 Raw response that failed to parse:`, responseText);
+          throw new Error(`Invalid JSON response: ${responseText}`);
+        }
 
         if (result.status !== 'success' && !result.success) {
           throw new Error(result.message || result.error || 'Server rejected status update');
         }
       } catch (fetchError) {
-        console.error('Network error:', fetchError);
+        console.error(`❌ Network/Fetch error:`, fetchError);
+        console.error(`🔍 Error details:`, {
+          name: fetchError.name,
+          message: fetchError.message,
+          stack: fetchError.stack
+        });
+        
         if (fetchError.name === 'AbortError') {
-          throw new Error('Request timeout - server nu răspunde');
+          throw new Error('Request timeout - server nu răspunde în 10 secunde');
+        }
+        if (fetchError.name === 'TypeError' && fetchError.message.includes('fetch')) {
+          throw new Error('Network error - verificați conexiunea la internet');
         }
         throw new Error(`Network error: ${fetchError.message}`);
       }
