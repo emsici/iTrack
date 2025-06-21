@@ -144,6 +144,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
         Log.d(TAG, "UIT: " + uit);
         Log.d(TAG, "Status: " + status);
         Log.d(TAG, "Vehicle: " + vehicleNumber);
+        Log.d(TAG, "Auth Token: " + (authToken != null ? authToken.substring(0, Math.min(20, authToken.length())) + "..." : "NULL"));
 
         // Adaugă cursă în Map
         CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber, authToken);
@@ -265,8 +266,17 @@ public class EnhancedGPSService extends Service implements LocationListener {
     }
 
     private void startGPSTransmissions() {
-        gpsHandler.post(gpsRunnable);
-        Log.d(TAG, "GPS transmissions started - interval: " + GPS_INTERVAL_MS + "ms");
+        Log.d(TAG, "=== STARTING GPS TRANSMISSIONS ===");
+        Log.d(TAG, "gpsHandler: " + (gpsHandler != null ? "OK" : "NULL"));
+        Log.d(TAG, "gpsRunnable: " + (gpsRunnable != null ? "OK" : "NULL"));
+        Log.d(TAG, "Interval: " + GPS_INTERVAL_MS + "ms");
+        
+        if (gpsHandler != null && gpsRunnable != null) {
+            gpsHandler.post(gpsRunnable);
+            Log.d(TAG, "✅ GPS transmission runnable posted successfully");
+        } else {
+            Log.e(TAG, "❌ Cannot start GPS transmissions - missing components");
+        }
     }
 
     private void checkStopService() {
@@ -301,9 +311,14 @@ public class EnhancedGPSService extends Service implements LocationListener {
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "=== GPS TRANSMISSION CYCLE START ===");
+                Log.d(TAG, "isTracking: " + isTracking);
+                Log.d(TAG, "lastLocation: " + (lastLocation != null ? "AVAILABLE" : "NULL"));
+                Log.d(TAG, "activeCourses count: " + activeCourses.size());
+                
                 if (lastLocation != null && !activeCourses.isEmpty()) {
-                    Log.d(TAG, "=== GPS TRANSMISSION CYCLE ===");
-                    Log.d(TAG, "Active courses: " + activeCourses.size());
+                    Log.d(TAG, "✅ CONDITIONS MET - Processing GPS transmission");
+                    Log.d(TAG, "Location: " + String.format(Locale.US, "%.6f, %.6f", lastLocation.getLatitude(), lastLocation.getLongitude()));
                     
                     // Transmite DOAR pentru cursele cu status 2 (ACTIVE)
                     int transmittedCount = 0;
@@ -320,14 +335,17 @@ public class EnhancedGPSService extends Service implements LocationListener {
                     transmissionCount++;
                     Log.d(TAG, "Transmission #" + transmissionCount + " - sent to " + transmittedCount + " active courses");
                 } else {
-                    Log.d(TAG, "No GPS data or active courses - skipping transmission");
+                    Log.d(TAG, "❌ SKIPPING TRANSMISSION");
+                    Log.d(TAG, "Reason: " + (lastLocation == null ? "No GPS location" : "No active courses"));
                 }
                 
                 // Schedule next transmission
                 if (isTracking && !activeCourses.isEmpty()) {
+                    Log.d(TAG, "📅 Scheduling next transmission in " + (GPS_INTERVAL_MS/1000) + " seconds");
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
                 } else {
-                    Log.d(TAG, "Stopping GPS transmissions - no active courses or service stopped");
+                    Log.d(TAG, "🛑 STOPPING GPS transmissions");
+                    Log.d(TAG, "isTracking: " + isTracking + ", activeCourses: " + activeCourses.size());
                 }
             }
         };

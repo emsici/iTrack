@@ -162,15 +162,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       const courseToUpdate = courses.find((c) => c.id === courseId);
       if (!courseToUpdate) return;
 
-      console.log(`=== STATUS UPDATE ===`);
+      console.log(`=== STATUS UPDATE START ===`);
       console.log(`Course: ${courseId}, Status: ${courseToUpdate.status} → ${newStatus}`);
       console.log(`UIT REAL: ${courseToUpdate.uit}, Vehicle: ${vehicleNumber}`);
+      console.log(`Token available: ${!!token}, Token length: ${token?.length || 0}`);
 
       if (newStatus === 2) {
         // Start/Resume - PRIORITY: Android native GPS pentru transmisie continuă
-        console.log('🚀 STARTING GPS tracking - continuous transmission every 5 seconds');
-        await startGPSTracking(courseId, vehicleNumber, token, courseToUpdate.uit, 2);
-        console.log('✅ GPS service activated for continuous transmission');
+        console.log('STARTING GPS tracking - continuous transmission every 5 seconds');
+        console.log('GPS Start Parameters:', {
+          courseId,
+          vehicleNumber, 
+          tokenLength: token?.length,
+          uit: courseToUpdate.uit,
+          status: 2
+        });
+        
+        try {
+          await startGPSTracking(courseId, vehicleNumber, token, courseToUpdate.uit, 2);
+          console.log('GPS service activated for continuous transmission');
+        } catch (gpsError) {
+          console.error('GPS start failed:', gpsError);
+          throw gpsError;
+        }
       } else if (newStatus === 3) {
         // Pause - Update status în serviciul Android, va trimite un update și se pauzează
         console.log('⏸️ PAUSING GPS - sending status update');
@@ -190,9 +204,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         ),
       );
 
-      console.log(`Status transition completed: ${courseToUpdate.status} → ${newStatus}`);
+      console.log(`=== STATUS UPDATE COMPLETED: ${courseToUpdate.status} → ${newStatus} ===`);
     } catch (error) {
-      console.error("Eroare la actualizarea statusului:", error);
+      console.error("=== STATUS UPDATE ERROR ===", error);
       alert(`Eroare la actualizarea statusului: ${error}`);
     } finally {
       setActionLoading(null);
