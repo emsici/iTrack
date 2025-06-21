@@ -329,7 +329,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     const interval = setInterval(() => {
       forceUpdate({});
-    }, 30000); // Update every 30 seconds
+    }, 300000); // Update every 5 minutes
 
     return () => clearInterval(interval);
   }, [lastRefreshTime]);
