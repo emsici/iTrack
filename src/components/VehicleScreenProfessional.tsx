@@ -478,7 +478,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
                 <div className="brand-text">
                   <span className="brand-name">iTrack</span>
-                  <span className="brand-subtitle">GPS Fleet Management</span>
                 </div>
               </div>
             </div>
@@ -530,7 +529,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
                 <div className="brand-text">
                   <span className="brand-name">iTrack</span>
-                  <span className="brand-subtitle">GPS Fleet Management</span>
                 </div>
               </div>
             </div>
