@@ -46,15 +46,25 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="login-container">
+    <div style={{
+      minHeight: '100dvh',
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)',
+      backgroundAttachment: 'fixed',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '20px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
       <style>
         {`
           .login-container {
-            min-height: 100vh;
             min-height: 100dvh;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #667eea 50%, #764ba2 75%, #1e3c72 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 20s ease infinite;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%);
+            background-attachment: fixed;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -71,9 +81,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             right: 0;
             bottom: 0;
             background: 
-              radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-              radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-              radial-gradient(circle at 40% 40%, rgba(79, 70, 229, 0.2) 0%, transparent 50%);
+              radial-gradient(circle at 20% 80%, rgba(15, 23, 42, 0.8) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(55, 65, 81, 0.4) 0%, transparent 50%);
             animation: backgroundFloat 25s ease-in-out infinite;
             pointer-events: none;
           }
@@ -90,23 +99,29 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(25px);
-            border-radius: 25px;
-            padding: 50px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, 
+              rgba(15, 23, 42, 0.95) 0%,
+              rgba(30, 41, 59, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            margin: 0 auto;
+            max-width: 600px;
+            width: calc(100% - 40px);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 
+              0 8px 32px rgba(0, 0, 0, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
             position: relative;
-            z-index: 1;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            animation: fadeInUp 0.8s ease-out;
+            padding: 40px;
           }
 
           .login-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 40px 80px rgba(79, 70, 229, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 
+              0 12px 40px rgba(0, 0, 0, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
           }
 
           .login-header {
@@ -204,14 +219,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
           }
 
           .app-title {
-            font-size: 2.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
             margin-bottom: 15px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            animation: slideInFromLeft 0.8s ease-out;
+            text-align: center;
             letter-spacing: -1px;
           }
 
