@@ -104,8 +104,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
         setCourses(mergedCourses);
         setError(""); // Clear any previous errors
+        setCoursesLoaded(true); // CRITICA: Setez coursesLoaded = true când găsesc curse
         console.log(`=== APK DEBUG: Successfully loaded ${mergedCourses.length} courses ===`);
-        console.log("=== APK DEBUG: About to render courses screen ===");
+        console.log("=== APK DEBUG: coursesLoaded set to TRUE - access granted ===");
       } else {
         console.log("=== APK DEBUG: No courses found - BLOCKING access ===");
         // IMPORTANT: Nu setează coursesLoaded = true când nu există curse
