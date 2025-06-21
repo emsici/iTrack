@@ -57,23 +57,23 @@ export const login = async (email: string, password: string): Promise<LoginRespo
       }
     } else {
       // For web environment, the API server needs CORS configured
-      // Try using fetch with proper headers
-      const fetchResponse = await fetch(`${API_BASE_URL}/login.php`, {
-        method: 'POST',
+      // Use CapacitorHttp for web platforms
+      const response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}/login.php`,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+        data: {
           email,
           password
-        }),
+        }
       });
       
-      if (!fetchResponse.ok) {
-        throw new Error(`HTTP error! status: ${fetchResponse.status}`);
+      if (response.status !== 200) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const data = await fetchResponse.json();
+      const data = response.data;
       if (data.status === 'success' && data.token) {
         return { status: data.status, token: data.token };
       } else {
@@ -239,14 +239,14 @@ export const logout = async (token: string): Promise<boolean> => {
         data: {}
       });
     } else {
-      // Use fetch for web platforms
-      response = await fetch(`${API_BASE_URL}/logout.php`, {
-        method: 'POST',
+      // Use CapacitorHttp for web platforms
+      response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}/logout.php`,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({})
+        data: {}
       });
     }
 

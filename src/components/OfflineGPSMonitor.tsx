@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { CapacitorHttp } from '@capacitor/core';
 import { getOfflineGPSCount, syncOfflineGPS } from "../services/offlineGPS";
 import { subscribeToSyncProgress } from "../services/offlineSyncStatus";
 
@@ -29,11 +30,9 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
           // Test real network connection - log doar la schimbări
           let networkTest = false;
           try {
-            await fetch('https://www.google.com/favicon.ico', { 
-              method: 'HEAD', 
-              mode: 'no-cors',
-              cache: 'no-cache',
-              signal: AbortSignal.timeout(3000)
+            await CapacitorHttp.request({
+              url: 'https://www.google.com/favicon.ico',
+              method: 'HEAD'
             });
             networkTest = true;
           } catch (error) {
