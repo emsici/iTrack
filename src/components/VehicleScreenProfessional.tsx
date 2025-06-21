@@ -13,7 +13,7 @@ import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
 import { startCourseAnalytics, stopCourseAnalytics } from "../services/courseAnalytics";
 import { subscribeToSyncProgress } from "../services/offlineSyncStatus";
 
-
+import OfflineSyncProgress from "./OfflineSyncProgress";
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 
@@ -741,7 +741,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         vehicleNumber={vehicleNumber}
       />
 
-
+      {/* Sync Progress - doar când se sincronizează */}
+      <OfflineSyncProgress className="sync-progress-overlay" />
 
       {/* Debug Panel Modal */}
       {showDebugPanel && (
