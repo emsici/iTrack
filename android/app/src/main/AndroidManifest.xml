@@ -30,7 +30,7 @@
 
         <!-- Enhanced GPS Service for background tracking -->
         <service
-            android:name="com.itrack.gps.EnhancedGPSService"
+            android:name="com.euscagency.itrack.EnhancedGPSService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />

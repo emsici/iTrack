@@ -6,7 +6,7 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import com.getcapacitor.BridgeActivity;
-import com.itrack.gps.EnhancedGPSService;
+// EnhancedGPSService is now in the same package
 
 /**
  * MainActivity pentru iTrack cu integrare GPS nativă
