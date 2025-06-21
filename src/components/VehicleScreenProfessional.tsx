@@ -592,18 +592,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             >
               {infoClickCount >= 30 && (
                 <div style={{
-                  background: 'rgba(220, 38, 38, 0.9)',
+                  background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.95), rgba(239, 68, 68, 0.9))',
                   color: '#ffffff',
-                  padding: '4px 12px',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  fontWeight: '600',
+                  padding: '6px 14px',
+                  borderRadius: '16px',
+                  fontSize: '13px',
+                  fontWeight: '700',
                   display: 'inline-block',
-                  border: '1px solid rgba(220, 38, 38, 0.5)',
-                  boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)',
-                  animation: 'pulse 2s infinite'
+                  border: '2px solid rgba(220, 38, 38, 0.6)',
+                  boxShadow: '0 4px 12px rgba(220, 38, 38, 0.4)',
+                  animation: infoClickCount >= 45 ? 'glow 1.5s infinite' : 'pulse 2s infinite',
+                  letterSpacing: '0.5px',
+                  textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
                 }}>
-                  DEBUG: {infoClickCount}/50
+                  🐛 DEBUG: {infoClickCount}/50
                 </div>
               )}
               
