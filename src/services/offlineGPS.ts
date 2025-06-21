@@ -204,18 +204,30 @@ class OfflineGPSService {
         gsm_signal: coordinate.gsm_signal
       };
 
-      const response = await CapacitorHttp.post({
-        url: 'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${coordinate.token}`,
-          'Accept': 'application/json',
-          'User-Agent': 'iTrack-Android-GPS/1.0'
-        },
-        data: gpsData
-      });
-
-      return response.status === 200;
+      // Try native HTTP first - PURE JAVA EFFICIENCY
+      let response;
+      if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
+        console.log('🔥 Using native HTTP for offline sync coordinate');
+        const nativeResult = (window as any).AndroidGPS.postNativeHttp(
+          'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php',
+          JSON.stringify(gpsData),
+          coordinate.token
+        );
+        return !nativeResult.includes('error') && !nativeResult.includes('Error');
+      } else {
+        // Fallback to CapacitorHttp only in browser
+        response = await CapacitorHttp.post({
+          url: 'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${coordinate.token}`,
+            'Accept': 'application/json',
+            'User-Agent': 'iTrack-Android-GPS/1.0'
+          },
+          data: gpsData
+        });
+        return response.status === 200;
+      }
     } catch (error) {
       console.error('❌ Network error transmitting coordinate:', error);
       return false;
