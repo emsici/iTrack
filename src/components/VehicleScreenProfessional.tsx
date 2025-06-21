@@ -578,6 +578,46 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <i className="fas fa-sign-out-alt"></i>
               </div>
             </div>
+            
+            {/* Debug counter - positioned below cards for better visibility */}
+            <div 
+              className="debug-timestamp-area"
+              onClick={handleTimestampClick}
+              style={{
+                textAlign: 'center',
+                padding: '8px 16px',
+                cursor: 'pointer',
+                position: 'relative'
+              }}
+            >
+              {infoClickCount >= 30 && (
+                <div style={{
+                  background: 'rgba(220, 38, 38, 0.9)',
+                  color: '#ffffff',
+                  padding: '4px 12px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  display: 'inline-block',
+                  border: '1px solid rgba(220, 38, 38, 0.5)',
+                  boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)',
+                  animation: 'pulse 2s infinite'
+                }}>
+                  DEBUG: {infoClickCount}/50
+                </div>
+              )}
+              
+              {/* Invisible clickable area for debug activation */}
+              {infoClickCount < 30 && (
+                <div style={{
+                  height: '20px',
+                  width: '100%',
+                  opacity: 0
+                }}>
+                  &nbsp;
+                </div>
+              )}
+            </div>
 
             <div className="hidden-for-debug">
               <div className="online-status-display">
@@ -610,14 +650,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                 )}
                 
-                {/* Counter debug - sub Online - enhanced visibility */}
-                {infoClickCount >= 30 && (
-                  <div className="debug-counter-display">
-                    <span className="click-counter-badge">
-                      DEBUG: {infoClickCount}/50
-                    </span>
-                  </div>
-                )}
+
                 
                 {/* Mesaj coordonate offline - doar când există date */}
                 {!syncProgress?.isActive && offlineCount > 0 && (
