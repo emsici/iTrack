@@ -73,8 +73,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         setCoursesLoaded(true);
         setError("Nu s-au găsit curse pentru acest vehicul. Verificați numărul de înmatriculare.");
       } else {
-        console.log("Invalid response format:", response);
-        setError("Eroare la procesarea datelor de la server");
+        // For any other case, show courses loaded state with empty list
+        console.log("Showing empty courses state - response:", response);
+        setCourses([]);
+        setCoursesLoaded(true);
+        setError("Nu s-au găsit curse pentru acest vehicul. Verificați numărul de înmatriculare.");
       }
     } catch (error: any) {
       console.error("Eroare la încărcarea curselor:", error);
@@ -375,16 +378,47 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                 </div>
 
-                <div className="courses-list">
-                  {courses.map((course) => (
-                    <CourseDetailCard
-                      key={course.id}
-                      course={course}
-                      onStatusUpdate={handleStatusUpdate}
-                      isLoading={actionLoading === course.id}
-                    />
-                  ))}
-                </div>
+                {courses.length > 0 ? (
+                  <div className="courses-list">
+                    {courses.map((course) => (
+                      <CourseDetailCard
+                        key={course.id}
+                        course={course}
+                        onStatusUpdate={handleStatusUpdate}
+                        isLoading={actionLoading === course.id}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-courses-message" style={{
+                    textAlign: 'center',
+                    padding: '40px 20px',
+                    color: '#6b7280',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '12px',
+                    margin: '20px 16px',
+                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}>
+                    <i className="fas fa-truck" style={{fontSize: '48px', marginBottom: '16px', opacity: 0.5}}></i>
+                    <p style={{margin: '0 0 8px 0', fontSize: '18px', fontWeight: '500'}}>Nu există curse pentru acest vehicul</p>
+                    <p style={{margin: '0', fontSize: '14px', opacity: 0.7}}>Verificați numărul de înmatriculare</p>
+                  </div>
+                )}
+                
+                {error && !coursesLoaded && (
+                  <div className="error-message-courses" style={{
+                    textAlign: 'center',
+                    padding: '20px',
+                    color: '#ef4444',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    borderRadius: '8px',
+                    margin: '20px 16px',
+                    border: '1px solid rgba(239, 68, 68, 0.2)'
+                  }}>
+                    <i className="fas fa-exclamation-triangle" style={{marginRight: '8px'}}></i>
+                    <span>{error}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
