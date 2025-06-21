@@ -171,13 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.22 (June 21, 2025) - SISTEM COMPLET VERIFICAT ȘI FUNCȚIONAL
+### Versiunea Curentă: 1808.23 (June 21, 2025) - LOGOUT ENDPOINT ACTUALIZAT
 - **Integrare completă cu serverul de producție**: Toate coordonatele GPS ajung și sunt salvate în baza de date cu ID-uri unice
 - **Rezultate.php confirmat**: Coordonatele transmise prin gps.php sunt vizibile în sistemul central cu toate metadatele
 - **Fluxul complet testat**: login.php → vehicul.php → gps.php → rezultate.php - tot lanțul funcționează perfect
 - **Salvare coordonate reale**: ID 18419 salvat cu coordonate București, viteza, direcție, baterie pentru vehicul IF03CWT
 - **Status updates verificate**: Toate tranzițiile de status (2→3→2→4) sunt procesate și salvate corect în sistem
 - **API endpoints production-ready**: vehicul.php pentru curse, gps.php pentru coordonate și status, rezultate.php pentru verificare
+- **Logout endpoint actualizat**: Funcția logout folosește acum logout.php cu Bearer token în loc de login.php
+- **Logout securizat verificat**: HTTP 200 cu mesaj "Logout reușit" confirmat prin testare cu Bearer authentication
 
 ### Versiunea Precedentă: 1808.20 (June 21, 2025) - ERROR HANDLING COMPLET
 - **Import erori rezolvate**: Toate dependențele updateCourseStatus, logAPI, analytics importate corect
@@ -290,8 +292,8 @@ Persistare localStorage → Afișare CourseStatsModal
 ## API Documentation
 
 ### Authentication Endpoints
-- `POST /api_login.php`: Login cu email/password, returns JWT token
-- `POST /api_logout.php`: Logout securizat cu cleanup server-side
+- `POST /login.php`: Login cu email/password, returns JWT token
+- `POST /logout.php`: Logout securizat cu Bearer token și cleanup server-side
 
 ### Course Management
 - `GET /get_courses_by_vehicle.php?vehicle={nr}`: Încărcare curse vehicul

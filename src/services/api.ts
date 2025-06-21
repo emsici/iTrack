@@ -223,35 +223,37 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
 
 export const logout = async (token: string): Promise<boolean> => {
   try {
+    console.log('Logout: Starting logout process with Bearer token');
+    logAPI('Starting logout process');
+    
     let response;
     
     if (Capacitor.isNativePlatform()) {
       // Use CapacitorHttp for native platforms
       response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}/login.php`,
+        url: `${API_BASE_URL}/logout.php`,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        data: {
-          iesire: 1
-        }
+        data: {}
       });
     } else {
       // Use fetch for web platforms
-      response = await fetch(`${API_BASE_URL}/login.php`, {
+      response = await fetch(`${API_BASE_URL}/logout.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          iesire: 1
-        })
+        body: JSON.stringify({})
       });
     }
+
+    console.log('Logout response status:', response.status);
+    logAPI(`Logout response: ${response.status}`);
     
-    return response.status === 200;
+    return response.status === 200 || response.status === 204;
   } catch (error) {
     console.error('Logout error:', error);
     return false;
