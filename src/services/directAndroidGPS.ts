@@ -127,7 +127,7 @@ class DirectAndroidGPSService {
     } catch (error) {
       console.error(`❌ Failed to update course status:`, error);
       course.status = oldStatus;
-      throw new Error(`Network error - verificați conexiunea la internet și permisiunile aplicației`);
+      throw new Error(`Eroare de conexiune - verificați endpoint-ul API`);
     }
   }
 

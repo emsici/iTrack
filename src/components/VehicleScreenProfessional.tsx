@@ -286,7 +286,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         if (fetchError.name === 'TypeError' && fetchError.message.includes('fetch')) {
           console.error(`🚫 Network fetch failed`);
           console.error(`📶 Navigator online: ${navigator.onLine}`);
-          throw new Error(`Network error - verificați conexiunea la internet și permisiunile aplicației`);
+          throw new Error(`Conexiune server eșuată - verificați endpoint-ul API`);
         }
         throw new Error(`Network error: ${fetchError.message}`);
       }
@@ -319,7 +319,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       } catch (gpsError) {
         console.warn('GPS service error (non-critical):', gpsError);
         logAPIError(`GPS service warning: ${gpsError}`);
-        // Continuă execuția - nu blocheze UI-ul pentru probleme GPS
+        // GPS errors are non-blocking - UI continues normally
       }
 
       // Update local state
@@ -334,7 +334,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     } catch (error) {
       console.error("Status update error:", error);
       logAPIError(`Status update failed: ${error}`);
-      alert(`Eroare la actualizarea statusului: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
+      
+      // Use setError instead of alert for better UX
+      const errorMessage = error instanceof Error ? error.message : 'Eroare necunoscută';
+      setError(`Actualizare status: ${errorMessage}`);
+      
+      // Clear error after 5 seconds
+      setTimeout(() => setError(''), 5000);
     } finally {
       setActionLoading(null);
     }
