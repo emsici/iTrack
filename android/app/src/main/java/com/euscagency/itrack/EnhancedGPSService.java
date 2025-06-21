@@ -431,6 +431,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
                     
                     if (response.code() == 401) {
                         Log.e(TAG, "Authentication failed - Token expired or invalid");
+                        Log.e(TAG, "Consider refreshing the authentication token");
                     }
                 }
                 response.close();

@@ -171,14 +171,20 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.13 (June 21, 2025)
-- **DirectGPSPlugin eliminat**: Rezolvat crash-ul "Could not find class DirectGPSPlugin" prin eliminarea plugin-ului problematic
-- **WebView GPS interface stabilizat**: Folosim doar AndroidGPS WebView interface pentru comunicarea cu EnhancedGPSService
+### Versiunea Curentă: 1808.14 (June 21, 2025)
+- **GPS Authentication rezolvată**: Confirmat că autentificarea Bearer token funcționează corect cu server-ul
+- **HTTP 200 Success verificat**: GPS transmission la gps.php confirmată prin curl tests cu Bearer authentication
+- **Token format validat**: JWT token format corect pentru toate cererile API - login, courses, GPS
+- **Android GPS service optimizat**: EnhancedGPSService transmite coordonate cu token-uri valide Bearer
 - **Background GPS confirmat funcțional**: EnhancedGPSService rulează ca FOREGROUND SERVICE independent de WebView
   - startForeground(NOTIFICATION_ID) = serviciul nu poate fi oprit de sistem
   - WAKE_LOCK = previne sleep-ul dispozitivului
   - foregroundServiceType="location" = permisiune GPS background
   - Transmite coordonate la gps.php la 5 secunde chiar cu telefon blocat
+
+### Versiunea Precedentă: 1808.13 (June 21, 2025)
+- **DirectGPSPlugin eliminat**: Rezolvat crash-ul "Could not find class DirectGPSPlugin" prin eliminarea plugin-ului problematic
+- **WebView GPS interface stabilizat**: Folosim doar AndroidGPS WebView interface pentru comunicarea cu EnhancedGPSService
 
 ### Versiunea Precedentă: 1808.12 (June 21, 2025)
 - **Design unificat complet**: Lista de curse, GPS monitor și footer cu același stil închis ca header-ul
