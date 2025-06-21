@@ -206,17 +206,37 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       // Update server status first
       try {
-        const response = await fetch(`${API_BASE_URL}/update_course_status.php`, {
+        // Use gps.php with GPS payload format but status update
+        const gpsUrl = `${API_BASE_URL}/gps.php`;
+        console.log(`🔄 Sending status update to gps.php: ${gpsUrl}`);
+        
+        const gpsPayload = {
+          lat: "0.000000", // Dummy coordinates for status update
+          lng: "0.000000",
+          timestamp: new Date().toISOString(),
+          viteza: 0,
+          directie: 0,
+          altitudine: 0,
+          baterie: 100,
+          numar_inmatriculare: vehicleNumber,
+          uit: courseToUpdate.uit,
+          status: newStatus.toString(),
+          hdop: "1.0",
+          gsm_signal: "4G"
+        };
+        
+        console.log(`📦 GPS Status payload:`, gpsPayload);
+        
+        const response = await fetch(gpsUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
           },
-          body: JSON.stringify({
-            course_id: courseId,
-            status: newStatus
-          }),
-          signal: AbortSignal.timeout(10000) // 10 second timeout
+          body: JSON.stringify(gpsPayload),
+          signal: AbortSignal.timeout(15000) // 15 second timeout
         });
 
         console.log(`📡 Response status: ${response.status} ${response.statusText}`);
