@@ -54,37 +54,12 @@ class DirectAndroidGPSService {
 
     try {
       if (Capacitor.isNativePlatform()) {
-        console.log("📱 Native Android platform - updating GPS service status");
-        
-        // Check AndroidGPS interface availability with timeout
-        const checkInterface = () => {
-          return new Promise((resolve) => {
-            let attempts = 0;
-            const maxAttempts = 10;
-            
-            const check = () => {
-              if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
-                resolve(true);
-              } else if (attempts < maxAttempts) {
-                attempts++;
-                setTimeout(check, 100);
-              } else {
-                resolve(false);
-              }
-            };
-            check();
-          });
-        };
-        
-        const interfaceAvailable = await checkInterface();
-        
-        if (interfaceAvailable) {
-          console.log("✅ AndroidGPS interface found - sending status update");
+        // Pentru Android nativ, folosește UPDATE_STATUS action
+        // Folosește interfața WebView direct
+        if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
           (window as any).AndroidGPS.updateStatus(courseId, newStatus);
-          console.log(`📡 Status update sent: ${courseId} (${oldStatus} → ${newStatus})`);
         } else {
-          console.warn("⚠️ AndroidGPS interface not available - status update skipped");
-          console.warn("This is normal in web environment or if service hasn't started yet");
+          console.warn('AndroidGPS interface not available');
         }
         
         // Logica pentru status:
@@ -180,46 +155,29 @@ class DirectAndroidGPSService {
     console.log(`Token: ${course.token.substring(0, 20)}...`);
 
     try {
-      // Auto-grant permissions approach for better UX
-      console.log("📍 Requesting GPS permissions...");
-      
-      let permissionGranted = false;
-      try {
-        const permissions = await Geolocation.requestPermissions();
-        console.log("GPS permissions result:", permissions);
-        permissionGranted = permissions.location === "granted";
-      } catch (permError) {
-        console.warn("Permission request failed, trying to get position directly:", permError);
-        // Continue anyway - some devices work without explicit permission request
-      }
+      // Cerere permisiuni GPS prin Capacitor - simplu ca înainte
+      console.log("Requesting GPS permissions...");
+      const permissions = await Geolocation.requestPermissions();
+      console.log("GPS permissions result:", permissions);
 
-      // Try to get position even if permission request failed
-      console.log("📡 Getting initial GPS position...");
-      try {
+      if (permissions.location === "granted") {
+        console.log("GPS permissions granted - starting location tracking");
+
+        // Start location tracking pentru a activa serviciul
         const position = await Geolocation.getCurrentPosition({
           enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 30000
+          timeout: 10000,
         });
 
-        console.log("✅ Current position obtained:", {
+        console.log("Current position obtained:", {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
           accuracy: position.coords.accuracy,
         });
-        permissionGranted = true; // If we got position, permissions are working
-      } catch (posError) {
-        console.error("❌ Failed to get GPS position:", posError);
-        throw new Error("GPS permissions required - please enable location access in device settings");
-      }
 
-      if (permissionGranted) {
-        // Wait for AndroidGPS interface to be available
-        console.log("⏳ Waiting for AndroidGPS interface...");
-        const interfaceReady = await this.waitForAndroidGPSInterface();
-        
-        if (interfaceReady) {
-          console.log("✅ AndroidGPS interface ready - starting native service");
+        // Activare serviciu Android nativ direct
+        if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
+          console.log("AndroidGPS interface available - starting native service");
           const result = (window as any).AndroidGPS.startGPS(
             course.courseId,
             course.vehicleNumber, 
@@ -227,7 +185,7 @@ class DirectAndroidGPSService {
             course.token,
             course.status
           );
-          console.log("🚀 AndroidGPS.startGPS called with result:", result);
+          console.log("AndroidGPS.startGPS called with result:", result);
           console.log("📱 EnhancedGPSService should now be running in background");
           
           // Test dacă serviciul chiar rulează

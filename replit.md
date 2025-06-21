@@ -171,7 +171,7 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.23 (June 21, 2025) - LOGOUT ENDPOINT ACTUALIZAT
+### Versiunea Curentă: 1808.24 (June 21, 2025) - GPS PERMISSIONS REPARAT
 - **Integrare completă cu serverul de producție**: Toate coordonatele GPS ajung și sunt salvate în baza de date cu ID-uri unice
 - **Rezultate.php confirmat**: Coordonatele transmise prin gps.php sunt vizibile în sistemul central cu toate metadatele
 - **Fluxul complet testat**: login.php → vehicul.php → gps.php → rezultate.php - tot lanțul funcționează perfect
@@ -180,6 +180,8 @@ Persistare localStorage → Afișare CourseStatsModal
 - **API endpoints production-ready**: vehicul.php pentru curse, gps.php pentru coordonate și status, rezultate.php pentru verificare
 - **Logout endpoint actualizat**: Funcția logout folosește acum logout.php cu Bearer token în loc de login.php
 - **Logout securizat verificat**: HTTP 200 cu mesaj "Logout reușit" confirmat prin testare cu Bearer authentication
+- **GPS permissions reparat**: Revenit la logica simplă care funcționa - requestPermissions direct fără complicații
+- **Error handling simplificat**: Eliminat timeout-urile complexe care blocau permisiunile GPS native
 
 ### Versiunea Precedentă: 1808.20 (June 21, 2025) - ERROR HANDLING COMPLET
 - **Import erori rezolvate**: Toate dependențele updateCourseStatus, logAPI, analytics importate corect
