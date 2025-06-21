@@ -71,9 +71,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log("=== APK DEBUG: Timeout callback - coursesLoaded should be:", coursesLoaded);
       }, 100);
 
-      if (response && Array.isArray(response) && response.length > 0) {
-        console.log("=== DEBUGGING: Processing courses ===");
-        const mergedCourses = response.map((newCourse: Course) => {
+      // FIXED: Handle both array response and object response from API
+      let coursesArray = [];
+      if (Array.isArray(response)) {
+        coursesArray = response;
+        console.log("=== APK DEBUG: Direct array response ===");
+      } else if (response && typeof response === 'object' && Array.isArray(response.data)) {
+        coursesArray = response.data;
+        console.log("=== APK DEBUG: Object response with data array ===");
+      } else if (response && typeof response === 'object') {
+        coursesArray = [response];
+        console.log("=== APK DEBUG: Single object response converted to array ===");
+      }
+
+      console.log("=== APK DEBUG: Courses array length:", coursesArray.length);
+
+      if (coursesArray.length > 0) {
+        console.log("=== APK DEBUG: Processing courses ===");
+        const mergedCourses = coursesArray.map((newCourse: Course) => {
           const existingCourse = courses.find((c) => c.id === newCourse.id);
           return existingCourse
             ? { ...newCourse, status: existingCourse.status }
