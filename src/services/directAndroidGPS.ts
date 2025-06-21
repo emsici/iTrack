@@ -178,8 +178,8 @@ class DirectAndroidGPSService {
           accuracy: position.coords.accuracy,
         });
 
-        // Activare serviciu Android prin broadcast intent
-        await this.activateAndroidGPSService(course);
+        // Activare serviciu Android prin WebView interface
+        await this.activateViaWebViewInterface(course);
 
         console.log("EnhancedGPSService activated for UIT:", course.uit);
         console.log("GPS will transmit every 5 seconds to server");
@@ -233,49 +233,39 @@ class DirectAndroidGPSService {
     return this.activeCourses.size > 0;
   }
 
-  private async activateAndroidGPSService(course: ActiveCourse): Promise<void> {
-    console.log("Activating Android GPS service for course:", course.courseId);
+  private async activateViaWebViewInterface(course: ActiveCourse): Promise<void> {
+    console.log("Activating Android GPS service via WebView interface");
+    console.log(`Course: ${course.courseId}, UIT: ${course.uit}`);
 
     if (Capacitor.isNativePlatform()) {
-      try {
-        console.log("Starting EnhancedGPSService through DirectGPS plugin");
-
-        // Primary method: DirectGPS plugin
-        const result = await DirectGPS.startTracking({
-          courseId: course.courseId,
-          vehicleNumber: course.vehicleNumber,
-          uit: course.uit,
-          authToken: course.token,
-          status: course.status,
-        });
-
-        console.log("GPS tracking started:", result.message);
-        console.log(
-          "EnhancedGPSService running in background - coordinates transmit every 5s",
+      // Folosește interfața WebView AndroidGPS direct
+      if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
+        const result = (window as any).AndroidGPS.startGPS(
+          course.courseId,
+          course.vehicleNumber, 
+          course.uit,
+          course.token,
+          course.status
         );
-      } catch (error) {
-        console.error("DirectGPS plugin failed:", error);
-        console.log("Trying direct MainActivity method activation");
-
-        // Backup method: WebView AndroidGPS interface
-        console.log("Trying MainActivity WebView interface");
-        await this.activateViaWebViewInterface(course);
+        console.log("AndroidGPS.startGPS result:", result);
+        console.log("GPS will transmit every 5 seconds to server");
+      } else {
+        console.warn("AndroidGPS interface not available");
+        throw new Error("AndroidGPS interface not available");
       }
     } else {
-      console.log("Web environment: Using web-compatible GPS simulation");
+      console.log("Browser environment - web GPS testing");
       await this.startWebCompatibleGPS(course);
     }
   }
 
-  private async activateViaWebViewInterface(
-    course: ActiveCourse,
-  ): Promise<void> {
-    console.log("🚀 Activating GPS through WebView AndroidGPS interface");
+  private async duplicateActivateViaWebViewInterface(course: ActiveCourse): Promise<void> {
+    console.log("Activating Android GPS service via WebView interface");
+    console.log(`Course: ${course.courseId}, UIT: ${course.uit}`);
 
     try {
-      // Check if AndroidGPS interface is available
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-        console.log("📋 Calling AndroidGPS.startGPS with parameters:");
+        console.log("Calling AndroidGPS.startGPS with parameters:");
         console.log("  - courseId:", course.courseId);
         console.log("  - vehicleNumber:", course.vehicleNumber);
         console.log("  - uit:", course.uit);
@@ -290,18 +280,17 @@ class DirectAndroidGPSService {
           course.status,
         );
 
-        console.log("✅ AndroidGPS.startGPS result:", result);
-        console.log("🔄 EnhancedGPSService will track this UIT in background");
-        console.log("📡 Coordinates transmitted every 5 seconds to gps.php");
+        console.log("AndroidGPS.startGPS result:", result);
+        console.log("EnhancedGPSService will track this UIT in background");
+        console.log("Coordinates transmitted every 5 seconds to gps.php");
       } else {
-        console.log("❌ AndroidGPS interface check failed:");
+        console.log("AndroidGPS interface check failed:");
         console.log("  - window.AndroidGPS exists:", !!(window as any).AndroidGPS);
         console.log("  - startGPS method exists:", !!((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS));
-        console.log("  - Available window properties:", Object.keys(window).filter(k => k.includes('Android')));
         throw new Error("AndroidGPS interface not available");
       }
     } catch (error) {
-      console.error("❌ WebView AndroidGPS interface failed:", error);
+      console.error("WebView AndroidGPS interface failed:", error);
       throw error;
     }
   }
