@@ -64,6 +64,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         if (storedVehicle) {
           setVehicleNumber(storedVehicle);
           console.log('Loaded stored vehicle number:', storedVehicle);
+          // Auto-load courses only for complete stored vehicle numbers
+          if (storedVehicle.length >= 5) {
+            setTimeout(() => loadCourses(), 100);
+          }
         }
       } catch (error) {
         console.error('Error loading stored vehicle number:', error);
@@ -73,12 +77,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     loadStoredVehicleNumber();
   }, []);
 
-  // Auto-load courses if vehicle number is already stored
+  // Auto-load courses only if vehicle number is already stored on mount
   useEffect(() => {
-    if (vehicleNumber && !coursesLoaded) {
+    if (vehicleNumber && !coursesLoaded && vehicleNumber.length >= 5) {
+      // Only auto-load if we have a complete vehicle number (min 5 chars)
       loadCourses();
     }
-  }, [vehicleNumber, coursesLoaded]);
+  }, []);
 
   // Monitor network status
   useEffect(() => {

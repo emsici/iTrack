@@ -171,7 +171,10 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.35 (June 21, 2025) - LAYOUT RESTRUCTURAT FINALIZAT: ORGANIZARE PE RÂNDURI VERTICALE
+### Versiunea Curentă: 1808.36 (June 21, 2025) - BUG FIX: AUTO-LOAD VEHICUL REPARAT
+- **Bug fix major**: Reparat auto-load care redirecta utilizatorul după prima literă tastată
+- **Auto-load corect**: Încărcarea automată se face doar pentru numere complete salvate (min 5 caractere)
+- **UX îmbunătățit**: Utilizatorul poate tasta complet numărul fără întreruperi nedorite
 - **Layout restructurat complet finalizat**: Organizare pe rânduri verticale pentru design mai curat și organizat
 - **Rând 1**: Numărul vehiculului + Buton ieșire (aceeași înălțime, același card, poziționare perfectă)
 - **Rând 2**: Status "Online" + Counter debug centrat sub numărul vehiculului
