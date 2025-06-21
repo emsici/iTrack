@@ -477,9 +477,24 @@ public class EnhancedGPSService extends Service implements LocationListener {
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
-                if (isTracking && status == 2) {
-                    sendGPSCoordinates();
-                    gpsHandler.postDelayed(this, GPS_INTERVAL);
+                if (isTracking && !activeCourses.isEmpty()) {
+                    // Verifică dacă există cel puțin o cursă cu status 2
+                    boolean hasActiveCourses = false;
+                    for (CourseData course : activeCourses.values()) {
+                        if (course.status == 2) {
+                            hasActiveCourses = true;
+                            break;
+                        }
+                    }
+                    
+                    if (hasActiveCourses) {
+                        sendGPSCoordinates();
+                    }
+                    
+                    // Continuă loop-ul dacă serviciul încă rulează
+                    if (isTracking) {
+                        gpsHandler.postDelayed(this, GPS_INTERVAL);
+                    }
                 }
             }
         };

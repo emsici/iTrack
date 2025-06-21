@@ -268,12 +268,19 @@ class DirectAndroidGPSService {
   private async activateViaWebViewInterface(
     course: ActiveCourse,
   ): Promise<void> {
-    console.log("Activating GPS through WebView AndroidGPS interface");
+    console.log("🚀 Activating GPS through WebView AndroidGPS interface");
 
     try {
       // Check if AndroidGPS interface is available
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-        (window as any).AndroidGPS.startGPS(
+        console.log("📋 Calling AndroidGPS.startGPS with parameters:");
+        console.log("  - courseId:", course.courseId);
+        console.log("  - vehicleNumber:", course.vehicleNumber);
+        console.log("  - uit:", course.uit);
+        console.log("  - status:", course.status);
+        console.log("  - token:", course.token.substring(0, 30) + "...");
+
+        const result = (window as any).AndroidGPS.startGPS(
           course.courseId,
           course.vehicleNumber,
           course.uit,
@@ -281,15 +288,18 @@ class DirectAndroidGPSService {
           course.status,
         );
 
-        console.log("GPS started via AndroidGPS WebView interface");
-        console.log(
-          "EnhancedGPSService activated through WebView backup method",
-        );
+        console.log("✅ AndroidGPS.startGPS result:", result);
+        console.log("🔄 EnhancedGPSService will track this UIT in background");
+        console.log("📡 Coordinates transmitted every 5 seconds to gps.php");
       } else {
-        throw new Error("AndroidGPS WebView interface not available");
+        console.log("❌ AndroidGPS interface check failed:");
+        console.log("  - window.AndroidGPS exists:", !!(window as any).AndroidGPS);
+        console.log("  - startGPS method exists:", !!((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS));
+        console.log("  - Available window properties:", Object.keys(window).filter(k => k.includes('Android')));
+        throw new Error("AndroidGPS interface not available");
       }
     } catch (error) {
-      console.error("WebView AndroidGPS interface failed:", error);
+      console.error("❌ WebView AndroidGPS interface failed:", error);
       throw error;
     }
   }
