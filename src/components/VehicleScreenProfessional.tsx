@@ -293,16 +293,26 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return `acum ${diffDays} de zile`;
   };
 
-  // Update time display every 30 seconds
+  // Auto-refresh courses every 5 minutes in background
   const [, forceUpdate] = useState({});
   useEffect(() => {
     if (!lastRefreshTime) return;
     
-    const interval = setInterval(() => {
+    // Timer pentru afișarea timpului trecut
+    const displayTimer = setInterval(() => {
       forceUpdate({});
-    }, 300000); // Update every 5 minutes
+    }, 30000); // Update display every 30 seconds
 
-    return () => clearInterval(interval);
+    // Timer pentru auto-refresh curse în background
+    const autoRefreshTimer = setInterval(() => {
+      console.log("🔄 Auto-refresh: Loading courses in background");
+      loadCourses();
+    }, 300000); // Auto-refresh every 5 minutes
+
+    return () => {
+      clearInterval(displayTimer);
+      clearInterval(autoRefreshTimer);
+    };
   }, [lastRefreshTime]);
 
   // Monitor offline GPS count
@@ -426,12 +436,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <div className={`status-indicator ${isOnline ? "online" : "offline"}`}></div>
                   <span className="status-text">
                     {isOnline ? "Online" : "Offline"}
-                    {infoClickCount >= 30 && (
-                      <span className="click-counter-badge" style={{ marginLeft: '8px' }}>
-                        {infoClickCount}/50
-                      </span>
-                    )}
                   </span>
+                  {infoClickCount >= 30 && (
+                    <div className="click-counter-badge" style={{ 
+                      fontSize: '0.7rem',
+                      color: '#94a3b8',
+                      marginTop: '2px'
+                    }}>
+                      {infoClickCount}/50
+                    </div>
+                  )}
                   {offlineCount > 0 && !syncProgress?.isActive && (
                     <span className="offline-count-badge">{offlineCount}</span>
                   )}
@@ -468,20 +482,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div className="header-actions">
               <button
                 className="header-icon-btn"
-                onClick={handleLoadCourses}
-                disabled={loading}
-                title="Refresh Curse"
-              >
-                <i className="fas fa-sync-alt"></i>
-                <span>Refresh</span>
-              </button>
-              <button
-                className="header-icon-btn"
                 onClick={handleLogout}
-                title="Logout"
+                title="Deconectare"
               >
                 <i className="fas fa-sign-out-alt"></i>
-                <span>Ieșire</span>
               </button>
             </div>
           </div>
@@ -730,7 +734,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     setDebugLogs(logs);
                   }}
                 >
-                  <i className="fas fa-sync"></i> Refresh Data
+                  <i className="fas fa-download"></i> Export Logs
                 </button>
               </div>
 
