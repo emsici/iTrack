@@ -172,9 +172,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   };
 
   const handleTimestampClick = async () => {
-    setInfoClickCount((prev) => prev + 1);
-    if (infoClickCount >= 49) {
-      // Load debug logs and show panel
+    const newCount = infoClickCount + 1;
+    setInfoClickCount(newCount);
+    
+    if (newCount === 50) {
       try {
         const logs = await getAppLogs();
         setDebugLogs(logs);
@@ -452,7 +453,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <i className="edit-icon fas fa-edit"></i>
               </div>
               
-              {/* Status Online/Offline */}
               <div className="online-status-display">
                 <div 
                   className="status-indicator-wrapper"
