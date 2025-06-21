@@ -475,7 +475,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <div className="online-status-display">
                 <div 
                   className="status-indicator-wrapper"
-                  onClick={handleInfoClick}
+                  onClick={handleTimestampClick}
                   style={{ cursor: 'pointer' }}
                 >
                   <div className={`status-indicator ${isOnline ? "online" : "offline"}`}></div>
@@ -483,8 +483,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   {offlineCount > 0 && !syncProgress?.isActive && (
                     <span className="offline-count-badge">{offlineCount}</span>
                   )}
-                  {infoClickCount >= 15 && (
-                    <span className="click-counter-badge">{infoClickCount}/20</span>
+                  {infoClickCount >= 30 && (
+                    <span className="click-counter-badge">{infoClickCount}/50</span>
                   )}
                 </div>
                 
