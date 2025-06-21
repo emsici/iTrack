@@ -536,11 +536,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <div className="command-dashboard">
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(5, 1fr)',
-                  gap: '4px',
-                  maxWidth: '320px',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  gap: '6px',
+                  maxWidth: '350px',
                   margin: '0 auto',
-                  padding: '0 8px'
+                  padding: '0 10px'
                 }}>
                   <div style={{
                     background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
