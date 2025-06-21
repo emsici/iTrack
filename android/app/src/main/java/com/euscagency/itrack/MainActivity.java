@@ -81,7 +81,7 @@ public class MainActivity extends BridgeActivity {
                     return "ERROR: GPS permissions required - check Android Settings";
                 }
                 
-                Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
+                Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
                 intent.setAction("START_TRACKING");
                 intent.putExtra("courseId", courseId);
                 intent.putExtra("vehicleNumber", vehicleNumber);
@@ -92,7 +92,7 @@ public class MainActivity extends BridgeActivity {
                 try {
                     ComponentName result = startForegroundService(intent);
                     if (result != null) {
-                        Log.d(TAG, "✅ EnhancedGPSService started successfully via WebView interface");
+                        Log.d(TAG, "✅ SimpleGPSService started successfully via WebView interface");
                         Log.d(TAG, "Service component: " + result.getClassName());
                         return "SUCCESS: GPS service started for course " + courseId;
                     } else {
@@ -118,12 +118,12 @@ public class MainActivity extends BridgeActivity {
             Log.d(TAG, "Course ID: " + courseId);
             
             try {
-                Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
+                Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
                 intent.setAction("STOP_TRACKING");
                 intent.putExtra("courseId", courseId);
                 
                 startService(intent);
-                Log.d(TAG, "✅ EnhancedGPSService stop requested successfully");
+                Log.d(TAG, "✅ SimpleGPSService stop requested successfully");
                 return "SUCCESS: GPS service stopped for course " + courseId;
             } catch (Exception e) {
                 Log.e(TAG, "❌ Failed to stop GPS service: " + e.getMessage());
@@ -135,25 +135,25 @@ public class MainActivity extends BridgeActivity {
         public void updateStatus(String courseId, int newStatus) {
             Log.d(TAG, String.format("WebView GPS Status Update: Course=%s, Status=%d", courseId, newStatus));
             
-            Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
+            Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
             intent.setAction("UPDATE_STATUS");
             intent.putExtra("courseId", courseId);
             intent.putExtra("status", newStatus);
             
             startService(intent);
-            Log.d(TAG, "EnhancedGPSService status update via WebView interface");
+            Log.d(TAG, "SimpleGPSService status update via WebView interface");
         }
         
         @JavascriptInterface
         public void clearAllOnLogout() {
             Log.d(TAG, "WebView GPS Clear All on Logout");
             
-            Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
+            Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
             intent.setAction("STOP_TRACKING");
-            intent.putExtra("courseId", "LOGOUT_CLEAR_ALL");
+            intent.putExtra("courseId", "ALL_COURSES");
             
             startService(intent);
-            Log.d(TAG, "EnhancedGPSService cleared all on logout via WebView interface");
+            Log.d(TAG, "SimpleGPSService cleared all on logout via WebView interface");
         }
     }
 }

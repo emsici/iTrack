@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.34 (June 21, 2025) - GPS PERMISSIONS & ERROR HANDLING FINAL
+### Versiunea Curentă: 1808.35 (June 21, 2025) - SIMPLE GPS SERVICE FUNCTIONAL APK
+- **SimpleGPSService implementat**: Service Android simplu fără dependențe problematice
+- **Toate referințele actualizate**: MainActivity, AndroidManifest, directAndroidGPS.ts folosesc SimpleGPSService
+- **EnhancedGPSService eliminat**: Removut fișierul cu erori de compilare
+- **APK funcțional**: Build Android reușit cu serviciu GPS nativ simplu
+- **Ciclu GPS complet**: START/PAUSE/STOP funcționează prin SimpleGPSService
+
+### Versiunea Precedentă: 1808.34 (June 21, 2025) - GPS PERMISSIONS & ERROR HANDLING FINAL
 - **GPS permissions validation enhanced**: Verificare detaliată permissions cu instrucțiuni clare pentru user
 - **Android error handling strict**: Service se oprește dacă nu are permisiuni în loc să continue
 - **JavaScript error checking**: Verificare rezultat AndroidGPS.startGPS() pentru erori

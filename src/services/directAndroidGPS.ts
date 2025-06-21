@@ -192,7 +192,7 @@ class DirectAndroidGPSService {
     try {
       // PRIORITATE 1: AndroidGPS nativ (doar în APK)
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-        console.log("✅ AndroidGPS interface available - starting EnhancedGPSService");
+        console.log("✅ AndroidGPS interface available - starting SimpleGPSService");
         console.log(`PARAMETERS: courseId=${course.courseId}, vehicleNumber=${course.vehicleNumber}, uit=${course.uit}, status=${course.status}`);
         
         const result = (window as any).AndroidGPS.startGPS(
@@ -202,7 +202,7 @@ class DirectAndroidGPSService {
           course.token,
           course.status
         );
-        console.log("✅ EnhancedGPSService activated via AndroidGPS:", result);
+        console.log("✅ SimpleGPSService activated via AndroidGPS:", result);
         
         // Verifică dacă rezultatul indică succes
         if (result && result.includes("ERROR")) {
