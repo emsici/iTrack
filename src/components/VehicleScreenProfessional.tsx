@@ -373,6 +373,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           console.error(`📶 Navigator online: ${navigator.onLine}`);
           throw new Error(`Conexiune server eșuată - verificați endpoint-ul API`);
         }
+        // Check if it's a 401 Unauthorized error (token expired)
+        if (error.message.includes('401')) {
+          console.error('🔐 Token expired - redirecting to login');
+          logAPIError('Token expired - redirecting to login');
+          await clearToken();
+          onLogout();
+          return;
+        }
+        
         throw new Error(`Network error: ${error.message}`);
       }
 

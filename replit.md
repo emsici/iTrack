@@ -171,16 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.58 (June 21, 2025) - UI CONSISTENCY & START BUTTON FIXED
+### Versiunea Curentă: 1808.59 (June 22, 2025) - TOKEN EXPIRATION HANDLING & AUTO-LOGOUT
 
-**Vehicle input page redesigned**: Same colors and design as login page for visual consistency
-**START button functionality restored**: Fixed status 204 acceptance, click START now works correctly
-**TypeScript compilation clean**: All syntax errors fixed, clickCount variable properly defined
-**Status update logic repaired**: Accepts HTTP 204 No Content as success for GPS status updates
-**Error handling improved**: Native HTTP errors no longer block valid server responses
-**UI design unified**: Professional glassmorphism design across login and vehicle input pages
-**Debug counter functional**: 50-click debug access working with proper variable references
-**Production ready verification**: All START/PAUSE/STOP operations functional with native HTTP priority
+**Token expiration detection**: Automatic 401 error handling with immediate logout redirect
+**Auto-logout on expired token**: Clears stored token and returns to login when JWT expires
+**Status 204 acceptance**: GPS updates accept 204 No Content as success response
+**Error handling comprehensive**: 401 errors trigger automatic logout across all API calls
+**Token validation improved**: Proper JWT expiration time checking and validation
+**User experience enhanced**: Seamless logout when authentication fails without user confusion
+**API consistency**: All HTTP services (GPS, status updates) handle token expiration uniformly
+**Production stability**: Prevents endless 401 error loops by immediate token cleanup
 
 ### Versiunea Precedentă: 1808.53 (June 21, 2025) - UI FIXES & HYBRID HTTP SYSTEM
 
