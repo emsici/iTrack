@@ -208,14 +208,19 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .course-preview {
           margin-bottom: 12px;
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 8px;
+          padding: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .preview-row {
           display: flex;
           justify-content: space-between;
-          align-items: center;
-          padding: 6px 0;
+          align-items: flex-start;
+          padding: 8px 0;
           border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          min-height: 24px;
         }
 
         .preview-row:last-child {
@@ -224,18 +229,35 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .preview-label {
           color: #94a3b8;
-          font-size: 0.8rem;
-          font-weight: 500;
-          min-width: 70px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          min-width: 90px;
+          flex-shrink: 0;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
 
         .preview-value {
           color: #e2e8f0;
-          font-size: 0.85rem;
-          font-weight: 500;
+          font-size: 0.9rem;
+          font-weight: 600;
           text-align: right;
           flex: 1;
-          margin-left: 12px;
+          margin-left: 8px;
+          word-break: break-word;
+          line-height: 1.3;
+        }
+        
+        /* Enhanced visibility for destination (Sosire) */
+        .preview-row:nth-child(2) .preview-label {
+          color: #10b981;
+          font-weight: 700;
+        }
+        
+        .preview-row:nth-child(2) .preview-value {
+          color: #34d399;
+          font-weight: 700;
+          font-size: 0.95rem;
         }
 
         .course-title-compact {
@@ -481,16 +503,30 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       
       <div className="course-preview">
         <div className="preview-row">
-          <span className="preview-label">Rută:</span>
+          <span className="preview-label">Plecare:</span>
           <span className="preview-value">
-            {course.Vama || course.vama || 'N/A'} → {course.VamaStop || course.vamaStop || 'N/A'}
+            {course.Vama || course.vama || 'N/A'}
           </span>
         </div>
         
         <div className="preview-row">
-          <span className="preview-label">Județe:</span>
+          <span className="preview-label">Sosire:</span>
           <span className="preview-value">
-            {course.Judet || course.judet || 'N/A'} → {course.JudetStop || course.judetStop || 'N/A'}
+            {course.VamaStop || course.vamaStop || course.denumireLocStop || 'N/A'}
+          </span>
+        </div>
+        
+        <div className="preview-row">
+          <span className="preview-label">Județ plecare:</span>
+          <span className="preview-value">
+            {course.Judet || course.judet || 'N/A'}
+          </span>
+        </div>
+        
+        <div className="preview-row">
+          <span className="preview-label">Județ sosire:</span>
+          <span className="preview-value">
+            {course.JudetStop || course.judetStop || 'N/A'}
           </span>
         </div>
         
