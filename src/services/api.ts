@@ -315,9 +315,12 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
     console.log('Status:', response.status);
     console.log('Response:', response.data);
     
-    if (response.status === 200) {
+    if (response.status === 200 || response.status === 201 || response.status === 204) {
       console.log('✅ GPS data sent successfully for UIT:', gpsData.uit);
       return true;
+    } else if (response.status === 401) {
+      console.error('❌ Unauthorized - Token expired');
+      throw new Error('Token expired - please login again');
     } else {
       console.error('❌ GPS request failed with status:', response.status);
       return false;
