@@ -243,14 +243,8 @@ class DirectAndroidGPSService {
         console.log("Trying direct MainActivity method activation");
 
         // Backup method: WebView AndroidGPS interface
-        try {
-          await this.activateViaWebViewInterface(course);
-        } catch (webViewError) {
-          console.error("WebView interface activation failed:", webViewError);
-
-          // Final fallback for web testing  
-          await this.startWebCompatibleGPS(course);
-        }
+        console.log("Trying MainActivity WebView interface");
+        await this.activateViaWebViewInterface(course);
       }
     } else {
       console.log("Web environment: Using web-compatible GPS simulation");

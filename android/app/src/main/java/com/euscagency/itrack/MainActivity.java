@@ -1,73 +1,87 @@
 package com.euscagency.itrack;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebView;
-import com.getcapacitor.BridgeActivity;
-import androidx.core.content.ContextCompat;
 
+import com.getcapacitor.BridgeActivity;
+import com.itrack.gps.EnhancedGPSService;
+
+/**
+ * MainActivity pentru iTrack cu integrare GPS nativă
+ * Oferă interfață WebView pentru activarea serviciului GPS din JavaScript
+ */
 public class MainActivity extends BridgeActivity {
+    private static final String TAG = "iTrackMainActivity";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Register DirectGPS plugin for background operation
-        registerPlugin(DirectGPSPlugin.class);
+        // Add AndroidGPS interface to WebView for JavaScript access
+        getBridge().getWebView().addJavascriptInterface(new AndroidGPS(), "AndroidGPS");
         
-        // Add WebView interface as backup for GPS control
-        WebView webView = getBridge().getWebView();
-        webView.addJavascriptInterface(new GPSInterface(), "AndroidGPS");
-        
-        android.util.Log.d("MainActivity", "iTrack app initialized with DirectGPS plugin + WebView backup");
-        android.util.Log.d("MainActivity", "EnhancedGPSService ready for background activation");
+        Log.d(TAG, "iTrack MainActivity initialized with GPS interface");
     }
-    
-    public class GPSInterface {
+
+    /**
+     * WebView JavaScript Interface pentru controlul GPS-ului
+     * Permite apelarea directă din JavaScript: window.AndroidGPS.startGPS(...)
+     */
+    public class AndroidGPS {
+        
         @JavascriptInterface
         public void startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
-            android.util.Log.d("AndroidGPS", "WebView GPS start for course: " + courseId);
-            startGPSTracking(courseId, vehicleNumber, uit, authToken, status);
+            Log.d(TAG, String.format("WebView GPS Start: Course=%s, UIT=%s, Status=%d", courseId, uit, status));
+            
+            Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
+            intent.setAction("START_TRACKING");
+            intent.putExtra("courseId", courseId);
+            intent.putExtra("vehicleNumber", vehicleNumber);
+            intent.putExtra("uit", uit);
+            intent.putExtra("authToken", authToken);
+            intent.putExtra("status", status);
+            
+            startForegroundService(intent);
+            Log.d(TAG, "EnhancedGPSService started via WebView interface");
         }
         
         @JavascriptInterface
         public void stopGPS(String courseId) {
-            android.util.Log.d("AndroidGPS", "WebView GPS stop for course: " + courseId);
-            stopGPSTracking(courseId);
-        }
-    }
-    
-    // Direct methods for GPS control if plugin registration fails
-    public void startGPSTracking(String courseId, String vehicleNumber, String uit, String authToken, int status) {
-        android.util.Log.d("MainActivity", "Direct GPS start for course: " + courseId);
-        
-        Intent serviceIntent = new Intent(this, EnhancedGPSService.class);
-        serviceIntent.putExtra("action", "START_TRACKING");
-        serviceIntent.putExtra("courseId", courseId);
-        serviceIntent.putExtra("vehicleNumber", vehicleNumber);
-        serviceIntent.putExtra("uit", uit);
-        serviceIntent.putExtra("authToken", authToken);
-        serviceIntent.putExtra("status", status);
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ContextCompat.startForegroundService(this, serviceIntent);
-        } else {
-            startService(serviceIntent);
+            Log.d(TAG, "WebView GPS Stop: Course=" + courseId);
+            
+            Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
+            intent.setAction("STOP_TRACKING");
+            intent.putExtra("courseId", courseId);
+            
+            startService(intent);
+            Log.d(TAG, "EnhancedGPSService stop requested via WebView interface");
         }
         
-        android.util.Log.d("MainActivity", "EnhancedGPSService started directly");
-    }
-    
-    public void stopGPSTracking(String courseId) {
-        android.util.Log.d("MainActivity", "Direct GPS stop for course: " + courseId);
+        @JavascriptInterface
+        public void updateStatus(String courseId, int newStatus) {
+            Log.d(TAG, String.format("WebView GPS Status Update: Course=%s, Status=%d", courseId, newStatus));
+            
+            Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
+            intent.setAction("UPDATE_STATUS");
+            intent.putExtra("courseId", courseId);
+            intent.putExtra("status", newStatus);
+            
+            startService(intent);
+            Log.d(TAG, "EnhancedGPSService status update via WebView interface");
+        }
         
-        Intent serviceIntent = new Intent(this, EnhancedGPSService.class);
-        serviceIntent.putExtra("action", "STOP_TRACKING");
-        serviceIntent.putExtra("courseId", courseId);
-        
-        startService(serviceIntent);
-        
-        android.util.Log.d("MainActivity", "GPS stop command sent");
+        @JavascriptInterface
+        public void clearAllOnLogout() {
+            Log.d(TAG, "WebView GPS Clear All on Logout");
+            
+            Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
+            intent.setAction("STOP_TRACKING");
+            intent.putExtra("courseId", "LOGOUT_CLEAR_ALL");
+            
+            startService(intent);
+            Log.d(TAG, "EnhancedGPSService cleared all on logout via WebView interface");
+        }
     }
 }
