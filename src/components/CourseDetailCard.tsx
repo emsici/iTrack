@@ -139,16 +139,15 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.15);
           border-radius: 12px;
-          padding: 12px;
-          margin: 0;
+          padding: 16px 20px;
+          margin: 0 auto 16px auto;
           overflow: hidden;
           transition: all 0.3s ease;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
           position: relative;
-          width: 100%;
-          max-width: 100%;
+          width: 92%;
+          max-width: 92%;
           box-sizing: border-box;
-          position: relative;
         }
 
         .course-card-enhanced:hover {
@@ -173,9 +172,38 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 8px;
+          margin-bottom: 12px;
           width: 100%;
           flex-wrap: nowrap;
+        }
+
+        .uit-priority {
+          color: #ffffff;
+          font-size: 1rem;
+          font-weight: 600;
+          flex: 1;
+        }
+
+        .toggle-details-btn {
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: #cbd5e1;
+          padding: 8px 16px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 0.85rem;
+          margin-bottom: 12px;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+
+        .toggle-details-btn:hover {
+          background: rgba(255, 255, 255, 0.2);
+          color: #ffffff;
         }
 
         .course-title-compact {
@@ -411,17 +439,21 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       `}</style>
 
       <div className="course-header-compact">
-        <h4 className="course-title-compact">
-          {course.name || course.uit}
-        </h4>
+        <div className="uit-priority">
+          <strong>UIT: {course.uit}</strong>
+        </div>
         <span className="status-badge-compact">
           {getStatusText(course.status)}
         </span>
       </div>
       
-      <div className="uit-info-compact">
-        UIT: {course.uit}
-      </div>
+      <button 
+        className="toggle-details-btn"
+        onClick={() => setShowDetails(!showDetails)}
+      >
+        <i className={`fas ${showDetails ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
+        {showDetails ? 'Ascunde detalii' : 'Vezi detalii'}
+      </button>
 
       {showDetails && (
         <div className="course-details-enhanced">
