@@ -135,159 +135,39 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
 
 const performVehicleCoursesRequest = async (vehicleNumber: string, token: string) => {
   try {
-    // Add cache busting timestamp to prevent server cache issues
     const timestamp = Date.now();
     const urlWithCacheBuster = `${API_BASE_URL}/vehicul.php?nr=${vehicleNumber}&t=${timestamp}`;
     
-    console.log('=== VEHICLE COURSES REQUEST ===');
-    console.log('URL:', urlWithCacheBuster);
-    console.log('Token:', token.substring(0, 20) + '...');
-    console.log('Cache Buster:', timestamp);
-    
-    logAPI(`Vehicle courses request for ${vehicleNumber} with cache buster ${timestamp}`);
+    console.log(`Loading courses for vehicle: ${vehicleNumber}`);
+    logAPI(`Loading courses for vehicle ${vehicleNumber}`);
     
     const response = await CapacitorHttp.get({
       url: urlWithCacheBuster,
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'X-Requested-With': 'XMLHttpRequest'
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
       }
     });
 
-    console.log('=== VEHICLE COURSES RESPONSE ===');
-    console.log('Status:', response.status);
-    console.log('Response Data:', JSON.stringify(response.data, null, 2));
-    console.log('Response Type:', typeof response.data);
-    console.log('Response Keys:', Object.keys(response.data || {}));
-    
-    logAPI(`Initial response: status=${response.status}, type=${typeof response.data}, keys=[${Object.keys(response.data || {}).join(',')}]`);
-    logAPI(`Response data: ${JSON.stringify(response.data).substring(0, 200)}...`);
+    console.log('API Response:', JSON.stringify(response.data, null, 2));
+    logAPI(`API response: status=${response.status}, data=${JSON.stringify(response.data)}`);
 
     if (response.status === 200) {
       const responseData = response.data;
-      console.log('Response Data Status:', responseData.status);
-      console.log('Response Data Array Check:', Array.isArray(responseData.data));
-      console.log('Response Data Length:', responseData.data?.length);
-      console.log('Status check:', responseData.status === 'success');
-      console.log('Array check:', Array.isArray(responseData.data));
-      console.log('Length check:', responseData.data && responseData.data.length > 0);
       
-      logAPI(`Validation: status=${responseData.status}, isArray=${Array.isArray(responseData.data)}, length=${responseData.data?.length}`);
-      
-      // Check if we have valid data - status success and data array
-      if (responseData.status === 'success' && Array.isArray(responseData.data) && responseData.data.length > 0) {
-        console.log('=== VALIDATION PASSED - PROCESSING DATA ===');
-        logAPI(`Validation passed - processing ${responseData.data.length} courses`);
-        const processedCourses = responseData.data.map((course: any, index: number) => ({
-          id: course.ikRoTrans?.toString() || `course_${index}`,
-          name: `Transport ${course.ikRoTrans}`,
-          departure_location: course.Vama || 'Punct plecare',
-          destination_location: course.VamaStop || course.denumireLocStop || 'Destinație',
-          departure_time: null, // Nu există în API
-          arrival_time: null,   // Nu există în API
-          description: course.denumireDeclarant,
-          status: 1,
-          uit: course.UIT,
-          // Toate datele reale din API
-          ikRoTrans: course.ikRoTrans,
-          codDeclarant: course.codDeclarant,
-          denumireDeclarant: course.denumireDeclarant,
-          nrVehicul: course.nrVehicul,
-          dataTransport: course.dataTransport, // Data transportului (nu ora)
-          vama: course.Vama,
-          birouVamal: course.BirouVamal,
-          judet: course.Judet,
-          denumireLocStart: course.denumireLocStart,
-          vamaStop: course.VamaStop,
-          birouVamalStop: course.BirouVamalStop,
-          judetStop: course.JudetStop,
-          // Keep original API field names as well
-          BirouVamal: course.BirouVamal,
-          BirouVamalStop: course.BirouVamalStop,
-          denumireLocStop: course.denumireLocStop
-        }));
+      // Handle API format: {"status":"success","count":0,"data":[]}
+      if (responseData.status === 'success' && Array.isArray(responseData.data)) {
+        console.log(`Found ${responseData.data.length} courses for vehicle ${vehicleNumber}`);
         
-        console.log('=== PROCESSED COURSES READY TO RETURN ===');
-        console.log('Processed courses count:', processedCourses.length);
-        console.log('First course sample:', JSON.stringify(processedCourses[0], null, 2));
-        logAPI(`Returning ${processedCourses.length} processed courses to UI`);
-        
-        return processedCourses;
-      } else if (Array.isArray(responseData) && responseData.length > 0) {
-        // Handle case where response is directly an array (some HTTP clients do this)
-        console.log('Processing direct array response');
-        return responseData.map((course: any, index: number) => ({
-          id: course.ikRoTrans?.toString() || `course_${index}`,
-          name: `ikRoTrans: ${course.ikRoTrans}`,
-          departure_location: course.denumireLocStart || course.Vama,
-          destination_location: course.denumireLocStop || course.VamaStop,
-          departure_time: course.dataTransport || null,
-          arrival_time: null,
-          description: course.denumireDeclarant,
-          status: 1,
-          uit: course.UIT,
-          ikRoTrans: course.ikRoTrans,
-          codDeclarant: course.codDeclarant,
-          denumireDeclarant: course.denumireDeclarant,
-          nrVehicul: course.nrVehicul,
-          dataTransport: course.dataTransport,
-          vama: course.Vama,
-          birouVamal: course.BirouVamal,
-          judet: course.Judet,
-          denumireLocStart: course.denumireLocStart,
-          vamaStop: course.VamaStop,
-          birouVamalStop: course.BirouVamalStop,
-          judetStop: course.JudetStop,
-          BirouVamal: course.BirouVamal,
-          BirouVamalStop: course.BirouVamalStop,
-          denumireLocStop: course.denumireLocStop
-        }));
-      } else {
-        console.log('=== VALIDATION FAILED - DETAILED ANALYSIS ===');
-        console.log('Failed conditions:');
-        console.log('  - status === "success":', responseData.status === 'success', `(actual: "${responseData.status}")`);
-        console.log('  - Array.isArray(data):', Array.isArray(responseData.data), `(actual type: ${typeof responseData.data})`);
-        console.log('  - data.length > 0:', responseData.data?.length > 0, `(actual length: ${responseData.data?.length})`);
-        console.log('Full response structure:', JSON.stringify(responseData, null, 2));
-        
-        logAPI(`VALIDATION FAILED: status="${responseData.status}", isArray=${Array.isArray(responseData.data)}, length=${responseData.data?.length}`);
-        logAPI(`No data in initial response for ${vehicleNumber} - attempting retry in 1 second`);
-        
-        // Retry once more with a small delay to handle server cache issues
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const retryTimestamp = Date.now();
-        const retryResponse = await CapacitorHttp.get({
-          url: `${API_BASE_URL}/vehicul.php?nr=${vehicleNumber}&_retry=${retryTimestamp}`,
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-            'X-Requested-With': 'XMLHttpRequest'
-          }
-        });
-        
-        console.log('=== RETRY RESPONSE ===');
-        console.log('Retry Status:', retryResponse.status);
-        console.log('Retry Data:', JSON.stringify(retryResponse.data, null, 2));
-        
-        logAPI(`Retry response: status=${retryResponse.status}, data=${JSON.stringify(retryResponse.data)}`);
-        
-        if (retryResponse.status === 200 && retryResponse.data?.status === 'success' && 
-            Array.isArray(retryResponse.data.data) && retryResponse.data.data.length > 0) {
-          console.log('Retry successful - processing data');
-          return retryResponse.data.data.map((course: any, index: number) => ({
+        if (responseData.data.length > 0) {
+          const processedCourses = responseData.data.map((course: any, index: number) => ({
             id: course.ikRoTrans?.toString() || `course_${index}`,
-            name: `ikRoTrans: ${course.ikRoTrans}`,
-            departure_location: course.denumireLocStart || course.Vama,
-            destination_location: course.denumireLocStop || course.VamaStop,
-            departure_time: course.dataTransport || null,
+            name: `Transport ${course.ikRoTrans}`,
+            departure_location: course.Vama || 'Punct plecare',
+            destination_location: course.VamaStop || course.denumireLocStop || 'Destinație',
+            departure_time: null,
             arrival_time: null,
             description: course.denumireDeclarant,
             status: 1,
@@ -308,16 +188,26 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
             BirouVamalStop: course.BirouVamalStop,
             denumireLocStop: course.denumireLocStop
           }));
+          
+          logAPI(`Processed ${processedCourses.length} courses successfully`);
+          return processedCourses;
         } else {
-          console.log('Retry also failed - no courses available for this vehicle');
+          console.log('No courses found for this vehicle');
+          logAPI(`No courses available for vehicle ${vehicleNumber}`);
           return [];
         }
+      } else {
+        console.log('Invalid API response format');
+        logAPI(`Invalid response format: ${JSON.stringify(responseData)}`);
+        return [];
       }
     } else {
-      throw new Error('Eroare la încărcarea curselor');
+      console.log('Non-200 HTTP response:', response.status);
+      throw new Error(`Server error: ${response.status}`);
     }
   } catch (error) {
-    console.error('Get vehicle courses error:', error);
+    console.error('Error loading vehicle courses:', error);
+    logAPI(`Error loading courses for ${vehicleNumber}: ${error}`);
     throw new Error('Eroare de conexiune la serverul de curse');
   }
 };

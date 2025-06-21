@@ -48,7 +48,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     setError("");
 
     try {
+      console.log(`=== Loading courses for vehicle: ${vehicleNumber} ===`);
       const response = await getVehicleCourses(vehicleNumber, token);
+      
+      console.log("Raw API response:", response);
+      console.log("Response type:", typeof response);
+      console.log("Is array:", Array.isArray(response));
 
       if (response && Array.isArray(response) && response.length > 0) {
         const mergedCourses = response.map((newCourse: Course) => {
@@ -60,13 +65,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
         setCourses(mergedCourses);
         setCoursesLoaded(true);
-        console.log(
-          `=== UI: Successfully loaded ${mergedCourses.length} courses ===`,
-        );
-        // Courses loaded successfully
+        console.log(`=== UI: Successfully loaded ${mergedCourses.length} courses ===`);
+      } else if (response && Array.isArray(response) && response.length === 0) {
+        // Empty array - valid response but no courses
+        console.log("No courses found for this vehicle - showing empty state");
+        setCourses([]);
+        setCoursesLoaded(true);
+        setError("Nu s-au găsit curse pentru acest vehicul. Verificați numărul de înmatriculare.");
       } else {
-        console.log("No courses found - API returned empty or invalid data");
-        setError("Nu s-au găsit curse pentru acest vehicul");
+        console.log("Invalid response format:", response);
+        setError("Eroare la procesarea datelor de la server");
       }
     } catch (error: any) {
       console.error("Eroare la încărcarea curselor:", error);
