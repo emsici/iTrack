@@ -140,6 +140,15 @@ public class EnhancedGPSService extends Service implements LocationListener {
             Log.e(TAG, "Missing required parameters for GPS tracking");
             return;
         }
+        
+        // Check GPS permissions immediately
+        if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "❌ GPS permissions not granted - cannot start tracking");
+            Log.e(TAG, "Please grant location permissions in Android Settings");
+            return;
+        }
+        
+        Log.d(TAG, "✅ GPS permissions verified - starting tracking");
 
         Log.d(TAG, "=== START GPS TRACKING ===");
         Log.d(TAG, "Course ID: " + courseId);
@@ -162,12 +171,21 @@ public class EnhancedGPSService extends Service implements LocationListener {
         // Start foreground service dacă nu e deja pornit
         if (!isTracking) {
             Log.d(TAG, "STARTING FOREGROUND SERVICE - First course");
-            startForeground(NOTIFICATION_ID, createNotification());
-            startLocationUpdates();
-            isTracking = true;
-            Log.d(TAG, "isTracking set to: " + isTracking);
-            startGPSTransmissions();
-            Log.d(TAG, "GPS Service started as foreground - transmission should begin now");
+            try {
+                startForeground(NOTIFICATION_ID, createNotification());
+                Log.d(TAG, "✅ Foreground service started successfully");
+                
+                startLocationUpdates();
+                isTracking = true;
+                Log.d(TAG, "isTracking set to: " + isTracking);
+                
+                startGPSTransmissions();
+                Log.d(TAG, "✅ GPS Service started as foreground - transmission should begin now");
+            } catch (Exception e) {
+                Log.e(TAG, "❌ Failed to start foreground service: " + e.getMessage());
+                isTracking = false;
+                return;
+            }
         } else {
             Log.d(TAG, "SERVICE ALREADY RUNNING - Adding course to existing service");
             // Update notification pentru cursă nouă

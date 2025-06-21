@@ -49,20 +49,33 @@ class DirectAndroidGPSService {
       // Pentru PAUSE/STOP fără START anterior, creează entry minimal
       console.warn(`Course ${courseId} not in activeCourses - creating minimal entry for status update`);
       
-      // Încarcă din localStorage sau folosește valori default
-      const vehicleNumber = localStorage.getItem('vehicle_number') || 'UNKNOWN';
-      const token = localStorage.getItem('auth_token') || '';
-      
-      course = {
-        courseId,
-        vehicleNumber,
-        uit: courseId, // Folosește courseId ca UIT temporar
-        token,
-        status: newStatus
-      };
-      
-      this.activeCourses.set(courseId, course);
-      console.log(`Created minimal course entry for ${courseId}`);
+      // Încarcă din Capacitor Preferences pentru valori reale
+      try {
+        const vehicleNumber = (await import('@capacitor/preferences')).Preferences.get({ key: 'vehicle_number' }).then(r => r.value) || 'UNKNOWN';
+        const token = (await import('@capacitor/preferences')).Preferences.get({ key: 'auth_token' }).then(r => r.value) || '';
+        
+        course = {
+          courseId,
+          vehicleNumber: await vehicleNumber,
+          uit: courseId, // Folosește courseId ca UIT temporar
+          token: await token,
+          status: newStatus
+        };
+        
+        this.activeCourses.set(courseId, course);
+        console.log(`Created minimal course entry for ${courseId} with real stored data`);
+      } catch (error) {
+        console.error('Failed to load stored preferences:', error);
+        // Fallback cu valori default
+        course = {
+          courseId,
+          vehicleNumber: 'UNKNOWN',
+          uit: courseId,
+          token: '',
+          status: newStatus
+        };
+        this.activeCourses.set(courseId, course);
+      }
     }
 
     const oldStatus = course.status;

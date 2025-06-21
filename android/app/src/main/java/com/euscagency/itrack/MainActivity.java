@@ -73,6 +73,12 @@ public class MainActivity extends BridgeActivity {
                     return "ERROR: Invalid parameters";
                 }
                 
+                // Test GPS permissions first
+                if (checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(TAG, "GPS permissions not granted - requesting permissions");
+                    return "ERROR: GPS permissions required";
+                }
+                
                 Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
                 intent.setAction("START_TRACKING");
                 intent.putExtra("courseId", courseId);
@@ -81,13 +87,22 @@ public class MainActivity extends BridgeActivity {
                 intent.putExtra("authToken", authToken);
                 intent.putExtra("status", status);
                 
-                ComponentName result = startForegroundService(intent);
-                if (result != null) {
-                    Log.d(TAG, "✅ EnhancedGPSService started successfully via WebView interface");
-                    return "SUCCESS: GPS service started for course " + courseId;
-                } else {
-                    Log.e(TAG, "Failed to start GPS service - result is null");
-                    return "ERROR: Service start failed";
+                try {
+                    ComponentName result = startForegroundService(intent);
+                    if (result != null) {
+                        Log.d(TAG, "✅ EnhancedGPSService started successfully via WebView interface");
+                        Log.d(TAG, "Service component: " + result.getClassName());
+                        return "SUCCESS: GPS service started for course " + courseId;
+                    } else {
+                        Log.e(TAG, "Failed to start GPS service - result is null");
+                        return "ERROR: Service start failed";
+                    }
+                } catch (SecurityException e) {
+                    Log.e(TAG, "Security exception starting GPS service: " + e.getMessage());
+                    return "ERROR: Security exception - " + e.getMessage();
+                } catch (Exception e) {
+                    Log.e(TAG, "Exception starting GPS service: " + e.getMessage());
+                    return "ERROR: Exception - " + e.getMessage();
                 }
             } catch (Exception e) {
                 Log.e(TAG, "❌ Failed to start GPS service: " + e.getMessage(), e);

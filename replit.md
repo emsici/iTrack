@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.31 (June 21, 2025) - BROWSER FALLBACK IMPLEMENTAT
+### Versiunea Curentă: 1808.32 (June 21, 2025) - ANDROID GPS NATIV REPARAT
+- **GPS permissions verification**: Verificare explicită permisiuni GPS înainte de start serviciu
+- **Foreground service prioritar**: startForeground() apelat imediat în onStartCommand pentru stabilitate
+- **Exception handling îmbunătățit**: Try-catch pentru SecurityException și alte erori GPS
+- **Debugging GPS Android**: Loguri detaliate pentru identificarea problemelor pe device real
+- **Service lifecycle reparat**: Eliminat crash-urile prin validare parametri și permissions
+
+### Versiunea Precedentă: 1808.31 (June 21, 2025) - BROWSER FALLBACK IMPLEMENTAT
 - **Browser GPS fallback**: Pentru development în browser, GPS funcționează prin Capacitor Geolocation
 - **Prioritate nativă**: AndroidGPS (APK) > Capacitor Geolocation (browser) pentru testing complet
 - **Permissions în browser**: Geolocation.requestPermissions() cere permisiunile GPS în browser
