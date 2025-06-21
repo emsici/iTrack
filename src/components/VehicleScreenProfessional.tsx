@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { CapacitorHttp } from '@capacitor/core';
 import { Course } from "../types";
 import { getVehicleCourses, logout, sendGPSData, API_BASE_URL } from "../services/api";
 import {
@@ -229,45 +230,32 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         console.log(`📦 GPS Status payload:`, gpsPayload);
         
-        const response = await fetch(gpsUrl, {
-          method: 'POST',
+        const response = await CapacitorHttp.post({
+          url: gpsUrl,
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json',
             'Cache-Control': 'no-cache'
           },
-          body: JSON.stringify(gpsPayload),
-          signal: AbortSignal.timeout(10000) // Reduced to 10 second timeout
+          data: gpsPayload
         });
 
-        console.log(`📡 Response status: ${response.status} ${response.statusText}`);
-        console.log(`📋 Response headers:`, Object.fromEntries(response.headers.entries()));
+        console.log(`📡 Response status: ${response.status}`);
+        console.log(`📋 Response headers:`, response.headers);
         
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`❌ Server error ${response.status}:`, errorText);
+        if (response.status < 200 || response.status >= 300) {
+          console.error(`❌ Server error ${response.status}:`, response.data);
           console.error(`🔍 Full response:`, {
             status: response.status,
-            statusText: response.statusText,
-            headers: Object.fromEntries(response.headers.entries()),
-            body: errorText
+            headers: response.headers,
+            body: response.data
           });
-          throw new Error(`Server error ${response.status}: ${errorText}`);
+          throw new Error(`Server error ${response.status}: ${JSON.stringify(response.data)}`);
         }
 
-        const responseText = await response.text();
-        console.log(`📥 Raw response text:`, responseText);
-        
-        let result;
-        try {
-          result = JSON.parse(responseText);
-          console.log(`✅ Parsed response:`, result);
-        } catch (parseError) {
-          console.error(`❌ JSON parse error:`, parseError);
-          console.error(`📄 Raw response that failed to parse:`, responseText);
-          throw new Error(`Invalid JSON response: ${responseText}`);
-        }
+        console.log(`📥 Response data:`, response.data);
+        const result = response.data;
 
         if (result.status !== 'success' && !result.success) {
           throw new Error(result.message || result.error || 'Server rejected status update');

@@ -1,5 +1,5 @@
 // GPS direct Android prin Capacitor plugin - funcționează în background
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
 import { GPSData, sendGPSData, API_BASE_URL } from './api';
 import { saveGPSCoordinateOffline, syncOfflineGPS, getOfflineGPSCount } from './offlineGPS';
@@ -70,24 +70,20 @@ class DirectAndroidGPSService {
         gsm_signal: "4G"
       };
       
-      const response = await fetch(`${API_BASE_URL}/gps.php`, {
-        method: 'POST',
+      const response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}/gps.php`,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${course.token}`,
           'Accept': 'application/json',
           'Cache-Control': 'no-cache'
         },
-        body: JSON.stringify(gpsPayload),
-        signal: AbortSignal.timeout(15000)
+        data: gpsPayload
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Server error ${response.status}: ${errorText}`);
+      if (response.status < 200 || response.status >= 300) {
+        throw new Error(`Server error ${response.status}: ${JSON.stringify(response.data)}`);
       }
-
-      const responseText = await response.text();
       let result;
       try {
         result = JSON.parse(responseText);
