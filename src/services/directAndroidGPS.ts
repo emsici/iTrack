@@ -401,10 +401,10 @@ class DirectAndroidGPSService {
       platform: Capacitor.getPlatform(),
       isNative: Capacitor.isNativePlatform(),
       activeCourses: this.activeCourses.size,
-      implementation: "Direct Android Intent to EnhancedGPSService",
+      implementation: "Direct Android Intent to SimpleGPSService",
       pluginUsed: "NONE - Direct Android service activation",
       backgroundSupport: "Full native Android background tracking",
-      gpsMethod: "Android LocationManager in EnhancedGPSService.java",
+      gpsMethod: "Android LocationManager in SimpleGPSService.java",
       transmission: "OkHttp direct from Android service to server",
     };
   }
