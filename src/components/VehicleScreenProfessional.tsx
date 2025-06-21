@@ -61,15 +61,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log("=== DEBUGGING: Is array ===", Array.isArray(response));
       console.log("=== DEBUGGING: Response length ===", response?.length);
 
-      // FORȚA setarea coursesLoaded pentru TOATE cazurile
-      console.log("=== APK DEBUG: About to set coursesLoaded to TRUE ===");
-      setCoursesLoaded(true);
-      console.log("=== APK DEBUG: coursesLoaded set to TRUE ===");
-      
-      // Force re-render to avoid WebView caching issues
-      setTimeout(() => {
-        console.log("=== APK DEBUG: Timeout callback - coursesLoaded should be:", coursesLoaded);
-      }, 100);
+      // SCHIMBARE: Nu setez coursesLoaded = true automat
+      // Se va seta doar dacă găsesc curse valide
+      console.log("=== APK DEBUG: Checking if courses found before allowing access ===");
 
       // FIXED: Handle both array response and object response from API
       let coursesArray = [];
@@ -100,27 +94,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`=== APK DEBUG: Successfully loaded ${mergedCourses.length} courses ===`);
         console.log("=== APK DEBUG: About to render courses screen ===");
       } else {
-        console.log("=== APK DEBUG: No courses found, setting empty array ===");
+        console.log("=== APK DEBUG: No courses found - BLOCKING access ===");
+        // IMPORTANT: Nu setează coursesLoaded = true când nu există curse
+        // Rămâne pe ecranul de input cu mesaj de eroare
         setCourses([]);
-        setError("Nu s-au găsit curse pentru acest vehicul. Verificați numărul de înmatriculare.");
-        console.log("=== APK DEBUG: About to render empty courses screen ===");
+        setCoursesLoaded(false); // Force rămâne pe input screen
+        setError("Nu s-au găsit curse pentru acest vehicul. Verificați numărul de înmatriculare și încercați din nou.");
+        console.log("=== APK DEBUG: User blocked - must enter valid vehicle number ===");
       }
     } catch (error: any) {
       console.error("=== APK DEBUG: Error loading courses ===", error);
-      console.log("=== APK DEBUG: Setting coursesLoaded to TRUE on error ===");
-      // CRITICA: Setează coursesLoaded = true chiar și pe eroare pentru a evita ecranul alb
-      setCoursesLoaded(true);
+      console.log("=== APK DEBUG: ERROR - Blocking user due to API error ===");
+      // SCHIMBARE: Pe eroare, nu trece utilizatorul mai departe
+      setCoursesLoaded(false); // Rămâne pe input screen
       setCourses([]);
-      setError(error.message || "Eroare la încărcarea curselor");
+      setError(error.message || "Eroare la conectarea la server. Verificați conexiunea și încercați din nou.");
     } finally {
       setLoading(false);
-      console.log("=== APK DEBUG: Loading finished, coursesLoaded should be TRUE ===");
-      
-      // EMERGENCY FIX pentru WebView Android - forțează coursesLoaded după delay
-      setTimeout(() => {
-        console.log("=== APK DEBUG: EMERGENCY FIX - Always force coursesLoaded = true ===");
-        setCoursesLoaded(true);
-      }, 100);
+      console.log("=== APK DEBUG: Loading finished ===");
+      // ELIMINAT: Nu mai forțez coursesLoaded = true dacă nu există curse valide
     }
   };
 
@@ -240,17 +232,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   console.log("loading:", loading);
   console.log("courses.length:", courses.length);
 
-  // FALLBACK pentru WebView Android: Dacă nu se încarcă nimic timp de 5 secunde
-  React.useEffect(() => {
-    const fallbackTimer = setTimeout(() => {
-      if (!coursesLoaded && !loading) {
-        console.log("=== APK DEBUG: FALLBACK TIMER - Force coursesLoaded = true ===");
-        setCoursesLoaded(true);
-      }
-    }, 5000);
-
-    return () => clearTimeout(fallbackTimer);
-  }, [coursesLoaded, loading]);
+  // ELIMINAT: Fallback timer care forța coursesLoaded
+  // Utilizatorul trebuie să introducă un număr valid de vehicul
 
   return (
     <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""}`}>
