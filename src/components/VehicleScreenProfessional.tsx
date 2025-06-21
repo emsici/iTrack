@@ -480,6 +480,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <span className="offline-count-badge">{offlineCount}</span>
                   )}
                 </div>
+              </div>
                 
                 {/* Progress sincronizare sub status */}
                 {syncProgress && syncProgress.isActive && (
