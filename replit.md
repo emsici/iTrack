@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.29 (June 21, 2025) - REPARAT ACTIVECOURSES MAP
+### Versiunea Curentă: 1808.30 (June 21, 2025) - LOGICA GPS REPARATĂ COMPLET
+- **Eliminat logica contradictorie**: PAUSE/STOP nu mai apelează startGPSTracking() cu status 2
+- **Flow logic corect**: START→status 2, PAUSE→status 3, STOP→status 4, fără contradicții
+- **Minimal course entry**: Pentru PAUSE/STOP fără START anterior se creează entry cu date din localStorage
+- **Eliminat comenzi duble**: Serviciul primește o singură comandă clară per operație
+- **GPS flow simplificat**: Fiecare status are un singur obiectiv clar fără override-uri
+
+### Versiunea Precedentă: 1808.29 (June 21, 2025) - REPARAT ACTIVECOURSES MAP
 - **Identificat problema**: updateCourseStatus() eșua cu "Course not found" în activeCourses Map
 - **Cauza**: PAUSE/STOP apelau updateCourseStatus() fără ca startGPSTracking() să fi fost apelat primul
 - **Soluția**: Pentru PAUSE/STOP se asigură că startGPSTracking() rulează primul pentru a popula activeCourses Map

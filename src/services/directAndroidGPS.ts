@@ -44,11 +44,25 @@ class DirectAndroidGPSService {
     console.log(`=== UPDATING STATUS: ${courseId} → ${newStatus} ===`);
     console.log(`Active courses in map: ${Array.from(this.activeCourses.keys()).join(', ')}`);
     
-    const course = this.activeCourses.get(courseId);
+    let course = this.activeCourses.get(courseId);
     if (!course) {
-      console.error(`❌ Course ${courseId} not found in activeCourses Map!`);
-      console.error(`Available courses: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
-      throw new Error(`Course ${courseId} not found - GPS service not started`);
+      // Pentru PAUSE/STOP fără START anterior, creează entry minimal
+      console.warn(`Course ${courseId} not in activeCourses - creating minimal entry for status update`);
+      
+      // Încarcă din localStorage sau folosește valori default
+      const vehicleNumber = localStorage.getItem('vehicle_number') || 'UNKNOWN';
+      const token = localStorage.getItem('auth_token') || '';
+      
+      course = {
+        courseId,
+        vehicleNumber,
+        uit: courseId, // Folosește courseId ca UIT temporar
+        token,
+        status: newStatus
+      };
+      
+      this.activeCourses.set(courseId, course);
+      console.log(`Created minimal course entry for ${courseId}`);
     }
 
     const oldStatus = course.status;
