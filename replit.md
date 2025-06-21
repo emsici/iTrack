@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.47 (June 21, 2025) - ALERT POPUP ELIMINATED & ERROR UI IMPROVED
+### Versiunea Curentă: 1808.48 (June 21, 2025) - GPS START SIMPLIFIED & RESTORED TO ORIGINAL BEHAVIOR
+- **GPS logic simplified**: Removed complex permission checks that were blocking GPS start
+- **Direct start behavior**: GPS starts immediately when user clicks START, just like before
+- **Permissions simplified**: Continues even without perfect permissions, requests them and proceeds
+- **Eliminated blocking errors**: No more throws that stop GPS operations
+- **Original functionality restored**: Simple START → permissions → GPS works pattern is back
+- **Clean GPS intervals**: Streamlined browser GPS with minimal error handling that doesn't block
+
+### Versiunea Precedentă: 1808.47 (June 21, 2025) - ALERT POPUP ELIMINATED & ERROR UI IMPROVED
 - **Critical fix**: Replaced alert() with setError() to eliminate the popup from the screenshot
 - **Error display improved**: All errors now show in UI instead of blocking popups
 - **Auto-clearing errors**: Error messages disappear after 5 seconds automatically

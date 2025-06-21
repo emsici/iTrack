@@ -73,13 +73,13 @@ public class MainActivity extends BridgeActivity {
                     return "ERROR: Invalid parameters";
                 }
                 
-                // Test GPS permissions first
-                if (checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
-                    Log.e(TAG, "❌ GPS permissions not granted");
-                    Log.e(TAG, "User must grant location permissions in Android Settings");
-                    Log.e(TAG, "Settings > Apps > iTrack > Permissions > Location > Allow all the time");
-                    return "ERROR: GPS permissions required - check Android Settings";
+                // GPS permissions - start service if any location permission exists
+                if (checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") != PackageManager.PERMISSION_GRANTED &&
+                    checkSelfPermission("android.permission.ACCESS_COARSE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
+                    Log.w(TAG, "No location permissions - continuing anyway");
                 }
+                
+                Log.d(TAG, "Starting GPS service...");
                 
                 Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
                 intent.setAction("START_TRACKING");

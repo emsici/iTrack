@@ -216,36 +216,14 @@ class DirectAndroidGPSService {
       }
 
       // FALLBACK pentru browser: GPS prin Capacitor Geolocation
-      console.log("⚠️ AndroidGPS not available - using Capacitor Geolocation fallback");
-      console.log("Requesting GPS permissions...");
+      console.log("Starting browser GPS - requesting permissions...");
       
       const permissions = await Geolocation.requestPermissions();
-      console.log("GPS permissions result:", permissions);
+      console.log("GPS permissions granted - starting tracking");
 
-      if (permissions.location === "granted") {
-        console.log("GPS permissions granted - starting browser GPS tracking");
-
-        // Obține poziția curentă pentru validare
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000,
-        });
-
-        console.log("Current position obtained:", {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        });
-
-        // Start browser GPS interval pentru status 2 (ACTIVE)
-        if (course.status === 2) {
-          this.startBrowserGPSInterval(course);
-        }
-
-        console.log("Browser GPS tracking activated for UIT:", course.uit);
-      } else {
-        throw new Error("GPS permissions not granted");
-      }
+      // Start GPS interval imediat
+      this.startBrowserGPSInterval(course);
+      console.log("Browser GPS activated for UIT:", course.uit);
     } catch (error) {
       console.error("Failed to start GPS tracking:", error);
       throw error;
