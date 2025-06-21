@@ -206,6 +206,38 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           color: #ffffff;
         }
 
+        .course-preview {
+          margin-bottom: 12px;
+        }
+
+        .preview-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 6px 0;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-row:last-child {
+          border-bottom: none;
+        }
+
+        .preview-label {
+          color: #94a3b8;
+          font-size: 0.8rem;
+          font-weight: 500;
+          min-width: 70px;
+        }
+
+        .preview-value {
+          color: #e2e8f0;
+          font-size: 0.85rem;
+          font-weight: 500;
+          text-align: right;
+          flex: 1;
+          margin-left: 12px;
+        }
+
         .course-title-compact {
           color: #ffffff;
           font-size: 0.85rem;
@@ -447,12 +479,33 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         </span>
       </div>
       
+      <div className="course-preview">
+        <div className="preview-row">
+          <span className="preview-label">Rută:</span>
+          <span className="preview-value">
+            {course.Vama || course.vama || 'N/A'} → {course.VamaStop || course.vamaStop || 'N/A'}
+          </span>
+        </div>
+        
+        <div className="preview-row">
+          <span className="preview-label">Județe:</span>
+          <span className="preview-value">
+            {course.Judet || course.judet || 'N/A'} → {course.JudetStop || course.judetStop || 'N/A'}
+          </span>
+        </div>
+        
+        <div className="preview-row">
+          <span className="preview-label">Declarant:</span>
+          <span className="preview-value">{course.denumireDeclarant || 'N/A'}</span>
+        </div>
+      </div>
+      
       <button 
         className="toggle-details-btn"
         onClick={() => setShowDetails(!showDetails)}
       >
         <i className={`fas ${showDetails ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
-        {showDetails ? 'Ascunde detalii' : 'Vezi detalii'}
+        {showDetails ? 'Ascunde detalii' : 'Detalii complete'}
       </button>
 
       {showDetails && (
@@ -464,16 +517,20 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 Informații Transport
               </h6>
               <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">ID Transport:</span>
+                <span className="detail-value-enhanced">{course.ikRoTrans || course.id}</span>
+              </div>
+              <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Cod Declarant:</span>
-                <span className="detail-value-enhanced">{course.codDeclarant}</span>
+                <span className="detail-value-enhanced">{course.codDeclarant || 'N/A'}</span>
               </div>
               <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Denumire:</span>
-                <span className="detail-value-enhanced">{course.denumireDeclarant}</span>
+                <span className="detail-label-enhanced">Denumire Declarant:</span>
+                <span className="detail-value-enhanced">{course.denumireDeclarant || 'N/A'}</span>
               </div>
               <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Vehicul:</span>
-                <span className="detail-value-enhanced">{course.nrVehicul}</span>
+                <span className="detail-label-enhanced">Nr. Vehicul:</span>
+                <span className="detail-value-enhanced">{course.nrVehicul || 'N/A'}</span>
               </div>
             </div>
 
@@ -484,7 +541,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               </h6>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Vamă:</span>
-                <span className="detail-value-enhanced">{course.vama}</span>
+                <span className="detail-value-enhanced">{course.Vama || course.vama || 'N/A'}</span>
               </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Birou Vamal:</span>
@@ -492,7 +549,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Județ:</span>
-                <span className="detail-value-enhanced">{course.judet}</span>
+                <span className="detail-value-enhanced">{course.Judet || course.judet || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Loc Start:</span>
+                <span className="detail-value-enhanced">{course.denumireLocStart || 'N/A'}</span>
               </div>
             </div>
 
@@ -503,22 +564,20 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               </h6>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Vamă Stop:</span>
-                <span className="detail-value-enhanced">{course.vamaStop}</span>
+                <span className="detail-value-enhanced">{course.VamaStop || course.vamaStop || 'N/A'}</span>
               </div>
               <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Birou Vamal:</span>
+                <span className="detail-label-enhanced">Birou Vamal Stop:</span>
                 <span className="detail-value-enhanced">{course.BirouVamalStop || 'N/A'}</span>
               </div>
               <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Județ:</span>
-                <span className="detail-value-enhanced">{course.judetStop}</span>
+                <span className="detail-label-enhanced">Județ Stop:</span>
+                <span className="detail-value-enhanced">{course.JudetStop || course.judetStop || 'N/A'}</span>
               </div>
-              {course.denumireLocStop && (
-                <div className="detail-item-enhanced">
-                  <span className="detail-label-enhanced">Locație:</span>
-                  <span className="detail-value-enhanced">{course.denumireLocStop}</span>
-                </div>
-              )}
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Loc Stop:</span>
+                <span className="detail-value-enhanced">{course.denumireLocStop || 'N/A'}</span>
+              </div>
             </div>
           </div>
         </div>
