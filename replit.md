@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.24 (June 21, 2025) - GPS PERMISSIONS REPARAT
+### Versiunea Curentă: 1808.25 (June 21, 2025) - UI CLEANUP & CARD OPTIMIZATION
+- **Eliminat iconița statistici**: Scos al 5-lea card cu iconița fa-chart-line din dashboard pentru design mai curat
+- **Optimizat carduri de cursă**: Redesigned CourseDetailCard cu preview (UIT, rută, județe, declarant) și dropdown pentru detalii complete
+- **UIT prioritizat**: UIT-ul afișat cu font bold ca element principal în preview
+- **Card layout îmbunătățit**: Mărit lățimea cardurilor la 92% pentru ocuparea mai bună a spațiului lateral
+- **Preview vs detalii complete**: View standard cu 4 câmpuri esențiale, dropdown cu toate datele API (ikRoTrans, codDeclarant, birouri vamale)
+- **Dashboard simplificat**: Rămas cu 4 carduri principale: TOTAL, ACTIV, PAUZĂ, DISPONIBIL fără funcționalitate statistici
+
+### Versiunea Precedentă: 1808.24 (June 21, 2025) - GPS PERMISSIONS REPARAT
 - **Integrare completă cu serverul de producție**: Toate coordonatele GPS ajung și sunt salvate în baza de date cu ID-uri unice
 - **Rezultate.php confirmat**: Coordonatele transmise prin gps.php sunt vizibile în sistemul central cu toate metadatele
 - **Fluxul complet testat**: login.php → vehicul.php → gps.php → rezultate.php - tot lanțul funcționează perfect

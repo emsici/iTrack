@@ -547,14 +547,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
 
             <div className="header-actions">
-              <button
-                className="header-icon-btn"
-                onClick={() => setShowStatsModal(true)}
-                title="Statistici Curse"
-              >
-                <i className="fas fa-chart-line"></i>
-                <span>Statistici</span>
-              </button>
+
               <button
                 className="header-icon-btn"
                 onClick={handleLoadCourses}
@@ -587,8 +580,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: '6px',
-                  maxWidth: '350px',
+                  gap: '8px',
+                  maxWidth: '320px',
                   margin: '0 auto',
                   padding: '0 10px'
                 }}>
@@ -702,34 +695,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       textTransform: 'uppercase',
                       lineHeight: '1'
                     }}>DISPONIBIL</div>
-                  </div>
-                  
-                  <div 
-                    onClick={() => setShowStatsModal(true)}
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.3) 100%)',
-                      backdropFilter: 'blur(12px)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      borderRadius: '6px',
-                      padding: '6px 2px',
-                      textAlign: 'center',
-                      minHeight: '40px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    <div style={{
-                      fontSize: '1rem',
-                      fontWeight: '700',
-                      color: '#60a5fa',
-                      lineHeight: '1'
-                    }}>
-                      <i className="fas fa-chart-line"></i>
-                    </div>
-
                   </div>
                 </div>
 
