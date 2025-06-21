@@ -54,7 +54,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '20px',
+      padding: '0',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       position: 'relative',
       overflow: 'hidden'
@@ -104,17 +104,21 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               rgba(30, 41, 59, 0.95) 100%);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            margin: 0 auto;
-            max-width: 600px;
-            width: calc(100% - 40px);
+            border-radius: 0;
+            margin: 0;
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
             overflow: hidden;
             transition: all 0.3s ease;
             box-shadow: 
               0 8px 32px rgba(0, 0, 0, 0.3),
               inset 0 1px 0 rgba(255, 255, 255, 0.1);
             position: relative;
-            padding: 40px;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
           }
 
           .login-card:hover {
@@ -126,7 +130,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           .login-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
           }
 
           .transport-logo {
@@ -381,6 +389,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
             display: flex;
             flex-direction: column;
             gap: 25px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
           }
 
           .form-group {
@@ -580,9 +591,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           @media (max-width: 768px) {
             .login-card {
-              margin: 20px;
-              padding: 35px 25px;
-              max-width: 90%;
+              padding: 40px 30px;
+              border-radius: 0;
             }
             
             .app-title {
@@ -625,13 +635,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           @media (max-width: 480px) {
             .login-container {
-              padding: 15px;
+              padding: 0;
             }
             
             .login-card {
-              margin: 15px;
-              padding: 30px 20px;
-              max-width: 95%;
+              padding: 30px 25px;
+              border-radius: 0;
             }
             
             .app-title {
