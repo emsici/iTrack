@@ -171,12 +171,12 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.18 (June 21, 2025) - GPS TRANSMISSION FUNCȚIONAL
-- **GPS transmission COMPLET REPARAT**: Flux logic verificat pas cu pas - coordonatele se transmit garantat la server
-- **Cycle logic perfect**: Handler + runnable funcționează, cycle rulează la 5 secunde, transmisia garantată când GPS primește coordonate
-- **Last known location fallback**: GPS folosește ultima locație cunoscută pentru start imediat dacă disponibilă
-- **Background transmission verificată**: Serviciul transmite coordonate în background cu telefon blocat
-- **APK final production-ready**: Toate componentele GPS verificate și funcționale pentru deployment commercial
+### Versiunea Curentă: 1808.19 (June 21, 2025) - MULTI-COURSE LOGIC CORECT
+- **AuthToken logic corect**: AuthToken este la nivel de USER, nu per cursă - toate cursele folosesc același token de autentificare
+- **Multi-course architecture**: Multiple curse active simultan, fiecare cu propriul UIT, dar același userAuthToken și vehicleNumber
+- **User-level authentication**: Un singur token per user, persistă pentru toate cursele active ale utilizatorului
+- **GPS transmission optimizat**: Fiecare cursă transmite coordonate individual cu propriul UIT, dar același Bearer token
+- **Service cleanup îmbunătățit**: Token și vehicle number se resetează când nu mai există curse active
 
 ### Versiunea Precedentă: 1808.15 (June 21, 2025)
 - **App loading optimizat**: Eliminat întârzierea de 16 secunde - aplicația se încarcă instant și afișează login

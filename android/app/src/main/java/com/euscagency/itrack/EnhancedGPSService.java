@@ -55,14 +55,12 @@ class CourseData {
     public String uit;
     public int status;
     public String vehicleNumber;
-    public String authToken;
     
-    public CourseData(String courseId, String uit, int status, String vehicleNumber, String authToken) {
+    public CourseData(String courseId, String uit, int status, String vehicleNumber) {
         this.courseId = courseId;
         this.uit = uit;
         this.status = status;
         this.vehicleNumber = vehicleNumber;
-        this.authToken = authToken;
     }
 }
 
@@ -82,6 +80,10 @@ public class EnhancedGPSService extends Service implements LocationListener {
 
     // Multiple courses tracking - pentru curse simultane
     private Map<String, CourseData> activeCourses = new HashMap<>();
+    
+    // User authentication - UN SINGUR TOKEN PER USER
+    private String userAuthToken;
+    private String userVehicleNumber;
     
     // GPS tracking state
     private boolean isTracking = false;
@@ -146,8 +148,15 @@ public class EnhancedGPSService extends Service implements LocationListener {
         Log.d(TAG, "Vehicle: " + vehicleNumber);
         Log.d(TAG, "Auth Token: " + (authToken != null ? authToken.substring(0, Math.min(20, authToken.length())) + "..." : "NULL"));
 
-        // Adaugă cursă în Map
-        CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber, authToken);
+        // Setează user auth token și vehicle number (același pentru toate cursele)
+        if (userAuthToken == null) {
+            userAuthToken = authToken;
+            userVehicleNumber = vehicleNumber;
+            Log.d(TAG, "User authentication set for vehicle: " + vehicleNumber);
+        }
+
+        // Adaugă cursă în Map (fără authToken - este la nivel de user)
+        CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber);
         activeCourses.put(courseId, courseData);
         
         // Start foreground service dacă nu e deja pornit
@@ -290,6 +299,11 @@ public class EnhancedGPSService extends Service implements LocationListener {
             Log.d(TAG, "=== STOPPING GPS SERVICE ===");
             Log.d(TAG, "No active courses remaining");
             
+            // Reset service state când nu mai există curse active
+            // NOTA: Aceasta NU afectează sesiunea user-ului în aplicație
+            // Este doar cleanup al serviciului GPS în background
+            userAuthToken = null;
+            userVehicleNumber = null;
             isTracking = false;
             
             if (gpsHandler != null && gpsRunnable != null) {
@@ -334,7 +348,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
                     for (CourseData course : activeCourses.values()) {
                         if (course.status == 2) {
                             Log.d(TAG, "Transmitting GPS for UIT: " + course.uit + " (Status: " + course.status + ")");
-                            transmitGPSData(course, lastLocation);
+                            transmitGPSData(course, lastLocation, userAuthToken);
                             transmittedCount++;
                         } else {
                             Log.d(TAG, "Skipping UIT: " + course.uit + " (Status: " + course.status + " - not active)");
@@ -366,7 +380,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
         Log.d(TAG, "GPS Handler initialization complete");
     }
 
-    private void transmitGPSData(CourseData course, Location location) {
+    private void transmitGPSData(CourseData course, Location location, String authToken) {
         try {
             JSONObject gpsData = new JSONObject();
             gpsData.put("lat", String.format(Locale.US, "%.6f", location.getLatitude()));
@@ -414,7 +428,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
             gpsData.put("hdop", lastLocation.hasAccuracy() ? String.format(Locale.US, "%.1f", lastLocation.getAccuracy()) : "999.0");
             gpsData.put("gsm_signal", getSignalStrength());
 
-            sendGPSRequest(gpsData, course.authToken);
+            sendGPSRequest(gpsData, userAuthToken);
             
             Log.d(TAG, "Status update sent - UIT: " + course.uit + " Status: " + course.status);
             
