@@ -93,11 +93,18 @@ public class EnhancedGPSService extends Service implements LocationListener {
         super.onCreate();
         Log.d(TAG, "EnhancedGPSService created");
 
-        createNotificationChannel();
-        initializeWakeLock();
-        initializeHttpClient();
-        initializeLocationManager();
-        initializeGPSHandler();
+        try {
+            activeCourses = new HashMap<>();
+            createNotificationChannel();
+            initializeWakeLock();
+            initializeHttpClient();
+            initializeLocationManager();
+            initializeGPSHandler();
+            Log.d(TAG, "EnhancedGPSService initialized successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing EnhancedGPSService: " + e.getMessage(), e);
+            stopSelf();
+        }
     }
 
     @Override

@@ -26,50 +26,29 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Register DirectGPS plugin
-        registerPlugin(DirectGPSPlugin.class);
+        // Register DirectGPS plugin safely
+        try {
+            registerPlugin(DirectGPSPlugin.class);
+            Log.d(TAG, "DirectGPS plugin registered successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to register DirectGPS plugin: " + e.getMessage(), e);
+        }
         
         // Add AndroidGPS interface to WebView for JavaScript access
-        getBridge().getWebView().addJavascriptInterface(new AndroidGPS(), "AndroidGPS");
+        try {
+            getBridge().getWebView().addJavascriptInterface(new AndroidGPS(), "AndroidGPS");
+            Log.d(TAG, "AndroidGPS WebView interface added successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to add AndroidGPS interface: " + e.getMessage(), e);
+        }
         
         Log.d(TAG, "iTrack MainActivity initialized with GPS interface and DirectGPS plugin");
         
-        // Auto-test GPS service la pornire pentru debugging
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            testGPSServiceStartup();
-        }, 3000);
+        // Eliminat auto-test care poate cauza crash-uri
+        // Auto-test dezactivat pentru stabilitate
     }
     
-    private void testGPSServiceStartup() {
-        Log.d(TAG, "=== GPS SERVICE STARTUP TEST ===");
-        try {
-            Intent intent = new Intent(this, EnhancedGPSService.class);
-            intent.setAction("START_TRACKING");
-            intent.putExtra("courseId", "STARTUP_TEST");
-            intent.putExtra("vehicleNumber", "IF03CWT");
-            intent.putExtra("uit", "TEST123456789");
-            intent.putExtra("authToken", "test_token_startup");
-            intent.putExtra("status", 2);
-            
-            ComponentName result = startForegroundService(intent);
-            Log.d(TAG, "✅ Startup test GPS service result: " + result);
-            
-            // Verifică dacă rulează după 2 secunde
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-                for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                    if (EnhancedGPSService.class.getName().equals(service.service.getClassName())) {
-                        Log.d(TAG, "✅ EnhancedGPSService confirmed running after startup test");
-                        return;
-                    }
-                }
-                Log.e(TAG, "❌ EnhancedGPSService NOT running after startup test");
-            }, 2000);
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Startup GPS test failed: " + e.getMessage(), e);
-        }
-    }
+
 
     /**
      * WebView JavaScript Interface pentru controlul GPS-ului
@@ -87,6 +66,12 @@ public class MainActivity extends BridgeActivity {
             Log.d(TAG, "Token: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
             
             try {
+                // Validare parametri
+                if (courseId == null || uit == null || authToken == null) {
+                    Log.e(TAG, "Invalid parameters for GPS service");
+                    return "ERROR: Invalid parameters";
+                }
+                
                 Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
                 intent.setAction("START_TRACKING");
                 intent.putExtra("courseId", courseId);
@@ -95,11 +80,16 @@ public class MainActivity extends BridgeActivity {
                 intent.putExtra("authToken", authToken);
                 intent.putExtra("status", status);
                 
-                startForegroundService(intent);
-                Log.d(TAG, "✅ EnhancedGPSService started successfully via WebView interface");
-                return "SUCCESS: GPS service started for course " + courseId;
+                ComponentName result = startForegroundService(intent);
+                if (result != null) {
+                    Log.d(TAG, "✅ EnhancedGPSService started successfully via WebView interface");
+                    return "SUCCESS: GPS service started for course " + courseId;
+                } else {
+                    Log.e(TAG, "Failed to start GPS service - result is null");
+                    return "ERROR: Service start failed";
+                }
             } catch (Exception e) {
-                Log.e(TAG, "❌ Failed to start GPS service: " + e.getMessage());
+                Log.e(TAG, "❌ Failed to start GPS service: " + e.getMessage(), e);
                 return "ERROR: " + e.getMessage();
             }
         }
