@@ -70,19 +70,34 @@ class DirectAndroidGPSService {
         gsm_signal: "4G"
       };
       
-      const response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}/gps.php`,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${course.token}`,
-          'Accept': 'application/json',
-          'Cache-Control': 'no-cache'
-        },
-        data: gpsPayload
-      });
+      // Try native HTTP first - PURE JAVA EFFICIENCY
+      if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
+        console.log('🔥 Using native HTTP for status update - Direct Java HTTP');
+        const result = (window as any).AndroidGPS.postNativeHttp(
+          `${API_BASE_URL}/gps.php`,
+          JSON.stringify(gpsPayload),
+          course.token
+        );
+        
+        if (!result || result.includes('error') || result.includes('Error')) {
+          throw new Error(`Native HTTP error: ${result}`);
+        }
+      } else {
+        // Fallback to CapacitorHttp - Heavier but functional
+        const response = await CapacitorHttp.post({
+          url: `${API_BASE_URL}/gps.php`,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${course.token}`,
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+          },
+          data: gpsPayload
+        });
 
-      if (response.status < 200 || response.status >= 300) {
-        throw new Error(`Server error ${response.status}: ${JSON.stringify(response.data)}`);
+        if (response.status < 200 || response.status >= 300) {
+          throw new Error(`Server error ${response.status}: ${JSON.stringify(response.data)}`);
+        }
       }
       let result;
       try {
