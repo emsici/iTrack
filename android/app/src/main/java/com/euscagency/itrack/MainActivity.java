@@ -31,10 +31,16 @@ public class MainActivity extends BridgeActivity {
         
         // Add AndroidGPS interface to WebView for JavaScript access
         try {
-            getBridge().getWebView().addJavascriptInterface(new AndroidGPS(), "AndroidGPS");
-            Log.d(TAG, "AndroidGPS WebView interface added successfully");
+            AndroidGPS androidGPSInterface = new AndroidGPS();
+            getBridge().getWebView().addJavascriptInterface(androidGPSInterface, "AndroidGPS");
+            Log.d(TAG, "✅ AndroidGPS WebView interface added successfully");
+            Log.d(TAG, "AndroidGPS interface methods available:");
+            Log.d(TAG, "- startGPS: available");
+            Log.d(TAG, "- stopGPS: available");
+            Log.d(TAG, "- updateStatus: available");
+            Log.d(TAG, "- clearAllOnLogout: available");
         } catch (Exception e) {
-            Log.e(TAG, "Failed to add AndroidGPS interface: " + e.getMessage(), e);
+            Log.e(TAG, "❌ Failed to add AndroidGPS interface: " + e.getMessage(), e);
         }
         
         Log.d(TAG, "iTrack MainActivity initialized with WebView GPS interface");
@@ -63,11 +69,10 @@ public class MainActivity extends BridgeActivity {
             try {
                 // Validare parametri
                 if (courseId == null || uit == null || authToken == null) {
-                    Log.e(TAG, "❌ Invalid parameters for GPS service");
+                    Log.e(TAG, "Invalid parameters for GPS service");
                     return "ERROR: Invalid parameters";
                 }
                 
-                Log.d(TAG, "📡 Creating Intent for EnhancedGPSService...");
                 Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
                 intent.setAction("START_TRACKING");
                 intent.putExtra("courseId", courseId);
@@ -76,16 +81,12 @@ public class MainActivity extends BridgeActivity {
                 intent.putExtra("authToken", authToken);
                 intent.putExtra("status", status);
                 
-                Log.d(TAG, "🚀 Starting foreground service...");
                 ComponentName result = startForegroundService(intent);
-                Log.d(TAG, "🔄 Service start result: " + result);
-                
                 if (result != null) {
                     Log.d(TAG, "✅ EnhancedGPSService started successfully via WebView interface");
-                    Log.d(TAG, "📍 GPS should now transmit coordinates to gps.php every 5 seconds");
                     return "SUCCESS: GPS service started for course " + courseId;
                 } else {
-                    Log.e(TAG, "❌ Failed to start GPS service - result is null");
+                    Log.e(TAG, "Failed to start GPS service - result is null");
                     return "ERROR: Service start failed";
                 }
             } catch (Exception e) {
