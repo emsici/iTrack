@@ -267,6 +267,26 @@ public class SimpleGPSService extends Service implements LocationListener {
         }
     }
 
+    /**
+     * Clear all active courses (called during logout)
+     */
+    private void clearAllCourses() {
+        Log.d(TAG, "=== CLEAR_ALL_COURSES ===");
+        activeCourses.clear();
+        isTracking = false;
+        
+        if (gpsHandler != null && gpsRunnable != null) {
+            gpsHandler.removeCallbacks(gpsRunnable);
+        }
+        if (locationManager != null) {
+            locationManager.removeUpdates(this);
+        }
+        
+        stopForeground(true);
+        stopSelf();
+        Log.d(TAG, "✅ All courses cleared and GPS Service stopped");
+    }
+
     private void createNotificationChannel() {
         NotificationChannel channel = new NotificationChannel(
             CHANNEL_ID,
