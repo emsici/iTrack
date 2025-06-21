@@ -110,20 +110,16 @@ class DirectAndroidGPSService {
     this.activeCourses.set(courseId, courseData);
 
     try {
-      // PRIORITATE: Android nativ pentru GPS real în background
+      // DOAR Android nativ - fără fallback web
       if (Capacitor.isNativePlatform()) {
-        console.log("📱 Native Android platform detected - starting background GPS service");
+        console.log("Native Android platform - starting EnhancedGPSService");
         await this.startAndroidNativeService(courseData);
-        console.log("✅ Android native GPS service started - no fallback needed");
-        return; // Exit early - only native GPS should run
+        console.log("Android native GPS service started successfully");
+      } else {
+        throw new Error("GPS requires native Android platform - web GPS not supported");
       }
-
-      // Browser testing - doar pentru dezvoltare
-      console.log("🌐 Browser environment - starting web GPS for testing only");
-      await this.startWebCompatibleGPS(courseData);
-      console.log("⚠️ Web GPS active - this won't work with phone locked");
     } catch (error) {
-      console.error(`❌ GPS start failed completely:`, error);
+      console.error(`GPS start failed:`, error);
       this.activeCourses.delete(courseId);
       throw error;
     }
@@ -150,57 +146,22 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    console.log("=== STARTING ANDROID NATIVE GPS SERVICE ===");
-    console.log(`Course ID: ${course.courseId}`);
-    console.log(`Vehicle: ${course.vehicleNumber}`);
-    console.log(`UIT: ${course.uit}`);
-    console.log(`Status: ${course.status} (${course.status === 2 ? 'ACTIVE' : course.status === 3 ? 'PAUSED' : 'OTHER'})`);
-    console.log(`Token: ${course.token.substring(0, 20)}...`);
+    console.log("Starting Android native GPS service");
+    console.log(`Course: ${course.courseId}, UIT: ${course.uit}, Status: ${course.status}`);
 
-    try {
-      // Cerere permisiuni GPS prin Capacitor
-      console.log("Requesting GPS permissions...");
-      const permissions = await Geolocation.requestPermissions();
-      console.log("GPS permissions result:", permissions);
-
-      if (permissions.location === "granted") {
-        console.log("GPS permissions granted - starting location tracking");
-
-        // Start location tracking pentru a activa serviciul
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000,
-        });
-
-        console.log("Current position obtained:", {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        });
-
-        // Activare serviciu Android nativ direct
-        if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-          const result = (window as any).AndroidGPS.startGPS(
-            course.courseId,
-            course.vehicleNumber, 
-            course.uit,
-            course.token,
-            course.status
-          );
-          console.log("AndroidGPS.startGPS result:", result);
-          console.log("EnhancedGPSService activated for background GPS");
-        } else {
-          throw new Error("AndroidGPS interface not available");
-        }
-
-        console.log("EnhancedGPSService activated for UIT:", course.uit);
-        console.log("GPS will transmit every 5 seconds to server");
-      } else {
-        throw new Error("GPS permissions not granted");
-      }
-    } catch (error) {
-      console.error("Failed to start GPS tracking:", error);
-      throw error;
+    // DOAR serviciul nativ Android - fără web APIs
+    if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
+      const result = (window as any).AndroidGPS.startGPS(
+        course.courseId,
+        course.vehicleNumber, 
+        course.uit,
+        course.token,
+        course.status
+      );
+      console.log("AndroidGPS.startGPS result:", result);
+      console.log("EnhancedGPSService activated - GPS will transmit every 5 seconds");
+    } else {
+      throw new Error("AndroidGPS interface not available");
     }
   }
 
@@ -247,8 +208,7 @@ class DirectAndroidGPSService {
 
 
 
-  private async startWebCompatibleGPS(course: ActiveCourse): Promise<void> {
-    console.log("🌐 Starting GPS transmission every 5 seconds");
+  // ELIMINAT: Web GPS nu funcționează în background
 
     // Request location permission first
     try {
