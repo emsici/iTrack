@@ -217,6 +217,8 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Multi-course logic verificat**: Suport simultan pentru multiple UIT-uri active - fiecare cu propriul token și status independent
 - **Date reale GPS implementate**: getBatteryLevel() citește bateria reală, getSignalStrength() detectează tipul rețelei (LTE/3G/2G)
 - **Permisiuni Android actualizate**: BATTERY_STATS, READ_PHONE_STATE, ACCESS_NETWORK_STATE pentru date autentice
+- **GPS transmission verificată**: Token valid `+40722222222`, request corect Bearer JSON POST, server răspunde HTTP 200
+- **Response handling îmbunătățit**: Verifică răspunsul "1" pentru confirmare acceptare coordonate GPS
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin

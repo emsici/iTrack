@@ -362,16 +362,32 @@ public class EnhancedGPSService extends Service implements LocationListener {
         httpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Log.e(TAG, "GPS transmission failed", e);
+                Log.e(TAG, "GPS transmission failed - Network error", e);
                 // TODO: Save to offline storage
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body() != null ? response.body().string() : "";
+                
                 if (response.isSuccessful()) {
-                    Log.d(TAG, "GPS transmission successful");
+                    Log.d(TAG, "GPS transmission successful - HTTP " + response.code());
+                    Log.d(TAG, "Server response: '" + responseBody + "' (length: " + responseBody.length() + ")");
+                    
+                    if ("1".equals(responseBody.trim())) {
+                        Log.d(TAG, "✓ GPS coordinates accepted by server");
+                    } else if (responseBody.trim().isEmpty()) {
+                        Log.w(TAG, "⚠ Server returned empty response (expected '1')");
+                    } else {
+                        Log.w(TAG, "⚠ Unexpected server response: '" + responseBody + "' (expected '1')");
+                    }
                 } else {
-                    Log.w(TAG, "GPS transmission failed: " + response.code());
+                    Log.w(TAG, "GPS transmission failed - HTTP " + response.code());
+                    Log.w(TAG, "Error response: '" + responseBody + "'");
+                    
+                    if (response.code() == 401) {
+                        Log.e(TAG, "Authentication failed - Token expired or invalid");
+                    }
                 }
                 response.close();
             }
