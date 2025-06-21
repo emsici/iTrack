@@ -470,55 +470,51 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""}`}>
       {!coursesLoaded ? (
         <>
-          <div className="vehicle-screen-header">
-            <div className="header-brand">
-              <div
-                className="header-logo-corporate"
-                onClick={handleTimestampClick}
-                title=""
-              >
-                <div className="corporate-emblem-small">
-                  <div className="emblem-ring-small">
-                    <div className="emblem-core-small">
-                      <div className="emblem-center-small">
-                        <i className="fas fa-truck"></i>
-                      </div>
-                    </div>
-                  </div>
+          <div className="corporate-header-professional">
+            <div className="header-brand-section">
+              <div className="brand-logo-container" onClick={handleTimestampClick}>
+                <div className="logo-emblem">
+                  <i className="fas fa-truck"></i>
+                </div>
+                <div className="brand-text">
+                  <span className="brand-name">iTrack</span>
+                  <span className="brand-subtitle">GPS Fleet Management</span>
                 </div>
               </div>
-              <div className="header-text-section"></div>
-
             </div>
 
-            <div className="header-vehicle-form">
-              <div className="vehicle-input-container">
-                <input
-                  type="text"
-                  className="header-vehicle-input"
-                  placeholder="Nr. înmatriculare"
-                  value={vehicleNumber}
-                  onChange={(e) => {
-                    const cleanValue = e.target.value
-                      .replace(/[^A-Za-z0-9]/g, "")
-                      .toUpperCase();
-                    setVehicleNumber(cleanValue);
-                  }}
-                  onKeyPress={(e) => e.key === "Enter" && handleLoadCourses()}
-                />
-                <button
-                  className={`header-load-btn ${loading ? "loading" : ""}`}
-                  onClick={handleLoadCourses}
-                  disabled={loading || !vehicleNumber.trim()}
-                >
-                  {loading ? (
-                    <i className="fas fa-spinner spinning"></i>
-                  ) : (
-                    <i className="fas fa-search"></i>
-                  )}
-                </button>
+            <div className="header-vehicle-form-section">
+              <div className="vehicle-input-group">
+                <div className="input-field-container">
+                  <i className="fas fa-truck input-icon"></i>
+                  <input
+                    type="text"
+                    className="vehicle-input-professional"
+                    placeholder="Introduceți numărul de înmatriculare"
+                    value={vehicleNumber}
+                    onChange={(e) => {
+                      const cleanValue = e.target.value
+                        .replace(/[^A-Za-z0-9]/g, "")
+                        .toUpperCase();
+                      setVehicleNumber(cleanValue);
+                    }}
+                    onKeyPress={(e) => e.key === "Enter" && handleLoadCourses()}
+                  />
+                  <button
+                    className={`search-button-professional ${loading ? "loading" : ""}`}
+                    onClick={handleLoadCourses}
+                    disabled={loading || !vehicleNumber.trim()}
+                  >
+                    {loading ? (
+                      <i className="fas fa-spinner spinning"></i>
+                    ) : (
+                      <i className="fas fa-search"></i>
+                    )}
+                    <span className="button-text">Încarcă Curse</span>
+                  </button>
+                </div>
+                {error && <div className="error-message-professional">{error}</div>}
               </div>
-              {error && <div className="header-error">{error}</div>}
             </div>
 
 
@@ -526,8 +522,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </>
       ) : (
         <>
-          <div className="vehicle-screen-header">
-            <div className="header-vehicle-display">
+          <div className="corporate-header-professional loaded">
+            <div className="header-brand-section">
+              <div className="brand-logo-container" onClick={handleTimestampClick}>
+                <div className="logo-emblem">
+                  <i className="fas fa-truck"></i>
+                </div>
+                <div className="brand-text">
+                  <span className="brand-name">iTrack</span>
+                  <span className="brand-subtitle">GPS Fleet Management</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="header-vehicle-info">
               <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
                 <i className="fas fa-truck vehicle-icon"></i>
                 <span className="vehicle-number">{vehicleNumber}</span>
