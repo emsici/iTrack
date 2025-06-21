@@ -552,29 +552,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               {error && <div className="header-error">{error}</div>}
             </div>
 
-            <div className="header-actions">
-              <button
-                className="header-icon-btn"
-                onClick={handleLogout}
-                title="Logout"
-              >
-                <i className="fas fa-sign-out-alt"></i>
-                <span>Ieșire</span>
-              </button>
-            </div>
+
           </div>
         </>
       ) : (
         <>
           <div className="vehicle-screen-header">
-            <div className="header-cards-layout">
-              <div className="vehicle-card" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
-                <i className="fas fa-truck" style={{color: '#60a5fa', fontSize: '18px'}}></i>
-                <span style={{color: '#ffffff', fontWeight: '600', fontSize: '16px'}}>{vehicleNumber}</span>
-                <i className="fas fa-edit" style={{color: '#94a3b8', fontSize: '12px', marginLeft: 'auto'}}></i>
+            <div className="header-vehicle-display">
+              <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
+                <i className="fas fa-truck vehicle-icon"></i>
+                <span className="vehicle-number">{vehicleNumber}</span>
+                <i className="edit-icon fas fa-edit"></i>
               </div>
               
-              <div className="logout-card" onClick={handleLogout} title="Logout">
+              <div className="logout-button-card" onClick={handleLogout} title="Logout">
                 <i className="fas fa-sign-out-alt"></i>
               </div>
             </div>

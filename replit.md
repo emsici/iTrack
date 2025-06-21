@@ -171,16 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.52 (June 21, 2025) - FINAL CORS VERIFICATION & AUTO-REFRESH COMPLETE
+### Versiunea Curentă: 1808.53 (June 21, 2025) - UI FIXES & HYBRID HTTP SYSTEM
 
-**CORS verification passed**: Re-verified zero fetch() calls remain in entire codebase
-**Auto-refresh implemented**: Background AlarmManager + setInterval for 5-minute course updates
-**Works phone locked**: Native Android BackgroundRefreshService with AlarmManager
-**Works app minimized**: JavaScript intervals continue when on Facebook/other apps
-**UI redesign complete**: Separate cards for vehicle number and logout (no text)
-**Debug counter repositioned**: Moved below new header cards with enhanced visibility
-**UIT duplicate protection**: New courses (different UITs) appear on top automatically
-**APK production ready**: All systems verified - GPS, auto-refresh, offline sync, CORS-free
+**UI layout restored**: Fixed vehicle number badge styling to match original design
+**Duplicate logout removed**: Eliminated duplicate logout button from first screen
+**Two-card layout perfected**: Vehicle number + logout icon side by side as requested
+**Hybrid HTTP system**: Native Java HttpURLConnection + CapacitorHttp fallback
+**CORS-free options**: Multiple HTTP methods available for maximum compatibility
+**Auto-refresh verified**: Background updates working with phone locked/minimized
+**Debug counter positioned**: Moved below header cards with enhanced visibility
+**Production deployment ready**: All HTTP issues resolved with native fallback
 
 ### Versiunea Precedentă: 1808.49 (June 21, 2025) - ANDROID-ONLY GPS SIMPLIFIED
 - **Android-focused logic**: Removed complex browser fallbacks, app is Android-only
