@@ -8,9 +8,10 @@ import {
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
-import { getOfflineGPSCount, saveGPSCoordinateOffline } from "../services/offlineGPS";
+import { getOfflineGPSCount, saveGPSCoordinateOffline, syncOfflineGPS } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
 import { startCourseAnalytics, stopCourseAnalytics } from "../services/courseAnalytics";
+import { subscribeToSyncProgress } from "../services/offlineSyncStatus";
 
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
 import CourseStatsModal from "./CourseStatsModal";
@@ -33,6 +34,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [debugLogs, setDebugLogs] = useState<any[]>([]);
+  const [syncProgress, setSyncProgress] = useState<any>(null);
+  const [offlineCount, setOfflineCount] = useState(0);
 
   // Load stored vehicle number on component mount
   useEffect(() => {
@@ -394,6 +397,33 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <i className="fas fa-truck vehicle-icon"></i>
                 <span className="vehicle-number">{vehicleNumber}</span>
                 <i className="edit-icon fas fa-edit"></i>
+              </div>
+              
+              {/* Status Online/Offline */}
+              <div className="online-status-display">
+                <div className="status-indicator-wrapper">
+                  <div className={`status-indicator ${isOnline ? "online" : "offline"}`}></div>
+                  <span className="status-text">{isOnline ? "Online" : "Offline"}</span>
+                  {offlineCount > 0 && !syncProgress?.isActive && (
+                    <span className="offline-count-badge">{offlineCount}</span>
+                  )}
+                </div>
+                
+                {/* Progress sincronizare sub status */}
+                {syncProgress && syncProgress.isActive && (
+                  <div className="sync-progress-container">
+                    <div className="sync-info">
+                      <span className="sync-text">Sincronizare: {syncProgress.synced}/{syncProgress.totalToSync}</span>
+                      <span className="sync-percent">({syncProgress.percentage}%)</span>
+                    </div>
+                    <div className="sync-progress-bar">
+                      <div 
+                        className="sync-progress-fill" 
+                        style={{ width: `${syncProgress.percentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
