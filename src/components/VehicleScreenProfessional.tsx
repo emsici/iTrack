@@ -457,7 +457,20 @@ const VehicleScreenProfessional: React.FC<VehicleScreenProps> = ({ token, onLogo
             {/* Internet Status Button */}
             <div className="internet-status-button">
               <div className={`internet-indicator-btn ${isOnline ? 'internet-online' : 'internet-offline'}`}>
-                <i className={`fas ${isOnline ? 'fa-wifi' : 'fa-wifi-slash'}`}></i>
+                <div className="signal-bars">
+                  {isOnline ? (
+                    <>
+                      <div className="signal-bar bar-1"></div>
+                      <div className="signal-bar bar-2"></div>
+                      <div className="signal-bar bar-3"></div>
+                      <div className="signal-bar bar-4"></div>
+                    </>
+                  ) : (
+                    <div className="signal-disconnected">
+                      <i className="fas fa-times"></i>
+                    </div>
+                  )}
+                </div>
                 <span>{isOnline ? 'NET' : 'OFFLINE'}</span>
                 {!isOnline && offlineCount > 0 && (
                   <span className="offline-count-badge">
