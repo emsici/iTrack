@@ -2,32 +2,15 @@
 import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
 import { GPSData, sendGPSData, API_BASE_URL } from './api';
-import { saveGPSCoordinateOffline, syncOfflineGPS, getOfflineGPSCount } from './offlineGPS';
+// Offline GPS functionality handled by Android service
 
 
 
 
 // DirectGPS Plugin pentru activarea EnhancedGPSService
-interface DirectGPSPlugin {
-  startTracking(options: {
-    courseId: string;
-    vehicleNumber: string;
-    uit: string;
-    authToken: string;
-    status: number;
-  }): Promise<{ success: boolean; message: string }>;
+// Legacy interface - replaced by SimpleGPSService
 
-  stopTracking(options: {
-    courseId: string;
-  }): Promise<{ success: boolean; message: string }>;
-
-  updateCourseStatus(options: {
-    courseId: string;
-    status: number;
-  }): Promise<{ success: boolean; message: string }>;
-}
-
-const DirectGPS = Capacitor.registerPlugin<DirectGPSPlugin>("DirectGPS");
+// DirectGPS plugin replaced by SimpleGPSService
 
 interface ActiveCourse {
   courseId: string;
@@ -70,21 +53,24 @@ class DirectAndroidGPSService {
         gsm_signal: "4G"
       };
       
+      let result;
+      
       // Try native HTTP first - PURE JAVA EFFICIENCY
       if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-        console.log('🔥 Using native HTTP for status update - Direct Java HTTP');
-        const result = (window as any).AndroidGPS.postNativeHttp(
+        console.log('Using native HTTP for status update - Direct Java HTTP');
+        const nativeResult = (window as any).AndroidGPS.postNativeHttp(
           `${API_BASE_URL}/gps.php`,
           JSON.stringify(gpsPayload),
           course.token
         );
         
-        if (!result || result.includes('error') || result.includes('Error')) {
-          throw new Error(`Native HTTP error: ${result}`);
+        if (!nativeResult || nativeResult.includes('error') || nativeResult.includes('Error')) {
+          throw new Error(`Native HTTP error: ${nativeResult}`);
         }
+        result = { success: true, message: nativeResult };
       } else {
         // Fallback to CapacitorHttp - Heavier but functional
-        const response = await CapacitorHttp.post({
+        const gpsResponse = await CapacitorHttp.post({
           url: `${API_BASE_URL}/gps.php`,
           headers: {
             'Content-Type': 'application/json',
@@ -95,16 +81,16 @@ class DirectAndroidGPSService {
           data: gpsPayload
         });
 
-        if (response.status < 200 || response.status >= 300) {
-          throw new Error(`Server error ${response.status}: ${JSON.stringify(response.data)}`);
+        if (gpsResponse.status < 200 || gpsResponse.status >= 300) {
+          throw new Error(`Server error ${gpsResponse.status}: ${JSON.stringify(gpsResponse.data)}`);
         }
-      }
-      let result;
-      try {
-        result = JSON.parse(responseText);
-      } catch (parseError) {
-        console.log("Server response (non-JSON):", responseText);
-        result = { message: responseText };
+        
+        try {
+          result = JSON.parse(gpsResponse.data);
+        } catch (parseError) {
+          console.log("Server response (non-JSON):", gpsResponse.data);
+          result = { message: gpsResponse.data };
+        }
       }
       
       console.log("✅ Server status update successful:", result);

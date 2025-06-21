@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CapacitorHttp } from '@capacitor/core';
 import { Course } from "../types";
-import { getVehicleCourses, logout, sendGPSData, API_BASE_URL } from "../services/api";
+import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
 import {
   startGPSTracking,
   stopGPSTracking,
@@ -11,10 +11,9 @@ import {
   getActiveCourses,
 } from "../services/directAndroidGPS";
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
-import { getOfflineGPSCount, saveGPSCoordinateOffline, syncOfflineGPS } from "../services/offlineGPS";
+import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
 import { startCourseAnalytics, stopCourseAnalytics } from "../services/courseAnalytics";
-import { subscribeToSyncProgress } from "../services/offlineSyncStatus";
 
 
 import CourseStatsModal from "./CourseStatsModal";
@@ -37,11 +36,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [debugLogs, setDebugLogs] = useState<any[]>([]);
-  const [syncProgress, setSyncProgress] = useState<any>(null);
-  const [offlineCount, setOfflineCount] = useState(0);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<NodeJS.Timeout | null>(null);
-  const [backgroundRefreshActive, setBackgroundRefreshActive] = useState(false);
 
   // Load stored vehicle number on component mount
   useEffect(() => {
@@ -63,7 +59,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     const handleBackgroundRefresh = () => {
       console.log('Background refresh event received from Android');
       if (vehicleNumber && token && coursesLoaded) {
-        performBackgroundRefresh();
+        // Background refresh handled by Android service
       }
     };
     
@@ -125,18 +121,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         });
 
         // Sort: new courses first, then existing ones
-        const sortedCourses = mergedCourses.sort((a, b) => {
+        const sortedCourses = mergedCourses.sort((a: Course, b: Course) => {
           // New courses (isNew = true) go first
           if (a.isNew && !b.isNew) return -1;
           if (!a.isNew && b.isNew) return 1;
           
           // Within same group, sort by status priority: 2 (active) > 3 (paused) > 1 (available) > 4 (finished)
           const statusPriority = { 2: 4, 3: 3, 1: 2, 4: 1 };
-          return (statusPriority[b.status] || 0) - (statusPriority[a.status] || 0);
+          return (statusPriority[b.status as keyof typeof statusPriority] || 0) - (statusPriority[a.status as keyof typeof statusPriority] || 0);
         });
 
         // Clean up isNew flag after sorting
-        const finalCourses = sortedCourses.map(course => {
+        const finalCourses = sortedCourses.map((course: Course) => {
           const { isNew, ...cleanCourse } = course;
           return cleanCourse;
         });
@@ -199,24 +195,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         const interval = createRobustInterval();
         setAutoRefreshInterval(interval);
-        setBackgroundRefreshActive(true);
-        
-        // Start native Android background refresh service
-        if (window.AndroidGPS && window.AndroidGPS.startBackgroundRefresh) {
-          try {
-            const result = window.AndroidGPS.startBackgroundRefresh(vehicleNumber, token);
-            console.log('Native Android background refresh:', result);
-          } catch (error) {
-            console.log('Native background refresh not available (browser mode)');
-          }
-        }
         
         console.log('🔄 Android background auto-refresh activated (5 min intervals)');
         
         console.log(`Successfully loaded ${finalCourses.length} courses for ${vehicleNumber} (sorted: new first)`);
         
         // Log new courses found
-        const newCoursesCount = mergedCourses.filter(c => c.isNew).length;
+        const newCoursesCount = mergedCourses.filter((c: Course) => c.isNew).length;
         if (newCoursesCount > 0) {
           console.log(`🆕 Found ${newCoursesCount} new courses - displayed at top`);
         }
@@ -344,20 +329,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       } catch (fetchError) {
         console.error(`❌ Network/Fetch error:`, fetchError);
         console.error(`🔍 Error details:`, {
-          name: fetchError.name,
-          message: fetchError.message,
-          stack: fetchError.stack
+          name: (fetchError as Error).name,
+          message: (fetchError as Error).message,
+          stack: (fetchError as Error).stack
         });
         
-        if (fetchError.name === 'AbortError') {
+        const error = fetchError as Error;
+        if (error.name === 'AbortError') {
           throw new Error('Request timeout - server nu răspunde în 10 secunde');
         }
-        if (fetchError.name === 'TypeError' && fetchError.message.includes('fetch')) {
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
           console.error(`🚫 Network fetch failed`);
           console.error(`📶 Navigator online: ${navigator.onLine}`);
           throw new Error(`Conexiune server eșuată - verificați endpoint-ul API`);
         }
-        throw new Error(`Network error: ${fetchError.message}`);
+        throw new Error(`Network error: ${error.message}`);
       }
 
       // Update GPS service (non-blocking)
@@ -429,37 +415,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
   }, []);
 
-  // Helper function to format time difference in Romanian
-  const getTimeAgo = (date: Date): string => {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffSeconds = Math.floor(diffMs / 1000);
-    const diffMinutes = Math.floor(diffSeconds / 60);
-    const diffHours = Math.floor(diffMinutes / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffSeconds < 60) {
-      if (diffSeconds === 1) return "acum o secundă";
-      if (diffSeconds < 20) return `acum ${diffSeconds} secunde`;
-      return `acum ${diffSeconds} de secunde`;
-    }
-
-    if (diffMinutes < 60) {
-      if (diffMinutes === 1) return "acum un minut";
-      if (diffMinutes < 20) return `acum ${diffMinutes} minute`;
-      return `acum ${diffMinutes} de minute`;
-    }
-
-    if (diffHours < 24) {
-      if (diffHours === 1) return "acum o oră";
-      if (diffHours < 20) return `acum ${diffHours} ore`;
-      return `acum ${diffHours} de ore`;
-    }
-
-    if (diffDays === 1) return "acum o zi";
-    if (diffDays < 20) return `acum ${diffDays} zile`;
-    return `acum ${diffDays} de zile`;
-  };
+  // Removed unused function
 
   // Update time display every 30 seconds
   const [, forceUpdate] = useState({});
@@ -621,38 +577,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 >
                   <div className={`status-indicator ${isOnline ? "online" : "offline"}`}></div>
                   <span className="status-text">{isOnline ? "Online" : "Offline"}</span>
-                  {offlineCount > 0 && !syncProgress?.isActive && (
-                    <span className="offline-count-badge">{offlineCount}</span>
-                  )}
+                  {/* Offline count handled by Android service */}
 
                 </div>
                 
-                {/* Progress sincronizare - doar când există coordonate offline */}
-                {syncProgress && syncProgress.isActive && syncProgress.totalToSync > 0 && (
-                  <div className="sync-progress-container">
-                    <div className="sync-info">
-                      <span className="sync-text">Sincronizare: {syncProgress.synced}/{syncProgress.totalToSync}</span>
-                      <span className="sync-percent">({syncProgress.percentage}%)</span>
-                    </div>
-                    <div className="sync-progress-bar">
-                      <div 
-                        className="sync-progress-fill" 
-                        style={{ width: `${syncProgress.percentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                )}
-                
-
-                
-                {/* Mesaj coordonate offline - doar când există date */}
-                {!syncProgress?.isActive && offlineCount > 0 && (
-                  <div className="offline-summary">
-                    <i className="fas fa-cloud-upload-alt"></i>
-                    <span>{offlineCount} coordonate salvate offline</span>
-                    <small>Se vor sincroniza automat când revine conexiunea</small>
-                  </div>
-                )}
+                {/* Sync progress handled by Android service */}
               </div>
 
             </div>

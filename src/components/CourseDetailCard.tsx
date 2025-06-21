@@ -121,15 +121,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     }
   };
 
-  const getStatusIcon = (status: number) => {
-    switch (status) {
-      case 1: return 'fas fa-clock';
-      case 2: return 'fas fa-play-circle';
-      case 3: return 'fas fa-pause-circle';
-      case 4: return 'fas fa-stop-circle';
-      default: return 'fas fa-question-circle';
-    }
-  };
+
 
   return (
     <div className="course-card-compact">
@@ -505,14 +497,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         <div className="preview-row">
           <span className="preview-label">Plecare:</span>
           <span className="preview-value">
-            {course.Vama || course.vama || 'N/A'}
+            {course.vama || 'N/A'}
           </span>
         </div>
         
         <div className="preview-row">
           <span className="preview-label">Sosire:</span>
           <span className="preview-value">
-            {course.VamaStop || course.vamaStop || course.denumireLocStop || 'N/A'}
+            {course.vamaStop || course.denumireLocStop || 'N/A'}
           </span>
         </div>
         
@@ -577,7 +569,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               </h6>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Vamă:</span>
-                <span className="detail-value-enhanced">{course.Vama || course.vama || 'N/A'}</span>
+                <span className="detail-value-enhanced">{course.vama || 'N/A'}</span>
               </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Birou Vamal:</span>
@@ -600,7 +592,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               </h6>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Vamă Stop:</span>
-                <span className="detail-value-enhanced">{course.VamaStop || course.vamaStop || 'N/A'}</span>
+                <span className="detail-value-enhanced">{course.vamaStop || 'N/A'}</span>
               </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Birou Vamal Stop:</span>

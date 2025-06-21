@@ -68,9 +68,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
     }
   };
 
-  const clearLogs = () => {
-    setLogs([]);
-  };
+
 
   return (
     <div style={{
