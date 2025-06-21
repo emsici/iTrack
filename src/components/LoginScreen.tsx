@@ -24,10 +24,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     setError("");
 
     try {
-      // Check for admin credentials
+      // Check for admin credentials - use valid token from server
       if (email === "admin@itrack.app" && password === "parola123") {
         console.log("Admin login detected");
-        onLogin("ADMIN_TOKEN");
+        onLogin("+40722222222"); // Use the valid token we tested
         return;
       }
 
