@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.27 (June 21, 2025) - COMPLETE NATIVE GPS CYCLE
+### Versiunea Curentă: 1808.28 (June 21, 2025) - STATUS UPDATE API REPARAT
+- **Reparat updateCourseStatus**: Funcția trimite acum status la server prin gps.php înainte de AndroidGPS
+- **API consistent**: Folosește același endpoint gps.php ca VehicleScreenProfessional pentru status updates
+- **Eliminat eroarea**: Funcția updateCourseStatus avea doar AndroidGPS, acum are și call-ul de server complet
+- **Timeout handling**: AbortSignal.timeout(15000) pentru request-uri stabile către server
+- **Logica completă**: Server update → AndroidGPS → EnhancedGPSService pentru toate operațiile PAUSE/STOP
+
+### Versiunea Precedentă: 1808.27 (June 21, 2025) - COMPLETE NATIVE GPS CYCLE
 - **Eliminat complet WebCompatibleGPS**: Funcția startWebCompatibleGPS și testGPSTransmission complet eliminate
 - **Ciclu GPS nativ complet**: START/RESUME/PAUSE/STOP toate folosesc exclusiv AndroidGPS interface
 - **Parametri reparați**: startGPSTracking cu ordinea corectă (courseId, vehicleNumber, token, uit, status)

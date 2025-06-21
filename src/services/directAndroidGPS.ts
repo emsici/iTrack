@@ -1,7 +1,7 @@
 // GPS direct Android prin Capacitor plugin - funcționează în background
 import { Capacitor } from "@capacitor/core";
 import { Geolocation } from "@capacitor/geolocation";
-import { GPSData, sendGPSData } from './api';
+import { GPSData, sendGPSData, API_BASE_URL } from './api';
 import { saveGPSCoordinateOffline, syncOfflineGPS, getOfflineGPSCount } from './offlineGPS';
 
 
@@ -53,7 +53,52 @@ class DirectAndroidGPSService {
     course.status = newStatus;
 
     try {
-      // EXCLUSIV AndroidGPS pentru toate operațiile
+      // 1. TRIMITE STATUS LA SERVER prin gps.php (cum face și VehicleScreenProfessional)
+      console.log(`📡 Updating course status on server: ${courseId} → ${newStatus}`);
+      const gpsPayload = {
+        lat: "0.000000", // Coordonate dummy pentru status update
+        lng: "0.000000",
+        timestamp: new Date().toISOString(),
+        viteza: 0,
+        directie: 0,
+        altitudine: 0,
+        baterie: 100,
+        numar_inmatriculare: course.vehicleNumber,
+        uit: course.uit,
+        status: newStatus.toString(),
+        hdop: "1.0",
+        gsm_signal: "4G"
+      };
+      
+      const response = await fetch(`${API_BASE_URL}/gps.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${course.token}`,
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache'
+        },
+        body: JSON.stringify(gpsPayload),
+        signal: AbortSignal.timeout(15000)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Server error ${response.status}: ${errorText}`);
+      }
+
+      const responseText = await response.text();
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.log("Server response (non-JSON):", responseText);
+        result = { message: responseText };
+      }
+      
+      console.log("✅ Server status update successful:", result);
+
+      // 2. APOI ANDROIDGPS PENTRU ENHANCED GPS SERVICE
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
         console.log("✅ AndroidGPS.updateStatus called for EnhancedGPSService");
         (window as any).AndroidGPS.updateStatus(courseId, newStatus);
