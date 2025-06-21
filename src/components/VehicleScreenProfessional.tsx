@@ -36,6 +36,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [debugLogs, setDebugLogs] = useState<any[]>([]);
   const [syncProgress, setSyncProgress] = useState<any>(null);
   const [offlineCount, setOfflineCount] = useState(0);
+  const [lastRefreshTime, setLastRefreshTime] = useState<string | null>(null);
 
   // Load stored vehicle number on component mount
   useEffect(() => {
@@ -124,6 +125,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         setCourses(finalCourses);
         setError("");
         setCoursesLoaded(true);
+        
+        // Update last refresh timestamp
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('ro-RO', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        setLastRefreshTime(timeString);
+        
         console.log(`Successfully loaded ${finalCourses.length} courses for ${vehicleNumber} (sorted: new first)`);
         
         // Log new courses found
