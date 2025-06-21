@@ -4,7 +4,7 @@
  */
 
 import { Preferences } from '@capacitor/preferences';
-import { CapacitorHttp } from '@capacitor/core';
+// Removed CapacitorHttp - using native HTTP or fetch
 import { GPSData } from './api';
 
 export interface OfflineGPSCoordinate {

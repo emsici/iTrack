@@ -171,16 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.60 (June 22, 2025) - NATIVE HTTP IMPLEMENTATION COMPLETE
+### Versiunea Curentă: 1808.61 (June 22, 2025) - CAPACITORHTTP COMPLETELY ELIMINATED
 
-**AndroidGPS.java implementation**: Complete Java implementation with postNativeHttp and getNativeHttp methods
-**Bearer token automatic**: Java automatically adds Bearer prefix to all authenticated requests
-**Context management fixed**: MainActivity.getContext() static method for proper Android context access
-**Pure Java networking**: HttpURLConnection implementation bypasses all CORS restrictions in APK
-**Browser fallback maintained**: CapacitorHttp used only in browser development, native HTTP in production APK
-**401 handling comprehensive**: Token expiration triggers automatic logout and token cleanup
-**Status 204 acceptance**: All success codes (200, 201, 204) accepted for GPS updates
-**Production ready**: Complete native HTTP stack ready for APK deployment with maximum efficiency
+**CapacitorHttp removed completely**: All API calls now use pure native HTTP in APK with fetch fallback in browser
+**Zero CORS issues**: Native Java HttpURLConnection bypasses all web-based networking restrictions
+**Simplified architecture**: No more hybrid HTTP systems - single clean implementation path
+**Login native**: Email/password authentication uses AndroidGPS.postNativeHttp in APK
+**Courses native**: Vehicle course loading uses AndroidGPS.getNativeHttp in APK
+**GPS native**: All GPS transmissions use pure Java networking with Bearer token automatic
+**Logout native**: Session termination uses native HTTP with proper token cleanup
+**Browser development**: Fetch API used only for development, production APK is 100% native
 
 ### Versiunea Precedentă: 1808.53 (June 21, 2025) - UI FIXES & HYBRID HTTP SYSTEM
 
