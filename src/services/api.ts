@@ -115,28 +115,10 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
     }
   }
   
-  // Demo mode handling
-  if (token.startsWith('DEMO_TOKEN_')) {
-    console.log('Demo mode: Using sample data for vehicle', vehicleNumber);
-    
-    if (vehicleNumber.toUpperCase() === 'IF03CWT') {
-      return [{
-        id: "demo_001",
-        name: "Cursă Demo",
-        departure_location: "București",
-        destination_location: "Cluj-Napoca", 
-        departure_time: "08:00",
-        arrival_time: "14:00",
-        description: "Transport marfă",
-        status: 1,
-        uit: "DEMO123456789",
-        nrVehicul: "IF03CWT",
-        dataTransport: new Date().toISOString().split('T')[0],
-        denumireDeclarant: "Demo Transport SRL"
-      }];
-    } else {
-      return []; // No courses for other vehicles in demo
-    }
+  // Admin mode - use actual API but with admin token
+  if (token === 'ADMIN_TOKEN') {
+    console.log('Admin mode: Using actual API data');
+    // Continue with normal API flow using real server data
   }
   
   // Set global lock and create new request

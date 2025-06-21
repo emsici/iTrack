@@ -24,10 +24,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     setError("");
 
     try {
-      // Check for demo credentials first
+      // Check for admin credentials for debugging access
       if (email === "admin@itrack.app" && password === "parola123") {
-        console.log("Demo login detected - bypassing server auth");
-        onLogin("DEMO_TOKEN_" + Date.now());
+        console.log("Admin login detected");
+        onLogin("ADMIN_TOKEN");
         return;
       }
 
