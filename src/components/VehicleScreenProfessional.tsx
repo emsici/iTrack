@@ -204,90 +204,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`UIT REAL: ${courseToUpdate.uit}, Vehicle: ${vehicleNumber}`);
       console.log(`Token available: ${!!token}, Token length: ${token?.length || 0}`);
 
-      // Update server status first
-      try {
-        // Use gps.php with GPS payload format but status update
-        const gpsUrl = `${API_BASE_URL}/gps.php`;
-        console.log(`🔄 Sending status update to gps.php: ${gpsUrl}`);
-        
-        const gpsPayload = {
-          lat: "0.000000", // Dummy coordinates for status update
-          lng: "0.000000",
-          timestamp: new Date().toISOString(),
-          viteza: 0,
-          directie: 0,
-          altitudine: 0,
-          baterie: 100,
-          numar_inmatriculare: vehicleNumber,
-          uit: courseToUpdate.uit,
-          status: newStatus.toString(),
-          hdop: "1.0",
-          gsm_signal: "4G"
-        };
-        
-        console.log(`📦 GPS Status payload:`, gpsPayload);
-        
-        const response = await fetch(gpsUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-            'Cache-Control': 'no-cache'
-          },
-          body: JSON.stringify(gpsPayload),
-          signal: AbortSignal.timeout(15000) // 15 second timeout
-        });
-
-        console.log(`📡 Response status: ${response.status} ${response.statusText}`);
-        console.log(`📋 Response headers:`, Object.fromEntries(response.headers.entries()));
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`❌ Server error ${response.status}:`, errorText);
-          console.error(`🔍 Full response:`, {
-            status: response.status,
-            statusText: response.statusText,
-            headers: Object.fromEntries(response.headers.entries()),
-            body: errorText
-          });
-          throw new Error(`Server error ${response.status}: ${errorText}`);
-        }
-
-        const responseText = await response.text();
-        console.log(`📥 Raw response text:`, responseText);
-        
-        let result;
-        try {
-          result = JSON.parse(responseText);
-          console.log(`✅ Parsed response:`, result);
-        } catch (parseError) {
-          console.error(`❌ JSON parse error:`, parseError);
-          console.error(`📄 Raw response that failed to parse:`, responseText);
-          throw new Error(`Invalid JSON response: ${responseText}`);
-        }
-
-        if (result.status !== 'success' && !result.success) {
-          throw new Error(result.message || result.error || 'Server rejected status update');
-        }
-      } catch (fetchError) {
-        console.error(`❌ Network/Fetch error:`, fetchError);
-        console.error(`🔍 Error details:`, {
-          name: fetchError.name,
-          message: fetchError.message,
-          stack: fetchError.stack
-        });
-        
-        if (fetchError.name === 'AbortError') {
-          throw new Error('Request timeout - server nu răspunde în 10 secunde');
-        }
-        if (fetchError.name === 'TypeError' && fetchError.message.includes('fetch')) {
-          console.error(`🚫 Network fetch failed`);
-          console.error(`📶 Navigator online: ${navigator.onLine}`);
-          throw new Error(`Network error - verificați conexiunea la internet și permisiunile aplicației`);
-        }
-        throw new Error(`Network error: ${fetchError.message}`);
-      }
+      // ELIMINAT: WebView fetch care cauza CORS errors
+      // Status updates se fac prin serviciul Android nativ în directAndroidGPS.ts
+      console.log(`✅ Status update will be handled by Android native service`);
+      console.log(`🚫 WebView fetch eliminated to prevent CORS errors`);
 
       // Update GPS service (non-blocking)
       try {

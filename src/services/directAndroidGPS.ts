@@ -49,6 +49,21 @@ class DirectAndroidGPSService {
       return;
     }
 
+    // Update status prin serviciul Android nativ pentru a evita CORS
+    if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
+      console.log("✅ Using AndroidGPS.updateStatus - no CORS issues");
+      const result = (window as any).AndroidGPS.updateStatus(courseId, newStatus);
+      console.log("📱 AndroidGPS.updateStatus result:", result);
+      
+      // Update local course data
+      course.status = newStatus;
+      console.log(`✅ Course ${courseId} status updated to ${newStatus} via Android service`);
+    } else {
+      console.log("❌ AndroidGPS.updateStatus not available - check MainActivity.java");
+      // Update doar local data dacă nu avem interfață nativă
+      course.status = newStatus;
+    }
+
     const oldStatus = course.status;
     course.status = newStatus;
 

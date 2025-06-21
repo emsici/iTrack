@@ -171,8 +171,12 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.29 (June 21, 2025) - GPS FLUX COMPLET REPARAT: PARAMETRI & BACKGROUND SERVICE
-- **Eliminat iconița statistici**: Scos al 5-lea card cu iconița fa-chart-line din dashboard pentru design mai curat
+### Versiunea Curentă: 1808.30 (June 21, 2025) - CORS ERROR ELIMINAT DEFINITIV: NATIVE ANDROID ONLY
+- **CORS error eliminat definitiv**: Scos complet WebView fetch din VehicleScreenProfessional.tsx care cauza CORS policy errors
+- **Doar serviciul Android nativ**: Status updates se fac exclusiv prin AndroidGPS.updateStatus() pentru evitarea CORS
+- **Flux GPS curat**: Eliminat codul duplicat și fallback-urile web care interferau cu serviciul nativ
+- **WebView interface optimizat**: MainActivity.java updateStatus() funcționează direct cu EnhancedGPSService
+- **Zero CORS issues**: Aplicația nu mai folosește fetch/XMLHttpRequest pentru gps.php din WebView
 - **Eliminat indicator Online/Offline redundant**: Scos statusul de conectivitate din header, păstrat doar cel functional pentru debug (50 click-uri)
 - **Eliminat OfflineGPSMonitor**: Scos complet mesajul "GPS activ - toate datele sincronizate" de sub cardurile de transport
 - **Optimizat carduri de cursă**: Redesigned CourseDetailCard cu preview (UIT, rută, județe, declarant) și dropdown pentru detalii complete
