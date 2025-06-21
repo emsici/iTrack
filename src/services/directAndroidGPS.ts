@@ -52,27 +52,34 @@ class DirectAndroidGPSService {
     const oldStatus = course.status;
     course.status = newStatus;
 
-    // Update status DOAR o singură dată prin serviciul Android nativ
-    if (Capacitor.isNativePlatform() && (window as any).AndroidGPS?.updateStatus) {
-      console.log(`=== SINGLE STATUS UPDATE: ${courseId} → ${newStatus} ===`);
-      const result = (window as any).AndroidGPS.updateStatus(courseId, newStatus);
-      console.log("📱 AndroidGPS.updateStatus result:", result);
-      
-      // Logica pentru status:
-      if (newStatus === 2) {
-        console.log("📍 RESUME: Continuous GPS transmission started");
-      } else if (newStatus === 3) {
-        console.log("⏸️ PAUSE: Single status update sent, GPS stopped");
-      } else if (newStatus === 4) {
-        console.log("🏁 FINISH: Final status sent, removing from active courses");
-        setTimeout(() => {
-          this.activeCourses.delete(courseId);
-        }, 3000);
+    try {
+      if (Capacitor.isNativePlatform()) {
+        // Pentru Android nativ, folosește UPDATE_STATUS action
+        // Folosește interfața WebView direct
+        if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
+          (window as any).AndroidGPS.updateStatus(courseId, newStatus);
+        } else {
+          console.warn('AndroidGPS interface not available');
+        }
+        
+        // Logica pentru status:
+        if (newStatus === 2) {
+          console.log("📍 RESUME: Continuous GPS transmission started");
+        } else if (newStatus === 3) {
+          console.log("⏸️ PAUSE: Single status update sent, GPS stopped");
+        } else if (newStatus === 4) {
+          console.log("🏁 FINISH: Final status sent, removing from active courses");
+          setTimeout(() => {
+            this.activeCourses.delete(courseId);
+          }, 3000);
+        }
+      } else {
+        console.log(`🌐 Web environment: Status ${newStatus} update completed (no native GPS)`);
       }
-      
-      console.log(`✅ Status ${newStatus} sent ONCE for course ${courseId}`);
-    } else {
-      console.log("❌ AndroidGPS.updateStatus not available - using web fallback");
+    } catch (error) {
+      console.error(`❌ Failed to update course status:`, error);
+      course.status = oldStatus;
+      throw new Error(`Network error - verificați conexiunea la internet și permisiunile aplicației`);
     }
   }
 
@@ -148,34 +155,29 @@ class DirectAndroidGPSService {
     console.log(`Token: ${course.token.substring(0, 20)}...`);
 
     try {
-      // Cerere permisiuni GPS prin Capacitor - revenit la logica simplă care funcționa
-      console.log("🔐 Requesting GPS permissions (simple approach)...");
+      // Cerere permisiuni GPS prin Capacitor - simplu ca înainte
+      console.log("Requesting GPS permissions...");
       const permissions = await Geolocation.requestPermissions();
-      console.log("📋 GPS permissions result:", permissions);
+      console.log("GPS permissions result:", permissions);
 
-      if (permissions.location !== "granted") {
-        throw new Error("GPS permissions not granted - user denied access");
-      }
+      if (permissions.location === "granted") {
+        console.log("GPS permissions granted - starting location tracking");
 
-      console.log("✅ GPS permissions granted - proceeding with location setup");
+        // Start location tracking pentru a activa serviciul
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+        });
 
-      // Test GPS direct - obține poziția curentă
-      console.log("📍 Getting current position to verify GPS...");
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 10000
-      });
-
-      console.log("📱 Current position obtained successfully:", {
-        lat: position.coords.latitude.toFixed(6),
-        lng: position.coords.longitude.toFixed(6),
-        accuracy: position.coords.accuracy
-      });
+        console.log("Current position obtained:", {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        });
 
         // Activare serviciu Android nativ direct
         if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-          console.log("✅ AndroidGPS interface FOUND - starting native background service");
+          console.log("AndroidGPS interface available - starting native service");
           const result = (window as any).AndroidGPS.startGPS(
             course.courseId,
             course.vehicleNumber, 
@@ -183,43 +185,35 @@ class DirectAndroidGPSService {
             course.token,
             course.status
           );
-          console.log("📱 AndroidGPS.startGPS result:", result);
+          console.log("AndroidGPS.startGPS called with result:", result);
+          console.log("📱 EnhancedGPSService should now be running in background");
           
-          // Verificare dacă serviciul chiar rulează în background
+          // Test dacă serviciul chiar rulează
           setTimeout(() => {
-            console.log("=== BACKGROUND SERVICE VERIFICATION ===");
-            if ((window as any).AndroidGPS.isServiceRunning) {
-              const isRunning = (window as any).AndroidGPS.isServiceRunning();
-              console.log("🔍 EnhancedGPSService running:", isRunning);
-              if (isRunning) {
-                console.log("✅ GPS BACKGROUND SERVICE CONFIRMED ACTIVE");
-                console.log("📍 Coordinates transmitting every 5 seconds to server");
-                console.log("🔒 Service will continue with phone locked");
-              } else {
-                console.log("❌ Background service not detected - check Android logs");
-              }
-            }
-            
-            if ((window as any).AndroidGPS.getStatus) {
+            console.log("=== GPS SERVICE STATUS CHECK (5s later) ===");
+            if ((window as any).AndroidGPS && (window as any).AndroidGPS.getStatus) {
               const status = (window as any).AndroidGPS.getStatus();
-              console.log("📊 Service status:", status);
+              console.log("GPS Service status:", status);
             }
-          }, 3000);
+          }, 5000);
           
         } else {
-          console.log("❌ AndroidGPS interface NOT available - CRITICAL ERROR");
-          console.log("🔍 Available window objects:", Object.keys(window).filter(k => k.includes('Android') || k.includes('GPS')));
-          console.log("📱 Platform:", Capacitor.getPlatform(), "Native:", Capacitor.isNativePlatform());
-          
-          // NU PORNEȘTE WEB GPS - doar serviciul Android nativ
-          console.log("🚫 GPS BLOCKING: Only Android native service allowed");
-          console.log("🔧 Check MainActivity.java AndroidGPS WebView interface");
-          throw new Error("AndroidGPS interface missing - GPS transmission blocked to prevent CORS errors");
+          console.log("❌ AndroidGPS interface NOT available");
+          console.log("Platform info:", {
+            isNativePlatform: Capacitor.isNativePlatform(),
+            platform: Capacitor.getPlatform(),
+            userAgent: navigator.userAgent
+          });
+          console.log("Available window objects:", Object.keys(window));
+          console.log("Starting web GPS fallback for testing");
+          await this.startWebCompatibleGPS(course);
         }
 
         console.log("EnhancedGPSService activated for UIT:", course.uit);
         console.log("GPS will transmit every 5 seconds to server");
-        
+      } else {
+        throw new Error("GPS permissions not granted");
+      }
     } catch (error) {
       console.error("Failed to start GPS tracking:", error);
       throw error;
@@ -376,9 +370,19 @@ class DirectAndroidGPSService {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
         
-        // ELIMINAT: fetch care cauza CORS - foloseste doar serviciul Android nativ
-        console.log("GPS test data will be transmitted by Android native service");
-        const response = { ok: true, status: 200 }; // Mock response pentru test
+        const response = await fetch(
+          "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${course.token}`,
+              "User-Agent": "iTrack/2.0 Web-Browser",
+            },
+            body: JSON.stringify(gpsData),
+            signal: controller.signal,
+          },
+        );
         
         clearTimeout(timeoutId);
 

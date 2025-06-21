@@ -116,7 +116,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       case 1: return '#3b82f6'; // Available - Blue
       case 2: return '#10b981'; // In Progress - Green
       case 3: return '#f59e0b'; // Paused - Orange
-      case 4: return '#10b981'; // Finished - Green (Success)
+      case 4: return '#ef4444'; // Stopped - Red
       default: return '#6b7280';
     }
   };
@@ -405,7 +405,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .btn-finish-compact {
-          background: linear-gradient(135deg, #10b981, #059669);
+          background: linear-gradient(135deg, #ef4444, #dc2626);
           color: white;
           box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
         }

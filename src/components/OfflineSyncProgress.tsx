@@ -79,13 +79,7 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
   }
 
   return (
-    <div className={`offline-sync-progress ${className}`} style={{
-      margin: '0 auto 16px auto',
-      width: '96%',
-      maxWidth: '96%',
-      position: 'relative',
-      zIndex: 10
-    }}>
+    <div className={`offline-sync-progress ${className}`}>
       {syncProgress.isActive ? (
         // Active sync progress
         <div className="sync-active">
