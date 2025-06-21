@@ -152,12 +152,15 @@ public class EnhancedGPSService extends Service implements LocationListener {
         
         // Start foreground service dacă nu e deja pornit
         if (!isTracking) {
+            Log.d(TAG, "STARTING FOREGROUND SERVICE - First course");
             startForeground(NOTIFICATION_ID, createNotification());
             startLocationUpdates();
-            startGPSTransmissions();
             isTracking = true;
-            Log.d(TAG, "GPS Service started as foreground");
+            Log.d(TAG, "isTracking set to: " + isTracking);
+            startGPSTransmissions();
+            Log.d(TAG, "GPS Service started as foreground - transmission should begin now");
         } else {
+            Log.d(TAG, "SERVICE ALREADY RUNNING - Adding course to existing service");
             // Update notification pentru cursă nouă
             NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             manager.notify(NOTIFICATION_ID, createNotification());
@@ -307,7 +310,10 @@ public class EnhancedGPSService extends Service implements LocationListener {
     }
 
     private void initializeGPSHandler() {
+        Log.d(TAG, "=== INITIALIZING GPS HANDLER ===");
         gpsHandler = new Handler(Looper.getMainLooper());
+        Log.d(TAG, "Handler created: " + (gpsHandler != null ? "SUCCESS" : "FAILED"));
+        
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
@@ -317,38 +323,41 @@ public class EnhancedGPSService extends Service implements LocationListener {
                 Log.d(TAG, "activeCourses count: " + activeCourses.size());
                 
                 if (lastLocation != null && !activeCourses.isEmpty()) {
-                    Log.d(TAG, "✅ CONDITIONS MET - Processing GPS transmission");
+                    Log.d(TAG, "CONDITIONS MET - Processing GPS transmission");
                     Log.d(TAG, "Location: " + String.format(Locale.US, "%.6f, %.6f", lastLocation.getLatitude(), lastLocation.getLongitude()));
                     
                     // Transmite DOAR pentru cursele cu status 2 (ACTIVE)
                     int transmittedCount = 0;
                     for (CourseData course : activeCourses.values()) {
                         if (course.status == 2) {
-                            Log.d(TAG, "📡 Transmitting GPS for UIT: " + course.uit + " (Status: " + course.status + ")");
+                            Log.d(TAG, "Transmitting GPS for UIT: " + course.uit + " (Status: " + course.status + ")");
                             transmitGPSData(course, lastLocation);
                             transmittedCount++;
                         } else {
-                            Log.d(TAG, "⏭️ Skipping UIT: " + course.uit + " (Status: " + course.status + " - not active)");
+                            Log.d(TAG, "Skipping UIT: " + course.uit + " (Status: " + course.status + " - not active)");
                         }
                     }
                     
                     transmissionCount++;
                     Log.d(TAG, "Transmission #" + transmissionCount + " - sent to " + transmittedCount + " active courses");
                 } else {
-                    Log.d(TAG, "❌ SKIPPING TRANSMISSION");
+                    Log.d(TAG, "SKIPPING TRANSMISSION");
                     Log.d(TAG, "Reason: " + (lastLocation == null ? "No GPS location" : "No active courses"));
                 }
                 
                 // Schedule next transmission
                 if (isTracking && !activeCourses.isEmpty()) {
-                    Log.d(TAG, "📅 Scheduling next transmission in " + (GPS_INTERVAL_MS/1000) + " seconds");
+                    Log.d(TAG, "Scheduling next transmission in " + (GPS_INTERVAL_MS/1000) + " seconds");
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
                 } else {
-                    Log.d(TAG, "🛑 STOPPING GPS transmissions");
+                    Log.d(TAG, "STOPPING GPS transmissions");
                     Log.d(TAG, "isTracking: " + isTracking + ", activeCourses: " + activeCourses.size());
                 }
             }
         };
+        
+        Log.d(TAG, "Runnable created: " + (gpsRunnable != null ? "SUCCESS" : "FAILED"));
+        Log.d(TAG, "GPS Handler initialization complete");
     }
 
     private void transmitGPSData(CourseData course, Location location) {

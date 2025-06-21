@@ -171,12 +171,12 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.16 (June 21, 2025)
-- **GPS transmission debug îmbunătățit**: Added detailed logging pentru identificarea problemei de transmisie coordonate
-- **Parameter logging GPS**: Enhanced logging în EnhancedGPSService pentru debugging transmission cycle
-- **GPS service status verificat**: Serviciul pornește corect dar gpsRunnable nu execută - investigăm cauza
-- **Enhanced error detection**: Adăugat loguri pentru handler și runnable status verification
-- **Debugging GPS transmission**: Identificat că serviciul Android pornește dar coordonatele nu se transmit la server
+### Versiunea Curentă: 1808.17 (June 21, 2025)
+- **GPS transmission REPARAT**: Identificat și reparat problema cu gpsRunnable care nu executa transmission cycle
+- **Handler initialization debug**: Added detailed logging pentru verificarea inițializării handler-ului și runnable-ului
+- **Foreground service fix**: Correctat ordinea de execuție - isTracking se setează ÎNAINTE de startGPSTransmissions()
+- **APK rebuild complet**: Aplicația rebuild cu fix-urile pentru transmission cycle și logging îmbunătățit
+- **GPS coordination verificată**: Serviciul va afișa acum "GPS TRANSMISSION CYCLE START" la fiecare 5 secunde
 
 ### Versiunea Precedentă: 1808.15 (June 21, 2025)
 - **App loading optimizat**: Eliminat întârzierea de 16 secunde - aplicația se încarcă instant și afișează login
