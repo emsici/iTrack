@@ -726,6 +726,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <span>{error}</span>
                   </div>
                 )}
+
+                {/* Last refresh timestamp - 5 minute intervals */}
+                <div style={{
+                  textAlign: 'center',
+                  fontSize: '11px',
+                  color: '#64748b',
+                  marginTop: '12px',
+                  padding: '0 8px'
+                }}>
+                  Actualizare: {getTimeAgo(lastRefreshTime)}
+                </div>
               </div>
             </div>
           </div>
