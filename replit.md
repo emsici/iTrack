@@ -171,10 +171,12 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.26 (June 21, 2025) - NATIVE GPS ENFORCEMENT
-- **Forțat GPS nativ Android**: Eliminat complet fallback-ul WebView, doar EnhancedGPSService pentru transmisia reală
-- **Prioritate absolută AndroidGPS**: Interface-ul WebView conectat direct la serviciul nativ Android în APK
-- **Eliminat WebCompatibleGPS**: Fără GPS browser, exclusiv serviciu background Android cu telefon blocat
+### Versiunea Curentă: 1808.27 (June 21, 2025) - COMPLETE NATIVE GPS CYCLE
+- **Eliminat complet WebCompatibleGPS**: Funcția startWebCompatibleGPS și testGPSTransmission complet eliminate
+- **Ciclu GPS nativ complet**: START/RESUME/PAUSE/STOP toate folosesc exclusiv AndroidGPS interface
+- **Parametri reparați**: startGPSTracking cu ordinea corectă (courseId, vehicleNumber, token, uit, status)
+- **Logica status finalizată**: Status 4 programează ștergerea din activeCourses după 2 secunde
+- **Zero fallback**: Aplicația folosește doar EnhancedGPSService pentru toate operațiile GPS
 
 ### Versiunea Precedentă: 1808.25 (June 21, 2025) - UI CLEANUP & CARD OPTIMIZATION
 - **Eliminat iconița statistici**: Scos al 5-lea card cu iconița fa-chart-line din dashboard pentru design mai curat

@@ -53,28 +53,26 @@ class DirectAndroidGPSService {
     course.status = newStatus;
 
     try {
-      if (Capacitor.isNativePlatform()) {
-        // Pentru Android nativ, folosește UPDATE_STATUS action
-        // Folosește interfața WebView direct
-        if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
-          (window as any).AndroidGPS.updateStatus(courseId, newStatus);
-        } else {
-          console.warn('AndroidGPS interface not available');
-        }
-        
-        // Logica pentru status:
-        if (newStatus === 2) {
-          console.log("📍 RESUME: Continuous GPS transmission started");
-        } else if (newStatus === 3) {
-          console.log("⏸️ PAUSE: Single status update sent, GPS stopped");
-        } else if (newStatus === 4) {
-          console.log("🏁 FINISH: Final status sent, removing from active courses");
-          setTimeout(() => {
-            this.activeCourses.delete(courseId);
-          }, 3000);
-        }
+      // EXCLUSIV AndroidGPS pentru toate operațiile
+      if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
+        console.log("✅ AndroidGPS.updateStatus called for EnhancedGPSService");
+        (window as any).AndroidGPS.updateStatus(courseId, newStatus);
       } else {
-        console.log(`🌐 Web environment: Status ${newStatus} update completed (no native GPS)`);
+        console.log("⚠️ AndroidGPS not available - APK only feature");
+      }
+      
+      // Status logic pentru EnhancedGPSService:
+      if (newStatus === 2) {
+        console.log("📍 ACTIVE/RESUME: EnhancedGPSService continuing GPS transmission every 5s");
+      } else if (newStatus === 3) {
+        console.log("⏸️ PAUSE: EnhancedGPSService sends single status update then stops GPS");
+      } else if (newStatus === 4) {
+        console.log("🏁 STOP: EnhancedGPSService sends final status then terminates");
+        // Programează ștergerea din activeCourses după terminare
+        setTimeout(() => {
+          this.activeCourses.delete(courseId);
+          console.log(`🗑️ Course ${courseId} removed from active courses`);
+        }, 2000);
       }
     } catch (error) {
       console.error(`❌ Failed to update course status:`, error);
@@ -164,9 +162,9 @@ class DirectAndroidGPSService {
           accuracy: position.coords.accuracy,
         });
 
-        // Activare serviciu Android nativ direct
+        // EXCLUSIV AndroidGPS WebView interface pentru EnhancedGPSService
         if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-          console.log("AndroidGPS interface available - starting native service");
+          console.log("✅ AndroidGPS interface available - starting EnhancedGPSService");
           const result = (window as any).AndroidGPS.startGPS(
             course.courseId,
             course.vehicleNumber, 
@@ -174,25 +172,13 @@ class DirectAndroidGPSService {
             course.token,
             course.status
           );
-          console.log("AndroidGPS.startGPS called with result:", result);
-          console.log("📱 EnhancedGPSService should now be running in background");
-          
-          // Test dacă serviciul chiar rulează
-          setTimeout(() => {
-            console.log("=== GPS SERVICE STATUS CHECK (5s later) ===");
-            if ((window as any).AndroidGPS && (window as any).AndroidGPS.getStatus) {
-              const status = (window as any).AndroidGPS.getStatus();
-              console.log("GPS Service status:", status);
-            }
-          }, 5000);
+          console.log("✅ EnhancedGPSService activated via AndroidGPS:", result);
+          console.log("📱 Background GPS transmission every 5 seconds to gps.php");
           
         } else {
-          // În APK va fi disponibil AndroidGPS - în browser simulăm
-          console.log("⚠️ AndroidGPS interface not available in browser - will be available in APK");
-          console.log("🔧 Simulating AndroidGPS call for course:", course.courseId);
-          console.log("🎯 In APK: EnhancedGPSService will start and transmit GPS every 5 seconds");
-          console.log("🎯 Background GPS will work with phone locked in APK version");
-          console.log("❌ NO WEB GPS FALLBACK - Only native Android GPS supported");
+          console.log("⚠️ AndroidGPS interface not available - APK only feature");
+          console.log("📱 In APK: EnhancedGPSService will start for course:", course.courseId);
+          console.log("🎯 Background GPS transmission every 5 seconds with phone locked");
         }
 
         console.log("EnhancedGPSService activated for UIT:", course.uit);
@@ -212,15 +198,16 @@ class DirectAndroidGPSService {
 
     try {
       // OPRIRE prin AndroidGPS WebView interface
-      if (window.AndroidGPS) {
+      if ((window as any).AndroidGPS && (window as any).AndroidGPS.stopGPS) {
         console.log("✅ AndroidGPS available - stopping EnhancedGPSService");
-        const result = window.AndroidGPS.stopGPSTracking(courseId);
+        const result = (window as any).AndroidGPS.stopGPS(courseId);
         console.log("✅ EnhancedGPSService stopped via AndroidGPS:", result);
       } else {
-        console.log("Web environment: GPS would stop in APK");
+        console.log("⚠️ AndroidGPS not available - APK only feature");
+        console.log("📱 In APK: EnhancedGPSService will stop for course:", courseId);
       }
 
-      console.log("GPS tracking stopped for course");
+      console.log(`🛑 GPS tracking stopped for course ${courseId}`);
     } catch (error) {
       console.error("Failed to stop Android GPS service:", error);
       // Don't throw error - allow graceful degradation
@@ -242,163 +229,9 @@ class DirectAndroidGPSService {
 
 
 
-  private async startWebCompatibleGPS(course: ActiveCourse): Promise<void> {
-    console.log("🌐 Starting GPS transmission every 5 seconds");
 
-    // Request location permission first
-    try {
-      await Geolocation.requestPermissions();
-      console.log("📍 Location permissions granted");
-    } catch (permError) {
-      console.log("⚠️ Location permission issue:", permError);
-    }
 
-    // Clear any existing interval for this course
-    const existingIntervalKey = `gpsInterval_${course.courseId}`;
-    if ((window as any)[existingIntervalKey]) {
-      clearInterval((window as any)[existingIntervalKey]);
-      console.log("🔄 Cleared existing GPS interval");
-    }
 
-    // Start GPS transmission every 5 seconds
-    const transmitInterval = setInterval(async () => {
-      try {
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 5000,
-        });
-
-        const gpsData: GPSData = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          timestamp: new Date().toISOString(),
-          viteza: Math.round((position.coords.speed || 0) * 3.6),
-          directie: Math.round(position.coords.heading || 0),
-          altitudine: Math.round(position.coords.altitude || 0),
-          baterie: 85,
-          numar_inmatriculare: course.vehicleNumber,
-          uit: course.uit,
-          status: course.status.toString(),
-          hdop: (position.coords.accuracy || 10).toString(),
-          gsm_signal: "4",
-        };
-
-        console.log(`📡 Transmitting GPS: ${gpsData.lat.toFixed(6)}, ${gpsData.lng.toFixed(6)} for course ${course.courseId}`);
-        const response = await sendGPSData(gpsData, course.token);
-        console.log("✅ GPS data sent successfully to gps.php");
-      } catch (error) {
-        console.error("❌ GPS transmission failed:", error);
-        // Save offline if transmission fails
-        try {
-          const gpsData: GPSData = {
-            lat: 44.4378, lng: 26.0297,
-            timestamp: new Date().toISOString(),
-            viteza: 0, directie: 0, altitudine: 0, baterie: 85,
-            numar_inmatriculare: course.vehicleNumber,
-            uit: course.uit, status: course.status.toString(),
-            hdop: "10.0", gsm_signal: "4"
-          };
-          await saveGPSCoordinateOffline(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
-          console.log("💾 GPS data saved offline");
-        } catch (offlineError) {
-          console.error("❌ Failed to save offline:", offlineError);
-        }
-      }
-    }, 5000);
-
-    // Store interval for cleanup
-    (window as any)[`gpsInterval_${course.courseId}`] = transmitInterval;
-    console.log(`✅ GPS transmission ACTIVE for course ${course.courseId} - every 5 seconds`);
-  }
-
-  private async testGPSTransmission(course: ActiveCourse): Promise<void> {
-    try {
-      // Test transmisie GPS în mediul web
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-      });
-
-      const gpsData: GPSData = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        timestamp: new Date().toISOString(),
-        viteza: Math.round((position.coords.speed || 0) * 3.6), // m/s to km/h
-        directie: Math.round(position.coords.heading || 0),
-        altitudine: Math.round(position.coords.altitude || 0),
-        baterie: 100,
-        numar_inmatriculare: course.vehicleNumber,
-        uit: course.uit,
-        status: course.status.toString(),
-        hdop: (position.coords.accuracy || 999).toString(),
-        gsm_signal: "0", // Placeholder - real GSM value comes from Android service
-      };
-
-      console.log("Test GPS data prepared:", gpsData);
-
-      console.log("GPS data prepared for transmission");
-
-      // Test offline storage functionality
-      const offlineCount = await getOfflineGPSCount();
-      console.log(`Current offline coordinates: ${offlineCount}`);
-
-      // Primary GPS transmission logic - no conflicts
-      try {
-        console.log("Attempting GPS transmission to server...");
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
-        
-        const response = await fetch(
-          "https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${course.token}`,
-              "User-Agent": "iTrack/2.0 Web-Browser",
-            },
-            body: JSON.stringify(gpsData),
-            signal: controller.signal,
-          },
-        );
-        
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          console.log("✅ GPS transmission successful! Server response:", response.status);
-          
-          // After successful transmission, sync any existing offline coordinates
-          if (offlineCount > 0) {
-            console.log(`🔄 Syncing ${offlineCount} stored offline coordinates`);
-            setTimeout(async () => {
-              try {
-                await syncOfflineGPS();
-                console.log("✅ Offline coordinates sync completed");
-              } catch (syncError) {
-                console.error("❌ Offline sync failed:", syncError);
-              }
-            }, 1000); // Delay to avoid conflicts
-          }
-        } else {
-          console.log("❌ GPS transmission failed - Status:", response.status);
-          console.log("💾 FORCED: Saving coordinate to offline storage");
-          await saveGPSCoordinateOffline(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
-        }
-      } catch (networkError) {
-        if (networkError.name === 'AbortError') {
-          console.log("⏱️ GPS transmission timeout after 8 seconds");
-        } else {
-          console.log("🔌 NETWORK ERROR - No internet connection detected");
-          console.log("Error details:", networkError);
-        }
-        console.log("💾 FORCED: Saving coordinate to offline storage due to network error");
-        await saveGPSCoordinateOffline(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
-      }
-    } catch (error) {
-      console.error("GPS test transmission error:", error);
-    }
-  }
 
   async logoutClearAll(): Promise<void> {
     console.log("🔴 LOGOUT - Clearing all GPS data and stopping all tracking");

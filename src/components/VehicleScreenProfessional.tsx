@@ -292,14 +292,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Update GPS service (non-blocking)
       try {
         if (newStatus === 2) {
-          console.log(`Starting GPS tracking for course ${courseId}`);
-          await startGPSTracking(courseId, courseToUpdate.uit, newStatus, vehicleNumber, token);
+          console.log(`Starting/Resuming GPS tracking for course ${courseId}`);
+          await startGPSTracking(courseId, vehicleNumber, token, courseToUpdate.uit, newStatus);
           await startCourseAnalytics(courseId, courseToUpdate.uit, vehicleNumber);
         } else if (newStatus === 3) {
           console.log(`Pausing GPS tracking for course ${courseId}`);
           await updateCourseStatus(courseId, newStatus);
         } else if (newStatus === 4) {
           console.log(`Stopping GPS tracking for course ${courseId}`);
+          await updateCourseStatus(courseId, newStatus);
           await stopGPSTracking(courseId);
           await stopCourseAnalytics(courseId);
         }
