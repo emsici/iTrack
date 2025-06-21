@@ -109,21 +109,30 @@ public class EnhancedGPSService extends Service implements LocationListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "EnhancedGPSService started");
+        Log.d(TAG, "=== EnhancedGPSService onStartCommand ===");
 
         if (intent != null) {
             String action = intent.getAction();
+            Log.d(TAG, "Action received: " + action);
             
             if ("START_TRACKING".equals(action)) {
+                Log.d(TAG, "📡 Processing START_TRACKING action...");
                 startGPSTracking(intent);
             } else if ("STOP_TRACKING".equals(action)) {
                 String courseId = intent.getStringExtra("courseId");
+                Log.d(TAG, "🛑 Processing STOP_TRACKING for course: " + courseId);
                 stopSpecificCourse(courseId != null ? courseId : "ALL_COURSES");
             } else if ("UPDATE_STATUS".equals(action)) {
+                Log.d(TAG, "🔄 Processing UPDATE_STATUS action...");
                 updateCourseStatus(intent);
+            } else {
+                Log.w(TAG, "❓ Unknown action: " + action);
             }
+        } else {
+            Log.w(TAG, "❌ Intent is null in onStartCommand");
         }
 
+        Log.d(TAG, "✅ onStartCommand completed, returning START_STICKY");
         return START_STICKY; // Restart service if killed
     }
 

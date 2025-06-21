@@ -63,10 +63,11 @@ public class MainActivity extends BridgeActivity {
             try {
                 // Validare parametri
                 if (courseId == null || uit == null || authToken == null) {
-                    Log.e(TAG, "Invalid parameters for GPS service");
+                    Log.e(TAG, "❌ Invalid parameters for GPS service");
                     return "ERROR: Invalid parameters";
                 }
                 
+                Log.d(TAG, "📡 Creating Intent for EnhancedGPSService...");
                 Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
                 intent.setAction("START_TRACKING");
                 intent.putExtra("courseId", courseId);
@@ -75,12 +76,16 @@ public class MainActivity extends BridgeActivity {
                 intent.putExtra("authToken", authToken);
                 intent.putExtra("status", status);
                 
+                Log.d(TAG, "🚀 Starting foreground service...");
                 ComponentName result = startForegroundService(intent);
+                Log.d(TAG, "🔄 Service start result: " + result);
+                
                 if (result != null) {
                     Log.d(TAG, "✅ EnhancedGPSService started successfully via WebView interface");
+                    Log.d(TAG, "📍 GPS should now transmit coordinates to gps.php every 5 seconds");
                     return "SUCCESS: GPS service started for course " + courseId;
                 } else {
-                    Log.e(TAG, "Failed to start GPS service - result is null");
+                    Log.e(TAG, "❌ Failed to start GPS service - result is null");
                     return "ERROR: Service start failed";
                 }
             } catch (Exception e) {
