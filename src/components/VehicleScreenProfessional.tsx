@@ -528,10 +528,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                 )}
                 
-                {/* Counter debug - sub Online */}
+                {/* Counter debug - sub Online - enhanced visibility */}
                 {infoClickCount >= 30 && (
                   <div className="debug-counter-display">
-                    <span className="click-counter-badge">{infoClickCount}/50</span>
+                    <span className="click-counter-badge">
+                      DEBUG: {infoClickCount}/50
+                    </span>
                   </div>
                 )}
                 
