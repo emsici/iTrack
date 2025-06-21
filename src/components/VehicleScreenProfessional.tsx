@@ -36,7 +36,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [debugLogs, setDebugLogs] = useState<any[]>([]);
   const [syncProgress, setSyncProgress] = useState<any>(null);
   const [offlineCount, setOfflineCount] = useState(0);
-  const [lastRefreshTime, setLastRefreshTime] = useState<string | null>(null);
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
 
   // Load stored vehicle number on component mount
   useEffect(() => {
@@ -127,13 +127,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         setCoursesLoaded(true);
         
         // Update last refresh timestamp
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('ro-RO', { 
-          hour: '2-digit', 
-          minute: '2-digit',
-          second: '2-digit'
-        });
-        setLastRefreshTime(timeString);
+        setLastRefreshTime(new Date());
         
         console.log(`Successfully loaded ${finalCourses.length} courses for ${vehicleNumber} (sorted: new first)`);
         
@@ -295,6 +289,50 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
+
+  // Helper function to format time difference in Romanian
+  const getTimeAgo = (date: Date): string => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffSeconds = Math.floor(diffMs / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffSeconds < 60) {
+      if (diffSeconds === 1) return "acum o secundă";
+      if (diffSeconds < 20) return `acum ${diffSeconds} secunde`;
+      return `acum ${diffSeconds} de secunde`;
+    }
+
+    if (diffMinutes < 60) {
+      if (diffMinutes === 1) return "acum un minut";
+      if (diffMinutes < 20) return `acum ${diffMinutes} minute`;
+      return `acum ${diffMinutes} de minute`;
+    }
+
+    if (diffHours < 24) {
+      if (diffHours === 1) return "acum o oră";
+      if (diffHours < 20) return `acum ${diffHours} ore`;
+      return `acum ${diffHours} de ore`;
+    }
+
+    if (diffDays === 1) return "acum o zi";
+    if (diffDays < 20) return `acum ${diffDays} zile`;
+    return `acum ${diffDays} de zile`;
+  };
+
+  // Update time display every 30 seconds
+  const [, forceUpdate] = useState({});
+  useEffect(() => {
+    if (!lastRefreshTime) return;
+    
+    const interval = setInterval(() => {
+      forceUpdate({});
+    }, 30000); // Update every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [lastRefreshTime]);
 
   // Monitor offline GPS count
   useEffect(() => {
