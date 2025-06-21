@@ -77,9 +77,11 @@ class DirectAndroidGPSService {
     token: string,
     status: number = 2,
   ): Promise<void> {
-    console.log(
-      `Starting direct Android GPS for course ${courseId}, UIT REAL: ${uit}`,
-    );
+    console.log("=== STARTING GPS TRACKING ===");
+    console.log(`Course ID: ${courseId}`);
+    console.log(`Vehicle: ${vehicleNumber}`);
+    console.log(`UIT: ${uit}`);
+    console.log(`Status: ${status} (ACTIVE)`);
 
     const courseData: ActiveCourse = {
       courseId,
@@ -92,19 +94,21 @@ class DirectAndroidGPSService {
     this.activeCourses.set(courseId, courseData);
 
     try {
+      // ÎNTOTDEAUNA pornește GPS web pentru testare immediate
+      console.log("🚀 Starting GPS transmission for course " + courseId);
+      await this.startWebCompatibleGPS(courseData);
+
+      // Încearcă și Android nativ dacă este disponibil
       if (Capacitor.isNativePlatform()) {
-        // Pentru Android APK - activează serviciul nativ direct
-        await this.startAndroidNativeService(courseData);
-      } else {
-        // Pentru web - doar logging
-        console.log("Web environment: Android service would start in APK");
-        console.log(`GPS tracking configured for UIT: ${uit}`);
-        
-        // Start web-compatible GPS for development/testing
-        await this.startWebCompatibleGPS(courseData);
+        try {
+          await this.startAndroidNativeService(courseData);
+          console.log("✅ Both web and Android GPS active");
+        } catch (nativeError) {
+          console.log("⚠️ Android service failed, web GPS continues");
+        }
       }
     } catch (error) {
-      console.error(`Failed to start Android GPS service:`, error);
+      console.error(`❌ GPS start failed:`, error);
       this.activeCourses.delete(courseId);
       throw error;
     }
@@ -284,9 +288,24 @@ class DirectAndroidGPSService {
   }
 
   private async startWebCompatibleGPS(course: ActiveCourse): Promise<void> {
-    console.log("Web environment - starting GPS test transmission for development");
+    console.log("🌐 Starting GPS transmission every 5 seconds");
 
-    // Pentru testing în browser - transmisie la 5 secunde
+    // Request location permission first
+    try {
+      await Geolocation.requestPermissions();
+      console.log("📍 Location permissions granted");
+    } catch (permError) {
+      console.log("⚠️ Location permission issue:", permError);
+    }
+
+    // Clear any existing interval for this course
+    const existingIntervalKey = `gpsInterval_${course.courseId}`;
+    if ((window as any)[existingIntervalKey]) {
+      clearInterval((window as any)[existingIntervalKey]);
+      console.log("🔄 Cleared existing GPS interval");
+    }
+
+    // Start GPS transmission every 5 seconds
     const transmitInterval = setInterval(async () => {
       try {
         const position = await Geolocation.getCurrentPosition({
@@ -309,9 +328,9 @@ class DirectAndroidGPSService {
           gsm_signal: "4",
         };
 
-        console.log(`📡 Transmitting GPS: ${gpsData.lat}, ${gpsData.lng}`);
-        await sendGPSData(gpsData, course.token);
-        console.log("✅ GPS data sent successfully");
+        console.log(`📡 Transmitting GPS: ${gpsData.lat.toFixed(6)}, ${gpsData.lng.toFixed(6)} for course ${course.courseId}`);
+        const response = await sendGPSData(gpsData, course.token);
+        console.log("✅ GPS data sent successfully to gps.php");
       } catch (error) {
         console.error("❌ GPS transmission failed:", error);
         // Save offline if transmission fails
@@ -334,7 +353,7 @@ class DirectAndroidGPSService {
 
     // Store interval for cleanup
     (window as any)[`gpsInterval_${course.courseId}`] = transmitInterval;
-    console.log(`🔄 GPS transmission started for course ${course.courseId} - every 5 seconds`);
+    console.log(`✅ GPS transmission ACTIVE for course ${course.courseId} - every 5 seconds`);
   }
 
   private async testGPSTransmission(course: ActiveCourse): Promise<void> {
