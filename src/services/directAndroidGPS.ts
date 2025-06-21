@@ -95,7 +95,7 @@ class DirectAndroidGPSService {
     console.log(`Course ID: ${courseId}`);
     console.log(`Vehicle: ${vehicleNumber}`);
     console.log(`UIT: ${uit}`);
-    console.log(`Status: ${status} (ACTIVE)`);
+    console.log(`Status: ${status} (${status === 2 ? 'ACTIVE' : status === 3 ? 'PAUSED' : 'OTHER'})`);
 
     const courseData: ActiveCourse = {
       courseId,
@@ -108,21 +108,20 @@ class DirectAndroidGPSService {
     this.activeCourses.set(courseId, courseData);
 
     try {
-      // ÎNTOTDEAUNA pornește GPS web pentru testare immediate
-      console.log("🚀 Starting GPS transmission for course " + courseId);
-      await this.startWebCompatibleGPS(courseData);
-
-      // Încearcă și Android nativ dacă este disponibil
+      // PRIORITATE: Android nativ pentru GPS real în background
       if (Capacitor.isNativePlatform()) {
-        try {
-          await this.startAndroidNativeService(courseData);
-          console.log("✅ Both web and Android GPS active");
-        } catch (nativeError) {
-          console.log("⚠️ Android service failed, web GPS continues");
-        }
+        console.log("📱 Native Android platform detected - starting background GPS service");
+        await this.startAndroidNativeService(courseData);
+        console.log("✅ Android native GPS service started - no fallback needed");
+        return; // Exit early - only native GPS should run
       }
+
+      // Browser testing - doar pentru dezvoltare
+      console.log("🌐 Browser environment - starting web GPS for testing only");
+      await this.startWebCompatibleGPS(courseData);
+      console.log("⚠️ Web GPS active - this won't work with phone locked");
     } catch (error) {
-      console.error(`❌ GPS start failed:`, error);
+      console.error(`❌ GPS start failed completely:`, error);
       this.activeCourses.delete(courseId);
       throw error;
     }

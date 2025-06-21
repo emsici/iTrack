@@ -330,10 +330,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
 
             <div className="header-vehicle-display">
-              <span className="vehicle-number-clickable" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
-                🚛 {vehicleNumber}
+              <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
+                <i className="fas fa-truck vehicle-icon"></i>
+                <span className="vehicle-number">{vehicleNumber}</span>
                 <i className="edit-icon fas fa-edit"></i>
-              </span>
+              </div>
             </div>
 
             <div className="header-actions">
@@ -375,47 +376,41 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div className="executive-control-center">
               <div className="command-dashboard">
                 <div className="analytics-grid-centered">
-                  <div className="analytics-card total-routes">
-                    <div className="card-value">{courses.length}</div>
-                    <div className="card-label">TOTAL CURSE</div>
-                    <div className="card-indicator"></div>
+                  <div className="analytics-card">
+                    <div className="analytics-number">{courses.length}</div>
+                    <div className="analytics-label">TOTAL</div>
                   </div>
-
-                  <div className="analytics-card active-routes">
-                    <div className="card-value">
-                      {courses.filter((c) => c.status === 2).length}
-                    </div>
-                    <div className="card-label">ACTIV</div>
-                    <div className="card-indicator active"></div>
+                  <div className="analytics-card">
+                    <div className="analytics-number">{activeCourses}</div>
+                    <div className="analytics-label">ACTIV</div>
                   </div>
-
-                  <div className="analytics-card paused-routes">
-                    <div className="card-value">
-                      {courses.filter((c) => c.status === 3).length}
-                    </div>
-                    <div className="card-label">PAUZĂ</div>
-                    <div className="card-indicator paused"></div>
+                  <div className="analytics-card">
+                    <div className="analytics-number">{pausedCourses}</div>
+                    <div className="analytics-label">PAUZĂ</div>
                   </div>
-
-                  <div className="analytics-card available-routes">
-                    <div className="card-value">
-                      {courses.filter((c) => c.status === 1).length}
-                    </div>
-                    <div className="card-label">DISPONIBIL</div>
-                    <div className="card-indicator available"></div>
+                  <div className="analytics-card">
+                    <div className="analytics-number">{availableCourses}</div>
+                    <div className="analytics-label">DISPONIBIL</div>
                   </div>
+                </div>
 
-                  <button
-                    className="analytics-card stats-card clickable-stats"
+                {/* Al 5-lea card pentru Statistici - centrat */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '8px', padding: '0 16px' }}>
+                  <div 
+                    className="analytics-card"
                     onClick={() => setShowStatsModal(true)}
-                    title="Vezi statistici detaliate pentru toate cursele"
+                    style={{ 
+                      width: '140px',
+                      minHeight: '70px',
+                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.3) 100%)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)'
+                    }}
                   >
-                    <div className="card-value">
+                    <div className="analytics-number" style={{ color: '#60a5fa', fontSize: '1.5rem' }}>
                       <i className="fas fa-chart-line"></i>
                     </div>
-                    <div className="card-label">STATISTICI</div>
-                    <div className="card-indicator stats"></div>
-                  </button>
+                    <div className="analytics-label" style={{ color: '#93c5fd', fontSize: '0.65rem' }}>STATISTICI</div>
+                  </div>
                 </div>
 
                 <div className="courses-list">

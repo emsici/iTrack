@@ -32,31 +32,49 @@ public class MainActivity extends BridgeActivity {
     public class AndroidGPS {
         
         @JavascriptInterface
-        public void startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
-            Log.d(TAG, String.format("WebView GPS Start: Course=%s, UIT=%s, Status=%d", courseId, uit, status));
+        public String startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
+            Log.d(TAG, "=== AndroidGPS.startGPS called ===");
+            Log.d(TAG, "Course ID: " + courseId);
+            Log.d(TAG, "Vehicle: " + vehicleNumber);
+            Log.d(TAG, "UIT: " + uit);
+            Log.d(TAG, "Status: " + status);
+            Log.d(TAG, "Token: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
             
-            Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
-            intent.setAction("START_TRACKING");
-            intent.putExtra("courseId", courseId);
-            intent.putExtra("vehicleNumber", vehicleNumber);
-            intent.putExtra("uit", uit);
-            intent.putExtra("authToken", authToken);
-            intent.putExtra("status", status);
-            
-            startForegroundService(intent);
-            Log.d(TAG, "EnhancedGPSService started via WebView interface");
+            try {
+                Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
+                intent.setAction("START_TRACKING");
+                intent.putExtra("courseId", courseId);
+                intent.putExtra("vehicleNumber", vehicleNumber);
+                intent.putExtra("uit", uit);
+                intent.putExtra("authToken", authToken);
+                intent.putExtra("status", status);
+                
+                startForegroundService(intent);
+                Log.d(TAG, "✅ EnhancedGPSService started successfully via WebView interface");
+                return "SUCCESS: GPS service started for course " + courseId;
+            } catch (Exception e) {
+                Log.e(TAG, "❌ Failed to start GPS service: " + e.getMessage());
+                return "ERROR: " + e.getMessage();
+            }
         }
         
         @JavascriptInterface
-        public void stopGPS(String courseId) {
-            Log.d(TAG, "WebView GPS Stop: Course=" + courseId);
+        public String stopGPS(String courseId) {
+            Log.d(TAG, "=== AndroidGPS.stopGPS called ===");
+            Log.d(TAG, "Course ID: " + courseId);
             
-            Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
-            intent.setAction("STOP_TRACKING");
-            intent.putExtra("courseId", courseId);
-            
-            startService(intent);
-            Log.d(TAG, "EnhancedGPSService stop requested via WebView interface");
+            try {
+                Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);
+                intent.setAction("STOP_TRACKING");
+                intent.putExtra("courseId", courseId);
+                
+                startService(intent);
+                Log.d(TAG, "✅ EnhancedGPSService stop requested successfully");
+                return "SUCCESS: GPS service stopped for course " + courseId;
+            } catch (Exception e) {
+                Log.e(TAG, "❌ Failed to stop GPS service: " + e.getMessage());
+                return "ERROR: " + e.getMessage();
+            }
         }
         
         @JavascriptInterface
