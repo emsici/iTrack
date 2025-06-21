@@ -175,7 +175,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     const newCount = infoClickCount + 1;
     setInfoClickCount(newCount);
     
-    if (newCount === 50) {
+    if (newCount >= 50) {
       try {
         const logs = await getAppLogs();
         setDebugLogs(logs);
@@ -188,6 +188,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
     }
   };
+
+  // Reset click count after inactivity
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (infoClickCount > 0) {
+      timeout = setTimeout(() => {
+        setInfoClickCount(0);
+      }, 3000); // Reset after 3 seconds of inactivity
+    }
+    return () => clearTimeout(timeout);
+  }, [infoClickCount]);
 
   const handleStatusUpdate = async (courseId: string, newStatus: number) => {
     setActionLoading(courseId);
@@ -653,32 +664,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       lineHeight: '1'
                     }}>DISPONIBIL</div>
                   </div>
-                  
-                  <div 
-                    onClick={() => setShowStatsModal(true)}
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.3) 100%)',
-                      backdropFilter: 'blur(12px)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      borderRadius: '6px',
-                      padding: '6px 2px',
-                      textAlign: 'center',
-                      minHeight: '40px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    <div style={{
-                      fontSize: '1rem',
-                      fontWeight: '700',
-                      color: '#60a5fa',
-                      lineHeight: '1'
-                    }}>
-                      <i className="fas fa-chart-line"></i>
-                    </div>
+
 
                   </div>
                 </div>
