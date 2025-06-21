@@ -124,36 +124,39 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
 
   return (
-    <div className="course-card-corporate">
+    <div className="course-card-compact">
       <style>{`
-        .course-card-corporate {
-          background: #ffffff;
-          border: 2px solid #e2e8f0;
+        .course-card-compact {
+          background: rgba(255, 255, 255, 0.08);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.15);
           border-radius: 12px;
-          padding: 20px;
-          margin-bottom: 16px;
-          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+          padding: 16px 20px;
+          margin: 0 auto 16px auto;
+          overflow: hidden;
           transition: all 0.3s ease;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
           position: relative;
-          width: 100%;
+          width: 96%;
+          max-width: 96%;
           box-sizing: border-box;
         }
 
-        .course-card-corporate:hover {
+        .course-card-enhanced:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 25px rgba(15, 23, 42, 0.1);
-          border-color: #3b82f6;
+          box-shadow: 
+            0 12px 40px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
-        .course-card-corporate::before {
+        .course-card-compact::before {
           content: '';
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
-          height: 3px;
+          height: 2px;
           background: ${getStatusColor(course.status)};
-          border-radius: 12px 12px 0 0;
           transition: all 0.3s ease;
         }
 
