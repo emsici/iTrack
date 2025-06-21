@@ -440,9 +440,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
               </div>
               <div className="header-text-section"></div>
-              {infoClickCount >= 30 && (
-                <div className="click-counter-badge">{infoClickCount}/50</div>
-              )}
+
             </div>
 
             <div className="header-vehicle-form">
@@ -509,9 +507,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   {offlineCount > 0 && !syncProgress?.isActive && (
                     <span className="offline-count-badge">{offlineCount}</span>
                   )}
-                  {infoClickCount >= 30 && (
-                    <span className="click-counter-badge">{infoClickCount}/50</span>
-                  )}
+
                 </div>
                 
                 {/* Progress sincronizare - doar când există coordonate offline */}
@@ -527,6 +523,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         style={{ width: `${syncProgress.percentage}%` }}
                       ></div>
                     </div>
+                  </div>
+                )}
+                
+                {/* Counter debug - sub Online */}
+                {infoClickCount >= 30 && (
+                  <div className="debug-counter-display">
+                    <span className="click-counter-badge">{infoClickCount}/50</span>
                   </div>
                 )}
                 
