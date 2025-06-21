@@ -62,10 +62,11 @@ class OfflineSyncStatusService {
       const offlineCount = await getOfflineGPSCount();
       
       if (offlineCount === 0) {
+        console.log('📊 GPS sync: Nu există coordonate offline de sincronizat');
         return;
       }
 
-      console.log(`📊 GPS sync: ${offlineCount} coordinates`);
+      console.log(`📊 GPS sync: Începe sincronizarea pentru ${offlineCount} coordonate`);
       
       this.currentProgress = {
         isActive: true,

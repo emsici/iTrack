@@ -488,8 +488,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   )}
                 </div>
                 
-                {/* Progress sincronizare sub status */}
-                {syncProgress && syncProgress.isActive && (
+                {/* Progress sincronizare - doar când există coordonate offline */}
+                {syncProgress && syncProgress.isActive && syncProgress.totalToSync > 0 && (
                   <div className="sync-progress-container">
                     <div className="sync-info">
                       <span className="sync-text">Sincronizare: {syncProgress.synced}/{syncProgress.totalToSync}</span>
@@ -501,6 +501,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         style={{ width: `${syncProgress.percentage}%` }}
                       ></div>
                     </div>
+                  </div>
+                )}
+                
+                {/* Mesaj coordonate offline - doar când există date */}
+                {!syncProgress?.isActive && offlineCount > 0 && (
+                  <div className="offline-summary">
+                    <i className="fas fa-cloud-upload-alt"></i>
+                    <span>{offlineCount} coordonate salvate offline</span>
+                    <small>Se vor sincroniza automat când revine conexiunea</small>
                   </div>
                 )}
               </div>

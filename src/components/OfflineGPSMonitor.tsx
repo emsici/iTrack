@@ -42,11 +42,11 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
           
           // Auto-sync when truly online and have offline coordinates
           if (actuallyOnline && networkTest && count > 0 && !syncInProgress) {
-            console.log(`🔄 Auto-sync GPS: ${count} coordonate offline`);
+            console.log(`🔄 Auto-sync GPS: ${count} coordonate offline detectate`);
             try {
               setSyncInProgress(true);
               const result = await syncOfflineGPS();
-              console.log(`✅ Sincronizare: ${result.success}/${result.total} coordonate`);
+              console.log(`✅ Sincronizare completă: ${result.success}/${result.total} coordonate transmise`);
             } catch (error) {
               console.error("❌ Eroare sync GPS:", error);
             } finally {
