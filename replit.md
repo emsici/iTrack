@@ -171,8 +171,10 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.31 (June 21, 2025) - CORS ERRORS ELIMINAT COMPLET: ZERO WEBVIEW FETCH
-- **TOATE fetch-urile eliminate**: Înlocuit complet fetch cu CapacitorHttp în offlineGPS.ts și directAndroidGPS.ts
+### Versiunea Curentă: 1808.32 (June 21, 2025) - STATUS DUPLICAT REPARAT: O SINGURĂ TRANSMISIE
+- **Status duplicat reparat**: Eliminat codul duplicat din directAndroidGPS.ts care trimite status-ul de două ori
+- **O singură transmisie GPS**: AndroidGPS.updateStatus() se apelează doar o dată per schimbare status
+- **Logică simplificată**: Doar un flux de status update fără duplicări
 - **Zero CORS policy errors**: Aplicația nu mai folosește niciodată fetch/XMLHttpRequest pentru gps.php din WebView
 - **Doar serviciul Android nativ transmite**: EnhancedGPSService.java cu OkHttp este singura sursă de transmisie GPS
 - **Doar serviciul Android nativ**: Status updates se fac exclusiv prin AndroidGPS.updateStatus() pentru evitarea CORS

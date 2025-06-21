@@ -49,52 +49,30 @@ class DirectAndroidGPSService {
       return;
     }
 
-    // Update status prin serviciul Android nativ pentru a evita CORS
-    if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
-      console.log("✅ Using AndroidGPS.updateStatus - no CORS issues");
-      const result = (window as any).AndroidGPS.updateStatus(courseId, newStatus);
-      console.log("📱 AndroidGPS.updateStatus result:", result);
-      
-      // Update local course data
-      course.status = newStatus;
-      console.log(`✅ Course ${courseId} status updated to ${newStatus} via Android service`);
-    } else {
-      console.log("❌ AndroidGPS.updateStatus not available - check MainActivity.java");
-      // Update doar local data dacă nu avem interfață nativă
-      course.status = newStatus;
-    }
-
     const oldStatus = course.status;
     course.status = newStatus;
 
-    try {
-      if (Capacitor.isNativePlatform()) {
-        // Pentru Android nativ, folosește UPDATE_STATUS action
-        // Folosește interfața WebView direct
-        if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
-          (window as any).AndroidGPS.updateStatus(courseId, newStatus);
-        } else {
-          console.warn('AndroidGPS interface not available');
-        }
-        
-        // Logica pentru status:
-        if (newStatus === 2) {
-          console.log("📍 RESUME: Continuous GPS transmission started");
-        } else if (newStatus === 3) {
-          console.log("⏸️ PAUSE: Single status update sent, GPS stopped");
-        } else if (newStatus === 4) {
-          console.log("🏁 FINISH: Final status sent, removing from active courses");
-          setTimeout(() => {
-            this.activeCourses.delete(courseId);
-          }, 3000);
-        }
-      } else {
-        console.log(`🌐 Web environment: Status ${newStatus} update completed (no native GPS)`);
+    // Update status DOAR o singură dată prin serviciul Android nativ
+    if (Capacitor.isNativePlatform() && (window as any).AndroidGPS?.updateStatus) {
+      console.log(`=== SINGLE STATUS UPDATE: ${courseId} → ${newStatus} ===`);
+      const result = (window as any).AndroidGPS.updateStatus(courseId, newStatus);
+      console.log("📱 AndroidGPS.updateStatus result:", result);
+      
+      // Logica pentru status:
+      if (newStatus === 2) {
+        console.log("📍 RESUME: Continuous GPS transmission started");
+      } else if (newStatus === 3) {
+        console.log("⏸️ PAUSE: Single status update sent, GPS stopped");
+      } else if (newStatus === 4) {
+        console.log("🏁 FINISH: Final status sent, removing from active courses");
+        setTimeout(() => {
+          this.activeCourses.delete(courseId);
+        }, 3000);
       }
-    } catch (error) {
-      console.error(`❌ Failed to update course status:`, error);
-      course.status = oldStatus;
-      throw new Error(`Network error - verificați conexiunea la internet și permisiunile aplicației`);
+      
+      console.log(`✅ Status ${newStatus} sent ONCE for course ${courseId}`);
+    } else {
+      console.log("❌ AndroidGPS.updateStatus not available - using web fallback");
     }
   }
 
