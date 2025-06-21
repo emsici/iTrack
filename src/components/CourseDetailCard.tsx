@@ -145,8 +145,8 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           transition: all 0.3s ease;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
           position: relative;
-          width: 92%;
-          max-width: 92%;
+          width: 96%;
+          max-width: 96%;
           box-sizing: border-box;
         }
 
