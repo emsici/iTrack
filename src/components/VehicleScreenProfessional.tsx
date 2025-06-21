@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Course } from "../types";
-import { getVehicleCourses, logout, sendGPSData } from "../services/api";
+import { getVehicleCourses, logout, sendGPSData, API_BASE_URL } from "../services/api";
 import {
   startGPSTracking,
   stopGPSTracking,
