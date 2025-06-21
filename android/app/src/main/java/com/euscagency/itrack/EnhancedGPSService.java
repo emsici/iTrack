@@ -341,8 +341,8 @@ public class EnhancedGPSService extends Service implements LocationListener {
         
         try {
             JSONObject gpsData = new JSONObject();
-            gpsData.put("lat", String.format(Locale.US, "%.8f", lastLocation.getLatitude()));
-            gpsData.put("lng", String.format(Locale.US, "%.8f", lastLocation.getLongitude()));
+            gpsData.put("lat", String.format(Locale.US, "%.6f", lastLocation.getLatitude()));
+            gpsData.put("lng", String.format(Locale.US, "%.6f", lastLocation.getLongitude()));
             gpsData.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
             gpsData.put("viteza", lastLocation.hasSpeed() ? (int)(lastLocation.getSpeed() * 3.6) : 0);
             gpsData.put("directie", lastLocation.hasBearing() ? (int)lastLocation.getBearing() : 0);
