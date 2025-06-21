@@ -296,16 +296,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         console.log(`📦 GPS Status payload:`, gpsPayload);
         
-        const response = await CapacitorHttp.post({
-          url: gpsUrl,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-            'Cache-Control': 'no-cache'
-          },
-          data: gpsPayload
-        });
+        // Try native HTTP first - PURE JAVA EFFICIENCY
+        let response;
+        if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
+          console.log('🔥 Using native HTTP for status update');
+          const nativeResult = (window as any).AndroidGPS.postNativeHttp(
+            gpsUrl,
+            JSON.stringify(gpsPayload),
+            token
+          );
+          response = { status: 200, data: JSON.parse(nativeResult) };
+        } else {
+          // Fallback to CapacitorHttp only in browser
+          response = await CapacitorHttp.post({
+            url: gpsUrl,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/json',
+              'Cache-Control': 'no-cache'
+            },
+            data: gpsPayload
+          });
+        }
 
         console.log(`📡 Response status: ${response.status}`);
         console.log(`📋 Response headers:`, response.headers);

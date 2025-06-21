@@ -84,13 +84,6 @@ class DirectAndroidGPSService {
         if (gpsResponse.status < 200 || gpsResponse.status >= 300) {
           throw new Error(`Server error ${gpsResponse.status}: ${JSON.stringify(gpsResponse.data)}`);
         }
-        
-        try {
-          result = JSON.parse(gpsResponse.data);
-        } catch (parseError) {
-          console.log("Server response (non-JSON):", gpsResponse.data);
-          result = { message: gpsResponse.data };
-        }
       }
       
       console.log("✅ Server status update successful:", result);

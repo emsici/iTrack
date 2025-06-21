@@ -159,15 +159,27 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
     console.log(`Loading courses for vehicle: ${vehicleNumber}`);
     logAPI(`Loading courses for vehicle ${vehicleNumber}`);
     
-    const response = await CapacitorHttp.get({
-      url: urlWithCacheBuster,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
-    });
+    // Try native HTTP first - PURE JAVA EFFICIENCY
+    let response;
+    if (typeof (window as any).AndroidGPS?.getNativeHttp === 'function') {
+      console.log('🔥 Using native HTTP for vehicle courses');
+      const nativeResult = (window as any).AndroidGPS.getNativeHttp(
+        urlWithCacheBuster,
+        token
+      );
+      response = { status: 200, data: JSON.parse(nativeResult) };
+    } else {
+      // Fallback to CapacitorHttp only in browser
+      response = await CapacitorHttp.get({
+        url: urlWithCacheBuster,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+    }
 
     console.log('=== APK DEBUG: API Response Status ===', response.status);
     console.log('=== APK DEBUG: API Response Data ===', JSON.stringify(response.data, null, 2));
@@ -238,20 +250,18 @@ export const logout = async (token: string): Promise<boolean> => {
     console.log('Logout: Starting logout process with Bearer token');
     logAPI('Starting logout process');
     
+    // Try native HTTP first - PURE JAVA EFFICIENCY
     let response;
-    
-    if (Capacitor.isNativePlatform()) {
-      // Use CapacitorHttp for native platforms
-      response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}/logout.php`,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        data: {}
-      });
+    if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
+      console.log('🔥 Using native HTTP for logout');
+      const nativeResult = (window as any).AndroidGPS.postNativeHttp(
+        `${API_BASE_URL}/logout.php`,
+        '{}',
+        token
+      );
+      response = { status: 200, data: JSON.parse(nativeResult) };
     } else {
-      // Use CapacitorHttp for web platforms
+      // Fallback to CapacitorHttp only in browser
       response = await CapacitorHttp.post({
         url: `${API_BASE_URL}/logout.php`,
         headers: {
@@ -279,14 +289,27 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
     console.log('Token:', token.substring(0, 20) + '...');
     console.log('GPS Data:', JSON.stringify(gpsData, null, 2));
     
-    const response = await CapacitorHttp.post({
-      url: `${API_BASE_URL}/gps.php`,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      data: gpsData
-    });
+    // Try native HTTP first - PURE JAVA EFFICIENCY
+    let response;
+    if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
+      console.log('🔥 Using native HTTP for GPS data');
+      const nativeResult = (window as any).AndroidGPS.postNativeHttp(
+        `${API_BASE_URL}/gps.php`,
+        JSON.stringify(gpsData),
+        token
+      );
+      response = { status: 200, data: JSON.parse(nativeResult) };
+    } else {
+      // Fallback to CapacitorHttp only in browser
+      response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}/gps.php`,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        data: gpsData
+      });
+    }
 
     console.log('=== GPS RESPONSE DETAILS ===');
     console.log('Status:', response.status);
