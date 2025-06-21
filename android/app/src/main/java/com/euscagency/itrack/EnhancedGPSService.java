@@ -21,7 +21,9 @@ import androidx.core.app.NotificationCompat;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -37,8 +39,24 @@ import org.json.JSONObject;
 /**
  * Enhanced GPS Service pentru iTrack
  * Serviciu foreground care transmite coordonate GPS la fiecare 5 secunde
+ * Suportă multiple curse active simultan - transmite pentru fiecare UIT separat
  * Funcționează în background chiar când aplicația e minimizată sau telefonul blocat
  */
+
+// Class pentru stocarea datelor unei curse
+class CourseData {
+    public String courseId;
+    public String uit;
+    public int status;
+    public long lastTransmissionTime;
+    
+    public CourseData(String courseId, String uit, int status) {
+        this.courseId = courseId;
+        this.uit = uit;
+        this.status = status;
+        this.lastTransmissionTime = System.currentTimeMillis();
+    }
+}
 public class EnhancedGPSService extends Service implements LocationListener {
     private static final String TAG = "EnhancedGPSService";
     private static final String CHANNEL_ID = "itrack_gps_channel";
@@ -52,12 +70,12 @@ public class EnhancedGPSService extends Service implements LocationListener {
     private Runnable gpsRunnable;
     private OkHttpClient httpClient;
 
-    // Course data
-    private String courseId;
+    // Multiple courses tracking - pentru curse simultane
+    private Map<String, CourseData> activeCourses = new HashMap<>();
+    
+    // Default data for service operations
     private String vehicleNumber;
-    private String uit;
     private String authToken;
-    private int status;
 
     // GPS tracking state
     private boolean isTracking = false;
@@ -86,7 +104,8 @@ public class EnhancedGPSService extends Service implements LocationListener {
             if ("START_TRACKING".equals(action)) {
                 startGPSTracking(intent);
             } else if ("STOP_TRACKING".equals(action)) {
-                stopGPSTracking();
+                String courseId = intent.getStringExtra("courseId");
+                stopSpecificCourse(courseId != null ? courseId : "ALL_COURSES");
             } else if ("UPDATE_STATUS".equals(action)) {
                 updateCourseStatus(intent);
             }
@@ -96,85 +115,123 @@ public class EnhancedGPSService extends Service implements LocationListener {
     }
 
     private void startGPSTracking(Intent intent) {
-        courseId = intent.getStringExtra("courseId");
-        vehicleNumber = intent.getStringExtra("vehicleNumber");
-        uit = intent.getStringExtra("uit");
-        authToken = intent.getStringExtra("authToken");
-        status = intent.getIntExtra("status", 2);
-
-        Log.d(TAG, String.format("=== STARTING GPS TRACKING ==="));
-        Log.d(TAG, String.format("Course: %s, UIT: %s, Status: %d", courseId, uit, status));
-
-        startForeground(NOTIFICATION_ID, createNotification());
+        String courseId = intent.getStringExtra("courseId");
+        String uit = intent.getStringExtra("uit");
+        int status = intent.getIntExtra("status", 2);
         
-        // LOGICA CORECTĂ PENTRU STATUSURI:
-        // Status 2 (ACTIV): Transmisie continuă coordonate la 5 secunde
-        // Status 3 (PAUZĂ): Un singur update cu status 3, apoi stop coordonate
-        // Status 4 (FINALIZAT): Un singur update cu status 4, apoi stop complet
-        if (status == 2) {
-            Log.d(TAG, "STATUS 2 (ACTIVE): Starting continuous GPS transmission every 5 seconds");
+        // Store vehicle and auth data (shared across courses)
+        vehicleNumber = intent.getStringExtra("vehicleNumber");
+        authToken = intent.getStringExtra("authToken");
+
+        Log.d(TAG, "=== STARTING GPS TRACKING ===");
+        Log.d(TAG, "Course ID: " + courseId);
+        Log.d(TAG, "UIT: " + uit);
+        Log.d(TAG, "Status: " + status);
+        Log.d(TAG, "Vehicle: " + vehicleNumber);
+        Log.d(TAG, "Active courses before: " + activeCourses.size());
+
+        // Add course to active tracking
+        CourseData courseData = new CourseData(courseId, uit, status);
+        activeCourses.put(courseId, courseData);
+        
+        Log.d(TAG, "Active courses after: " + activeCourses.size());
+        for (String key : activeCourses.keySet()) {
+            CourseData cd = activeCourses.get(key);
+            Log.d(TAG, "  Course: " + key + " (UIT: " + cd.uit + ", Status: " + cd.status + ")");
+        }
+
+        // Start foreground service if not already running
+        if (!isTracking) {
+            startForeground(NOTIFICATION_ID, createNotification());
             startLocationUpdates();
             startGPSTransmissionLoop();
             isTracking = true;
-        } else if (status == 3) {
-            Log.d(TAG, "STATUS 3 (PAUSED): Sending single status update, no continuous GPS");
-            sendSingleStatusUpdate();
-        } else if (status == 4) {
-            Log.d(TAG, "STATUS 4 (FINISHED): Sending final status update and stopping service");
-            sendSingleStatusUpdate();
-            // Pentru status 4, oprește serviciul după trimiterea status-ului
-            new Handler(Looper.getMainLooper()).postDelayed(this::stopGPSTracking, 2000);
+            Log.d(TAG, "✅ GPS service started with foreground and location tracking");
+        } else {
+            Log.d(TAG, "✅ Course added to existing GPS service");
+        }
+        
+        // Send immediate status update for new course
+        if (status == 3 || status == 4) {
+            sendSingleStatusUpdate(courseData);
+            if (status == 4) {
+                // Remove finished course after status update
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    activeCourses.remove(courseId);
+                    Log.d(TAG, "Course " + courseId + " removed (finished)");
+                    checkStopService();
+                }, 2000);
+            }
         }
     }
 
     private void stopGPSTracking() {
-        Log.d(TAG, "Stopping GPS tracking");
+        String courseId = "ALL_COURSES"; // Default for stop all
+        stopSpecificCourse(courseId);
+    }
+    
+    private void stopSpecificCourse(String courseId) {
+        Log.d(TAG, "=== STOPPING GPS TRACKING ===");
+        Log.d(TAG, "Course ID: " + courseId);
         
-        isTracking = false;
-        stopLocationUpdates();
-        stopGPSTransmissionLoop();
-        releaseWakeLock();
-        stopForeground(true);
-        stopSelf();
+        if ("ALL_COURSES".equals(courseId) || "LOGOUT_CLEAR_ALL".equals(courseId)) {
+            Log.d(TAG, "Stopping ALL courses");
+            activeCourses.clear();
+        } else {
+            activeCourses.remove(courseId);
+            Log.d(TAG, "Removed course: " + courseId);
+        }
+        
+        Log.d(TAG, "Remaining active courses: " + activeCourses.size());
+        checkStopService();
+    }
+    
+    private void checkStopService() {
+        if (activeCourses.isEmpty()) {
+            Log.d(TAG, "No active courses - stopping GPS service");
+            isTracking = false;
+            stopLocationUpdates();
+            stopGPSTransmissionLoop();
+            releaseWakeLock();
+            stopForeground(true);
+            stopSelf();
+        } else {
+            Log.d(TAG, "Still have " + activeCourses.size() + " active courses - keeping service running");
+        }
     }
 
     private void updateCourseStatus(Intent intent) {
-        int oldStatus = status;
-        int newStatus = intent.getIntExtra("status", status);
-        Log.d(TAG, String.format("=== STATUS UPDATE: %d → %d ===", oldStatus, newStatus));
+        String courseId = intent.getStringExtra("courseId");
+        int newStatus = intent.getIntExtra("status", 2);
         
-        status = newStatus;
+        CourseData course = activeCourses.get(courseId);
+        if (course == null) {
+            Log.w(TAG, "Course not found for status update: " + courseId);
+            return;
+        }
         
-        if (status == 2) {
-            // RESUME/START: Începe transmisia continuă coordonate
-            Log.d(TAG, "RESUME: Starting continuous GPS transmission");
-            if (!isTracking) {
-                startLocationUpdates();
-                startGPSTransmissionLoop();
-                isTracking = true;
-            }
-        } else if (status == 3) {
-            // PAUZĂ: Trimite status 3 și oprește coordonatele continue
-            Log.d(TAG, "PAUSE: Sending status 3 and stopping continuous GPS");
-            if (isTracking) {
-                isTracking = false;
-                stopLocationUpdates();
-                stopGPSTransmissionLoop();
-            }
-            // Trimite imediat status 3
-            sendSingleStatusUpdate();
-        } else if (status == 4) {
-            // FINALIZAT: Trimite status 4 și oprește serviciul complet
-            Log.d(TAG, "FINISHED: Sending final status 4 and stopping service");
-            if (isTracking) {
-                isTracking = false;
-                stopLocationUpdates();
-                stopGPSTransmissionLoop();
-            }
-            // Trimite status 4 final
-            sendSingleStatusUpdate();
-            // Oprește serviciul după 2 secunde
-            new Handler(Looper.getMainLooper()).postDelayed(this::stopGPSTracking, 2000);
+        int oldStatus = course.status;
+        Log.d(TAG, "=== STATUS UPDATE ===");
+        Log.d(TAG, "Course: " + courseId + " (UIT: " + course.uit + ")");
+        Log.d(TAG, "Status: " + oldStatus + " → " + newStatus);
+        
+        course.status = newStatus;
+        
+        if (newStatus == 2) {
+            Log.d(TAG, "RESUME/ACTIVATE: Course will transmit continuously");
+            // Service already running, just update status
+        } else if (newStatus == 3) {
+            Log.d(TAG, "PAUSE: Sending status update");
+            sendSingleStatusUpdate(course);
+        } else if (newStatus == 4) {
+            Log.d(TAG, "FINISH: Sending final status and removing course");
+            sendSingleStatusUpdate(course);
+            // Remove course after final transmission
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                activeCourses.remove(courseId);
+                Log.d(TAG, "Course " + courseId + " removed (finished)");
+                checkStopService();
+            }, 2000);
         }
         
         // Update notification
@@ -224,37 +281,50 @@ public class EnhancedGPSService extends Service implements LocationListener {
     }
 
     private void sendGPSCoordinates() {
-        if (!isTracking || lastLocation == null) {
+        if (!isTracking || lastLocation == null || activeCourses.isEmpty()) {
             return;
         }
 
-        try {
-            JSONObject gpsData = new JSONObject();
-            gpsData.put("lat", lastLocation.getLatitude());
-            gpsData.put("lng", lastLocation.getLongitude());
-            gpsData.put("timestamp", getCurrentTimestamp());
-            gpsData.put("viteza", Math.max(0, (int) (lastLocation.getSpeed() * 3.6))); // m/s to km/h
-            gpsData.put("directie", (int) lastLocation.getBearing());
-            gpsData.put("altitudine", (int) lastLocation.getAltitude());
-            gpsData.put("baterie", getBatteryLevel());
-            gpsData.put("numar_inmatriculare", vehicleNumber);
-            gpsData.put("uit", uit);
-            gpsData.put("status", String.valueOf(status));
-            gpsData.put("hdop", String.format("%.1f", lastLocation.getAccuracy()));
-            gpsData.put("gsm_signal", "4");
+        Log.d(TAG, "=== TRANSMITTING GPS FOR ALL ACTIVE COURSES ===");
+        Log.d(TAG, "Active courses: " + activeCourses.size());
 
-            transmitGPSData(gpsData);
-            transmissionCount++;
+        // Transmite coordonate pentru fiecare cursă activă cu status 2
+        for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+            CourseData course = entry.getValue();
             
-            Log.d(TAG, String.format("GPS transmitted #%d: %.6f, %.6f (UIT REAL: %s, Status: %d)", 
-                transmissionCount, lastLocation.getLatitude(), lastLocation.getLongitude(), uit, status));
-                
-        } catch (Exception e) {
-            Log.e(TAG, "Error preparing GPS data", e);
+            if (course.status == 2) { // Doar cursele active transmit coordonate continue
+                try {
+                    JSONObject gpsData = new JSONObject();
+                    gpsData.put("lat", lastLocation.getLatitude());
+                    gpsData.put("lng", lastLocation.getLongitude());
+                    gpsData.put("timestamp", getCurrentTimestamp());
+                    gpsData.put("viteza", Math.max(0, (int) (lastLocation.getSpeed() * 3.6))); // m/s to km/h
+                    gpsData.put("directie", (int) lastLocation.getBearing());
+                    gpsData.put("altitudine", (int) lastLocation.getAltitude());
+                    gpsData.put("baterie", getBatteryLevel());
+                    gpsData.put("numar_inmatriculare", vehicleNumber);
+                    gpsData.put("uit", course.uit); // UIT specific pentru această cursă
+                    gpsData.put("status", String.valueOf(course.status));
+                    gpsData.put("hdop", String.format("%.1f", lastLocation.getAccuracy()));
+                    gpsData.put("gsm_signal", "4");
+
+                    transmitGPSData(gpsData);
+                    course.lastTransmissionTime = System.currentTimeMillis();
+                    transmissionCount++;
+                    
+                    Log.d(TAG, String.format("📡 GPS #%d sent for UIT: %s (%.6f, %.6f)", 
+                        transmissionCount, course.uit, lastLocation.getLatitude(), lastLocation.getLongitude()));
+                        
+                } catch (Exception e) {
+                    Log.e(TAG, "Error preparing GPS data for UIT: " + course.uit, e);
+                }
+            } else {
+                Log.d(TAG, "⏸️ Skipping UIT: " + course.uit + " (status: " + course.status + " - not active)");
+            }
         }
     }
 
-    private void sendSingleStatusUpdate() {
+    private void sendSingleStatusUpdate(CourseData course) {
         try {
             // Pentru status update folosește coordonatele curente dacă sunt disponibile
             double lat = (lastLocation != null) ? lastLocation.getLatitude() : 0;
@@ -272,17 +342,17 @@ public class EnhancedGPSService extends Service implements LocationListener {
             statusData.put("altitudine", altitude);
             statusData.put("baterie", getBatteryLevel());
             statusData.put("numar_inmatriculare", vehicleNumber);
-            statusData.put("uit", uit);
-            statusData.put("status", String.valueOf(status));
+            statusData.put("uit", course.uit); // UIT specific pentru această cursă
+            statusData.put("status", String.valueOf(course.status));
             statusData.put("hdop", lastLocation != null ? String.format("%.1f", lastLocation.getAccuracy()) : "1.0");
             statusData.put("gsm_signal", "4");
 
             transmitGPSData(statusData);
-            Log.d(TAG, String.format("Status update sent: %d for UIT: %s at %.6f,%.6f", 
-                status, uit, lat, lng));
+            Log.d(TAG, String.format("📤 Status update sent: %d for UIT: %s at %.6f,%.6f", 
+                course.status, course.uit, lat, lng));
             
         } catch (Exception e) {
-            Log.e(TAG, "Error sending status update", e);
+            Log.e(TAG, "Error sending status update for UIT: " + course.uit, e);
         }
     }
 
