@@ -171,7 +171,7 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.07 (June 21, 2025)
+### Versiunea Curentă: 1808.08 (June 21, 2025)
 - **Design unificat complet**: Lista de curse, GPS monitor și footer cu același stil închis ca header-ul
 - **Sistem offline robust**: Detectare reală conexiune + salvare automată coordonate când pică internetul
 - **Sincronizare automată**: Progress bar cu shimmer animation când revine conexiunea
