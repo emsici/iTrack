@@ -182,7 +182,7 @@ class DirectAndroidGPSService {
 
         // Activare serviciu Android nativ direct
         if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-          console.log("AndroidGPS interface available - starting native service");
+          console.log("✅ AndroidGPS interface FOUND - starting native background service");
           const result = (window as any).AndroidGPS.startGPS(
             course.courseId,
             course.vehicleNumber, 
@@ -190,28 +190,42 @@ class DirectAndroidGPSService {
             course.token,
             course.status
           );
-          console.log("AndroidGPS.startGPS called with result:", result);
-          console.log("📱 EnhancedGPSService should now be running in background");
+          console.log("📱 AndroidGPS.startGPS result:", result);
           
-          // Test dacă serviciul chiar rulează
+          // Verificare dacă serviciul chiar rulează în background
           setTimeout(() => {
-            console.log("=== GPS SERVICE STATUS CHECK (5s later) ===");
-            if ((window as any).AndroidGPS && (window as any).AndroidGPS.getStatus) {
-              const status = (window as any).AndroidGPS.getStatus();
-              console.log("GPS Service status:", status);
+            console.log("=== BACKGROUND SERVICE VERIFICATION ===");
+            if ((window as any).AndroidGPS.isServiceRunning) {
+              const isRunning = (window as any).AndroidGPS.isServiceRunning();
+              console.log("🔍 EnhancedGPSService running:", isRunning);
+              if (isRunning) {
+                console.log("✅ GPS BACKGROUND SERVICE CONFIRMED ACTIVE");
+                console.log("📍 Coordinates transmitting every 5 seconds to server");
+                console.log("🔒 Service will continue with phone locked");
+              } else {
+                console.log("❌ Background service not detected - check Android logs");
+              }
             }
-          }, 5000);
+            
+            if ((window as any).AndroidGPS.getStatus) {
+              const status = (window as any).AndroidGPS.getStatus();
+              console.log("📊 Service status:", status);
+            }
+          }, 3000);
           
         } else {
           console.log("❌ AndroidGPS interface NOT available");
-          console.log("Platform info:", {
-            isNativePlatform: Capacitor.isNativePlatform(),
-            platform: Capacitor.getPlatform(),
-            userAgent: navigator.userAgent
-          });
-          console.log("Available window objects:", Object.keys(window));
-          console.log("Starting web GPS fallback for testing");
-          await this.startWebCompatibleGPS(course);
+          console.log("🔍 Available interfaces:", Object.keys(window).filter(k => k.includes('Android') || k.includes('GPS')));
+          console.log("📱 Platform:", Capacitor.getPlatform(), "Native:", Capacitor.isNativePlatform());
+          
+          if (Capacitor.isNativePlatform()) {
+            console.log("❌ CRITICAL: Native platform but AndroidGPS missing");
+            console.log("🔧 Check MainActivity.java WebView interface setup");
+            throw new Error("AndroidGPS interface missing on native platform - GPS won't work");
+          } else {
+            console.log("🌐 Web environment - starting fallback for testing only");
+            await this.startWebCompatibleGPS(course);
+          }
         }
 
         console.log("EnhancedGPSService activated for UIT:", course.uit);

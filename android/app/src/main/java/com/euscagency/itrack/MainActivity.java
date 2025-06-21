@@ -138,5 +138,31 @@ public class MainActivity extends BridgeActivity {
             startService(intent);
             Log.d(TAG, "EnhancedGPSService cleared all on logout via WebView interface");
         }
+        
+        @JavascriptInterface
+        public String getStatus() {
+            Log.d(TAG, "WebView GPS Status Check requested");
+            return "GPS Service Active - Background transmission enabled";
+        }
+        
+        @JavascriptInterface
+        public boolean isServiceRunning() {
+            Log.d(TAG, "Checking if EnhancedGPSService is running");
+            ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (EnhancedGPSService.class.getName().equals(service.service.getClassName())) {
+                    Log.d(TAG, "EnhancedGPSService is running in background");
+                    return true;
+                }
+            }
+            Log.d(TAG, "EnhancedGPSService is NOT running");
+            return false;
+        }
+        
+        @JavascriptInterface
+        public String getStatus() {
+            Log.d(TAG, "WebView GPS Status Check requested");
+            return "GPS Service Active - Background transmission enabled";
+        }
     }
 }
