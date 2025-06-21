@@ -171,7 +171,7 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.25 (June 21, 2025) - UI CLEANUP & CARD OPTIMIZATION
+### Versiunea Curentă: 1808.26 (June 21, 2025) - GPS PERMISSIONS & DEBUG COUNTER FIX
 - **Eliminat iconița statistici**: Scos al 5-lea card cu iconița fa-chart-line din dashboard pentru design mai curat
 - **Eliminat indicator Online/Offline redundant**: Scos statusul de conectivitate din header, păstrat doar cel functional pentru debug (50 click-uri)
 - **Eliminat OfflineGPSMonitor**: Scos complet mesajul "GPS activ - toate datele sincronizate" de sub cardurile de transport
@@ -180,6 +180,12 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Card layout îmbunătățit**: Mărit lățimea cardurilor la 96% pentru ocuparea optimă a spațiului lateral
 - **Preview vs detalii complete**: View standard cu 4 câmpuri esențiale, dropdown cu toate datele API (ikRoTrans, codDeclarant, birouri vamale)
 - **Dashboard simplificat**: Rămas cu 4 carduri principale: TOTAL, ACTIV, PAUZĂ, DISPONIBIL și doar butoanele Refresh/Ieșire
+
+### Versiunea Precedentă: 1808.25 (June 21, 2025) - GPS PERMISSIONS & DEBUG COUNTER FIX
+- **GPS permissions reparat**: Revenit la logica simplă de cerere permisiuni care funcționa, eliminat timeout-urile complexe
+- **Debug counter poziționat**: Counter-ul 30/50 apare acum corect lângă textul "Online" în loc să fie separat
+- **Timeout GPS mărit**: Crescut la 15 secunde pentru poziționare mai stabilă
+- **Verificare permisiuni strictă**: Adăugat verificare explicită dacă GPS permissions sunt acordate înainte de continuare
 
 ### Versiunea Precedentă: 1808.24 (June 21, 2025) - GPS PERMISSIONS REPARAT
 - **Integrare completă cu serverul de producție**: Toate coordonatele GPS ajung și sunt salvate în baza de date cu ID-uri unice

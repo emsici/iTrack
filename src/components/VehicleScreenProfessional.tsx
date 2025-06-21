@@ -504,12 +504,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   style={{ cursor: 'pointer' }}
                 >
                   <div className={`status-indicator ${isOnline ? "online" : "offline"}`}></div>
-                  <span className="status-text">{isOnline ? "Online" : "Offline"}</span>
+                  <span className="status-text">
+                    {isOnline ? "Online" : "Offline"}
+                    {infoClickCount >= 30 && (
+                      <span className="click-counter-badge" style={{ marginLeft: '8px' }}>
+                        {infoClickCount}/50
+                      </span>
+                    )}
+                  </span>
                   {offlineCount > 0 && !syncProgress?.isActive && (
                     <span className="offline-count-badge">{offlineCount}</span>
-                  )}
-                  {infoClickCount >= 30 && (
-                    <span className="click-counter-badge">{infoClickCount}/50</span>
                   )}
                 </div>
                 

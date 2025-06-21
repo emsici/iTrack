@@ -155,25 +155,30 @@ class DirectAndroidGPSService {
     console.log(`Token: ${course.token.substring(0, 20)}...`);
 
     try {
-      // Cerere permisiuni GPS prin Capacitor - simplu ca înainte
-      console.log("Requesting GPS permissions...");
+      // Cerere permisiuni GPS prin Capacitor - revenit la logica simplă care funcționa
+      console.log("🔐 Requesting GPS permissions (simple approach)...");
       const permissions = await Geolocation.requestPermissions();
-      console.log("GPS permissions result:", permissions);
+      console.log("📋 GPS permissions result:", permissions);
 
-      if (permissions.location === "granted") {
-        console.log("GPS permissions granted - starting location tracking");
+      if (permissions.location !== "granted") {
+        throw new Error("GPS permissions not granted - user denied access");
+      }
 
-        // Start location tracking pentru a activa serviciul
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000,
-        });
+      console.log("✅ GPS permissions granted - proceeding with location setup");
 
-        console.log("Current position obtained:", {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          accuracy: position.coords.accuracy,
-        });
+      // Test GPS direct - obține poziția curentă
+      console.log("📍 Getting current position to verify GPS...");
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 10000
+      });
+
+      console.log("📱 Current position obtained successfully:", {
+        lat: position.coords.latitude.toFixed(6),
+        lng: position.coords.longitude.toFixed(6),
+        accuracy: position.coords.accuracy
+      });
 
         // Activare serviciu Android nativ direct
         if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
@@ -211,9 +216,7 @@ class DirectAndroidGPSService {
 
         console.log("EnhancedGPSService activated for UIT:", course.uit);
         console.log("GPS will transmit every 5 seconds to server");
-      } else {
-        throw new Error("GPS permissions not granted");
-      }
+        
     } catch (error) {
       console.error("Failed to start GPS tracking:", error);
       throw error;
