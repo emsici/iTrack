@@ -107,18 +107,10 @@ class DirectAndroidGPSService {
     this.activeCourses.set(courseId, courseData);
 
     try {
-      // PRIORITATE: Android nativ pentru GPS real în background
-      if (Capacitor.isNativePlatform()) {
-        console.log("📱 Native Android platform detected - starting background GPS service");
-        await this.startAndroidNativeService(courseData);
-        console.log("✅ Android native GPS service started - no fallback needed");
-        return; // Exit early - only native GPS should run
-      }
-
-      // Browser testing - doar pentru dezvoltare
-      console.log("🌐 Browser environment - starting web GPS for testing only");
-      await this.startWebCompatibleGPS(courseData);
-      console.log("⚠️ Web GPS active - this won't work with phone locked");
+      // FORȚARE Android GPS nativ - chiar și în browser pentru APK
+      console.log("🚀 Forcing Android native GPS service (APK mode)");
+      await this.startAndroidNativeService(courseData);
+      console.log("✅ Android native GPS service prioritized");
     } catch (error) {
       console.error(`❌ GPS start failed completely:`, error);
       this.activeCourses.delete(courseId);
@@ -127,21 +119,18 @@ class DirectAndroidGPSService {
   }
 
   async stopTracking(courseId: string): Promise<void> {
-    console.log(`Stopping direct Android GPS for course ${courseId}`);
+    console.log(`🛑 Stopping Android native GPS for course ${courseId}`);
 
     const course = this.activeCourses.get(courseId);
     if (!course) return;
 
     try {
-      if (Capacitor.isNativePlatform()) {
-        await this.stopAndroidNativeService(courseId);
-      } else {
-        console.log("Web environment: Android service would stop in APK");
-      }
-
+      // FORȚARE serviciu nativ Android - chiar și în browser pentru APK
+      await this.stopAndroidNativeService(courseId);
       this.activeCourses.delete(courseId);
+      console.log("✅ Android GPS service stopped");
     } catch (error) {
-      console.error(`Failed to stop Android GPS service:`, error);
+      console.error(`❌ Failed to stop Android GPS service:`, error);
       throw error;
     }
   }
@@ -198,15 +187,12 @@ class DirectAndroidGPSService {
           }, 5000);
           
         } else {
-          console.log("❌ AndroidGPS interface NOT available");
-          console.log("Platform info:", {
-            isNativePlatform: Capacitor.isNativePlatform(),
-            platform: Capacitor.getPlatform(),
-            userAgent: navigator.userAgent
-          });
-          console.log("Available window objects:", Object.keys(window));
-          console.log("Starting web GPS fallback for testing");
-          await this.startWebCompatibleGPS(course);
+          // În APK va fi disponibil AndroidGPS - în browser simulăm
+          console.log("⚠️ AndroidGPS interface not available in browser - will be available in APK");
+          console.log("🔧 Simulating AndroidGPS call for course:", course.courseId);
+          console.log("🎯 In APK: EnhancedGPSService will start and transmit GPS every 5 seconds");
+          console.log("🎯 Background GPS will work with phone locked in APK version");
+          console.log("❌ NO WEB GPS FALLBACK - Only native Android GPS supported");
         }
 
         console.log("EnhancedGPSService activated for UIT:", course.uit);
@@ -225,18 +211,11 @@ class DirectAndroidGPSService {
     console.log(`Course: ${courseId}`);
 
     try {
-      if (Capacitor.isNativePlatform()) {
-        try {
-          // Oprire prin DirectGPS plugin
-          const result = await DirectGPS.stopTracking({
-            courseId: courseId,
-          });
-
-          console.log("GPS tracking stopped:", result.message);
-        } catch (pluginError) {
-          console.log("DirectGPS plugin not available - using fallback");
-          console.log("In APK: DirectGPS will stop EnhancedGPSService");
-        }
+      // OPRIRE prin AndroidGPS WebView interface
+      if (window.AndroidGPS) {
+        console.log("✅ AndroidGPS available - stopping EnhancedGPSService");
+        const result = window.AndroidGPS.stopGPSTracking(courseId);
+        console.log("✅ EnhancedGPSService stopped via AndroidGPS:", result);
       } else {
         console.log("Web environment: GPS would stop in APK");
       }
