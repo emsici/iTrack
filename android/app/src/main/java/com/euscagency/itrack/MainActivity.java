@@ -158,11 +158,5 @@ public class MainActivity extends BridgeActivity {
             Log.d(TAG, "EnhancedGPSService is NOT running");
             return false;
         }
-        
-        @JavascriptInterface
-        public String getStatus() {
-            Log.d(TAG, "WebView GPS Status Check requested");
-            return "GPS Service Active - Background transmission enabled";
-        }
     }
 }
