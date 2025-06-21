@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "../styles/corporate-light.css";
 import { CapacitorHttp } from '@capacitor/core';
 import { Course } from "../types";
 import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
@@ -14,7 +15,6 @@ import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../servi
 import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
 import { startCourseAnalytics, stopCourseAnalytics } from "../services/courseAnalytics";
-
 
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
