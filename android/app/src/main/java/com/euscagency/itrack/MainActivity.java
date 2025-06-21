@@ -20,23 +20,55 @@ import android.content.pm.PackageManager;
  * Oferă interfață WebView pentru activarea serviciului GPS din JavaScript
  */
 public class MainActivity extends BridgeActivity {
-    
-    // Register DirectGPS plugin
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        registerPlugin(DirectGPSPlugin.class);
-    }
     private static final String TAG = "iTrackMainActivity";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        // Register DirectGPS plugin
+        registerPlugin(DirectGPSPlugin.class);
+        
         // Add AndroidGPS interface to WebView for JavaScript access
         getBridge().getWebView().addJavascriptInterface(new AndroidGPS(), "AndroidGPS");
         
-        Log.d(TAG, "iTrack MainActivity initialized with GPS interface");
+        Log.d(TAG, "iTrack MainActivity initialized with GPS interface and DirectGPS plugin");
+        
+        // Auto-test GPS service la pornire pentru debugging
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            testGPSServiceStartup();
+        }, 3000);
+    }
+    
+    private void testGPSServiceStartup() {
+        Log.d(TAG, "=== GPS SERVICE STARTUP TEST ===");
+        try {
+            Intent intent = new Intent(this, EnhancedGPSService.class);
+            intent.setAction("START_TRACKING");
+            intent.putExtra("courseId", "STARTUP_TEST");
+            intent.putExtra("vehicleNumber", "IF03CWT");
+            intent.putExtra("uit", "TEST123456789");
+            intent.putExtra("authToken", "test_token_startup");
+            intent.putExtra("status", 2);
+            
+            ComponentName result = startForegroundService(intent);
+            Log.d(TAG, "✅ Startup test GPS service result: " + result);
+            
+            // Verifică dacă rulează după 2 secunde
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                    if (EnhancedGPSService.class.getName().equals(service.service.getClassName())) {
+                        Log.d(TAG, "✅ EnhancedGPSService confirmed running after startup test");
+                        return;
+                    }
+                }
+                Log.e(TAG, "❌ EnhancedGPSService NOT running after startup test");
+            }, 2000);
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Startup GPS test failed: " + e.getMessage(), e);
+        }
     }
 
     /**
