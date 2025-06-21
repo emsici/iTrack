@@ -27,6 +27,44 @@ const VehicleScreenProfessional: React.FC<VehicleScreenProps> = ({ token, onLogo
   const [debugLogs, setDebugLogs] = useState<any[]>([]);
   const [syncProgress, setSyncProgress] = useState<any>(null);
   const [offlineCount, setOfflineCount] = useState(0);
+
+  // Monitor offline GPS count and sync progress
+  useEffect(() => {
+    const checkOfflineStatus = async () => {
+      try {
+        const { getOfflineGPSCount, getOfflineGPSInfo, subscribeToSyncProgress } = await import('../services/offlineGPS');
+        const count = await getOfflineGPSCount();
+        setOfflineCount(count);
+
+        const { startOfflineSync, subscribeToSyncProgress: subscribeSyncStatus } = await import('../services/offlineSyncStatus');
+        
+        // Subscribe to sync progress updates
+        const unsubscribe = subscribeSyncStatus({
+          onProgressUpdate: (progress) => {
+            setSyncProgress(progress);
+          },
+          onSyncComplete: () => {
+            setSyncProgress(null);
+            checkOfflineStatus(); // Refresh count after sync
+          },
+          onSyncError: (error) => {
+            console.error('Sync error:', error);
+            setSyncProgress(null);
+          }
+        });
+
+        return () => unsubscribe();
+      } catch (error) {
+        console.error('Error checking offline status:', error);
+      }
+    };
+
+    checkOfflineStatus();
+
+    // Check every 30 seconds
+    const interval = setInterval(checkOfflineStatus, 30000);
+    return () => clearInterval(interval);
+  }, [isOnline]);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
 
   // Load stored vehicle number on component mount
@@ -416,6 +454,24 @@ const VehicleScreenProfessional: React.FC<VehicleScreenProps> = ({ token, onLogo
               <span>{isOnline ? "Online" : "Offline"}</span>
             </div>
             
+            {/* Internet Status Button */}
+            <div className="internet-status-button">
+              <div className={`internet-indicator-btn ${isOnline ? 'internet-online' : 'internet-offline'}`}>
+                <i className={`fas ${isOnline ? 'fa-wifi' : 'fa-wifi-slash'}`}></i>
+                <span>{isOnline ? 'NET' : 'OFFLINE'}</span>
+                {!isOnline && offlineCount > 0 && (
+                  <span className="offline-count-badge">
+                    {offlineCount}
+                  </span>
+                )}
+                {syncProgress && syncProgress.isActive && (
+                  <span className="sync-progress-badge">
+                    {syncProgress.percentage}%
+                  </span>
+                )}
+              </div>
+            </div>
+
             {/* GPS Status Button */}
             <div className="gps-status-button">
               <div className={`gps-indicator-btn ${courses.filter(c => c.status === 2).length > 0 ? 'gps-active' : 'gps-inactive'}`}>
