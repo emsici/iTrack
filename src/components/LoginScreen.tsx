@@ -47,17 +47,17 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
   return (
     <div style={{
-      minHeight: '100dvh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)',
-      backgroundAttachment: 'fixed',
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, rgba(248, 250, 252, 1) 0%, rgba(241, 245, 249, 1) 50%, rgba(248, 250, 252, 1) 100%)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '0',
+      padding: '24px',
+      paddingTop: 'calc(env(safe-area-inset-top, 20px) + 24px)',
+      paddingBottom: 'calc(env(safe-area-inset-bottom, 20px) + 24px)',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      position: 'relative',
-      overflow: 'hidden'
+      position: 'relative'
     }}>
       <style>
         {`
@@ -816,15 +816,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               </>
             )}
           </button>
-        </form>
 
-        <div className="login-footer">
-          <div className="version-info">
-            <i className="fas fa-code-branch"></i>
-            <span>Versiunea 1807.99</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

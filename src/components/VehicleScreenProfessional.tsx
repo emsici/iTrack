@@ -553,22 +553,148 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
 
 
-          </div>
-        </>
+        </div>
       ) : (
-        <>
-          <div className="vehicle-screen-header">
-            <div className="header-vehicle-display">
-              <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
-                <i className="fas fa-truck vehicle-icon"></i>
-                <span className="vehicle-number">{vehicleNumber}</span>
-                <i className="edit-icon fas fa-edit"></i>
-              </div>
-              
-              <div className="logout-button-card" onClick={handleLogout} title="Logout">
-                <i className="fas fa-sign-out-alt"></i>
-              </div>
+        <div style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, rgba(248, 250, 252, 1) 0%, rgba(241, 245, 249, 1) 50%, rgba(248, 250, 252, 1) 100%)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          paddingTop: 'calc(env(safe-area-inset-top, 20px) + 24px)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 20px) + 24px)'
+        }}>
+          
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(226, 232, 240, 0.5)',
+            borderRadius: '24px',
+            padding: '48px',
+            maxWidth: '420px',
+            width: '100%',
+            boxShadow: '0 20px 40px rgba(15, 23, 42, 0.08)',
+            animation: 'slideIn 0.6s ease-out'
+          }}>
+            
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '36px'
+            }}>
+              <h2 style={{
+                fontSize: '2.2rem',
+                fontWeight: '800',
+                color: '#1e293b',
+                marginBottom: '12px',
+                letterSpacing: '-0.02em'
+              }}>
+                iTrack GPS
+              </h2>
+              <p style={{
+                color: '#64748b',
+                fontSize: '1.1rem',
+                fontWeight: '500'
+              }}>
+                Sistem de monitorizare profesional
+              </p>
             </div>
+
+            <div style={{
+              marginBottom: '28px'
+            }}>
+              <label style={{
+                display: 'block',
+                marginBottom: '10px',
+                color: '#475569',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                letterSpacing: '0.02em'
+              }}>
+                Numărul vehiculului
+              </label>
+              <input
+                type="text"
+                placeholder="ex: B123ABC"
+                value={vehicleNumber}
+                onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+                onKeyPress={(e) => e.key === 'Enter' && handleLoadCourses()}
+                style={{
+                  width: '100%',
+                  padding: '18px 20px',
+                  border: '1px solid rgba(148, 163, 184, 0.3)',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  background: 'rgba(255, 255, 255, 0.8)',
+                  color: '#1e293b',
+                  backdropFilter: 'blur(10px)',
+                  outline: 'none',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+                  fontWeight: '600',
+                  letterSpacing: '1px'
+                }}
+              />
+            </div>
+
+            <button
+              onClick={handleLoadCourses}
+              disabled={isLoading || !vehicleNumber.trim()}
+              style={{
+                width: '100%',
+                padding: '18px 20px',
+                background: isLoading || !vehicleNumber.trim()
+                  ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.7), rgba(37, 99, 235, 0.7))'
+                  : 'linear-gradient(135deg, rgba(59, 130, 246, 1), rgba(37, 99, 235, 1))',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '700',
+                cursor: isLoading || !vehicleNumber.trim() ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: isLoading || !vehicleNumber.trim()
+                  ? '0 4px 20px rgba(59, 130, 246, 0.15)'
+                  : '0 6px 24px rgba(59, 130, 246, 0.25)',
+                letterSpacing: '0.5px'
+              }}
+            >
+              {isLoading ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    borderTop: '2px solid #ffffff',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    marginRight: '10px'
+                  }}></div>
+                  Se încarcă...
+                </div>
+              ) : (
+                'Încarcă curse'
+              )}
+            </button>
+
+            {error && (
+              <div style={{
+                marginTop: '24px',
+                padding: '16px',
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                borderRadius: '12px',
+                color: '#dc2626',
+                fontSize: '14px',
+                textAlign: 'center',
+                fontWeight: '600'
+              }}>
+                {error}
+              </div>
+            )}
+          </div>
+        </div>
             
             {/* Debug counter - positioned below cards for better visibility */}
             <div 
