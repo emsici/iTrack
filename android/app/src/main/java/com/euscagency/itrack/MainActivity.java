@@ -21,10 +21,12 @@ import android.content.pm.PackageManager;
  */
 public class MainActivity extends BridgeActivity {
     private static final String TAG = "iTrackMainActivity";
+    private static MainActivity instance;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this;
         
         // DirectGPS plugin eliminat - folosim doar WebView interface pentru stabilitate
         // Plugin-ul DirectGPS cauza probleme de compilare
@@ -47,6 +49,10 @@ public class MainActivity extends BridgeActivity {
         
         // Eliminat auto-test care poate cauza crash-uri
         // Auto-test dezactivat pentru stabilitate
+    }
+    
+    public static Context getContext() {
+        return instance != null ? instance.getApplicationContext() : null;
     }
     
 
