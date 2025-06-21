@@ -101,13 +101,36 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           const existingCourse = courses.find((c) => c.id === newCourse.id);
           return existingCourse
             ? { ...newCourse, status: existingCourse.status }
-            : newCourse;
+            : { ...newCourse, isNew: true }; // Mark new courses
         });
 
-        setCourses(mergedCourses);
+        // Sort: new courses first, then existing ones
+        const sortedCourses = mergedCourses.sort((a, b) => {
+          // New courses (isNew = true) go first
+          if (a.isNew && !b.isNew) return -1;
+          if (!a.isNew && b.isNew) return 1;
+          
+          // Within same group, sort by status priority: 2 (active) > 3 (paused) > 1 (available) > 4 (finished)
+          const statusPriority = { 2: 4, 3: 3, 1: 2, 4: 1 };
+          return (statusPriority[b.status] || 0) - (statusPriority[a.status] || 0);
+        });
+
+        // Clean up isNew flag after sorting
+        const finalCourses = sortedCourses.map(course => {
+          const { isNew, ...cleanCourse } = course;
+          return cleanCourse;
+        });
+
+        setCourses(finalCourses);
         setError("");
         setCoursesLoaded(true);
-        console.log(`Successfully loaded ${mergedCourses.length} courses for ${vehicleNumber}`);
+        console.log(`Successfully loaded ${finalCourses.length} courses for ${vehicleNumber} (sorted: new first)`);
+        
+        // Log new courses found
+        const newCoursesCount = mergedCourses.filter(c => c.isNew).length;
+        if (newCoursesCount > 0) {
+          console.log(`🆕 Found ${newCoursesCount} new courses - displayed at top`);
+        }
       } else {
         console.log("=== APK DEBUG: No courses found - BLOCKING access ===");
         // IMPORTANT: Nu setează coursesLoaded = true când nu există curse

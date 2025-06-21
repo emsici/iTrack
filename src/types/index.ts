@@ -8,6 +8,7 @@ export interface Course {
   description?: string;
   status: number; // 1: available, 2: in progress, 3: paused, 4: stopped
   uit: string;
+  isNew?: boolean; // Temporary flag for sorting new courses first
   // Extended data from API
   ikRoTrans?: number;
   codDeclarant?: number;
