@@ -171,12 +171,12 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.19 (June 21, 2025) - MULTI-COURSE LOGIC CORECT
-- **AuthToken logic corect**: AuthToken este la nivel de USER, nu per cursă - toate cursele folosesc același token de autentificare
-- **Multi-course architecture**: Multiple curse active simultan, fiecare cu propriul UIT, dar același userAuthToken și vehicleNumber
-- **User-level authentication**: Un singur token per user, persistă pentru toate cursele active ale utilizatorului
-- **GPS transmission optimizat**: Fiecare cursă transmite coordonate individual cu propriul UIT, dar același Bearer token
-- **Service cleanup îmbunătățit**: Token și vehicle number se resetează când nu mai există curse active
+### Versiunea Curentă: 1808.20 (June 21, 2025) - ERROR HANDLING COMPLET
+- **Import erori rezolvate**: Toate dependențele updateCourseStatus, logAPI, analytics importate corect
+- **Error handling robust**: Timeout 10s, non-blocking GPS operations, graceful degradation
+- **Design carduri compact**: Layout optimizat pentru mai multe curse vizibile simultan
+- **Server validation îmbunătățită**: Error details și retry logic pentru status updates
+- **Multi-course GPS stabil**: Fiecare cursă transmite independent cu același userAuthToken
 
 ### Versiunea Precedentă: 1808.15 (June 21, 2025)
 - **App loading optimizat**: Eliminat întârzierea de 16 secunde - aplicația se încarcă instant și afișează login

@@ -4,11 +4,13 @@ import { getVehicleCourses, logout, sendGPSData } from "../services/api";
 import {
   startGPSTracking,
   stopGPSTracking,
+  updateCourseStatus,
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 import { getOfflineGPSCount, saveGPSCoordinateOffline } from "../services/offlineGPS";
-import { getAppLogs } from "../services/appLogger";
+import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
+import { startCourseAnalytics, stopCourseAnalytics } from "../services/courseAnalytics";
 
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
 import CourseStatsModal from "./CourseStatsModal";
