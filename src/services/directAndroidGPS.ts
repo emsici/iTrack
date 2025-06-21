@@ -193,6 +193,8 @@ class DirectAndroidGPSService {
       // PRIORITATE 1: AndroidGPS nativ (doar în APK)
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
         console.log("✅ AndroidGPS interface available - starting EnhancedGPSService");
+        console.log(`PARAMETERS: courseId=${course.courseId}, vehicleNumber=${course.vehicleNumber}, uit=${course.uit}, status=${course.status}`);
+        
         const result = (window as any).AndroidGPS.startGPS(
           course.courseId,
           course.vehicleNumber, 
@@ -201,6 +203,12 @@ class DirectAndroidGPSService {
           course.status
         );
         console.log("✅ EnhancedGPSService activated via AndroidGPS:", result);
+        
+        // Verifică dacă rezultatul indică succes
+        if (result && result.includes("ERROR")) {
+          throw new Error(`Android GPS service failed: ${result}`);
+        }
+        
         console.log("📱 Background GPS transmission every 5 seconds to gps.php");
         return;
       }

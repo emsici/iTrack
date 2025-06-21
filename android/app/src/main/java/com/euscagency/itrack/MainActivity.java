@@ -75,8 +75,10 @@ public class MainActivity extends BridgeActivity {
                 
                 // Test GPS permissions first
                 if (checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
-                    Log.e(TAG, "GPS permissions not granted - requesting permissions");
-                    return "ERROR: GPS permissions required";
+                    Log.e(TAG, "❌ GPS permissions not granted");
+                    Log.e(TAG, "User must grant location permissions in Android Settings");
+                    Log.e(TAG, "Settings > Apps > iTrack > Permissions > Location > Allow all the time");
+                    return "ERROR: GPS permissions required - check Android Settings";
                 }
                 
                 Intent intent = new Intent(MainActivity.this, EnhancedGPSService.class);

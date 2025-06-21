@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.33 (June 21, 2025) - CICLU GPS LOGIC COMPLET REPARAT
+### Versiunea Curentă: 1808.34 (June 21, 2025) - GPS PERMISSIONS & ERROR HANDLING FINAL
+- **GPS permissions validation enhanced**: Verificare detaliată permissions cu instrucțiuni clare pentru user
+- **Android error handling strict**: Service se oprește dacă nu are permisiuni în loc să continue
+- **JavaScript error checking**: Verificare rezultat AndroidGPS.startGPS() pentru erori
+- **Background location check**: Verificare explicită ACCESS_BACKGROUND_LOCATION permission
+- **User guidance clear**: Instrucțiuni exacte Settings > Apps > iTrack > Permissions pentru user
+
+### Versiunea Precedentă: 1808.33 (June 21, 2025) - CICLU GPS LOGIC COMPLET REPARAT
 - **PAUSE/STOP logic fix**: Verifică activeCourses înainte de operație, pornește GPS dacă nu există
 - **Error logic strict**: updateCourseStatus() throw error dacă course nu există în loc de fallback
 - **Android debugging îmbunătățit**: Loguri CRITICAL pentru identificarea problemelor de flow

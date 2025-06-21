@@ -143,12 +143,18 @@ public class EnhancedGPSService extends Service implements LocationListener {
         
         // Check GPS permissions immediately
         if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG, "❌ GPS permissions not granted - cannot start tracking");
-            Log.e(TAG, "Please grant location permissions in Android Settings");
+            Log.e(TAG, "❌ CRITICAL: GPS permissions not granted - CANNOT START TRACKING");
+            Log.e(TAG, "User must grant location permissions: Settings > Apps > iTrack > Permissions > Location > Allow all the time");
+            Log.e(TAG, "Also enable: Settings > Apps > iTrack > Battery > Don't optimize");
+            
+            // Oprește serviciul dacă nu are permisiuni
+            stopSelf();
             return;
         }
         
         Log.d(TAG, "✅ GPS permissions verified - starting tracking");
+        Log.d(TAG, "Background location permission status: " + 
+              (checkSelfPermission("android.permission.ACCESS_BACKGROUND_LOCATION") == PackageManager.PERMISSION_GRANTED ? "GRANTED" : "DENIED"));
 
         Log.d(TAG, "=== START GPS TRACKING ===");
         Log.d(TAG, "Course ID: " + courseId);
