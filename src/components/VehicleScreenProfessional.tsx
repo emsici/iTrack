@@ -236,7 +236,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             'Cache-Control': 'no-cache'
           },
           body: JSON.stringify(gpsPayload),
-          signal: AbortSignal.timeout(15000) // 15 second timeout
+          signal: AbortSignal.timeout(10000) // Reduced to 10 second timeout
         });
 
         console.log(`📡 Response status: ${response.status} ${response.statusText}`);
@@ -414,16 +414,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   // Course actions handled by CourseDetailCard component
 
-  console.log("=== APK DEBUG: RENDER - coursesLoaded:", coursesLoaded);
-  console.log("=== APK DEBUG: RENDER - courses.length:", courses.length);
-  console.log("=== APK DEBUG: RENDER - error:", error);
-  console.log("=== APK DEBUG: RENDER - loading:", loading);
 
   // SIMPLIFICARE: Elimină logica complexă și folosește doar coursesLoaded
-  console.log("=== APK DEBUG: RENDER DECISION ===");
-  console.log("coursesLoaded:", coursesLoaded);
-  console.log("loading:", loading);
-  console.log("courses.length:", courses.length);
 
   // ELIMINAT: Fallback timer care forța coursesLoaded
   // Utilizatorul trebuie să introducă un număr valid de vehicul
