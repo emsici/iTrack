@@ -31,10 +31,16 @@ public class MainActivity extends BridgeActivity {
         
         // Add AndroidGPS interface to WebView for JavaScript access
         try {
-            getBridge().getWebView().addJavascriptInterface(new AndroidGPS(), "AndroidGPS");
-            Log.d(TAG, "AndroidGPS WebView interface added successfully");
+            AndroidGPS androidGPSInterface = new AndroidGPS();
+            getBridge().getWebView().addJavascriptInterface(androidGPSInterface, "AndroidGPS");
+            Log.d(TAG, "✅ AndroidGPS WebView interface added successfully");
+            Log.d(TAG, "AndroidGPS interface methods available:");
+            Log.d(TAG, "- startGPS: available");
+            Log.d(TAG, "- stopGPS: available");
+            Log.d(TAG, "- updateStatus: available");
+            Log.d(TAG, "- clearAllOnLogout: available");
         } catch (Exception e) {
-            Log.e(TAG, "Failed to add AndroidGPS interface: " + e.getMessage(), e);
+            Log.e(TAG, "❌ Failed to add AndroidGPS interface: " + e.getMessage(), e);
         }
         
         Log.d(TAG, "iTrack MainActivity initialized with WebView GPS interface");

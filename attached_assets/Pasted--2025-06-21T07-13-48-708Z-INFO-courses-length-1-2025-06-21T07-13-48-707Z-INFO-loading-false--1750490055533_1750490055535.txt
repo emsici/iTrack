@@ -1,0 +1,566 @@
+[2025-06-21T07:13:48.708Z] INFO: courses.length: 1
+[2025-06-21T07:13:48.707Z] INFO: loading: false
+[2025-06-21T07:13:48.707Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:48.706Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:48.705Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:48.705Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:48.704Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:48.703Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:48.410Z] INFO: courses.length: 1
+[2025-06-21T07:13:48.409Z] INFO: loading: false
+[2025-06-21T07:13:48.409Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:48.408Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:48.408Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:48.407Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:48.406Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:48.405Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:48.234Z] INFO: courses.length: 1
+[2025-06-21T07:13:48.234Z] INFO: loading: false
+[2025-06-21T07:13:48.233Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:48.233Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:48.232Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:48.231Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:48.230Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:48.229Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:48.054Z] INFO: courses.length: 1
+[2025-06-21T07:13:48.053Z] INFO: loading: false
+[2025-06-21T07:13:48.053Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:48.052Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:48.051Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:48.050Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:48.050Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:48.048Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:47.882Z] INFO: courses.length: 1
+[2025-06-21T07:13:47.882Z] INFO: loading: false
+[2025-06-21T07:13:47.881Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:47.881Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:47.880Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:47.879Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:47.879Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:47.878Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:47.705Z] INFO: courses.length: 1
+[2025-06-21T07:13:47.704Z] INFO: loading: false
+[2025-06-21T07:13:47.703Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:47.702Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:47.701Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:47.701Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:47.700Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:47.699Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:47.504Z] INFO: courses.length: 1
+[2025-06-21T07:13:47.503Z] INFO: loading: false
+[2025-06-21T07:13:47.502Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:47.502Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:47.501Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:47.500Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:47.500Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:47.499Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:47.357Z] INFO: courses.length: 1
+[2025-06-21T07:13:47.356Z] INFO: loading: false
+[2025-06-21T07:13:47.355Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:47.354Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:47.353Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:47.353Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:47.352Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:47.350Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:47.178Z] INFO: courses.length: 1
+[2025-06-21T07:13:47.177Z] INFO: loading: false
+[2025-06-21T07:13:47.176Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:47.176Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:47.175Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:47.174Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:47.174Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:47.173Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:47.019Z] INFO: courses.length: 1
+[2025-06-21T07:13:47.018Z] INFO: loading: false
+[2025-06-21T07:13:47.017Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:47.017Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:47.016Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:47.015Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:47.015Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:47.013Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:46.856Z] INFO: courses.length: 1
+[2025-06-21T07:13:46.855Z] INFO: loading: false
+[2025-06-21T07:13:46.854Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:46.853Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:46.852Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:46.852Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:46.851Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:46.849Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:46.683Z] INFO: courses.length: 1
+[2025-06-21T07:13:46.682Z] INFO: loading: false
+[2025-06-21T07:13:46.682Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:46.682Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:46.681Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:46.681Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:46.680Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:46.680Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:46.508Z] INFO: courses.length: 1
+[2025-06-21T07:13:46.508Z] INFO: loading: false
+[2025-06-21T07:13:46.507Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:46.506Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:46.506Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:46.505Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:46.505Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:46.504Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:46.317Z] INFO: courses.length: 1
+[2025-06-21T07:13:46.316Z] INFO: loading: false
+[2025-06-21T07:13:46.315Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:46.314Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:46.314Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:46.314Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:46.313Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:46.312Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:46.142Z] INFO: courses.length: 1
+[2025-06-21T07:13:46.142Z] INFO: loading: false
+[2025-06-21T07:13:46.141Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:46.141Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:46.141Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:46.140Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:46.140Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:46.139Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:45.973Z] INFO: courses.length: 1
+[2025-06-21T07:13:45.972Z] INFO: loading: false
+[2025-06-21T07:13:45.971Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:45.970Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:45.970Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:45.969Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:45.969Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:45.968Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:45.827Z] INFO: courses.length: 1
+[2025-06-21T07:13:45.827Z] INFO: loading: false
+[2025-06-21T07:13:45.827Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:45.826Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:45.826Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:45.826Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:45.825Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:45.825Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:45.682Z] INFO: courses.length: 1
+[2025-06-21T07:13:45.682Z] INFO: loading: false
+[2025-06-21T07:13:45.681Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:45.681Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:45.680Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:45.680Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:45.679Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:45.679Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:45.528Z] INFO: courses.length: 1
+[2025-06-21T07:13:45.528Z] INFO: loading: false
+[2025-06-21T07:13:45.528Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:45.527Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:45.527Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:45.527Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:45.526Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:45.526Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:45.387Z] INFO: courses.length: 1
+[2025-06-21T07:13:45.387Z] INFO: loading: false
+[2025-06-21T07:13:45.387Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:45.387Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:45.386Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:45.386Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:45.386Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:45.386Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:45.225Z] INFO: courses.length: 1
+[2025-06-21T07:13:45.224Z] INFO: loading: false
+[2025-06-21T07:13:45.224Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:45.224Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:45.223Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:45.223Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:45.222Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:45.222Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:45.066Z] INFO: courses.length: 1
+[2025-06-21T07:13:45.065Z] INFO: loading: false
+[2025-06-21T07:13:45.065Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:45.064Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:45.064Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:45.064Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:45.063Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:45.062Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:44.912Z] INFO: courses.length: 1
+[2025-06-21T07:13:44.912Z] INFO: loading: false
+[2025-06-21T07:13:44.911Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:44.911Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:44.911Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:44.910Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:44.910Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:44.910Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:44.743Z] INFO: courses.length: 1
+[2025-06-21T07:13:44.743Z] INFO: loading: false
+[2025-06-21T07:13:44.743Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:44.742Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:44.742Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:44.742Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:44.741Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:44.741Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:44.556Z] INFO: courses.length: 1
+[2025-06-21T07:13:44.556Z] INFO: loading: false
+[2025-06-21T07:13:44.555Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:44.555Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:44.554Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:44.554Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:44.554Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:44.553Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:44.294Z] INFO: courses.length: 1
+[2025-06-21T07:13:44.293Z] INFO: loading: false
+[2025-06-21T07:13:44.293Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:44.293Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:44.292Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:44.292Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:44.292Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:44.291Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:44.133Z] INFO: courses.length: 1
+[2025-06-21T07:13:44.133Z] INFO: loading: false
+[2025-06-21T07:13:44.133Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:44.132Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:44.132Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:44.131Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:44.131Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:44.130Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:43.976Z] INFO: courses.length: 1
+[2025-06-21T07:13:43.976Z] INFO: loading: false
+[2025-06-21T07:13:43.975Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:43.975Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:43.975Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:43.974Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:43.974Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:43.973Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:43.850Z] INFO: courses.length: 1
+[2025-06-21T07:13:43.849Z] INFO: loading: false
+[2025-06-21T07:13:43.849Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:43.848Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:43.842Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:43.842Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:43.841Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:43.840Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:43.670Z] INFO: courses.length: 1
+[2025-06-21T07:13:43.669Z] INFO: loading: false
+[2025-06-21T07:13:43.669Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:43.669Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:43.668Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:43.668Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:43.667Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:43.667Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:43.515Z] INFO: courses.length: 1
+[2025-06-21T07:13:43.515Z] INFO: loading: false
+[2025-06-21T07:13:43.514Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:43.514Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:43.514Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:43.514Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:43.513Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:43.513Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:43.360Z] INFO: courses.length: 1
+[2025-06-21T07:13:43.360Z] INFO: loading: false
+[2025-06-21T07:13:43.359Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:43.359Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:43.359Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:43.358Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:43.358Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:43.358Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:43.182Z] INFO: courses.length: 1
+[2025-06-21T07:13:43.181Z] INFO: loading: false
+[2025-06-21T07:13:43.181Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:43.181Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:43.180Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:43.180Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:43.179Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:43.178Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:43.034Z] INFO: courses.length: 1
+[2025-06-21T07:13:43.034Z] INFO: loading: false
+[2025-06-21T07:13:43.033Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:43.033Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:43.032Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:43.032Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:43.031Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:43.031Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:42.897Z] INFO: courses.length: 1
+[2025-06-21T07:13:42.897Z] INFO: loading: false
+[2025-06-21T07:13:42.896Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:42.896Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:42.896Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:42.895Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:42.895Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:42.894Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:42.732Z] INFO: courses.length: 1
+[2025-06-21T07:13:42.732Z] INFO: loading: false
+[2025-06-21T07:13:42.731Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:42.731Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:42.730Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:42.730Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:42.729Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:42.729Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:42.550Z] INFO: courses.length: 1
+[2025-06-21T07:13:42.550Z] INFO: loading: false
+[2025-06-21T07:13:42.549Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:42.549Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:42.549Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:42.548Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:42.548Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:42.548Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:42.412Z] INFO: courses.length: 1
+[2025-06-21T07:13:42.412Z] INFO: loading: false
+[2025-06-21T07:13:42.411Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:42.411Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:42.411Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:42.410Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:42.410Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:42.409Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:42.245Z] INFO: courses.length: 1
+[2025-06-21T07:13:42.245Z] INFO: loading: false
+[2025-06-21T07:13:42.245Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:42.244Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:42.244Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:42.244Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:42.244Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:42.243Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:42.080Z] INFO: courses.length: 1
+[2025-06-21T07:13:42.079Z] INFO: loading: false
+[2025-06-21T07:13:42.078Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:42.078Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:42.078Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:42.077Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:42.077Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:42.076Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:41.912Z] INFO: courses.length: 1
+[2025-06-21T07:13:41.912Z] INFO: loading: false
+[2025-06-21T07:13:41.911Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:41.911Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:41.911Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:41.910Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:41.910Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:41.910Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:41.617Z] INFO: courses.length: 1
+[2025-06-21T07:13:41.617Z] INFO: loading: false
+[2025-06-21T07:13:41.617Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:41.616Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:41.616Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:41.616Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:41.615Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:41.615Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:41.450Z] INFO: courses.length: 1
+[2025-06-21T07:13:41.450Z] INFO: loading: false
+[2025-06-21T07:13:41.450Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:41.449Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:41.449Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:41.449Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:41.448Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:41.448Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:41.092Z] INFO: courses.length: 1
+[2025-06-21T07:13:41.091Z] INFO: loading: false
+[2025-06-21T07:13:41.088Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:41.088Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:41.088Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:41.087Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:41.087Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:41.086Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:40.785Z] INFO: courses.length: 1
+[2025-06-21T07:13:40.784Z] INFO: loading: false
+[2025-06-21T07:13:40.784Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:40.784Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:40.784Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:40.784Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:40.784Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:40.783Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:40.614Z] INFO: courses.length: 1
+[2025-06-21T07:13:40.614Z] INFO: loading: false
+[2025-06-21T07:13:40.613Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:40.613Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:40.613Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:40.613Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:40.612Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:40.612Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:40.286Z] INFO: courses.length: 1
+[2025-06-21T07:13:40.286Z] INFO: loading: false
+[2025-06-21T07:13:40.285Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:40.285Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:40.285Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:40.285Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:40.285Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:40.284Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:40.119Z] INFO: courses.length: 1
+[2025-06-21T07:13:40.119Z] INFO: loading: false
+[2025-06-21T07:13:40.118Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:40.118Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:40.117Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:40.117Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:40.117Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:40.117Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:39.221Z] INFO: courses.length: 1
+[2025-06-21T07:13:39.221Z] INFO: loading: false
+[2025-06-21T07:13:39.221Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:39.221Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:39.220Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:39.220Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:39.220Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:39.220Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:23.738Z] INFO: === GPS SERVICE STATUS CHECK (5s later) ===
+[2025-06-21T07:13:18.763Z] INFO: courses.length: 1
+[2025-06-21T07:13:18.762Z] INFO: loading: false
+[2025-06-21T07:13:18.762Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:18.761Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:18.761Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:18.760Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:18.760Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:18.759Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:18.754Z] INFO: Status transition completed: 1 → 2
+[2025-06-21T07:13:18.753Z] INFO: ✅ GPS service activated for continuous transmission
+[2025-06-21T07:13:18.749Z] INFO: ✅ Android native GPS service started - no fallback needed
+[2025-06-21T07:13:18.738Z] INFO: GPS will transmit every 5 seconds to server
+[2025-06-21T07:13:18.738Z] INFO: EnhancedGPSService activated for UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDUzOTU5OX0.l2aQ8KefSk2aF0s71KzkKfCbmgMb5m7sDdibfRq9sds
+[2025-06-21T07:13:18.737Z] INFO: 📱 EnhancedGPSService should now be running in background
+[2025-06-21T07:13:18.737Z] INFO: 🚀 AndroidGPS.startGPS called with result: SUCCESS: GPS service started for course 4243
+[2025-06-21T07:13:18.720Z] INFO: ✅ AndroidGPS interface available - starting native service
+[2025-06-21T07:13:18.718Z] INFO: AndroidGPS.updateStatus function exists: function
+[2025-06-21T07:13:18.715Z] INFO: AndroidGPS.stopGPS function exists: function
+[2025-06-21T07:13:18.709Z] INFO: AndroidGPS.startGPS function exists: function
+[2025-06-21T07:13:18.698Z] INFO: window.AndroidGPS exists: true
+[2025-06-21T07:13:18.698Z] INFO: === ANDROID GPS INTERFACE TEST ===
+[2025-06-21T07:13:18.697Z] INFO: Current position obtained: [object Object]
+[2025-06-21T07:13:14.701Z] INFO: GPS permissions granted - starting location tracking
+[2025-06-21T07:13:14.700Z] INFO: GPS permissions result: [object Object]
+[2025-06-21T07:13:13.258Z] INFO: courses.length: 1
+[2025-06-21T07:13:13.258Z] INFO: loading: false
+[2025-06-21T07:13:13.258Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:13.258Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:13.258Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:13.258Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:13.257Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:13.257Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:13.257Z] INFO: Requesting GPS permissions...
+[2025-06-21T07:13:13.257Z] INFO: Token: 6E8W324493000172...
+[2025-06-21T07:13:13.257Z] INFO: Status: 2 (ACTIVE)
+[2025-06-21T07:13:13.254Z] INFO: UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDUzOTU5OX0.l2aQ8KefSk2aF0s71KzkKfCbmgMb5m7sDdibfRq9sds
+[2025-06-21T07:13:13.254Z] INFO: Vehicle: IF03CWT
+[2025-06-21T07:13:13.254Z] INFO: Course ID: 4243
+[2025-06-21T07:13:13.254Z] INFO: === STARTING ANDROID NATIVE GPS SERVICE ===
+[2025-06-21T07:13:13.254Z] INFO: 📱 Native Android platform detected - starting background GPS service
+[2025-06-21T07:13:13.254Z] INFO: Status: 2 (ACTIVE)
+[2025-06-21T07:13:13.253Z] INFO: UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDUzOTU5OX0.l2aQ8KefSk2aF0s71KzkKfCbmgMb5m7sDdibfRq9sds
+[2025-06-21T07:13:13.253Z] INFO: Vehicle: IF03CWT
+[2025-06-21T07:13:13.253Z] INFO: Course ID: 4243
+[2025-06-21T07:13:13.253Z] INFO: === STARTING GPS TRACKING ===
+[2025-06-21T07:13:13.253Z] INFO: 🚀 STARTING GPS tracking - continuous transmission every 5 seconds
+[2025-06-21T07:13:13.253Z] INFO: UIT REAL: 6E8W324493000172, Vehicle: IF03CWT
+[2025-06-21T07:13:13.252Z] INFO: Course: 4243, Status: 1 → 2
+[2025-06-21T07:13:13.252Z] INFO: === STATUS UPDATE ===
+[2025-06-21T07:13:10.207Z] INFO: courses.length: 1
+[2025-06-21T07:13:10.207Z] INFO: loading: false
+[2025-06-21T07:13:10.207Z] INFO: coursesLoaded: true
+[2025-06-21T07:13:10.207Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:10.206Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:10.206Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:10.206Z] INFO: === APK DEBUG: RENDER - courses.length: 1
+[2025-06-21T07:13:10.206Z] INFO: === APK DEBUG: RENDER - coursesLoaded: true
+[2025-06-21T07:13:10.203Z] INFO: === APK DEBUG: Loading finished ===
+[2025-06-21T07:13:10.203Z] INFO: Successfully loaded 1 courses for IF03CWT
+[2025-06-21T07:13:10.203Z] INFO: Courses found: 1
+[2025-06-21T07:13:10.202Z] INFO: Request completed for IF03CWT - all locks cleared
+[2025-06-21T07:13:10.202Z] INFO: === REQUEST COMPLETED - LOCKS CLEARED ===
+[2025-06-21T07:13:10.200Z] INFO: APK DEBUG: Processed 1 courses successfully
+[2025-06-21T07:13:10.200Z] INFO: === APK DEBUG: About to return processed courses === 1
+[2025-06-21T07:13:10.199Z] INFO: === APK DEBUG: Processing course data ===
+[2025-06-21T07:13:10.199Z] INFO: === APK DEBUG: Found 1 courses for vehicle IF03CWT ===
+[2025-06-21T07:13:10.198Z] INFO: APK DEBUG: API response: status=200, data={"status":"success","count":1,"data":[{"ikRoTrans":4243,"codDeclarant":16539878,"denumireDeclarant":"EPRS.RO SRL","nrVehicul":"IF03CWT","UIT":"6E8W324493000172","dataTransport":"2025-06-18","Vama":"BV","BirouVamal":"BV Otopeni C?l?tori, Jud. Ilfov","Judet":"IF","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"Strada Tebea, nr. 14 nr. -, Otopeni, Jud. Ilfov, Cod po?tal 075100","JudetStop":"IF","denumireLocStop":"OTOPENI"}]}
+[2025-06-21T07:13:10.198Z] INFO: === APK DEBUG: API Response Data === {
+  "status": "success",
+  "count": 1,
+  "data": [
+    {
+      "ikRoTrans": 4243,
+      "codDeclarant": 16539878,
+      "denumireDeclarant": "EPRS.RO SRL",
+      "nrVehicul": "IF03CWT",
+      "UIT": "6E8W324493000172",
+      "dataTransport": "2025-06-18",
+      "Vama": "BV",
+      "BirouVamal": "BV Otopeni C?l?tori, Jud. Ilfov",
+      "Judet": "IF",
+      "denumireLocStart": null,
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Strada Tebea, nr. 14 nr. -, Otopeni, Jud. Ilfov, Cod po?tal 075100",
+      "JudetStop": "IF",
+      "denumireLocStop": "OTOPENI"
+    }
+  ]
+}
+[2025-06-21T07:13:10.198Z] INFO: === APK DEBUG: API Response Status === 200
+[2025-06-21T07:13:09.412Z] INFO: courses.length: 0
+[2025-06-21T07:13:09.412Z] INFO: loading: true
+[2025-06-21T07:13:09.412Z] INFO: coursesLoaded: false
+[2025-06-21T07:13:09.412Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:09.411Z] INFO: === APK DEBUG: RENDER - loading: true
+[2025-06-21T07:13:09.411Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:09.411Z] INFO: === APK DEBUG: RENDER - courses.length: 0
+[2025-06-21T07:13:09.411Z] INFO: === APK DEBUG: RENDER - coursesLoaded: false
+[2025-06-21T07:13:09.409Z] INFO: Loading courses for vehicle IF03CWT
+[2025-06-21T07:13:09.409Z] INFO: Loading courses for vehicle: IF03CWT
+[2025-06-21T07:13:09.408Z] INFO: === DEBUGGING: Loading courses for vehicle: IF03CWT ===
+[2025-06-21T07:13:09.408Z] INFO: === APK DEBUG: Current coursesLoaded state: false
+[2025-06-21T07:13:09.408Z] INFO: === APK DEBUG: Token available: true
+[2025-06-21T07:13:09.408Z] INFO: === APK DEBUG: Vehicle number: IF03CWT
+[2025-06-21T07:13:09.407Z] INFO: === APK DEBUG: Starting course loading process ===
+[2025-06-21T07:13:08.151Z] INFO: courses.length: 0
+[2025-06-21T07:13:08.151Z] INFO: loading: false
+[2025-06-21T07:13:08.151Z] INFO: coursesLoaded: false
+[2025-06-21T07:13:08.150Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:08.150Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:08.150Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:08.150Z] INFO: === APK DEBUG: RENDER - courses.length: 0
+[2025-06-21T07:13:08.150Z] INFO: === APK DEBUG: RENDER - coursesLoaded: false
+[2025-06-21T07:13:08.026Z] INFO: courses.length: 0
+[2025-06-21T07:13:08.026Z] INFO: loading: false
+[2025-06-21T07:13:08.026Z] INFO: coursesLoaded: false
+[2025-06-21T07:13:08.026Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:08.025Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:08.025Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:08.025Z] INFO: === APK DEBUG: RENDER - courses.length: 0
+[2025-06-21T07:13:08.025Z] INFO: === APK DEBUG: RENDER - coursesLoaded: false
+[2025-06-21T07:13:07.861Z] INFO: courses.length: 0
+[2025-06-21T07:13:07.861Z] INFO: loading: false
+[2025-06-21T07:13:07.861Z] INFO: coursesLoaded: false
+[2025-06-21T07:13:07.861Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:07.860Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:07.860Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:07.860Z] INFO: === APK DEBUG: RENDER - courses.length: 0
+[2025-06-21T07:13:07.860Z] INFO: === APK DEBUG: RENDER - coursesLoaded: false
+[2025-06-21T07:13:03.117Z] INFO: courses.length: 0
+[2025-06-21T07:13:03.117Z] INFO: loading: false
+[2025-06-21T07:13:03.116Z] INFO: coursesLoaded: false
+[2025-06-21T07:13:03.116Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:03.116Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:03.116Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:03.116Z] INFO: === APK DEBUG: RENDER - courses.length: 0
+[2025-06-21T07:13:03.116Z] INFO: === APK DEBUG: RENDER - coursesLoaded: false
+[2025-06-21T07:13:02.959Z] INFO: courses.length: 0
+[2025-06-21T07:13:02.959Z] INFO: loading: false
+[2025-06-21T07:13:02.959Z] INFO: coursesLoaded: false
+[2025-06-21T07:13:02.958Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:02.958Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:02.958Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:02.958Z] INFO: === APK DEBUG: RENDER - courses.length: 0
+[2025-06-21T07:13:02.958Z] INFO: === APK DEBUG: RENDER - coursesLoaded: false
+[2025-06-21T07:13:01.669Z] INFO: courses.length: 0
+[2025-06-21T07:13:01.669Z] INFO: loading: false
+[2025-06-21T07:13:01.669Z] INFO: coursesLoaded: false
+[2025-06-21T07:13:01.669Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:01.668Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:01.668Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:01.668Z] INFO: === APK DEBUG: RENDER - courses.length: 0
+[2025-06-21T07:13:01.668Z] INFO: === APK DEBUG: RENDER - coursesLoaded: false
+[2025-06-21T07:13:01.394Z] INFO: courses.length: 0
+[2025-06-21T07:13:01.394Z] INFO: loading: false
+[2025-06-21T07:13:01.393Z] INFO: coursesLoaded: false
+[2025-06-21T07:13:01.393Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:13:01.393Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:13:01.393Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:13:01.393Z] INFO: === APK DEBUG: RENDER - courses.length: 0
+[2025-06-21T07:13:01.393Z] INFO: === APK DEBUG: RENDER - coursesLoaded: false
+[2025-06-21T07:12:58.335Z] INFO: courses.length: 0
+[2025-06-21T07:12:58.335Z] INFO: loading: false
+[2025-06-21T07:12:58.335Z] INFO: coursesLoaded: false
+[2025-06-21T07:12:58.335Z] INFO: === APK DEBUG: RENDER DECISION ===
+[2025-06-21T07:12:58.334Z] INFO: === APK DEBUG: RENDER - loading: false
+[2025-06-21T07:12:58.334Z] INFO: === APK DEBUG: RENDER - error: 
+[2025-06-21T07:12:58.334Z] INFO: === APK DEBUG: RENDER - courses.length: 0
+[2025-06-21T07:12:58.334Z] INFO: === APK DEBUG: RENDER - coursesLoaded: false
+[2025-06-21T07:12:58.332Z] INFO: Token stored successfully
+[2025-06-21T07:12:58.321Z] INFO: Login successful, storing token...
+[2025-06-21T07:12:35.659Z] INFO: No stored token - showing login
+[2025-06-21T07:12:35.625Z] INFO: AppLogger initialized
