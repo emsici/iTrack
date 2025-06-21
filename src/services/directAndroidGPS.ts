@@ -214,18 +214,14 @@ class DirectAndroidGPSService {
           }, 3000);
           
         } else {
-          console.log("❌ AndroidGPS interface NOT available");
-          console.log("🔍 Available interfaces:", Object.keys(window).filter(k => k.includes('Android') || k.includes('GPS')));
+          console.log("❌ AndroidGPS interface NOT available - CRITICAL ERROR");
+          console.log("🔍 Available window objects:", Object.keys(window).filter(k => k.includes('Android') || k.includes('GPS')));
           console.log("📱 Platform:", Capacitor.getPlatform(), "Native:", Capacitor.isNativePlatform());
           
-          if (Capacitor.isNativePlatform()) {
-            console.log("❌ CRITICAL: Native platform but AndroidGPS missing");
-            console.log("🔧 Check MainActivity.java WebView interface setup");
-            throw new Error("AndroidGPS interface missing on native platform - GPS won't work");
-          } else {
-            console.log("🌐 Web environment - starting fallback for testing only");
-            await this.startWebCompatibleGPS(course);
-          }
+          // NU PORNEȘTE WEB GPS - doar serviciul Android nativ
+          console.log("🚫 GPS BLOCKING: Only Android native service allowed");
+          console.log("🔧 Check MainActivity.java AndroidGPS WebView interface");
+          throw new Error("AndroidGPS interface missing - GPS transmission blocked to prevent CORS errors");
         }
 
         console.log("EnhancedGPSService activated for UIT:", course.uit);
