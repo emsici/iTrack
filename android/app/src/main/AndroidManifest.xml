@@ -81,7 +81,6 @@
     
     <!-- Phone state for GSM signal strength -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
     <!-- TransistorSoft Background Geolocation permissions -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
@@ -103,7 +102,6 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     
     <!-- Prevent Android from killing the service -->
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.DEVICE_POWER" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
