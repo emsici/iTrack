@@ -15,10 +15,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const initApp = async () => {
+      // Set loading to false immediately to show login faster
+      setIsLoading(false);
+      
       try {
-        // GPS initialization handled by communityGPS service when tracking starts
-        
-        // Check for stored authentication token
+        // Check for stored authentication token (non-blocking)
         const storedToken = await getStoredToken();
         if (storedToken) {
           console.log('Found stored token - auto login');
@@ -29,8 +30,6 @@ const App: React.FC = () => {
         }
       } catch (error) {
         console.error('Error initializing app:', error);
-      } finally {
-        setIsLoading(false);
       }
     };
 

@@ -169,7 +169,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       if (newStatus === 2) {
         // Start/Resume - PRIORITY: Android native GPS pentru transmisie continuă
         console.log('🚀 STARTING GPS tracking - continuous transmission every 5 seconds');
-        await startGPSTracking(courseId, vehicleNumber, courseToUpdate.uit, token, 2);
+        await startGPSTracking(courseId, vehicleNumber, token, courseToUpdate.uit, 2);
         console.log('✅ GPS service activated for continuous transmission');
       } else if (newStatus === 3) {
         // Pause - Update status în serviciul Android, va trimite un update și se pauzează
