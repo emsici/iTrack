@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.38 (June 21, 2025) - RENDER LOOP REPARAT & APK READY
+### Versiunea Curentă: 1808.39 (June 21, 2025) - STATUS UPDATE COMPLET REPARAT
+- **AndroidGPS interface fixed**: MainActivity.java returnează rezultate String pentru toate operațiile GPS
+- **Status update logic repaired**: SimpleGPSService primește și procesează UPDATE_STATUS corect
+- **Error handling enhanced**: Wrapper-ul verifică rezultatul AndroidGPS și raportează erori
+- **CLEAR_ALL action added**: Support complet pentru logout cu curățarea tuturor curselor GPS
+- **APK ready for real device**: Toate interfețele GPS wrapper verificate și funcționale
+
+### Versiunea Precedentă: 1808.38 (June 21, 2025) - RENDER LOOP REPARAT & APK READY
 - **Render loop fixed**: Eliminat debug logging excessiv care cauza render infinit în APK
 - **Network timeout optimized**: Redus timeout de la 15s la 10s pentru status updates
 - **Error handling improved**: Network errors nu mai blochează GPS service complet

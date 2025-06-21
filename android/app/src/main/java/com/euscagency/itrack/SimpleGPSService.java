@@ -82,6 +82,8 @@ public class SimpleGPSService extends Service implements LocationListener {
             startGPSTracking(intent);
         } else if ("UPDATE_STATUS".equals(action)) {
             updateCourseStatus(intent);
+        } else if ("CLEAR_ALL".equals(action)) {
+            clearAllCourses();
         } else if ("STOP_TRACKING".equals(action)) {
             stopSpecificCourse(intent.getStringExtra("courseId"));
         }
@@ -228,10 +230,19 @@ public class SimpleGPSService extends Service implements LocationListener {
         String courseId = intent.getStringExtra("courseId");
         int newStatus = intent.getIntExtra("status", 2);
         
+        Log.d(TAG, String.format("=== UPDATE_STATUS received ==="));
+        Log.d(TAG, String.format("Course: %s, New Status: %d", courseId, newStatus));
+        
         CourseData course = activeCourses.get(courseId);
         if (course != null) {
             course.status = newStatus;
-            Log.d(TAG, "Course status updated: " + courseId + " -> " + newStatus);
+            Log.d(TAG, String.format("✅ Status updated for course %s to %d", courseId, newStatus));
+            
+            if (newStatus == 3 || newStatus == 4) {
+                Log.d(TAG, "Pausing GPS transmission for status " + newStatus);
+            }
+        } else {
+            Log.w(TAG, String.format("❌ Course %s not found in active courses", courseId));
         }
     }
 

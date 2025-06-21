@@ -101,10 +101,15 @@ class DirectAndroidGPSService {
       
       console.log("✅ Server status update successful:", result);
 
-      // 2. APOI ANDROIDGPS PENTRU ENHANCED GPS SERVICE
+      // 2. APOI ANDROIDGPS PENTRU SIMPLE GPS SERVICE
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
         console.log("✅ AndroidGPS.updateStatus called for SimpleGPSService");
-        (window as any).AndroidGPS.updateStatus(courseId, newStatus);
+        const androidResult = (window as any).AndroidGPS.updateStatus(courseId, newStatus);
+        console.log("✅ AndroidGPS result:", androidResult);
+        
+        if (androidResult && androidResult.includes("ERROR")) {
+          throw new Error(`Android GPS service failed: ${androidResult}`);
+        }
       } else {
         console.log("⚠️ AndroidGPS not available - APK only feature");
       }
@@ -369,18 +374,13 @@ class DirectAndroidGPSService {
       }
       
       if (Capacitor.isNativePlatform()) {
-        // Send logout signal to Android service to clear all data and stop GPS
-        try {
-          // Use DirectGPS plugin with special logout courseId
-          await DirectGPS.stopTracking({ courseId: "LOGOUT_CLEAR_ALL" });
-          console.log("✅ Android service notified to clear all data");
-        } catch (error) {
-          console.log("DirectGPS logout failed, trying WebView interface");
-          
-          // Fallback to WebView interface
-          if ((window as any).AndroidGPS && (window as any).AndroidGPS.clearAllOnLogout) {
+        // Send logout signal to Android service via WebView interface
+        if ((window as any).AndroidGPS && (window as any).AndroidGPS.clearAllOnLogout) {
+          try {
             (window as any).AndroidGPS.clearAllOnLogout();
             console.log("✅ SimpleGPSService WebView interface logout called");
+          } catch (error) {
+            console.log("WebView logout failed:", error);
           }
         }
       }

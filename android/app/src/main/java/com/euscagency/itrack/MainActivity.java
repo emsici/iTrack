@@ -132,28 +132,42 @@ public class MainActivity extends BridgeActivity {
         }
         
         @JavascriptInterface
-        public void updateStatus(String courseId, int newStatus) {
-            Log.d(TAG, String.format("WebView GPS Status Update: Course=%s, Status=%d", courseId, newStatus));
+        public String updateStatus(String courseId, int newStatus) {
+            Log.d(TAG, String.format("=== AndroidGPS.updateStatus called ==="));
+            Log.d(TAG, String.format("Course=%s, Status=%d", courseId, newStatus));
             
-            Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
-            intent.setAction("UPDATE_STATUS");
-            intent.putExtra("courseId", courseId);
-            intent.putExtra("status", newStatus);
-            
-            startService(intent);
-            Log.d(TAG, "SimpleGPSService status update via WebView interface");
+            try {
+                Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
+                intent.setAction("UPDATE_STATUS");
+                intent.putExtra("courseId", courseId);
+                intent.putExtra("status", newStatus);
+                
+                startService(intent);
+                Log.d(TAG, "✅ SimpleGPSService status update successful");
+                return "SUCCESS: Status updated for course " + courseId + " to " + newStatus;
+            } catch (Exception e) {
+                Log.e(TAG, "❌ Failed to update GPS status: " + e.getMessage());
+                return "ERROR: " + e.getMessage();
+            }
         }
         
+
+        
         @JavascriptInterface
-        public void clearAllOnLogout() {
-            Log.d(TAG, "WebView GPS Clear All on Logout");
+        public String clearAllOnLogout() {
+            Log.d(TAG, "=== AndroidGPS.clearAllOnLogout called ===");
             
-            Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
-            intent.setAction("STOP_TRACKING");
-            intent.putExtra("courseId", "ALL_COURSES");
-            
-            startService(intent);
-            Log.d(TAG, "SimpleGPSService cleared all on logout via WebView interface");
+            try {
+                Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
+                intent.setAction("CLEAR_ALL");
+                
+                startService(intent);
+                Log.d(TAG, "✅ SimpleGPSService clear all successful");
+                return "SUCCESS: All GPS data cleared";
+            } catch (Exception e) {
+                Log.e(TAG, "❌ Failed to clear GPS data: " + e.getMessage());
+                return "ERROR: " + e.getMessage();
+            }
         }
     }
 }
