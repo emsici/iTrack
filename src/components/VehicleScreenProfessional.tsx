@@ -584,30 +584,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     }}>
                       <i className="fas fa-chart-line"></i>
                     </div>
-                    <div style={{
-                      fontSize: '0.5rem',
-                      color: '#93c5fd',
-                      fontWeight: '600',
-                      letterSpacing: '0.2px',
-                      textTransform: 'uppercase',
-                      lineHeight: '1'
-                    }}>STATS</div>
+
                   </div>
                 </div>
 
                 {courses.length > 0 ? (
-                  <div className="courses-container">
-                    <div className="courses-list">
-                      {courses.map((course) => (
-                        <div key={course.id} className="course-card-wrapper">
-                          <CourseDetailCard
-                            course={course}
-                            onStatusUpdate={handleStatusUpdate}
-                            isLoading={actionLoading === course.id}
-                          />
-                        </div>
-                      ))}
-                    </div>
+                  <div className="courses-container-compact">
+                    {courses.map((course) => (
+                      <CourseDetailCard
+                        key={course.id}
+                        course={course}
+                        onStatusUpdate={handleStatusUpdate}
+                        isLoading={actionLoading === course.id}
+                      />
+                    ))}
                   </div>
                 ) : (
                   <div className="no-courses-message" style={{

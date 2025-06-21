@@ -145,7 +145,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           transition: all 0.3s ease;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
           position: relative;
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
           position: relative;
         }
 
@@ -172,28 +174,33 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           justify-content: space-between;
           align-items: center;
           margin-bottom: 8px;
+          width: 100%;
+          flex-wrap: nowrap;
         }
 
         .course-title-compact {
           color: #ffffff;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           font-weight: 600;
           margin: 0;
           flex: 1;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          min-width: 0;
+          padding-right: 8px;
         }
 
         .status-badge-compact {
           background: ${getStatusColor(course.status)};
           color: white;
-          padding: 2px 6px;
-          border-radius: 10px;
+          padding: 3px 8px;
+          border-radius: 12px;
           font-size: 0.65rem;
           font-weight: 600;
           white-space: nowrap;
-          margin-left: 8px;
+          flex-shrink: 0;
+          min-width: auto;
         }
 
         .toggle-btn-enhanced {
@@ -284,9 +291,20 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .action-btn-compact {
           flex: 1;
-          padding: 12px 16px;
+          padding: 6px 8px;
           border: none;
-          border-radius: 12px;
+          border-radius: 6px;
+          font-size: 0.7rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 3px;
+          color: white;
+          min-height: 32px;
+          max-width: none;
           font-size: 0.9rem;
           font-weight: 600;
           cursor: pointer;
@@ -392,28 +410,17 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
       `}</style>
 
-      <div className="course-header-enhanced">
-        <div className="course-title-enhanced">
-          <i className="fas fa-truck"></i>
-          UIT: {course.uit}
-        </div>
-        <div className="course-subtitle-enhanced">
-          ikRoTrans: {course.ikRoTrans}
-        </div>
-        
-        <div className="course-status-enhanced">
-          <div className="status-badge-enhanced">
-            <i className={getStatusIcon(course.status)}></i>
-            {getStatusText(course.status)}
-          </div>
-          <button 
-            className="toggle-btn-enhanced"
-            onClick={() => setShowDetails(!showDetails)}
-          >
-            <i className={`fas fa-${showDetails ? 'chevron-up' : 'chevron-down'}`}></i>
-            Detalii
-          </button>
-        </div>
+      <div className="course-header-compact">
+        <h4 className="course-title-compact">
+          {course.name || course.uit}
+        </h4>
+        <span className="status-badge-compact">
+          {getStatusText(course.status)}
+        </span>
+      </div>
+      
+      <div className="uit-info-compact">
+        UIT: {course.uit}
       </div>
 
       {showDetails && (
