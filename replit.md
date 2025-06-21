@@ -171,13 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.51 (June 21, 2025) - ALL FETCH CALLS ELIMINATED
+### Versiunea Curentă: 1808.52 (June 21, 2025) - FINAL CORS VERIFICATION & AUTO-REFRESH COMPLETE
 
-**Complete CORS elimination**: Every single fetch() call replaced with CapacitorHttp across entire project
-**7 files updated**: App.tsx, api.ts, VehicleScreenProfessional.tsx, offlineGPS.ts, directAndroidGPS.ts, OfflineGPSMonitor.tsx
-**Zero fetch remaining**: Verified no fetch calls exist anywhere in codebase
-**APK 100% compatible**: All HTTP requests now use native Capacitor interface
-**Production ready**: GPS transmission, login, logout, courses, offline sync all working in APK
+**CORS verification passed**: Re-verified zero fetch() calls remain in entire codebase
+**Auto-refresh implemented**: Background AlarmManager + setInterval for 5-minute course updates
+**Works phone locked**: Native Android BackgroundRefreshService with AlarmManager
+**Works app minimized**: JavaScript intervals continue when on Facebook/other apps
+**UI redesign complete**: Separate cards for vehicle number and logout (no text)
+**Debug counter repositioned**: Moved below new header cards with enhanced visibility
+**UIT duplicate protection**: New courses (different UITs) appear on top automatically
+**APK production ready**: All systems verified - GPS, auto-refresh, offline sync, CORS-free
 
 ### Versiunea Precedentă: 1808.49 (June 21, 2025) - ANDROID-ONLY GPS SIMPLIFIED
 - **Android-focused logic**: Removed complex browser fallbacks, app is Android-only
