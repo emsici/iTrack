@@ -41,6 +41,8 @@ public class MainActivity extends BridgeActivity {
             Log.d(TAG, "- stopGPS: available");
             Log.d(TAG, "- updateStatus: available");
             Log.d(TAG, "- clearAllOnLogout: available");
+            Log.d(TAG, "- postNativeHttp: available");
+            Log.d(TAG, "- getNativeHttp: available");
         } catch (Exception e) {
             Log.e(TAG, "❌ Failed to add AndroidGPS interface: " + e.getMessage(), e);
         }
