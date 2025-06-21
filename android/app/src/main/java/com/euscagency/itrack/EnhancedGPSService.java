@@ -102,18 +102,28 @@ public class EnhancedGPSService extends Service implements LocationListener {
         authToken = intent.getStringExtra("authToken");
         status = intent.getIntExtra("status", 2);
 
-        Log.d(TAG, String.format("Starting GPS tracking - Course: %s, UIT: %s, Status: %d", 
-            courseId, uit, status));
+        Log.d(TAG, String.format("=== STARTING GPS TRACKING ==="));
+        Log.d(TAG, String.format("Course: %s, UIT: %s, Status: %d", courseId, uit, status));
 
         startForeground(NOTIFICATION_ID, createNotification());
         
-        // Only start continuous GPS for status 2 (ACTIVE)
+        // LOGICA CORECTĂ PENTRU STATUSURI:
+        // Status 2 (ACTIV): Transmisie continuă coordonate la 5 secunde
+        // Status 3 (PAUZĂ): Un singur update cu status 3, apoi stop coordonate
+        // Status 4 (FINALIZAT): Un singur update cu status 4, apoi stop complet
         if (status == 2) {
+            Log.d(TAG, "STATUS 2 (ACTIVE): Starting continuous GPS transmission every 5 seconds");
             startLocationUpdates();
             startGPSTransmissionLoop();
             isTracking = true;
-        } else {
-            Log.d(TAG, "Status " + status + " - no continuous GPS needed");
+        } else if (status == 3) {
+            Log.d(TAG, "STATUS 3 (PAUSED): Sending single status update, no continuous GPS");
+            sendSingleStatusUpdate();
+        } else if (status == 4) {
+            Log.d(TAG, "STATUS 4 (FINISHED): Sending final status update and stopping service");
+            sendSingleStatusUpdate();
+            // Pentru status 4, oprește serviciul după trimiterea status-ului
+            new Handler(Looper.getMainLooper()).postDelayed(this::stopGPSTracking, 2000);
         }
     }
 
@@ -129,26 +139,42 @@ public class EnhancedGPSService extends Service implements LocationListener {
     }
 
     private void updateCourseStatus(Intent intent) {
+        int oldStatus = status;
         int newStatus = intent.getIntExtra("status", status);
-        Log.d(TAG, String.format("Updating status from %d to %d", status, newStatus));
+        Log.d(TAG, String.format("=== STATUS UPDATE: %d → %d ===", oldStatus, newStatus));
         
         status = newStatus;
         
         if (status == 2) {
-            // Resume continuous GPS tracking
+            // RESUME/START: Începe transmisia continuă coordonate
+            Log.d(TAG, "RESUME: Starting continuous GPS transmission");
             if (!isTracking) {
                 startLocationUpdates();
                 startGPSTransmissionLoop();
                 isTracking = true;
             }
-        } else {
-            // Stop continuous GPS, send one final status update
+        } else if (status == 3) {
+            // PAUZĂ: Trimite status 3 și oprește coordonatele continue
+            Log.d(TAG, "PAUSE: Sending status 3 and stopping continuous GPS");
             if (isTracking) {
-                sendSingleStatusUpdate();
                 isTracking = false;
                 stopLocationUpdates();
                 stopGPSTransmissionLoop();
             }
+            // Trimite imediat status 3
+            sendSingleStatusUpdate();
+        } else if (status == 4) {
+            // FINALIZAT: Trimite status 4 și oprește serviciul complet
+            Log.d(TAG, "FINISHED: Sending final status 4 and stopping service");
+            if (isTracking) {
+                isTracking = false;
+                stopLocationUpdates();
+                stopGPSTransmissionLoop();
+            }
+            // Trimite status 4 final
+            sendSingleStatusUpdate();
+            // Oprește serviciul după 2 secunde
+            new Handler(Looper.getMainLooper()).postDelayed(this::stopGPSTracking, 2000);
         }
         
         // Update notification
@@ -230,22 +256,30 @@ public class EnhancedGPSService extends Service implements LocationListener {
 
     private void sendSingleStatusUpdate() {
         try {
+            // Pentru status update folosește coordonatele curente dacă sunt disponibile
+            double lat = (lastLocation != null) ? lastLocation.getLatitude() : 0;
+            double lng = (lastLocation != null) ? lastLocation.getLongitude() : 0;
+            int speed = (lastLocation != null) ? Math.max(0, (int) (lastLocation.getSpeed() * 3.6)) : 0;
+            int bearing = (lastLocation != null) ? (int) lastLocation.getBearing() : 0;
+            int altitude = (lastLocation != null) ? (int) lastLocation.getAltitude() : 0;
+            
             JSONObject statusData = new JSONObject();
-            statusData.put("lat", 0);
-            statusData.put("lng", 0);
+            statusData.put("lat", lat);
+            statusData.put("lng", lng);
             statusData.put("timestamp", getCurrentTimestamp());
-            statusData.put("viteza", 0);
-            statusData.put("directie", 0);
-            statusData.put("altitudine", 0);
+            statusData.put("viteza", speed);
+            statusData.put("directie", bearing);
+            statusData.put("altitudine", altitude);
             statusData.put("baterie", getBatteryLevel());
             statusData.put("numar_inmatriculare", vehicleNumber);
             statusData.put("uit", uit);
             statusData.put("status", String.valueOf(status));
-            statusData.put("hdop", "1.0");
+            statusData.put("hdop", lastLocation != null ? String.format("%.1f", lastLocation.getAccuracy()) : "1.0");
             statusData.put("gsm_signal", "4");
 
             transmitGPSData(statusData);
-            Log.d(TAG, String.format("Status update sent: %d for UIT REAL: %s", status, uit));
+            Log.d(TAG, String.format("Status update sent: %d for UIT: %s at %.6f,%.6f", 
+                status, uit, lat, lng));
             
         } catch (Exception e) {
             Log.e(TAG, "Error sending status update", e);

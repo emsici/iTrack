@@ -41,8 +41,8 @@ class DirectAndroidGPSService {
   private activeCourses: Map<string, ActiveCourse> = new Map();
 
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
-    console.log(`Updating course ${courseId} status to ${newStatus}`);
-
+    console.log(`=== UPDATING STATUS: ${courseId} → ${newStatus} ===`);
+    
     const course = this.activeCourses.get(courseId);
     if (!course) {
       console.warn(`Course ${courseId} not found for status update`);
@@ -54,14 +54,28 @@ class DirectAndroidGPSService {
 
     try {
       if (Capacitor.isNativePlatform()) {
-        await this.startAndroidNativeService(course);
-        console.log(
-          `Status updated: ${courseId} from ${oldStatus} to ${newStatus}`,
-        );
+        // Pentru Android nativ, folosește UPDATE_STATUS action
+        await DirectGPS.updateCourseStatus({
+          courseId: courseId,
+          status: newStatus
+        });
+        
+        console.log(`✅ Android GPS status updated: ${courseId} (${oldStatus} → ${newStatus})`);
+        
+        // Logica pentru status:
+        if (newStatus === 2) {
+          console.log("📍 RESUME: Continuous GPS transmission started");
+        } else if (newStatus === 3) {
+          console.log("⏸️ PAUSE: Single status update sent, GPS stopped");
+        } else if (newStatus === 4) {
+          console.log("🏁 FINISH: Final status sent, removing from active courses");
+          // Pentru status 4, elimină cursul din lista activă
+          setTimeout(() => {
+            this.activeCourses.delete(courseId);
+          }, 3000);
+        }
       } else {
-        console.log(
-          `Web environment: Status would be updated to ${newStatus} in APK`,
-        );
+        console.log(`Web environment: Status ${newStatus} would be sent in APK`);
       }
     } catch (error) {
       console.error(`Failed to update course status:`, error);
