@@ -276,9 +276,12 @@ public class EnhancedGPSService extends Service implements LocationListener {
         
         if (gpsHandler != null && gpsRunnable != null) {
             gpsHandler.post(gpsRunnable);
-            Log.d(TAG, "✅ GPS transmission runnable posted successfully");
+            Log.d(TAG, "GPS transmission runnable posted successfully");
+            Log.d(TAG, "First transmission cycle will start immediately");
         } else {
-            Log.e(TAG, "❌ Cannot start GPS transmissions - missing components");
+            Log.e(TAG, "CRITICAL ERROR - Cannot start GPS transmissions");
+            Log.e(TAG, "gpsHandler: " + (gpsHandler != null ? "OK" : "NULL"));
+            Log.e(TAG, "gpsRunnable: " + (gpsRunnable != null ? "OK" : "NULL"));
         }
     }
 
@@ -340,17 +343,20 @@ public class EnhancedGPSService extends Service implements LocationListener {
                     
                     transmissionCount++;
                     Log.d(TAG, "Transmission #" + transmissionCount + " - sent to " + transmittedCount + " active courses");
+                } else if (lastLocation == null) {
+                    Log.d(TAG, "WAITING FOR GPS LOCATION - GPS needs time to get first fix");
+                    Log.d(TAG, "Active courses: " + activeCourses.size() + " - will transmit once GPS location available");
                 } else {
-                    Log.d(TAG, "SKIPPING TRANSMISSION");
-                    Log.d(TAG, "Reason: " + (lastLocation == null ? "No GPS location" : "No active courses"));
+                    Log.d(TAG, "SKIPPING TRANSMISSION - No active courses");
                 }
                 
-                // Schedule next transmission
+                // ALWAYS schedule next transmission if service is tracking and has courses
+                // Even if no GPS location yet - GPS needs time to get first fix
                 if (isTracking && !activeCourses.isEmpty()) {
                     Log.d(TAG, "Scheduling next transmission in " + (GPS_INTERVAL_MS/1000) + " seconds");
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
                 } else {
-                    Log.d(TAG, "STOPPING GPS transmissions");
+                    Log.d(TAG, "STOPPING GPS transmissions - service stopped or no courses");
                     Log.d(TAG, "isTracking: " + isTracking + ", activeCourses: " + activeCourses.size());
                 }
             }
