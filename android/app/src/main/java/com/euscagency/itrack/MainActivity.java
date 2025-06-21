@@ -26,13 +26,8 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Register DirectGPS plugin safely
-        try {
-            registerPlugin(DirectGPSPlugin.class);
-            Log.d(TAG, "DirectGPS plugin registered successfully");
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to register DirectGPS plugin: " + e.getMessage(), e);
-        }
+        // DirectGPS plugin eliminat - folosim doar WebView interface pentru stabilitate
+        // Plugin-ul DirectGPS cauza probleme de compilare
         
         // Add AndroidGPS interface to WebView for JavaScript access
         try {
@@ -42,7 +37,7 @@ public class MainActivity extends BridgeActivity {
             Log.e(TAG, "Failed to add AndroidGPS interface: " + e.getMessage(), e);
         }
         
-        Log.d(TAG, "iTrack MainActivity initialized with GPS interface and DirectGPS plugin");
+        Log.d(TAG, "iTrack MainActivity initialized with WebView GPS interface");
         
         // Eliminat auto-test care poate cauza crash-uri
         // Auto-test dezactivat pentru stabilitate

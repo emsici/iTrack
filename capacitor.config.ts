@@ -8,9 +8,6 @@ const config: CapacitorConfig = {
     androidScheme: 'https'
   },
   plugins: {
-    DirectGPS: {
-      enabled: true
-    },
     Geolocation: {
       requestPermissions: true,
       enableBackgroundLocationUpdates: true,
