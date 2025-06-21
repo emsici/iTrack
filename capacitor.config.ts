@@ -8,18 +8,21 @@ const config: CapacitorConfig = {
     androidScheme: 'https'
   },
   plugins: {
+    DirectGPS: {
+      enabled: true
+    },
     Geolocation: {
       requestPermissions: true,
       enableBackgroundLocationUpdates: true,
-      backgroundLocationUpdateInterval: 60000, // 60 seconds as requested
-      distanceFilter: 5, // meters - more sensitive
+      backgroundLocationUpdateInterval: 60000,
+      distanceFilter: 5,
       enableHighAccuracy: true,
       timeout: 30000,
       maximumAge: 10000
     },
     App: {
       appendUserAgent: 'iTrack/1.0',
-      handleTasks: true // Enable background task handling
+      handleTasks: true
     },
     Device: {
       getInfo: true
