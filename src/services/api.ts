@@ -151,17 +151,19 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
       }
     });
 
-    console.log('API Response:', JSON.stringify(response.data, null, 2));
-    logAPI(`API response: status=${response.status}, data=${JSON.stringify(response.data)}`);
+    console.log('=== APK DEBUG: API Response Status ===', response.status);
+    console.log('=== APK DEBUG: API Response Data ===', JSON.stringify(response.data, null, 2));
+    logAPI(`APK DEBUG: API response: status=${response.status}, data=${JSON.stringify(response.data)}`);
 
     if (response.status === 200) {
       const responseData = response.data;
       
       // Handle API format: {"status":"success","count":0,"data":[]}
       if (responseData.status === 'success' && Array.isArray(responseData.data)) {
-        console.log(`Found ${responseData.data.length} courses for vehicle ${vehicleNumber}`);
+        console.log(`=== APK DEBUG: Found ${responseData.data.length} courses for vehicle ${vehicleNumber} ===`);
         
         if (responseData.data.length > 0) {
+          console.log('=== APK DEBUG: Processing course data ===');
           const processedCourses = responseData.data.map((course: any, index: number) => ({
             id: course.ikRoTrans?.toString() || `course_${index}`,
             name: `Transport ${course.ikRoTrans}`,
@@ -189,11 +191,12 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
             denumireLocStop: course.denumireLocStop
           }));
           
-          logAPI(`Processed ${processedCourses.length} courses successfully`);
+          console.log('=== APK DEBUG: About to return processed courses ===', processedCourses.length);
+          logAPI(`APK DEBUG: Processed ${processedCourses.length} courses successfully`);
           return processedCourses;
         } else {
-          console.log('No courses found for this vehicle');
-          logAPI(`No courses available for vehicle ${vehicleNumber}`);
+          console.log('=== APK DEBUG: No courses found for this vehicle ===');
+          logAPI(`APK DEBUG: No courses available for vehicle ${vehicleNumber}`);
           return [];
         }
       } else {

@@ -44,18 +44,35 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       return;
     }
 
+    console.log("=== APK DEBUG: Starting course loading process ===");
+    console.log("=== APK DEBUG: Vehicle number:", vehicleNumber);
+    console.log("=== APK DEBUG: Token available:", !!token);
+    console.log("=== APK DEBUG: Current coursesLoaded state:", coursesLoaded);
+    
     setLoading(true);
     setError("");
 
     try {
-      console.log(`=== Loading courses for vehicle: ${vehicleNumber} ===`);
+      console.log(`=== DEBUGGING: Loading courses for vehicle: ${vehicleNumber} ===`);
       const response = await getVehicleCourses(vehicleNumber, token);
       
-      console.log("Raw API response:", response);
-      console.log("Response type:", typeof response);
-      console.log("Is array:", Array.isArray(response));
+      console.log("=== DEBUGGING: Raw API response ===", response);
+      console.log("=== DEBUGGING: Response type ===", typeof response);
+      console.log("=== DEBUGGING: Is array ===", Array.isArray(response));
+      console.log("=== DEBUGGING: Response length ===", response?.length);
+
+      // FORȚA setarea coursesLoaded pentru TOATE cazurile
+      console.log("=== APK DEBUG: About to set coursesLoaded to TRUE ===");
+      setCoursesLoaded(true);
+      console.log("=== APK DEBUG: coursesLoaded set to TRUE ===");
+      
+      // Force re-render to avoid WebView caching issues
+      setTimeout(() => {
+        console.log("=== APK DEBUG: Timeout callback - coursesLoaded should be:", coursesLoaded);
+      }, 100);
 
       if (response && Array.isArray(response) && response.length > 0) {
+        console.log("=== DEBUGGING: Processing courses ===");
         const mergedCourses = response.map((newCourse: Course) => {
           const existingCourse = courses.find((c) => c.id === newCourse.id);
           return existingCourse
@@ -64,26 +81,32 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         });
 
         setCourses(mergedCourses);
-        setCoursesLoaded(true);
-        console.log(`=== UI: Successfully loaded ${mergedCourses.length} courses ===`);
-      } else if (response && Array.isArray(response) && response.length === 0) {
-        // Empty array - valid response but no courses
-        console.log("No courses found for this vehicle - showing empty state");
-        setCourses([]);
-        setCoursesLoaded(true);
-        setError("Nu s-au găsit curse pentru acest vehicul. Verificați numărul de înmatriculare.");
+        setError(""); // Clear any previous errors
+        console.log(`=== APK DEBUG: Successfully loaded ${mergedCourses.length} courses ===`);
+        console.log("=== APK DEBUG: About to render courses screen ===");
       } else {
-        // For any other case, show courses loaded state with empty list
-        console.log("Showing empty courses state - response:", response);
+        console.log("=== APK DEBUG: No courses found, setting empty array ===");
         setCourses([]);
-        setCoursesLoaded(true);
         setError("Nu s-au găsit curse pentru acest vehicul. Verificați numărul de înmatriculare.");
+        console.log("=== APK DEBUG: About to render empty courses screen ===");
       }
     } catch (error: any) {
-      console.error("Eroare la încărcarea curselor:", error);
+      console.error("=== APK DEBUG: Error loading courses ===", error);
+      console.log("=== APK DEBUG: Setting coursesLoaded to TRUE on error ===");
+      setCoursesLoaded(true); // Set this even on error
+      setCourses([]);
       setError(error.message || "Eroare la încărcarea curselor");
     } finally {
       setLoading(false);
+      console.log("=== APK DEBUG: Loading finished, coursesLoaded should be TRUE ===");
+      
+      // Debug current state after a short delay to see actual values
+      setTimeout(() => {
+        console.log("=== APK DEBUG: DELAYED CHECK - coursesLoaded:", coursesLoaded);
+        console.log("=== APK DEBUG: DELAYED CHECK - courses length:", courses.length);
+        console.log("=== APK DEBUG: DELAYED CHECK - error:", error);
+        console.log("=== APK DEBUG: DELAYED CHECK - loading:", loading);
+      }, 200);
     }
   };
 
@@ -191,6 +214,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   }, []);
 
   // Course actions handled by CourseDetailCard component
+
+  console.log("=== APK DEBUG: RENDER - coursesLoaded:", coursesLoaded);
+  console.log("=== APK DEBUG: RENDER - courses.length:", courses.length);
+  console.log("=== APK DEBUG: RENDER - error:", error);
+  console.log("=== APK DEBUG: RENDER - loading:", loading);
 
   return (
     <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""}`}>
