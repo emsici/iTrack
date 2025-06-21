@@ -13,7 +13,7 @@ import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
 import { startCourseAnalytics, stopCourseAnalytics } from "../services/courseAnalytics";
 import { subscribeToSyncProgress } from "../services/offlineSyncStatus";
 
-import OfflineGPSMonitor from "./OfflineGPSMonitor";
+
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 
@@ -741,8 +741,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         vehicleNumber={vehicleNumber}
       />
 
-      {/* Monitorizare GPS Offline */}
-      <OfflineGPSMonitor isOnline={isOnline} coursesActive={coursesLoaded} />
+
 
       {/* Debug Panel Modal */}
       {showDebugPanel && (

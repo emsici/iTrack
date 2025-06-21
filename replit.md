@@ -173,10 +173,11 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ### Versiunea Curentă: 1808.25 (June 21, 2025) - UI CLEANUP & CARD OPTIMIZATION
 - **Eliminat iconița statistici**: Scos al 5-lea card cu iconița fa-chart-line din dashboard pentru design mai curat
-- **Eliminat indicator Online/Offline**: Scos complet statusul de conectivitate din header și display pentru interfață simplificată
+- **Eliminat indicator Online/Offline redundant**: Scos statusul de conectivitate din header, păstrat doar cel functional pentru debug (50 click-uri)
+- **Eliminat OfflineGPSMonitor**: Scos complet mesajul "GPS activ - toate datele sincronizate" de sub cardurile de transport
 - **Optimizat carduri de cursă**: Redesigned CourseDetailCard cu preview (UIT, rută, județe, declarant) și dropdown pentru detalii complete
 - **UIT prioritizat**: UIT-ul afișat cu font bold ca element principal în preview
-- **Card layout îmbunătățit**: Mărit lățimea cardurilor la 92% pentru ocuparea mai bună a spațiului lateral
+- **Card layout îmbunătățit**: Mărit lățimea cardurilor la 96% pentru ocuparea optimă a spațiului lateral
 - **Preview vs detalii complete**: View standard cu 4 câmpuri esențiale, dropdown cu toate datele API (ikRoTrans, codDeclarant, birouri vamale)
 - **Dashboard simplificat**: Rămas cu 4 carduri principale: TOTAL, ACTIV, PAUZĂ, DISPONIBIL și doar butoanele Refresh/Ieșire
 
