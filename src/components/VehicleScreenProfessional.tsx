@@ -117,66 +117,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`UIT REAL: ${courseToUpdate.uit}, Vehicle: ${vehicleNumber}`);
 
       if (newStatus === 2) {
-        // Start/Resume - GPS transmite continuu coordonate
-        await startGPSTracking(
-          courseId,
-          vehicleNumber,
-          courseToUpdate.uit,
-          token,
-          newStatus,
-        );
+        // Start/Resume - PRIORITY: Android native GPS pentru transmisie continuă
+        console.log('🚀 STARTING GPS tracking - continuous transmission every 5 seconds');
+        await startGPSTracking(courseId, vehicleNumber, courseToUpdate.uit, token, 2);
+        await updateCourseStatus(courseId, 2);
+        console.log('✅ GPS service activated for continuous transmission');
       } else if (newStatus === 3) {
-        // Pause - Trimite UN update cu status 3, apoi oprește coordonatele
-        const gpsData = {
-          lat: 0,
-          lng: 0,
-          timestamp: new Date().toISOString(),
-          viteza: 0,
-          directie: 0,
-          altitudine: 0,
-          baterie: 100,
-          numar_inmatriculare: vehicleNumber,
-          uit: courseToUpdate.uit,
-          status: "3",
-          hdop: "1.0",
-          gsm_signal: "4"
-        };
-        
-        try {
-          await sendGPSData(gpsData, token);
-          console.log('✅ Status 3 trimis online');
-        } catch (error) {
-          console.log('💾 Status 3 salvat offline');
-          await saveGPSCoordinateOffline(gpsData, courseId, vehicleNumber, token, 3);
-        }
-        
-        await stopGPSTracking(courseId); // Oprește coordonatele continue
+        // Pause - Update status în serviciul Android, va trimite un update și se pauzează
+        console.log('⏸️ PAUSING GPS - sending status update');
+        await updateCourseStatus(courseId, 3);
+        console.log('✅ Course paused - no more continuous transmission');
       } else if (newStatus === 4) {
-        // Finish - Trimite UN update cu status 4, apoi oprește
-        const gpsData = {
-          lat: 0,
-          lng: 0,
-          timestamp: new Date().toISOString(),
-          viteza: 0,
-          directie: 0,
-          altitudine: 0,
-          baterie: 100,
-          numar_inmatriculare: vehicleNumber,
-          uit: courseToUpdate.uit,
-          status: "4",
-          hdop: "1.0",
-          gsm_signal: "4"
-        };
-        
-        try {
-          await sendGPSData(gpsData, token);
-          console.log('✅ Status 4 trimis online');
-        } catch (error) {
-          console.log('💾 Status 4 salvat offline');
-          await saveGPSCoordinateOffline(gpsData, courseId, vehicleNumber, token, 4);
-        }
-        
-        await stopGPSTracking(courseId); // Oprește coordonatele continue
+        // Finish - Update status în serviciul Android, va trimite update final și se oprește
+        console.log('🏁 FINISHING GPS - sending final status');
+        await updateCourseStatus(courseId, 4);
+        console.log('✅ Course finished - removed from active tracking');
       }
 
       // Update local state

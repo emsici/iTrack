@@ -198,18 +198,20 @@ public class EnhancedGPSService extends Service implements LocationListener {
         course.status = newStatus;
         
         if (newStatus == 2) {
-            Log.d(TAG, "RESUME/ACTIVATE: Course will transmit continuously");
-            // Service already running, just update status
+            Log.d(TAG, "✅ ACTIVATE: Course will transmit continuously at 5-second intervals");
+            // Serviciul rulează deja, status 2 = transmisie continuă în gpsRunnable
+            // Nu trimite update separat - va fi inclus în transmisia continuă
         } else if (newStatus == 3) {
-            Log.d(TAG, "PAUSE: Sending status update");
+            Log.d(TAG, "⏸️ PAUSE: Sending single status update, stopping continuous transmission");
             sendSingleStatusUpdate(course);
+            // Status 3 = nu mai transmite în gpsRunnable (doar dacă status == 2)
         } else if (newStatus == 4) {
-            Log.d(TAG, "FINISH: Sending final status and removing course");
+            Log.d(TAG, "🏁 FINISH: Sending final status and removing course completely");
             sendSingleStatusUpdate(course);
-            // Remove course after final transmission
+            // Remove course după transmisia finală
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 activeCourses.remove(courseId);
-                Log.d(TAG, "Course " + courseId + " removed (finished)");
+                Log.d(TAG, "Course " + courseId + " removed from active tracking");
                 checkStopService();
             }, 2000);
         }
@@ -273,18 +275,32 @@ public class EnhancedGPSService extends Service implements LocationListener {
             @Override
             public void run() {
                 if (lastLocation != null && !activeCourses.isEmpty()) {
-                    // Transmite pentru toate cursele cu status 2 (ACTIVE)
+                    Log.d(TAG, "=== GPS TRANSMISSION CYCLE ===");
+                    Log.d(TAG, "Active courses: " + activeCourses.size());
+                    
+                    // Transmite DOAR pentru cursele cu status 2 (ACTIVE)
+                    int transmittedCount = 0;
                     for (CourseData course : activeCourses.values()) {
                         if (course.status == 2) {
+                            Log.d(TAG, "📡 Transmitting GPS for UIT: " + course.uit + " (Status: " + course.status + ")");
                             transmitGPSData(course, lastLocation);
+                            transmittedCount++;
+                        } else {
+                            Log.d(TAG, "⏭️ Skipping UIT: " + course.uit + " (Status: " + course.status + " - not active)");
                         }
                     }
+                    
                     transmissionCount++;
+                    Log.d(TAG, "Transmission #" + transmissionCount + " - sent to " + transmittedCount + " active courses");
+                } else {
+                    Log.d(TAG, "No GPS data or active courses - skipping transmission");
                 }
                 
                 // Schedule next transmission
-                if (isTracking) {
+                if (isTracking && !activeCourses.isEmpty()) {
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                } else {
+                    Log.d(TAG, "Stopping GPS transmissions - no active courses or service stopped");
                 }
             }
         };
