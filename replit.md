@@ -171,13 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.34 (June 21, 2025) - LAYOUT RESTRUCTURAT: NUMĂR + IEȘIRE PE ACELAȘI RÂND
-- **Layout restructurat complet**: Organizare pe rânduri verticale pentru design mai curat
-- **Rând 1**: Numărul vehiculului + Buton ieșire (aceeași înălțime, același card)
+### Versiunea Curentă: 1808.35 (June 21, 2025) - LAYOUT RESTRUCTURAT FINALIZAT: ORGANIZARE PE RÂNDURI VERTICALE
+- **Layout restructurat complet finalizat**: Organizare pe rânduri verticale pentru design mai curat și organizat
+- **Rând 1**: Numărul vehiculului + Buton ieșire (aceeași înălțime, același card, poziționare perfectă)
 - **Rând 2**: Status "Online" + Counter debug centrat sub numărul vehiculului
-- **Rând 3**: 4 carduri analytics (TOTAL, ACTIV, PAUZĂ, DISPONIBIL)
-- **Rând 4**: Lista curselor
+- **Progress GPS**: Sincronizare offline apare automat între rândul 2 și 3 când sunt coordonate în cache
+- **Rând 3**: 4 carduri analytics (TOTAL, ACTIV, PAUZĂ, DISPONIBIL) compacte și responsive
+- **Rând 4**: Lista curselor cu scroll vertical independent
 - **Economie spațiu**: Eliminat header-ul redundant, layout mai compact și eficient
+- **Design consistent**: Toate elementele aliniate și organizate uniform pe rânduri
 - **Zero CORS policy errors**: Aplicația nu mai folosește niciodată fetch/XMLHttpRequest pentru gps.php din WebView
 - **Doar serviciul Android nativ transmite**: EnhancedGPSService.java cu OkHttp este singura sursă de transmisie GPS
 - **Doar serviciul Android nativ**: Status updates se fac exclusiv prin AndroidGPS.updateStatus() pentru evitarea CORS

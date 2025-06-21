@@ -493,6 +493,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             )}
           </div>
 
+          {/* Progress sincronizare GPS offline (între rândul 2 și 3) */}
+          <OfflineSyncProgress />
+
           {/* Rând 3: 4 carduri analytics */}
           <div style={{
             display: 'grid',
