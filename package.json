@@ -10,7 +10,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@capacitor-community/background-geolocation": "^1.2.22",
     "@capacitor/android": "^7.3.0",
     "@capacitor/cli": "^7.3.0",
     "@capacitor/core": "^7.3.0",
