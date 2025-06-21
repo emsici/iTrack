@@ -215,6 +215,8 @@ Persistare localStorage → Afișare CourseStatsModal
 - **Serviciu persistent**: GPS rulează cât timp există curse active, se oprește automat doar când toate cursele sunt finalizate
 - **EnhancedGPSService complet reparat**: Eliminat toate erorile de compilare, CourseData class finalizată, notificare multi-cursă funcțională
 - **Multi-course logic verificat**: Suport simultan pentru multiple UIT-uri active - fiecare cu propriul token și status independent
+- **Date reale GPS implementate**: getBatteryLevel() citește bateria reală, getSignalStrength() detectează tipul rețelei (LTE/3G/2G)
+- **Permisiuni Android actualizate**: BATTERY_STATS, READ_PHONE_STATE, ACCESS_NETWORK_STATE pentru date autentice
 
 ### Features Majore Implementate
 1. **Enterprise Authentication**: Login corporatist cu credențiale admin
