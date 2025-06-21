@@ -396,7 +396,7 @@ public class EnhancedGPSService extends Service implements LocationListener {
             gpsData.put("hdop", location.hasAccuracy() ? String.format(Locale.US, "%.1f", location.getAccuracy()) : "999.0");
             gpsData.put("gsm_signal", getSignalStrength());
 
-            sendGPSRequest(gpsData, course.authToken);
+            sendGPSRequest(gpsData, authToken);
             
             Log.d(TAG, "GPS transmitted - UIT: " + course.uit + " Status: " + course.status + 
                   " Lat: " + String.format(Locale.US, "%.6f", location.getLatitude()) + 
