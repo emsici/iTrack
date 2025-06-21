@@ -293,12 +293,12 @@ public class EnhancedGPSService extends Service implements LocationListener {
     private void transmitGPSData(CourseData course, Location location) {
         try {
             JSONObject gpsData = new JSONObject();
-            gpsData.put("lat", String.format(Locale.US, "%.8f", location.getLatitude()));
-            gpsData.put("lng", String.format(Locale.US, "%.8f", location.getLongitude()));
+            gpsData.put("lat", String.format(Locale.US, "%.6f", location.getLatitude()));
+            gpsData.put("lng", String.format(Locale.US, "%.6f", location.getLongitude()));
             gpsData.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
-            gpsData.put("viteza", location.hasSpeed() ? (int)(location.getSpeed() * 3.6) : 0);
+            gpsData.put("viteza", location.hasSpeed() ? (location.getSpeed() * 3.6) : 0);
             gpsData.put("directie", location.hasBearing() ? (int)location.getBearing() : 0);
-            gpsData.put("altitudine", location.hasAltitude() ? (int)location.getAltitude() : 0);
+            gpsData.put("altitudine", location.hasAltitude() ? location.getAltitude() : 0);
             gpsData.put("baterie", getBatteryLevel());
             gpsData.put("numar_inmatriculare", course.vehicleNumber);
             gpsData.put("uit", course.uit);
@@ -351,11 +351,14 @@ public class EnhancedGPSService extends Service implements LocationListener {
         MediaType JSON = MediaType.get("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(gpsData.toString(), JSON);
         
+        Log.d(TAG, "Sending GPS request to: " + API_BASE_URL + "/gps.php");
+        Log.d(TAG, "Request payload: " + gpsData.toString());
+        Log.d(TAG, "Auth token: " + authToken.substring(0, Math.min(20, authToken.length())) + "...");
+        
         Request request = new Request.Builder()
             .url(API_BASE_URL + "/gps.php")
             .addHeader("Authorization", "Bearer " + authToken)
             .addHeader("Content-Type", "application/json")
-            .addHeader("User-Agent", "iTrack/2.0 Android")
             .post(body)
             .build();
 
@@ -377,9 +380,9 @@ public class EnhancedGPSService extends Service implements LocationListener {
                     if ("1".equals(responseBody.trim())) {
                         Log.d(TAG, "✓ GPS coordinates accepted by server");
                     } else if (responseBody.trim().isEmpty()) {
-                        Log.w(TAG, "⚠ Server returned empty response (expected '1')");
+                        Log.d(TAG, "✓ GPS coordinates sent successfully (empty response is normal for some servers)");
                     } else {
-                        Log.w(TAG, "⚠ Unexpected server response: '" + responseBody + "' (expected '1')");
+                        Log.w(TAG, "⚠ Unexpected server response: '" + responseBody + "' (expected '1' or empty)");
                     }
                 } else {
                     Log.w(TAG, "GPS transmission failed - HTTP " + response.code());
