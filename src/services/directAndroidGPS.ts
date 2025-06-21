@@ -203,15 +203,32 @@ class DirectAndroidGPSService {
     console.log(`Token: ${course.token.substring(0, 20)}...`);
 
     try {
-      // Cerere permisiuni GPS prin Capacitor - simplu ca înainte
+      // PRIORITATE 1: AndroidGPS nativ (doar în APK)
+      if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
+        console.log("✅ AndroidGPS interface available - starting EnhancedGPSService");
+        const result = (window as any).AndroidGPS.startGPS(
+          course.courseId,
+          course.vehicleNumber, 
+          course.uit,
+          course.token,
+          course.status
+        );
+        console.log("✅ EnhancedGPSService activated via AndroidGPS:", result);
+        console.log("📱 Background GPS transmission every 5 seconds to gps.php");
+        return;
+      }
+
+      // FALLBACK pentru browser: GPS prin Capacitor Geolocation
+      console.log("⚠️ AndroidGPS not available - using Capacitor Geolocation fallback");
       console.log("Requesting GPS permissions...");
+      
       const permissions = await Geolocation.requestPermissions();
       console.log("GPS permissions result:", permissions);
 
       if (permissions.location === "granted") {
-        console.log("GPS permissions granted - starting location tracking");
+        console.log("GPS permissions granted - starting browser GPS tracking");
 
-        // Start location tracking pentru a activa serviciul
+        // Obține poziția curentă pentru validare
         const position = await Geolocation.getCurrentPosition({
           enableHighAccuracy: true,
           timeout: 10000,
@@ -223,27 +240,12 @@ class DirectAndroidGPSService {
           accuracy: position.coords.accuracy,
         });
 
-        // EXCLUSIV AndroidGPS WebView interface pentru EnhancedGPSService
-        if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-          console.log("✅ AndroidGPS interface available - starting EnhancedGPSService");
-          const result = (window as any).AndroidGPS.startGPS(
-            course.courseId,
-            course.vehicleNumber, 
-            course.uit,
-            course.token,
-            course.status
-          );
-          console.log("✅ EnhancedGPSService activated via AndroidGPS:", result);
-          console.log("📱 Background GPS transmission every 5 seconds to gps.php");
-          
-        } else {
-          console.log("⚠️ AndroidGPS interface not available - APK only feature");
-          console.log("📱 In APK: EnhancedGPSService will start for course:", course.courseId);
-          console.log("🎯 Background GPS transmission every 5 seconds with phone locked");
+        // Start browser GPS interval pentru status 2 (ACTIVE)
+        if (course.status === 2) {
+          this.startBrowserGPSInterval(course);
         }
 
-        console.log("EnhancedGPSService activated for UIT:", course.uit);
-        console.log("GPS will transmit every 5 seconds to server");
+        console.log("Browser GPS tracking activated for UIT:", course.uit);
       } else {
         throw new Error("GPS permissions not granted");
       }
@@ -258,21 +260,84 @@ class DirectAndroidGPSService {
     console.log(`Course: ${courseId}`);
 
     try {
-      // OPRIRE prin AndroidGPS WebView interface
+      // PRIORITATE 1: AndroidGPS nativ (doar în APK)
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.stopGPS) {
         console.log("✅ AndroidGPS available - stopping EnhancedGPSService");
         const result = (window as any).AndroidGPS.stopGPS(courseId);
         console.log("✅ EnhancedGPSService stopped via AndroidGPS:", result);
       } else {
-        console.log("⚠️ AndroidGPS not available - APK only feature");
-        console.log("📱 In APK: EnhancedGPSService will stop for course:", courseId);
+        // FALLBACK pentru browser: oprește interval-ul GPS
+        console.log("⚠️ AndroidGPS not available - stopping browser GPS interval");
+        this.stopBrowserGPSInterval(courseId);
       }
 
       console.log(`🛑 GPS tracking stopped for course ${courseId}`);
     } catch (error) {
-      console.error("Failed to stop Android GPS service:", error);
+      console.error("Failed to stop GPS service:", error);
       // Don't throw error - allow graceful degradation
       console.log("GPS stop completed with fallback");
+    }
+  }
+
+  private startBrowserGPSInterval(course: ActiveCourse): void {
+    const intervalKey = `gpsInterval_${course.courseId}`;
+    
+    // Curăță interval existent dacă există
+    if ((window as any)[intervalKey]) {
+      clearInterval((window as any)[intervalKey]);
+    }
+
+    console.log(`Starting browser GPS interval for course ${course.courseId}`);
+    
+    (window as any)[intervalKey] = setInterval(async () => {
+      try {
+        // Verifică dacă cursul este încă activ
+        const activeCourse = this.activeCourses.get(course.courseId);
+        if (!activeCourse || activeCourse.status !== 2) {
+          console.log(`Course ${course.courseId} no longer active, stopping interval`);
+          clearInterval((window as any)[intervalKey]);
+          delete (window as any)[intervalKey];
+          return;
+        }
+
+        // Obține poziția curentă
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 8000,
+        });
+
+        // Transmite coordonatele la server
+        const gpsData: GPSData = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          timestamp: new Date().toISOString(),
+          viteza: position.coords.speed || 0,
+          directie: position.coords.heading || 0,
+          altitudine: position.coords.altitude || 0,
+          baterie: 100, // Browser fallback
+          numar_inmatriculare: course.vehicleNumber,
+          uit: course.uit,
+          status: "2",
+          hdop: position.coords.accuracy.toString(),
+          gsm_signal: "WiFi"
+        };
+
+        await sendGPSData(gpsData, course.token);
+        console.log(`Browser GPS transmitted for course ${course.courseId}`);
+        
+      } catch (error) {
+        console.warn(`Browser GPS transmission failed for course ${course.courseId}:`, error);
+      }
+    }, 5000); // 5 secunde interval
+  }
+
+  private stopBrowserGPSInterval(courseId: string): void {
+    const intervalKey = `gpsInterval_${courseId}`;
+    
+    if ((window as any)[intervalKey]) {
+      clearInterval((window as any)[intervalKey]);
+      delete (window as any)[intervalKey];
+      console.log(`Browser GPS interval stopped for course ${courseId}`);
     }
   }
 

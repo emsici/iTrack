@@ -171,7 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.30 (June 21, 2025) - LOGICA GPS REPARATĂ COMPLET
+### Versiunea Curentă: 1808.31 (June 21, 2025) - BROWSER FALLBACK IMPLEMENTAT
+- **Browser GPS fallback**: Pentru development în browser, GPS funcționează prin Capacitor Geolocation
+- **Prioritate nativă**: AndroidGPS (APK) > Capacitor Geolocation (browser) pentru testing complet
+- **Permissions în browser**: Geolocation.requestPermissions() cere permisiunile GPS în browser
+- **GPS interval în browser**: Transmisie la 5 secunde prin browser când AndroidGPS nu e disponibil
+- **Hybrid approach**: APK folosește EnhancedGPSService, browser folosește intervals JavaScript
+
+### Versiunea Precedentă: 1808.30 (June 21, 2025) - LOGICA GPS REPARATĂ COMPLET
 - **Eliminat logica contradictorie**: PAUSE/STOP nu mai apelează startGPSTracking() cu status 2
 - **Flow logic corect**: START→status 2, PAUSE→status 3, STOP→status 4, fără contradicții
 - **Minimal course entry**: Pentru PAUSE/STOP fără START anterior se creează entry cu date din localStorage
