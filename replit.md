@@ -171,12 +171,13 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.33 (June 21, 2025) - UI ÎMBUNĂTĂȚIRI: COUNTER SUB ONLINE + AUTO-REFRESH
-- **Click counter poziționat**: Counter-ul 30/50 apare acum sub textul "Online" în loc să fie pe aceeași linie
-- **Cursă finalizată success**: Status 4 (finalizată) afișat cu verde (success) în loc de roșu (danger)
-- **Eliminat buton refresh manual**: Scos butonul de refresh din header pentru interfață mai curată
-- **Auto-refresh implementat**: Timer automat la 5 minute pentru încărcarea curselor în background
-- **Eficiență îmbunătățită**: Aplicația se actualizează automat chiar și când este blocată
+### Versiunea Curentă: 1808.34 (June 21, 2025) - LAYOUT RESTRUCTURAT: NUMĂR + IEȘIRE PE ACELAȘI RÂND
+- **Layout restructurat complet**: Organizare pe rânduri verticale pentru design mai curat
+- **Rând 1**: Numărul vehiculului + Buton ieșire (aceeași înălțime, același card)
+- **Rând 2**: Status "Online" + Counter debug centrat sub numărul vehiculului
+- **Rând 3**: 4 carduri analytics (TOTAL, ACTIV, PAUZĂ, DISPONIBIL)
+- **Rând 4**: Lista curselor
+- **Economie spațiu**: Eliminat header-ul redundant, layout mai compact și eficient
 - **Zero CORS policy errors**: Aplicația nu mai folosește niciodată fetch/XMLHttpRequest pentru gps.php din WebView
 - **Doar serviciul Android nativ transmite**: EnhancedGPSService.java cu OkHttp este singura sursă de transmisie GPS
 - **Doar serviciul Android nativ**: Status updates se fac exclusiv prin AndroidGPS.updateStatus() pentru evitarea CORS

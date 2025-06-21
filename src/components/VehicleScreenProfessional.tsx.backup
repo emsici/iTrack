@@ -518,10 +518,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             )}
           </div>
 
-          {/* Rând 3: 4 carduri analytics */}
+          {/* Rând 4: Lista curselor */}
           <div className="courses-section">
             <div className="executive-control-center">
               <div className="command-dashboard">
+                {/* Rând 3: 4 carduri analytics */}
                 <div style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(4, 1fr)',
@@ -791,28 +792,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             </div>
           </div>
-
-          {/* Rând 4: Lista curselor */}
-          <div style={{ marginTop: '20px' }}>
-            {courses.length > 0 ? (
-              courses.map((course) => (
-                <CourseDetailCard
-                  key={course.id}
-                  course={course}
-                  onStatusUpdate={handleCourseStatusUpdate}
-                  isLoading={actionLoading === course.id}
-                />
-              ))
-            ) : (
-              <div style={{ 
-                textAlign: 'center', 
-                color: '#94a3b8', 
-                padding: '40px 20px',
-                fontSize: '0.9rem'
-              }}>
-                Nu există curse disponibile pentru acest vehicul
-              </div>
-            )}
           </div>
         </>
       )}
