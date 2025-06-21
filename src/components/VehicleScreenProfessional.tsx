@@ -6,7 +6,7 @@ import {
   stopGPSTracking,
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
-import { clearToken } from "../services/storage";
+import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 import { getOfflineGPSCount, saveGPSCoordinateOffline } from "../services/offlineGPS";
 import { getAppLogs } from "../services/appLogger";
 
@@ -32,6 +32,23 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [debugLogs, setDebugLogs] = useState<any[]>([]);
 
+  // Load stored vehicle number on component mount
+  useEffect(() => {
+    const loadStoredVehicleNumber = async () => {
+      try {
+        const storedVehicle = await getStoredVehicleNumber();
+        if (storedVehicle) {
+          setVehicleNumber(storedVehicle);
+          console.log('Loaded stored vehicle number:', storedVehicle);
+        }
+      } catch (error) {
+        console.error('Error loading stored vehicle number:', error);
+      }
+    };
+    
+    loadStoredVehicleNumber();
+  }, []);
+
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
       setError("Introduceți numărul vehiculului");
@@ -53,6 +70,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     setError("");
     
     try {
+      // Store vehicle number for persistence
+      await storeVehicleNumber(vehicleNumber.trim());
+      
       console.log(`=== DEBUGGING: Loading courses for vehicle: ${vehicleNumber} ===`);
       const response = await getVehicleCourses(vehicleNumber, token);
       
@@ -530,15 +550,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
 
                 {courses.length > 0 ? (
-                  <div className="courses-list">
-                    {courses.map((course) => (
-                      <CourseDetailCard
-                        key={course.id}
-                        course={course}
-                        onStatusUpdate={handleStatusUpdate}
-                        isLoading={actionLoading === course.id}
-                      />
-                    ))}
+                  <div className="courses-container">
+                    <div className="courses-list">
+                      {courses.map((course) => (
+                        <div key={course.id} className="course-card-wrapper">
+                          <CourseDetailCard
+                            course={course}
+                            onStatusUpdate={handleStatusUpdate}
+                            isLoading={actionLoading === course.id}
+                          />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="no-courses-message" style={{
