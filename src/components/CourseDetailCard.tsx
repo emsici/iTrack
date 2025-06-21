@@ -54,19 +54,19 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       case 1: // Available
         return (
           <button 
-            className="action-btn-enhanced btn-start-enhanced"
+            className="action-btn-compact btn-start-compact"
             onClick={() => handleAction('start')}
             disabled={isLoading}
           >
             <i className="fas fa-play"></i>
-            Pornește
+            Start
           </button>
         );
       case 2: // In progress
         return (
           <>
             <button 
-              className="action-btn-enhanced btn-pause-enhanced"
+              className="action-btn-compact btn-pause-compact"
               onClick={() => handleAction('pause')}
               disabled={isLoading}
             >
@@ -74,12 +74,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               Pauză
             </button>
             <button 
-              className="action-btn-enhanced btn-finish-enhanced"
+              className="action-btn-compact btn-finish-compact"
               onClick={() => handleAction('finish')}
               disabled={isLoading}
             >
               <i className="fas fa-stop"></i>
-              Finalizează
+              Stop
             </button>
           </>
         );
@@ -87,20 +87,20 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         return (
           <>
             <button 
-              className="action-btn-enhanced btn-resume-enhanced"
+              className="action-btn-compact btn-resume-compact"
               onClick={() => handleAction('resume')}
               disabled={isLoading}
             >
               <i className="fas fa-play"></i>
-              Continuă
+              Resume
             </button>
             <button 
-              className="action-btn-enhanced btn-finish-enhanced"
+              className="action-btn-compact btn-finish-compact"
               onClick={() => handleAction('finish')}
               disabled={isLoading}
             >
               <i className="fas fa-stop"></i>
-              Finalizează
+              Stop
             </button>
           </>
         );
@@ -132,22 +132,19 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
   };
 
   return (
-    <div className="course-card-enhanced">
+    <div className="course-card-compact">
       <style>{`
-        .course-card-enhanced {
-          background: linear-gradient(135deg, 
-            rgba(20, 25, 40, 0.95) 0%,
-            rgba(25, 30, 50, 0.95) 100%);
+        .course-card-compact {
+          background: rgba(255, 255, 255, 0.08);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 16px;
-          margin: 0 auto 16px auto;
-          max-width: 600px;
-          width: calc(100% - 40px);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          border-radius: 12px;
+          padding: 12px;
+          margin: 0;
           overflow: hidden;
           transition: all 0.3s ease;
-          box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.3),
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+          position: relative;
             inset 0 1px 0 rgba(255, 255, 255, 0.1);
           position: relative;
         }
@@ -159,56 +156,44 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
             inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
-        .course-card-enhanced::before {
+        .course-card-compact::before {
           content: '';
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
-          height: 3px;
-          background: linear-gradient(90deg, ${getStatusColor(course.status)}, ${getStatusColor(course.status)}88);
+          height: 2px;
+          background: ${getStatusColor(course.status)};
           transition: all 0.3s ease;
         }
 
-        .course-header-enhanced {
-          padding: 20px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .course-title-enhanced {
-          color: #ffffff;
-          font-size: 1.1rem;
-          font-weight: 600;
-          margin: 0 0 8px 0;
+        .course-header-compact {
           display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .course-subtitle-enhanced {
-          color: #cbd5e1;
-          font-size: 0.9rem;
-          margin: 0;
-        }
-
-        .course-status-enhanced {
-          display: flex;
-          align-items: center;
           justify-content: space-between;
-          margin-top: 16px;
+          align-items: center;
+          margin-bottom: 8px;
         }
 
-        .status-badge-enhanced {
+        .course-title-compact {
+          color: #ffffff;
+          font-size: 0.9rem;
+          font-weight: 600;
+          margin: 0;
+          flex: 1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .status-badge-compact {
           background: ${getStatusColor(course.status)};
           color: white;
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-size: 0.7rem;
+          padding: 2px 6px;
+          border-radius: 10px;
+          font-size: 0.65rem;
           font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          box-shadow: 0 1px 4px ${getStatusColor(course.status)}33;
+          white-space: nowrap;
+          margin-left: 8px;
         }
 
         .toggle-btn-enhanced {
@@ -297,7 +282,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           gap: 12px;
         }
 
-        .action-btn-enhanced {
+        .action-btn-compact {
           flex: 1;
           padding: 12px 16px;
           border: none;
@@ -323,25 +308,25 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           transform: translateY(-1px);
         }
 
-        .btn-start-enhanced {
+        .btn-start-compact {
           background: linear-gradient(135deg, #10b981, #059669);
           color: white;
           box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
         }
 
-        .btn-pause-enhanced {
+        .btn-pause-compact {
           background: linear-gradient(135deg, #f59e0b, #d97706);
           color: white;
           box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         }
 
-        .btn-resume-enhanced {
+        .btn-resume-compact {
           background: linear-gradient(135deg, #3b82f6, #2563eb);
           color: white;
           box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
-        .btn-finish-enhanced {
+        .btn-finish-compact {
           background: linear-gradient(135deg, #ef4444, #dc2626);
           color: white;
           box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);

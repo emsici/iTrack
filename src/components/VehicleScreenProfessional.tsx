@@ -160,54 +160,67 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
     try {
       const courseToUpdate = courses.find((c) => c.id === courseId);
-      if (!courseToUpdate) return;
+      if (!courseToUpdate) {
+        console.error("Course not found:", courseId);
+        return;
+      }
 
       console.log(`=== STATUS UPDATE START ===`);
       console.log(`Course: ${courseId}, Status: ${courseToUpdate.status} → ${newStatus}`);
       console.log(`UIT REAL: ${courseToUpdate.uit}, Vehicle: ${vehicleNumber}`);
       console.log(`Token available: ${!!token}, Token length: ${token?.length || 0}`);
 
+      // Update server status first
+      const response = await fetch(`${API_BASE_URL}/update_course_status.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          course_id: courseId,
+          status: newStatus
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Server response:', result);
+
+      if (result.status !== 'success' && !result.success) {
+        throw new Error(result.message || result.error || 'Server rejected status update');
+      }
+
+      // Update GPS service
       if (newStatus === 2) {
-        // Start/Resume - PRIORITY: Android native GPS pentru transmisie continuă
-        console.log('STARTING GPS tracking - continuous transmission every 5 seconds');
-        console.log('GPS Start Parameters:', {
-          courseId,
-          vehicleNumber, 
-          tokenLength: token?.length,
-          uit: courseToUpdate.uit,
-          status: 2
-        });
-        
-        try {
-          await startGPSTracking(courseId, vehicleNumber, token, courseToUpdate.uit, 2);
-          console.log('GPS service activated for continuous transmission');
-        } catch (gpsError) {
-          console.error('GPS start failed:', gpsError);
-          throw gpsError;
-        }
+        console.log(`Starting GPS tracking for course ${courseId}`);
+        await startGPSTracking(courseId, courseToUpdate.uit, newStatus, vehicleNumber, token);
+        await startCourseAnalytics(courseId, courseToUpdate.uit, vehicleNumber);
       } else if (newStatus === 3) {
-        // Pause - Update status în serviciul Android, va trimite un update și se pauzează
-        console.log('⏸️ PAUSING GPS - sending status update');
-        await updateCourseStatus(courseId, 3);
-        console.log('✅ Course paused - no more continuous transmission');
+        console.log(`Pausing GPS tracking for course ${courseId}`);
+        await updateCourseStatus(courseId, newStatus);
       } else if (newStatus === 4) {
-        // Finish - Update status în serviciul Android, va trimite update final și se oprește
-        console.log('🏁 FINISHING GPS - sending final status');
-        await updateCourseStatus(courseId, 4);
-        console.log('✅ Course finished - removed from active tracking');
+        console.log(`Stopping GPS tracking for course ${courseId}`);
+        await stopGPSTracking(courseId);
+        await stopCourseAnalytics(courseId);
       }
 
       // Update local state
-      setCourses((prev) =>
-        prev.map((course) =>
-          course.id === courseId ? { ...course, status: newStatus } : course,
-        ),
+      setCourses((prevCourses) =>
+        prevCourses.map((course) =>
+          course.id === courseId ? { ...course, status: newStatus } : course
+        )
       );
 
-      console.log(`=== STATUS UPDATE COMPLETED: ${courseToUpdate.status} → ${newStatus} ===`);
+      logAPI(`Course ${courseId} status updated successfully to ${newStatus}`);
+      console.log(`=== STATUS UPDATE COMPLETE ===`);
     } catch (error) {
-      console.error("=== STATUS UPDATE ERROR ===", error);
-      alert(`Eroare la actualizarea statusului: ${error}`);
+      console.error("Status update error:", error);
+      logAPIError(`Status update failed: ${error}`);
+      alert(`Eroare la actualizarea statusului: ${error instanceof Error ? error.message : 'Eroare necunoscută'}`);
     } finally {
       setActionLoading(null);
     }
