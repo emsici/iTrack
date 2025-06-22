@@ -36,9 +36,11 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     // Try native HTTP first if available (APK mode)
     if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
       console.log('Using native HTTP for login');
+      // Use form-encoded format for native HTTP too
+      const formData = `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
       const nativeResult = (window as any).AndroidGPS.postNativeHttp(
         `${API_BASE_URL}/login.php`,
-        JSON.stringify({ email, password }),
+        formData,
         ''
       );
       
@@ -58,12 +60,13 @@ export const login = async (email: string, password: string): Promise<LoginRespo
       // Browser fallback - use fetch
       console.log('Using fetch for login (browser mode)');
       
+      // Try form-encoded first (as per original implementation)
       const response = await fetch(`${API_BASE_URL}/login.php`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: JSON.stringify({ email, password }),
+        body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
       });
       
       const data = await response.json();
