@@ -33,9 +33,13 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     console.log('Login attempt for:', email);
     logAPI(`Login attempt for ${email}`);
     
+    // Debug AndroidGPS detection
+    console.log('AndroidGPS object:', (window as any).AndroidGPS);
+    console.log('AndroidGPS postNativeHttp available:', typeof (window as any).AndroidGPS?.postNativeHttp === 'function');
+    
     // Try native HTTP first if available (APK mode)
     if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-      console.log('Using AndroidGPS native HTTP for login');
+      console.log('✅ Using AndroidGPS native HTTP for login');
       // Use JSON format for native HTTP (server requires JSON)
       const nativeResult = (window as any).AndroidGPS.postNativeHttp(
         `${API_BASE_URL}/login.php`,
@@ -70,7 +74,7 @@ export const login = async (email: string, password: string): Promise<LoginRespo
       return { status: 'error', error: 'Unexpected response format' };
     } else {
       // Browser fallback - use fetch
-      console.log('Using fetch for login (browser mode)');
+      console.log('⚠️ AndroidGPS not available - using fetch fallback (browser mode)');
       
       // Use JSON format for fetch (server requires JSON)
       const response = await fetch(`${API_BASE_URL}/login.php`, {

@@ -31,6 +31,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         return;
       }
 
+      // Debug AndroidGPS availability
+      console.log('AndroidGPS available:', typeof (window as any).AndroidGPS?.postNativeHttp === 'function');
+      console.log('Window.AndroidGPS object:', (window as any).AndroidGPS);
+      
       const response = await login(email, password);
 
       if (response.token) {
