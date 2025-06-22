@@ -36,56 +36,7 @@ class DirectAndroidGPSService {
     course.status = newStatus;
 
     try {
-      // 1. TRIMITE STATUS LA SERVER prin gps.php (cum face și VehicleScreenProfessional)
-      console.log(`📡 Updating course status on server: ${courseId} → ${newStatus}`);
-      const gpsPayload = {
-        lat: "0.000000", // Coordonate dummy pentru status update
-        lng: "0.000000",
-        timestamp: new Date().toISOString(),
-        viteza: 0,
-        directie: 0,
-        altitudine: 0,
-        baterie: 100,
-        numar_inmatriculare: course.vehicleNumber,
-        uit: course.uit,
-        status: newStatus.toString(),
-        hdop: "1.0",
-        gsm_signal: "4G"
-      };
-      
-      let result;
-      
-      // Try native HTTP first - PURE JAVA EFFICIENCY
-      if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-        console.log('Using native HTTP for status update - Direct Java HTTP');
-        const nativeResult = (window as any).AndroidGPS.postNativeHttp(
-          `${API_BASE_URL}/gps.php`,
-          JSON.stringify(gpsPayload),
-          course.token
-        );
-        
-        // Accept any valid response - don't throw errors for valid server responses  
-        console.log(`Native HTTP result: ${nativeResult}`);
-        result = { success: true, message: nativeResult };
-      } else {
-        // Fallback to CapacitorHttp - Heavier but functional
-        const gpsResponse = await CapacitorHttp.post({
-          url: `${API_BASE_URL}/gps.php`,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${course.token}`,
-            'Accept': 'application/json',
-            'Cache-Control': 'no-cache'
-          },
-          data: gpsPayload
-        });
-
-        if (gpsResponse.status < 200 || gpsResponse.status >= 300) {
-          throw new Error(`Server error ${gpsResponse.status}: ${JSON.stringify(gpsResponse.data)}`);
-        }
-      }
-      
-      console.log("✅ Server status update successful:", result);
+      // Handle GPS service based on status - no server update needed
 
       // 2. APOI ANDROIDGPS PENTRU SIMPLE GPS SERVICE
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {

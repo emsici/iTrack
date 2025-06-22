@@ -321,150 +321,23 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`UIT REAL: ${courseToUpdate.uit}, Vehicle: ${vehicleNumber}`);
       console.log(`Token available: ${!!token}, Token length: ${token?.length || 0}`);
 
-      // Update server status first
+      // Update course status through GPS service
       try {
-        // Use gps.php with GPS payload format but status update
-        const gpsUrl = `${API_BASE_URL}/gps.php`;
-        console.log(`🔄 Sending status update to gps.php: ${gpsUrl}`);
-        
-        const gpsPayload = {
-          lat: 0.000000, // Dummy coordinates for status update
-          lng: 0.000000,
-          timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
-          viteza: 0,
-          directie: 0,
-          altitudine: 0,
-          baterie: 100,
-          numar_inmatriculare: vehicleNumber,
-          uit: courseToUpdate.uit,
-          status: newStatus,
-          hdop: 1,
-          gsm_signal: 5
-        };
-        
-        console.log(`📦 GPS Status payload:`, gpsPayload);
-        
-        // Try native HTTP first - PURE JAVA EFFICIENCY
-        let response;
-        console.log('🔍 Checking AndroidGPS availability:', typeof (window as any).AndroidGPS);
-        console.log('🔍 postNativeHttp function:', typeof (window as any).AndroidGPS?.postNativeHttp);
-        console.log('🔍 All AndroidGPS methods:', Object.keys((window as any).AndroidGPS || {}));
-        
-        // FORCE AndroidGPS check - ensure we use native HTTP in APK
-        if ((window as any).AndroidGPS && typeof (window as any).AndroidGPS.postNativeHttp === 'function') {
-          console.log('🔥 Using native HTTP for status update - PURE JAVA');
-          console.log('📤 Sending payload:', JSON.stringify(gpsPayload));
-          console.log('🔑 Using token:', token.substring(0, 20) + '...');
-          
-          const nativeResult = (window as any).AndroidGPS.postNativeHttp(
-            gpsUrl,
-            JSON.stringify(gpsPayload),
-            token // Bearer prefix added automatically in Java
-          );
-          console.log('📱 Native HTTP result:', nativeResult);
-          response = { status: 204, data: nativeResult }; // Assume success for native calls
-        } else {
-          console.log('⚠️ Falling back to CapacitorHttp (browser development mode)');
-          // Fallback to CapacitorHttp only in browser
-          response = await CapacitorHttp.post({
-            url: gpsUrl,
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-              'Accept': 'application/json',
-              'Cache-Control': 'no-cache'
-            },
-            data: gpsPayload
-          });
-        }
+        await updateCourseStatus(courseId, newStatus);
+        console.log(`✅ Status updated to ${newStatus} for course ${courseId}`);
 
-        console.log(`📡 Response status: ${response.status}`);
-        console.log(`📋 Response headers:`, response.headers);
-        
-        // Accept status 200, 201, 204 as success (204 is common for GPS updates)
-        if (response.status !== 200 && response.status !== 201 && response.status !== 204) {
-          console.error(`❌ Server error ${response.status}:`, response.data);
-          console.error(`🔍 Full response:`, {
-            status: response.status,
-            headers: response.headers,
-            body: response.data
-          });
-          throw new Error(`Server error ${response.status}: ${JSON.stringify(response.data)}`);
-        }
-
-        console.log(`📥 Response data:`, response.data);
-        
-        // For status 204 (No Content), there's no response data to check
-        if (response.status === 204) {
-          console.log(`✅ Status update sent successfully (204 No Content) for UIT: ${courseToUpdate.uit}`);
-          logAPI(`Status update success: Course ${courseId} → Status ${newStatus}`);
-        } else {
-          // For other successful statuses, check response data
-          const result = response.data;
-          if (result && result.status !== 'success' && !result.success) {
-            throw new Error(result.message || result.error || 'Server rejected status update');
-          }
-          console.log(`✅ Status update sent successfully for UIT: ${courseToUpdate.uit}`);
-          logAPI(`Status update success: Course ${courseId} → Status ${newStatus}`);
-        }
-      } catch (fetchError) {
-        console.error(`❌ Network/Fetch error:`, fetchError);
-        console.error(`🔍 Error details:`, {
-          name: (fetchError as Error).name,
-          message: (fetchError as Error).message,
-          stack: (fetchError as Error).stack
-        });
-        
-        const error = fetchError as Error;
-        if (error.name === 'AbortError') {
-          throw new Error('Request timeout - server nu răspunde în 10 secunde');
-        }
-        if (error.name === 'TypeError' && error.message.includes('fetch')) {
-          console.error(`🚫 Network fetch failed`);
-          console.error(`📶 Navigator online: ${navigator.onLine}`);
-          throw new Error(`Conexiune server eșuată - verificați endpoint-ul API`);
-        }
-        // Check if it's a 401 Unauthorized error (token expired)
-        if (error.message.includes('401')) {
+      } catch (error) {
+        console.error(`❌ Status update error:`, error);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        if (errorMessage.includes('401')) {
           console.error('🔐 Token expired - redirecting to login');
-          logAPIError('Token expired - redirecting to login');
           await clearToken();
           onLogout();
           return;
         }
         
-        throw new Error(`Network error: ${error.message}`);
-      }
-
-      // Update GPS service (non-blocking)
-      try {
-        if (newStatus === 2) {
-          console.log(`Starting/Resuming GPS tracking for course ${courseId}`);
-          await startGPSTracking(courseId, vehicleNumber, token, courseToUpdate.uit, newStatus);
-          await startCourseAnalytics(courseId, courseToUpdate.uit, vehicleNumber);
-        } else if (newStatus === 3) {
-          console.log(`Pausing GPS tracking for course ${courseId}`);
-          // Ensure course is active before PAUSE
-          if (!hasActiveCourses() || !getActiveCourses().includes(courseId)) {
-            console.log(`Course ${courseId} not active - starting first for PAUSE`);
-            await startGPSTracking(courseId, vehicleNumber, token, courseToUpdate.uit, 2);
-          }
-          await updateCourseStatus(courseId, newStatus);
-        } else if (newStatus === 4) {
-          console.log(`Stopping GPS tracking for course ${courseId}`);
-          // Ensure course is active before STOP
-          if (!hasActiveCourses() || !getActiveCourses().includes(courseId)) {
-            console.log(`Course ${courseId} not active - starting first for STOP`);
-            await startGPSTracking(courseId, vehicleNumber, token, courseToUpdate.uit, 2);
-          }
-          await updateCourseStatus(courseId, newStatus);
-          await stopGPSTracking(courseId);
-          await stopCourseAnalytics(courseId);
-        }
-      } catch (gpsError) {
-        console.warn('GPS service error (non-critical):', gpsError);
-        logAPIError(`GPS service warning: ${gpsError}`);
-        // GPS errors are non-blocking - UI continues normally
+        setError(`Status update failed: ${errorMessage}`);
+        logAPIError(`Status update failed: ${errorMessage}`);
       }
 
       // Update local state
