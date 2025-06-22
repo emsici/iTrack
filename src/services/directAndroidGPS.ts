@@ -1,5 +1,5 @@
 // GPS direct Android prin Capacitor plugin - funcționează în background
-import { Capacitor, CapacitorHttp } from "@capacitor/core";
+// Removed CapacitorHttp - using native HTTP or fetch
 import { Geolocation } from "@capacitor/geolocation";
 import { GPSData, sendGPSData, API_BASE_URL } from './api';
 // Offline GPS functionality handled by Android service

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CapacitorHttp } from '@capacitor/core';
+// Removed CapacitorHttp - using fetch for connectivity check
 import { getOfflineGPSCount, syncOfflineGPS } from "../services/offlineGPS";
 import { subscribeToSyncProgress } from "../services/offlineSyncStatus";
 

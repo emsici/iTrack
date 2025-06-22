@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { CapacitorHttp } from '@capacitor/core';
+// Removed CapacitorHttp - using fetch for all HTTP requests
 import { Course } from "../types";
 import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
 import {

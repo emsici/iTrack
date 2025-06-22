@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CapacitorHttp } from '@capacitor/core';
+// Removed CapacitorHttp - using storage service only
 import 'bootstrap/dist/css/bootstrap.min.css';
 import LoginScreen from './components/LoginScreen';
 import VehicleScreen from './components/VehicleScreenProfessional';
