@@ -30,7 +30,7 @@ iTrack este o aplicație profesională enterprise de monitorizare GPS pentru man
 ### Sistem Autentificare Enterprise
 - Login email/password cu design corporatist profesional
 - Management JWT token cu persistență automată și auto-login
-- Credențiale funcționale: `+40722222222` / `parola123` pentru vehicul `AR38DPL`
+- Credențiale admin pentru debugging: format telefon sau email cu parolă
 - Logout securizat cu curățarea completă a datelor locale
 - Validare comprehensivă cu feedback vizual
 
