@@ -23,9 +23,9 @@ export interface GPSData {
   baterie: number;
   numar_inmatriculare: string;
   uit: string;
-  status: string;
-  hdop: string;
-  gsm_signal: string;
+  status?: string;
+  hdop?: string;
+  gsm_signal?: string;
 }
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
