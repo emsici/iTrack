@@ -35,26 +35,39 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     
     // Try native HTTP first if available (APK mode)
     if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-      console.log('Using native HTTP for login');
+      console.log('Using AndroidGPS native HTTP for login');
       // Use JSON format for native HTTP (server requires JSON)
       const nativeResult = (window as any).AndroidGPS.postNativeHttp(
         `${API_BASE_URL}/login.php`,
         JSON.stringify({ email, password }),
-        ''
+        '' // No token for login
       );
       
-      if (nativeResult.startsWith('SUCCESS:')) {
-        const responseBody = nativeResult.substring(8);
-        const response = JSON.parse(responseBody);
-        
-        if (response.token) {
-          return { status: 'success', token: response.token };
-        } else if (response.error) {
-          throw new Error(response.error);
+      console.log('AndroidGPS raw result:', nativeResult);
+      logAPI(`AndroidGPS login raw result: ${nativeResult}`);
+      
+      // Handle different response formats from AndroidGPS
+      try {
+        // Try to parse as JSON first
+        const data = JSON.parse(nativeResult);
+        if (data.status === 'success' && data.token) {
+          console.log('Login successful via AndroidGPS');
+          return { status: 'success', token: data.token };
+        } else if (data.status === 'error' || data.error || data.message) {
+          console.log('Login error from server:', data.error || data.message);
+          return { status: 'error', error: data.error || data.message || 'Login failed' };
         }
+      } catch (parseError) {
+        console.log('AndroidGPS result not JSON, raw response:', nativeResult);
+        // If not JSON, check if it's an error message
+        if (nativeResult.includes('error') || nativeResult.includes('ERROR') || nativeResult.includes('failed')) {
+          return { status: 'error', error: nativeResult };
+        }
+        // Otherwise assume success with direct token
+        return { status: 'success', token: nativeResult.trim() };
       }
       
-      throw new Error('Native login failed');
+      return { status: 'error', error: 'Unexpected response format' };
     } else {
       // Browser fallback - use fetch
       console.log('Using fetch for login (browser mode)');
