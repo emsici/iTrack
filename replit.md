@@ -171,16 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.62 (June 22, 2025) - AUTENTIFICARE REPARATĂ & NATIVE HTTP VERIFIED
+### Versiunea Curentă: 1808.63 (June 22, 2025) - API CENTRALIZAT & ERROR HANDLING IMPROVED
 
-**Autentificare reparată**: Format JSON verificat pentru login.php cu credențiale corecte
-**Native HTTP functional**: AndroidGPS.java implementează complet postNativeHttp și getNativeHttp
-**Bearer token automatic**: Toate request-urile autentificate primesc Bearer token automat în headers
-**User-Agent consistent**: iTrack/1.0 folosit în toate request-urile pentru identificare
-**Endpoint-uri verificate**: login.php (POST JSON), vehicul.php?nr= (GET cu Bearer), gps.php (POST JSON cu status 2/3/4), logout.php funcționale
-**Credențiale securizate**: Eliminate hardcoded credentials din cod pentru siguranță
-**Curl testing**: Toate endpoint-urile testate și verificate cu format exact din aplicație
-**Production ready**: Stack HTTP complet nativ pregătit pentru deployment APK
+**API centralizat**: src/services/api.ts este singurul punct pentru toate request-urile HTTP
+**Error handling îmbunătățit**: Response validation și error messages detaliate pentru debugging
+**Headers consistente**: Toate request-urile folosesc aceleași headers (Content-Type, Accept, Cache-Control, User-Agent)
+**Flux unificat**: login() → getVehicleCourses() → sendGPSData() → logout() cu error handling complet
+**Native vs Fetch**: APK folosește AndroidGPS native HTTP, browser folosește fetch cu headers identice
+**Token management**: Bearer token automat adăugat în toate request-urile autentificate
+**Status persistence**: LocalStorage pentru status-uri UIT cu butoane dinamice
+**Production verified**: Toate endpoint-urile testate cu curl și funcționale în producție
 
 ### Versiunea Precedentă: 1808.53 (June 21, 2025) - UI FIXES & HYBRID HTTP SYSTEM
 

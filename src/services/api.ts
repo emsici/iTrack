@@ -64,13 +64,22 @@ export const login = async (email: string, password: string): Promise<LoginRespo
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'User-Agent': 'iTrack/1.0'
         },
         body: JSON.stringify({ email, password }),
       });
       
-      const data = await response.json();
-      
       console.log('Login response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log('Login error response:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
+      const data = await response.json();
       console.log('Login response data:', data);
       
       if (data.status === 'success' && data.token) {
@@ -84,7 +93,10 @@ export const login = async (email: string, password: string): Promise<LoginRespo
   } catch (error) {
     console.error('Login error:', error);
     logAPI(`Login error: ${error}`);
-    throw new Error('Eroare de conexiune la serverul de autentificare');
+    return {
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Eroare de conexiune la serverul de autentificare'
+    };
   }
 };
 
