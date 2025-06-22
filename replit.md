@@ -171,16 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.64 (June 22, 2025) - GPS STRUCTURE FINALIZED
+### Versiunea Curentă: 1808.65 (June 22, 2025) - CAPACITORHTTP ELIMINATED & PURE NATIVE
 
-**GPS structure finalized**: Format exact pentru gps.php cu status/hdop/gsm_signal ca numere
-**Timestamp format**: ISO to "YYYY-MM-DD HH:mm:ss" pentru compatibilitate server
-**Native GPS optimized**: AndroidGPS.sendGPSNative primește parametrii în format string corect
-**Offline sync aligned**: OfflineGPS folosește aceeași structură pentru sincronizare
-**Status update payload**: Coordonate dummy cu status numeric pentru update-uri
-**Production GPS format**: lat/lng numere, status numeric, hdop/gsm_signal numerice
-**APK ready**: Toate payload-urile GPS folosesc formatul exact verificat cu curl
-**Browser compatibility**: Login funcționează pe APK, browser pentru dezvoltare doar
+**CapacitorHttp eliminated**: Toate referințele CapacitorHttp eliminate din cod complet
+**Pure native Android**: APK folosește exclusiv AndroidGPS.java HttpURLConnection
+**Browser minimal fallback**: fetch() doar pentru development, nu production
+**Bearer token native**: AndroidGPS.java adaugă automat Bearer prefix la toate request-uri
+**GPS flow clean**: START/PAUSE/RESUME/STOP fără coordonate dummy în button press
+**Pure Java HTTP**: Eliminat overhead WebView, requests directe prin HttpURLConnection
+**Zero CORS issues**: AndroidGPS bypasă complet orice restricții browser
+**Production optimized**: APK va funcționa 100% nativ fără dependențe Capacitor HTTP
 
 ### Versiunea Precedentă: 1808.53 (June 21, 2025) - UI FIXES & HYBRID HTTP SYSTEM
 
