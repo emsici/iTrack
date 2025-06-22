@@ -30,89 +30,65 @@ export interface GPSData {
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    console.log('Login attempt for:', email);
-    logAPI(`Login attempt for ${email}`);
+    console.log('🔐 Native Android login attempt for:', email);
+    logAPI(`Native login attempt for ${email}`);
     
-    // Debug AndroidGPS detection
-    console.log('AndroidGPS object:', (window as any).AndroidGPS);
-    console.log('AndroidGPS postNativeHttp available:', typeof (window as any).AndroidGPS?.postNativeHttp === 'function');
+    // ANDROID ONLY - No fallbacks, pure native
+    if (typeof (window as any).AndroidGPS?.postNativeHttp !== 'function') {
+      console.error('❌ AndroidGPS not available - APK required');
+      return { 
+        status: 'error', 
+        error: 'Aplicația necesită instalare APK pentru funcționare' 
+      };
+    }
     
-    // Try native HTTP first if available (APK mode)
-    if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-      console.log('✅ Using AndroidGPS native HTTP for login');
-      // Use JSON format for native HTTP (server requires JSON)
-      const nativeResult = (window as any).AndroidGPS.postNativeHttp(
-        `${API_BASE_URL}/login.php`,
-        JSON.stringify({ email, password }),
-        '' // No token for login
-      );
-      
-      console.log('AndroidGPS raw result:', nativeResult);
-      logAPI(`AndroidGPS login raw result: ${nativeResult}`);
-      
-      // Handle different response formats from AndroidGPS
-      try {
-        // Try to parse as JSON first
-        const data = JSON.parse(nativeResult);
-        if (data.status === 'success' && data.token) {
-          console.log('Login successful via AndroidGPS');
-          return { status: 'success', token: data.token };
-        } else if (data.status === 'error' || data.error || data.message) {
-          console.log('Login error from server:', data.error || data.message);
-          return { status: 'error', error: data.error || data.message || 'Login failed' };
-        }
-      } catch (parseError) {
-        console.log('AndroidGPS result not JSON, raw response:', nativeResult);
-        // If not JSON, check if it's an error message
-        if (nativeResult.includes('error') || nativeResult.includes('ERROR') || nativeResult.includes('failed')) {
-          return { status: 'error', error: nativeResult };
-        }
-        // Otherwise assume success with direct token
-        return { status: 'success', token: nativeResult.trim() };
-      }
-      
-      return { status: 'error', error: 'Unexpected response format' };
-    } else {
-      // Browser fallback - use fetch
-      console.log('⚠️ AndroidGPS not available - using fetch fallback (browser mode)');
-      
-      // Use JSON format for fetch (server requires JSON)
-      const response = await fetch(`${API_BASE_URL}/login.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Cache-Control': 'no-cache',
-          'User-Agent': 'iTrack/1.0'
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      
-      console.log('Login response status:', response.status);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.log('Login error response:', errorText);
-        throw new Error(`HTTP ${response.status}: ${errorText}`);
-      }
-      
-      const data = await response.json();
-      console.log('Login response data:', data);
+    console.log('✅ AndroidGPS available - using pure native HTTP');
+    
+    // Pure native login via AndroidGPS.java
+    const nativeResult = (window as any).AndroidGPS.postNativeHttp(
+      `${API_BASE_URL}/login.php`,
+      JSON.stringify({ email, password }),
+      '' // No token for login
+    );
+    
+    console.log('📥 AndroidGPS login result:', nativeResult);
+    logAPI(`AndroidGPS raw response: ${nativeResult}`);
+    
+    // Parse AndroidGPS response (should be JSON from server)
+    try {
+      const data = JSON.parse(nativeResult);
+      console.log('📋 Parsed response:', data);
       
       if (data.status === 'success' && data.token) {
+        console.log('✅ Login SUCCESS via AndroidGPS');
+        logAPI(`Login successful for ${email}`);
         return { status: 'success', token: data.token };
-      } else if (data.error || data.message) {
-        throw new Error(data.error || data.message);
       } else {
-        throw new Error('Autentificare eșuată');
+        console.log('❌ Login FAILED:', data.error || data.message);
+        logAPI(`Login failed: ${data.error || data.message}`);
+        return { 
+          status: 'error', 
+          error: data.error || data.message || 'Date de conectare incorecte' 
+        };
       }
+    } catch (parseError) {
+      console.error('❌ JSON parse error:', parseError);
+      console.log('Raw response was:', nativeResult);
+      logAPI(`JSON parse error: ${parseError}, raw: ${nativeResult}`);
+      
+      // If response contains error keywords
+      if (nativeResult.includes('error') || nativeResult.includes('ERROR') || nativeResult.includes('invalid')) {
+        return { status: 'error', error: 'Eroare de autentificare' };
+      }
+      
+      return { status: 'error', error: 'Răspuns invalid de la server' };
     }
   } catch (error) {
-    console.error('Login error:', error);
-    logAPI(`Login error: ${error}`);
+    console.error('🚨 Native login error:', error);
+    logAPI(`Native login error: ${error}`);
     return {
       status: 'error',
-      error: error instanceof Error ? error.message : 'Eroare de conexiune la serverul de autentificare'
+      error: 'Eroare de conectare la server'
     };
   }
 };
