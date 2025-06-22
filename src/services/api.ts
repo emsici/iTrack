@@ -23,9 +23,9 @@ export interface GPSData {
   baterie: number;
   numar_inmatriculare: string;
   uit: string;
-  status?: string;
-  hdop?: string;
-  gsm_signal?: string;
+  status: number;
+  hdop: number;
+  gsm_signal: number;
 }
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
@@ -329,9 +329,9 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
         gpsData.baterie.toString(),
         gpsData.numar_inmatriculare,
         gpsData.uit,
-        gpsData.status,
-        gpsData.hdop,
-        gpsData.gsm_signal,
+        gpsData.status.toString(),
+        gpsData.hdop.toString(),
+        gpsData.gsm_signal.toString(),
         token
       );
       

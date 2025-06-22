@@ -328,18 +328,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`🔄 Sending status update to gps.php: ${gpsUrl}`);
         
         const gpsPayload = {
-          lat: "0.000000", // Dummy coordinates for status update
-          lng: "0.000000",
-          timestamp: new Date().toISOString(),
+          lat: 0.000000, // Dummy coordinates for status update
+          lng: 0.000000,
+          timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
           viteza: 0,
           directie: 0,
           altitudine: 0,
           baterie: 100,
           numar_inmatriculare: vehicleNumber,
           uit: courseToUpdate.uit,
-          status: newStatus.toString(),
-          hdop: "1.0",
-          gsm_signal: "4G"
+          status: newStatus,
+          hdop: 1,
+          gsm_signal: 5
         };
         
         console.log(`📦 GPS Status payload:`, gpsPayload);

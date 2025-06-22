@@ -171,16 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.63 (June 22, 2025) - API CENTRALIZAT & ERROR HANDLING IMPROVED
+### Versiunea Curentă: 1808.64 (June 22, 2025) - GPS STRUCTURE FINALIZED
 
-**API centralizat**: src/services/api.ts este singurul punct pentru toate request-urile HTTP
-**Error handling îmbunătățit**: Response validation și error messages detaliate pentru debugging
-**Headers consistente**: Toate request-urile folosesc aceleași headers (Content-Type, Accept, Cache-Control, User-Agent)
-**Flux unificat**: login() → getVehicleCourses() → sendGPSData() → logout() cu error handling complet
-**Native vs Fetch**: APK folosește AndroidGPS native HTTP, browser folosește fetch cu headers identice
-**Token management**: Bearer token automat adăugat în toate request-urile autentificate
-**Status persistence**: LocalStorage pentru status-uri UIT cu butoane dinamice
-**Production verified**: Toate endpoint-urile testate cu curl și funcționale în producție
+**GPS structure finalized**: Format exact pentru gps.php cu status/hdop/gsm_signal ca numere
+**Timestamp format**: ISO to "YYYY-MM-DD HH:mm:ss" pentru compatibilitate server
+**Native GPS optimized**: AndroidGPS.sendGPSNative primește parametrii în format string corect
+**Offline sync aligned**: OfflineGPS folosește aceeași structură pentru sincronizare
+**Status update payload**: Coordonate dummy cu status numeric pentru update-uri
+**Production GPS format**: lat/lng numere, status numeric, hdop/gsm_signal numerice
+**APK ready**: Toate payload-urile GPS folosesc formatul exact verificat cu curl
+**Browser compatibility**: Login funcționează pe APK, browser pentru dezvoltare doar
 
 ### Versiunea Precedentă: 1808.53 (June 21, 2025) - UI FIXES & HYBRID HTTP SYSTEM
 

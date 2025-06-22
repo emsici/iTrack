@@ -266,16 +266,16 @@ class DirectAndroidGPSService {
         const gpsData: GPSData = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-          timestamp: new Date().toISOString(),
+          timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
           viteza: position.coords.speed || 0,
           directie: position.coords.heading || 0,
           altitudine: position.coords.altitude || 0,
           baterie: 100, // Browser fallback
           numar_inmatriculare: course.vehicleNumber,
           uit: course.uit,
-          status: "2",
-          hdop: position.coords.accuracy.toString(),
-          gsm_signal: "WiFi"
+          status: 2,
+          hdop: Math.round(position.coords.accuracy || 1),
+          gsm_signal: 5
         };
 
         await sendGPSData(gpsData, course.token);
