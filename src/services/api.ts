@@ -339,7 +339,10 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'User-Agent': 'iTrack/1.0'
         },
         body: JSON.stringify(gpsData)
       });
@@ -351,7 +354,8 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
         throw new Error('TOKEN_EXPIRED');
       }
       
-      return response.status === 200 || response.status === 204;
+      // Accept 200, 201, 204 as success - server may return 200 with empty body
+      return response.status === 200 || response.status === 201 || response.status === 204;
     }
   } catch (error) {
     if (error instanceof Error && error.message === 'TOKEN_EXPIRED') {

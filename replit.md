@@ -177,7 +177,7 @@ Persistare localStorage → Afișare CourseStatsModal
 **Native HTTP functional**: AndroidGPS.java implementează complet postNativeHttp și getNativeHttp
 **Bearer token automatic**: Toate request-urile autentificate primesc Bearer token automat în headers
 **User-Agent consistent**: iTrack/1.0 folosit în toate request-urile pentru identificare
-**Endpoint-uri verificate**: login.php (POST JSON) și vehicul.php?nr= (GET cu Bearer) funcționale
+**Endpoint-uri verificate**: login.php (POST JSON), vehicul.php?nr= (GET cu Bearer), gps.php (POST JSON cu status 2/3/4), logout.php funcționale
 **Credențiale securizate**: Eliminate hardcoded credentials din cod pentru siguranță
 **Curl testing**: Toate endpoint-urile testate și verificate cu format exact din aplicație
 **Production ready**: Stack HTTP complet nativ pregătit pentru deployment APK
