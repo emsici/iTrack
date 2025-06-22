@@ -129,7 +129,12 @@ public class AndroidGPS {
             
             // Configure connection
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
+            // Detect content type based on data format
+            if (jsonData.startsWith("{") && jsonData.endsWith("}")) {
+                connection.setRequestProperty("Content-Type", "application/json");
+            } else {
+                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            }
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Cache-Control", "no-cache");
             

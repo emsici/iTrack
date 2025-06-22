@@ -36,11 +36,10 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     // Try native HTTP first if available (APK mode)
     if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
       console.log('Using native HTTP for login');
-      // Use form-encoded format for native HTTP too
-      const formData = `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+      // Use JSON format for native HTTP (server requires JSON)
       const nativeResult = (window as any).AndroidGPS.postNativeHttp(
         `${API_BASE_URL}/login.php`,
-        formData,
+        JSON.stringify({ email, password }),
         ''
       );
       
@@ -60,21 +59,24 @@ export const login = async (email: string, password: string): Promise<LoginRespo
       // Browser fallback - use fetch
       console.log('Using fetch for login (browser mode)');
       
-      // Try form-encoded first (as per original implementation)
+      // Use JSON format for fetch (server requires JSON)
       const response = await fetch(`${API_BASE_URL}/login.php`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+        body: JSON.stringify({ email, password }),
       });
       
       const data = await response.json();
       
-      if (response.ok && data.token) {
+      console.log('Login response status:', response.status);
+      console.log('Login response data:', data);
+      
+      if (data.status === 'success' && data.token) {
         return { status: 'success', token: data.token };
-      } else if (data.error) {
-        throw new Error(data.error);
+      } else if (data.error || data.message) {
+        throw new Error(data.error || data.message);
       } else {
         throw new Error('Autentificare eșuată');
       }
