@@ -173,14 +173,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ### Versiunea Curentă: 1808.65 (June 22, 2025) - CAPACITORHTTP ELIMINATED & PURE NATIVE
 
-**CapacitorHttp eliminated**: Toate referințele CapacitorHttp eliminate din cod complet
-**Pure native Android**: APK folosește exclusiv AndroidGPS.java HttpURLConnection
-**Browser minimal fallback**: fetch() doar pentru development, nu production
-**Bearer token native**: AndroidGPS.java adaugă automat Bearer prefix la toate request-uri
-**GPS flow clean**: START/PAUSE/RESUME/STOP fără coordonate dummy în button press
-**Pure Java HTTP**: Eliminat overhead WebView, requests directe prin HttpURLConnection
-**Zero CORS issues**: AndroidGPS bypasă complet orice restricții browser
-**Production optimized**: APK va funcționa 100% nativ fără dependențe Capacitor HTTP
+**CapacitorHttp eliminated**: Toate referințele CapacitorHttp înlocuite cu AndroidGPS native
+**AndroidGPS everywhere**: OfflineGPS, OfflineGPSMonitor, App.tsx folosesc AndroidGPS nativ
+**Native HTTP priority**: APK folosește exclusiv AndroidGPS.java HttpURLConnection
+**Minimal browser fallback**: fetch() doar când AndroidGPS nu există (development)
+**Bearer token automatic**: AndroidGPS.java adaugă Bearer prefix la toate request-uri
+**Pure Java efficiency**: Zero overhead WebView, requests directe HttpURLConnection
+**CORS-free operation**: AndroidGPS bypasă complet restricții browser/CORS
+**Production ready**: APK 100% nativ fără dependențe Capacitor HTTP
 
 ### Versiunea Precedentă: 1808.53 (June 21, 2025) - UI FIXES & HYBRID HTTP SYSTEM
 

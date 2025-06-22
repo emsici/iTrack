@@ -30,10 +30,11 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
           // Test real network connection - log doar la schimbări
           let networkTest = false;
           try {
-            await CapacitorHttp.request({
-              url: 'https://www.google.com/favicon.ico',
-              method: 'HEAD'
-            });
+            if (typeof (window as any).AndroidGPS?.getNativeHttp === 'function') {
+              (window as any).AndroidGPS.getNativeHttp('https://www.google.com/favicon.ico', '');
+            } else {
+              await fetch('https://www.google.com/favicon.ico', { method: 'HEAD', signal: AbortSignal.timeout(3000) });
+            }
             networkTest = true;
           } catch (error) {
             networkTest = false;

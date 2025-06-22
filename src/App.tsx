@@ -62,16 +62,22 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     try {
       // Send logout request to login.php with iesire: 1
-      const response = await CapacitorHttp.post({
-        url: 'https://www.euscagency.com/etsm3/platforme/transport/apk/login.php',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        data: {
-          "iesire": 1
-        }
-      });
+      if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
+        (window as any).AndroidGPS.postNativeHttp(
+          'https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php',
+          '{}',
+          token
+        );
+      } else {
+        await fetch('https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: '{}'
+        });
+      }
       
       console.log('Logout API response:', response.status);
     } catch (error) {
