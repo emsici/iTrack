@@ -203,6 +203,7 @@ public class AndroidGPS {
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("Cache-Control", "no-cache");
+            connection.setRequestProperty("User-Agent", "iTrack/1.0");
             
             // Add Bearer token automatically
             if (authToken != null && !authToken.isEmpty()) {
