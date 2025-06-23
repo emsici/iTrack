@@ -542,6 +542,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               padding: '30px',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
             }}>
+              {/* Main Action Button */}
               <button
                 onClick={handleLoadCourses}
                 disabled={loading || !vehicleNumber.trim()}
