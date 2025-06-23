@@ -295,38 +295,53 @@ export const logout = async (token: string): Promise<boolean> => {
     console.log('Starting logout process with Bearer token');
     logAPI('Starting logout process');
     
-    // Try native HTTP first - PURE JAVA EFFICIENCY
-    let response;
-    if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-      console.log('Using native HTTP for logout');
-      const nativeResult = (window as any).AndroidGPS.postNativeHttp(
-        `${API_BASE_URL}/logout.php`,
-        '{}',
-        token
-      );
+    // CapacitorHttp pentru logout (unified HTTP method)
+    try {
+      console.log('=== CapacitorHttp logout ===');
       
-      if (nativeResult.startsWith('SUCCESS')) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      // Browser fallback - use fetch
-      console.log('Using fetch for logout (browser mode)');
-      
-      const fetchResponse = await fetch(`${API_BASE_URL}/logout.php`, {
-        method: 'POST',
+      const response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}/logout.php`,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: '{}'
+        data: {}
       });
       
-      return fetchResponse.ok;
+      if (response.status >= 200 && response.status < 300) {
+        console.log('CapacitorHttp logout successful');
+        logAPI('CapacitorHttp logout successful');
+        return true;
+      }
+    } catch (capacitorError) {
+      console.log('CapacitorHttp logout failed, using fetch fallback');
+      
+      try {
+        const fetchResponse = await fetch(`${API_BASE_URL}/logout.php`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({})
+        });
+        
+        if (fetchResponse.status >= 200 && fetchResponse.status < 300) {
+          console.log('Fetch logout successful');
+          logAPI('Fetch logout successful');
+          return true;
+        }
+      } catch (fetchError) {
+        console.error('All logout methods failed:', fetchError);
+      }
     }
+    
+    console.log('Logout failed - continuing anyway');
+    logAPI('Logout failed - continuing anyway');
+    return false;
   } catch (error) {
     console.error('Logout error:', error);
+    logAPI(`Logout error: ${error}`);
     return false;
   }
 };

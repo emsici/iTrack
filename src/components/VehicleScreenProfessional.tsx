@@ -362,12 +362,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         logAPIError(`Status update failed: ${errorMessage}`);
       }
 
-      // Update local state
-      setCourses((prevCourses) =>
-        prevCourses.map((course) =>
-          course.id === courseId ? { ...course, status: newStatus } : course
-        )
-      );
+      // Status already updated above - no duplicate update needed
 
       logAPI(`Course ${courseId} status updated successfully to ${newStatus}`);
       console.log(`=== STATUS UPDATE COMPLETE ===`);

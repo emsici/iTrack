@@ -44,6 +44,20 @@ public class MainActivity extends BridgeActivity {
         return instance != null ? instance.getApplicationContext() : null;
     }
     
+    public static MainActivity getInstance() {
+        return instance;
+    }
+    
+    public WebView getWebView() {
+        return getBridge().getWebView();
+    }
+    
+    public static void runOnMainThread(Runnable runnable) {
+        if (instance != null) {
+            instance.runOnUiThread(runnable);
+        }
+    }
+    
     private void addAndroidGPSInterface() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             int retryCount = 0;
