@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.101 (June 23, 2025) - STAT CARDS LAYOUT OPTIMIZED - 4 IN ONE ROW
+### Versiunea Curentă: 1808.102 (June 23, 2025) - REFRESH BUTTON REMOVED - AUTO-UPDATE ONLY
+
+**Refresh button eliminated**: Scos butonul manual de refresh din interfață
+**Auto-update exclusive**: Doar auto-actualizare la 5 minute, fără refresh manual
+**UI simplified**: Action buttons row conține doar butonul de Ieșire
+**Code cleanup**: Eliminat handleRefreshCourses function și styling asociat
+**Cleaner interface**: Mai puține butoane, interfață mai curată pentru utilizatori
+
+### Versiunea Precedentă: 1808.101 (June 23, 2025) - STAT CARDS LAYOUT OPTIMIZED - 4 IN ONE ROW
 
 **Layout optimization**: 4 carduri pe același rând cu spacing perfect
 **Responsive design enhanced**: Breakpoints pentru desktop, tablet și mobile
