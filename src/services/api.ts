@@ -369,20 +369,20 @@ export const logout = async (token: string): Promise<boolean> => {
     try {
       const response = await CapacitorHttp.post({
         url: `${API_BASE_URL}/gps.php`,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'User-Agent': 'iTrack-Android-Service/1.0'
-        },
+        headers: headers,
         data: gpsData
       });
       
-      console.log('CapacitorHttp GPS response:', {
-        status: response.status,
-        data: response.data,
-        success: response.status >= 200 && response.status < 300
-      });
+      console.log('=== ANDROID CapacitorHttp GPS Response ===');
+      console.log('Status:', response.status);
+      console.log('Data:', response.data);
+      console.log('Headers sent:', JSON.stringify(headers, null, 2));
+      
+      if (response.status === 401) {
+        console.error('❌ 401 UNAUTHORIZED - Token rejected by server');
+        console.error('Token used:', `Bearer ${token.substring(0, 30)}...`);
+        return false;
+      }
       
       if (response.status >= 200 && response.status < 300) {
         console.log('GPS successfully sent via CapacitorHttp for course', gpsData.uit);
@@ -425,9 +425,18 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
   try {
     console.log('🔥 === GPS TRANSMISSION START ===');
     console.log('📍 URL:', `${API_BASE_URL}/gps.php`);
-    console.log('🔑 Token:', token.substring(0, 20) + '...');
+    console.log('🔑 Bearer Token:', `Bearer ${token.substring(0, 20)}...`);
     console.log('📊 GPS Data:', JSON.stringify(gpsData, null, 2));
     console.log('🚀 Using CapacitorHttp for GPS transmission');
+    
+    // Log exact headers being sent
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
+      'User-Agent': 'iTrack-Android-Service/1.0'
+    };
+    console.log('📋 Request Headers:', JSON.stringify(headers, null, 2));
     
     // PRIMARY: CapacitorHttp pentru transmisie GPS
     try {
