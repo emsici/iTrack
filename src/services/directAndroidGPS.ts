@@ -36,9 +36,52 @@ class DirectAndroidGPSService {
     course.status = newStatus;
 
     try {
-      // Handle GPS service based on status - no server update needed
+      // 1. FIRST: Update status on server
+      console.log(`📡 Updating course status on server: ${courseId} → ${newStatus}`);
+      
+      if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
+        console.log('Using AndroidGPS native HTTP for status update');
+        const statusUpdateData = {
+          courseId: courseId,
+          status: newStatus,
+          vehicleNumber: course.vehicleNumber,
+          uit: course.uit
+        };
+        
+        const nativeResult = (window as any).AndroidGPS.postNativeHttp(
+          `${API_BASE_URL}/update_course_status.php`,
+          JSON.stringify(statusUpdateData),
+          course.token
+        );
+        
+        console.log('Status update result:', nativeResult);
+        
+        if (nativeResult.includes('error') || nativeResult.includes('ERROR')) {
+          throw new Error(`Server status update failed: ${nativeResult}`);
+        }
+      } else {
+        // Browser fallback
+        const response = await fetch(`${API_BASE_URL}/update_course_status.php`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${course.token}`,
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            courseId: courseId,
+            status: newStatus,
+            vehicleNumber: course.vehicleNumber,
+            uit: course.uit
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Server status update failed: ${response.status}`);
+        }
+      }
 
-      // 2. APOI ANDROIDGPS PENTRU SIMPLE GPS SERVICE
+      // 2. THEN: Update AndroidGPS service
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
         console.log("✅ AndroidGPS.updateStatus called for SimpleGPSService");
         const androidResult = (window as any).AndroidGPS.updateStatus(courseId, newStatus);
