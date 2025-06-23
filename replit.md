@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.98 (June 23, 2025) - GPS TRANSMISSION UNIFIED & ENHANCED
+### Versiunea Curentă: 1808.99 (June 23, 2025) - CRITICAL FIXES: API_BASE_URL, COPY LOGS, ADMIN LOGOUT
+
+**API_BASE_URL undefined fixed**: Made globally available pentru a preveni undefined errors
+**Copy Logs button added**: Buton Copy Logs lângă Clear Logs cu feedback vizual și fallback
+**Admin logout fix**: Admin logout nu mai șterge token-ul stored pentru re-login
+**Enhanced GPS logging**: URL și Bearer token verification pentru debug complet
+**Bearer token confirmed**: GPS transmission folosește Bearer token obținut la autentificare
+
+### Versiunea Precedentă: 1808.98 (June 23, 2025) - GPS TRANSMISSION UNIFIED & ENHANCED
 
 **GPS transmission completely unified**: Single sendGPSViaCapacitor function with robust error handling
 **Failed to fetch error fixed**: CapacitorHttp primary + fetch fallback cu timeout optimizat

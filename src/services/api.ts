@@ -364,6 +364,7 @@ export const logout = async (token: string): Promise<boolean> => {
     });
     
     console.log('Using Bearer token:', token.substring(0, 20) + '...');
+    console.log('Sending to URL:', `${API_BASE_URL}/gps.php`);
     
     try {
       const response = await CapacitorHttp.post({
@@ -379,6 +380,7 @@ export const logout = async (token: string): Promise<boolean> => {
       
       console.log('CapacitorHttp GPS response:', {
         status: response.status,
+        data: response.data,
         success: response.status >= 200 && response.status < 300
       });
       
