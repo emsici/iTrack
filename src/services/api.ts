@@ -271,7 +271,8 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
   } catch (error) {
     console.error('Error loading vehicle courses:', error);
     logAPI(`Error loading courses for ${vehicleNumber}: ${error}`);
-    throw new Error('Eroare de conexiune la serverul de curse');
+    // Return empty array instead of throwing error to allow graceful degradation
+    return [];
   }
 };
 

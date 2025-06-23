@@ -221,21 +221,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           console.log(`🆕 Found ${newCoursesCount} new courses - displayed at top`);
         }
       } else {
-        console.log("=== APK DEBUG: No courses found - BLOCKING access ===");
-        // IMPORTANT: Nu setează coursesLoaded = true când nu există curse
-        // Rămâne pe ecranul de input cu mesaj de eroare
+        console.log("No courses found for this vehicle - allowing access to main screen");
+        // Allow access to main screen even with no courses
         setCourses([]);
-        setCoursesLoaded(false); // Force rămâne pe input screen
-        setError("Nu s-au găsit curse pentru acest vehicul. Verificați numărul de înmatriculare și încercați din nou.");
-        console.log("=== APK DEBUG: User blocked - must enter valid vehicle number ===");
+        setCoursesLoaded(true); // Allow user to access main screen
+        setError(""); // Clear any errors
+        console.log("User can access main screen despite no courses");
       }
     } catch (error: any) {
-      console.error("=== APK DEBUG: Error loading courses ===", error);
-      console.log("=== APK DEBUG: ERROR - Blocking user due to API error ===");
-      // SCHIMBARE: Pe eroare, nu trece utilizatorul mai departe
-      setCoursesLoaded(false); // Rămâne pe input screen
+      console.error("Error loading courses:", error);
+      // Allow user to proceed even on error - graceful degradation
+      setCoursesLoaded(true); // Allow access to main screen
       setCourses([]);
-      setError(error.message || "Eroare la conectarea la server. Verificați conexiunea și încercați din nou.");
+      setError(""); // Clear error to allow access
+      console.log("API error handled gracefully - user can access main screen");
     } finally {
       setLoading(false);
       console.log("=== APK DEBUG: Loading finished ===");
