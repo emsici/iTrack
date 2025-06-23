@@ -343,6 +343,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }
       }
 
+      // Pentru status 2 (START/RESUME): Start GPS tracking APOI update status
+      if (newStatus === 2) {
+        console.log('🚀 Starting GPS tracking for ACTIVE status...');
+        try {
+          await startGPSTracking(courseId, vehicleNumber, courseToUpdate.uit, token, newStatus);
+          console.log(`✅ GPS tracking started for course ${courseId} with status ${newStatus}`);
+          console.log(`📍 Course ${courseId} added to activeCourses Map with UIT: ${courseToUpdate.uit}`);
+        } catch (error) {
+          console.error(`❌ GPS start failed:`, error);
+          setError(`GPS start failed: ${error}`);
+          return;
+        }
+      }
+
       // Update course status through GPS service
       try {
         await updateCourseStatus(courseId, newStatus);

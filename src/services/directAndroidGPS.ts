@@ -95,17 +95,20 @@ class DirectAndroidGPSService {
         console.log("⚠️ AndroidGPS not available - APK only feature");
       }
       
-      // Status logic pentru EnhancedGPSService:
+      // Status logic pentru SimpleGPSService:
       if (newStatus === 2) {
-        console.log("📍 ACTIVE/RESUME: EnhancedGPSService continuing GPS transmission every 5s");
+        console.log("📍 ACTIVE/RESUME: SimpleGPSService will transmit GPS every 5s");
+        console.log(`📊 GPS transmission active for course ${courseId} - coordinates will be sent to gps.php`);
       } else if (newStatus === 3) {
-        console.log("⏸️ PAUSE: EnhancedGPSService sends single status update then stops GPS");
+        console.log("⏸️ PAUSE: SimpleGPSService sends single status update then stops GPS transmission");
+        console.log(`⏹️ GPS transmission paused for course ${courseId} - no coordinates sent until resumed`);
       } else if (newStatus === 4) {
-        console.log("🏁 STOP: EnhancedGPSService sends final status then terminates");
+        console.log("🏁 STOP: SimpleGPSService sends final status then terminates completely");
+        console.log(`🛑 GPS transmission stopped for course ${courseId} - no more coordinates`);
         // Programează ștergerea din activeCourses după terminare
         setTimeout(() => {
           this.activeCourses.delete(courseId);
-          console.log(`🗑️ Course ${courseId} removed from active courses`);
+          console.log(`🗑️ Course ${courseId} removed from active courses Map`);
         }, 2000);
       }
     } catch (error) {
