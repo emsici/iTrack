@@ -460,24 +460,22 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       console.log('Token starts with:', token.substring(0, 20));
       console.log('Token ends with:', token.substring(token.length - 10));
       
-      // Check token expiration
+      // Silent token validation
       try {
         const tokenParts = token.split('.');
         if (tokenParts.length === 3) {
           const payload = JSON.parse(atob(tokenParts[1]));
           const expTime = payload.exp * 1000;
           const currentTime = Date.now();
-          console.log('Token expires at:', new Date(expTime));
-          console.log('Current time:', new Date(currentTime));
-          console.log('Token valid for:', Math.round((expTime - currentTime) / 1000), 'seconds');
           
           if (currentTime >= expTime) {
-            console.error('❌ TOKEN EXPIRED - Need fresh login');
             throw new Error('TOKEN_EXPIRED');
           }
         }
       } catch (e) {
-        console.log('Could not parse token expiration:', e.message);
+        if (e.message === 'TOKEN_EXPIRED') {
+          throw e;
+        }
       }
       
       // Use exact Postman format that works

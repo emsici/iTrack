@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
+### Versiunea Curentă: 1808.111 (June 23, 2025) - BATTERY SENSORS & SILENT TOKEN VALIDATION
+
+**Battery from device sensors**: Android GPS service now reads real battery level from BatteryManager
+**JavaScript battery API**: Browser fallback uses navigator.getBatteryInfo() or navigator.battery
+**Silent token validation**: Removed verbose token expiration logging per user request
+**Clean debugging output**: Battery level prominently displayed, reduced verbose logging
+**Real sensor data**: No more hardcoded battery values - always from device sensors
+
+### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
 **GPS error properly identified**: Application shows 401 but server actually returns 403 Forbidden
 **Server blocking GPS requests**: GPS.php blocks all requests regardless of valid authentication
