@@ -171,7 +171,18 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.72 (June 23, 2025) - DIRECT CAPACITORHTTP FOR FAST AUTHENTICATION
+### Versiunea Curentă: 1808.73 (June 23, 2025) - GEOLOCATION CONFIG SYNCHRONIZED & GPS PERMISSIONS FIXED
+
+**Geolocation configuration synchronized**: Capacitor config și SimpleGPSService acum au aceleași setări
+**Interval fix**: backgroundLocationUpdateInterval: 5000ms (5 secunde) - consistent cu GPS_INTERVAL_MS
+**Distance filter unified**: distanceFilter: 0 - fără filtru distanță pentru precizie maximă
+**GPS permissions enhanced**: Cerere automată permisiuni când user apasă START pe cursă
+**Safe area padding added**: Header nu mai apare pe bara nativă Android cu env(safe-area-inset-top)
+**Background GPS guaranteed**: SimpleGPSService transmite coordonate la 5 secunde chiar cu telefon blocat
+**Professional.css consolidated**: Eliminat corporate-light.css, folosim doar professional.css
+**TOTAL card styling fixed**: Background alb ca celelalte carduri de statistici
+
+### Versiunea Precedentă: 1808.72 (June 23, 2025) - DIRECT CAPACITORHTTP FOR FAST AUTHENTICATION
 
 **Direct CapacitorHttp implementation**: Skips AndroidGPS native interface check for instant authentication
 **Fast login performance**: No more 30-second waits - immediate CapacitorHttp usage for login and courses

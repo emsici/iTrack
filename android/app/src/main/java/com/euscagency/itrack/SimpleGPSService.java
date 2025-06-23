@@ -125,14 +125,14 @@ public class SimpleGPSService extends Service implements LocationListener {
         try {
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
-                1000,
-                1,
+                GPS_INTERVAL_MS, // 5000ms - sync with Capacitor backgroundLocationUpdateInterval
+                0, // distanceFilter: 0 - sync with Capacitor distanceFilter
                 this
             );
             locationManager.requestLocationUpdates(
                 LocationManager.NETWORK_PROVIDER,
-                1000,
-                1,
+                GPS_INTERVAL_MS, // 5000ms - sync with Capacitor backgroundLocationUpdateInterval
+                0, // distanceFilter: 0 - sync with Capacitor distanceFilter
                 this
             );
             
