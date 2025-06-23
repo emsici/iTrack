@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.100 (June 23, 2025) - STAT CARDS CSS ENHANCED & COMPLETE
+### Versiunea Curentă: 1808.101 (June 23, 2025) - STAT CARDS LAYOUT OPTIMIZED - 4 IN ONE ROW
+
+**Layout optimization**: 4 carduri pe același rând cu spacing perfect
+**Responsive design enhanced**: Breakpoints pentru desktop, tablet și mobile
+**Grid layout improved**: Flexbox container cu grid centrat maxWidth 1000px
+**Mobile adaptation**: 2x2 grid pe mobile cu layout vertical pentru iconițe
+**Visual consistency**: Min-height și alignment perfect pentru toate cardurile
+
+### Versiunea Precedentă: 1808.100 (June 23, 2025) - STAT CARDS CSS ENHANCED & COMPLETE
 
 **Stat cards CSS complete**: Added full styling for .stat-card.total, .active, .paused, .available
 **Visual enhancements**: Gradient borders, glassmorphism effects, hover animations

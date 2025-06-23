@@ -717,51 +717,59 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
           {/* Main Dashboard Content */}
           <div className="vehicle-dashboard-main-content">
-            <div className="dashboard-stats-row">
-              <div className="stat-card total" onClick={() => setSelectedStatusFilter('all')}>
-                <div className="stat-card-content">
-                  <div className="stat-icon-wrapper total">
-                    <i className="fas fa-list-alt"></i>
-                  </div>
-                  <div className="stat-details">
-                    <div className="stat-label">TOTAL CURSE</div>
-                    <div className="stat-value">{courses.length}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="stat-card active" onClick={() => setSelectedStatusFilter(2)}>
-                <div className="stat-card-content">
-                  <div className="stat-icon-wrapper active">
-                    <i className="fas fa-play"></i>
-                  </div>
-                  <div className="stat-details">
-                    <div className="stat-label">ACTIV</div>
-                    <div className="stat-value">{courses.filter(c => c.status === 2).length}</div>
+            {/* Statistics Cards - 4 in One Row */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              margin: '20px 0',
+              padding: '0 20px'
+            }}>
+              <div className="analytics-grid-centered">
+                <div className="stat-card total" onClick={() => setSelectedStatusFilter('all')}>
+                  <div className="stat-card-content">
+                    <div className="stat-icon-wrapper total">
+                      <i className="fas fa-list-alt"></i>
+                    </div>
+                    <div className="stat-details">
+                      <div className="stat-label">TOTAL</div>
+                      <div className="stat-value">{courses.length}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="stat-card paused" onClick={() => setSelectedStatusFilter(3)}>
-                <div className="stat-card-content">
-                  <div className="stat-icon-wrapper paused">
-                    <i className="fas fa-pause"></i>
-                  </div>
-                  <div className="stat-details">
-                    <div className="stat-label">PAUZĂ</div>
-                    <div className="stat-value">{courses.filter(c => c.status === 3).length}</div>
+                <div className="stat-card active" onClick={() => setSelectedStatusFilter(2)}>
+                  <div className="stat-card-content">
+                    <div className="stat-icon-wrapper active">
+                      <i className="fas fa-play"></i>
+                    </div>
+                    <div className="stat-details">
+                      <div className="stat-label">ACTIV</div>
+                      <div className="stat-value">{courses.filter(c => c.status === 2).length}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="stat-card available" onClick={() => setSelectedStatusFilter(1)}>
-                <div className="stat-card-content">
-                  <div className="stat-icon-wrapper available">
-                    <i className="fas fa-check-circle"></i>
+                <div className="stat-card paused" onClick={() => setSelectedStatusFilter(3)}>
+                  <div className="stat-card-content">
+                    <div className="stat-icon-wrapper paused">
+                      <i className="fas fa-pause"></i>
+                    </div>
+                    <div className="stat-details">
+                      <div className="stat-label">PAUZĂ</div>
+                      <div className="stat-value">{courses.filter(c => c.status === 3).length}</div>
+                    </div>
                   </div>
-                  <div className="stat-details">
-                    <div className="stat-label">DISPONIBIL</div>
-                    <div className="stat-value">{courses.filter(c => c.status === 1).length}</div>
+                </div>
+
+                <div className="stat-card available" onClick={() => setSelectedStatusFilter(1)}>
+                  <div className="stat-card-content">
+                    <div className="stat-icon-wrapper available">
+                      <i className="fas fa-check-circle"></i>
+                    </div>
+                    <div className="stat-details">
+                      <div className="stat-label">DISPONIBIL</div>
+                      <div className="stat-value">{courses.filter(c => c.status === 1).length}</div>
+                    </div>
                   </div>
                 </div>
               </div>
