@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.83 (June 23, 2025) - ANDROIDGPS COMPLET CURAT: ZERO HTTP
+### Versiunea Curentă: 1808.84 (June 23, 2025) - UI FLOW BUTOANE OPTIMIZAT
+
+**Flux butoane cursă implementat**: START → PAUZĂ+STOP → RESUME+STOP → TERMINAT (fără butoane)
+**Logică status precisă**: Fiecare status afișează doar butoanele permise pentru următoarea acțiune
+**Status 4 final**: Cursele terminate nu mai permit nicio acțiune - doar badge TERMINAT
+**UX îmbunătățit**: Interfața ghidează userul prin fluxul corect al curselor
+**Previne erori**: Nu se pot face acțiuni invalide pe curse terminate
+
+### Versiunea Precedentă: 1808.83 (June 23, 2025) - ANDROIDGPS COMPLET CURAT: ZERO HTTP
 
 **postNativeHttp și getNativeHttp șterse complet**: Eliminate toate metodele HTTP din AndroidGPS.java
 **Zero import-uri HTTP**: Niciun URL, HttpURLConnection, OutputStream, BufferedReader în AndroidGPS
