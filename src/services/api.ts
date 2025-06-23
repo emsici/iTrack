@@ -33,12 +33,22 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     console.log('🔐 Native Android login attempt for:', email);
     logAPI(`Native login attempt for ${email}`);
     
-    // ANDROID ONLY - No fallbacks, pure native
+    // Check AndroidGPS availability with retry logic
+    let retryCount = 0;
+    const maxRetries = 10;
+    
+    while (typeof (window as any).AndroidGPS?.postNativeHttp !== 'function' && retryCount < maxRetries) {
+      console.log(`⏳ Waiting for AndroidGPS interface... (${retryCount + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, 200));
+      retryCount++;
+    }
+    
     if (typeof (window as any).AndroidGPS?.postNativeHttp !== 'function') {
-      console.error('❌ AndroidGPS not available - APK required');
+      console.error('❌ AndroidGPS not available after retries');
+      console.log('Available window properties:', Object.keys(window));
       return { 
         status: 'error', 
-        error: 'Aplicația necesită instalare APK pentru funcționare' 
+        error: 'Interfața nativă nu este disponibilă. Te rog să restartezi aplicația.' 
       };
     }
     

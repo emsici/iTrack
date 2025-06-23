@@ -32,20 +32,37 @@ public class MainActivity extends BridgeActivity {
         // Plugin-ul DirectGPS cauza probleme de compilare
         
         // Add AndroidGPS interface to WebView for JavaScript access
-        try {
-            AndroidGPS androidGPSInterface = new AndroidGPS();
-            getBridge().getWebView().addJavascriptInterface(androidGPSInterface, "AndroidGPS");
-            Log.d(TAG, "✅ AndroidGPS WebView interface added successfully");
-            Log.d(TAG, "AndroidGPS interface methods available:");
-            Log.d(TAG, "- startGPS: available");
-            Log.d(TAG, "- stopGPS: available");
-            Log.d(TAG, "- updateStatus: available");
-            Log.d(TAG, "- clearAllOnLogout: available");
-            Log.d(TAG, "- postNativeHttp: available");
-            Log.d(TAG, "- getNativeHttp: available");
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Failed to add AndroidGPS interface: " + e.getMessage(), e);
-        }
+        // Use handler to ensure WebView is ready
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (getBridge() != null && getBridge().getWebView() != null) {
+                        AndroidGPS androidGPSInterface = new AndroidGPS();
+                        getBridge().getWebView().addJavascriptInterface(androidGPSInterface, "AndroidGPS");
+                        Log.d(TAG, "✅ AndroidGPS WebView interface added successfully");
+                        Log.d(TAG, "AndroidGPS interface methods available:");
+                        Log.d(TAG, "- startGPS: available");
+                        Log.d(TAG, "- stopGPS: available");
+                        Log.d(TAG, "- updateStatus: available");
+                        Log.d(TAG, "- clearAllOnLogout: available");
+                        Log.d(TAG, "- postNativeHttp: available");
+                        Log.d(TAG, "- getNativeHttp: available");
+                        
+                        // Test interface availability
+                        getBridge().getWebView().evaluateJavascript(
+                            "console.log('AndroidGPS interface test:', typeof window.AndroidGPS);",
+                            null
+                        );
+                    } else {
+                        Log.e(TAG, "❌ Bridge or WebView not ready, retrying in 500ms");
+                        new Handler(Looper.getMainLooper()).postDelayed(this, 500);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ Failed to add AndroidGPS interface: " + e.getMessage(), e);
+                }
+            }
+        });
         
         Log.d(TAG, "iTrack MainActivity initialized with WebView GPS interface");
         

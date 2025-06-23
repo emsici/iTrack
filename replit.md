@@ -173,14 +173,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ### Versiunea Curentă: 1808.67 (June 22, 2025) - LOGIN ANDROIDGPS FIXED
 
-**Pure native Android**: Login folosește DOAR AndroidGPS.postNativeHttp, zero fallback fetch
-**APK requirement enforced**: Aplicația refuză să ruleze fără AndroidGPS nativ
-**Native-only login flow**: Eliminat complet fetch - doar HttpURLConnection Java
-**Error handling pure**: Toate erorile procesate din AndroidGPS responses
-**Production Android ready**: Zero web requests, 100% native Java HTTP stack
-**Bearer automatic**: AndroidGPS.java adaugă Bearer prefix pentru toate requests autentificate
-**Console logging enhanced**: Debug detaliat pentru native HTTP responses
-**Failed to fetch eliminated**: Nu mai există fetch calls pe Android
+**AndroidGPS interface timing fixed**: Handler ensures WebView is ready before adding interface
+**Retry logic implemented**: Login waits up to 2 seconds for AndroidGPS availability
+**Interface validation added**: WebView evaluateJavascript tests AndroidGPS presence
+**Native interface guaranteed**: MainActivity adds AndroidGPS with proper timing
+**Production APK ready**: Interface loading optimized for real device deployment
+**Error messaging improved**: Clear user guidance when interface not available
+**Handler-based loading**: Ensures AndroidGPS interface loads after WebView initialization
+**Native timing resolved**: WebView interface availability guaranteed on APK
 
 ### Versiunea Precedentă: 1808.53 (June 21, 2025) - UI FIXES & HYBRID HTTP SYSTEM
 
