@@ -385,6 +385,12 @@ export const logout = async (token: string): Promise<boolean> => {
         console.error('Headers sent:', JSON.stringify(headers, null, 2));
         console.error('Data sent:', JSON.stringify(gpsData, null, 2));
         return false;
+      } else if (response.status === 403) {
+        console.error('❌ 403 FORBIDDEN - Server blocking GPS requests');
+        console.error('This is a server configuration issue, not authentication');
+        console.error('Request URL:', `${API_BASE_URL}/gps.php`);
+        console.error('Headers sent:', JSON.stringify(headers, null, 2));
+        return false;
       }
       
       if (response.status >= 200 && response.status < 300) {

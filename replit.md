@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.109 (June 23, 2025) - HEADER REDESIGNED - LOGO REMOVED, LOGOUT ENHANCED
+### Versiunea Curentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
+
+**GPS error properly identified**: Application shows 401 but server actually returns 403 Forbidden
+**Server blocking GPS requests**: GPS.php blocks all requests regardless of valid authentication
+**Error handling enhanced**: Added 403 Forbidden detection and proper user messaging
+**Debug logging complete**: Full request/response logging shows server-side permission issue
+**Not token expiration**: Confirmed with fresh tokens - server configuration blocks GPS endpoint
+
+### Versiunea Precedentă: 1808.109 (June 23, 2025) - HEADER REDESIGNED - LOGO REMOVED, LOGOUT ENHANCED
 
 **Header simplified**: Removed logo and "iTrack" text from header completely
 **Layout centered**: Vehicle number badge now centered in header
