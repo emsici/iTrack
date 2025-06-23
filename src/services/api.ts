@@ -63,9 +63,39 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     }
     
     if (typeof (window as any).AndroidGPS?.postNativeHttp !== 'function') {
-      console.log('Browser mode detected - using standard HTTP requests');
+      console.log('AndroidGPS not available - trying alternative native HTTP methods');
       
-      // Browser mode - use standard fetch
+      // Try CapacitorHttp as native alternative
+      try {
+        const { CapacitorHttp } = await import('@capacitor/core');
+        console.log('Using CapacitorHttp for login');
+        
+        const response = await CapacitorHttp.post({
+          url: `${API_BASE_URL}/login.php`,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Accept': 'application/json',
+            'User-Agent': 'iTrack-Native/1.0'
+          },
+          data: { email, password }
+        });
+        
+        if (response.status >= 200 && response.status < 300 && response.data) {
+          const data = response.data;
+          if (data.status === 'success' && data.token) {
+            console.log('CapacitorHttp login successful');
+            logAPI(`CapacitorHttp login successful for ${email}`);
+            return { status: 'success', token: data.token };
+          } else {
+            logAPI(`CapacitorHttp login failed: ${data.message}`);
+            return { status: 'error', error: data.message || 'Date de conectare incorecte' };
+          }
+        }
+      } catch (capacitorError) {
+        console.log('CapacitorHttp not available:', capacitorError);
+      }
+      
+      // Browser/fetch fallback
       try {
         const response = await fetch(`${API_BASE_URL}/login.php`, {
           method: 'POST',
@@ -208,8 +238,10 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
     console.log(`Loading courses for vehicle: ${vehicleNumber}`);
     logAPI(`Loading courses for vehicle ${vehicleNumber}`);
     
-    // Try native HTTP first - PURE JAVA EFFICIENCY
+    // Try native HTTP methods in order
     let response;
+    
+    // First try AndroidGPS
     if (typeof (window as any).AndroidGPS?.getNativeHttp === 'function') {
       console.log('Using AndroidGPS getNativeHttp for vehicle courses');
       const nativeResult = (window as any).AndroidGPS.getNativeHttp(
@@ -229,28 +261,51 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
         throw new Error('Native HTTP error');
       }
     } else {
-      // Browser fallback - use fetch
-      console.log('Using fetch for courses (browser mode)');
-      
-      const fetchResponse = await fetch(urlWithCacheBuster, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+      // Try CapacitorHttp as alternative
+      try {
+        const { CapacitorHttp } = await import('@capacitor/core');
+        console.log('Using CapacitorHttp for courses');
+        
+        const capacitorResponse = await CapacitorHttp.get({
+          url: urlWithCacheBuster,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'User-Agent': 'iTrack-Native/1.0'
+          }
+        });
+        
+        if (capacitorResponse.status === 401) {
+          throw new Error('TOKEN_EXPIRED');
         }
-      });
-      
-      if (fetchResponse.status === 401) {
-        throw new Error('TOKEN_EXPIRED');
+        
+        response = { status: capacitorResponse.status, data: capacitorResponse.data };
+      } catch (capacitorError) {
+        console.log('CapacitorHttp failed, using fetch fallback');
+        
+        // Browser fallback - use fetch
+        console.log('Using fetch for courses (browser mode)');
+        
+        const fetchResponse = await fetch(urlWithCacheBuster, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+        
+        if (fetchResponse.status === 401) {
+          throw new Error('TOKEN_EXPIRED');
+        }
+        
+        if (!fetchResponse.ok) {
+          throw new Error(`HTTP ${fetchResponse.status}`);
+        }
+        
+        response = { status: fetchResponse.status, data: await fetchResponse.json() };
       }
-      
-      if (!fetchResponse.ok) {
-        throw new Error(`HTTP ${fetchResponse.status}`);
-      }
-      
-      response = { status: fetchResponse.status, data: await fetchResponse.json() };
     }
 
     console.log('API Response Status:', response.status);

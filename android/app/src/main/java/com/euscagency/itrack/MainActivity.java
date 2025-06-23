@@ -6,6 +6,7 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import com.getcapacitor.BridgeActivity;
+import com.getcapacitor.Plugin;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.Context;
@@ -28,20 +29,15 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
         instance = this;
         
-        Log.d(TAG, "🚀 MainActivity onCreate called");
-        Log.d(TAG, "📱 Android SDK: " + android.os.Build.VERSION.SDK_INT);
-        Log.d(TAG, "📦 Package: " + getPackageName());
+        Log.d(TAG, "iTrack MainActivity starting with multiple HTTP methods");
         
-        // DirectGPS plugin eliminat - folosim doar WebView interface pentru stabilitate
-        // Plugin-ul DirectGPS cauza probleme de compilare
+        // Use existing NativeHttpService - no plugin registration needed
+        Log.d(TAG, "Using existing NativeHttpService and CapacitorHttp fallback");
         
-        // Add AndroidGPS interface immediately and with retry logic
+        // Keep AndroidGPS as backup
         addAndroidGPSInterface();
         
-        Log.d(TAG, "iTrack MainActivity initialized with WebView GPS interface");
-        
-        // Eliminat auto-test care poate cauza crash-uri
-        // Auto-test dezactivat pentru stabilitate
+        Log.d(TAG, "iTrack ready with NativeHttp + AndroidGPS fallback");
     }
     
     public static Context getContext() {
