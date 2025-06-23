@@ -179,6 +179,7 @@ class DirectAndroidGPSService {
     // ANDROID APK: Use native AndroidGPS interface
     if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
       console.log("Using native Android GPS service");
+      console.log(`📱 Calling AndroidGPS.startGPS(${course.courseId}, ${course.vehicleNumber}, ${course.uit}, token, ${course.status})`);
       
       const result = (window as any).AndroidGPS.startGPS(
         course.courseId,
@@ -188,11 +189,13 @@ class DirectAndroidGPSService {
         course.status
       );
       
+      console.log(`📱 AndroidGPS.startGPS result: ${result}`);
+      
       if (result && result.includes("ERROR")) {
         throw new Error(`GPS failed: ${result}`);
       }
       
-      console.log("Android GPS started successfully");
+      console.log("✅ Android GPS started successfully - course should be in SimpleGPSService activeCourses Map");
       return;
     }
 

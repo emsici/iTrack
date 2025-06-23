@@ -105,6 +105,12 @@ public class SimpleGPSService extends Service implements LocationListener {
 
         CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber);
         activeCourses.put(courseId, courseData);
+        
+        Log.d(TAG, String.format("✅ Course %s added to activeCourses Map", courseId));
+        Log.d(TAG, String.format("📊 activeCourses Map size: %d", activeCourses.size()));
+        Log.d(TAG, String.format("📊 activeCourses contains: %s", activeCourses.keySet().toString()));
+        Log.d(TAG, String.format("🎯 Course %s status: %d (GPS will transmit: %s)", 
+            courseId, status, status == 2 ? "YES" : "NO"));
 
         if (!isTracking) {
             Log.d(TAG, "Starting foreground service");

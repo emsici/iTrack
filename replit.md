@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.92 (June 23, 2025) - ACTIVECOURSES MAP DEBUG ENHANCED
+### Versiunea Curentă: 1808.93 (June 23, 2025) - START/RESUME FLOW VERIFICAT ȘI ENHANCED
+
+**Flow START/RESUME complet verificat**: startGPSTracking → activeCourses.set() → AndroidGPS.startGPS() → SimpleGPSService
+**Enhanced debugging Android**: Logging detaliat în SimpleGPSService pentru confirmare activeCourses Map
+**Status verification**: Verificare explicită dacă course cu status 2 va transmite GPS
+**activeCourses Map tracking**: Log complet pentru add/size/contents în SimpleGPSService
+**JavaScript→Android bridge confirmed**: Verificare completă a fluxului până la serviciul nativ
+
+### Versiunea Precedentă: 1808.92 (June 23, 2025) - ACTIVECOURSES MAP DEBUG ENHANCED
 
 **activeCourses Map debugging îmbunătățit**: Logging detaliat pentru popularea și accesarea Map-ului
 **Fallback logic pentru PAUSE/STOP**: Creare entry minimal când course nu există în Map
