@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.102 (June 23, 2025) - REFRESH BUTTON REMOVED - AUTO-UPDATE ONLY
+### Versiunea Curentă: 1808.103 (June 23, 2025) - VEHICLE NUMBER BADGE ENHANCED STYLING
+
+**Vehicle badge redesigned**: Enhanced styling cu gradient background și border top accent
+**Visual improvements**: Culori mai vii, shadows mai pronunțate, hover effects îmbunătățite  
+**Typography enhanced**: Text shadow, letter spacing, font weights optimizate
+**Interactive feedback**: Hover animations cu scale și glow effects
+**Professional appearance**: Nu mai arată gri și șters, acum e vibrant și modern
+
+### Versiunea Precedentă: 1808.102 (June 23, 2025) - REFRESH BUTTON REMOVED - AUTO-UPDATE ONLY
 
 **Refresh button eliminated**: Scos butonul manual de refresh din interfață
 **Auto-update exclusive**: Doar auto-actualizare la 5 minute, fără refresh manual
