@@ -379,8 +379,11 @@ export const logout = async (token: string): Promise<boolean> => {
       console.log('Headers sent:', JSON.stringify(headers, null, 2));
       
       if (response.status === 401) {
-        console.error('❌ 401 UNAUTHORIZED - Token rejected by server');
-        console.error('Token used:', `Bearer ${token.substring(0, 30)}...`);
+        console.error('❌ 401 UNAUTHORIZED - Android GPS Token rejected');
+        console.error('Full token used:', `Bearer ${token}`);
+        console.error('Request URL:', `${API_BASE_URL}/gps.php`);
+        console.error('Headers sent:', JSON.stringify(headers, null, 2));
+        console.error('Data sent:', JSON.stringify(gpsData, null, 2));
         return false;
       }
       
@@ -456,6 +459,9 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       console.log('=== CapacitorHttp GPS Response ===');
       console.log('Status:', response.status);
       console.log('Data:', response.data);
+      console.log('Request URL:', `${API_BASE_URL}/gps.php`);
+      console.log('Request Headers Sent:', JSON.stringify(headers, null, 2));
+      console.log('Request Data Sent:', JSON.stringify(gpsData, null, 2));
       logAPI(`CapacitorHttp GPS result: ${response.status} - ${JSON.stringify(response.data)}`);
       
       if (response.status === 401) {
