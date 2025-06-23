@@ -234,6 +234,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     } finally {
       setLoading(false);
       console.log("=== Loading finished ===");
+      // Clear any lingering loading states that might disable input
     }
   };
 
@@ -507,12 +508,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       .replace(/[^A-Za-z0-9]/g, "")
                       .toUpperCase();
                     setVehicleNumber(cleanValue);
+                    // Clear error when user starts typing
+                    if (error) {
+                      setError("");
+                    }
                   }}
                   onKeyPress={(e) => e.key === "Enter" && handleLoadCourses()}
+                  disabled={loading} // Only disable during loading
                   style={{
                     width: '100%',
                     padding: '20px',
-                    background: 'rgba(30, 41, 59, 0.6)',
+                    background: loading ? 'rgba(30, 41, 59, 0.3)' : 'rgba(30, 41, 59, 0.6)',
                     border: '2px solid rgba(148, 163, 184, 0.2)',
                     borderRadius: '16px',
                     color: '#ffffff',
