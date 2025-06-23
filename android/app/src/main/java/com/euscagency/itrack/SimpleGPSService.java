@@ -22,13 +22,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+// Removed OkHttp dependencies - using CapacitorHttp instead
 
 public class SimpleGPSService extends Service implements LocationListener {
     private static final String TAG = "SimpleGPSService";
@@ -44,7 +38,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     private boolean isTracking = false;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private String userAuthToken;
-    private OkHttpClient httpClient;
+    // Removed OkHttpClient - using CapacitorHttp through WebView
 
     public static class CourseData {
         public String courseId;

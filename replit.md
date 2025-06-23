@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.79 (June 23, 2025) - VITE WARNINGS ELIMINAT COMPLET + IMPORTS OPTIMIZATE
+### Versiunea Curentă: 1808.80 (June 23, 2025) - GPS ANDROID MIGRAT LA CAPACITORHTTP
+
+**GPS Android unificat**: SimpleGPSService acum folosește CapacitorHttp prin WebView în loc de OkHttpClient
+**HTTP 100% consistent**: Toate operațiunile (login, logout, GPS browser, GPS Android) folosesc CapacitorHttp
+**OkHttp eliminat complet**: Zero dependențe OkHttp în aplicație - doar CapacitorHttp uniform
+**Bridge optimization**: AndroidGPS → SimpleGPSService → WebView → CapacitorHttp pentru uniformitate
+**Production ready**: Același mecanism HTTP pentru toate operațiunile GPS
+
+### Versiunea Precedentă: 1808.79 (June 23, 2025) - VITE WARNINGS ELIMINAT COMPLET + IMPORTS OPTIMIZATE
 
 **Vite dynamic import warning rezolvat**: Eliminat importul dinamic pentru sendGPSData în directAndroidGPS.ts
 **Import optimization completă**: Toate modulele folosesc importuri statice pentru bundle optimization

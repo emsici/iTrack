@@ -331,6 +331,31 @@ export const logout = async (token: string): Promise<boolean> => {
   }
 };
 
+// Global function for Android GPS service to use CapacitorHttp
+(window as any).sendGPSViaCapacitor = async (jsonString: string, token: string) => {
+  try {
+    const gpsData = JSON.parse(jsonString);
+    console.log('🔥 GPS from Android service via CapacitorHttp:', gpsData);
+    
+    const response = await CapacitorHttp.post({
+      url: `${API_BASE_URL}/gps.php`,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'User-Agent': 'iTrack-Android-Service/1.0'
+      },
+      data: gpsData
+    });
+    
+    console.log('✅ Android GPS via CapacitorHttp success:', response.status);
+    return response.status >= 200 && response.status < 300;
+    
+  } catch (error) {
+    console.error('❌ Android GPS via CapacitorHttp failed:', error);
+    return false;
+  }
+};
+
 export const sendGPSData = async (gpsData: GPSData, token: string): Promise<boolean> => {
   try {
     console.log('🔥 === GPS TRANSMISSION START ===');
