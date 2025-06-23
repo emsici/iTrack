@@ -109,80 +109,12 @@ public class AndroidGPS {
     }
 
     /**
-     * Native HTTP POST request with automatic Bearer token
-     * Eliminates CORS issues and provides maximum efficiency in APK
+     * DEPRECATED: All HTTP operations moved to CapacitorHttp
      */
     @JavascriptInterface
     public String postNativeHttp(String url, String jsonData, String authToken) {
-        Log.d(TAG, "🔥 Native HTTP POST to: " + url);
-        Log.d(TAG, "📤 Payload size: " + jsonData.length() + " bytes");
-        Log.d(TAG, "🔑 Using token: " + (authToken.isEmpty() ? "none" : authToken.substring(0, 20) + "..."));
-        
-        try {
-            URL urlObject = new URL(url);
-            HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
-            
-            // Configure connection - match curl exactly
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("User-Agent", "iTrack-Android/1.0");
-            connection.setRequestProperty("Cache-Control", "no-cache");
-            
-            // Calculate and set content length
-            byte[] postData = jsonData.getBytes(StandardCharsets.UTF_8);
-            connection.setRequestProperty("Content-Length", String.valueOf(postData.length));
-            
-            // Add Bearer token automatically if provided
-            if (authToken != null && !authToken.isEmpty()) {
-                connection.setRequestProperty("Authorization", "Bearer " + authToken);
-                Log.d(TAG, "✅ Bearer token added to request headers");
-            }
-            
-            connection.setConnectTimeout(15000);
-            connection.setReadTimeout(15000);
-            connection.setUseCaches(false);
-            
-            // Send request body with pre-calculated data
-            connection.setDoOutput(true);
-            try (OutputStream os = connection.getOutputStream()) {
-                os.write(postData, 0, postData.length);
-                os.flush();
-            }
-            
-            // Get response
-            int responseCode = connection.getResponseCode();
-            Log.d(TAG, "📡 Response code: " + responseCode);
-            
-            BufferedReader reader;
-            if (responseCode >= 200 && responseCode < 300) {
-                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            } else {
-                reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-            }
-            
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-            reader.close();
-            
-            String responseBody = response.toString();
-            Log.d(TAG, "📥 Response: " + responseBody);
-            
-            // Return success for 200, 201, 204
-            if (responseCode == 200 || responseCode == 201 || responseCode == 204) {
-                return responseBody.isEmpty() ? "{\"status\":\"success\"}" : responseBody;
-            } else {
-                Log.e(TAG, "❌ HTTP error " + responseCode + ": " + responseBody);
-                return "{\"error\":\"HTTP " + responseCode + "\",\"message\":\"" + responseBody + "\"}";
-            }
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Native HTTP error: " + e.getMessage(), e);
-            return "{\"error\":\"Network error\",\"message\":\"" + e.getMessage() + "\"}";
-        }
+        Log.d(TAG, "⚠️ DEPRECATED: postNativeHttp - use CapacitorHttp with Bearer token");
+        return "DEPRECATED: Use CapacitorHttp for all HTTP operations";
     }
 
     /**
