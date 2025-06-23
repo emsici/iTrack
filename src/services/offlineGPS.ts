@@ -205,39 +205,36 @@ class OfflineGPSService {
         gsm_signal: coordinate.gsm_signal
       };
 
-      // Try native HTTP first - PURE JAVA EFFICIENCY
-      let response;
-      if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-        console.log('🔥 Using native HTTP for offline sync coordinate');
-        const nativeResult = (window as any).AndroidGPS.postNativeHttp(
-          'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php',
-          JSON.stringify(gpsData),
-          coordinate.token
-        );
-        return !nativeResult.includes('error') && !nativeResult.includes('Error');
-      } else {
-        // Fallback to native HTTP or fetch
-        if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-          const nativeResult = (window as any).AndroidGPS.postNativeHttp(
-            'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php',
-            JSON.stringify(gpsData),
-            coordinate.token
-          );
-          return !nativeResult.includes('error') && !nativeResult.includes('Error');
-        } else {
-          // Browser fallback
-          const fetchResponse = await fetch('https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${coordinate.token}`,
-              'Accept': 'application/json',
-              'User-Agent': 'iTrack-Android-GPS/1.0'
-            },
-            body: JSON.stringify(gpsData)
-          });
-          return fetchResponse.status === 200;
-        }
+      // PRIMARY: CapacitorHttp
+      try {
+        const response = await CapacitorHttp.post({
+          url: `${API_BASE_URL}/gps.php`,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${coordinate.token}`,
+            'Accept': 'application/json',
+            'User-Agent': 'iTrack-Native/1.0'
+          },
+          data: gpsData
+        });
+        
+        return response.status >= 200 && response.status < 300;
+        
+      } catch (capacitorError) {
+        console.log('CapacitorHttp failed for offline sync, trying fetch');
+        
+        // SECONDARY: fetch fallback
+        const response = await fetch(`${API_BASE_URL}/gps.php`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${coordinate.token}`,
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(gpsData)
+        });
+        
+        return response.ok;
       }
     } catch (error) {
       console.error('❌ Network error transmitting coordinate:', error);
