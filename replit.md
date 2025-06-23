@@ -173,7 +173,7 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ### Versiunea Curentă: 1808.82 (June 23, 2025) - HTTP NATIV ELIMINAT 100% FINAL
 
-**AndroidGPS HTTP complet eliminat**: Toate metodele postNativeHttp și getNativeHttp doar stub-uri DEPRECATED
+**AndroidGPS HTTP complet șters**: Metodele postNativeHttp și getNativeHttp eliminate complet din cod
 **Zero cod HTTP nativ**: Eliminat complet URL, HttpURLConnection, OutputStream din AndroidGPS
 **AndroidGPS doar GPS control**: startGPS, stopGPS, updateStatus, clearAllOnLogout - niciun HTTP
 **CapacitorHttp universal**: 100% din operațiunile HTTP prin CapacitorHttp cu Bearer token uniform
