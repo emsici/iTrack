@@ -104,6 +104,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
             </button>
           </>
         );
+      case 4: // Completed - NICIUN BUTON, cursă terminată
+        return (
+          <span className="badge bg-secondary">
+            <i className="fas fa-check me-1"></i>
+            TERMINAT
+          </span>
+        );
+      
       default:
         return null;
     }
