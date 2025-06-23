@@ -175,9 +175,9 @@ Persistare localStorage → Afișare CourseStatsModal
 
 **Arhitectură HTTP completă**: Toate operațiunile HTTP (login, logout, GPS transmission, offline sync) folosesc CapacitorHttp + fetch fallback
 **postNativeHttp eliminat 100%**: Zero referințe la AndroidGPS.postNativeHttp în întreaga aplicație
-**Background GPS hybrid**: CapacitorHttp pentru transmisie HTTP + AndroidGPS pentru serviciul nativ background
+**Background GPS architecture**: AndroidGPS (WebView interface) → SimpleGPSService (background worker) → OkHttpClient (transmisie)
 **Browser GPS fallback**: sendGPSData prin CapacitorHttp pentru development în browser
-**Native GPS service**: AndroidGPS.startGPS/stopGPS/updateStatus pentru background service în APK
+**Dual GPS architecture**: AndroidGPS (JavaScript bridge) + SimpleGPSService (background LocationListener + OkHttpClient)
 **Status updates clean**: updateCourseStatus folosește sendGPSData (CapacitorHttp) pentru server
 **Production ready**: APK folosește CapacitorHttp pentru HTTP și serviciu nativ pentru background GPS
 
