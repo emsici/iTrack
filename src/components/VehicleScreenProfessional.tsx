@@ -611,7 +611,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
           )}
         </div>
-        </div>
       ) : (
         <>
           <div className="corporate-header-professional loaded">
@@ -744,81 +743,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       )}
     </div>
   );
-
-          {/* Background Effects */}
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: `
-              radial-gradient(circle at 20% 80%, rgba(15, 23, 42, 0.8) 0%, transparent 50%),
-              radial-gradient(circle at 80% 20%, rgba(55, 65, 81, 0.4) 0%, transparent 50%)
-            `,
-            pointerEvents: 'none'
-          }} />
-
-          <div className="vehicle-input-container">
-            <div className="vehicle-brand-section" onClick={handleTimestampClick}>
-              <div className="vehicle-logo-emblem">
-                <i className="fas fa-truck"></i>
-              </div>
-              <div className="vehicle-brand-title">iTrack</div>
-              <div className="vehicle-brand-subtitle">Monitorizare GPS Profesională</div>
-            </div>
-
-            <div className="vehicle-form-group">
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  className="vehicle-input-field"
-                  placeholder="Introduceți numărul de înmatriculare"
-                  value={vehicleNumber}
-                  onChange={(e) => {
-                    const cleanValue = e.target.value
-                      .replace(/[^A-Za-z0-9]/g, "")
-                      .toUpperCase();
-                    setVehicleNumber(cleanValue);
-                  }}
-                  onKeyPress={(e) => e.key === "Enter" && handleLoadCourses()}
-                />
-                <i className="fas fa-truck vehicle-input-icon"></i>
-              </div>
-              
-              <button
-                className="vehicle-submit-button"
-                onClick={handleLoadCourses}
-                disabled={loading || !vehicleNumber.trim()}
-              >
-                {loading ? (
-                  <>
-                    <i className="fas fa-spinner spinning" style={{ marginRight: '12px' }}></i>
-                    Se încarcă cursele...
-                  </>
-                ) : (
-                  <>
-                    <i className="fas fa-search" style={{ marginRight: '12px' }}></i>
-                    Încarcă Cursele
-                  </>
-                )}
-              </button>
-
-              {error && <div className="vehicle-error-message">{error}</div>}
-            </div>
-          </div>
-
-          {/* Debug Counter */}
-          {clickCount >= 30 && (
-            <div className="debug-counter">
-              {clickCount}/50
-            </div>
-          )}
-        </div>
-      ) : (
-        <>
-          <div className="corporate-header-professional loaded">
-            <div className="header-brand-section">
               <div className="brand-logo-container" onClick={handleTimestampClick}>
                 <div className="logo-emblem">
                   <i className="fas fa-truck"></i>
