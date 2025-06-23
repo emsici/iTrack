@@ -28,41 +28,15 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
         instance = this;
         
+        Log.d(TAG, "🚀 MainActivity onCreate called");
+        Log.d(TAG, "📱 Android SDK: " + android.os.Build.VERSION.SDK_INT);
+        Log.d(TAG, "📦 Package: " + getPackageName());
+        
         // DirectGPS plugin eliminat - folosim doar WebView interface pentru stabilitate
         // Plugin-ul DirectGPS cauza probleme de compilare
         
-        // Add AndroidGPS interface to WebView for JavaScript access
-        // Use handler to ensure WebView is ready
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (getBridge() != null && getBridge().getWebView() != null) {
-                        AndroidGPS androidGPSInterface = new AndroidGPS();
-                        getBridge().getWebView().addJavascriptInterface(androidGPSInterface, "AndroidGPS");
-                        Log.d(TAG, "✅ AndroidGPS WebView interface added successfully");
-                        Log.d(TAG, "AndroidGPS interface methods available:");
-                        Log.d(TAG, "- startGPS: available");
-                        Log.d(TAG, "- stopGPS: available");
-                        Log.d(TAG, "- updateStatus: available");
-                        Log.d(TAG, "- clearAllOnLogout: available");
-                        Log.d(TAG, "- postNativeHttp: available");
-                        Log.d(TAG, "- getNativeHttp: available");
-                        
-                        // Test interface availability
-                        getBridge().getWebView().evaluateJavascript(
-                            "console.log('AndroidGPS interface test:', typeof window.AndroidGPS);",
-                            null
-                        );
-                    } else {
-                        Log.e(TAG, "❌ Bridge or WebView not ready, retrying in 500ms");
-                        new Handler(Looper.getMainLooper()).postDelayed(this, 500);
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Failed to add AndroidGPS interface: " + e.getMessage(), e);
-                }
-            }
-        });
+        // Add AndroidGPS interface immediately and with retry logic
+        addAndroidGPSInterface();
         
         Log.d(TAG, "iTrack MainActivity initialized with WebView GPS interface");
         
@@ -72,6 +46,68 @@ public class MainActivity extends BridgeActivity {
     
     public static Context getContext() {
         return instance != null ? instance.getApplicationContext() : null;
+    }
+    
+    private void addAndroidGPSInterface() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            int retryCount = 0;
+            final int maxRetries = 20;
+            
+            @Override
+            public void run() {
+                try {
+                    Log.d(TAG, "Attempting to add AndroidGPS interface (attempt " + (retryCount + 1) + "/" + maxRetries + ")");
+                    
+                    if (getBridge() != null && getBridge().getWebView() != null) {
+                        AndroidGPS androidGPSInterface = new AndroidGPS();
+                        getBridge().getWebView().addJavascriptInterface(androidGPSInterface, "AndroidGPS");
+                        
+                        // Enable JavaScript
+                        getBridge().getWebView().getSettings().setJavaScriptEnabled(true);
+                        
+                        Log.d(TAG, "✅ AndroidGPS WebView interface added successfully");
+                        Log.d(TAG, "AndroidGPS interface methods available:");
+                        Log.d(TAG, "- startGPS: available");
+                        Log.d(TAG, "- stopGPS: available");
+                        Log.d(TAG, "- updateStatus: available");
+                        Log.d(TAG, "- clearAllOnLogout: available");
+                        Log.d(TAG, "- postNativeHttp: available");
+                        Log.d(TAG, "- getNativeHttp: available");
+                        
+                        // Test interface availability with delay
+                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                getBridge().getWebView().evaluateJavascript(
+                                    "console.log('🔍 AndroidGPS test:', typeof window.AndroidGPS); " +
+                                    "if (typeof window.AndroidGPS !== 'undefined') { " +
+                                        "console.log('✅ AndroidGPS methods:', Object.getOwnPropertyNames(window.AndroidGPS)); " +
+                                    "} else { " +
+                                        "console.error('❌ AndroidGPS still not available'); " +
+                                    "}",
+                                    null
+                                );
+                            }
+                        }, 1000);
+                        
+                    } else {
+                        retryCount++;
+                        if (retryCount < maxRetries) {
+                            Log.w(TAG, "Bridge/WebView not ready, retrying in 250ms (attempt " + retryCount + "/" + maxRetries + ")");
+                            new Handler(Looper.getMainLooper()).postDelayed(this, 250);
+                        } else {
+                            Log.e(TAG, "❌ Failed to add AndroidGPS interface after " + maxRetries + " attempts");
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ Exception adding AndroidGPS interface: " + e.getMessage(), e);
+                    retryCount++;
+                    if (retryCount < maxRetries) {
+                        new Handler(Looper.getMainLooper()).postDelayed(this, 250);
+                    }
+                }
+            }
+        });
     }
     
 

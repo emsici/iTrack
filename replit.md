@@ -173,10 +173,10 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ### Versiunea Curentă: 1808.67 (June 22, 2025) - LOGIN ANDROIDGPS FIXED
 
-**Android HTTPS support fixed**: Network security config and SSL context properly configured
-**SSL certificates trusted**: AndroidGPS bypasses Android SSL restrictions for HTTPS
-**Network security config**: AndroidManifest allows HTTPS traffic with proper domain configuration
-**HttpsURLConnection configured**: SSL context and hostname verifier properly set
+**AndroidGPS interface loading enhanced**: Robust retry logic with 20 attempts and detailed logging
+**ProGuard rules added**: Prevents obfuscation of AndroidGPS interface methods
+**Debugging enabled**: AndroidManifest debuggable and comprehensive logging added
+**JavaScript interface protection**: Keep rules ensure AndroidGPS methods survive compilation
 **Production APK ready**: Interface loading optimized for real device deployment
 **Error messaging improved**: Clear user guidance when interface not available
 **Handler-based loading**: Ensures AndroidGPS interface loads after WebView initialization
