@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebView;
 
 import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.Plugin;
@@ -23,21 +24,20 @@ import android.content.pm.PackageManager;
 public class MainActivity extends BridgeActivity {
     private static final String TAG = "iTrackMainActivity";
     private static MainActivity instance;
+    private static Context context;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
+        context = this;
         
         Log.d(TAG, "iTrack MainActivity starting with multiple HTTP methods");
         
-        // Use existing NativeHttpService - no plugin registration needed
-        Log.d(TAG, "Using existing NativeHttpService and CapacitorHttp fallback");
-        
-        // Keep AndroidGPS as backup
+        // Add AndroidGPS interface for GPS control only
         addAndroidGPSInterface();
         
-        Log.d(TAG, "iTrack ready with NativeHttp + AndroidGPS fallback");
+        Log.d(TAG, "iTrack ready with CapacitorHttp unified HTTP");
     }
     
     public static Context getContext() {

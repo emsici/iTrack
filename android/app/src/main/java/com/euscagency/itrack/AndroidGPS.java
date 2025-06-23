@@ -5,11 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import com.getcapacitor.BridgeActivity;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+// Removed HttpURLConnection imports - using CapacitorHttp only
 import java.nio.charset.StandardCharsets;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
