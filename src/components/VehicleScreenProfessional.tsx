@@ -44,17 +44,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
 
-  // Load stored vehicle number on component mount ONLY if not already loaded courses
+  // Load stored vehicle number on component mount
   useEffect(() => {
     const loadStoredVehicleNumber = async () => {
       try {
-        // Only load stored vehicle number if we haven't loaded courses yet
-        if (!coursesLoaded) {
-          const storedVehicle = await getStoredVehicleNumber();
-          if (storedVehicle) {
-            setVehicleNumber(storedVehicle);
-            console.log('Loaded stored vehicle number:', storedVehicle);
-          }
+        const storedVehicle = await getStoredVehicleNumber();
+        if (storedVehicle) {
+          setVehicleNumber(storedVehicle);
+          console.log('Loaded stored vehicle number:', storedVehicle);
         }
       } catch (error) {
         console.error('Error loading stored vehicle number:', error);
@@ -76,7 +73,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return () => {
       window.removeEventListener('backgroundRefresh', handleBackgroundRefresh);
     };
-  }, [token, coursesLoaded]); // Removed vehicleNumber dependency to prevent loops
+  }, [vehicleNumber, token, coursesLoaded]);
 
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
@@ -684,12 +681,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
             
             <div className="header-vehicle-info">
-              <div className="vehicle-number-badge" onClick={() => {
-                setCoursesLoaded(false);
-                setVehicleNumber(""); // Clear vehicle number when switching back
-                setCourses([]); // Clear courses
-                setError(""); // Clear any errors
-              }} title="Schimbă vehiculul">
+              <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
                 <i className="fas fa-truck vehicle-icon"></i>
                 <span className="vehicle-number">{vehicleNumber}</span>
                 <i className="edit-icon fas fa-edit"></i>
