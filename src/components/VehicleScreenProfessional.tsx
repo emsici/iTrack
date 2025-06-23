@@ -575,6 +575,45 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </>
                 )}
               </button>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '16px 20px',
+                  marginTop: '15px',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '16px',
+                  color: '#fca5a5',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  opacity: loading ? 0.5 : 1
+                }}
+                onMouseOver={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                  }
+                }}
+              >
+                <i className="fas fa-sign-out-alt"></i>
+                <span>Ieșire</span>
+              </button>
               
               {error && (
                 <div style={{

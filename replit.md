@@ -171,7 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.73 (June 23, 2025) - GEOLOCATION CONFIG SYNCHRONIZED & GPS PERMISSIONS FIXED
+### Versiunea Curentă: 1808.74 (June 23, 2025) - LOGOUT BUTTON ADDED TO VEHICLE INPUT SCREEN
+
+**Logout functionality enhanced**: Adăugat buton de logout pe pagina de input pentru numărul vehiculului
+**User experience improved**: Utilizatorii pot ieși din aplicație fără să fie nevoie să încarce cursele
+**Design consistency maintained**: Buton roșu discret cu hover effects, se dezactivează în timpul loading-ului
+**Input field fixed**: Rezolvat problema cu input-ul blocat după încărcări eșuate
+**White screen prevented**: Adăugate toate variabilele necesare pentru rendering (selectedStatusFilter, filteredCourses)
+**Vite warnings resolved**: Importurile Capacitor optimizate pentru eliminarea warning-urilor despre importuri mixte
+
+### Versiunea Precedentă: 1808.73 (June 23, 2025) - GEOLOCATION CONFIG SYNCHRONIZED & GPS PERMISSIONS FIXED
 
 **Geolocation configuration synchronized**: Capacitor config și SimpleGPSService acum au aceleași setări
 **Interval fix**: backgroundLocationUpdateInterval: 5000ms (5 secunde) - consistent cu GPS_INTERVAL_MS
