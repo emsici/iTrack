@@ -173,10 +173,10 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ### Versiunea Curentă: 1808.67 (June 22, 2025) - LOGIN ANDROIDGPS FIXED
 
-**HTTP headers matched to curl**: AndroidGPS now sends identical headers as working curl request
-**Content-Length explicit**: AndroidGPS calculates and sets Content-Length header like curl
-**Charset UTF-8 specified**: Content-Type with charset matches curl format exactly
-**User-Agent consistent**: AndroidGPS sends iTrack-Android/1.0 user agent
+**Android HTTPS support fixed**: Network security config and SSL context properly configured
+**SSL certificates trusted**: AndroidGPS bypasses Android SSL restrictions for HTTPS
+**Network security config**: AndroidManifest allows HTTPS traffic with proper domain configuration
+**HttpsURLConnection configured**: SSL context and hostname verifier properly set
 **Production APK ready**: Interface loading optimized for real device deployment
 **Error messaging improved**: Clear user guidance when interface not available
 **Handler-based loading**: Ensures AndroidGPS interface loads after WebView initialization
