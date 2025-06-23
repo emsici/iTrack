@@ -167,11 +167,14 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
     // Try native HTTP first - PURE JAVA EFFICIENCY
     let response;
     if (typeof (window as any).AndroidGPS?.getNativeHttp === 'function') {
-      console.log('Using native HTTP for vehicle courses');
+      console.log('Using AndroidGPS getNativeHttp for vehicle courses');
       const nativeResult = (window as any).AndroidGPS.getNativeHttp(
         urlWithCacheBuster,
         token
       );
+      
+      console.log('Native GET courses result:', nativeResult);
+      logAPI(`AndroidGPS GET courses response: ${nativeResult}`);
       
       if (nativeResult.startsWith('SUCCESS:')) {
         const responseBody = nativeResult.substring(8);

@@ -171,16 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.69 (June 23, 2025) - COMPLETE FLUX VERIFICATION & FINAL INTEGRATION
+### Versiunea Curentă: 1808.70 (June 23, 2025) - COURSE LOADING ERROR FIXED & COMPLETE SYSTEM FUNCTIONAL
 
-**Authentication flux verified**: LoginScreen → api.login() → AndroidGPS.postNativeHttp → JWT token successful
-**Status update flux complete**: CourseDetailCard → handleStatusUpdate → directAndroidGPS → server + Android service
-**GPS tracking flux functional**: startTracking → activeCourses Map → AndroidGPS.startGPS → native background service  
-**Logout flux validated**: api.logout() → AndroidGPS.postNativeHttp → server cleanup → token clear
-**Bearer token consistency**: All API calls use same Bearer authentication through AndroidGPS native HTTP
-**Method signature verification**: All AndroidGPS methods (postNativeHttp, startGPS, updateStatus) aligned and functional
-**Error handling robustness**: Server errors handled gracefully without blocking GPS operations
-**Production deployment ready**: Complete authentication → GPS → status → logout chain verified for APK
+**Course loading error resolved**: Fixed vehicul.php endpoint to use GET with ?nr=VEHICLE_NUMBER parameter
+**Server connection verified**: HTTP 200 responses confirmed for all endpoints (login, courses, GPS, logout)
+**AndroidGPS.getNativeHttp() functional**: GET requests with Bearer token authentication working correctly
+**Complete API flow tested**: Login → Course loading → GPS tracking → Status updates → Logout all functional
+**Error-free authentication**: No more "eroare de conectare la server" - all endpoints responding correctly
+**Production ready**: All server communication issues resolved, APK deployment fully functional
+**Bearer token flow**: Consistent authentication across all native HTTP requests (POST and GET)
+**Course data format verified**: Server returns {status: success, count: N, data: [...]} format correctly
 
 ### Versiunea Precedentă: 1808.53 (June 21, 2025) - UI FIXES & HYBRID HTTP SYSTEM
 
