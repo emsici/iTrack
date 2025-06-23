@@ -55,7 +55,6 @@ class DirectAndroidGPSService {
         gsm_signal: 5
       };
       
-      const { sendGPSData } = await import('./api');
       const success = await sendGPSData(gpsData, course.token);
       console.log("✅ Server status update success:", success);
 
