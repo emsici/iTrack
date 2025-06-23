@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.84 (June 23, 2025) - UI FLOW BUTOANE OPTIMIZAT
+### Versiunea Curentă: 1808.85 (June 23, 2025) - SAFE AREA ANDROID FIXED
+
+**Safe area padding aplicat**: Header liste curse nu se mai suprapune cu bara nativă Android
+**Padding responsive**: env(safe-area-inset-top) pentru poziționare corectă sub bara de sus
+**Login neschimbat**: Ecranele login și input vehicul rămân fără safe area (design corect)
+**UX îmbunătățit**: Header-ul listei de curse se poziționează perfect sub bara nativă
+**Cross-device compatibility**: Safe area funcționează pe toate telefoanele Android
+
+### Versiunea Precedentă: 1808.84 (June 23, 2025) - UI FLOW BUTOANE OPTIMIZAT
 
 **Flux butoane cursă implementat**: START → PAUZĂ+STOP → RESUME+STOP → TERMINAT (fără butoane)
 **Logică status precisă**: Fiecare status afișează doar butoanele permise pentru următoarea acțiune

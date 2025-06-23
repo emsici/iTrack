@@ -452,7 +452,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   // Utilizatorul trebuie să introducă un număr valid de vehicul
 
   return (
-    <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""}`}>
+    <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""}`} style={{
+      paddingTop: coursesLoaded ? 'env(safe-area-inset-top)' : '0'
+    }}>
       {!coursesLoaded ? (
         <div style={{
           minHeight: '100dvh',
