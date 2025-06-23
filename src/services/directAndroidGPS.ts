@@ -79,6 +79,15 @@ class DirectAndroidGPSService {
         gsm_signal: 4
       };
       
+      console.log('🔍 STATUS UPDATE GPS DATA CONSTRUCTION:');
+      console.log('Field types check:');
+      console.log('- lat type:', typeof gpsData.lat, 'value:', gpsData.lat);
+      console.log('- lng type:', typeof gpsData.lng, 'value:', gpsData.lng);
+      console.log('- status type:', typeof gpsData.status, 'value:', gpsData.status);
+      console.log('- hdop type:', typeof gpsData.hdop, 'value:', gpsData.hdop);
+      console.log('- gsm_signal type:', typeof gpsData.gsm_signal, 'value:', gpsData.gsm_signal);
+      console.log('Complete object:', JSON.stringify(gpsData, null, 2));
+      
       const success = await sendGPSData(gpsData, course.token);
       console.log("✅ Server status update success:", success);
 

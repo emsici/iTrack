@@ -450,24 +450,48 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
     // PRIMARY: CapacitorHttp pentru transmisie GPS
     try {
       console.log('=== TRYING CapacitorHttp for GPS ===');
+      console.log('🔍 DEBUGGING REQUEST CONSTRUCTION:');
+      console.log('Raw URL:', `${API_BASE_URL}/gps.php`);
+      console.log('Raw headers object:', headers);
+      console.log('Raw data object:', gpsData);
+      console.log('Data stringified for comparison:', JSON.stringify(gpsData));
       
       const response = await CapacitorHttp.post({
         url: `${API_BASE_URL}/gps.php`,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'User-Agent': 'iTrack-Native/1.0'
-        },
+        headers: headers,
         data: gpsData
       });
 
       console.log('=== CapacitorHttp GPS Response ===');
       console.log('Status:', response.status);
       console.log('Data:', response.data);
-      console.log('Request URL:', `${API_BASE_URL}/gps.php`);
-      console.log('Request Headers Sent:', JSON.stringify(headers, null, 2));
-      console.log('Request Data Sent:', JSON.stringify(gpsData, null, 2));
+      console.log('Response headers:', response.headers);
+      console.log('Request URL sent:', `${API_BASE_URL}/gps.php`);
+      console.log('Request Headers sent:', JSON.stringify(headers, null, 2));
+      console.log('Request Data sent:', JSON.stringify(gpsData, null, 2));
+      
+      // If error, try alternative request format
+      if (response.status >= 400) {
+        console.log('🔄 TRYING ALTERNATIVE REQUEST FORMAT...');
+        
+        // Try with explicit JSON stringification
+        const alternativeResponse = await CapacitorHttp.request({
+          method: 'POST',
+          url: `${API_BASE_URL}/gps.php`,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'User-Agent': 'iTrack-Android-Service/1.0'
+          },
+          data: JSON.stringify(gpsData)
+        });
+        
+        console.log('Alternative response status:', alternativeResponse.status);
+        if (alternativeResponse.status < 400) {
+          return alternativeResponse.status >= 200 && alternativeResponse.status < 300;
+        }
+      }
       logAPI(`CapacitorHttp GPS result: ${response.status} - ${JSON.stringify(response.data)}`);
       
       if (response.status === 401) {

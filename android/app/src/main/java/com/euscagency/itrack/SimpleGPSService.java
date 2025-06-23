@@ -185,8 +185,15 @@ public class SimpleGPSService extends Service implements LocationListener {
     private void transmitGPSData(CourseData course, Location location) {
         try {
             JSONObject gpsData = new JSONObject();
-            gpsData.put("lat", Double.parseDouble(String.format(Locale.US, "%.4f", location.getLatitude())));
-            gpsData.put("lng", Double.parseDouble(String.format(Locale.US, "%.4f", location.getLongitude())));
+            
+            // Log data construction process
+            Log.d(TAG, "🔍 ANDROID GPS DATA CONSTRUCTION:");
+            
+            double lat = Double.parseDouble(String.format(Locale.US, "%.4f", location.getLatitude()));
+            double lng = Double.parseDouble(String.format(Locale.US, "%.4f", location.getLongitude()));
+            
+            gpsData.put("lat", lat);
+            gpsData.put("lng", lng);
             gpsData.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
             gpsData.put("viteza", location.hasSpeed() ? (int)(location.getSpeed() * 3.6) : 0);
             gpsData.put("directie", location.hasBearing() ? (int)location.getBearing() : 0);
@@ -197,6 +204,12 @@ public class SimpleGPSService extends Service implements LocationListener {
             gpsData.put("status", course.status);
             gpsData.put("hdop", 1.2);
             gpsData.put("gsm_signal", 4);
+            
+            Log.d(TAG, "Field types constructed:");
+            Log.d(TAG, "- lat: " + lat + " (type: " + lat.getClass().getSimpleName() + ")");
+            Log.d(TAG, "- lng: " + lng + " (type: " + lng.getClass().getSimpleName() + ")");
+            Log.d(TAG, "- status: " + course.status + " (type: " + course.status.getClass().getSimpleName() + ")");
+            Log.d(TAG, "Complete JSON object: " + gpsData.toString());
 
             sendGPSRequest(gpsData);
             Log.d(TAG, "GPS transmitted for UIT: " + course.uit);
