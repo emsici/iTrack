@@ -37,9 +37,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         // Continue to server authentication below
       }
 
-      // Debug AndroidGPS availability
-      console.log('AndroidGPS available:', typeof (window as any).AndroidGPS?.postNativeHttp === 'function');
-      console.log('Window.AndroidGPS object:', (window as any).AndroidGPS);
+      // Debug CapacitorHttp availability
+      console.log('CapacitorHttp available:', typeof (await import('@capacitor/core')).CapacitorHttp !== 'undefined');
+      console.log('Platform info:', navigator.userAgent);
       
       const response = await login(email, password);
 

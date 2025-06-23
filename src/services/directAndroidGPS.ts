@@ -39,47 +39,25 @@ class DirectAndroidGPSService {
       // 1. FIRST: Update status on server
       console.log(`📡 Updating course status on server: ${courseId} → ${newStatus}`);
       
-      if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-        console.log('Using AndroidGPS native HTTP for status update');
-        const statusUpdateData = {
-          courseId: courseId,
-          status: newStatus,
-          vehicleNumber: course.vehicleNumber,
-          uit: course.uit
-        };
-        
-        const nativeResult = (window as any).AndroidGPS.postNativeHttp(
-          `${API_BASE_URL}/update_course_status.php`,
-          JSON.stringify(statusUpdateData),
-          course.token
-        );
-        
-        console.log('Status update result:', nativeResult);
-        
-        if (nativeResult.includes('error') || nativeResult.includes('ERROR')) {
-          throw new Error(`Server status update failed: ${nativeResult}`);
-        }
-      } else {
-        // Browser fallback
-        const response = await fetch(`${API_BASE_URL}/update_course_status.php`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${course.token}`,
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            courseId: courseId,
-            status: newStatus,
-            vehicleNumber: course.vehicleNumber,
-            uit: course.uit
-          })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Server status update failed: ${response.status}`);
-        }
-      }
+      // Update server status prin CapacitorHttp
+      const gpsData = {
+        numar_inmatriculare: course.vehicleNumber,
+        uit: course.uit,
+        status: newStatus,
+        lat: 0,
+        lng: 0,
+        timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
+        viteza: 0,
+        directie: 0,
+        altitudine: 0,
+        baterie: 100,
+        hdop: 1,
+        gsm_signal: 5
+      };
+      
+      const { sendGPSData } = await import('./api');
+      const success = await sendGPSData(gpsData, course.token);
+      console.log("✅ Server status update success:", success);
 
       // 2. THEN: Update AndroidGPS service
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {

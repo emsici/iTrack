@@ -62,20 +62,26 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     try {
       // Send logout request to login.php with iesire: 1
-      if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-        (window as any).AndroidGPS.postNativeHttp(
-          'https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php',
-          '{}',
-          token
-        );
-      } else {
-        await fetch('https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php', {
-          method: 'POST',
+      // Logout cu CapacitorHttp
+      try {
+        const { CapacitorHttp } = await import('@capacitor/core');
+        await CapacitorHttp.post({
+          url: `${API_BASE_URL}/logout.php`,
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          body: '{}'
+          data: {}
+        });
+        console.log('Logout completed via CapacitorHttp');
+      } catch (error) {
+        console.log('Logout CapacitorHttp failed, using fetch fallback');
+        await fetch(`${API_BASE_URL}/logout.php`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         });
       }
       

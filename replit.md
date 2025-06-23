@@ -171,7 +171,17 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.74 (June 23, 2025) - LOGOUT BUTTON ADDED TO VEHICLE INPUT SCREEN
+### Versiunea Curentă: 1808.75 (June 23, 2025) - ELIMINAT COMPLET POSTNATIVEHTTP + CAPACITORHTTP ONLY
+
+**postNativeHttp eliminat complet**: Toate referințele la AndroidGPS.postNativeHttp() eliminate din întreaga aplicație
+**CapacitorHttp universal**: Login, logout, GPS transmission, offline sync - toate folosesc doar CapacitorHttp + fetch fallback
+**Arhitectură simplificată**: Doar două metode HTTP: CapacitorHttp (primary) → fetch (fallback) 
+**nativeHttp.ts eliminat**: Wrapper-ul pentru AndroidGPS șters complet din proiect
+**GPS transmission clean**: sendGPSData folosește doar CapacitorHttp fără native fallback
+**Logging îmbunătățit**: Debug messages clare pentru identificarea problemelor de transmisie
+**Production ready**: APK va folosi CapacitorHttp nativ pentru toate operațiunile HTTP
+
+### Versiunea Precedentă: 1808.74 (June 23, 2025) - LOGOUT BUTTON ADDED TO VEHICLE INPUT SCREEN
 
 **Logout functionality enhanced**: Adăugat buton de logout pe pagina de input pentru numărul vehiculului
 **User experience improved**: Utilizatorii pot ieși din aplicație fără să fie nevoie să încarce cursele

@@ -93,50 +93,12 @@ export const login = async (email: string, password: string): Promise<LoginRespo
       return { status: 'error', error: 'Eroare de conexiune la server' };
     }
     
-    console.log('✅ AndroidGPS available - using pure native HTTP');
+    // If both CapacitorHttp and fetch failed
+    return { status: 'error', error: 'Eroare de conexiune la server' };
     
-    // Pure native login via AndroidGPS.java
-    const nativeResult = (window as any).AndroidGPS.postNativeHttp(
-      `${API_BASE_URL}/login.php`,
-      JSON.stringify({ email, password }),
-      '' // No token for login
-    );
-    
-    console.log('📥 AndroidGPS login result:', nativeResult);
-    logAPI(`AndroidGPS raw response: ${nativeResult}`);
-    
-    // Parse AndroidGPS response (should be JSON from server)
-    try {
-      const data = JSON.parse(nativeResult);
-      console.log('📋 Parsed response:', data);
-      
-      if (data.status === 'success' && data.token) {
-        console.log('✅ Login SUCCESS via AndroidGPS');
-        logAPI(`Login successful for ${email}`);
-        return { status: 'success', token: data.token };
-      } else {
-        console.log('❌ Login FAILED:', data.error || data.message);
-        logAPI(`Login failed: ${data.error || data.message}`);
-        return { 
-          status: 'error', 
-          error: data.error || data.message || 'Date de conectare incorecte' 
-        };
-      }
-    } catch (parseError) {
-      console.error('❌ JSON parse error:', parseError);
-      console.log('Raw response was:', nativeResult);
-      logAPI(`JSON parse error: ${parseError}, raw: ${nativeResult}`);
-      
-      // If response contains error keywords
-      if (nativeResult.includes('error') || nativeResult.includes('ERROR') || nativeResult.includes('invalid')) {
-        return { status: 'error', error: 'Eroare de autentificare' };
-      }
-      
-      return { status: 'error', error: 'Răspuns invalid de la server' };
-    }
-  } catch (error) {
-    console.error('🚨 Native login error:', error);
-    logAPI(`Native login error: ${error}`);
+  } catch (error: any) {
+    console.error('Login error:', error);
+    logAPI(`Login error: ${error.message}`);
     return {
       status: 'error',
       error: 'Eroare de conectare la server'
@@ -205,12 +167,12 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
     console.log(`Loading courses for vehicle: ${vehicleNumber}`);
     logAPI(`Loading courses for vehicle ${vehicleNumber}`);
     
-    // Use CapacitorHttp directly for fast course loading
+    // PRIMARY: CapacitorHttp pentru încărcare rapidă curse
     let response;
     
     try {
+      console.log('=== TRYING CapacitorHttp for courses ===');
       const { CapacitorHttp } = await import('@capacitor/core');
-      console.log('Using CapacitorHttp for fast course loading');
       
       const capacitorResponse = await CapacitorHttp.get({
         url: urlWithCacheBuster,
@@ -221,16 +183,21 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
         }
       });
       
+      console.log('=== CapacitorHttp Courses Response ===');
+      console.log('Status:', capacitorResponse.status);
+      console.log('Data length:', capacitorResponse.data?.length || 'No data');
+      
       if (capacitorResponse.status === 401) {
         throw new Error('TOKEN_EXPIRED');
       }
       
       response = { status: capacitorResponse.status, data: capacitorResponse.data };
     } catch (capacitorError) {
-      console.log('CapacitorHttp failed, using fetch fallback');
+      console.log('=== CapacitorHttp failed, trying fetch ===');
+      console.log('CapacitorHttp error:', capacitorError);
       
-      // Browser fallback - use fetch
-      console.log('Using fetch for courses (browser mode)');
+      // SECONDARY: fetch fallback pentru browser
+      console.log('=== TRYING fetch for courses ===');
       
       const fetchResponse = await fetch(urlWithCacheBuster, {
         method: 'GET',
@@ -241,6 +208,10 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
           'Pragma': 'no-cache'
         }
       });
+      
+      console.log('=== Fetch Courses Response ===');
+      console.log('Status:', fetchResponse.status);
+      console.log('OK:', fetchResponse.ok);
       
       if (fetchResponse.status === 401) {
         throw new Error('TOKEN_EXPIRED');
@@ -367,11 +338,11 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
     console.log('URL:', `${API_BASE_URL}/gps.php`);
     console.log('Token:', token.substring(0, 20) + '...');
     console.log('GPS Data:', JSON.stringify(gpsData, null, 2));
-    console.log('AndroidGPS available:', typeof (window as any).AndroidGPS?.postNativeHttp === 'function');
+    console.log('CapacitorHttp mode enabled for GPS transmission');
     
-    // FORȚEAZĂ CapacitorHttp FIRST pentru debugging
+    // PRIMARY: CapacitorHttp pentru transmisie GPS
     try {
-      console.log('=== FORCING CapacitorHttp for GPS debugging ===');
+      console.log('=== TRYING CapacitorHttp for GPS ===');
       const { CapacitorHttp } = await import('@capacitor/core');
       
       const response = await CapacitorHttp.post({
@@ -397,54 +368,33 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       return response.status === 200 || response.status === 201 || response.status === 204;
       
     } catch (capacitorError) {
-      console.log('=== CapacitorHttp failed, trying AndroidGPS ===');
+      console.log('=== CapacitorHttp failed, trying fetch ===');
       console.log('CapacitorHttp error:', capacitorError);
       
-      // Fallback to AndroidGPS native
-      if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-        console.log('Using AndroidGPS native HTTP for GPS transmission');
-        const nativeResult = (window as any).AndroidGPS.postNativeHttp(
-          `${API_BASE_URL}/gps.php`,
-          JSON.stringify(gpsData),
-          token
-        );
-        
-        console.log('Native GPS result:', nativeResult);
-        logAPI(`Native GPS result: ${nativeResult}`);
-        
-        if (nativeResult.includes('401')) {
-          throw new Error('TOKEN_EXPIRED');
-        }
-        
-        return nativeResult.includes('SUCCESS') || nativeResult.includes('200');
-      } else {
-        // Final fallback - use fetch
-        console.log('=== Final fallback: using fetch for GPS ===');
-        
-        const response = await fetch(`${API_BASE_URL}/gps.php`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-            'Cache-Control': 'no-cache',
-            'User-Agent': 'iTrack/1.0'
-          },
-          body: JSON.stringify(gpsData)
-        });
+      // SECONDARY: fetch fallback
+      const response = await fetch(`${API_BASE_URL}/gps.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'User-Agent': 'iTrack/1.0'
+        },
+        body: JSON.stringify(gpsData)
+      });
 
-        console.log('=== Fetch GPS Response ===');
-        console.log('Status:', response.status);
-        const responseText = await response.text();
-        console.log('Response text:', responseText);
-        logAPI(`Fetch GPS response: ${response.status} - ${responseText}`);
-        
-        if (response.status === 401) {
-          throw new Error('TOKEN_EXPIRED');
-        }
-        
-        return response.status === 200 || response.status === 201 || response.status === 204;
+      console.log('=== Fetch GPS Response ===');
+      console.log('Status:', response.status);
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+      logAPI(`Fetch GPS response: ${response.status} - ${responseText}`);
+      
+      if (response.status === 401) {
+        throw new Error('TOKEN_EXPIRED');
       }
+      
+      return response.status === 200 || response.status === 201 || response.status === 204;
     }
   } catch (error) {
     if (error instanceof Error && error.message === 'TOKEN_EXPIRED') {
