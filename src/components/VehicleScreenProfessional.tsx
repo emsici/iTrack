@@ -36,6 +36,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [clickCount, setClickCount] = useState(0);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [debugLogs, setDebugLogs] = useState<any[]>([]);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<NodeJS.Timeout | null>(null);
