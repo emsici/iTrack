@@ -40,6 +40,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [debugLogs, setDebugLogs] = useState<any[]>([]);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<NodeJS.Timeout | null>(null);
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
+  const [loadingCourses] = useState(new Set<string>());
 
   // Load stored vehicle number on component mount
   useEffect(() => {
@@ -156,6 +158,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         setCourses(finalCourses);
         setError("");
         setCoursesLoaded(true); // Allow access only when courses are found
+        setSelectedStatusFilter('all'); // Reset filter when new courses load
         
         // Update last refresh timestamp
         setLastRefreshTime(new Date());
@@ -420,6 +423,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
 
   // SIMPLIFICARE: Elimină logica complexă și folosește doar coursesLoaded
+
+  // Filter courses based on selected status
+  const filteredCourses = selectedStatusFilter === 'all' 
+    ? courses 
+    : courses.filter(course => course.status === selectedStatusFilter);
 
   // ELIMINAT: Fallback timer care forța coursesLoaded
   // Utilizatorul trebuie să introducă un număr valid de vehicul
