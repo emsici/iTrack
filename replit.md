@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.90 (June 23, 2025) - CARDURI STATISTICI REDESIGNED COMPLET
+### Versiunea Curentă: 1808.91 (June 23, 2025) - COPY LOGS FUNCTIONALITY ENHANCED
+
+**Copy logs îmbunătățit**: Feedback vizual cu success/error states și animații
+**Export All button**: Funcție dedicată pentru export complet cu header și formatting
+**Fallback compatibility**: Support pentru browsere vechi fără Clipboard API
+**Visual feedback**: Iconițe și culori care se schimbă pentru confirmare acțiuni
+**Formatted export**: Timestamp în română, categorii alinate, header informativ
+
+### Versiunea Precedentă: 1808.90 (June 23, 2025) - CARDURI STATISTICI REDESIGNED COMPLET
 
 **Carduri statistici îmbunătățite**: Background gradient, glassmorphism, iconițe colorate pentru fiecare tip
 **Design modern aplicat**: Hover effects, text-shadow, backdrop-filter pentru aspect premium
