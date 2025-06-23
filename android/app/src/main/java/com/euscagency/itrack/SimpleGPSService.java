@@ -61,7 +61,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         
         createNotificationChannel();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        httpClient = new OkHttpClient();
+        // Removed OkHttpClient - using CapacitorHttp through WebView
         initializeGPSHandler();
     }
 
@@ -192,31 +192,20 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void sendGPSRequest(JSONObject gpsData) {
-        MediaType JSON = MediaType.get("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(gpsData.toString(), JSON);
+        Log.d(TAG, "🚀 USING CAPACITOR HTTP for GPS transmission");
         
-        Request request = new Request.Builder()
-            .url(API_BASE_URL + "/gps.php")
-            .addHeader("Authorization", "Bearer " + userAuthToken)
-            .addHeader("Content-Type", "application/json")
-            .post(body)
-            .build();
-
-        httpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.e(TAG, "GPS transmission failed", e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    Log.d(TAG, "GPS transmission successful");
-                } else {
-                    Log.w(TAG, "GPS transmission failed - HTTP " + response.code());
+        // Convert JSONObject to string for CapacitorHttp
+        String jsonString = gpsData.toString();
+        Log.d(TAG, "📊 GPS Data: " + jsonString);
+        
+        // Use CapacitorHttp through WebView - same as JavaScript
+        MainActivity.runOnMainThread(() -> {
+            MainActivity.getInstance().getWebView().evaluateJavascript(
+                "window.sendGPSViaCapacitor('" + jsonString.replace("'", "\\'") + "', '" + userAuthToken + "')",
+                result -> {
+                    Log.d(TAG, "✅ CapacitorHttp GPS result: " + result);
                 }
-                response.close();
-            }
+            );
         });
     }
 
