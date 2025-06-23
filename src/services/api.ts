@@ -474,15 +474,13 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       if (response.status >= 400) {
         console.log('🔄 TRYING ALTERNATIVE REQUEST FORMAT...');
         
-        // Try with explicit JSON stringification
+        // Try with explicit JSON stringification and minimal headers
         const alternativeResponse = await CapacitorHttp.request({
           method: 'POST',
           url: `${API_BASE_URL}/gps.php`,
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-            'User-Agent': 'iTrack-Android-Service/1.0'
+            'Authorization': `Bearer ${token}`
           },
           data: JSON.stringify(gpsData)
         });
