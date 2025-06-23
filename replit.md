@@ -177,7 +177,7 @@ Persistare localStorage → Afișare CourseStatsModal
 **NativeHttpService șters**: Eliminat fișierul backup nefolosit complet din proiect
 **OkHttpClient zero**: Confirmat eliminare completă din toate fișierele
 **MainActivity optimizat**: Adăugate metodele pentru WebView bridge către CapacitorHttp
-**HTTP 100% CapacitorHttp**: Singura metodă HTTP în întreaga aplicație
+**HTTP 100% CapacitorHttp**: Toate operațiunile (login, logout, GPS, sync) cu Bearer token prin CapacitorHttp
 **Cleanup final**: Zero dependențe HTTP native, aplicație complet unificată
 
 ### Versiunea Precedentă: 1808.80 (June 23, 2025) - GPS ANDROID MIGRAT LA CAPACITORHTTP

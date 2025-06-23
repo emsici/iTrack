@@ -9,7 +9,7 @@ import com.getcapacitor.BridgeActivity;
 
 /**
  * AndroidGPS WebView Interface
- * Provides native GPS control and HTTP functionality to JavaScript
+ * Provides GPS control commands - all HTTP operations use CapacitorHttp
  */
 public class AndroidGPS {
     private static final String TAG = "AndroidGPS";
