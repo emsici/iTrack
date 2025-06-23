@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.89 (June 23, 2025) - VERIFICARE COMPLETĂ FINALIZATĂ - TOATE FUNCȚIONALITĂȚILE CONFIRMATE
+### Versiunea Curentă: 1808.90 (June 23, 2025) - CARDURI STATISTICI REDESIGNED COMPLET
+
+**Carduri statistici îmbunătățite**: Background gradient, glassmorphism, iconițe colorate pentru fiecare tip
+**Design modern aplicat**: Hover effects, text-shadow, backdrop-filter pentru aspect premium
+**Culori distinctive**: Albastru (Total), Verde (Activ), Galben (Pauză), Violet (Disponibil)
+**Iconițe intuitive**: fa-list, fa-play, fa-pause, fa-clock pentru identificare rapidă
+**Spacing optimizat**: Gap mărit, padding îmbunătățit, carduri mai mari pentru vizibilitate
+
+### Versiunea Precedentă: 1808.89 (June 23, 2025) - VERIFICARE COMPLETĂ FINALIZATĂ - TOATE FUNCȚIONALITĂȚILE CONFIRMATE
 
 **Verificare completă efectuată**: Toate componentele și fluxurile validate și funcționale
 **GPS transmission confirmed**: SimpleGPSService → CapacitorHttp → gps.php functional
