@@ -287,7 +287,7 @@ class DirectAndroidGPSService {
           viteza: position.coords.speed || 0,
           directie: position.coords.heading || 0,
           altitudine: position.coords.altitude || 0,
-          baterie: 100, // Browser fallback
+          baterie: 85, // Browser fallback
           numar_inmatriculare: course.vehicleNumber,
           uit: course.uit,
           status: 2,
