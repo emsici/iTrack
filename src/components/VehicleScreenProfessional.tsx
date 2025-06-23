@@ -222,23 +222,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }
       } else {
         console.log("No courses found for this vehicle - allowing access to main screen");
-        // Allow access to main screen even with no courses
         setCourses([]);
-        setCoursesLoaded(true); // Allow user to access main screen
-        setError(""); // Clear any errors
+        setCoursesLoaded(true);
+        setError("");
         console.log("User can access main screen despite no courses");
       }
     } catch (error: any) {
       console.error("Error loading courses:", error);
-      // Allow user to proceed even on error - graceful degradation
-      setCoursesLoaded(true); // Allow access to main screen
+      setCoursesLoaded(true);
       setCourses([]);
-      setError(""); // Clear error to allow access
+      setError(error.message || "Eroare la încărcarea curselor");
       console.log("API error handled gracefully - user can access main screen");
     } finally {
       setLoading(false);
-      console.log("=== APK DEBUG: Loading finished ===");
-      // ELIMINAT: Nu mai forțez coursesLoaded = true dacă nu există curse valide
+      console.log("=== Loading finished - coursesLoaded should be true ===");
     }
   };
 
