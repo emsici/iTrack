@@ -333,11 +333,11 @@ export const logout = async (token: string): Promise<boolean> => {
 
 export const sendGPSData = async (gpsData: GPSData, token: string): Promise<boolean> => {
   try {
-    console.log('=== GPS TRANSMISSION DEBUG ===');
-    console.log('URL:', `${API_BASE_URL}/gps.php`);
-    console.log('Token:', token.substring(0, 20) + '...');
-    console.log('GPS Data:', JSON.stringify(gpsData, null, 2));
-    console.log('CapacitorHttp mode enabled for GPS transmission');
+    console.log('🔥 === GPS TRANSMISSION START ===');
+    console.log('📍 URL:', `${API_BASE_URL}/gps.php`);
+    console.log('🔑 Token:', token.substring(0, 20) + '...');
+    console.log('📊 GPS Data:', JSON.stringify(gpsData, null, 2));
+    console.log('🚀 Using CapacitorHttp for GPS transmission');
     
     // PRIMARY: CapacitorHttp pentru transmisie GPS
     try {

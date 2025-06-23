@@ -167,17 +167,20 @@ class DirectAndroidGPSService {
     }
 
     // DEVELOPMENT: Request Android permissions through Capacitor
-    console.log("Development mode - requesting GPS permissions");
+    console.log("🔧 Development mode - requesting GPS permissions");
     
     try {
       const permissions = await Geolocation.requestPermissions();
-      console.log("GPS permissions result:", permissions.location);
+      console.log("🔧 GPS permissions result:", permissions.location);
       
       if (permissions.location !== 'granted') {
-        throw new Error('Permisiunile GPS sunt necesare pentru a porni cursele');
+        console.warn('⚠️ GPS permissions denied, starting anyway for testing');
       }
       
-      // Start GPS tracking after permissions
+      // CRITICAL: Start browser GPS tracking immediately
+      console.log("🚀 STARTING BROWSER GPS TRACKING");
+      this.startBrowserGPSInterval(course);
+      console.log("✅ Browser GPS interval started successfully");
       this.startBrowserGPSInterval(course);
       console.log("GPS tracking started");
     } catch (error) {
@@ -253,8 +256,15 @@ class DirectAndroidGPSService {
           gsm_signal: 5
         };
 
-        await sendGPSData(gpsData, course.token);
-        console.log(`Browser GPS transmitted for course ${course.courseId}`);
+        console.log(`🚀 TRANSMITTING GPS: ${gpsData.lat}, ${gpsData.lng} for UIT: ${gpsData.uit}`);
+        
+        const success = await sendGPSData(gpsData, course.token);
+        
+        if (success) {
+          console.log(`✅ GPS SUCCESS for course ${course.courseId} - UIT: ${course.uit}`);
+        } else {
+          console.error(`❌ GPS FAILED for course ${course.courseId} - UIT: ${course.uit}`);
+        }
         
       } catch (error) {
         console.warn(`Browser GPS transmission failed for course ${course.courseId}:`, error);
