@@ -33,23 +33,67 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     console.log('🔐 Native Android login attempt for:', email);
     logAPI(`Native login attempt for ${email}`);
     
-    // Check AndroidGPS availability with retry logic
+    // Enhanced AndroidGPS availability check for APK
     let retryCount = 0;
-    const maxRetries = 10;
+    const maxRetries = 30; // Increased for APK loading
+    
+    console.log('🔍 Checking AndroidGPS interface availability...');
     
     while (typeof (window as any).AndroidGPS?.postNativeHttp !== 'function' && retryCount < maxRetries) {
-      console.log(`⏳ Waiting for AndroidGPS interface... (${retryCount + 1}/${maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, 200));
+      console.log(`AndroidGPS loading... (${retryCount + 1}/${maxRetries})`);
+      
+      // Check what's available
+      if ((window as any).AndroidGPS) {
+        console.log('AndroidGPS object found, checking methods...');
+        console.log('Available methods:', Object.keys((window as any).AndroidGPS));
+        if (typeof (window as any).AndroidGPS.postNativeHttp !== 'function') {
+          console.log('postNativeHttp method missing - interface not fully loaded');
+        }
+      } else {
+        console.log('AndroidGPS object not found on window');
+      }
+      
+      // Check for AndroidGPSReady flag
+      if ((window as any).AndroidGPSReady) {
+        console.log('AndroidGPSReady flag detected');
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 600));
       retryCount++;
     }
     
     if (typeof (window as any).AndroidGPS?.postNativeHttp !== 'function') {
-      console.error('❌ AndroidGPS not available after retries');
-      console.log('Available window properties:', Object.keys(window));
-      return { 
-        status: 'error', 
-        error: 'Interfața nativă nu este disponibilă. Te rog să restartezi aplicația.' 
-      };
+      console.log('Browser mode detected - using standard HTTP requests');
+      
+      // Browser mode - use standard fetch
+      try {
+        const response = await fetch(`${API_BASE_URL}/login.php`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Accept': 'application/json',
+            'User-Agent': 'iTrack-Browser/1.0'
+          },
+          body: JSON.stringify({ email, password })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.token) {
+          logAPI(`Browser login successful for ${email}`);
+          return { status: 'success', token: data.token };
+        } else {
+          logAPI(`Browser login failed: ${data.message}`);
+          return { status: 'error', error: data.message || 'Date de conectare incorecte' };
+        }
+      } catch (error: any) {
+        logAPI(`Browser login error: ${error.message}`);
+        return { status: 'error', error: 'Eroare de conexiune la server' };
+      }
     }
     
     console.log('✅ AndroidGPS available - using pure native HTTP');

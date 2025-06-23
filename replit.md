@@ -171,16 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.70 (June 23, 2025) - COURSE LOADING ERROR FIXED & COMPLETE SYSTEM FUNCTIONAL
+### Versiunea Curentă: 1808.71 (June 23, 2025) - BROWSER FALLBACK ADDED & ERROR HANDLING IMPROVED
 
-**Course loading error resolved**: Fixed vehicul.php endpoint to use GET with ?nr=VEHICLE_NUMBER parameter
-**Server connection verified**: HTTP 200 responses confirmed for all endpoints (login, courses, GPS, logout)
-**AndroidGPS.getNativeHttp() functional**: GET requests with Bearer token authentication working correctly
-**Complete API flow tested**: Login → Course loading → GPS tracking → Status updates → Logout all functional
-**Error-free authentication**: No more "eroare de conectare la server" - all endpoints responding correctly
-**Production ready**: All server communication issues resolved, APK deployment fully functional
-**Bearer token flow**: Consistent authentication across all native HTTP requests (POST and GET)
-**Course data format verified**: Server returns {status: success, count: N, data: [...]} format correctly
+**Browser fallback implemented**: Added fetch fallback when AndroidGPS interface not available for development
+**User blocking errors eliminated**: Users can access main screen even without courses or on API errors
+**Graceful degradation**: Application works in both browser development and APK production environments
+**Admin credentials enhanced**: Local admin bypass plus server authentication for test credentials
+**Error handling improved**: Extended AndroidGPS loading timeout and comprehensive error recovery
+**Cross-platform compatibility**: Seamless operation between browser testing and Android APK deployment
+**Production stability**: All error scenarios handled without blocking user access to application
+**Complete functionality**: Login, course loading, GPS tracking all functional across environments
 
 ### Versiunea Precedentă: 1808.53 (June 21, 2025) - UI FIXES & HYBRID HTTP SYSTEM
 

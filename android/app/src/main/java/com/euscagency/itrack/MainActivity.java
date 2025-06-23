@@ -66,13 +66,23 @@ public class MainActivity extends BridgeActivity {
                         getBridge().getWebView().getSettings().setJavaScriptEnabled(true);
                         
                         Log.d(TAG, "✅ AndroidGPS WebView interface added successfully");
-                        Log.d(TAG, "AndroidGPS interface methods available:");
-                        Log.d(TAG, "- startGPS: available");
-                        Log.d(TAG, "- stopGPS: available");
-                        Log.d(TAG, "- updateStatus: available");
-                        Log.d(TAG, "- clearAllOnLogout: available");
-                        Log.d(TAG, "- postNativeHttp: available");
-                        Log.d(TAG, "- getNativeHttp: available");
+                        Log.d(TAG, "📱 AndroidGPS methods ready for iTrack:");
+                        Log.d(TAG, "  - startGPS: available");
+                        Log.d(TAG, "  - stopGPS: available"); 
+                        Log.d(TAG, "  - updateStatus: available");
+                        Log.d(TAG, "  - clearAllOnLogout: available");
+                        Log.d(TAG, "  - postNativeHttp: available");
+                        Log.d(TAG, "  - getNativeHttp: available");
+                        
+                        // Force interface validation
+                        getBridge().getWebView().evaluateJavascript(
+                            "window.AndroidGPSReady = true; " +
+                            "console.log('✅ AndroidGPS interface confirmed ready'); " +
+                            "if (typeof window.AndroidGPS !== 'undefined') { " +
+                            "console.log('AndroidGPS methods:', Object.keys(window.AndroidGPS)); " +
+                            "}",
+                            null
+                        );
                         
                         // Test interface availability with delay
                         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {

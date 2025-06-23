@@ -26,9 +26,15 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     try {
       // Check for admin credentials for debugging access
       if (email === "admin@itrack.app" && password === "parola123") {
-        console.log("Admin login detected");
+        console.log("Admin login detected - bypassing server authentication");
         onLogin("ADMIN_TOKEN");
         return;
+      }
+      
+      // Check for test credentials
+      if (email === "+40722222222" && password === "parola123") {
+        console.log("Test credentials detected - proceeding with server authentication");
+        // Continue to server authentication below
       }
 
       // Debug AndroidGPS availability
