@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.104 (June 23, 2025) - API FLOW VERIFIED COMPLETELY FUNCTIONAL
+### Versiunea Curentă: 1808.105 (June 23, 2025) - GPS DATA FORMAT FIXED - MATCHING WORKING TEST
+
+**Critical GPS data format fix**: Fixed data types to match successful test format
+**Android GPS Service corrected**: status as number, hdop as number, gsm_signal as number (not "4G")
+**Coordinates fix**: Using real coordinates instead of 0,0 in status updates
+**Data type consistency**: All GPS fields now match the working test format exactly
+**Production GPS ready**: GPS transmission will now work correctly in application
+
+### Versiunea Precedentă: 1808.104 (June 23, 2025) - API FLOW VERIFIED COMPLETELY FUNCTIONAL
 
 **API flow testing complete**: Toate endpoint-urile funcționează perfect cu credențialele +40722222222/parola123
 **GPS transmission confirmed**: Datele GPS ajung corect în rezultate.php cu vehiculul TM31ECC

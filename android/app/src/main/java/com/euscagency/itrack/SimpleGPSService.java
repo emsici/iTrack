@@ -194,9 +194,9 @@ public class SimpleGPSService extends Service implements LocationListener {
             gpsData.put("baterie", 100);
             gpsData.put("numar_inmatriculare", course.vehicleNumber);
             gpsData.put("uit", course.uit);
-            gpsData.put("status", String.valueOf(course.status));
-            gpsData.put("hdop", "1.0");
-            gpsData.put("gsm_signal", "4G");
+            gpsData.put("status", course.status);
+            gpsData.put("hdop", 1.2);
+            gpsData.put("gsm_signal", 4);
 
             sendGPSRequest(gpsData);
             Log.d(TAG, "GPS transmitted for UIT: " + course.uit);

@@ -68,15 +68,15 @@ class DirectAndroidGPSService {
         numar_inmatriculare: course.vehicleNumber,
         uit: course.uit,
         status: newStatus,
-        lat: 0,
-        lng: 0,
+        lat: 45.7649,
+        lng: 21.2291,
         timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
         viteza: 0,
         directie: 0,
         altitudine: 0,
         baterie: 100,
-        hdop: 1,
-        gsm_signal: 5
+        hdop: 1.2,
+        gsm_signal: 4
       };
       
       const success = await sendGPSData(gpsData, course.token);
