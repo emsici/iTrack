@@ -363,53 +363,88 @@ export const logout = async (token: string): Promise<boolean> => {
 
 export const sendGPSData = async (gpsData: GPSData, token: string): Promise<boolean> => {
   try {
-    console.log('GPS Request Details');
+    console.log('=== GPS TRANSMISSION DEBUG ===');
     console.log('URL:', `${API_BASE_URL}/gps.php`);
     console.log('Token:', token.substring(0, 20) + '...');
     console.log('GPS Data:', JSON.stringify(gpsData, null, 2));
+    console.log('AndroidGPS available:', typeof (window as any).AndroidGPS?.postNativeHttp === 'function');
     
-    // Try native HTTP first - PURE JAVA EFFICIENCY
-    if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
-      console.log('Using AndroidGPS native HTTP for GPS transmission');
-      const nativeResult = (window as any).AndroidGPS.postNativeHttp(
-        `${API_BASE_URL}/gps.php`,
-        JSON.stringify(gpsData),
-        token
-      );
+    // FORȚEAZĂ CapacitorHttp FIRST pentru debugging
+    try {
+      console.log('=== FORCING CapacitorHttp for GPS debugging ===');
+      const { CapacitorHttp } = await import('@capacitor/core');
       
-      console.log('Native GPS result:', nativeResult);
-      logAPI(`Native GPS result: ${nativeResult}`);
-      
-      if (nativeResult.includes('401')) {
-        throw new Error('TOKEN_EXPIRED');
-      }
-      
-      return nativeResult.includes('SUCCESS') || nativeResult.includes('200');
-    } else {
-      // Browser fallback - use fetch
-      console.log('Using fetch for GPS (browser mode)');
-      
-      const response = await fetch(`${API_BASE_URL}/gps.php`, {
-        method: 'POST',
+      const response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}/gps.php`,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
-          'Cache-Control': 'no-cache',
-          'User-Agent': 'iTrack/1.0'
+          'User-Agent': 'iTrack-Native/1.0'
         },
-        body: JSON.stringify(gpsData)
+        data: gpsData
       });
 
-      console.log('GPS response status:', response.status);
-      logAPI(`GPS HTTP response: ${response.status}`);
+      console.log('=== CapacitorHttp GPS Response ===');
+      console.log('Status:', response.status);
+      console.log('Data:', response.data);
+      logAPI(`CapacitorHttp GPS result: ${response.status} - ${JSON.stringify(response.data)}`);
       
       if (response.status === 401) {
         throw new Error('TOKEN_EXPIRED');
       }
       
-      // Accept 200, 201, 204 as success - server may return 200 with empty body
       return response.status === 200 || response.status === 201 || response.status === 204;
+      
+    } catch (capacitorError) {
+      console.log('=== CapacitorHttp failed, trying AndroidGPS ===');
+      console.log('CapacitorHttp error:', capacitorError);
+      
+      // Fallback to AndroidGPS native
+      if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
+        console.log('Using AndroidGPS native HTTP for GPS transmission');
+        const nativeResult = (window as any).AndroidGPS.postNativeHttp(
+          `${API_BASE_URL}/gps.php`,
+          JSON.stringify(gpsData),
+          token
+        );
+        
+        console.log('Native GPS result:', nativeResult);
+        logAPI(`Native GPS result: ${nativeResult}`);
+        
+        if (nativeResult.includes('401')) {
+          throw new Error('TOKEN_EXPIRED');
+        }
+        
+        return nativeResult.includes('SUCCESS') || nativeResult.includes('200');
+      } else {
+        // Final fallback - use fetch
+        console.log('=== Final fallback: using fetch for GPS ===');
+        
+        const response = await fetch(`${API_BASE_URL}/gps.php`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache',
+            'User-Agent': 'iTrack/1.0'
+          },
+          body: JSON.stringify(gpsData)
+        });
+
+        console.log('=== Fetch GPS Response ===');
+        console.log('Status:', response.status);
+        const responseText = await response.text();
+        console.log('Response text:', responseText);
+        logAPI(`Fetch GPS response: ${response.status} - ${responseText}`);
+        
+        if (response.status === 401) {
+          throw new Error('TOKEN_EXPIRED');
+        }
+        
+        return response.status === 200 || response.status === 201 || response.status === 204;
+      }
     }
   } catch (error) {
     if (error instanceof Error && error.message === 'TOKEN_EXPIRED') {
