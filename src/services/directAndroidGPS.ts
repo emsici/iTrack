@@ -196,6 +196,10 @@ class DirectAndroidGPSService {
       const permissions = await Geolocation.requestPermissions();
       console.log("GPS permissions result:", permissions.location);
       
+      if (permissions.location !== 'granted') {
+        throw new Error('Permisiunile GPS sunt necesare pentru a porni cursele');
+      }
+      
       // Start GPS tracking after permissions
       this.startBrowserGPSInterval(course);
       console.log("GPS tracking started");

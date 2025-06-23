@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// Removed CapacitorHttp - using fetch for all HTTP requests
+import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
 import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
 import {
@@ -319,6 +319,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`Course: ${courseId}, Status: ${courseToUpdate.status} → ${newStatus}`);
       console.log(`UIT REAL: ${courseToUpdate.uit}, Vehicle: ${vehicleNumber}`);
       console.log(`Token available: ${!!token}, Token length: ${token?.length || 0}`);
+
+      // Request GPS permissions first if starting course
+      if (newStatus === 2) {
+        console.log('🔍 Requesting GPS permissions for course start...');
+        try {
+          await Geolocation.requestPermissions();
+          console.log('✅ GPS permissions granted');
+        } catch (permError) {
+          console.error('❌ GPS permissions denied:', permError);
+          throw new Error('Permisiunile GPS sunt necesare pentru a porni cursele');
+        }
+      }
 
       // Update course status through GPS service
       try {
