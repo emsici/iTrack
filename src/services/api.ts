@@ -172,7 +172,6 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
     
     try {
       console.log('=== TRYING CapacitorHttp for courses ===');
-      const { CapacitorHttp } = await import('@capacitor/core');
       
       const capacitorResponse = await CapacitorHttp.get({
         url: urlWithCacheBuster,
@@ -343,7 +342,6 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
     // PRIMARY: CapacitorHttp pentru transmisie GPS
     try {
       console.log('=== TRYING CapacitorHttp for GPS ===');
-      const { CapacitorHttp } = await import('@capacitor/core');
       
       const response = await CapacitorHttp.post({
         url: `${API_BASE_URL}/gps.php`,

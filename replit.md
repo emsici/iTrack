@@ -171,7 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.76 (June 23, 2025) - ARCHITECTURĂ HTTP FINALIZATĂ: CAPACITORHTTP UNIVERSAL
+### Versiunea Curentă: 1808.77 (June 23, 2025) - VITE IMPORTS OPTIMIZATE + CAPACITORHTTP STATIC
+
+**Vite warnings rezolvate**: Toate importurile dinamice CapacitorHttp convertite la importuri statice
+**Bundle optimization**: Eliminat dynamic imports pentru @capacitor/core în api.ts, offlineGPS.ts, App.tsx, LoginScreen.tsx
+**Performance improvement**: CapacitorHttp se încarcă la build time, nu la runtime
+**Import consistency**: Toate serviciile folosesc import static pentru CapacitorHttp
+**Build warnings clean**: Zero warning-uri Vite despre dynamic imports mixed cu static imports
+**Production ready**: Bundle optimizat pentru deployment cu toate dependențele Capacitor statice
+
+### Versiunea Precedentă: 1808.76 (June 23, 2025) - ARCHITECTURĂ HTTP FINALIZATĂ: CAPACITORHTTP UNIVERSAL
 
 **Arhitectură HTTP completă**: Toate operațiunile HTTP (login, logout, GPS transmission, offline sync) folosesc CapacitorHttp + fetch fallback
 **postNativeHttp eliminat 100%**: Zero referințe la AndroidGPS.postNativeHttp în întreaga aplicație

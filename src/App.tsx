@@ -64,7 +64,6 @@ const App: React.FC = () => {
       // Send logout request to login.php with iesire: 1
       // Logout cu CapacitorHttp
       try {
-        const { CapacitorHttp } = await import('@capacitor/core');
         await CapacitorHttp.post({
           url: `${API_BASE_URL}/logout.php`,
           headers: {

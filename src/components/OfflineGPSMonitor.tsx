@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { CapacitorHttp } from '@capacitor/core';
 // Uses CapacitorHttp + fetch fallback for connectivity check
 import { getOfflineGPSCount, syncOfflineGPS } from "../services/offlineGPS";
 import { subscribeToSyncProgress } from "../services/offlineSyncStatus";
@@ -32,7 +33,6 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
           try {
             // Test conectivitate cu CapacitorHttp
             try {
-              const { CapacitorHttp } = await import('@capacitor/core');
               await CapacitorHttp.get({
                 url: 'https://www.google.com/favicon.ico',
                 headers: {}

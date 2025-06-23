@@ -4,6 +4,7 @@
  */
 
 import { Preferences } from '@capacitor/preferences';
+import { CapacitorHttp } from '@capacitor/core';
 // Uses CapacitorHttp + fetch fallback for GPS coordinate transmission
 import { GPSData } from './api';
 
