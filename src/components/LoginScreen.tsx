@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { login } from "../services/api";
 
 interface LoginScreenProps {
-  onLogin: (token: string) => void;
+  onLogin: (token: string, isAdmin?: boolean) => void;
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {

@@ -26,7 +26,11 @@ const App: React.FC = () => {
         if (storedToken) {
           console.log('Found stored token - auto login');
           setToken(storedToken);
-          setCurrentScreen('vehicle');
+          if (storedToken.startsWith('ADMIN_DEBUG_TOKEN')) {
+            setCurrentScreen('admin');
+          } else {
+            setCurrentScreen('vehicle');
+          }
         } else {
           console.log('No stored token - showing login');
         }
@@ -38,10 +42,10 @@ const App: React.FC = () => {
     initApp();
   }, []);
 
-  const handleLogin = async (authToken: string) => {
+  const handleLogin = async (authToken: string, isAdmin: boolean = false) => {
     console.log("Login successful, storing token...");
     try {
-      if (authToken === 'ADMIN_TOKEN') {
+      if (isAdmin || authToken.startsWith('ADMIN_DEBUG_TOKEN')) {
         setPreviousToken(token); // Store current session
         setToken(authToken);
         setCurrentScreen('admin');
@@ -55,7 +59,7 @@ const App: React.FC = () => {
       console.error("Failed to store token:", error);
       // Continue anyway
       setToken(authToken);
-      setCurrentScreen(authToken === 'ADMIN_TOKEN' ? 'admin' : 'vehicle');
+      setCurrentScreen(isAdmin || authToken.startsWith('ADMIN_DEBUG_TOKEN') ? 'admin' : 'vehicle');
     }
   };
 

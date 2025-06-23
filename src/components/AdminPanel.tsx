@@ -87,6 +87,16 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
     try {
       await clearAppLogs();
       setLogs([]);
+      console.log('Logs cleared successfully');
+    } catch (error) {
+      console.error('Error clearing logs:', error);
+    }
+  };
+
+  const handleClearLogsOLD = async () => {
+    try {
+      await clearAppLogs();
+      setLogs([]);
     } catch (error) {
       console.error('Failed to clear logs:', error);
     }
@@ -205,6 +215,23 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
           <option value="DEBUG">Debug</option>
         </select>
 
+        <button
+          onClick={copyLogs}
+          disabled={isCopyingLogs}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: copySuccess ? '#22c55e' : '#3b82f6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: isCopyingLogs ? 'not-allowed' : 'pointer',
+            marginRight: '8px',
+            opacity: isCopyingLogs ? 0.6 : 1
+          }}
+        >
+          {isCopyingLogs ? 'Copying...' : copySuccess ? 'Copied!' : 'Copy Logs'}
+        </button>
+        
         <button
           onClick={handleClearLogs}
           style={{
