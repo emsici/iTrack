@@ -30,100 +30,67 @@ export interface GPSData {
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    console.log('🔐 Native Android login attempt for:', email);
-    logAPI(`Native login attempt for ${email}`);
+    console.log('Direct CapacitorHttp login for:', email);
+    logAPI(`Direct CapacitorHttp login attempt for ${email}`);
     
-    // Enhanced AndroidGPS availability check for APK
-    let retryCount = 0;
-    const maxRetries = 30; // Increased for APK loading
-    
-    console.log('🔍 Checking AndroidGPS interface availability...');
-    
-    while (typeof (window as any).AndroidGPS?.postNativeHttp !== 'function' && retryCount < maxRetries) {
-      console.log(`AndroidGPS loading... (${retryCount + 1}/${maxRetries})`);
+    // Use CapacitorHttp directly for fast authentication
+    try {
+      const { CapacitorHttp } = await import('@capacitor/core');
+      console.log('Using CapacitorHttp for fast login');
       
-      // Check what's available
-      if ((window as any).AndroidGPS) {
-        console.log('AndroidGPS object found, checking methods...');
-        console.log('Available methods:', Object.keys((window as any).AndroidGPS));
-        if (typeof (window as any).AndroidGPS.postNativeHttp !== 'function') {
-          console.log('postNativeHttp method missing - interface not fully loaded');
-        }
-      } else {
-        console.log('AndroidGPS object not found on window');
-      }
+      const response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}/login.php`,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json',
+          'User-Agent': 'iTrack-Native/1.0'
+        },
+        data: { email, password }
+      });
       
-      // Check for AndroidGPSReady flag
-      if ((window as any).AndroidGPSReady) {
-        console.log('AndroidGPSReady flag detected');
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 600));
-      retryCount++;
-    }
-    
-    if (typeof (window as any).AndroidGPS?.postNativeHttp !== 'function') {
-      console.log('AndroidGPS not available - trying alternative native HTTP methods');
-      
-      // Try CapacitorHttp as native alternative
-      try {
-        const { CapacitorHttp } = await import('@capacitor/core');
-        console.log('Using CapacitorHttp for login');
-        
-        const response = await CapacitorHttp.post({
-          url: `${API_BASE_URL}/login.php`,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Accept': 'application/json',
-            'User-Agent': 'iTrack-Native/1.0'
-          },
-          data: { email, password }
-        });
-        
-        if (response.status >= 200 && response.status < 300 && response.data) {
-          const data = response.data;
-          if (data.status === 'success' && data.token) {
-            console.log('CapacitorHttp login successful');
-            logAPI(`CapacitorHttp login successful for ${email}`);
-            return { status: 'success', token: data.token };
-          } else {
-            logAPI(`CapacitorHttp login failed: ${data.message}`);
-            return { status: 'error', error: data.message || 'Date de conectare incorecte' };
-          }
-        }
-      } catch (capacitorError) {
-        console.log('CapacitorHttp not available:', capacitorError);
-      }
-      
-      // Browser/fetch fallback
-      try {
-        const response = await fetch(`${API_BASE_URL}/login.php`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Accept': 'application/json',
-            'User-Agent': 'iTrack-Browser/1.0'
-          },
-          body: JSON.stringify({ email, password })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
+      if (response.status >= 200 && response.status < 300 && response.data) {
+        const data = response.data;
         if (data.status === 'success' && data.token) {
-          logAPI(`Browser login successful for ${email}`);
+          console.log('CapacitorHttp login successful');
+          logAPI(`CapacitorHttp login successful for ${email}`);
           return { status: 'success', token: data.token };
         } else {
-          logAPI(`Browser login failed: ${data.message}`);
+          logAPI(`CapacitorHttp login failed: ${data.message}`);
           return { status: 'error', error: data.message || 'Date de conectare incorecte' };
         }
-      } catch (error: any) {
-        logAPI(`Browser login error: ${error.message}`);
-        return { status: 'error', error: 'Eroare de conexiune la server' };
       }
+    } catch (capacitorError) {
+      console.log('CapacitorHttp not available, trying fallback:', capacitorError);
+    }
+    
+    // Browser/fetch fallback for development
+    try {
+      const response = await fetch(`${API_BASE_URL}/login.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json',
+          'User-Agent': 'iTrack-Browser/1.0'
+        },
+        body: JSON.stringify({ email, password })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.status === 'success' && data.token) {
+        logAPI(`Browser login successful for ${email}`);
+        return { status: 'success', token: data.token };
+      } else {
+        logAPI(`Browser login failed: ${data.message}`);
+        return { status: 'error', error: data.message || 'Date de conectare incorecte' };
+      }
+    } catch (error: any) {
+      logAPI(`Browser login error: ${error.message}`);
+      return { status: 'error', error: 'Eroare de conexiune la server' };
     }
     
     console.log('✅ AndroidGPS available - using pure native HTTP');
@@ -238,74 +205,52 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
     console.log(`Loading courses for vehicle: ${vehicleNumber}`);
     logAPI(`Loading courses for vehicle ${vehicleNumber}`);
     
-    // Try native HTTP methods in order
+    // Use CapacitorHttp directly for fast course loading
     let response;
     
-    // First try AndroidGPS
-    if (typeof (window as any).AndroidGPS?.getNativeHttp === 'function') {
-      console.log('Using AndroidGPS getNativeHttp for vehicle courses');
-      const nativeResult = (window as any).AndroidGPS.getNativeHttp(
-        urlWithCacheBuster,
-        token
-      );
+    try {
+      const { CapacitorHttp } = await import('@capacitor/core');
+      console.log('Using CapacitorHttp for fast course loading');
       
-      console.log('Native GET courses result:', nativeResult);
-      logAPI(`AndroidGPS GET courses response: ${nativeResult}`);
+      const capacitorResponse = await CapacitorHttp.get({
+        url: urlWithCacheBuster,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'User-Agent': 'iTrack-Native/1.0'
+        }
+      });
       
-      if (nativeResult.startsWith('SUCCESS:')) {
-        const responseBody = nativeResult.substring(8);
-        response = { status: 200, data: JSON.parse(responseBody) };
-      } else if (nativeResult.includes('401')) {
+      if (capacitorResponse.status === 401) {
         throw new Error('TOKEN_EXPIRED');
-      } else {
-        throw new Error('Native HTTP error');
       }
-    } else {
-      // Try CapacitorHttp as alternative
-      try {
-        const { CapacitorHttp } = await import('@capacitor/core');
-        console.log('Using CapacitorHttp for courses');
-        
-        const capacitorResponse = await CapacitorHttp.get({
-          url: urlWithCacheBuster,
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-            'User-Agent': 'iTrack-Native/1.0'
-          }
-        });
-        
-        if (capacitorResponse.status === 401) {
-          throw new Error('TOKEN_EXPIRED');
+      
+      response = { status: capacitorResponse.status, data: capacitorResponse.data };
+    } catch (capacitorError) {
+      console.log('CapacitorHttp failed, using fetch fallback');
+      
+      // Browser fallback - use fetch
+      console.log('Using fetch for courses (browser mode)');
+      
+      const fetchResponse = await fetch(urlWithCacheBuster, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         }
-        
-        response = { status: capacitorResponse.status, data: capacitorResponse.data };
-      } catch (capacitorError) {
-        console.log('CapacitorHttp failed, using fetch fallback');
-        
-        // Browser fallback - use fetch
-        console.log('Using fetch for courses (browser mode)');
-        
-        const fetchResponse = await fetch(urlWithCacheBuster, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          }
-        });
-        
-        if (fetchResponse.status === 401) {
-          throw new Error('TOKEN_EXPIRED');
-        }
-        
-        if (!fetchResponse.ok) {
-          throw new Error(`HTTP ${fetchResponse.status}`);
-        }
-        
-        response = { status: fetchResponse.status, data: await fetchResponse.json() };
+      });
+      
+      if (fetchResponse.status === 401) {
+        throw new Error('TOKEN_EXPIRED');
       }
+      
+      if (!fetchResponse.ok) {
+        throw new Error(`HTTP ${fetchResponse.status}`);
+      }
+      
+      response = { status: fetchResponse.status, data: await fetchResponse.json() };
     }
 
     console.log('API Response Status:', response.status);
