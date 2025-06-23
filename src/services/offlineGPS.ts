@@ -4,7 +4,7 @@
  */
 
 import { Preferences } from '@capacitor/preferences';
-// Removed CapacitorHttp - using native HTTP or fetch
+// Uses CapacitorHttp + fetch fallback for GPS coordinate transmission
 import { GPSData } from './api';
 
 export interface OfflineGPSCoordinate {
