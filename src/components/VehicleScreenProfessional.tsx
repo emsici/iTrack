@@ -91,6 +91,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     console.log("=== APK DEBUG: Vehicle number:", vehicleNumber);
     console.log("=== APK DEBUG: Token available:", !!token);
     console.log("=== APK DEBUG: Current coursesLoaded state:", coursesLoaded);
+    console.log("=== APK DEBUG: Current courses count:", courses.length);
     
     setLoading(true);
     setError("");
@@ -231,12 +232,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         setCourses([]);
         setCoursesLoaded(false); // Stay on input screen
         setError("Nu au fost găsite curse pentru acest vehicul");
+        console.log("✅ Staying on input screen - no courses found");
       }
     } catch (error: any) {
       console.error("Error loading courses:", error);
       setCourses([]);
       setCoursesLoaded(false); // Stay on input screen on error
       setError(error.message || "Eroare la încărcarea curselor");
+      console.log("✅ Staying on input screen - error occurred");
     } finally {
       setLoading(false);
       console.log("=== Loading finished ===");
@@ -514,9 +517,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     if (error) {
                       setError("");
                     }
+                    console.log(`📝 Vehicle number changed to: ${cleanValue}`);
                   }}
                   onKeyPress={(e) => e.key === "Enter" && handleLoadCourses()}
-                  disabled={loading} // Only disable during loading
+                  disabled={loading}
+                  readOnly={false} // Ensure input is always editable when not loading
                   style={{
                     width: '100%',
                     padding: '20px',
