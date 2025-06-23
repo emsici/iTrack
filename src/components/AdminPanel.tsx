@@ -11,6 +11,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
   const [filteredLogs, setFilteredLogs] = useState<AppLog[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('');
+  const [isCopyingLogs, setIsCopyingLogs] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   // Load logs from persistent storage
   useEffect(() => {
@@ -30,6 +32,55 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
     
     return () => clearInterval(interval);
   }, []);
+
+  // Copy logs to clipboard
+  const copyLogs = async () => {
+    setIsCopyingLogs(true);
+    setCopySuccess(false);
+    
+    try {
+      const logText = logs.map(log => 
+        `[${log.timestamp}] ${log.level} ${log.category ? `(${log.category})` : ''}: ${log.message}`
+      ).join('\n');
+      
+      const fullText = `iTrack Application Logs\nGenerated: ${new Date().toLocaleString('ro-RO')}\nTotal Logs: ${logs.length}\n\n${logText}`;
+      
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(fullText);
+        setCopySuccess(true);
+        console.log('Logs copied to clipboard successfully');
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = fullText;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        textArea.setSelectionRange(0, 99999);
+        
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        if (successful) {
+          setCopySuccess(true);
+          console.log('Logs copied using fallback method');
+        } else {
+          throw new Error('Fallback copy failed');
+        }
+      }
+      
+      // Reset success indicator after 3 seconds
+      setTimeout(() => setCopySuccess(false), 3000);
+      
+    } catch (error) {
+      console.error('Failed to copy logs:', error);
+      alert('Failed to copy logs to clipboard. Please try again.');
+    } finally {
+      setIsCopyingLogs(false);
+    }
+  };
 
   // Clear logs functionality
   const handleClearLogs = async () => {
