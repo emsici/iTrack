@@ -171,7 +171,23 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.96 (June 23, 2025) - BEARER TOKEN TRANSMISSION FIXED
+### Versiunea Curentă: 1808.98 (June 23, 2025) - GPS TRANSMISSION UNIFIED & ENHANCED
+
+**GPS transmission completely unified**: Single sendGPSViaCapacitor function with robust error handling
+**Failed to fetch error fixed**: CapacitorHttp primary + fetch fallback cu timeout optimizat
+**Duplicate code elimination**: Removed duplicate GPS functions, unified logging
+**Enhanced Bearer token validation**: Proper token checking before transmission
+**Optimized error handling**: Clear error messages și fallback mechanism reliable
+
+### Versiunea Precedentă: 1808.97 (June 23, 2025) - FAILED TO FETCH ERROR FIXED
+
+**Network error handling enhanced**: Timeout și fallback fetch pentru rezolvarea "Failed to fetch"
+**Enhanced error logging**: Logging detaliat pentru tipul și mesajul erorii
+**Fallback mechanism improved**: fetch() cu AbortSignal.timeout când CapacitorHttp eșuează
+**Token validation enhanced**: Verificare că Bearer token există înainte de transmisie
+**GPS data validation**: Logging complet pentru datele GPS transmise
+
+### Versiunea Precedentă: 1808.96 (June 23, 2025) - BEARER TOKEN TRANSMISSION FIXED
 
 **Bearer token verification enhanced**: Verificare și logging pentru token înainte de transmisie GPS
 **401 error fix**: Asigurat că Bearer token este transmis corect în header Authorization

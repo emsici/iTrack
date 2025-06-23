@@ -349,46 +349,72 @@ export const logout = async (token: string): Promise<boolean> => {
 // Global function for Android GPS service to use CapacitorHttp
 (window as any).sendGPSViaCapacitor = async (jsonString: string, token: string) => {
   try {
+    if (!token || token.trim() === '') {
+      console.error('GPS transmission failed: No Bearer token provided');
+      return false;
+    }
+    
     const gpsData = JSON.parse(jsonString);
-    console.log('🔥 GPS from Android service via CapacitorHttp:', gpsData);
-    console.log('📍 GPS Data details:', {
+    console.log('GPS from Android service:', {
       courseId: gpsData.uit,
       lat: gpsData.lat,
       lng: gpsData.lng,
-      speed: gpsData.viteza,
       vehicle: gpsData.numar_inmatriculare,
       status: gpsData.status
     });
     
-    console.log('🔑 Using Bearer token for GPS:', token.substring(0, 20) + '...');
+    console.log('Using Bearer token:', token.substring(0, 20) + '...');
     
-    const response = await CapacitorHttp.post({
-      url: `${API_BASE_URL}/gps.php`,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-        'User-Agent': 'iTrack-Android-Service/1.0'
-      },
-      data: gpsData
-    });
-    
-    console.log('✅ Android GPS via CapacitorHttp response:', {
-      status: response.status,
-      data: response.data,
-      success: response.status >= 200 && response.status < 300
-    });
-    
-    if (response.status >= 200 && response.status < 300) {
-      console.log(`📡 GPS successfully sent to server for course ${gpsData.uit}`);
-      return true;
-    } else {
-      console.error(`❌ GPS server rejected data: ${response.status}`);
+    try {
+      const response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}/gps.php`,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'User-Agent': 'iTrack-Android-Service/1.0'
+        },
+        data: gpsData
+      });
+      
+      console.log('CapacitorHttp GPS response:', {
+        status: response.status,
+        success: response.status >= 200 && response.status < 300
+      });
+      
+      if (response.status >= 200 && response.status < 300) {
+        console.log('GPS successfully sent via CapacitorHttp for course', gpsData.uit);
+        return true;
+      }
+      
+      console.error('GPS server rejected data:', response.status);
+      return false;
+      
+    } catch (capacitorError) {
+      console.error('CapacitorHttp failed, trying fallback fetch:', capacitorError.message);
+      
+      const fallbackResponse = await fetch(`${API_BASE_URL}/gps.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(gpsData),
+        signal: AbortSignal.timeout(8000)
+      });
+      
+      if (fallbackResponse.ok) {
+        console.log('GPS sent via fallback fetch');
+        return true;
+      }
+      
+      console.error('Fallback fetch failed:', fallbackResponse.status);
       return false;
     }
     
   } catch (error) {
-    console.error('❌ Android GPS via CapacitorHttp failed:', error);
+    console.error('Android GPS transmission error:', error.message);
     return false;
   }
 };
