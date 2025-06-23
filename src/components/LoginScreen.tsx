@@ -25,9 +25,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
     try {
       // Check for admin credentials for debugging access
-      if (email === "admin@itrack.app" && password === "parola123") {
+      if (email === "admin@itrack.app" && (password === "parola123" || password === "admin123")) {
         console.log("Admin login detected - bypassing server authentication");
-        onLogin("ADMIN_TOKEN");
+        onLogin("ADMIN_TOKEN", true); // Set isAdmin flag
         return;
       }
       

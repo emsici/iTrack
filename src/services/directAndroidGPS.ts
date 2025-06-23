@@ -74,7 +74,7 @@ class DirectAndroidGPSService {
         viteza: 0,
         directie: 0,
         altitudine: 0,
-        baterie: 100,
+        baterie: 85,
         hdop: 1.2,
         gsm_signal: 4
       };
@@ -86,7 +86,13 @@ class DirectAndroidGPSService {
       console.log('- status type:', typeof gpsData.status, 'value:', gpsData.status);
       console.log('- hdop type:', typeof gpsData.hdop, 'value:', gpsData.hdop);
       console.log('- gsm_signal type:', typeof gpsData.gsm_signal, 'value:', gpsData.gsm_signal);
+      console.log('- baterie type:', typeof gpsData.baterie, 'value:', gpsData.baterie);
       console.log('Complete object:', JSON.stringify(gpsData, null, 2));
+      
+      // Check token freshness before GPS call
+      console.log('🔑 Token check before GPS:');
+      console.log('Token length:', course.token.length);
+      console.log('Token preview:', course.token.substring(0, 30) + '...');
       
       const success = await sendGPSData(gpsData, course.token);
       console.log("✅ Server status update success:", success);

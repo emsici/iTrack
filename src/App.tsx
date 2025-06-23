@@ -45,7 +45,7 @@ const App: React.FC = () => {
   const handleLogin = async (authToken: string, isAdmin: boolean = false) => {
     console.log("Login successful, storing token...");
     try {
-      if (isAdmin || authToken.startsWith('ADMIN_DEBUG_TOKEN')) {
+      if (isAdmin || authToken === 'ADMIN_TOKEN' || authToken.startsWith('ADMIN_DEBUG_TOKEN')) {
         setPreviousToken(token); // Store current session
         setToken(authToken);
         setCurrentScreen('admin');

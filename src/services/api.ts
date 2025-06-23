@@ -455,10 +455,38 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       console.log('Raw headers object:', headers);
       console.log('Raw data object:', gpsData);
       console.log('Data stringified for comparison:', JSON.stringify(gpsData));
+      console.log('🔑 TOKEN VERIFICATION:');
+      console.log('Token length:', token.length);
+      console.log('Token starts with:', token.substring(0, 20));
+      console.log('Token ends with:', token.substring(token.length - 10));
       
+      // Check token expiration
+      try {
+        const tokenParts = token.split('.');
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(atob(tokenParts[1]));
+          const expTime = payload.exp * 1000;
+          const currentTime = Date.now();
+          console.log('Token expires at:', new Date(expTime));
+          console.log('Current time:', new Date(currentTime));
+          console.log('Token valid for:', Math.round((expTime - currentTime) / 1000), 'seconds');
+          
+          if (currentTime >= expTime) {
+            console.error('❌ TOKEN EXPIRED - Need fresh login');
+            throw new Error('TOKEN_EXPIRED');
+          }
+        }
+      } catch (e) {
+        console.log('Could not parse token expiration:', e.message);
+      }
+      
+      // Use exact Postman format that works
       const response = await CapacitorHttp.post({
         url: `${API_BASE_URL}/gps.php`,
-        headers: headers,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         data: gpsData
       });
 
@@ -470,11 +498,13 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       console.log('Request Headers sent:', JSON.stringify(headers, null, 2));
       console.log('Request Data sent:', JSON.stringify(gpsData, null, 2));
       
-      // If error, try alternative request format
+      // If error, try with different data serialization
       if (response.status >= 400) {
-        console.log('🔄 TRYING ALTERNATIVE REQUEST FORMAT...');
+        console.log('🔄 TRYING ALTERNATIVE DATA SERIALIZATION...');
+        console.log('First attempt failed with:', response.status);
+        console.log('Response data:', response.data);
         
-        // Try with explicit JSON stringification and minimal headers
+        // Try with pre-stringified data (some servers expect this)
         const alternativeResponse = await CapacitorHttp.request({
           method: 'POST',
           url: `${API_BASE_URL}/gps.php`,
@@ -486,7 +516,10 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
         });
         
         console.log('Alternative response status:', alternativeResponse.status);
+        console.log('Alternative response data:', alternativeResponse.data);
+        
         if (alternativeResponse.status < 400) {
+          console.log('✅ Alternative format worked!');
           return alternativeResponse.status >= 200 && alternativeResponse.status < 300;
         }
       }
