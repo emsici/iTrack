@@ -171,7 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.108 (June 23, 2025) - COMPLETE APPLICATION VERIFICATION & GPS READY
+### Versiunea Curentă: 1808.109 (June 23, 2025) - HEADER REDESIGNED - LOGO REMOVED, LOGOUT ENHANCED
+
+**Header simplified**: Removed logo and "iTrack" text from header completely
+**Layout centered**: Vehicle number badge now centered in header
+**Logout repositioned**: Moved logout button next to vehicle number with enhanced styling
+**Enhanced logout design**: Red gradient background, text label "Ieșire", hover animations
+**Debug trigger hidden**: Invisible debug area preserved for admin access
+**Clean interface**: Minimal header with only essential vehicle info and logout
+
+### Versiunea Precedentă: 1808.108 (June 23, 2025) - COMPLETE APPLICATION VERIFICATION & GPS READY
 
 **Complete application verification**: All GPS transmission paths verified and aligned with working test
 **Final fixes applied**: User-Agent unified, Cache-Control removed, battery level corrected

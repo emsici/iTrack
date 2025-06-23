@@ -691,27 +691,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       ) : (
         <>
           <div className="corporate-header-professional loaded">
-            <div className="header-brand-section">
-              <div className="brand-logo-container" onClick={handleTimestampClick}>
-                <div className="logo-emblem">
-                  <i className="fas fa-truck"></i>
+            <div className="header-vehicle-section">
+              <div className="vehicle-info-group">
+                <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
+                  <i className="fas fa-truck vehicle-icon"></i>
+                  <span className="vehicle-number">{vehicleNumber}</span>
+                  <i className="edit-icon fas fa-edit"></i>
                 </div>
-                <div className="brand-text">
-                  <span className="brand-name">iTrack</span>
+                
+                <div className="logout-button-enhanced" onClick={handleLogout} title="Logout">
+                  <i className="fas fa-sign-out-alt"></i>
+                  <span className="logout-text">Ieșire</span>
                 </div>
-              </div>
-            </div>
-            
-            <div className="header-vehicle-info">
-              <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
-                <i className="fas fa-truck vehicle-icon"></i>
-                <span className="vehicle-number">{vehicleNumber}</span>
-                <i className="edit-icon fas fa-edit"></i>
               </div>
               
-              <div className="logout-button-card" onClick={handleLogout} title="Logout">
-                <i className="fas fa-sign-out-alt"></i>
-              </div>
+              <div className="debug-trigger" onClick={handleTimestampClick}></div>
             </div>
           </div>
 
