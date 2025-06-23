@@ -154,7 +154,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
         setCourses(finalCourses);
         setError("");
-        setCoursesLoaded(true);
         
         // Update last refresh timestamp
         setLastRefreshTime(new Date());
@@ -221,21 +220,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           console.log(`🆕 Found ${newCoursesCount} new courses - displayed at top`);
         }
       } else {
-        console.log("No courses found for this vehicle - allowing access to main screen");
+        console.log("No courses found - showing empty main screen");
         setCourses([]);
-        setCoursesLoaded(true);
-        setError("");
-        console.log("User can access main screen despite no courses");
+        setError("Nu au fost găsite curse pentru acest vehicul");
       }
     } catch (error: any) {
       console.error("Error loading courses:", error);
-      setCoursesLoaded(true);
       setCourses([]);
       setError(error.message || "Eroare la încărcarea curselor");
-      console.log("API error handled gracefully - user can access main screen");
     } finally {
       setLoading(false);
-      console.log("=== Loading finished - coursesLoaded should be true ===");
+      console.log("=== Loading finished - user can access main screen ===");
     }
   };
 
