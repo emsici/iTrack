@@ -5,13 +5,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import com.getcapacitor.BridgeActivity;
-// Removed HttpURLConnection imports - using CapacitorHttp only
-import java.nio.charset.StandardCharsets;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.security.cert.X509Certificate;
+// All HTTP operations moved to CapacitorHttp - no Java HTTP imports needed
 
 /**
  * AndroidGPS WebView Interface
