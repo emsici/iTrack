@@ -18,6 +18,7 @@ import { startCourseAnalytics, stopCourseAnalytics } from "../services/courseAna
 
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
+import AdminPanel from "./AdminPanel";
 
 interface VehicleScreenProps {
   token: string;
@@ -159,6 +160,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         setError("");
         setCoursesLoaded(true); // Allow access only when courses are found
         setSelectedStatusFilter('all'); // Reset filter when new courses load
+        console.log(`✅ Courses loaded successfully - switching to main view with ${finalCourses.length} courses`);
         
         // Update last refresh timestamp
         setLastRefreshTime(new Date());
@@ -420,7 +422,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   }, []);
 
   // Course actions handled by CourseDetailCard component
+  const handleCourseStatusUpdate = (courseId: string, newStatus: number) => {
+    return handleStatusUpdate(courseId, newStatus);
+  };
 
+  const handleRefreshCourses = () => {
+    if (vehicleNumber && token) {
+      handleLoadCourses();
+    }
+  };
 
   // SIMPLIFICARE: Elimină logica complexă și folosește doar coursesLoaded
 
