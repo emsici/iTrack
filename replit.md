@@ -173,10 +173,10 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ### Versiunea Curentă: 1808.67 (June 22, 2025) - LOGIN ANDROIDGPS FIXED
 
-**AndroidGPS interface timing fixed**: Handler ensures WebView is ready before adding interface
-**Retry logic implemented**: Login waits up to 2 seconds for AndroidGPS availability
-**Interface validation added**: WebView evaluateJavascript tests AndroidGPS presence
-**Native interface guaranteed**: MainActivity adds AndroidGPS with proper timing
+**HTTP headers matched to curl**: AndroidGPS now sends identical headers as working curl request
+**Content-Length explicit**: AndroidGPS calculates and sets Content-Length header like curl
+**Charset UTF-8 specified**: Content-Type with charset matches curl format exactly
+**User-Agent consistent**: AndroidGPS sends iTrack-Android/1.0 user agent
 **Production APK ready**: Interface loading optimized for real device deployment
 **Error messaging improved**: Clear user guidance when interface not available
 **Handler-based loading**: Ensures AndroidGPS interface loads after WebView initialization

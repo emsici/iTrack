@@ -127,16 +127,16 @@ public class AndroidGPS {
             URL urlObject = new URL(url);
             HttpURLConnection connection = (HttpURLConnection) urlObject.openConnection();
             
-            // Configure connection
+            // Configure connection - match curl exactly
             connection.setRequestMethod("POST");
-            // Detect content type based on data format
-            if (jsonData.startsWith("{") && jsonData.endsWith("}")) {
-                connection.setRequestProperty("Content-Type", "application/json");
-            } else {
-                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            }
+            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("User-Agent", "iTrack-Android/1.0");
             connection.setRequestProperty("Cache-Control", "no-cache");
+            
+            // Calculate and set content length
+            byte[] postData = jsonData.getBytes(StandardCharsets.UTF_8);
+            connection.setRequestProperty("Content-Length", String.valueOf(postData.length));
             
             // Add Bearer token automatically if provided
             if (authToken != null && !authToken.isEmpty()) {
@@ -144,14 +144,15 @@ public class AndroidGPS {
                 Log.d(TAG, "✅ Bearer token added to request headers");
             }
             
-            connection.setDoOutput(true);
-            connection.setConnectTimeout(10000);
-            connection.setReadTimeout(10000);
+            connection.setConnectTimeout(15000);
+            connection.setReadTimeout(15000);
+            connection.setUseCaches(false);
             
-            // Send request body
+            // Send request body with pre-calculated data
+            connection.setDoOutput(true);
             try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonData.getBytes(StandardCharsets.UTF_8);
-                os.write(input, 0, input.length);
+                os.write(postData, 0, postData.length);
+                os.flush();
             }
             
             // Get response
