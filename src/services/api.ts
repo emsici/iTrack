@@ -360,11 +360,14 @@ export const logout = async (token: string): Promise<boolean> => {
       status: gpsData.status
     });
     
+    console.log('🔑 Using Bearer token for GPS:', token.substring(0, 20) + '...');
+    
     const response = await CapacitorHttp.post({
       url: `${API_BASE_URL}/gps.php`,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
         'User-Agent': 'iTrack-Android-Service/1.0'
       },
       data: gpsData

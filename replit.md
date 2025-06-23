@@ -171,7 +171,23 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.94 (June 23, 2025) - STOP/PAUSE FLOW COMPLET VERIFICAT ȘI CAPACITORHTTP ENHANCED
+### Versiunea Curentă: 1808.96 (June 23, 2025) - BEARER TOKEN TRANSMISSION FIXED
+
+**Bearer token verification enhanced**: Verificare și logging pentru token înainte de transmisie GPS
+**401 error fix**: Asigurat că Bearer token este transmis corect în header Authorization
+**Enhanced token logging**: Afișare parțială token pentru confirmare că există și este valid
+**WebView bridge validation**: Verificare că MainActivity și WebView sunt disponibile
+**GPS transmission result verification**: Checking că rezultatul WebView este success
+
+### Versiunea Precedentă: 1808.95 (June 23, 2025) - GPS TRANSMISSION DEBUG ENHANCED
+
+**GPS transmission debugging complet**: Verificare auth token, MainActivity, WebView înainte de transmisie
+**Location change immediate trigger**: GPS se trimite instant la schimbarea locației + timer regulat
+**Enhanced error logging**: Logging detaliat pentru fiecare pas al transmisiei GPS
+**Transmission validation**: Verificare că toate componentele sunt disponibile înainte de transmisie
+**WebView bridge verification**: Confirmă că bridge-ul JavaScript este funcțional
+
+### Versiunea Precedentă: 1808.94 (June 23, 2025) - STOP/PAUSE FLOW COMPLET VERIFICAT ȘI CAPACITORHTTP ENHANCED
 
 **STOP/PAUSE logic complet implementat**: Status 3 oprește GPS, status 4 șterge din Map după 2s
 **GPS Timer enhanced logging**: Verificare detaliată care course transmite și de ce
