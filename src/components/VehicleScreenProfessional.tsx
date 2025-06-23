@@ -44,12 +44,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
 
-  // Load stored vehicle number on component mount
+  // Load stored vehicle number ONLY on initial component mount
   useEffect(() => {
     const loadStoredVehicleNumber = async () => {
       try {
         const storedVehicle = await getStoredVehicleNumber();
-        if (storedVehicle) {
+        if (storedVehicle && !vehicleNumber) { // Only load if current input is empty
           setVehicleNumber(storedVehicle);
           console.log('Loaded stored vehicle number:', storedVehicle);
         }
@@ -59,8 +59,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
     
     loadStoredVehicleNumber();
-    
-    // Listen for background refresh events from Android
+  }, []); // Empty dependency array - runs only once on mount
+
+  // Separate useEffect for background refresh events
+  useEffect(() => {
     const handleBackgroundRefresh = () => {
       console.log('Background refresh event received from Android');
       if (vehicleNumber && token && coursesLoaded) {
@@ -97,8 +99,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     setError("");
     
     try {
-      // Store vehicle number for persistence
-      await storeVehicleNumber(vehicleNumber.trim());
+      // Store vehicle number for persistence ONLY if successful
+      // Moved after successful course loading
       
       console.log(`=== DEBUGGING: Loading courses for vehicle: ${vehicleNumber} ===`);
       const response = await getVehicleCourses(vehicleNumber, token);
@@ -161,6 +163,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         setError("");
         setCoursesLoaded(true); // Allow access only when courses are found
         setSelectedStatusFilter('all'); // Reset filter when new courses load
+        
+        // Store vehicle number ONLY after successful course loading
+        await storeVehicleNumber(vehicleNumber.trim());
         console.log(`✅ Courses loaded successfully - switching to main view with ${finalCourses.length} courses`);
         
         // Update last refresh timestamp
@@ -232,6 +237,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         setCourses([]);
         setCoursesLoaded(false); // Stay on input screen
         setError("Nu au fost găsite curse pentru acest vehicul");
+        // Don't save failed vehicle number to storage
         console.log("✅ Staying on input screen - no courses found");
       }
     } catch (error: any) {
