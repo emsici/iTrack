@@ -320,21 +320,12 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
     console.log('Token:', token.substring(0, 20) + '...');
     console.log('GPS Data:', JSON.stringify(gpsData, null, 2));
     
-    // Try native GPS first - PURE JAVA EFFICIENCY
-    if (typeof (window as any).AndroidGPS?.sendGPSNative === 'function') {
-      console.log('Using native GPS transmission');
-      const nativeResult = (window as any).AndroidGPS.sendGPSNative(
-        gpsData.lat.toString(),
-        gpsData.lng.toString(),
-        gpsData.viteza.toString(),
-        gpsData.directie.toString(),
-        gpsData.altitudine.toString(),
-        gpsData.baterie.toString(),
-        gpsData.numar_inmatriculare,
-        gpsData.uit,
-        gpsData.status.toString(),
-        gpsData.hdop.toString(),
-        gpsData.gsm_signal.toString(),
+    // Try native HTTP first - PURE JAVA EFFICIENCY
+    if (typeof (window as any).AndroidGPS?.postNativeHttp === 'function') {
+      console.log('Using AndroidGPS native HTTP for GPS transmission');
+      const nativeResult = (window as any).AndroidGPS.postNativeHttp(
+        `${API_BASE_URL}/gps.php`,
+        JSON.stringify(gpsData),
         token
       );
       

@@ -79,7 +79,7 @@ const App: React.FC = () => {
         });
       }
       
-      console.log('Logout API response:', response.status);
+      console.log('Logout completed via AndroidGPS');
     } catch (error) {
       console.error('Error calling logout API:', error);
     } finally {
