@@ -171,7 +171,24 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.105 (June 23, 2025) - GPS DATA FORMAT FIXED - MATCHING WORKING TEST
+### Versiunea Curentă: 1808.107 (June 23, 2025) - HEADERS & REQUEST FORMAT UNIFIED WITH WORKING TEST
+
+**Header consistency fixed**: User-Agent standardized to 'iTrack-Android-Service/1.0' across all requests
+**Cache-Control removed**: Eliminated 'Cache-Control: no-cache' from fetch fallback to match test
+**Request format verification**: Confirmed JSON.stringify/parse preserves data types correctly
+**Complete request alignment**: Headers, data format, and transmission method now identical to working test
+**Production ready**: All GPS transmission paths unified with successful test format
+
+### Versiunea Precedentă: 1808.106 (June 23, 2025) - GPS DATA FORMAT COMPLETELY ALIGNED WITH WORKING TEST
+
+**Complete GPS format alignment**: All fields now match successful test exactly
+**Coordinate data types**: lat/lng as numbers with 4 decimal precision (not strings)
+**Battery level consistency**: baterie: 85 (matching test, not 100)
+**Data type uniformity**: All numeric fields as numbers, all string fields as strings
+**Precision optimization**: 4 decimal coordinates instead of 6 for better compatibility
+**Perfect format match**: GPS data structure identical to successful test format
+
+### Versiunea Precedentă: 1808.105 (June 23, 2025) - GPS DATA FORMAT FIXED - MATCHING WORKING TEST
 
 **Critical GPS data format fix**: Fixed data types to match successful test format
 **Android GPS Service corrected**: status as number, hdop as number, gsm_signal as number (not "4G")

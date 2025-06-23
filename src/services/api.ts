@@ -467,7 +467,7 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json',
           'Cache-Control': 'no-cache',
-          'User-Agent': 'iTrack/1.0'
+          'User-Agent': 'iTrack-Android-Service/1.0'
         },
         body: JSON.stringify(gpsData)
       });
