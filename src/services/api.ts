@@ -1,5 +1,6 @@
 import { logAPI } from './appLogger';
-// Using only native HTTP in APK, fetch in browser - CapacitorHttp completely removed
+import { CapacitorHttp } from '@capacitor/core';
+// Consistent static import to resolve Vite warnings
 
 export const API_BASE_URL = 'https://www.euscagency.com/etsm3/platforme/transport/apk';
 
@@ -35,7 +36,6 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     
     // Use CapacitorHttp directly for fast authentication
     try {
-      const { CapacitorHttp } = await import('@capacitor/core');
       console.log('Using CapacitorHttp for fast login');
       
       const response = await CapacitorHttp.post({

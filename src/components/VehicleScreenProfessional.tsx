@@ -469,23 +469,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
               <i className="fas fa-truck"></i>
             </div>
-            <h1 style={{
-              fontSize: '32px',
-              fontWeight: '700',
-              color: '#ffffff',
-              margin: '0 0 8px 0',
-              letterSpacing: '-0.5px'
-            }}>
-              iTrack
-            </h1>
-            <p style={{
-              fontSize: '16px',
-              color: '#94a3b8',
-              margin: '0',
-              fontWeight: '400'
-            }}>
-              Sistem GPS Profesional
-            </p>
           </div>
 
           {/* Input Row - Middle */}
@@ -587,7 +570,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 ) : (
                   <>
                     <i className="fas fa-search" style={{ marginRight: '12px' }}></i>
-                    Caută Curse pentru Vehicul
+                    Caută curse
                   </>
                 )}
               </button>
