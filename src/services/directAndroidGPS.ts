@@ -25,11 +25,35 @@ class DirectAndroidGPSService {
 
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
     console.log(`=== UPDATING STATUS: ${courseId} → ${newStatus} ===`);
-    console.log(`Active courses in map: ${Array.from(this.activeCourses.keys()).join(', ')}`);
+    console.log(`Active courses in map: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
+    console.log(`Total active courses: ${this.activeCourses.size}`);
     
     let course = this.activeCourses.get(courseId);
     if (!course) {
-      throw new Error(`Course ${courseId} not found in active courses - call startGPSTracking first`);
+      console.log(`⚠️ Course ${courseId} not found in activeCourses Map`);
+      console.log(`Available courses: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
+      
+      // Pentru PAUSE/STOP fără START anterior, creează entry minimal
+      if (newStatus === 3 || newStatus === 4) {
+        console.log(`🔧 Creating minimal course entry for ${courseId} with status ${newStatus}`);
+        
+        // Folosește datele din localStorage sau valori default
+        const vehicleNumber = localStorage.getItem('vehicleNumber') || 'UNKNOWN';
+        const token = localStorage.getItem('authToken') || '';
+        
+        course = {
+          courseId,
+          vehicleNumber,
+          uit: courseId, // UIT = courseId în majoritatea cazurilor
+          token,
+          status: newStatus
+        };
+        
+        this.activeCourses.set(courseId, course);
+        console.log(`✅ Minimal course entry created: ${courseId}`);
+      } else {
+        throw new Error(`Course ${courseId} not found in active courses - call startGPSTracking first`);
+      }
     }
 
     const oldStatus = course.status;
@@ -113,6 +137,9 @@ class DirectAndroidGPSService {
     };
 
     this.activeCourses.set(courseId, courseData);
+    console.log(`📍 Course ${courseId} successfully added to activeCourses Map`);
+    console.log(`📊 activeCourses Map now contains: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
+    console.log(`📈 Total active courses: ${this.activeCourses.size}`);
 
     try {
       // FORȚARE Android GPS nativ - chiar și în browser pentru APK

@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.91 (June 23, 2025) - COPY LOGS FUNCTIONALITY ENHANCED
+### Versiunea Curentă: 1808.92 (June 23, 2025) - ACTIVECOURSES MAP DEBUG ENHANCED
+
+**activeCourses Map debugging îmbunătățit**: Logging detaliat pentru popularea și accesarea Map-ului
+**Fallback logic pentru PAUSE/STOP**: Creare entry minimal când course nu există în Map
+**Enhanced error handling**: Afișare courses disponibile când course nu e găsit
+**Detailed Map tracking**: Console logs pentru fiecare operație add/remove din activeCourses
+**localStorage fallback**: Folosește vehicleNumber și token din storage pentru entries minimale
+
+### Versiunea Precedentă: 1808.91 (June 23, 2025) - COPY LOGS FUNCTIONALITY ENHANCED
 
 **Copy logs îmbunătățit**: Feedback vizual cu success/error states și animații
 **Export All button**: Funcție dedicată pentru export complet cu header și formatting
