@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.93 (June 23, 2025) - START/RESUME FLOW VERIFICAT ȘI ENHANCED
+### Versiunea Curentă: 1808.94 (June 23, 2025) - STOP/PAUSE FLOW COMPLET VERIFICAT ȘI CAPACITORHTTP ENHANCED
+
+**STOP/PAUSE logic complet implementat**: Status 3 oprește GPS, status 4 șterge din Map după 2s
+**GPS Timer enhanced logging**: Verificare detaliată care course transmite și de ce
+**CapacitorHttp transmission verified**: Logging complet pentru request/response GPS data
+**Auto-stop service**: Serviciul se oprește automat când nu mai sunt curse active
+**Complete status flow confirmed**: START→GPS ON, PAUSE→GPS OFF, RESUME→GPS ON, STOP→REMOVE+STOP
+
+### Versiunea Precedentă: 1808.93 (June 23, 2025) - START/RESUME FLOW VERIFICAT ȘI ENHANCED
 
 **Flow START/RESUME complet verificat**: startGPSTracking → activeCourses.set() → AndroidGPS.startGPS() → SimpleGPSService
 **Enhanced debugging Android**: Logging detaliat în SimpleGPSService pentru confirmare activeCourses Map

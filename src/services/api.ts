@@ -351,6 +351,14 @@ export const logout = async (token: string): Promise<boolean> => {
   try {
     const gpsData = JSON.parse(jsonString);
     console.log('🔥 GPS from Android service via CapacitorHttp:', gpsData);
+    console.log('📍 GPS Data details:', {
+      courseId: gpsData.uit,
+      lat: gpsData.lat,
+      lng: gpsData.lng,
+      speed: gpsData.viteza,
+      vehicle: gpsData.numar_inmatriculare,
+      status: gpsData.status
+    });
     
     const response = await CapacitorHttp.post({
       url: `${API_BASE_URL}/gps.php`,
@@ -362,8 +370,19 @@ export const logout = async (token: string): Promise<boolean> => {
       data: gpsData
     });
     
-    console.log('✅ Android GPS via CapacitorHttp success:', response.status);
-    return response.status >= 200 && response.status < 300;
+    console.log('✅ Android GPS via CapacitorHttp response:', {
+      status: response.status,
+      data: response.data,
+      success: response.status >= 200 && response.status < 300
+    });
+    
+    if (response.status >= 200 && response.status < 300) {
+      console.log(`📡 GPS successfully sent to server for course ${gpsData.uit}`);
+      return true;
+    } else {
+      console.error(`❌ GPS server rejected data: ${response.status}`);
+      return false;
+    }
     
   } catch (error) {
     console.error('❌ Android GPS via CapacitorHttp failed:', error);

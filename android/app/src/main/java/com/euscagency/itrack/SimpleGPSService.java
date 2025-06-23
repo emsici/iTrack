@@ -154,15 +154,24 @@ public class SimpleGPSService extends Service implements LocationListener {
             @Override
             public void run() {
                 if (lastLocation != null && !activeCourses.isEmpty()) {
+                    Log.d(TAG, String.format("🔄 GPS Timer: Checking %d active courses", activeCourses.size()));
                     for (CourseData course : activeCourses.values()) {
+                        Log.d(TAG, String.format("📡 Course %s status: %d (transmit: %s)", 
+                            course.courseId, course.status, course.status == 2 ? "YES" : "NO"));
                         if (course.status == 2) {
+                            Log.d(TAG, String.format("📍 Transmitting GPS for active course: %s", course.courseId));
                             transmitGPSData(course, lastLocation);
                         }
                     }
+                } else {
+                    Log.d(TAG, String.format("⏸️ GPS Timer: No location (%s) or no active courses (%d)", 
+                        lastLocation != null ? "available" : "null", activeCourses.size()));
                 }
                 
                 if (isTracking && !activeCourses.isEmpty()) {
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                } else {
+                    Log.d(TAG, "🛑 GPS Timer stopped: tracking=" + isTracking + ", courses=" + activeCourses.size());
                 }
             }
         };
@@ -224,14 +233,31 @@ public class SimpleGPSService extends Service implements LocationListener {
         
         CourseData course = activeCourses.get(courseId);
         if (course != null) {
+            int oldStatus = course.status;
             course.status = newStatus;
-            Log.d(TAG, String.format("✅ Status updated for course %s to %d", courseId, newStatus));
+            Log.d(TAG, String.format("✅ Course %s status updated: %d → %d", courseId, oldStatus, newStatus));
             
-            if (newStatus == 3 || newStatus == 4) {
-                Log.d(TAG, "Pausing GPS transmission for status " + newStatus);
+            if (newStatus == 2) {
+                Log.d(TAG, String.format("▶️ ACTIVE: Course %s will start GPS transmission every %dms", courseId, GPS_INTERVAL_MS));
+            } else if (newStatus == 3) {
+                Log.d(TAG, String.format("⏸️ PAUSE: Course %s GPS transmission stopped", courseId));
+            } else if (newStatus == 4) {
+                Log.d(TAG, String.format("🛑 STOP: Course %s will be removed from activeCourses", courseId));
+                // Șterge din activeCourses după 2 secunde
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    activeCourses.remove(courseId);
+                    Log.d(TAG, String.format("🗑️ Course %s removed from activeCourses", courseId));
+                    Log.d(TAG, String.format("📊 Remaining active courses: %d", activeCourses.size()));
+                    
+                    if (activeCourses.isEmpty()) {
+                        Log.d(TAG, "🏁 No more active courses - stopping GPS service");
+                        stopSelf();
+                    }
+                }, 2000);
             }
         } else {
-            Log.w(TAG, String.format("❌ Course %s not found in active courses", courseId));
+            Log.w(TAG, String.format("❌ Course %s not found in activeCourses Map", courseId));
+            Log.d(TAG, String.format("📊 Available courses: %s", activeCourses.keySet().toString()));
         }
     }
 
