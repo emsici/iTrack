@@ -171,13 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.111 (June 23, 2025) - BATTERY SENSORS & SILENT TOKEN VALIDATION
+### Versiunea Curentă: 1808.112 (June 26, 2025) - REAL SENSORS & BACKGROUND GPS COMPLETE
 
-**Battery from device sensors**: Android GPS service now reads real battery level from BatteryManager
-**JavaScript battery API**: Browser fallback uses navigator.getBatteryInfo() or navigator.battery
-**Silent token validation**: Removed verbose token expiration logging per user request
-**Clean debugging output**: Battery level prominently displayed, reduced verbose logging
-**Real sensor data**: No more hardcoded battery values - always from device sensors
+**All sensor data real**: GPS coordinates, speed, direction, altitude, battery from device sensors
+**Background GPS functional**: Wake lock + foreground service for continuous operation with phone locked
+**Real coordinate transmission**: navigator.geolocation with position.coords for authentic location data
+**Complete sensor integration**: Battery level, network signal, GPS accuracy all from real device sensors
+**Token flow unified**: GPS uses same authentication token as course loading for consistency
+**Background operation guaranteed**: PowerManager.PARTIAL_WAKE_LOCK prevents service termination
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
