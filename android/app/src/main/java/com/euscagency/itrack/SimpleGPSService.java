@@ -419,7 +419,22 @@ public class SimpleGPSService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         lastLocation = location;
-        Log.d(TAG, "Location updated: " + location.getLatitude() + ", " + location.getLongitude());
+        Log.d(TAG, String.format("📍 Location updated: lat=%.6f, lng=%.6f, accuracy=%.1fm", 
+            location.getLatitude(), location.getLongitude(), location.getAccuracy()));
+        
+        // CRITICAL: Verify that GPS timer is running when location changes
+        Log.d(TAG, "🔍 GPS Timer Status Check:");
+        Log.d(TAG, "  - isTracking: " + isTracking);
+        Log.d(TAG, "  - activeCourses size: " + activeCourses.size());
+        Log.d(TAG, "  - gpsHandler null: " + (gpsHandler == null));
+        Log.d(TAG, "  - gpsRunnable null: " + (gpsRunnable == null));
+        
+        // If location updates but timer stopped, restart it
+        if (!activeCourses.isEmpty() && (gpsHandler == null || gpsRunnable == null || !isTracking)) {
+            Log.w(TAG, "⚠️ GPS timer not running but courses exist - restarting");
+            initializeGPSHandler();
+            startGPSTransmissions();
+        }
     }
 
     @Override

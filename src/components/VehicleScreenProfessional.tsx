@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
-// Dynamic imports only for api.ts to prevent Vite warnings
+import { getVehicleCourses, sendGPSData, logout } from "../services/api";
 import {
   startGPSTracking,
-  stopGPSTracking,
   updateCourseStatus,
   logoutClearAllGPS,
-  hasActiveCourses,
-  getActiveCourses,
 } from "../services/directAndroidGPS";
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 import { getOfflineGPSCount } from "../services/offlineGPS";
