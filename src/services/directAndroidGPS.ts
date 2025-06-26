@@ -43,13 +43,34 @@ class DirectAndroidGPSService {
         const vehicleNumber = localStorage.getItem('vehicleNumber') || 'UNKNOWN';
         const token = localStorage.getItem('authToken') || '';
         
+        // CRITICAL FIX: Get real UIT from courses data instead of assuming courseId = UIT
+        const storedCourses = localStorage.getItem(`courses_${vehicleNumber}`);
+        let realUIT = courseId; // fallback to courseId
+        
+        if (storedCourses) {
+          try {
+            const coursesData = JSON.parse(storedCourses);
+            const foundCourse = coursesData.find((c: any) => c.id === courseId);
+            if (foundCourse && foundCourse.uit) {
+              realUIT = foundCourse.uit;
+              console.log(`✅ Found real UIT ${realUIT} for courseId ${courseId}`);
+            } else {
+              console.log(`⚠️ Using courseId ${courseId} as UIT fallback`);
+            }
+          } catch (error) {
+            console.log(`⚠️ Error parsing courses, using courseId as UIT:`, error);
+          }
+        }
+        
         course = {
           courseId,
           vehicleNumber,
-          uit: courseId, // UIT = courseId în majoritatea cazurilor
+          uit: realUIT, // Use real UIT from courses data
           token,
           status: newStatus
         };
+        
+        console.log(`🔧 Minimal course entry: courseId=${courseId}, UIT=${realUIT}, token=${token.substring(0, 10)}...`);
         
         this.activeCourses.set(courseId, course);
         console.log(`✅ Minimal course entry created: ${courseId}`);
