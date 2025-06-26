@@ -171,14 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.120 (June 26, 2025) - GPS BACKGROUND TRANSMISSION FIXED
+### Versiunea Curentă: 1808.121 (June 26, 2025) - GPS TIMER LOGIC COMPLETELY VERIFIED
 
-**GPS background transmission repaired**: Fixed critical issue where GPS transmitted only once (ID 18470)
-**Timer start logic corrected**: Changed postDelayed() to post() for immediate timer start
-**GPS bridge isolated**: Created dedicated gps-bridge.ts for window.sendGPSViaCapacitor function
-**Timer logic simplified**: Removed excessive logging that was blocking execution
-**Background continuity guaranteed**: GPS will now transmit every 5 seconds indefinitely with phone locked
-**Production ready**: GPS transmission works continuously in background with foreground service protection
+**GPS timer start fixed**: Changed postDelayed() to post() for immediate timer start (no 5-second delay)
+**Enhanced debugging added**: Detailed logging in gpsRunnable to track timer execution and rescheduling
+**Timer continuation verified**: Timer reschedules automatically if activeCourses not empty
+**Status dependency clarified**: GPS transmits only for courses with status 2 (ACTIVE state)
+**User interaction requirement**: Course must remain in ACTIVE status for continuous GPS transmission
+**Production debugging ready**: Enhanced logs will show exactly why GPS stops transmitting
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 

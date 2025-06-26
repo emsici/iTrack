@@ -226,8 +226,9 @@ public class SimpleGPSService extends Service implements LocationListener {
         
         isTracking = true;
         if (gpsHandler != null && gpsRunnable != null) {
-            gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS);
-            Log.d(TAG, "✅ GPS Timer scheduled - transmissions will begin");
+            // CRITICAL FIX: Start immediately, then continue every 5 seconds
+            gpsHandler.post(gpsRunnable);
+            Log.d(TAG, "✅ GPS Timer started IMMEDIATELY - no delay");
         } else {
             Log.e(TAG, "❌ GPS Handler or Runnable is null!");
         }
