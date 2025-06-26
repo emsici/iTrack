@@ -196,7 +196,13 @@ public class SimpleGPSService extends Service implements LocationListener {
     private void initializeGPSHandler() {
         Log.d(TAG, "🔧 INITIALIZING CONTINUOUS BACKGROUND GPS HANDLER");
         Log.d(TAG, "🔄 forceTimerContinuous = " + forceTimerContinuous);
+        
+        // CRITICAL: Ensure we have a valid Handler
+        if (gpsHandler != null) {
+            gpsHandler.removeCallbacksAndMessages(null);
+        }
         gpsHandler = new Handler(Looper.getMainLooper());
+        
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
@@ -307,8 +313,13 @@ public class SimpleGPSService extends Service implements LocationListener {
         
         // Execute immediately - no delay for first transmission
         if (gpsHandler != null && gpsRunnable != null) {
+            // CRITICAL: Clear any existing callbacks first
+            gpsHandler.removeCallbacksAndMessages(null);
+            
+            // Start with immediate execution
             gpsHandler.post(gpsRunnable); // Execute NOW
             Log.d(TAG, "🔄 BACKGROUND TIMER ACTIVATED - will auto-repeat via postDelayed()");
+            Log.d(TAG, "🎯 Handler and Runnable confirmed ready for continuous operation");
         } else {
             Log.e(TAG, "❌ CRITICAL: Cannot start timer - handler/runnable still null after init");
         }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
-import { getVehicleCourses, logout } from "../services/api";
+import { getVehicleCourses, logout, sendGPSData } from "../services/api";
 import {
   startGPSTracking,
   updateCourseStatus,
@@ -456,7 +456,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         };
         
         // GPS transmission with same token as vehicle loading
-        const { sendGPSData } = await import('../services/api');
         const success = await sendGPSData(gpsData, token);
         console.log(`GPS transmission: ${success ? 'SUCCESS' : 'FAILED'} for ${courseId}`);
 
