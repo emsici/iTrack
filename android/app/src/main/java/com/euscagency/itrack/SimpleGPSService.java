@@ -327,35 +327,73 @@ public class SimpleGPSService extends Service implements LocationListener {
         String jsonString = gpsData.toString();
         Log.d(TAG, "📡 Complete GPS payload: " + jsonString);
         
-        // CRITICAL: Use CapacitorHttp through WebView - same as JavaScript
-        MainActivity.runOnMainThread(() -> {
-            try {
-                String jsCode = "window.sendGPSViaCapacitor('" + jsonString.replace("'", "\\'") + "', '" + userAuthToken + "')";
-                Log.d(TAG, "🎯 EXECUTING GPS TRANSMISSION for course: " + courseId);
-                Log.d(TAG, "📡 JavaScript code length: " + jsCode.length() + " chars");
-                
-                MainActivity.getInstance().getWebView().evaluateJavascript(jsCode, result -> {
-                    Log.d(TAG, "📨 GPS TRANSMISSION CALLBACK for " + courseId);
-                    Log.d(TAG, "📊 JavaScript result: " + result);
-                    
-                    if (result != null && (result.contains("true") || result.equals("true"))) {
-                        Log.d(TAG, "🎉 GPS TRANSMISSION SUCCESS for course: " + courseId);
-                    } else {
-                        Log.w(TAG, "⚠️ GPS TRANSMISSION ISSUE for course: " + courseId + " - result: " + result);
-                    }
-                    
-                    // CRITICAL: Verify timer continues after transmission
-                    Log.d(TAG, "🔍 Post-transmission status:");
-                    Log.d(TAG, "  - isTracking: " + isTracking);
-                    Log.d(TAG, "  - activeCourses size: " + activeCourses.size());
-                    Log.d(TAG, "  - gpsHandler null: " + (gpsHandler == null));
-                    Log.d(TAG, "🔄 Timer should continue automatically in background");
-                });
-            } catch (Exception e) {
-                Log.e(TAG, "❌ CRITICAL GPS TRANSMISSION ERROR for " + courseId + ": " + e.getMessage());
-                e.printStackTrace();
+        // CRITICAL: Direct HTTP transmission from background service
+        try {
+            // Use direct HTTP instead of WebView for true background operation
+            Log.d(TAG, "🚀 DIRECT HTTP GPS TRANSMISSION (background independent)");
+            
+            URL url = new URL("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", "Bearer " + userAuthToken);
+            connection.setRequestProperty("User-Agent", "iTrack-Android-Service/1.0");
+            connection.setDoOutput(true);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
+            
+            // Send GPS data
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonString.getBytes("utf-8");
+                os.write(input, 0, input.length);
+                os.flush();
             }
-        });
+            
+            int responseCode = connection.getResponseCode();
+            Log.d(TAG, "📨 HTTP Response code: " + responseCode);
+            
+            if (responseCode >= 200 && responseCode < 300) {
+                Log.d(TAG, "🎉 DIRECT GPS TRANSMISSION SUCCESS for course: " + courseId);
+                
+                // Read response
+                try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream()))) {
+                    String response = reader.readLine();
+                    Log.d(TAG, "📊 Server response: " + response);
+                }
+            } else {
+                Log.w(TAG, "⚠️ GPS TRANSMISSION WARNING - response code: " + responseCode);
+            }
+            
+            connection.disconnect();
+            
+            // CRITICAL: Verify timer continues after transmission
+            Log.d(TAG, "🔍 Post-transmission status:");
+            Log.d(TAG, "  - isTracking: " + isTracking);
+            Log.d(TAG, "  - activeCourses size: " + activeCourses.size());
+            Log.d(TAG, "  - gpsHandler null: " + (gpsHandler == null));
+            Log.d(TAG, "🔄 Background timer continues independently");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ DIRECT HTTP TRANSMISSION ERROR for " + courseId + ": " + e.getMessage());
+            e.printStackTrace();
+            
+            // Fallback to WebView if available
+            if (MainActivity.getInstance() != null) {
+                Log.d(TAG, "🔄 Fallback to WebView transmission");
+                MainActivity.runOnMainThread(() -> {
+                    try {
+                        String jsCode = "window.sendGPSViaCapacitor('" + jsonString.replace("'", "\\'") + "', '" + userAuthToken + "')";
+                        MainActivity.getInstance().getWebView().evaluateJavascript(jsCode, result -> {
+                            Log.d(TAG, "📨 Fallback WebView result: " + result);
+                        });
+                    } catch (Exception ex) {
+                        Log.e(TAG, "❌ Fallback WebView also failed: " + ex.getMessage());
+                    }
+                });
+            }
+        }
     }
 
     private void updateCourseStatus(Intent intent) {
