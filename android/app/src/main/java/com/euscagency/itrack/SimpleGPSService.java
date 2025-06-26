@@ -593,48 +593,4 @@ public class SimpleGPSService extends Service implements LocationListener {
         Log.d(TAG, "Using fallback battery level: 85%");
         return 85;
     }
-    
-    private Notification createNotification() {
-        // Create notification channel for Android 8+
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                "GPS_CHANNEL", 
-                "GPS Tracking Service", 
-                NotificationManager.IMPORTANCE_LOW
-            );
-            channel.setDescription("Background GPS tracking for fleet management");
-            
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-        
-        return new NotificationCompat.Builder(this, "GPS_CHANNEL")
-            .setContentTitle("iTrack GPS Active")
-            .setContentText("GPS tracking in background for active courses")
-            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setOngoing(true)
-            .build();
-    }
-    
-    // CourseData class definition - CRITICAL FIX
-    public static class CourseData {
-        public String courseId;
-        public String uit;
-        public int status;
-        public String vehicleNumber;
-        
-        public CourseData(String courseId, String uit, int status, String vehicleNumber) {
-            this.courseId = courseId;
-            this.uit = uit;
-            this.status = status;
-            this.vehicleNumber = vehicleNumber;
-        }
-        
-        @Override
-        public String toString() {
-            return String.format("CourseData{id='%s', uit='%s', status=%d, vehicle='%s'}", 
-                courseId, uit, status, vehicleNumber);
-        }
-    }
 }
