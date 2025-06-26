@@ -458,7 +458,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           gsm_signal: sensorData.gsm_signal
         };
         
-        // GPS transmission with static import
+        // GPS transmission with static import - CRITICAL FIX
+        const { sendGPSData } = await import('../services/api');
         const success = await sendGPSData(gpsData, token);
         console.log(`GPS transmission result: ${success ? 'SUCCESS' : 'FAILED'} for course ${courseId}`);
 
