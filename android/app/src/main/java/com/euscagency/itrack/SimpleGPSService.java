@@ -328,10 +328,10 @@ public class SimpleGPSService extends Service implements LocationListener {
                         
                         for (CourseData course : activeCourses.values()) {
                             if (course.status == 2) {
-                                Log.d(TAG, "📍 TRANSMITTING GPS for UIT: " + course.uit);
+                                Log.d(TAG, "📍 TRANSMITTING GPS for UIT: " + course.uit + " (status=2 ACTIVE)");
                                 transmitGPSData(course, lastLocation);
                             } else {
-                                Log.d(TAG, "⏸️ SKIPPING GPS for UIT: " + course.uit + " (status: " + course.status + ")");
+                                Log.d(TAG, "⏸️ SKIPPING GPS for UIT: " + course.uit + " (status: " + course.status + " - paused/stopped)");
                             }
                         }
                     } else {
@@ -523,18 +523,15 @@ public class SimpleGPSService extends Service implements LocationListener {
             } else if (newStatus == 3) {
                 Log.d(TAG, String.format("⏸️ PAUSE: Course %s GPS transmission stopped", courseId));
             } else if (newStatus == 4) {
-                Log.d(TAG, String.format("🛑 STOP: Course %s will be removed from activeCourses", courseId));
-                // Șterge din activeCourses după 2 secunde
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    activeCourses.remove(courseId);
-                    Log.d(TAG, String.format("🗑️ Course %s removed from activeCourses", courseId));
-                    Log.d(TAG, String.format("📊 Remaining active courses: %d", activeCourses.size()));
-                    
-                    if (activeCourses.isEmpty()) {
-                        Log.d(TAG, "🏁 No more active courses - stopping GPS service");
-                        stopSelf();
-                    }
-                }, 2000);
+                Log.d(TAG, String.format("🛑 STOP: Course %s status set to 4 (will skip GPS transmission)", courseId));
+                // CRITICAL: Do NOT remove from activeCourses automatically
+                // Status 4 courses will be skipped in GPS transmission but kept in Map
+                // This prevents activeCourses from becoming empty and stopping executor
+                Log.d(TAG, String.format("📊 Course %s kept in activeCourses with status=4 (transmission stopped)", courseId));
+                Log.d(TAG, String.format("🔄 Executor continues running - can restart course later"));
+                
+                // Only remove if explicitly requested via STOP_COURSE action
+                // Do NOT auto-remove based on status change
             }
         } else {
             Log.w(TAG, String.format("❌ Course %s not found in activeCourses Map", courseId));
