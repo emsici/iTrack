@@ -199,9 +199,9 @@ public class SimpleGPSService extends Service implements LocationListener {
             public void run() {
                 long cycleStartTime = System.currentTimeMillis();
                 Log.d(TAG, "🚀 === BACKGROUND TIMER EXECUTION START ===");
-                Log.d(TAG, "🔄 === GPS TIMER CYCLE START ===");
                 Log.d(TAG, "📊 Active courses: " + activeCourses.size());
                 Log.d(TAG, "🗺️ Location available: " + (lastLocation != null));
+                Log.d(TAG, "🔄 forceTimerContinuous: " + forceTimerContinuous);
                 
                 // Process GPS transmission for all active courses
                 if (lastLocation != null && !activeCourses.isEmpty()) {
@@ -235,25 +235,30 @@ public class SimpleGPSService extends Service implements LocationListener {
                     }
                 }
                 
-                // CRITICAL: ALWAYS reschedule if courses exist - CONTINUOUS BACKGROUND OPERATION
-                if (!activeCourses.isEmpty()) {
+                // CRITICAL: ALWAYS reschedule if courses exist AND forceTimerContinuous is true
+                if (!activeCourses.isEmpty() && forceTimerContinuous) {
                     Log.d(TAG, "🔄 FORCING CONTINUOUS RESCHEDULE - " + (GPS_INTERVAL_MS/1000) + " seconds");
                     Log.d(TAG, "📊 Current courses in Map: " + activeCourses.keySet().toString());
+                    Log.d(TAG, "🎯 forceTimerContinuous = " + forceTimerContinuous + " (must be true)");
                     
-                    // CRITICAL FIX: Use Handler.postDelayed() with explicit reschedule
-                    if (gpsHandler != null) {
+                    // CRITICAL FIX: Ensure handler exists and reschedule immediately
+                    if (gpsHandler != null && gpsRunnable != null) {
+                        // REMOVE any pending callbacks first to prevent conflicts
+                        gpsHandler.removeCallbacks(gpsRunnable);
+                        
                         // FORCE IMMEDIATE RESCHEDULE - this is the key fix
-                        boolean scheduled = gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                        boolean scheduled = gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS);
                         long cycleTime = System.currentTimeMillis() - cycleStartTime;
-                        Log.d(TAG, "✅ FORCED RESCHEDULE: " + scheduled + " (cycle: " + cycleTime + "ms)");
+                        Log.d(TAG, "✅ FORCED RESCHEDULE SUCCESS: " + scheduled + " (cycle: " + cycleTime + "ms)");
                         Log.d(TAG, "⏰ NEXT TRANSMISSION in exactly " + (GPS_INTERVAL_MS/1000) + " seconds");
+                        Log.d(TAG, "🔄 Timer will execute automatically via Handler mechanism");
                     } else {
-                        Log.e(TAG, "❌ CRITICAL: Handler is null - recreating for continuous operation!");
+                        Log.e(TAG, "❌ CRITICAL: Handler(" + (gpsHandler != null) + ") or Runnable(" + (gpsRunnable != null) + ") is null!");
                         // EMERGENCY: Recreate handler if null
                         initializeGPSHandler();
-                        if (gpsHandler != null) {
-                            gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                            Log.d(TAG, "🆘 EMERGENCY RESCHEDULE after handler recreation");
+                        if (gpsHandler != null && gpsRunnable != null) {
+                            boolean emergencyScheduled = gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS);
+                            Log.d(TAG, "🆘 EMERGENCY RESCHEDULE: " + emergencyScheduled + " after handler recreation");
                         }
                     }
                 } else {
