@@ -458,11 +458,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           gsm_signal: sensorData.gsm_signal
         };
         
-        // GPS transmission using dynamic import pentru a repara problema
-        const { sendGPSData } = await import('../services/api');
-        const success = await sendGPSData(gpsData, token);
-        console.log('🔑 GPS Token (first 30 chars):', token.substring(0, 30));
-        console.log(`GPS transmission result: ${success ? 'SUCCESS' : 'FAILED'} for course ${courseId}`);
+        // GPS transmission with enhanced debugging
+        console.log('🚀 === DEBUGGING GPS TRANSMISSION ===');
+        console.log('🔑 Token exists:', !!token);
+        console.log('🔑 Token length:', token ? token.length : 'null');
+        console.log('🔑 Token preview:', token ? token.substring(0, 30) + '...' : 'null');
+        console.log('📊 GPS Data to send:', JSON.stringify(gpsData, null, 2));
+        
+        try {
+          const { sendGPSData } = await import('../services/api');
+          console.log('✅ sendGPSData imported successfully');
+          
+          const success = await sendGPSData(gpsData, token);
+          console.log(`🎯 GPS transmission result: ${success ? 'SUCCESS' : 'FAILED'} for course ${courseId}`);
+          
+          if (!success) {
+            console.error('❌ GPS transmission failed - check network or server');
+            setError('GPS transmission failed - verificați conexiunea');
+          }
+        } catch (importError) {
+          console.error('❌ Import error:', importError);
+          setError(`Import error: ${importError.message}`);
+        }
 
         // Actualizează și serviciul GPS Android
         await updateCourseStatus(courseId, newStatus);
