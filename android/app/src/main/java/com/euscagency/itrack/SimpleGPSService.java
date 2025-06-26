@@ -313,11 +313,13 @@ public class SimpleGPSService extends Service implements LocationListener {
         gpsAlarmIntent = PendingIntent.getBroadcast(this, 0, gpsIntent, 
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         
-        // Start immediately
-        long triggerTime = System.currentTimeMillis() + 1000; // 1 second delay
-        alarmManager.setExactAndAllowWhileIdle(
+        // Start immediately then repeat every 5 seconds
+        performGPSTransmission();
+        
+        alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
-            triggerTime,
+            System.currentTimeMillis() + GPS_INTERVAL_MS,
+            GPS_INTERVAL_MS,
             gpsAlarmIntent
         );
         
@@ -531,33 +533,29 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
     
     private void performGPSTransmission() {
-        Log.d(TAG, "=== performGPSTransmission() called ===");
-        Log.d(TAG, "lastLocation: " + (lastLocation != null ? "AVAILABLE" : "NULL"));
-        Log.d(TAG, "activeCourses.size(): " + activeCourses.size());
-        Log.d(TAG, "forceTimerContinuous: " + forceTimerContinuous);
+        long currentTime = System.currentTimeMillis();
+        Log.d(TAG, "=== GPS TRANSMISSION CYCLE " + currentTime + " ===");
         
         if (lastLocation != null && !activeCourses.isEmpty() && forceTimerContinuous) {
-            Log.d(TAG, "GPS transmission conditions met - processing " + activeCourses.size() + " courses");
+            Log.d(TAG, "✅ CONDITIONS MET - Transmitting GPS for " + activeCourses.size() + " courses");
             for (CourseData course : activeCourses.values()) {
                 if (course.status == 2) {
-                    Log.d(TAG, "Transmitting GPS for course: " + course.courseId + " (status=2)");
+                    Log.d(TAG, "📡 TRANSMIT: " + course.courseId + " at " + currentTime);
                     transmitGPSData(course, lastLocation);
-                } else {
-                    Log.d(TAG, "Skipping course: " + course.courseId + " (status=" + course.status + ")");
                 }
             }
         } else {
-            Log.w(TAG, "GPS transmission skipped - conditions not met");
+            Log.w(TAG, "❌ SKIP: location=" + (lastLocation != null) + 
+                  ", courses=" + activeCourses.size() + 
+                  ", continuous=" + forceTimerContinuous);
         }
-        
-        // No manual reschedule needed - setRepeating handles it
-        Log.d(TAG, "GPS transmission completed - setRepeating will handle next execution");
     }
     
     public static class GPSTransmissionReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("GPSTransmissionReceiver", "AlarmManager broadcast received - triggering GPS transmission");
+            long timestamp = System.currentTimeMillis();
+            Log.d("GPSTransmissionReceiver", "🚨 ALARM FIRED at " + timestamp + " - triggering GPS");
             Intent serviceIntent = new Intent(context, SimpleGPSService.class);
             serviceIntent.setAction("TRANSMIT_GPS");
             context.startService(serviceIntent);

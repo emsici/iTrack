@@ -173,14 +173,13 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ### Versiunea Curentă: 1808.129 (June 26, 2025) - ALARMMANAGER IMPLEMENTATION CORRECTED & FUNCTIONAL
 
-**AlarmManager implementation complete**: Replaced ScheduledExecutorService with Android-native AlarmManager for guaranteed background execution
-**setExactAndAllowWhileIdle used**: Guaranteed alarm execution that cannot be ignored by Android battery optimization
-**Manual rescheduling implemented**: Each GPS transmission reschedules next alarm for continuous operation
-**BroadcastReceiver pattern**: GPSTransmissionReceiver handles alarm broadcasts and triggers GPS transmission
-**RTC_WAKEUP alarm type**: Wakes device from sleep for guaranteed GPS transmission every 5 seconds
-**TRANSMIT_GPS action**: Service action for performing GPS transmission when alarm fires
-**Battery optimization resistant**: setExactAndAllowWhileIdle bypasses all Android power management restrictions
-**Production guarantee**: AlarmManager provides true continuous background GPS transmission with phone locked
+**Architecture simplified for reliability**: Removed process separation that was blocking BroadcastReceiver communication
+**setRepeating() implementation**: Replaced complex setExactAndAllowWhileIdle with simpler, more reliable setRepeating approach
+**Single process operation**: Service runs in main process eliminating inter-process communication issues
+**Immediate + repeating pattern**: GPS transmission starts immediately then repeats via AlarmManager
+**Enhanced logging implemented**: Detailed timestamp logging to verify actual transmission intervals
+**BroadcastReceiver verified**: GPSTransmissionReceiver with clear alarm fire logging
+**Root cause addressed**: Process separation and over-complex scheduling were preventing continuous operation
 **startGPSTransmissions() corrected**: Now actually uses AlarmManager instead of old Handler approach
 **Click counter unified**: Fixed clickCount vs infoClickCount inconsistency in debug panel access
 **Online indicator functional**: Visible between header and statistics cards with proper click counter

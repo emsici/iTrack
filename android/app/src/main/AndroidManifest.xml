@@ -37,8 +37,7 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location"
-            android:stopWithTask="false"
-            android:process=":gps_service" />
+            android:stopWithTask="false" />
             
         <!-- Background Auto-Refresh Service -->
         <service
