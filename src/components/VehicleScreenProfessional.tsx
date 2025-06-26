@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
-// API functions imported dynamically to prevent bundle issues
+import { getVehicleCourses, logout } from "../services/api";
 import {
   startGPSTracking,
   updateCourseStatus,
@@ -100,7 +100,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Moved after successful course loading
       
       console.log(`=== DEBUGGING: Loading courses for vehicle: ${vehicleNumber} ===`);
-      const { getVehicleCourses } = await import('../services/api');
       const response = await getVehicleCourses(vehicleNumber, token);
       
       // Handle API response format
@@ -181,9 +180,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             console.log(`[${currentTime.toLocaleTimeString()}] Auto-refresh starting (Android background)...`);
             
             try {
-              // Import getVehicleCourses dynamically for auto-refresh
-              const { getVehicleCourses: getCourses } = await import('../services/api');
-              const response = await getCourses(vehicleNumber, token);
+              const response = await getVehicleCourses(vehicleNumber, token);
               if (response && Array.isArray(response)) {
                 // Capture current state to avoid race conditions
                 setCourses(currentCourses => {
@@ -256,10 +253,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const handleLogout = async () => {
     try {
       await logoutClearAllGPS();
-      
-      // Import logout function dynamically to fix compilation error
-      const { logout: logoutAPI } = await import('../services/api');
-      await logoutAPI(token);
+      await logout(token);
       await clearToken();
       
       // Clear all saved course statuses on logout
