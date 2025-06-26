@@ -43,6 +43,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     private Runnable gpsRunnable;
     private Location lastLocation;
     private boolean isTracking = false;
+    private boolean isForegroundStarted = false;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private String userAuthToken;
     private PowerManager.WakeLock wakeLock;
