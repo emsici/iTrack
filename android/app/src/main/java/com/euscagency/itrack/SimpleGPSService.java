@@ -298,27 +298,19 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void startGPSTransmissions() {
-        Log.d(TAG, "=== STARTING ALARMMANAGER GPS TRANSMISSIONS ===");
-        isTracking = true;
+        Log.d(TAG, "=== STARTING HANDLER-BASED GPS TRANSMISSIONS ===");
         forceTimerContinuous = true;
         
-        // Stop any existing alarm first
-        stopGPSAlarm();
+        // Initialize Handler for guaranteed continuous transmission
+        if (gpsHandler == null) {
+            gpsHandler = new Handler(Looper.getMainLooper());
+        }
         
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        // Start Handler-based GPS timer (bypass all Android restrictions)
+        startGPSTimer();
         
-        Intent gpsIntent = new Intent(this, GPSTransmissionReceiver.class);
-        gpsAlarmIntent = PendingIntent.getBroadcast(this, 0, gpsIntent, 
-            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        
-        // Start immediately 
-        performGPSTransmission();
-        
-        // Schedule first alarm
-        scheduleNextAlarm();
-        
-        Log.d(TAG, "✅ AlarmManager GPS transmission scheduled for 1 second");
-        Log.d(TAG, "⏰ Will repeat every " + (GPS_INTERVAL_MS/1000) + " seconds");
+        Log.d(TAG, "✅ Handler GPS transmission started");
+        Log.d(TAG, "⏰ Will repeat every " + (GPS_INTERVAL_MS/1000) + " seconds continuously");
     }
     
     private void startGPSTimer() {
