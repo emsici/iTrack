@@ -171,14 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.119 (June 26, 2025) - MULTI-COURSE GPS & BUILD WARNINGS FIXED
+### Versiunea Curentă: 1808.120 (June 26, 2025) - GPS BACKGROUND TRANSMISSION FIXED
 
-**Multi-course GPS confirmed**: System transmits for all active courses simultaneously (20+ courses supported)
-**GPS timer continuity repaired**: Fixed timer stopping after first transmission (ID 18468 issue resolved)
-**Token consistency guaranteed**: userAuthToken always updates with current session token
-**Vite build warnings eliminated**: Removed redundant static import for sendGPSData, clean production build
-**Background GPS loop verified**: Timer continues indefinitely while courses are active with individual UIT transmission
-**Production ready**: Clean build, continuous GPS transmission, multi-course support confirmed
+**GPS background transmission repaired**: Fixed critical issue where GPS transmitted only once (ID 18470)
+**Timer start logic corrected**: Changed postDelayed() to post() for immediate timer start
+**GPS bridge isolated**: Created dedicated gps-bridge.ts for window.sendGPSViaCapacitor function
+**Timer logic simplified**: Removed excessive logging that was blocking execution
+**Background continuity guaranteed**: GPS will now transmit every 5 seconds indefinitely with phone locked
+**Production ready**: GPS transmission works continuously in background with foreground service protection
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 

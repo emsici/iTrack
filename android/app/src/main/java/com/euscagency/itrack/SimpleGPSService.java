@@ -187,35 +187,18 @@ public class SimpleGPSService extends Service implements LocationListener {
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, String.format("🔄 GPS Timer TICK: location=%s, activeCourses=%d", 
-                    lastLocation != null ? "OK" : "NULL", activeCourses.size()));
-                    
+                // Process GPS transmission for all active courses
                 if (lastLocation != null && !activeCourses.isEmpty()) {
-                    Log.d(TAG, String.format("📡 Processing %d active courses", activeCourses.size()));
-                    int transmitted = 0;
                     for (CourseData course : activeCourses.values()) {
-                        Log.d(TAG, String.format("📋 Course %s status: %d", course.courseId, course.status));
                         if (course.status == 2) {
-                            Log.d(TAG, String.format("📍 TRANSMITTING GPS for course: %s", course.courseId));
                             transmitGPSData(course, lastLocation);
-                            transmitted++;
                         }
                     }
-                    Log.d(TAG, String.format("✅ Transmitted GPS for %d courses", transmitted));
-                } else {
-                    Log.w(TAG, String.format("⚠️ GPS Timer SKIP: location=%s, courses=%d", 
-                        lastLocation != null ? "available" : "null", activeCourses.size()));
                 }
                 
-                // CRITICAL: ALWAYS continue timer if any courses exist
-                Log.d(TAG, String.format("🔄 TIMER DECISION: activeCourses.size()=%d", activeCourses.size()));
+                // CRITICAL: ALWAYS reschedule if courses exist
                 if (!activeCourses.isEmpty()) {
-                    Log.d(TAG, "🔄 GPS Timer CONTINUING - scheduling next tick in 5 seconds");
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                    Log.d(TAG, "✅ Next GPS transmission scheduled successfully");
-                } else {
-                    Log.w(TAG, "🛑 GPS Timer STOPPED - no active courses remaining");
-                    isTracking = false;
                 }
             }
         };
