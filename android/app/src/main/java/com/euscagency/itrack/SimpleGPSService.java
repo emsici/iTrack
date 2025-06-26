@@ -338,6 +338,8 @@ public class SimpleGPSService extends Service implements LocationListener {
         try {
             // Use direct HTTP instead of WebView for true background operation
             Log.d(TAG, "🚀 DIRECT HTTP GPS TRANSMISSION (background independent)");
+            Log.d(TAG, "📊 Transmitting for course: " + courseId + " (UIT: " + 
+                activeCourses.containsKey(courseId) ? activeCourses.get(courseId).uit : "unknown" + ")");
             
             URL url = new URL("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -347,8 +349,8 @@ public class SimpleGPSService extends Service implements LocationListener {
             connection.setRequestProperty("Authorization", "Bearer " + userAuthToken);
             connection.setRequestProperty("User-Agent", "iTrack-Android-Service/1.0");
             connection.setDoOutput(true);
-            connection.setConnectTimeout(10000);
-            connection.setReadTimeout(10000);
+            connection.setConnectTimeout(15000); // Increased timeout for reliability
+            connection.setReadTimeout(15000);
             
             // Send GPS data
             try (OutputStream os = connection.getOutputStream()) {
@@ -358,19 +360,36 @@ public class SimpleGPSService extends Service implements LocationListener {
             }
             
             int responseCode = connection.getResponseCode();
-            Log.d(TAG, "📨 HTTP Response code: " + responseCode);
+            Log.d(TAG, "📨 HTTP Response code: " + responseCode + " for course: " + courseId);
             
             if (responseCode >= 200 && responseCode < 300) {
                 Log.d(TAG, "🎉 DIRECT GPS TRANSMISSION SUCCESS for course: " + courseId);
                 
-                // Read response
+                // Read response for debugging
                 try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(connection.getInputStream()))) {
-                    String response = reader.readLine();
-                    Log.d(TAG, "📊 Server response: " + response);
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    Log.d(TAG, "📊 Server response: " + response.toString());
                 }
             } else {
                 Log.w(TAG, "⚠️ GPS TRANSMISSION WARNING - response code: " + responseCode);
+                
+                // Read error response for debugging
+                try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(connection.getErrorStream()))) {
+                    StringBuilder errorResponse = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        errorResponse.append(line);
+                    }
+                    Log.w(TAG, "❌ Error response: " + errorResponse.toString());
+                } catch (Exception e) {
+                    Log.w(TAG, "Could not read error response: " + e.getMessage());
+                }
             }
             
             connection.disconnect();
