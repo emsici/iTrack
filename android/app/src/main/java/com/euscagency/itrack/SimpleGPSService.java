@@ -45,8 +45,8 @@ public class SimpleGPSService extends Service implements LocationListener {
     private boolean isTracking = false;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private String userAuthToken;
-    private PowerManagtransmitForAllActiveCourseser.WakeLock wakeLock;
-    // Removed OkHttpClient - using CapacitorHttp through WebView
+    private PowerManager.WakeLock wakeLock;
+    // Using direct HttpURLConnection for true background operation without WebView dependency
 
     public static class CourseData {
         public String courseId;
@@ -326,7 +326,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void sendGPSRequest(JSONObject gpsData, String courseId) {
-        Log.d(TAG, "🚀 TRANSMITTING GPS DATA via CapacitorHttp");
+        Log.d(TAG, "🚀 TRANSMITTING GPS DATA via HttpURLConnection (BACKGROUND NATIVE)");
         Log.d(TAG, "📊 GPS Data size: " + gpsData.toString().length() + " chars");
         Log.d(TAG, "🔑 Auth token available: " + (userAuthToken != null ? "YES" : "NO"));
         
