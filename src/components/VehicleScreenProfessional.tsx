@@ -281,15 +281,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     console.log(`Debug click: ${newCount}/50`);
     
-    if (newCount === 50) {
+    if (newCount >= 50) {
       try {
         console.log("Opening debug panel after 50 clicks...");
         const logs = await getAppLogs();
+        console.log("Logs loaded:", logs.length);
         setDebugLogs(logs);
         setShowDebugPanel(true);
         setClickCount(0);
       } catch (error) {
         console.error("Error loading debug logs:", error);
+        // Show panel anyway with empty logs
+        setDebugLogs([]);
         setShowDebugPanel(true);
         setClickCount(0);
       }
