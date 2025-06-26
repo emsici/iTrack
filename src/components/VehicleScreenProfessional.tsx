@@ -348,25 +348,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       if (newStatus === 2) {
         console.log('🚀 Starting GPS tracking for ACTIVE status...');
         try {
-          // CRITICAL FIX: UIT/Token confusion detected - swap parameters back!
-          console.log('=== CRITICAL FIX: UIT/TOKEN CONFUSION ===');
-          console.log('courseToUpdate.uit:', courseToUpdate.uit);
-          console.log('token:', token.substring(0, 20) + '...');
-          
-          // DETECTED: course.uit contains JWT, course object is corrupted
-          // SOLUTION: Use courseId as UIT (course.id = UIT from API)
-          let realUIT = courseId; // courseId = course.id = UIT from API
-          
-          if (courseToUpdate.uit && courseToUpdate.uit.startsWith('eyJ')) {
-            console.error('❌ DETECTED: courseToUpdate.uit contains JWT - using courseId as UIT');
-            console.log('🔧 Using courseId as UIT:', courseId);
-            realUIT = courseId;
-          } else {
-            console.log('✅ courseToUpdate.uit appears correct, using as-is');
-            realUIT = courseToUpdate.uit;
-          }
-          
-          await startGPSTracking(courseId, vehicleNumber, realUIT, token, newStatus);
+          await startGPSTracking(courseId, vehicleNumber, courseToUpdate.uit, token, newStatus);
           console.log(`✅ GPS tracking started for course ${courseId} with status ${newStatus}`);
           console.log(`📍 Course ${courseId} added to activeCourses Map with UIT: ${courseToUpdate.uit}`);
         } catch (error) {

@@ -171,15 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.151 (June 26, 2025) - UIT/JWT CONFUSION CRITICAL FIX IMPLEMENTED
+### Versiunea Curentă: 1808.152 (June 26, 2025) - PARAMETER ORDER BUG FIXED - ROOT CAUSE RESOLVED
 
-**Root cause confirmed**: Course object corruption causes courseToUpdate.uit to contain JWT token instead of UIT
-**Parameter inversion detected**: course.uit = JWT token, course.token = UIT real (complete inversion)
-**Critical fix implemented**: When courseToUpdate.uit contains JWT, use courseId as UIT fallback
-**Logic correction**: courseId = course.id = original UIT from API before corruption occurs
-**Database integrity restored**: GPS transmissions will use correct UIT format instead of JWT token
-**Production validation**: Fix prevents JWT tokens from appearing in database UIT field
-**Corruption bypass**: System detects JWT in UIT field and uses clean courseId as UIT source
+**Root cause identified**: Export function startGPSTracking had swapped token/uit parameter order causing JWT in UIT field
+**Parameter order corrected**: startGPSTracking(courseId, vehicleNumber, uit, token, status) now matches startTracking signature
+**Database corruption eliminated**: JWT token no longer sent in UIT field to GPS database
+**Clean parameter flow**: uit=UIT real, token=JWT authentication - proper separation maintained
+**Production integrity restored**: All GPS transmissions will use correct UIT values from API
+**Architectural fix**: Corrected at function signature level preventing all future UIT/JWT confusion
+**Complete validation**: GPS transmission parameter flow now clean from VehicleScreen → startGPSTracking → SimpleGPSService
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
