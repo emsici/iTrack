@@ -183,22 +183,29 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void initializeGPSHandler() {
+        Log.d(TAG, "🔧 Initializing GPS Handler and Runnable");
         gpsHandler = new Handler(Looper.getMainLooper());
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "🔄 GPS TIMER EXECUTION - courses: " + activeCourses.size());
+                long cycleStartTime = System.currentTimeMillis();
+                Log.d(TAG, "🔄 === GPS TIMER CYCLE START ===");
+                Log.d(TAG, "📊 Active courses: " + activeCourses.size());
+                Log.d(TAG, "🗺️ Location available: " + (lastLocation != null));
                 
                 // Process GPS transmission for all active courses
                 if (lastLocation != null && !activeCourses.isEmpty()) {
                     Log.d(TAG, "📡 Processing GPS for " + activeCourses.size() + " total courses");
                     
                     int transmittedCount = 0;
+                    int activeStatusCount = 0;
+                    
                     for (CourseData course : activeCourses.values()) {
                         Log.d(TAG, String.format("📋 Course %s (UIT: %s) - Status: %d", 
                             course.courseId, course.uit, course.status));
                         
                         if (course.status == 2) {
+                            activeStatusCount++;
                             Log.d(TAG, "📍 TRANSMITTING GPS for UIT: " + course.uit);
                             transmitGPSData(course, lastLocation);
                             transmittedCount++;
@@ -207,9 +214,15 @@ public class SimpleGPSService extends Service implements LocationListener {
                         }
                     }
                     
-                    Log.d(TAG, String.format("✅ GPS transmitted for %d/%d courses", transmittedCount, activeCourses.size()));
+                    Log.d(TAG, String.format("✅ GPS transmitted: %d/%d courses (%d with status 2)", 
+                        transmittedCount, activeCourses.size(), activeStatusCount));
                 } else {
-                    Log.w(TAG, "⚠️ Skipping GPS - location: " + (lastLocation != null) + ", courses: " + activeCourses.size());
+                    if (lastLocation == null) {
+                        Log.w(TAG, "⚠️ No GPS location available yet");
+                    }
+                    if (activeCourses.isEmpty()) {
+                        Log.w(TAG, "⚠️ No active courses in Map");
+                    }
                 }
                 
                 // CRITICAL: ALWAYS reschedule if courses exist
@@ -217,16 +230,25 @@ public class SimpleGPSService extends Service implements LocationListener {
                     Log.d(TAG, "🔄 RESCHEDULING timer in " + (GPS_INTERVAL_MS/1000) + " seconds");
                     Log.d(TAG, "📊 Current courses in Map: " + activeCourses.keySet().toString());
                     
-                    // IMPORTANT: Always reschedule to ensure continuous transmission
-                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                    Log.d(TAG, "✅ Timer rescheduled successfully for next cycle");
+                    // Ensure handler and this runnable are still valid
+                    if (gpsHandler != null) {
+                        gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                        long cycleTime = System.currentTimeMillis() - cycleStartTime;
+                        Log.d(TAG, "✅ Timer rescheduled successfully (cycle took " + cycleTime + "ms)");
+                    } else {
+                        Log.e(TAG, "❌ GPS Handler is null - cannot reschedule!");
+                    }
                 } else {
                     Log.w(TAG, "🛑 STOPPING timer - no active courses");
                     Log.w(TAG, "📊 activeCourses Map is empty - stopping GPS transmissions");
                     isTracking = false;
                 }
+                
+                Log.d(TAG, "🔄 === GPS TIMER CYCLE END ===");
             }
         };
+        
+        Log.d(TAG, "✅ GPS Handler and Runnable initialized successfully");
     }
 
     private void startGPSTransmissions() {
@@ -303,14 +325,21 @@ public class SimpleGPSService extends Service implements LocationListener {
                 Log.d(TAG, "📡 JavaScript code length: " + jsCode.length() + " chars");
                 
                 MainActivity.getInstance().getWebView().evaluateJavascript(jsCode, result -> {
-                    Log.d(TAG, "📨 GPS TRANSMISSION COMPLETED for " + courseId);
-                    Log.d(TAG, "📊 Result: " + result);
-                    if (result != null && result.contains("true")) {
+                    Log.d(TAG, "📨 GPS TRANSMISSION CALLBACK for " + courseId);
+                    Log.d(TAG, "📊 JavaScript result: " + result);
+                    
+                    if (result != null && (result.contains("true") || result.equals("true"))) {
                         Log.d(TAG, "🎉 GPS TRANSMISSION SUCCESS for course: " + courseId);
                     } else {
-                        Log.w(TAG, "⚠️ GPS TRANSMISSION WARNING for course: " + courseId + " - " + result);
+                        Log.w(TAG, "⚠️ GPS TRANSMISSION ISSUE for course: " + courseId + " - result: " + result);
                     }
-                    Log.d(TAG, "🔄 GPS transmission callback completed - timer should continue");
+                    
+                    // CRITICAL: Verify timer continues after transmission
+                    Log.d(TAG, "🔍 Post-transmission status:");
+                    Log.d(TAG, "  - isTracking: " + isTracking);
+                    Log.d(TAG, "  - activeCourses size: " + activeCourses.size());
+                    Log.d(TAG, "  - gpsHandler null: " + (gpsHandler == null));
+                    Log.d(TAG, "🔄 Timer should continue automatically in background");
                 });
             } catch (Exception e) {
                 Log.e(TAG, "❌ CRITICAL GPS TRANSMISSION ERROR for " + courseId + ": " + e.getMessage());
