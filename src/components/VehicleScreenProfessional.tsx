@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
-import { getVehicleCourses, logout } from "../services/api";
+// Dynamic imports only for api.ts to prevent Vite warnings
 import {
   startGPSTracking,
   stopGPSTracking,
@@ -183,6 +183,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             console.log(`[${currentTime.toLocaleTimeString()}] Auto-refresh starting (Android background)...`);
             
             try {
+              const { getVehicleCourses } = await import('../services/api');
               const response = await getVehicleCourses(vehicleNumber, token);
               if (response && Array.isArray(response)) {
                 // Capture current state to avoid race conditions
@@ -256,7 +257,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const handleLogout = async () => {
     try {
       await logoutClearAllGPS();
-      await logout(token);
+      const { logout } = await import('../services/api');
+    await logout(token);
       await clearToken();
       
       // Clear all saved course statuses on logout
