@@ -1,7 +1,9 @@
 // GPS direct Android prin Capacitor plugin - funcționează în background
 // Uses CapacitorHttp for HTTP + AndroidGPS for native background service
 import { Geolocation } from "@capacitor/geolocation";
+import { Capacitor } from '@capacitor/core';
 import { GPSData, sendGPSData, API_BASE_URL } from './api';
+import { getStoredToken, getStoredVehicleNumber } from './storage';
 // Offline GPS functionality handled by Android service
 
 
@@ -155,10 +157,12 @@ class DirectAndroidGPSService {
       console.log('- Status:', gpsData.status);
       console.log('- Vehicle:', gpsData.numar_inmatriculare);
       console.log('- UIT:', gpsData.uit);
-      console.log('- Token preview:', course.token.substring(0, 20) + '...');
+      // CRITICAL FIX: Use JWT token from storage for status updates
+      const storedToken = await getStoredToken();
+      console.log('- Token preview:', storedToken ? storedToken.substring(0, 20) + '...' : 'NULL');
       console.log('Sending to gps.php:', JSON.stringify(gpsData, null, 2));
       
-      const success = await sendGPSData(gpsData, course.token);
+      const success = await sendGPSData(gpsData, storedToken || '');
       console.log("✅ Server status update success:", success);
 
       // 2. THEN: Update AndroidGPS service
@@ -370,7 +374,9 @@ class DirectAndroidGPSService {
 
         console.log(`🚀 TRANSMITTING GPS: ${gpsData.lat}, ${gpsData.lng} for UIT: ${gpsData.uit}`);
         
-        const success = await sendGPSData(gpsData, course.token);
+        // CRITICAL FIX: Use JWT token from storage instead of course.token (UIT)
+        const storedToken = await getStoredToken();
+        const success = await sendGPSData(gpsData, storedToken || '');
         
         if (success) {
           console.log(`✅ GPS SUCCESS for course ${course.courseId} - UIT: ${course.uit}`);
