@@ -215,9 +215,14 @@ public class SimpleGPSService extends Service implements LocationListener {
                 // CRITICAL: ALWAYS reschedule if courses exist
                 if (!activeCourses.isEmpty()) {
                     Log.d(TAG, "🔄 RESCHEDULING timer in " + (GPS_INTERVAL_MS/1000) + " seconds");
+                    Log.d(TAG, "📊 Current courses in Map: " + activeCourses.keySet().toString());
+                    
+                    // IMPORTANT: Always reschedule to ensure continuous transmission
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                    Log.d(TAG, "✅ Timer rescheduled successfully for next cycle");
                 } else {
                     Log.w(TAG, "🛑 STOPPING timer - no active courses");
+                    Log.w(TAG, "📊 activeCourses Map is empty - stopping GPS transmissions");
                     isTracking = false;
                 }
             }
