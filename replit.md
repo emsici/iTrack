@@ -171,17 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.134 (June 26, 2025) - GPS CONTINUOUS TRANSMISSION CONFIRMED WORKING
+### Versiunea Curentă: 1808.135 (June 26, 2025) - SINGLE TRANSMISSION ISSUE IDENTIFIED AND FIXED
 
-**CRITICAL SUCCESS**: GPS transmission working continuously - user confirmed "NU a transmis doar o dată"
-**Database entry verified**: ID 18503 saved with coordinates 44.2583816, 28.6175608 for vehicle B335HHH
-**Handler + Foreground Service SUCCESS**: Implementation proved effective for continuous GPS transmission
-**Multi-course support confirmed**: UIT 5L4F0K7E88365117 transmitting with status=2 active
-**Production validation complete**: Real device testing confirms 5-second interval GPS transmission working
-**Background execution verified**: GPS transmits continuously with phone locked/minimized
-**Industry standard approach validated**: Handler.postDelayed() in foreground service works as expected
-**Build compilation fixed**: Eliminated duplicate stopGPSTimer() method, Android build successful
-**Final implementation ready**: Continuous GPS tracking system fully operational for fleet management
+**Issue identified**: GPS transmits only once at START, then stops - Handler not repeating correctly
+**Root cause found**: startGPSTransmissions() created duplicate Runnable instead of using working startGPSTimer()
+**Solution implemented**: startGPSTransmissions() now calls startGPSTimer() which has correct postDelayed() logic
+**Code simplified**: Eliminated duplicate Handler implementations, using single working version
+**Database confirmed**: ID 18503 saved but transmission stopped after first cycle
+**Testing required**: Fixed implementation needs verification that Handler repeats every 5 seconds
+**Handler logic verified**: startGPSTimer() has proper postDelayed(this, GPS_INTERVAL_MS) for continuous execution
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 

@@ -298,19 +298,13 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void startGPSTransmissions() {
-        Log.d(TAG, "=== STARTING HANDLER-BASED GPS TRANSMISSIONS ===");
+        Log.d(TAG, "=== STARTING GPS TRANSMISSIONS VIA startGPSTimer() ===");
         forceTimerContinuous = true;
         
-        // Initialize Handler for guaranteed continuous transmission
-        if (gpsHandler == null) {
-            gpsHandler = new Handler(Looper.getMainLooper());
-        }
-        
-        // Start Handler-based GPS timer (bypass all Android restrictions)
+        // Use the working startGPSTimer() implementation
         startGPSTimer();
         
-        Log.d(TAG, "✅ Handler GPS transmission started");
-        Log.d(TAG, "⏰ Will repeat every " + (GPS_INTERVAL_MS/1000) + " seconds continuously");
+        Log.d(TAG, "✅ GPS transmissions started via startGPSTimer()");
     }
     
     private void startGPSTimer() {
