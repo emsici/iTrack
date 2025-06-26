@@ -47,6 +47,10 @@ public class SimpleGPSService extends Service implements LocationListener {
     
     // CRITICAL: Force continuous timer execution
     private boolean forceTimerContinuous = true;
+    
+    // ALTERNATIVE: ScheduledExecutorService for robust background execution
+    private ScheduledExecutorService gpsExecutor;
+    private ScheduledFuture<?> gpsTask;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private String userAuthToken;
     private PowerManager.WakeLock wakeLock;
@@ -286,42 +290,78 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void startGPSTransmissions() {
-        Log.d(TAG, "🚀 STARTING CONTINUOUS BACKGROUND GPS TRANSMISSIONS");
+        Log.d(TAG, "🚀 STARTING ROBUST BACKGROUND GPS WITH EXECUTOR SERVICE");
         Log.d(TAG, "📊 Active courses: " + activeCourses.size());
-        Log.d(TAG, "⏰ GPS interval: " + (GPS_INTERVAL_MS/1000) + " seconds CONTINUOUS");
+        Log.d(TAG, "⏰ GPS interval: " + (GPS_INTERVAL_MS/1000) + " seconds GUARANTEED");
         Log.d(TAG, "🗺️ Location available: " + (lastLocation != null));
-        Log.d(TAG, "🔒 Background mode: WAKE LOCK ACTIVE");
+        Log.d(TAG, "🔒 Background mode: WAKE LOCK + EXECUTOR SERVICE");
         
-        // Stop any existing timer first to prevent duplicates
-        if (gpsHandler != null && gpsRunnable != null) {
-            gpsHandler.removeCallbacks(gpsRunnable);
-            Log.d(TAG, "🧹 Cleared previous timer callbacks");
-            Log.d(TAG, "🛑 Removed any existing timer callbacks");
-        }
-        
-        // CRITICAL: Ensure handler and runnable are initialized
-        if (gpsHandler == null || gpsRunnable == null) {
-            Log.w(TAG, "⚠️ Handler or Runnable is null - reinitializing");
-            initializeGPSHandler();
-        }
+        // Stop any existing timers first
+        stopGPSExecutor();
         
         // FORCE CONTINUOUS BACKGROUND EXECUTION
         isTracking = true;
-        forceTimerContinuous = true; // CRITICAL: Enable continuous operation
-        Log.d(TAG, "✅ FORCING CONTINUOUS BACKGROUND TIMER - immediate start");
-        Log.d(TAG, "🎯 forceTimerContinuous = " + forceTimerContinuous + " (enabled for background)");
+        forceTimerContinuous = true;
         
-        // Execute immediately - no delay for first transmission
-        if (gpsHandler != null && gpsRunnable != null) {
-            // CRITICAL: Clear any existing callbacks first
-            gpsHandler.removeCallbacksAndMessages(null);
-            
-            // Start with immediate execution
-            gpsHandler.post(gpsRunnable); // Execute NOW
-            Log.d(TAG, "🔄 BACKGROUND TIMER ACTIVATED - will auto-repeat via postDelayed()");
-            Log.d(TAG, "🎯 Handler and Runnable confirmed ready for continuous operation");
-        } else {
-            Log.e(TAG, "❌ CRITICAL: Cannot start timer - handler/runnable still null after init");
+        // ROBUST SOLUTION: ScheduledExecutorService instead of Handler
+        gpsExecutor = Executors.newSingleThreadScheduledExecutor();
+        
+        Runnable gpsTransmissionTask = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.d(TAG, "🚀 === EXECUTOR GPS TRANSMISSION START ===");
+                    Log.d(TAG, "📊 Active courses: " + activeCourses.size());
+                    Log.d(TAG, "🔄 forceTimerContinuous: " + forceTimerContinuous);
+                    
+                    if (lastLocation != null && !activeCourses.isEmpty() && forceTimerContinuous) {
+                        Log.d(TAG, "📡 Processing GPS for " + activeCourses.size() + " courses");
+                        
+                        for (CourseData course : activeCourses.values()) {
+                            if (course.status == 2) {
+                                Log.d(TAG, "📍 TRANSMITTING GPS for UIT: " + course.uit);
+                                transmitGPSData(course, lastLocation);
+                            } else {
+                                Log.d(TAG, "⏸️ SKIPPING GPS for UIT: " + course.uit + " (status: " + course.status + ")");
+                            }
+                        }
+                    } else {
+                        if (activeCourses.isEmpty()) {
+                            Log.w(TAG, "🛑 No active courses - stopping executor");
+                            stopGPSExecutor();
+                        }
+                    }
+                    
+                    Log.d(TAG, "🚀 === EXECUTOR GPS TRANSMISSION END ===");
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ GPS transmission error in executor", e);
+                }
+            }
+        };
+        
+        // Schedule with fixed rate - GUARANTEED continuous execution
+        gpsTask = gpsExecutor.scheduleAtFixedRate(
+            gpsTransmissionTask,
+            0, // Start immediately
+            GPS_INTERVAL_MS / 1000, // 5 seconds interval
+            TimeUnit.SECONDS
+        );
+        
+        Log.d(TAG, "✅ EXECUTOR SERVICE STARTED - GUARANTEED continuous GPS transmission");
+        Log.d(TAG, "🎯 GPS will transmit every 5 seconds regardless of background state");
+    }
+    
+    private void stopGPSExecutor() {
+        if (gpsTask != null) {
+            gpsTask.cancel(true);
+            gpsTask = null;
+            Log.d(TAG, "🛑 GPS task cancelled");
+        }
+        
+        if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
+            gpsExecutor.shutdown();
+            gpsExecutor = null;
+            Log.d(TAG, "🛑 GPS executor shutdown");
         }
     }
 
