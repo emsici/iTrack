@@ -1,0 +1,171 @@
+iTrack Application Logs
+Generated: 26.06.2025, 20:36:27
+Total Logs: 133
+
+[2025-06-26T17:36:26.025Z] INFO (APP): Login successful, storing token...
+[2025-06-26T17:36:26.025Z] INFO (APP): Admin login detected - bypassing server authentication
+[2025-06-26T17:36:18.186Z] INFO (APP): Logged out - cleared local storage
+[2025-06-26T17:36:18.152Z] ERROR (APP): Error calling logout API: ReferenceError: API_BASE_URL is not defined
+[2025-06-26T17:36:18.152Z] INFO (APP): Logout CapacitorHttp failed, using fetch fallback
+[2025-06-26T17:36:18.151Z] INFO (APP): 🧹 Cleared saved status for course_status_1A2N000137600140
+[2025-06-26T17:36:18.128Z] INFO (API): CapacitorHttp logout successful
+[2025-06-26T17:36:18.127Z] INFO (APP): CapacitorHttp logout successful
+[2025-06-26T17:36:17.903Z] INFO (APP): === CapacitorHttp logout ===
+[2025-06-26T17:36:17.903Z] INFO (API): Starting logout process
+[2025-06-26T17:36:17.902Z] INFO (APP): Starting logout process with Bearer token
+[2025-06-26T17:36:17.901Z] INFO (APP): ✅ All local GPS tracking data cleared
+[2025-06-26T17:36:17.900Z] INFO (APP): 🔴 LOGOUT - Clearing all GPS data and stopping all tracking
+[2025-06-26T17:35:57.877Z] INFO (APP): === STATUS UPDATE COMPLETE ===
+[2025-06-26T17:35:57.877Z] INFO (API): Course 4290 status updated successfully to 2
+[2025-06-26T17:35:57.876Z] INFO (APP): ✅ Status updated to 2 for course 4290
+[2025-06-26T17:35:57.876Z] INFO (APP): 📊 GPS transmission active for course 4290 - coordinates will be sent to gps.php
+[2025-06-26T17:35:57.875Z] INFO (APP): 📍 ACTIVE/RESUME: SimpleGPSService will transmit GPS every 5s
+[2025-06-26T17:35:57.875Z] INFO (APP): ⚠️ AndroidGPS not available - APK only feature
+[2025-06-26T17:35:57.875Z] INFO (APP): ✅ Server status update success: true
+[2025-06-26T17:35:57.875Z] INFO (APP): ✅ GPS data transmitted successfully
+[2025-06-26T17:35:57.875Z] INFO (APP): 📡 GPS Response: 200
+[2025-06-26T17:35:57.737Z] INFO (APP): Status: 2
+[2025-06-26T17:35:57.737Z] INFO (APP): UIT: 1A2N000137600140
+[2025-06-26T17:35:57.737Z] INFO (APP): Vehicle: TM32ECC
+[2025-06-26T17:35:57.737Z] INFO (APP): Token preview: Bearer eyJhbGciOiJIUzI1NiIs...
+[2025-06-26T17:35:57.737Z] INFO (APP): 📡 GPS Transmission to gps.php
+[2025-06-26T17:35:57.737Z] INFO (APP): GPS transmission to server...
+[2025-06-26T17:35:57.737Z] INFO (APP): Sending to gps.php: {
+  "numar_inmatriculare": "TM32ECC",
+  "uit": "1A2N000137600140",
+  "status": 2,
+  "lat": 44.2583201,
+  "lng": 28.6175942,
+  "timestamp": "2025-06-26 17:35:57",
+  "viteza": 0,
+  "directie": 0,
+  "altitudine": 52,
+  "baterie": 5,
+  "hdop": 1.8028999328613282,
+  "gsm_signal": 4
+}
+[2025-06-26T17:35:57.736Z] INFO (APP): - Token preview: eyJhbGciOiJIUzI1NiIs...
+[2025-06-26T17:35:57.615Z] INFO (APP): - UIT: 1A2N000137600140
+[2025-06-26T17:35:57.615Z] INFO (APP): - Vehicle: TM32ECC
+[2025-06-26T17:35:57.615Z] INFO (APP): - Status: 2
+[2025-06-26T17:35:57.615Z] INFO (APP): - Battery level from sensors: 5%
+[2025-06-26T17:35:57.615Z] INFO (APP): 🔍 STATUS UPDATE GPS DATA:
+[2025-06-26T17:35:57.615Z] INFO (APP): ✅ course.uit appears to be correct UIT format
+[2025-06-26T17:35:57.615Z] INFO (APP): Token starts with: eyJhbGciOi
+[2025-06-26T17:35:57.615Z] INFO (APP): UIT starts with: 1A2N000137
+[2025-06-26T17:35:57.614Z] INFO (APP): course.token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T17:35:57.614Z] INFO (APP): course.uit: 1A2N000137600140
+[2025-06-26T17:35:57.614Z] INFO (APP): === UIT vs TOKEN DEBUG ===
+[2025-06-26T17:35:57.613Z] INFO (APP): 📡 Updating course status on server: 4290 → 2
+[2025-06-26T17:35:57.613Z] INFO (APP): Total active courses: 1
+[2025-06-26T17:35:57.612Z] INFO (APP): Active courses in map: [4290]
+[2025-06-26T17:35:57.612Z] INFO (APP): === UPDATING STATUS: 4290 → 2 ===
+[2025-06-26T17:35:57.612Z] INFO (APP): GPS transmission: SUCCESS for 4290
+[2025-06-26T17:35:57.611Z] INFO (APP): ✅ GPS data transmitted successfully
+[2025-06-26T17:35:57.611Z] INFO (APP): 📡 GPS Response: 200
+[2025-06-26T17:35:57.384Z] INFO (APP): Status: 2
+[2025-06-26T17:35:57.384Z] INFO (APP): UIT: 1A2N000137600140
+[2025-06-26T17:35:57.383Z] INFO (APP): Vehicle: TM32ECC
+[2025-06-26T17:35:57.383Z] INFO (APP): Token preview: Bearer eyJhbGciOiJIUzI1NiIs...
+[2025-06-26T17:35:57.383Z] INFO (APP): 📡 GPS Transmission to gps.php
+[2025-06-26T17:35:57.383Z] INFO (APP): GPS transmission to server...
+[2025-06-26T17:35:57.360Z] INFO (APP): 📍 Real sensor data: 44.2583201, 28.6175942, speed: 0km/h
+[2025-06-26T17:35:55.939Z] INFO (APP): Login token preview: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[2025-06-26T17:35:55.939Z] INFO (APP): 🔑 Using login token for GPS transmission (NOT course.token)
+[2025-06-26T17:35:55.939Z] INFO (APP): 📍 Course 4290 added to activeCourses Map with UIT: 1A2N000137600140
+[2025-06-26T17:35:55.939Z] INFO (APP): ✅ GPS tracking started for course 4290 with status 2
+[2025-06-26T17:35:55.938Z] INFO (APP): ✅ Android native GPS service prioritized
+[2025-06-26T17:35:55.938Z] INFO (APP): GPS tracking started via AndroidGPS only
+[2025-06-26T17:35:55.938Z] INFO (APP): 🔧 Only AndroidGPS SimpleGPSService should transmit GPS data
+[2025-06-26T17:35:55.937Z] INFO (APP): ⚠️ Browser GPS DISABLED - prevents duplicate transmission
+[2025-06-26T17:35:55.937Z] INFO (APP): 🔧 GPS permissions result: granted
+[2025-06-26T17:35:55.862Z] INFO (APP): 🔧 Development mode - requesting GPS permissions
+[2025-06-26T17:35:55.862Z] INFO (APP): Starting Android GPS for course: 4290
+[2025-06-26T17:35:55.862Z] INFO (APP): 🚀 Forcing Android native GPS service (APK mode)
+[2025-06-26T17:35:55.862Z] INFO (APP): 📈 Total active courses: 1
+[2025-06-26T17:35:55.862Z] INFO (APP): 📊 activeCourses Map now contains: [4290]
+[2025-06-26T17:35:55.860Z] INFO (APP): 📍 Course 4290 successfully added to activeCourses Map
+[2025-06-26T17:35:55.860Z] INFO (APP): ✅ UIT parameter appears correct
+[2025-06-26T17:35:55.860Z] INFO (APP): Status: 2 (ACTIVE)
+[2025-06-26T17:35:55.860Z] INFO (APP): Token: eyJhbGciOi...
+[2025-06-26T17:35:55.860Z] INFO (APP): UIT: 1A2N000137600140
+[2025-06-26T17:35:55.860Z] INFO (APP): Vehicle: TM32ECC
+[2025-06-26T17:35:55.860Z] INFO (APP): Course ID: 4290
+[2025-06-26T17:35:55.860Z] INFO (APP): === STARTING GPS TRACKING ===
+[2025-06-26T17:35:55.860Z] INFO (APP): 🚀 Starting GPS tracking for ACTIVE status...
+[2025-06-26T17:35:55.859Z] INFO (APP): ✅ GPS permissions granted
+[2025-06-26T17:35:54.699Z] INFO (APP): 🔍 Requesting GPS permissions for course start...
+[2025-06-26T17:35:54.699Z] INFO (APP): Token available: true, Token length: 136
+[2025-06-26T17:35:54.699Z] INFO (APP): UIT REAL: 1A2N000137600140, Vehicle: TM32ECC
+[2025-06-26T17:35:54.699Z] INFO (APP): Course: 4290, Status: 1 → 2
+[2025-06-26T17:35:54.699Z] INFO (APP): === STATUS UPDATE START ===
+[2025-06-26T17:35:54.698Z] INFO (APP): 💾 Saved status 2 for UIT 1A2N000137600140
+[2025-06-26T17:35:51.715Z] INFO (APP): === Loading finished ===
+[2025-06-26T17:35:51.715Z] INFO (APP): 🆕 Found 1 new courses - displayed at top
+[2025-06-26T17:35:51.715Z] INFO (APP): Successfully loaded 1 courses for TM32ECC (sorted: new first)
+[2025-06-26T17:35:51.715Z] INFO (APP): 🔄 Android background auto-refresh activated (5 min intervals)
+[2025-06-26T17:35:51.715Z] INFO (APP): ✅ Courses loaded successfully - switching to main view with 1 courses
+[2025-06-26T17:35:51.672Z] INFO (APP): Courses found: 1
+[2025-06-26T17:35:51.672Z] INFO (API): Request completed for TM32ECC - all locks cleared
+[2025-06-26T17:35:51.672Z] INFO (APP): Request completed - locks cleared
+[2025-06-26T17:35:51.667Z] INFO (API): Processed 1 courses for TM32ECC
+[2025-06-26T17:35:51.667Z] INFO (APP): Processed 1 courses successfully
+[2025-06-26T17:35:51.667Z] INFO (APP): Processing course data
+[2025-06-26T17:35:51.667Z] INFO (APP): Found 1 courses for vehicle TM32ECC
+[2025-06-26T17:35:51.667Z] INFO (API): API response: status=200, data={"status":"success","count":1,"data":[{"ikRoTrans":4290,"codDeclarant":9755224,"denumireDeclarant":"OTTER-DISTRIBUTION SRL","nrVehicul":"TM32ECC","UIT":"1A2N000137600140","dataTransport":"2025-06-24","Vama":"ADR","BirouVamal":"SOSEAUA DE CENTURA NR 220 nr. -, Pantelimon, Jud. Ilfov","Judet":"IF","denumireLocStart":"PANTELIMON","VamaStop":"ADR","BirouVamalStop":"AUTOSTRADA SOARELUI KM 15 nr. -, Fundeni, Jud. Ilfov","JudetStop":"IF","denumireLocStop":"FUNDENI"}]}
+[2025-06-26T17:35:51.666Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 1,
+  "data": [
+    {
+      "ikRoTrans": 4290,
+      "codDeclarant": 9755224,
+      "denumireDeclarant": "OTTER-DISTRIBUTION SRL",
+      "nrVehicul": "TM32ECC",
+      "UIT": "1A2N000137600140",
+      "dataTransport": "2025-06-24",
+      "Vama": "ADR",
+      "BirouVamal": "SOSEAUA DE CENTURA NR 220 nr. -, Pantelimon, Jud. Ilfov",
+      "Judet": "IF",
+      "denumireLocStart": "PANTELIMON",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "AUTOSTRADA SOARELUI KM 15 nr. -, Fundeni, Jud. Ilfov",
+      "JudetStop": "IF",
+      "denumireLocStop": "FUNDENI"
+    }
+  ]
+}
+[2025-06-26T17:35:51.666Z] INFO (APP): API Response Status: 200
+[2025-06-26T17:35:51.666Z] INFO (APP): Data length: No data
+[2025-06-26T17:35:51.666Z] INFO (APP): Status: 200
+[2025-06-26T17:35:51.666Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-06-26T17:35:51.506Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-06-26T17:35:51.506Z] INFO (API): Loading courses for vehicle TM32ECC
+[2025-06-26T17:35:51.506Z] INFO (APP): Loading courses for vehicle: TM32ECC
+[2025-06-26T17:35:51.506Z] INFO (APP): === DEBUGGING: Loading courses for vehicle: TM32ECC ===
+[2025-06-26T17:35:51.506Z] INFO (APP): === APK DEBUG: Current courses count: 0
+[2025-06-26T17:35:51.506Z] INFO (APP): === APK DEBUG: Current coursesLoaded state: false
+[2025-06-26T17:35:51.505Z] INFO (APP): === APK DEBUG: Token available: true
+[2025-06-26T17:35:51.505Z] INFO (APP): === APK DEBUG: Vehicle number: TM32ECC
+[2025-06-26T17:35:51.505Z] INFO (APP): === APK DEBUG: Starting course loading process ===
+[2025-06-26T17:35:50.625Z] INFO (APP): 📝 Vehicle number changed to: TM32ECC
+[2025-06-26T17:35:49.832Z] INFO (APP): 📝 Vehicle number changed to: TM32EC
+[2025-06-26T17:35:49.598Z] INFO (APP): 📝 Vehicle number changed to: TM32E
+[2025-06-26T17:35:48.986Z] INFO (APP): 📝 Vehicle number changed to: TM32
+[2025-06-26T17:35:48.804Z] INFO (APP): 📝 Vehicle number changed to: TM3
+[2025-06-26T17:35:47.994Z] INFO (APP): 📝 Vehicle number changed to: TM
+[2025-06-26T17:35:47.703Z] INFO (APP): 📝 Vehicle number changed to: T
+[2025-06-26T17:35:40.112Z] INFO (APP): Token stored successfully
+[2025-06-26T17:35:40.096Z] INFO (APP): Login successful, storing token...
+[2025-06-26T17:35:40.095Z] INFO (API): CapacitorHttp login successful for +40722222222
+[2025-06-26T17:35:40.095Z] INFO (APP): CapacitorHttp login successful
+[2025-06-26T17:35:39.856Z] INFO (APP): Using CapacitorHttp for fast login
+[2025-06-26T17:35:39.856Z] INFO (API): Direct CapacitorHttp login attempt for +40722222222
+[2025-06-26T17:35:39.856Z] INFO (APP): Direct CapacitorHttp login for: +40722222222
+[2025-06-26T17:35:39.856Z] INFO (APP): Platform info: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.90 Mobile Safari/537.36
+[2025-06-26T17:35:39.856Z] INFO (APP): CapacitorHttp available: false
+[2025-06-26T17:35:39.856Z] INFO (APP): Test credentials detected - proceeding with server authentication
+[2025-06-26T17:35:29.885Z] ERROR (APP): ❌ AndroidGPS still not available
+[2025-06-26T17:35:29.885Z] INFO (APP): 🔍 AndroidGPS test: undefined
+[2025-06-26T17:35:29.717Z] INFO (APP): No stored token - showing login
+[2025-06-26T17:35:29.680Z] INFO (SYSTEM): AppLogger initialized

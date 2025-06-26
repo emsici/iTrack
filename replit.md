@@ -171,14 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.156 (June 26, 2025) - BACKGROUND GPS TRANSMISSION BLOCKING CONDITION REMOVED
+### Versiunea Curentă: 1808.157 (June 26, 2025) - ANDROID GPS EXCLUSIVE FOR BACKGROUND EFFICIENCY
 
-**Actual root cause identified**: performGPSTransmission() blocked by activeCourses.isEmpty() condition
-**Blocking condition removed**: Timer continues regardless of activeCourses Map state
-**Logic simplified**: performGPSTransmission() only requires lastLocation != null && forceTimerContinuous
-**Auto-start removed**: GPS timer starts when first course added instead of onCreate() to prevent empty Map blocking
-**Continuous transmission guaranteed**: Timer runs permanently and transmits when courses with status 2 exist
-**Production background verified**: GPS transmission no longer blocked by Map state conditions
+**Browser GPS completely eliminated**: Removed all browser fallback GPS to prevent duplicate transmissions
+**Android GPS exclusive**: Only native Android service for optimal background tracking with locked phone
+**Background efficiency maximized**: Foreground service + wake lock + LocationManager for true background operation
+**Duplicate transmission fixed**: No more simultaneous browser + Android GPS transmissions
+**Error handling simplified**: Clear error messages when Android GPS unavailable - no confusing fallbacks
+**Production ready**: Single efficient GPS system optimized for background tracking with phone locked
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
