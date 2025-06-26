@@ -275,7 +275,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         }
     }
 
-    private void sendGPSRequest(JSONObject gpsData) {
+    private void sendGPSRequest(JSONObject gpsData, String courseId) {
         Log.d(TAG, "🚀 TRANSMITTING GPS DATA via CapacitorHttp");
         Log.d(TAG, "📊 GPS Data size: " + gpsData.toString().length() + " chars");
         Log.d(TAG, "🔑 Auth token available: " + (userAuthToken != null ? "YES" : "NO"));
@@ -288,18 +288,18 @@ public class SimpleGPSService extends Service implements LocationListener {
         MainActivity.runOnMainThread(() -> {
             try {
                 String jsCode = "window.sendGPSViaCapacitor('" + jsonString.replace("'", "\\'") + "', '" + userAuthToken + "')";
-                Log.d(TAG, "🎯 Executing JavaScript GPS transmission for course: " + course.courseId);
+                Log.d(TAG, "🎯 Executing JavaScript GPS transmission for course: " + courseId);
                 
                 MainActivity.getInstance().getWebView().evaluateJavascript(jsCode, result -> {
-                    Log.d(TAG, "✅ GPS RESULT for " + course.courseId + ": " + result);
+                    Log.d(TAG, "✅ GPS RESULT for " + courseId + ": " + result);
                     if (result != null && result.contains("true")) {
-                        Log.d(TAG, "🎉 GPS SUCCESS for course: " + course.courseId);
+                        Log.d(TAG, "🎉 GPS SUCCESS for course: " + courseId);
                     } else {
-                        Log.e(TAG, "❌ GPS FAILED for course: " + course.courseId + " - " + result);
+                        Log.e(TAG, "❌ GPS FAILED for course: " + courseId + " - " + result);
                     }
                 });
             } catch (Exception e) {
-                Log.e(TAG, "❌ GPS transmission exception for " + course.courseId + ": " + e.getMessage());
+                Log.e(TAG, "❌ GPS transmission exception for " + courseId + ": " + e.getMessage());
                 e.printStackTrace();
             }
         });
