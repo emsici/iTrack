@@ -348,22 +348,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       if (newStatus === 2) {
         console.log('🚀 Starting GPS tracking for ACTIVE status...');
         try {
-          // CRITICAL DEBUG: Verify UIT vs Token before calling startGPSTracking
-          console.log('=== PRE-TRANSMISSION DEBUG ===');
-          console.log('courseId:', courseId);
+          // CRITICAL FIX: UIT/Token confusion detected - swap parameters back!
+          console.log('=== CRITICAL FIX: UIT/TOKEN CONFUSION ===');
           console.log('courseToUpdate.uit:', courseToUpdate.uit);
-          console.log('token (first 20 chars):', token.substring(0, 20) + '...');
+          console.log('token:', token.substring(0, 20) + '...');
+          
+          // DETECTED: course.uit contains JWT, course object is corrupted
+          // SOLUTION: Use courseId as UIT (course.id = UIT from API)
+          let realUIT = courseId; // courseId = course.id = UIT from API
           
           if (courseToUpdate.uit && courseToUpdate.uit.startsWith('eyJ')) {
-            console.error('❌ CRITICAL: courseToUpdate.uit contains JWT token!');
-            console.error('This will cause database corruption');
-            console.error('UIT should be alphanumeric like 0Y3P670513100172');
-            console.error('Received UIT:', courseToUpdate.uit.substring(0, 30) + '...');
+            console.error('❌ DETECTED: courseToUpdate.uit contains JWT - using courseId as UIT');
+            console.log('🔧 Using courseId as UIT:', courseId);
+            realUIT = courseId;
           } else {
-            console.log('✅ courseToUpdate.uit appears correct');
+            console.log('✅ courseToUpdate.uit appears correct, using as-is');
+            realUIT = courseToUpdate.uit;
           }
           
-          await startGPSTracking(courseId, vehicleNumber, courseToUpdate.uit, token, newStatus);
+          await startGPSTracking(courseId, vehicleNumber, realUIT, token, newStatus);
           console.log(`✅ GPS tracking started for course ${courseId} with status ${newStatus}`);
           console.log(`📍 Course ${courseId} added to activeCourses Map with UIT: ${courseToUpdate.uit}`);
         } catch (error) {
