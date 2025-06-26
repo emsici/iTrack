@@ -187,25 +187,33 @@ public class SimpleGPSService extends Service implements LocationListener {
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, String.format("🔄 GPS Timer TICK: location=%s, activeCourses=%d", 
+                    lastLocation != null ? "OK" : "NULL", activeCourses.size()));
+                    
                 if (lastLocation != null && !activeCourses.isEmpty()) {
-                    Log.d(TAG, String.format("🔄 GPS Timer: Checking %d active courses", activeCourses.size()));
+                    Log.d(TAG, String.format("📡 Processing %d active courses", activeCourses.size()));
+                    int transmitted = 0;
                     for (CourseData course : activeCourses.values()) {
-                        Log.d(TAG, String.format("📡 Course %s status: %d (transmit: %s)", 
-                            course.courseId, course.status, course.status == 2 ? "YES" : "NO"));
+                        Log.d(TAG, String.format("📋 Course %s status: %d", course.courseId, course.status));
                         if (course.status == 2) {
-                            Log.d(TAG, String.format("📍 Transmitting GPS for active course: %s", course.courseId));
+                            Log.d(TAG, String.format("📍 TRANSMITTING GPS for course: %s", course.courseId));
                             transmitGPSData(course, lastLocation);
+                            transmitted++;
                         }
                     }
+                    Log.d(TAG, String.format("✅ Transmitted GPS for %d courses", transmitted));
                 } else {
-                    Log.d(TAG, String.format("⏸️ GPS Timer: No location (%s) or no active courses (%d)", 
+                    Log.w(TAG, String.format("⚠️ GPS Timer SKIP: location=%s, courses=%d", 
                         lastLocation != null ? "available" : "null", activeCourses.size()));
                 }
                 
-                if (isTracking && !activeCourses.isEmpty()) {
+                // CRITICAL: Continue timer as long as there are active courses
+                if (!activeCourses.isEmpty()) {
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                    Log.d(TAG, "🔄 GPS Timer continues - next transmission in 5 seconds");
                 } else {
-                    Log.d(TAG, "🛑 GPS Timer stopped: tracking=" + isTracking + ", courses=" + activeCourses.size());
+                    Log.d(TAG, "🛑 GPS Timer stopped - no active courses remaining");
+                    isTracking = false;
                 }
             }
         };
@@ -280,18 +288,19 @@ public class SimpleGPSService extends Service implements LocationListener {
         MainActivity.runOnMainThread(() -> {
             try {
                 String jsCode = "window.sendGPSViaCapacitor('" + jsonString.replace("'", "\\'") + "', '" + userAuthToken + "')";
-                Log.d(TAG, "🎯 Executing JavaScript GPS transmission");
+                Log.d(TAG, "🎯 Executing JavaScript GPS transmission for course: " + course.courseId);
                 
                 MainActivity.getInstance().getWebView().evaluateJavascript(jsCode, result -> {
-                    Log.d(TAG, "✅ CAPACITOR HTTP GPS RESULT: " + result);
+                    Log.d(TAG, "✅ GPS RESULT for " + course.courseId + ": " + result);
                     if (result != null && result.contains("true")) {
-                        Log.d(TAG, "🎉 GPS TRANSMISSION SUCCESS");
+                        Log.d(TAG, "🎉 GPS SUCCESS for course: " + course.courseId);
                     } else {
-                        Log.e(TAG, "❌ GPS TRANSMISSION FAILED: " + result);
+                        Log.e(TAG, "❌ GPS FAILED for course: " + course.courseId + " - " + result);
                     }
                 });
             } catch (Exception e) {
-                Log.e(TAG, "❌ GPS transmission exception: " + e.getMessage());
+                Log.e(TAG, "❌ GPS transmission exception for " + course.courseId + ": " + e.getMessage());
+                e.printStackTrace();
             }
         });
     }
