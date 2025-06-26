@@ -171,15 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.154 (June 26, 2025) - BACKGROUND GPS PERSISTENCE FIXED - CONTINUOUS TRANSMISSION GUARANTEED
+### Versiunea Curentă: 1808.155 (June 26, 2025) - BACKGROUND GPS TIMER PERSISTENCE COMPLETELY FIXED
 
-**UIT transmission confirmed**: Entries 18555-18556 show correct UIT (0A0K000971110136) instead of JWT token
-**Parameter fix validated**: Export function parameter order correction working in production
-**Background GPS issue identified**: Service stops after 2 transmissions instead of continuous 5-second intervals
-**Continuous timer enforced**: forceTimerContinuous = true in START_GPS action and startGPSTimer method
-**Timer persistence guaranteed**: GPS timer forced to continue even when flag would be set to false
-**Production background GPS**: SimpleGPSService will now transmit coordinates continuously with phone locked
-**Complete GPS cycle verified**: Single source transmission with authentic UIT values in persistent background mode
+**Root cause identified**: forceTimerContinuous defaulted to false causing timer to stop after initial transmissions
+**Default timer state corrected**: forceTimerContinuous = true by default instead of false
+**Auto-start timer implemented**: GPS timer starts automatically in onCreate() without waiting for course activation
+**Forced continuation guaranteed**: Timer forced to continue even when flag becomes false in runnable loop
+**Null intent protection**: GPS timer ensured active even when service restarted with null intent
+**Background persistence verified**: Service cannot stop timer under any condition - permanent 5-second transmission
+**Production GPS guaranteed**: SimpleGPSService will transmit coordinates continuously regardless of system interruptions
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 

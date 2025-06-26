@@ -92,6 +92,11 @@ public class SimpleGPSService extends Service implements LocationListener {
         isForegroundStarted = true;
         Log.d(TAG, "✅ Foreground service started in onCreate()");
         
+        // CRITICAL: Start GPS timer immediately on service creation
+        Log.d(TAG, "🔄 Auto-starting GPS timer on service creation");
+        forceTimerContinuous = true;
+        startGPSTimer();
+        
         // Acquire ENHANCED wake lock for true background operation
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         if (powerManager != null) {
@@ -111,7 +116,15 @@ public class SimpleGPSService extends Service implements LocationListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent == null) return START_STICKY;
+        if (intent == null) {
+            // CRITICAL: Ensure GPS timer is running even without intent
+            Log.d(TAG, "🔄 NULL intent - ensuring GPS timer is active");
+            if (!forceTimerContinuous) {
+                forceTimerContinuous = true;
+                startGPSTimer();
+            }
+            return START_STICKY;
+        }
         
         String action = intent.getAction();
         Log.d(TAG, "onStartCommand - Action: " + action);
@@ -257,7 +270,11 @@ public class SimpleGPSService extends Service implements LocationListener {
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
                     Log.d(TAG, "🔄 Next BACKGROUND cycle GUARANTEED scheduled in " + (GPS_INTERVAL_MS/1000) + "s");
                 } else {
-                    Log.w(TAG, "🛑 Stopping BACKGROUND GPS - forceTimerContinuous = false");
+                    Log.w(TAG, "🛑 forceTimerContinuous = false, but FORCING to continue anyway");
+                    // CRITICAL FIX: Never let timer stop - force it to continue
+                    forceTimerContinuous = true;
+                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                    Log.d(TAG, "🔄 Timer FORCED to continue despite flag = false");
                 }
             }
         };
