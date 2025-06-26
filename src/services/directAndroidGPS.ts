@@ -64,19 +64,90 @@ class DirectAndroidGPSService {
       console.log(`📡 Updating course status on server: ${courseId} → ${newStatus}`);
       
       // Update server status prin CapacitorHttp
-      const gpsData = {
-        numar_inmatriculare: course.vehicleNumber,
-        uit: course.uit,
-        status: newStatus,
+      // Get ALL data from real sensors
+      let sensorData = {
         lat: 45.7649,
         lng: 21.2291,
-        timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
         viteza: 0,
         directie: 0,
         altitudine: 0,
         baterie: 85,
         hdop: 1.2,
         gsm_signal: 4
+      };
+
+      try {
+        if (navigator.geolocation) {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 5000
+            });
+          });
+          
+          sensorData.lat = position.coords.latitude;
+          sensorData.lng = position.coords.longitude;
+          
+          if (position.coords.speed !== null) {
+            sensorData.viteza = Math.round(position.coords.speed * 3.6);
+          }
+          
+          if (position.coords.heading !== null) {
+            sensorData.directie = Math.round(position.coords.heading);
+          }
+          
+          if (position.coords.altitude !== null) {
+            sensorData.altitudine = Math.round(position.coords.altitude);
+          }
+          
+          if (position.coords.accuracy !== null) {
+            sensorData.hdop = Math.max(1.0, position.coords.accuracy / 10);
+          }
+        }
+      } catch (error) {
+        console.log('Sensor error, using current values:', error);
+      }
+
+      // Real battery
+      try {
+        if ('getBattery' in navigator) {
+          const battery = await (navigator as any).getBattery();
+          sensorData.baterie = Math.round(battery.level * 100);
+        } else if ('battery' in navigator) {
+          const battery = (navigator as any).battery;
+          sensorData.baterie = Math.round(battery.level * 100);
+        }
+      } catch (error) {
+        // Keep current value
+      }
+
+      // Real network signal
+      try {
+        if ('connection' in navigator) {
+          const connection = (navigator as any).connection;
+          if (connection.effectiveType === '4g') sensorData.gsm_signal = 4;
+          else if (connection.effectiveType === '3g') sensorData.gsm_signal = 3;
+          else if (connection.effectiveType === '2g') sensorData.gsm_signal = 2;
+          else sensorData.gsm_signal = 1;
+        }
+      } catch (error) {
+        // Keep current value
+      }
+
+      const gpsData = {
+        numar_inmatriculare: course.vehicleNumber,
+        uit: course.uit,
+        status: newStatus,
+        lat: sensorData.lat,
+        lng: sensorData.lng,
+        timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
+        viteza: sensorData.viteza,
+        directie: sensorData.directie,
+        altitudine: sensorData.altitudine,
+        baterie: sensorData.baterie,
+        hdop: sensorData.hdop,
+        gsm_signal: sensorData.gsm_signal
       };
       
       console.log('🔍 STATUS UPDATE GPS DATA:');
