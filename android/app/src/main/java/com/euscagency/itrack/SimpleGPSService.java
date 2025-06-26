@@ -212,7 +212,7 @@ public class SimpleGPSService extends Service implements LocationListener {
             Log.d(TAG, "Field types constructed:");
             Log.d(TAG, "- lat: " + lat + " (type: double)");
             Log.d(TAG, "- lng: " + lng + " (type: double)");
-            Log.d(TAG, "- status: " + course.status + " (type: " + course.status.getClass().getSimpleName() + ")");
+            Log.d(TAG, "- status: " + course.status + " (int)");
             Log.d(TAG, "Complete JSON object: " + gpsData.toString());
 
             sendGPSRequest(gpsData);
