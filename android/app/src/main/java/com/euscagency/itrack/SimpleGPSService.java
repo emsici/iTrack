@@ -242,18 +242,22 @@ public class SimpleGPSService extends Service implements LocationListener {
                 Log.d(TAG, "📡 BACKGROUND GPS Timer executing on thread: " + Thread.currentThread().getName());
                 Log.d(TAG, "🔄 forceTimerContinuous: " + forceTimerContinuous);
                 Log.d(TAG, "📊 activeCourses.size(): " + activeCourses.size());
+                Log.d(TAG, "📊 activeCourses contents: " + activeCourses.keySet().toString());
                 
-                if (forceTimerContinuous && !activeCourses.isEmpty()) {
-                    Log.d(TAG, "✅ Performing BACKGROUND GPS transmission");
-                    performGPSTransmission();
+                // CRITICAL FIX: Always continue if forceTimerContinuous is true, regardless of activeCourses
+                if (forceTimerContinuous) {
+                    if (!activeCourses.isEmpty()) {
+                        Log.d(TAG, "✅ Performing BACKGROUND GPS transmission for " + activeCourses.size() + " courses");
+                        performGPSTransmission();
+                    } else {
+                        Log.d(TAG, "⏳ GPS timer running but no active courses - keeping timer alive");
+                    }
                     
-                    // Schedule next execution on background thread
+                    // ALWAYS schedule next execution to prevent stopping
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                    Log.d(TAG, "🔄 Next BACKGROUND cycle scheduled in " + (GPS_INTERVAL_MS/1000) + "s");
+                    Log.d(TAG, "🔄 Next BACKGROUND cycle GUARANTEED scheduled in " + (GPS_INTERVAL_MS/1000) + "s");
                 } else {
-                    Log.w(TAG, "🛑 Stopping BACKGROUND GPS - conditions not met");
-                    Log.w(TAG, "   forceTimerContinuous: " + forceTimerContinuous);
-                    Log.w(TAG, "   activeCourses empty: " + activeCourses.isEmpty());
+                    Log.w(TAG, "🛑 Stopping BACKGROUND GPS - forceTimerContinuous = false");
                 }
             }
         };
