@@ -183,6 +183,7 @@ public class SimpleGPSService extends Service implements LocationListener {
             isTracking = true;
             
             Log.d(TAG, "⏰ Starting GPS transmissions timer");
+            forceTimerContinuous = true;
             startGPSTransmissions();
             
             Log.d(TAG, "✅ GPS SYSTEM FULLY INITIALIZED");
@@ -517,17 +518,20 @@ public class SimpleGPSService extends Service implements LocationListener {
         long currentTime = System.currentTimeMillis();
         Log.d(TAG, "=== HANDLER GPS CYCLE " + currentTime + " ===");
         
-        if (lastLocation != null && !activeCourses.isEmpty() && forceTimerContinuous) {
-            Log.d(TAG, "✅ CONDITIONS MET - Transmitting GPS for " + activeCourses.size() + " courses");
-            for (CourseData course : activeCourses.values()) {
-                if (course.status == 2) {
-                    Log.d(TAG, "📡 TRANSMIT: " + course.courseId + " at " + currentTime);
-                    transmitGPSData(course, lastLocation);
+        if (lastLocation != null && forceTimerContinuous) {
+            if (!activeCourses.isEmpty()) {
+                Log.d(TAG, "✅ CONDITIONS MET - Transmitting GPS for " + activeCourses.size() + " courses");
+                for (CourseData course : activeCourses.values()) {
+                    if (course.status == 2) {
+                        Log.d(TAG, "📡 TRANSMIT: " + course.courseId + " at " + currentTime);
+                        transmitGPSData(course, lastLocation);
+                    }
                 }
+            } else {
+                Log.d(TAG, "⏳ GPS timer running but no active courses - keeping timer alive");
             }
         } else {
             Log.w(TAG, "❌ SKIP: location=" + (lastLocation != null) + 
-                  ", courses=" + activeCourses.size() + 
                   ", continuous=" + forceTimerContinuous);
         }
     }
