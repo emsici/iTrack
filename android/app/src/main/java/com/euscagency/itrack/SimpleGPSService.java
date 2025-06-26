@@ -191,12 +191,14 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void initializeGPSHandler() {
-        Log.d(TAG, "🔧 Initializing GPS Handler and Runnable");
+        Log.d(TAG, "🔧 INITIALIZING CONTINUOUS BACKGROUND GPS HANDLER");
+        Log.d(TAG, "🔄 forceTimerContinuous = " + forceTimerContinuous);
         gpsHandler = new Handler(Looper.getMainLooper());
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
                 long cycleStartTime = System.currentTimeMillis();
+                Log.d(TAG, "🚀 === BACKGROUND TIMER EXECUTION START ===");
                 Log.d(TAG, "🔄 === GPS TIMER CYCLE START ===");
                 Log.d(TAG, "📊 Active courses: " + activeCourses.size());
                 Log.d(TAG, "🗺️ Location available: " + (lastLocation != null));
@@ -235,24 +237,34 @@ public class SimpleGPSService extends Service implements LocationListener {
                 
                 // CRITICAL: ALWAYS reschedule if courses exist - CONTINUOUS BACKGROUND OPERATION
                 if (!activeCourses.isEmpty()) {
-                    Log.d(TAG, "🔄 RESCHEDULING timer in " + (GPS_INTERVAL_MS/1000) + " seconds - BACKGROUND CONTINUOUS");
+                    Log.d(TAG, "🔄 FORCING CONTINUOUS RESCHEDULE - " + (GPS_INTERVAL_MS/1000) + " seconds");
                     Log.d(TAG, "📊 Current courses in Map: " + activeCourses.keySet().toString());
                     
-                    // FORCE CONTINUOUS EXECUTION - this is the critical fix for background transmission
+                    // CRITICAL FIX: Use Handler.postDelayed() with explicit reschedule
                     if (gpsHandler != null) {
-                        gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                        // FORCE IMMEDIATE RESCHEDULE - this is the key fix
+                        boolean scheduled = gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
                         long cycleTime = System.currentTimeMillis() - cycleStartTime;
-                        Log.d(TAG, "✅ Timer rescheduled successfully (cycle took " + cycleTime + "ms)");
+                        Log.d(TAG, "✅ FORCED RESCHEDULE: " + scheduled + " (cycle: " + cycleTime + "ms)");
+                        Log.d(TAG, "⏰ NEXT TRANSMISSION in exactly " + (GPS_INTERVAL_MS/1000) + " seconds");
                     } else {
-                        Log.e(TAG, "❌ GPS Handler is null - cannot reschedule!");
+                        Log.e(TAG, "❌ CRITICAL: Handler is null - recreating for continuous operation!");
+                        // EMERGENCY: Recreate handler if null
+                        initializeGPSHandler();
+                        if (gpsHandler != null) {
+                            gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                            Log.d(TAG, "🆘 EMERGENCY RESCHEDULE after handler recreation");
+                        }
                     }
                 } else {
                     Log.w(TAG, "🛑 STOPPING timer - no active courses");
                     Log.w(TAG, "📊 activeCourses Map is empty - stopping GPS transmissions");
                     isTracking = false;
+                    forceTimerContinuous = false;
                 }
                 
-                Log.d(TAG, "🔄 === GPS TIMER CYCLE END ===");
+                Log.d(TAG, "🚀 === BACKGROUND TIMER EXECUTION END ===");
+                Log.d(TAG, "⏰ Next execution scheduled: " + (!activeCourses.isEmpty() ? "YES" : "NO"));
             }
         };
         
