@@ -171,15 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.146 (June 26, 2025) - ANDROID NATIVE GPS PRIORITIZED FOR STATUS UPDATES
+### Versiunea Curentă: 1808.147 (June 26, 2025) - UIT/JWT PAYLOAD CORRUPTION DEBUG IMPLEMENTED
 
-**Android native GPS implementation**: Status updates now use AndroidGPS.getLastKnownLocation() instead of browser Geolocation
-**Native GPS method added**: MainActivity.getLastKnownLocation() provides real coordinates from LocationManager
-**Platform-specific GPS logic**: Android APK uses native GPS, browser uses Capacitor Geolocation fallback
-**Real device coordinates guaranteed**: Status updates use authentic GPS data from Android location services
-**Production-ready native integration**: All GPS operations optimized for Android deployment environment
-**Import dependencies added**: LocationManager, JSONObject, and location permissions integrated in MainActivity
-**GPS hierarchy established**: AndroidGPS native → Capacitor fallback → hardcoded fallback (error only)
+**Critical UIT corruption identified**: Database shows JWT token appearing in UIT field instead of proper UIT value
+**Debug logging implemented**: Added comprehensive logging to identify when course.uit contains JWT instead of UIT
+**Payload validation enhanced**: Status updates now verify UIT format before transmission to prevent corruption
+**Database integrity monitoring**: Logging detects if course.uit starts with 'eyJ' (JWT signature) instead of UIT
+**Real-world corruption confirmed**: Database entries 18508/18510 show JWT in UIT field proving active issue
+**Production debugging ready**: Application will log exact moment when UIT gets corrupted with JWT token
+**Data integrity protection**: Prevention logic added to catch UIT/JWT confusion before database transmission
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 

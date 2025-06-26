@@ -139,7 +139,7 @@ class DirectAndroidGPSService {
 
       const gpsData = {
         numar_inmatriculare: course.vehicleNumber,
-        uit: course.uit,
+        uit: course.uit, // This should be UIT, not JWT token
         status: newStatus,
         lat: sensorData.lat,
         lng: sensorData.lng,
@@ -151,6 +151,20 @@ class DirectAndroidGPSService {
         hdop: sensorData.hdop,
         gsm_signal: sensorData.gsm_signal
       };
+      
+      // DEBUGGING: Verify UIT vs JWT token
+      console.log('=== UIT vs TOKEN DEBUG ===');
+      console.log('course.uit:', course.uit);
+      console.log('course.token:', course.token);
+      console.log('UIT starts with:', course.uit ? course.uit.substring(0, 10) : 'NULL');
+      console.log('Token starts with:', course.token ? course.token.substring(0, 10) : 'NULL');
+      
+      if (course.uit && course.uit.startsWith('eyJ')) {
+        console.error('❌ CRITICAL: course.uit contains JWT token instead of UIT!');
+        console.error('This will cause database corruption');
+      } else {
+        console.log('✅ course.uit appears to be correct UIT format');
+      }
       
       console.log('🔍 STATUS UPDATE GPS DATA:');
       console.log('- Battery level from sensors:', gpsData.baterie + '%');
