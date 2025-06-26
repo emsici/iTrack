@@ -19,14 +19,17 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
 import org.json.JSONObject;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-// Removed OkHttp dependencies - using CapacitorHttp instead
 
 public class SimpleGPSService extends Service implements LocationListener {
     private static final String TAG = "SimpleGPSService";
@@ -72,13 +75,16 @@ public class SimpleGPSService extends Service implements LocationListener {
         startForeground(NOTIFICATION_ID, createNotification());
         Log.d(TAG, "✅ Foreground service started in onCreate()");
         
-        // Acquire wake lock to prevent CPU sleep
+        // Acquire ENHANCED wake lock for true background operation
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         if (powerManager != null) {
-            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "iTrack:GPSWakeLock");
+            wakeLock = powerManager.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, 
+                "iTrack:GPSBackgroundLock"
+            );
             if (!wakeLock.isHeld()) {
-                wakeLock.acquire();
-                Log.d(TAG, "🔋 Wake lock acquired for continuous background operation");
+                wakeLock.acquire(10 * 60 * 60 * 1000L); // 10 hours max
+                Log.d(TAG, "🔋 Enhanced wake lock acquired for true background operation");
             }
         }
         
@@ -379,20 +385,9 @@ public class SimpleGPSService extends Service implements LocationListener {
             Log.e(TAG, "❌ DIRECT HTTP TRANSMISSION ERROR for " + courseId + ": " + e.getMessage());
             e.printStackTrace();
             
-            // Fallback to WebView if available
-            if (MainActivity.getInstance() != null) {
-                Log.d(TAG, "🔄 Fallback to WebView transmission");
-                MainActivity.runOnMainThread(() -> {
-                    try {
-                        String jsCode = "window.sendGPSViaCapacitor('" + jsonString.replace("'", "\\'") + "', '" + userAuthToken + "')";
-                        MainActivity.getInstance().getWebView().evaluateJavascript(jsCode, result -> {
-                            Log.d(TAG, "📨 Fallback WebView result: " + result);
-                        });
-                    } catch (Exception ex) {
-                        Log.e(TAG, "❌ Fallback WebView also failed: " + ex.getMessage());
-                    }
-                });
-            }
+            // Background service operates independently - no WebView fallback needed
+            Log.w(TAG, "⚠️ GPS transmission failed - will retry in next cycle");
+            Log.d(TAG, "🔄 Background service continues independently without WebView dependency");
         }
     }
 
