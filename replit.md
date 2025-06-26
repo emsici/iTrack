@@ -171,15 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.144 (June 26, 2025) - GPS TOKEN PATTERN FULLY CONFIRMED AND RESOLVED
+### Versiunea Curentă: 1808.145 (June 26, 2025) - HARDCODED COORDINATES REPLACED WITH REAL GPS
 
-**Multiple database entries confirm token inconsistency pattern**: Entries 18506-18510 show JWT/UIT alternating exactly as predicted
-**GPS transmission logic verified**: Status 2 transmissions every 5 seconds while active, Status 4 final transmission on STOP
-**Token switching pattern documented**: First transmission JWT (success), middle transmissions UIT (failed but logged), final transmission JWT
-**Real-world GPS behavior validated**: 40 seconds of Status 2 activity = 4 consecutive GPS transmissions at 5-second intervals
-**Fix necessity absolutely confirmed**: Database screenshot proves exact issue we identified and resolved with getStoredToken()
-**Production authentication consistency**: All future GPS operations will use consistent JWT Bearer token source
-**Token architecture finalized**: Single JWT token replaces mixed JWT/UIT pattern for continuous GPS operation
+**Hardcoded coordinates issue identified and fixed**: Status updates now use real GPS coordinates instead of București fallback
+**Mixed coordinate sources resolved**: Browser GPS used real Timișoara coordinates, status updates used hardcoded București coordinates
+**Real GPS implementation enhanced**: updateCourseStatus now gets actual GPS position with proper error handling
+**Coordinate consistency established**: All GPS operations now use authentic location data from device sensors
+**Geolocation fallback implemented**: Graceful degradation to fallback coordinates only when GPS access fails
+**Database coordinate validation**: Real coordinates 45.7649,21.2291 (Timișoara) vs hardcoded 44.2583,28.6175 (București) identified
+**Production GPS authenticity**: All future transmissions will use real device location instead of mock coordinates
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
