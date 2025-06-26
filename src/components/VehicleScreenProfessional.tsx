@@ -30,7 +30,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [coursesLoaded, setCoursesLoaded] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [infoClickCount, setInfoClickCount] = useState(0);
   const [clickCount, setClickCount] = useState(0);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
@@ -277,8 +276,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   };
 
   const handleTimestampClick = async () => {
-    const newCount = infoClickCount + 1;
-    setInfoClickCount(newCount);
+    const newCount = clickCount + 1;
+    setClickCount(newCount);
     
     console.log(`Debug click: ${newCount}/50`);
     
@@ -288,11 +287,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         const logs = await getAppLogs();
         setDebugLogs(logs);
         setShowDebugPanel(true);
-        setInfoClickCount(0);
+        setClickCount(0);
       } catch (error) {
         console.error("Error loading debug logs:", error);
         setShowDebugPanel(true);
-        setInfoClickCount(0);
+        setClickCount(0);
       }
     }
   };
@@ -824,9 +823,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}
           >
             {isOnline ? 'Online' : 'Offline'}
-            {infoClickCount >= 30 && (
+            {clickCount >= 30 && (
               <span style={{ marginLeft: '8px', opacity: 0.7 }}>
-                ({infoClickCount}/50)
+                ({clickCount}/50)
               </span>
             )}
           </div>

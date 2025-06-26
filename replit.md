@@ -171,7 +171,7 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.128 (June 26, 2025) - ALARMMANAGER EXACT IMPLEMENTATION GUARANTEED
+### Versiunea Curentă: 1808.129 (June 26, 2025) - ALARMMANAGER IMPLEMENTATION CORRECTED & FUNCTIONAL
 
 **AlarmManager implementation complete**: Replaced ScheduledExecutorService with Android-native AlarmManager for guaranteed background execution
 **setExactAndAllowWhileIdle used**: Guaranteed alarm execution that cannot be ignored by Android battery optimization
@@ -181,6 +181,9 @@ Persistare localStorage → Afișare CourseStatsModal
 **TRANSMIT_GPS action**: Service action for performing GPS transmission when alarm fires
 **Battery optimization resistant**: setExactAndAllowWhileIdle bypasses all Android power management restrictions
 **Production guarantee**: AlarmManager provides true continuous background GPS transmission with phone locked
+**startGPSTransmissions() corrected**: Now actually uses AlarmManager instead of old Handler approach
+**Click counter unified**: Fixed clickCount vs infoClickCount inconsistency in debug panel access
+**Online indicator functional**: Visible between header and statistics cards with proper click counter
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 

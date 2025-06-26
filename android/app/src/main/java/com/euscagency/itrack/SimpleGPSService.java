@@ -300,8 +300,12 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void startGPSTransmissions() {
+        Log.d(TAG, "=== STARTING ALARMMANAGER GPS TRANSMISSIONS ===");
         isTracking = true;
         forceTimerContinuous = true;
+        
+        // Stop any existing alarm first
+        stopGPSAlarm();
         
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         
@@ -309,15 +313,16 @@ public class SimpleGPSService extends Service implements LocationListener {
         gpsAlarmIntent = PendingIntent.getBroadcast(this, 0, gpsIntent, 
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         
-        // Use setExactAndAllowWhileIdle for guaranteed execution
-        long triggerTime = System.currentTimeMillis() + GPS_INTERVAL_MS;
+        // Start immediately
+        long triggerTime = System.currentTimeMillis() + 1000; // 1 second delay
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
             triggerTime,
             gpsAlarmIntent
         );
         
-        Log.d(TAG, "AlarmManager GPS transmission started");
+        Log.d(TAG, "✅ AlarmManager GPS transmission scheduled for 1 second");
+        Log.d(TAG, "⏰ Will repeat every " + (GPS_INTERVAL_MS/1000) + " seconds");
     }
     
     private void stopGPSAlarm() {
@@ -545,19 +550,8 @@ public class SimpleGPSService extends Service implements LocationListener {
             Log.w(TAG, "GPS transmission skipped - conditions not met");
         }
         
-        // CRITICAL: Reschedule next alarm
-        if (forceTimerContinuous && alarmManager != null && gpsAlarmIntent != null) {
-            long nextTrigger = System.currentTimeMillis() + GPS_INTERVAL_MS;
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                nextTrigger,
-                gpsAlarmIntent
-            );
-            Log.d(TAG, "Next GPS alarm scheduled in " + (GPS_INTERVAL_MS/1000) + " seconds");
-        } else {
-            Log.w(TAG, "GPS alarm NOT rescheduled - forceTimerContinuous: " + forceTimerContinuous + 
-                  ", alarmManager: " + (alarmManager != null) + ", gpsAlarmIntent: " + (gpsAlarmIntent != null));
-        }
+        // No manual reschedule needed - setRepeating handles it
+        Log.d(TAG, "GPS transmission completed - setRepeating will handle next execution");
     }
     
     public static class GPSTransmissionReceiver extends BroadcastReceiver {
@@ -639,6 +633,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     
     private void stopGPSTimer() {
         Log.d(TAG, "Stopping GPS transmissions");
+        stopGPSAlarm();
         if (gpsHandler != null && gpsRunnable != null) {
             gpsHandler.removeCallbacks(gpsRunnable);
         }
