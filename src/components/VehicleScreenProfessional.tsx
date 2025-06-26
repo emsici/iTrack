@@ -458,8 +458,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           gsm_signal: sensorData.gsm_signal
         };
         
-        // GPS transmission using static import
+        // GPS transmission using dynamic import pentru a repara problema
+        const { sendGPSData } = await import('../services/api');
         const success = await sendGPSData(gpsData, token);
+        console.log('🔑 GPS Token (first 30 chars):', token.substring(0, 30));
         console.log(`GPS transmission result: ${success ? 'SUCCESS' : 'FAILED'} for course ${courseId}`);
 
         // Actualizează și serviciul GPS Android
