@@ -73,6 +73,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         // CRITICAL: Start IMMEDIATELY as foreground service for background operation
         Log.d(TAG, "🚀 STARTING FOREGROUND SERVICE in onCreate()");
         startForeground(NOTIFICATION_ID, createNotification());
+        isForegroundStarted = true;
         Log.d(TAG, "✅ Foreground service started in onCreate()");
         
         // Acquire ENHANCED wake lock for true background operation
