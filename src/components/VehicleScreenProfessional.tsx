@@ -803,6 +803,34 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
           </div>
 
+          {/* Indicator Online/Offline cu Debug Trigger */}
+          <div 
+            className="online-indicator"
+            onClick={handleTimestampClick}
+            style={{
+              textAlign: 'center',
+              margin: '15px 0',
+              padding: '10px',
+              color: '#fff',
+              fontSize: '16px',
+              cursor: 'pointer',
+              userSelect: 'none',
+              background: 'rgba(15, 23, 42, 0.8)',
+              borderRadius: '8px',
+              maxWidth: '200px',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            {isOnline ? 'Online' : 'Offline'}
+            {infoClickCount >= 30 && (
+              <span style={{ marginLeft: '8px', opacity: 0.7 }}>
+                ({infoClickCount}/50)
+              </span>
+            )}
+          </div>
+
           {/* Main Dashboard Content */}
           <div className="vehicle-dashboard-main-content">
             {/* Statistics Cards - 4 in One Row */}
@@ -895,23 +923,23 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <span>Ieșire</span>
               </button>
             </div>
-          </div>
 
-          {/* Course Stats Modal */}
-          <CourseStatsModal
-            isOpen={showStatsModal}
-            onClose={() => setShowStatsModal(false)}
-            courses={courses}
-            vehicleNumber={vehicleNumber}
-          />
-
-          {/* Admin Panel Modal */}
-          {showAdminPanel && (
-            <AdminPanel
-              onLogout={handleLogout}
-              onClose={() => setShowAdminPanel(false)}
+            {/* Course Stats Modal */}
+            <CourseStatsModal
+              isOpen={showStatsModal}
+              onClose={() => setShowStatsModal(false)}
+              courses={courses}
+              vehicleNumber={vehicleNumber}
             />
-          )}
+
+            {/* Admin Panel Modal */}
+            {showAdminPanel && (
+              <AdminPanel
+                onLogout={handleLogout}
+                onClose={() => setShowAdminPanel(false)}
+              />
+            )}
+          </div>
         </>
       )}
     </div>
