@@ -6,7 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -56,9 +56,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     // CRITICAL: Force continuous timer execution
     private boolean forceTimerContinuous = true;
     
-    // ROBUST BACKGROUND EXECUTION: AlarmManager for Android optimization
-    private AlarmManager alarmManager;
-    private PendingIntent gpsAlarmIntent;
+    // ROBUST BACKGROUND EXECUTION: Handler in foreground service (no restrictions)
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private String userAuthToken;
     private PowerManager.WakeLock wakeLock;
