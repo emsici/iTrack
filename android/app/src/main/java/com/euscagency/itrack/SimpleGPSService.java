@@ -67,8 +67,10 @@ public class SimpleGPSService extends Service implements LocationListener {
         createNotificationChannel();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         
-        // Start IMMEDIATELY as foreground service for background operation
+        // CRITICAL: Start IMMEDIATELY as foreground service for background operation
+        Log.d(TAG, "🚀 STARTING FOREGROUND SERVICE in onCreate()");
         startForeground(NOTIFICATION_ID, createNotification());
+        Log.d(TAG, "✅ Foreground service started in onCreate()");
         
         // Acquire wake lock to prevent CPU sleep
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
@@ -132,11 +134,23 @@ public class SimpleGPSService extends Service implements LocationListener {
             courseId, status, status == 2 ? "YES" : "NO"));
 
         if (!isTracking) {
-            Log.d(TAG, "Starting foreground service");
+            Log.d(TAG, "🚀 CRITICAL: Starting foreground service FIRST");
+            // CRITICAL: startForeground MUST be called FIRST on Android 8+
             startForeground(NOTIFICATION_ID, createNotification());
+            Log.d(TAG, "✅ Foreground service started successfully");
+            
+            Log.d(TAG, "🗺️ Starting location updates");
             startLocationUpdates();
+            
+            Log.d(TAG, "🎯 Setting isTracking = true");
             isTracking = true;
+            
+            Log.d(TAG, "⏰ Starting GPS transmissions timer");
             startGPSTransmissions();
+            
+            Log.d(TAG, "✅ GPS SYSTEM FULLY INITIALIZED");
+        } else {
+            Log.d(TAG, "📊 GPS already running - course added to existing session");
         }
     }
 
@@ -243,20 +257,31 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void sendGPSRequest(JSONObject gpsData) {
-        Log.d(TAG, "🚀 USING CAPACITOR HTTP for GPS transmission");
+        Log.d(TAG, "🚀 TRANSMITTING GPS DATA via CapacitorHttp");
+        Log.d(TAG, "📊 GPS Data size: " + gpsData.toString().length() + " chars");
+        Log.d(TAG, "🔑 Auth token available: " + (userAuthToken != null ? "YES" : "NO"));
         
         // Convert JSONObject to string for CapacitorHttp
         String jsonString = gpsData.toString();
-        Log.d(TAG, "📊 GPS Data: " + jsonString);
+        Log.d(TAG, "📡 Complete GPS payload: " + jsonString);
         
-        // Use CapacitorHttp through WebView - same as JavaScript
+        // CRITICAL: Use CapacitorHttp through WebView - same as JavaScript
         MainActivity.runOnMainThread(() -> {
-            MainActivity.getInstance().getWebView().evaluateJavascript(
-                "window.sendGPSViaCapacitor('" + jsonString.replace("'", "\\'") + "', '" + userAuthToken + "')",
-                result -> {
-                    Log.d(TAG, "✅ CapacitorHttp GPS result: " + result);
-                }
-            );
+            try {
+                String jsCode = "window.sendGPSViaCapacitor('" + jsonString.replace("'", "\\'") + "', '" + userAuthToken + "')";
+                Log.d(TAG, "🎯 Executing JavaScript GPS transmission");
+                
+                MainActivity.getInstance().getWebView().evaluateJavascript(jsCode, result -> {
+                    Log.d(TAG, "✅ CAPACITOR HTTP GPS RESULT: " + result);
+                    if (result != null && result.contains("true")) {
+                        Log.d(TAG, "🎉 GPS TRANSMISSION SUCCESS");
+                    } else {
+                        Log.e(TAG, "❌ GPS TRANSMISSION FAILED: " + result);
+                    }
+                });
+            } catch (Exception e) {
+                Log.e(TAG, "❌ GPS transmission exception: " + e.getMessage());
+            }
         });
     }
 
