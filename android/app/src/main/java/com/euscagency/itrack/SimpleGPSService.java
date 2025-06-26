@@ -52,7 +52,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     // CRITICAL: Force continuous timer execution
     private boolean forceTimerContinuous = true;
     
-    // ALTERNATIVE: ScheduledExecutorService for robust background execution
+    // ROBUST BACKGROUND EXECUTION: ScheduledExecutorService
     private ScheduledExecutorService gpsExecutor;
     private ScheduledFuture<?> gpsTask;
     private Map<String, CourseData> activeCourses = new HashMap<>();
