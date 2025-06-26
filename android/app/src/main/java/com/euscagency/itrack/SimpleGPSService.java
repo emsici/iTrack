@@ -307,11 +307,11 @@ public class SimpleGPSService extends Service implements LocationListener {
         gpsAlarmIntent = PendingIntent.getBroadcast(this, 0, gpsIntent, 
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         
-        // Use ELAPSED_REALTIME_WAKEUP for guaranteed execution
-        alarmManager.setRepeating(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            0, // Start immediately
-            GPS_INTERVAL_MS, // 5 seconds
+        // Use setExactAndAllowWhileIdle for guaranteed execution
+        long triggerTime = System.currentTimeMillis() + GPS_INTERVAL_MS;
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            triggerTime,
             gpsAlarmIntent
         );
         
@@ -521,6 +521,35 @@ public class SimpleGPSService extends Service implements LocationListener {
         stopForeground(true);
         stopSelf();
         Log.d(TAG, "✅ All courses cleared and GPS Service stopped");
+    }
+    
+    private void performGPSTransmission() {
+        if (lastLocation != null && !activeCourses.isEmpty() && forceTimerContinuous) {
+            for (CourseData course : activeCourses.values()) {
+                if (course.status == 2) {
+                    transmitGPSData(course, lastLocation);
+                }
+            }
+        }
+        
+        // CRITICAL: Reschedule next alarm
+        if (forceTimerContinuous && alarmManager != null && gpsAlarmIntent != null) {
+            long nextTrigger = System.currentTimeMillis() + GPS_INTERVAL_MS;
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                nextTrigger,
+                gpsAlarmIntent
+            );
+        }
+    }
+    
+    public static class GPSTransmissionReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Intent serviceIntent = new Intent(context, SimpleGPSService.class);
+            serviceIntent.setAction("TRANSMIT_GPS");
+            context.startService(serviceIntent);
+        }
     }
 
     private void createNotificationChannel() {
