@@ -247,7 +247,18 @@ class DirectAndroidGPSService {
     console.log(`Course ID: ${courseId}`);
     console.log(`Vehicle: ${vehicleNumber}`);
     console.log(`UIT: ${uit}`);
+    console.log(`Token: ${token.substring(0, 10)}...`);
     console.log(`Status: ${status} (${status === 2 ? 'ACTIVE' : status === 3 ? 'PAUSED' : 'OTHER'})`);
+    
+    // CRITICAL DEBUG: Verify UIT vs Token confusion
+    if (uit && uit.startsWith('eyJ')) {
+      console.error('❌ CRITICAL: UIT parameter contains JWT token!');
+      console.error('This will cause database corruption in GPS transmissions');
+      console.error(`Received UIT: ${uit.substring(0, 30)}...`);
+      console.error(`Expected UIT format: alphanumeric like 0Y3P670513100172`);
+    } else {
+      console.log('✅ UIT parameter appears correct');
+    }
 
     const courseData: ActiveCourse = {
       courseId,

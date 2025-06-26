@@ -171,15 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.148 (June 26, 2025) - UIT CORRUPTION ROOT CAUSE FIXED
+### Versiunea Curentă: 1808.149 (June 26, 2025) - PARTIAL UIT CORRUPTION FIX CONFIRMED
 
-**Root cause identified and fixed**: Minimal course creation used courseId as UIT fallback instead of real UIT from API
-**Real UIT extraction implemented**: updateCourseStatus now searches localStorage courses to find real UIT value
-**Database integrity restored**: Course entries will use authentic UIT from courses API instead of courseId fallback
-**Critical corruption prevented**: Fixed logic that caused JWT tokens to appear in UIT database field
-**Production data validated**: All future GPS transmissions will use correct UIT format from server API response
-**Fallback safety maintained**: Graceful degradation to courseId only when courses data unavailable
-**GPS interval confirmed**: 8-10 second intervals observed in production matching Android Handler timing
+**Partial success confirmed**: Status updates (3,4) now use correct UIT (0Y3P670513100172) in database
+**Remaining issue identified**: Status 2 (ACTIVE) GPS transmissions still contain JWT token in UIT field
+**Root cause narrowed**: startGPSTracking receives corrupted UIT parameter from calling function
+**Debug enhancement applied**: startTracking now validates UIT parameter and logs JWT token detection
+**Progress validation**: 2/10 recent entries show correct UIT format, 8/10 still show JWT corruption
+**Investigation focus**: UIT corruption occurs before startGPSTracking call, not in minimal course creation
+**Next target**: Identify where UIT gets replaced with JWT token in active GPS transmission flow
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
