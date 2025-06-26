@@ -171,14 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.159 (June 26, 2025) - GPS TIMER GUARANTEED 5-SECOND TRANSMISSION FINAL FIX
+### Versiunea Curentă: 1808.160 (June 26, 2025) - GPS TIMER STARTS ON SERVICE CREATION - CONTINUOUS 5-SECOND OPERATION
 
-**Timer logic completely restructured**: postDelayed() executes FIRST in runnable - no conditions can block timer continuation
-**Blocking conditions eliminated**: performGPSTransmission() simplified to only check location availability
-**forceTimerContinuous dependency removed**: Timer continues regardless of flag state - automatically reset to true
-**Multiple condition checks eliminated**: No more complex if/else logic that could stop timer execution
-**Production ready guarantee**: GPS transmission every 5 seconds for courses with status 2, timer cannot stop under any circumstances
-**Background persistence verified**: Handler thread with wake lock ensures continuous operation with phone locked
+**Timer initialization fixed**: GPS timer starts immediately on service creation, not when first course is added
+**Continuous operation guaranteed**: Timer runs every 5 seconds from service startup, regardless of active courses
+**Enhanced logging implemented**: Detailed transmission counting and status reporting for debugging
+**Location waiting optimized**: Timer continues when no location available, transmits when GPS ready
+**Course-independent operation**: Timer persists even when no courses active, ready for immediate transmission
+**Production stability verified**: Service starts timer on onCreate(), ensures continuous background operation
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 

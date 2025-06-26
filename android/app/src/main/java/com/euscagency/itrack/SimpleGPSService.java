@@ -182,11 +182,7 @@ public class SimpleGPSService extends Service implements LocationListener {
             Log.d(TAG, "🎯 Setting isTracking = true");
             isTracking = true;
             
-            Log.d(TAG, "⏰ CRITICAL: Starting continuous 5-second GPS timer");
-            forceTimerContinuous = true;
-            startGPSTransmissions();
-            
-            Log.d(TAG, "✅ GPS SYSTEM FULLY INITIALIZED - Timer will run every 5 seconds");
+            Log.d(TAG, "✅ GPS SYSTEM FULLY INITIALIZED - Timer already running every 5 seconds");
         } else {
             Log.d(TAG, "📊 GPS already running - course added to existing session");
         }
@@ -517,26 +513,36 @@ public class SimpleGPSService extends Service implements LocationListener {
     private void performGPSTransmission() {
         long currentTime = System.currentTimeMillis();
         Log.d(TAG, "=== GPS TRANSMISSION CYCLE " + currentTime + " ===");
+        Log.d(TAG, "📊 Active courses: " + activeCourses.size());
+        Log.d(TAG, "📍 Location available: " + (lastLocation != null));
         
-        // Always check location - don't block on other conditions
+        // Check location availability
         if (lastLocation == null) {
-            Log.w(TAG, "⚠️ No GPS location available yet");
+            Log.d(TAG, "⏳ Waiting for GPS location - timer continues");
             return;
         }
         
-        Log.d(TAG, "📍 Location available: " + lastLocation.getLatitude() + ", " + lastLocation.getLongitude());
+        // Check if any courses need transmission
+        if (activeCourses.isEmpty()) {
+            Log.d(TAG, "⏳ No active courses - timer continues");
+            return;
+        }
+        
+        Log.d(TAG, "📍 GPS: " + lastLocation.getLatitude() + ", " + lastLocation.getLongitude());
         
         // Transmit for all active courses with status 2
+        int transmissionCount = 0;
         for (CourseData course : activeCourses.values()) {
             if (course.status == 2) {
-                Log.d(TAG, "🚀 TRANSMITTING GPS for course: " + course.courseId + " (UIT: " + course.uit + ")");
+                Log.d(TAG, "🚀 TRANSMITTING GPS for: " + course.courseId + " (UIT: " + course.uit + ")");
                 transmitGPSData(course, lastLocation);
+                transmissionCount++;
             } else {
-                Log.d(TAG, "⏸️ Skipping course " + course.courseId + " - status: " + course.status);
+                Log.d(TAG, "⏸️ Skipping: " + course.courseId + " - status: " + course.status);
             }
         }
         
-        Log.d(TAG, "✅ GPS transmission cycle completed at " + currentTime);
+        Log.d(TAG, "✅ Transmitted GPS for " + transmissionCount + " courses at " + currentTime);
     }
     
     // BroadcastReceiver no longer needed - Handler provides guaranteed execution
