@@ -171,15 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.149 (June 26, 2025) - PARTIAL UIT CORRUPTION FIX CONFIRMED
+### Versiunea Curentă: 1808.150 (June 26, 2025) - UIT/JWT CONFUSION PRE-TRANSMISSION DEBUG IMPLEMENTED
 
-**Partial success confirmed**: Status updates (3,4) now use correct UIT (0Y3P670513100172) in database
-**Remaining issue identified**: Status 2 (ACTIVE) GPS transmissions still contain JWT token in UIT field
-**Root cause narrowed**: startGPSTracking receives corrupted UIT parameter from calling function
-**Debug enhancement applied**: startTracking now validates UIT parameter and logs JWT token detection
-**Progress validation**: 2/10 recent entries show correct UIT format, 8/10 still show JWT corruption
-**Investigation focus**: UIT corruption occurs before startGPSTracking call, not in minimal course creation
-**Next target**: Identify where UIT gets replaced with JWT token in active GPS transmission flow
+**Critical debug point established**: Added validation before startGPSTracking call to catch UIT corruption
+**Transmission source identified**: Background GPS data comes from SimpleGPSService line 311: gpsData.put("uit", course.uit)
+**Parameter flow traced**: VehicleScreenProfessional → startGPSTracking(courseToUpdate.uit) → activeCourses.set() → SimpleGPSService
+**Root cause investigation**: courseToUpdate.uit may already contain JWT token when retrieved from courses array
+**Pre-transmission validation**: System now logs exact UIT value before sending to startGPSTracking function
+**Database corruption path**: If courseToUpdate.uit = JWT, then activeCourses stores JWT, then SimpleGPSService transmits JWT
+**Debug enhancement**: Will identify if corruption happens in API parsing, course storage, or parameter passing
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
