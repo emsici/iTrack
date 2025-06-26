@@ -299,50 +299,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         }
     }
 
-    private void transmitGPSData(CourseData course, Location location) {
-        try {
-            // CRITICAL DEBUG: Verify token before transmission
-            Log.d(TAG, "🔑 TOKEN DEBUG - userAuthToken: " + (userAuthToken != null ? userAuthToken.substring(0, Math.min(20, userAuthToken.length())) + "..." : "NULL"));
-            
-            if (userAuthToken == null || userAuthToken.trim().isEmpty()) {
-                Log.e(TAG, "❌ CRITICAL ERROR: userAuthToken is NULL or empty - cannot transmit GPS");
-                return;
-            }
-            
-            JSONObject gpsData = new JSONObject();
-            
-            // Log data construction process
-            Log.d(TAG, "🔍 ANDROID GPS DATA CONSTRUCTION:");
-            
-            double lat = Double.parseDouble(String.format(Locale.US, "%.4f", location.getLatitude()));
-            double lng = Double.parseDouble(String.format(Locale.US, "%.4f", location.getLongitude()));
-            
-            gpsData.put("lat", lat);
-            gpsData.put("lng", lng);
-            gpsData.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
-            gpsData.put("viteza", location.hasSpeed() ? (int)(location.getSpeed() * 3.6) : 0);
-            gpsData.put("directie", location.hasBearing() ? (int)location.getBearing() : 0);
-            gpsData.put("altitudine", location.hasAltitude() ? (int)location.getAltitude() : 0);
-            gpsData.put("baterie", getBatteryLevel());
-            gpsData.put("numar_inmatriculare", course.vehicleNumber);
-            gpsData.put("uit", course.uit);
-            gpsData.put("status", course.status);
-            gpsData.put("hdop", 1.2);
-            gpsData.put("gsm_signal", 4);
-            
-            Log.d(TAG, "Field types constructed:");
-            Log.d(TAG, "- lat: " + lat + " (type: double)");
-            Log.d(TAG, "- lng: " + lng + " (type: double)");
-            Log.d(TAG, "- status: " + course.status + " (int)");
-            Log.d(TAG, "Complete JSON object: " + gpsData.toString());
-
-            sendGPSRequest(gpsData, course.courseId);
-            Log.d(TAG, "GPS transmitted for UIT: " + course.uit);
-            
-        } catch (Exception e) {
-            Log.e(TAG, "Error transmitting GPS", e);
-        }
-    }
+    // Removed first duplicate transmitGPSData() method - keeping complete implementation below
 
     private void sendGPSRequest(JSONObject gpsData, String courseId) {
         Log.d(TAG, "🚀 TRANSMITTING GPS DATA via HttpURLConnection (BACKGROUND NATIVE)");
@@ -689,31 +646,5 @@ public class SimpleGPSService extends Service implements LocationListener {
             Log.w(TAG, "Could not get battery level: " + e.getMessage());
             return 85; // Default fallback
         }
-    }
-    
-
-    
-    private int getBatteryLevel() {
-        try {
-            IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-            Intent batteryStatus = registerReceiver(null, ifilter);
-            
-            if (batteryStatus != null) {
-                int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-                int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-                
-                if (level != -1 && scale != -1) {
-                    int batteryPct = Math.round((level / (float) scale) * 100);
-                    Log.d(TAG, "Battery level from sensors: " + batteryPct + "%");
-                    return batteryPct;
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to get battery level", e);
-        }
-        
-        // Fallback if battery info unavailable
-        Log.d(TAG, "Using fallback battery level: 85%");
-        return 85;
     }
 }
