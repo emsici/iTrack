@@ -35,10 +35,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+// Removed unused concurrent imports - using Handler instead
 
 public class SimpleGPSService extends Service implements LocationListener {
     private static final String TAG = "SimpleGPSService";
@@ -135,7 +132,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         String action = intent.getAction();
         Log.d(TAG, "onStartCommand - Action: " + action);
 
-        if ("START_TRACKING".equals(action)) {
+        if ("START_GPS".equals(action)) {
             startGPSTracking(intent);
         } else if ("UPDATE_STATUS".equals(action)) {
             updateCourseStatus(intent);
@@ -155,7 +152,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         String uit = intent.getStringExtra("uit");
         int status = intent.getIntExtra("status", 2);
         String vehicleNumber = intent.getStringExtra("vehicleNumber");
-        String authToken = intent.getStringExtra("authToken");
+        String authToken = intent.getStringExtra("token");
         
         if (courseId == null || uit == null || vehicleNumber == null || authToken == null) {
             Log.e(TAG, "Missing required parameters");
@@ -620,6 +617,78 @@ public class SimpleGPSService extends Service implements LocationListener {
         }
         
         super.onDestroy();
+    }
+    
+    /**
+     * Transmit GPS data for a specific course
+     */
+    private void transmitGPSData(CourseData course, Location location) {
+        try {
+            // Create GPS data JSON
+            JSONObject gpsData = new JSONObject();
+            gpsData.put("lat", String.format("%.4f", location.getLatitude()));
+            gpsData.put("lng", String.format("%.4f", location.getLongitude()));
+            gpsData.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
+            gpsData.put("viteza", (int)(location.getSpeed() * 3.6)); // m/s to km/h
+            gpsData.put("directie", (int)location.getBearing());
+            gpsData.put("altitudine", (int)location.getAltitude());
+            gpsData.put("baterie", getBatteryLevel());
+            gpsData.put("numar_inmatriculare", course.vehicleNumber);
+            gpsData.put("uit", course.uit);
+            gpsData.put("status", course.status);
+            gpsData.put("hdop", "1.0");
+            gpsData.put("gsm_signal", "4G");
+            
+            Log.d(TAG, "📡 Transmitting GPS data: " + gpsData.toString());
+            
+            // Send HTTP POST request
+            new Thread(() -> {
+                try {
+                    URL url = new URL(API_BASE_URL + "/gps.php");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setRequestProperty("Authorization", "Bearer " + userAuthToken);
+                    connection.setDoOutput(true);
+                    
+                    OutputStream os = connection.getOutputStream();
+                    os.write(gpsData.toString().getBytes("UTF-8"));
+                    os.close();
+                    
+                    int responseCode = connection.getResponseCode();
+                    Log.d(TAG, "📡 GPS transmission response: " + responseCode);
+                    
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        Log.d(TAG, "✅ GPS data transmitted successfully for course: " + course.courseId);
+                    } else {
+                        Log.w(TAG, "⚠️ GPS transmission failed with code: " + responseCode);
+                    }
+                    
+                    connection.disconnect();
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ GPS transmission error: " + e.getMessage(), e);
+                }
+            }).start();
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error creating GPS data: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Get real battery level from system
+     */
+    private int getBatteryLevel() {
+        try {
+            IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            Intent batteryStatus = registerReceiver(null, filter);
+            int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            return (int) ((level * 100.0f) / scale);
+        } catch (Exception e) {
+            Log.w(TAG, "Could not get battery level: " + e.getMessage());
+            return 85; // Default fallback
+        }
     }
     
 
