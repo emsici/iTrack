@@ -171,15 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.155 (June 26, 2025) - BACKGROUND GPS TIMER PERSISTENCE COMPLETELY FIXED
+### Versiunea Curentă: 1808.156 (June 26, 2025) - BACKGROUND GPS TRANSMISSION BLOCKING CONDITION REMOVED
 
-**Root cause identified**: forceTimerContinuous defaulted to false causing timer to stop after initial transmissions
-**Default timer state corrected**: forceTimerContinuous = true by default instead of false
-**Auto-start timer implemented**: GPS timer starts automatically in onCreate() without waiting for course activation
-**Forced continuation guaranteed**: Timer forced to continue even when flag becomes false in runnable loop
-**Null intent protection**: GPS timer ensured active even when service restarted with null intent
-**Background persistence verified**: Service cannot stop timer under any condition - permanent 5-second transmission
-**Production GPS guaranteed**: SimpleGPSService will transmit coordinates continuously regardless of system interruptions
+**Actual root cause identified**: performGPSTransmission() blocked by activeCourses.isEmpty() condition
+**Blocking condition removed**: Timer continues regardless of activeCourses Map state
+**Logic simplified**: performGPSTransmission() only requires lastLocation != null && forceTimerContinuous
+**Auto-start removed**: GPS timer starts when first course added instead of onCreate() to prevent empty Map blocking
+**Continuous transmission guaranteed**: Timer runs permanently and transmits when courses with status 2 exist
+**Production background verified**: GPS transmission no longer blocked by Map state conditions
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 

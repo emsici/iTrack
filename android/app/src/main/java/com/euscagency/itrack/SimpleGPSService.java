@@ -92,10 +92,8 @@ public class SimpleGPSService extends Service implements LocationListener {
         isForegroundStarted = true;
         Log.d(TAG, "✅ Foreground service started in onCreate()");
         
-        // CRITICAL: Start GPS timer immediately on service creation
-        Log.d(TAG, "🔄 Auto-starting GPS timer on service creation");
-        forceTimerContinuous = true;
-        startGPSTimer();
+        // GPS timer will start when first course is added
+        Log.d(TAG, "📋 GPS timer ready - will start when courses are added");
         
         // Acquire ENHANCED wake lock for true background operation
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
