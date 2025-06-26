@@ -438,26 +438,18 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
     console.log('📊 GPS Data:', JSON.stringify(gpsData, null, 2));
     console.log('🚀 Using CapacitorHttp for GPS transmission');
     
-    // Log exact headers being sent
+    // GPS transmission using login token
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      'Accept': 'application/json',
-      'User-Agent': 'iTrack-Android-Service/1.0'
+      'Authorization': `Bearer ${token}`
     };
-    console.log('📋 Request Headers:', JSON.stringify(headers, null, 2));
-    
-    // PRIMARY: CapacitorHttp pentru transmisie GPS
+
     try {
-      console.log('=== TRYING CapacitorHttp for GPS ===');
-      console.log('🔍 DEBUGGING REQUEST CONSTRUCTION:');
-      console.log('Raw URL:', `${API_BASE_URL}/gps.php`);
-      console.log('Raw headers object:', headers);
-      console.log('Raw data object:', gpsData);
-      console.log('Data stringified for comparison:', JSON.stringify(gpsData));
-      console.log('🔑 GPS TRANSMISSION ATTEMPT:');
-      console.log('Using same token as course loading:', `Bearer ${token.substring(0, 20)}...`);
-      console.log('Sending to gps.php with data:', JSON.stringify(gpsData));
+      console.log('📡 GPS Transmission to gps.php');
+      console.log('Token preview:', `Bearer ${token.substring(0, 20)}...`);
+      console.log('Vehicle:', gpsData.numar_inmatriculare);
+      console.log('UIT:', gpsData.uit);
+      console.log('Status:', gpsData.status);
       
       // Silent token validation
       try {
@@ -477,23 +469,25 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
         }
       }
       
-      // Use exact Postman format that works
       const response = await CapacitorHttp.post({
         url: `${API_BASE_URL}/gps.php`,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        data: gpsData
+        headers,
+        data: gpsData,
+        webFetchExtra: {
+          timeout: 15000
+        }
       });
 
-      console.log('=== CapacitorHttp GPS Response ===');
-      console.log('Status:', response.status);
-      console.log('Data:', response.data);
-      console.log('Response headers:', response.headers);
-      console.log('Request URL sent:', `${API_BASE_URL}/gps.php`);
-      console.log('Request Headers sent:', JSON.stringify(headers, null, 2));
-      console.log('Request Data sent:', JSON.stringify(gpsData, null, 2));
+      console.log(`📡 GPS Response: ${response.status}`);
+      
+      if (response.status === 200 || response.status === 204) {
+        console.log('✅ GPS data transmitted successfully');
+        return true;
+      } else {
+        console.error(`❌ GPS failed: ${response.status}`);
+        console.error('Response:', response.data);
+        return false;
+      }
       
       // If error, try with different data serialization
       if (response.status >= 400) {

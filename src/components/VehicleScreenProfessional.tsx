@@ -380,14 +380,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           gsm_signal: 4
         };
         
-        console.log('📡 Sending GPS data to server with LOGIN TOKEN...');
-        const success = await sendGPSData(gpsData, token);  // FOLOSEȘTE TOKEN-UL DE LOGIN
-        
-        if (success) {
-          console.log(`✅ GPS data sent successfully for course ${courseId}`);
-        } else {
-          console.error(`❌ GPS transmission failed for course ${courseId}`);
-        }
+        const { sendGPSData } = await import('../services/api');
+        const success = await sendGPSData(gpsData, token);
+        console.log(`GPS transmission result: ${success ? 'SUCCESS' : 'FAILED'} for course ${courseId}`);
 
         // Actualizează și serviciul GPS Android
         await updateCourseStatus(courseId, newStatus);

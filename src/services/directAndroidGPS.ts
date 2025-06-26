@@ -74,7 +74,7 @@ class DirectAndroidGPSService {
         viteza: 0,
         directie: 0,
         altitudine: 0,
-        baterie: batteryLevel,
+        baterie: 85,
         hdop: 1.2,
         gsm_signal: 4
       };
