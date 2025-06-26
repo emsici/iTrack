@@ -635,13 +635,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         super.onDestroy();
     }
     
-    private void stopGPSTimer() {
-        Log.d(TAG, "Stopping GPS transmissions");
-        stopGPSAlarm();
-        if (gpsHandler != null && gpsRunnable != null) {
-            gpsHandler.removeCallbacks(gpsRunnable);
-        }
-    }
+
     
     private int getBatteryLevel() {
         try {
