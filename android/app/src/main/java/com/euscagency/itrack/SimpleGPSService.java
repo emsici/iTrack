@@ -45,7 +45,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     private boolean isTracking = false;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private String userAuthToken;
-    private PowerManager.WakeLock wakeLock;
+    private PowerManagtransmitForAllActiveCourseser.WakeLock wakeLock;
     // Removed OkHttpClient - using CapacitorHttp through WebView
 
     public static class CourseData {
