@@ -182,11 +182,11 @@ public class SimpleGPSService extends Service implements LocationListener {
             Log.d(TAG, "🎯 Setting isTracking = true");
             isTracking = true;
             
-            Log.d(TAG, "⏰ Starting GPS transmissions timer");
+            Log.d(TAG, "⏰ CRITICAL: Starting continuous 5-second GPS timer");
             forceTimerContinuous = true;
             startGPSTransmissions();
             
-            Log.d(TAG, "✅ GPS SYSTEM FULLY INITIALIZED");
+            Log.d(TAG, "✅ GPS SYSTEM FULLY INITIALIZED - Timer will run every 5 seconds");
         } else {
             Log.d(TAG, "📊 GPS already running - course added to existing session");
         }
@@ -247,40 +247,40 @@ public class SimpleGPSService extends Service implements LocationListener {
         // Cancel any existing timer
         stopGPSTimer();
         
-        // Create background repeating runnable
+        // Create background repeating runnable with GUARANTEED 5-second execution
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "📡 BACKGROUND GPS Timer executing on thread: " + Thread.currentThread().getName());
-                Log.d(TAG, "🔄 forceTimerContinuous: " + forceTimerContinuous);
-                Log.d(TAG, "📊 activeCourses.size(): " + activeCourses.size());
-                Log.d(TAG, "📊 activeCourses contents: " + activeCourses.keySet().toString());
+                long currentTime = System.currentTimeMillis();
+                Log.d(TAG, "⏰ GPS TIMER CYCLE: " + currentTime + " on thread: " + Thread.currentThread().getName());
                 
-                // CRITICAL FIX: Always continue if forceTimerContinuous is true, regardless of activeCourses
-                if (forceTimerContinuous) {
-                    if (!activeCourses.isEmpty()) {
-                        Log.d(TAG, "✅ Performing BACKGROUND GPS transmission for " + activeCourses.size() + " courses");
-                        performGPSTransmission();
-                    } else {
-                        Log.d(TAG, "⏳ GPS timer running but no active courses - keeping timer alive");
-                    }
-                    
-                    // ALWAYS schedule next execution to prevent stopping
-                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                    Log.d(TAG, "🔄 Next BACKGROUND cycle GUARANTEED scheduled in " + (GPS_INTERVAL_MS/1000) + "s");
+                // CRITICAL: Schedule next execution FIRST - timer NEVER stops
+                gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                Log.d(TAG, "✅ NEXT CYCLE scheduled for: " + (currentTime + GPS_INTERVAL_MS) + " (+5 seconds)");
+                
+                // Then perform GPS transmission
+                Log.d(TAG, "📊 activeCourses.size(): " + activeCourses.size());
+                Log.d(TAG, "📊 forceTimerContinuous: " + forceTimerContinuous);
+                
+                if (!activeCourses.isEmpty()) {
+                    Log.d(TAG, "🚀 Performing GPS transmission for " + activeCourses.size() + " courses");
+                    performGPSTransmission();
                 } else {
-                    Log.w(TAG, "🛑 forceTimerContinuous = false, but FORCING to continue anyway");
-                    // CRITICAL FIX: Never let timer stop - force it to continue
+                    Log.d(TAG, "⏳ Timer running - no active courses");
+                }
+                
+                // Force flag to true to prevent any interruption
+                if (!forceTimerContinuous) {
                     forceTimerContinuous = true;
-                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                    Log.d(TAG, "🔄 Timer FORCED to continue despite flag = false");
+                    Log.w(TAG, "🔧 Forced forceTimerContinuous to true");
                 }
             }
         };
         
-        // Start the first execution on background thread
+        // Start the first execution immediately
+        Log.d(TAG, "🚀 Starting GPS timer - GUARANTEED 5-second intervals");
         gpsHandler.post(gpsRunnable);
-        Log.d(TAG, "✅ BACKGROUND GPS Timer started on dedicated thread");
+        Log.d(TAG, "✅ GPS Timer activated - will execute every " + (GPS_INTERVAL_MS/1000) + " seconds");
     }
     
     private void stopGPSTimer() {
@@ -516,24 +516,27 @@ public class SimpleGPSService extends Service implements LocationListener {
     
     private void performGPSTransmission() {
         long currentTime = System.currentTimeMillis();
-        Log.d(TAG, "=== HANDLER GPS CYCLE " + currentTime + " ===");
+        Log.d(TAG, "=== GPS TRANSMISSION CYCLE " + currentTime + " ===");
         
-        if (lastLocation != null && forceTimerContinuous) {
-            if (!activeCourses.isEmpty()) {
-                Log.d(TAG, "✅ CONDITIONS MET - Transmitting GPS for " + activeCourses.size() + " courses");
-                for (CourseData course : activeCourses.values()) {
-                    if (course.status == 2) {
-                        Log.d(TAG, "📡 TRANSMIT: " + course.courseId + " at " + currentTime);
-                        transmitGPSData(course, lastLocation);
-                    }
-                }
-            } else {
-                Log.d(TAG, "⏳ GPS timer running but no active courses - keeping timer alive");
-            }
-        } else {
-            Log.w(TAG, "❌ SKIP: location=" + (lastLocation != null) + 
-                  ", continuous=" + forceTimerContinuous);
+        // Always check location - don't block on other conditions
+        if (lastLocation == null) {
+            Log.w(TAG, "⚠️ No GPS location available yet");
+            return;
         }
+        
+        Log.d(TAG, "📍 Location available: " + lastLocation.getLatitude() + ", " + lastLocation.getLongitude());
+        
+        // Transmit for all active courses with status 2
+        for (CourseData course : activeCourses.values()) {
+            if (course.status == 2) {
+                Log.d(TAG, "🚀 TRANSMITTING GPS for course: " + course.courseId + " (UIT: " + course.uit + ")");
+                transmitGPSData(course, lastLocation);
+            } else {
+                Log.d(TAG, "⏸️ Skipping course " + course.courseId + " - status: " + course.status);
+            }
+        }
+        
+        Log.d(TAG, "✅ GPS transmission cycle completed at " + currentTime);
     }
     
     // BroadcastReceiver no longer needed - Handler provides guaranteed execution
