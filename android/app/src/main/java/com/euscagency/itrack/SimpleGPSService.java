@@ -197,8 +197,12 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void startGPSTransmissions() {
-        Log.d(TAG, "Starting GPS transmissions");
+        Log.d(TAG, "🚀 STARTING GPS TRANSMISSIONS");
+        Log.d(TAG, "📊 Active courses: " + activeCourses.size());
+        Log.d(TAG, "⏰ GPS interval: " + (GPS_INTERVAL_MS/1000) + " seconds");
+        isTracking = true;
         gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS);
+        Log.d(TAG, "✅ GPS Timer scheduled - transmissions will begin");
     }
 
     private void transmitGPSData(CourseData course, Location location) {
