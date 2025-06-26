@@ -1,0 +1,211 @@
+iTrack Application Logs
+Generated: 26.06.2025, 18:45:41
+Total Logs: 173
+
+[2025-06-26T15:43:36.773Z] INFO (APP): Login successful, storing token...
+[2025-06-26T15:43:36.772Z] INFO (APP): Admin login detected - bypassing server authentication
+[2025-06-26T15:43:13.224Z] ERROR (APP): ❌ GPS FAILED for course 4244 - UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:43:13.222Z] ERROR (APP): Response: 
+[2025-06-26T15:43:13.222Z] ERROR (APP): ❌ GPS failed: 401
+[2025-06-26T15:43:13.222Z] INFO (APP): 📡 GPS Response: 401
+[2025-06-26T15:43:13.113Z] INFO (APP): Status: 2
+[2025-06-26T15:43:13.113Z] INFO (APP): UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:43:13.113Z] INFO (APP): Vehicle: B335HHH
+[2025-06-26T15:43:13.113Z] INFO (APP): Token preview: Bearer 5L4F0K7E88365117...
+[2025-06-26T15:43:13.113Z] INFO (APP): 📡 GPS Transmission to gps.php
+[2025-06-26T15:43:13.113Z] INFO (APP): GPS transmission to server...
+[2025-06-26T15:43:13.112Z] INFO (APP): 🚀 TRANSMITTING GPS: 44.2583285, 28.617577 for UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:43:11.462Z] INFO (APP): Logged out - cleared local storage
+[2025-06-26T15:43:11.427Z] ERROR (APP): Error calling logout API: ReferenceError: API_BASE_URL is not defined
+[2025-06-26T15:43:11.427Z] INFO (APP): Logout CapacitorHttp failed, using fetch fallback
+[2025-06-26T15:43:11.426Z] INFO (APP): 🧹 Cleared saved status for course_status_5L4F0K7E88365117
+[2025-06-26T15:43:11.388Z] INFO (API): CapacitorHttp logout successful
+[2025-06-26T15:43:11.388Z] INFO (APP): CapacitorHttp logout successful
+[2025-06-26T15:43:11.007Z] INFO (APP): === CapacitorHttp logout ===
+[2025-06-26T15:43:11.006Z] INFO (API): Starting logout process
+[2025-06-26T15:43:11.006Z] INFO (APP): Starting logout process with Bearer token
+[2025-06-26T15:43:11.004Z] INFO (APP): ✅ All local GPS tracking data cleared
+[2025-06-26T15:43:11.003Z] INFO (APP): Stopped GPS interval for course 4244
+[2025-06-26T15:43:11.003Z] INFO (APP): 🔴 LOGOUT - Clearing all GPS data and stopping all tracking
+[2025-06-26T15:43:04.081Z] ERROR (APP): ❌ GPS FAILED for course 4244 - UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:43:04.079Z] ERROR (APP): Response: 
+[2025-06-26T15:43:04.079Z] ERROR (APP): ❌ GPS failed: 401
+[2025-06-26T15:43:04.079Z] INFO (APP): 📡 GPS Response: 401
+[2025-06-26T15:43:04.017Z] ERROR (APP): ❌ GPS FAILED for course 4244 - UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:43:04.016Z] ERROR (APP): Response: 
+[2025-06-26T15:43:04.016Z] ERROR (APP): ❌ GPS failed: 401
+[2025-06-26T15:43:04.016Z] INFO (APP): 📡 GPS Response: 401
+[2025-06-26T15:43:03.877Z] INFO (APP): Status: 2
+[2025-06-26T15:43:03.877Z] INFO (APP): UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:43:03.877Z] INFO (APP): Vehicle: B335HHH
+[2025-06-26T15:43:03.876Z] INFO (APP): Token preview: Bearer 5L4F0K7E88365117...
+[2025-06-26T15:43:03.876Z] INFO (APP): 📡 GPS Transmission to gps.php
+[2025-06-26T15:43:03.868Z] INFO (APP): GPS transmission to server...
+[2025-06-26T15:43:03.868Z] INFO (APP): 🚀 TRANSMITTING GPS: 44.2583282, 28.6175741 for UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:43:03.846Z] INFO (APP): Status: 2
+[2025-06-26T15:43:03.845Z] INFO (APP): UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:43:03.844Z] INFO (APP): Vehicle: B335HHH
+[2025-06-26T15:43:03.844Z] INFO (APP): Token preview: Bearer 5L4F0K7E88365117...
+[2025-06-26T15:43:03.843Z] INFO (APP): 📡 GPS Transmission to gps.php
+[2025-06-26T15:43:03.843Z] INFO (APP): GPS transmission to server...
+[2025-06-26T15:43:03.842Z] INFO (APP): 🚀 TRANSMITTING GPS: 44.2583282, 28.6175741 for UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:42:55.193Z] ERROR (APP): ❌ GPS FAILED for course 4244 - UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:42:55.192Z] ERROR (APP): Response: 
+[2025-06-26T15:42:55.191Z] ERROR (APP): ❌ GPS failed: 401
+[2025-06-26T15:42:55.191Z] INFO (APP): 📡 GPS Response: 401
+[2025-06-26T15:42:55.075Z] INFO (APP): Status: 2
+[2025-06-26T15:42:55.075Z] INFO (APP): UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:42:55.075Z] INFO (APP): Vehicle: B335HHH
+[2025-06-26T15:42:55.075Z] INFO (APP): Token preview: Bearer 5L4F0K7E88365117...
+[2025-06-26T15:42:55.074Z] INFO (APP): 📡 GPS Transmission to gps.php
+[2025-06-26T15:42:55.073Z] INFO (APP): GPS transmission to server...
+[2025-06-26T15:42:55.072Z] INFO (APP): 🚀 TRANSMITTING GPS: 44.2583287, 28.6175761 for UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:42:50.513Z] INFO (APP): === STATUS UPDATE COMPLETE ===
+[2025-06-26T15:42:50.513Z] INFO (API): Course 4244 status updated successfully to 2
+[2025-06-26T15:42:50.513Z] INFO (APP): ✅ Status updated to 2 for course 4244
+[2025-06-26T15:42:50.510Z] INFO (APP): 📊 GPS transmission active for course 4244 - coordinates will be sent to gps.php
+[2025-06-26T15:42:50.510Z] INFO (APP): 📍 ACTIVE/RESUME: SimpleGPSService will transmit GPS every 5s
+[2025-06-26T15:42:50.506Z] INFO (APP): ⚠️ AndroidGPS not available - APK only feature
+[2025-06-26T15:42:50.506Z] INFO (APP): ✅ Server status update success: false
+[2025-06-26T15:42:50.504Z] ERROR (APP): Response: 
+[2025-06-26T15:42:50.504Z] ERROR (APP): ❌ GPS failed: 401
+[2025-06-26T15:42:50.503Z] INFO (APP): 📡 GPS Response: 401
+[2025-06-26T15:42:50.334Z] INFO (APP): Status: 2
+[2025-06-26T15:42:50.334Z] INFO (APP): UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:42:50.334Z] INFO (APP): Vehicle: B335HHH
+[2025-06-26T15:42:50.333Z] INFO (APP): Token preview: Bearer 5L4F0K7E88365117...
+[2025-06-26T15:42:50.333Z] INFO (APP): 📡 GPS Transmission to gps.php
+[2025-06-26T15:42:50.333Z] INFO (APP): GPS transmission to server...
+[2025-06-26T15:42:50.333Z] INFO (APP): Sending to gps.php: {
+  "numar_inmatriculare": "B335HHH",
+  "uit": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU",
+  "status": 2,
+  "lat": 44.2583316,
+  "lng": 28.6175728,
+  "timestamp": "2025-06-26 15:42:50",
+  "viteza": 0,
+  "directie": 0,
+  "altitudine": 52,
+  "baterie": 8,
+  "hdop": 1.5317999839782714,
+  "gsm_signal": 4
+}
+[2025-06-26T15:42:50.331Z] INFO (APP): - Token preview: 5L4F0K7E88365117...
+[2025-06-26T15:42:50.331Z] INFO (APP): - UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:42:50.331Z] INFO (APP): - Vehicle: B335HHH
+[2025-06-26T15:42:50.331Z] INFO (APP): - Status: 2
+[2025-06-26T15:42:50.331Z] INFO (APP): - Battery level from sensors: 8%
+[2025-06-26T15:42:50.331Z] INFO (APP): 🔍 STATUS UPDATE GPS DATA:
+[2025-06-26T15:42:50.327Z] INFO (APP): 📡 Updating course status on server: 4244 → 2
+[2025-06-26T15:42:50.327Z] INFO (APP): Total active courses: 1
+[2025-06-26T15:42:50.327Z] INFO (APP): Active courses in map: [4244]
+[2025-06-26T15:42:50.327Z] INFO (APP): === UPDATING STATUS: 4244 → 2 ===
+[2025-06-26T15:42:50.326Z] INFO (APP): GPS transmission: SUCCESS for 4244
+[2025-06-26T15:42:50.325Z] INFO (APP): ✅ GPS data transmitted successfully
+[2025-06-26T15:42:50.325Z] INFO (APP): 📡 GPS Response: 200
+[2025-06-26T15:42:50.067Z] INFO (APP): Status: 2
+[2025-06-26T15:42:50.066Z] INFO (APP): UIT: 5L4F0K7E88365117
+[2025-06-26T15:42:50.062Z] INFO (APP): Vehicle: B335HHH
+[2025-06-26T15:42:50.062Z] INFO (APP): Token preview: Bearer eyJhbGciOiJIUzI1NiIs...
+[2025-06-26T15:42:50.062Z] INFO (APP): 📡 GPS Transmission to gps.php
+[2025-06-26T15:42:50.062Z] INFO (APP): GPS transmission to server...
+[2025-06-26T15:42:50.026Z] INFO (APP): 📍 Real sensor data: 44.2583316, 28.6175728, speed: 0km/h
+[2025-06-26T15:42:48.452Z] INFO (APP): Login token preview: eyJhbGciOiJIUzI1NiIsInR5cCI6Ik...
+[2025-06-26T15:42:48.452Z] INFO (APP): 🔑 Using login token for GPS transmission (NOT course.token)
+[2025-06-26T15:42:48.452Z] INFO (APP): 📍 Course 4244 added to activeCourses Map with UIT: 5L4F0K7E88365117
+[2025-06-26T15:42:48.452Z] INFO (APP): ✅ GPS tracking started for course 4244 with status 2
+[2025-06-26T15:42:48.451Z] INFO (APP): ✅ Android native GPS service prioritized
+[2025-06-26T15:42:48.450Z] INFO (APP): GPS tracking started
+[2025-06-26T15:42:48.450Z] INFO (APP): Starting browser GPS interval for course 4244
+[2025-06-26T15:42:48.450Z] INFO (APP): ✅ Browser GPS interval started successfully
+[2025-06-26T15:42:48.450Z] INFO (APP): Starting browser GPS interval for course 4244
+[2025-06-26T15:42:48.449Z] INFO (APP): 🚀 STARTING BROWSER GPS TRACKING
+[2025-06-26T15:42:48.449Z] INFO (APP): 🔧 GPS permissions result: granted
+[2025-06-26T15:42:48.397Z] INFO (APP): 🔧 Development mode - requesting GPS permissions
+[2025-06-26T15:42:48.397Z] INFO (APP): Starting Android GPS for course: 4244
+[2025-06-26T15:42:48.396Z] INFO (APP): 🚀 Forcing Android native GPS service (APK mode)
+[2025-06-26T15:42:48.396Z] INFO (APP): 📈 Total active courses: 1
+[2025-06-26T15:42:48.396Z] INFO (APP): 📊 activeCourses Map now contains: [4244]
+[2025-06-26T15:42:48.395Z] INFO (APP): 📍 Course 4244 successfully added to activeCourses Map
+[2025-06-26T15:42:48.395Z] INFO (APP): Status: 2 (ACTIVE)
+[2025-06-26T15:42:48.395Z] INFO (APP): UIT: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDk3MTU5OX0.B4Zw2T4jP8iPG_OLGh_PnmXIPXVjEPZsJfV-S9703hU
+[2025-06-26T15:42:48.394Z] INFO (APP): Vehicle: B335HHH
+[2025-06-26T15:42:48.394Z] INFO (APP): Course ID: 4244
+[2025-06-26T15:42:48.394Z] INFO (APP): === STARTING GPS TRACKING ===
+[2025-06-26T15:42:48.394Z] INFO (APP): 🚀 Starting GPS tracking for ACTIVE status...
+[2025-06-26T15:42:48.394Z] INFO (APP): ✅ GPS permissions granted
+[2025-06-26T15:42:47.024Z] INFO (APP): 🔍 Requesting GPS permissions for course start...
+[2025-06-26T15:42:47.024Z] INFO (APP): Token available: true, Token length: 136
+[2025-06-26T15:42:47.024Z] INFO (APP): UIT REAL: 5L4F0K7E88365117, Vehicle: B335HHH
+[2025-06-26T15:42:47.024Z] INFO (APP): Course: 4244, Status: 1 → 2
+[2025-06-26T15:42:47.024Z] INFO (APP): === STATUS UPDATE START ===
+[2025-06-26T15:42:47.023Z] INFO (APP): 💾 Saved status 2 for UIT 5L4F0K7E88365117
+[2025-06-26T15:42:42.500Z] INFO (APP): === Loading finished ===
+[2025-06-26T15:42:42.500Z] INFO (APP): 🆕 Found 1 new courses - displayed at top
+[2025-06-26T15:42:42.500Z] INFO (APP): Successfully loaded 1 courses for B335HHH (sorted: new first)
+[2025-06-26T15:42:42.500Z] INFO (APP): 🔄 Android background auto-refresh activated (5 min intervals)
+[2025-06-26T15:42:42.499Z] INFO (APP): ✅ Courses loaded successfully - switching to main view with 1 courses
+[2025-06-26T15:42:42.452Z] INFO (APP): Courses found: 1
+[2025-06-26T15:42:42.451Z] INFO (API): Request completed for B335HHH - all locks cleared
+[2025-06-26T15:42:42.446Z] INFO (APP): Request completed - locks cleared
+[2025-06-26T15:42:42.444Z] INFO (API): Processed 1 courses for B335HHH
+[2025-06-26T15:42:42.444Z] INFO (APP): Processed 1 courses successfully
+[2025-06-26T15:42:42.443Z] INFO (APP): Processing course data
+[2025-06-26T15:42:42.443Z] INFO (APP): Found 1 courses for vehicle B335HHH
+[2025-06-26T15:42:42.443Z] INFO (API): API response: status=200, data={"status":"success","count":1,"data":[{"ikRoTrans":4244,"codDeclarant":10740286,"denumireDeclarant":"BDI ROMANIA SRL","nrVehicul":"B335HHH","UIT":"5L4F0K7E88365117","dataTransport":"2025-06-18","Vama":"PTF","BirouVamal":"PTF N?dlac 2 - A1, Jud. Arad","Judet":"AR","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"CALEA SAGULUI nr. 165, Timisoara, Jud. Timi?, Cod po?tal 300517","JudetStop":"TM","denumireLocStop":"Timisoara"}]}
+[2025-06-26T15:42:42.443Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 1,
+  "data": [
+    {
+      "ikRoTrans": 4244,
+      "codDeclarant": 10740286,
+      "denumireDeclarant": "BDI ROMANIA SRL",
+      "nrVehicul": "B335HHH",
+      "UIT": "5L4F0K7E88365117",
+      "dataTransport": "2025-06-18",
+      "Vama": "PTF",
+      "BirouVamal": "PTF N?dlac 2 - A1, Jud. Arad",
+      "Judet": "AR",
+      "denumireLocStart": null,
+      "VamaStop": "ADR",
+      "BirouVamalStop": "CALEA SAGULUI nr. 165, Timisoara, Jud. Timi?, Cod po?tal 300517",
+      "JudetStop": "TM",
+      "denumireLocStop": "Timisoara"
+    }
+  ]
+}
+[2025-06-26T15:42:42.443Z] INFO (APP): API Response Status: 200
+[2025-06-26T15:42:42.443Z] INFO (APP): Data length: No data
+[2025-06-26T15:42:42.443Z] INFO (APP): Status: 200
+[2025-06-26T15:42:42.443Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-06-26T15:42:42.275Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-06-26T15:42:42.275Z] INFO (API): Loading courses for vehicle B335HHH
+[2025-06-26T15:42:42.275Z] INFO (APP): Loading courses for vehicle: B335HHH
+[2025-06-26T15:42:42.274Z] INFO (APP): === DEBUGGING: Loading courses for vehicle: B335HHH ===
+[2025-06-26T15:42:42.274Z] INFO (APP): === APK DEBUG: Current courses count: 0
+[2025-06-26T15:42:42.274Z] INFO (APP): === APK DEBUG: Current coursesLoaded state: false
+[2025-06-26T15:42:42.273Z] INFO (APP): === APK DEBUG: Token available: true
+[2025-06-26T15:42:42.273Z] INFO (APP): === APK DEBUG: Vehicle number: B335HHH
+[2025-06-26T15:42:42.273Z] INFO (APP): === APK DEBUG: Starting course loading process ===
+[2025-06-26T15:42:41.505Z] INFO (APP): 📝 Vehicle number changed to: B335HHH
+[2025-06-26T15:42:41.389Z] INFO (APP): 📝 Vehicle number changed to: B335HH
+[2025-06-26T15:42:41.265Z] INFO (APP): 📝 Vehicle number changed to: B335H
+[2025-06-26T15:42:40.771Z] INFO (APP): 📝 Vehicle number changed to: B335
+[2025-06-26T15:42:40.237Z] INFO (APP): 📝 Vehicle number changed to: B33
+[2025-06-26T15:42:40.128Z] INFO (APP): 📝 Vehicle number changed to: B3
+[2025-06-26T15:42:39.412Z] INFO (APP): 📝 Vehicle number changed to: B
+[2025-06-26T15:42:36.595Z] INFO (APP): Token stored successfully
+[2025-06-26T15:42:36.574Z] INFO (APP): Login successful, storing token...
+[2025-06-26T15:42:36.574Z] INFO (API): CapacitorHttp login successful for +40722222222
+[2025-06-26T15:42:36.573Z] INFO (APP): CapacitorHttp login successful
+[2025-06-26T15:42:36.318Z] INFO (APP): Using CapacitorHttp for fast login
+[2025-06-26T15:42:36.318Z] INFO (API): Direct CapacitorHttp login attempt for +40722222222
+[2025-06-26T15:42:36.318Z] INFO (APP): Direct CapacitorHttp login for: +40722222222
+[2025-06-26T15:42:36.318Z] INFO (APP): Platform info: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.90 Mobile Safari/537.36
+[2025-06-26T15:42:36.318Z] INFO (APP): CapacitorHttp available: false
+[2025-06-26T15:42:36.317Z] INFO (APP): Test credentials detected - proceeding with server authentication
+[2025-06-26T15:42:29.035Z] ERROR (APP): ❌ AndroidGPS still not available
+[2025-06-26T15:42:29.035Z] INFO (APP): 🔍 AndroidGPS test: undefined
+[2025-06-26T15:42:28.378Z] INFO (APP): No stored token - showing login
+[2025-06-26T15:42:28.329Z] INFO (SYSTEM): AppLogger initialized

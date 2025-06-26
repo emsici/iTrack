@@ -284,6 +284,14 @@ public class SimpleGPSService extends Service implements LocationListener {
 
     private void transmitGPSData(CourseData course, Location location) {
         try {
+            // CRITICAL DEBUG: Verify token before transmission
+            Log.d(TAG, "🔑 TOKEN DEBUG - userAuthToken: " + (userAuthToken != null ? userAuthToken.substring(0, Math.min(20, userAuthToken.length())) + "..." : "NULL"));
+            
+            if (userAuthToken == null || userAuthToken.trim().isEmpty()) {
+                Log.e(TAG, "❌ CRITICAL ERROR: userAuthToken is NULL or empty - cannot transmit GPS");
+                return;
+            }
+            
             JSONObject gpsData = new JSONObject();
             
             // Log data construction process
@@ -408,9 +416,19 @@ public class SimpleGPSService extends Service implements LocationListener {
     private void updateCourseStatus(Intent intent) {
         String courseId = intent.getStringExtra("courseId");
         int newStatus = intent.getIntExtra("status", 2);
+        String authToken = intent.getStringExtra("authToken");
         
         Log.d(TAG, String.format("=== UPDATE_STATUS received ==="));
         Log.d(TAG, String.format("Course: %s, New Status: %d", courseId, newStatus));
+        
+        // CRITICAL FIX: Update userAuthToken if provided
+        if (authToken != null && !authToken.trim().isEmpty()) {
+            userAuthToken = authToken;
+            Log.d(TAG, String.format("🔑 userAuthToken updated in UPDATE_STATUS: %s", 
+                userAuthToken.substring(0, Math.min(20, userAuthToken.length())) + "..."));
+        } else {
+            Log.w(TAG, "⚠️ No authToken provided in UPDATE_STATUS - using existing token");
+        }
         
         CourseData course = activeCourses.get(courseId);
         if (course != null) {

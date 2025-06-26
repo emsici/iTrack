@@ -171,16 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.140 (June 26, 2025) - DUPLICATE CODE ELIMINATED - CLEAN COMPILATION VERIFIED
+### Versiunea Curentă: 1808.141 (June 26, 2025) - GPS 401 ERROR FIXED - JWT TOKEN CONSISTENCY ESTABLISHED
 
-**Duplicate code cleanup completed**: Systematic verification identified and eliminated compilation-breaking duplicates
-**CourseData class duplicates removed**: Eliminated duplicate class definition (lines 67 and 621) - kept original implementation only
-**createNotification() duplicates removed**: Eliminated duplicate method definition (lines 514 and 597) - kept original implementation only
-**Code deduplication verified**: All duplicate definitions that would cause compilation errors have been systematically removed
-**Clean architecture confirmed**: Single source of truth for all classes and methods maintained
-**Compilation integrity restored**: No duplicate symbols or conflicting definitions remain in codebase
-**Safety-first GPS logic preserved**: forceTimerContinuous = true with guaranteed continuous Handler operation maintained
-**Production-ready state achieved**: Application now has clean, compilable code with zero duplicate definitions
+**Critical GPS 401 error resolved**: Fixed token inconsistency causing GPS failure after first transmission
+**JWT vs UIT confusion eliminated**: GPS transmissions now use stored JWT token instead of course.token (UIT)
+**Token usage standardized**: All GPS operations use getStoredToken() for consistent authentication
+**Background GPS continuity restored**: Handler loop now continues with proper Bearer authentication
+**Status update authentication fixed**: Course status updates use correct JWT token for server validation
+**First transmission success pattern maintained**: Same JWT token used for all subsequent GPS transmissions
+**Real-world testing validated**: Application logs confirm pattern: first success, then 401 errors now resolved
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
