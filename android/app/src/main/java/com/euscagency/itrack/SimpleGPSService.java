@@ -120,9 +120,10 @@ public class SimpleGPSService extends Service implements LocationListener {
 
         Log.d(TAG, "Starting GPS tracking for course: " + courseId);
         
-        if (userAuthToken == null) {
-            userAuthToken = authToken;
-        }
+        // CRITICAL: Always update userAuthToken to match current session
+        userAuthToken = authToken;
+        Log.d(TAG, String.format("🔑 userAuthToken updated: %s", 
+            userAuthToken != null ? userAuthToken.substring(0, Math.min(30, userAuthToken.length())) + "..." : "null"));
 
         CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber);
         activeCourses.put(courseId, courseData);

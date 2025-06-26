@@ -432,13 +432,7 @@ export const logout = async (token: string): Promise<boolean> => {
 
 export const sendGPSData = async (gpsData: GPSData, token: string): Promise<boolean> => {
   try {
-    console.log('🔥 === SENDGPSDATA FUNCTION CALLED ===');
-    console.log('📍 URL:', `${API_BASE_URL}/gps.php`);
-    console.log('🔑 Token received:', !!token);
-    console.log('🔑 Token length:', token ? token.length : 'null');
-    console.log('🔑 Bearer Token preview:', token ? `Bearer ${token.substring(0, 20)}...` : 'null');
-    console.log('📊 GPS Data received:', JSON.stringify(gpsData, null, 2));
-    console.log('🚀 Starting CapacitorHttp transmission...');
+    console.log('GPS transmission to server...');
     
     // GPS transmission using login token
     const headers = {
