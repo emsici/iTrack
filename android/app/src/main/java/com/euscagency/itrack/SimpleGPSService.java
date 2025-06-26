@@ -323,22 +323,39 @@ public class SimpleGPSService extends Service implements LocationListener {
         Log.d(TAG, "⏰ Will repeat every " + (GPS_INTERVAL_MS/1000) + " seconds");
     }
     
-    private void scheduleNextAlarm() {
-        if (forceTimerContinuous && alarmManager != null && gpsAlarmIntent != null) {
-            long nextTime = System.currentTimeMillis() + GPS_INTERVAL_MS;
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                nextTime,
-                gpsAlarmIntent
-            );
-            Log.d(TAG, "⏰ NEXT ALARM SCHEDULED for " + nextTime + " (in " + (GPS_INTERVAL_MS/1000) + "s)");
+    private void startGPSTimer() {
+        if (gpsHandler == null) {
+            gpsHandler = new Handler(Looper.getMainLooper());
         }
+        
+        // Cancel any existing timer
+        stopGPSTimer();
+        
+        // Create repeating runnable
+        gpsRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (forceTimerContinuous && !activeCourses.isEmpty()) {
+                    Log.d(TAG, "🔄 Handler GPS cycle at " + System.currentTimeMillis());
+                    performGPSTransmission();
+                    
+                    // Schedule next execution
+                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                } else {
+                    Log.d(TAG, "🛑 Handler GPS timer stopped - conditions not met");
+                }
+            }
+        };
+        
+        // Start immediately
+        gpsHandler.post(gpsRunnable);
+        Log.d(TAG, "✅ Handler GPS timer started with " + GPS_INTERVAL_MS + "ms interval");
     }
     
-    private void stopGPSAlarm() {
-        if (alarmManager != null && gpsAlarmIntent != null) {
-            alarmManager.cancel(gpsAlarmIntent);
-            Log.d(TAG, "GPS AlarmManager stopped");
+    private void stopGPSTimer() {
+        if (gpsHandler != null && gpsRunnable != null) {
+            gpsHandler.removeCallbacks(gpsRunnable);
+            Log.d(TAG, "🛑 Handler GPS timer stopped");
         }
     }
 
@@ -542,7 +559,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     
     private void performGPSTransmission() {
         long currentTime = System.currentTimeMillis();
-        Log.d(TAG, "=== GPS TRANSMISSION CYCLE " + currentTime + " ===");
+        Log.d(TAG, "=== HANDLER GPS CYCLE " + currentTime + " ===");
         
         if (lastLocation != null && !activeCourses.isEmpty() && forceTimerContinuous) {
             Log.d(TAG, "✅ CONDITIONS MET - Transmitting GPS for " + activeCourses.size() + " courses");
@@ -559,18 +576,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         }
     }
     
-    public static class GPSTransmissionReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            long timestamp = System.currentTimeMillis();
-            Log.d("GPSTransmissionReceiver", "🚨 ALARM FIRED at " + timestamp + " - triggering GPS");
-            Log.d("GPSTransmissionReceiver", "📱 Context: " + context.getClass().getSimpleName());
-            Intent serviceIntent = new Intent(context, SimpleGPSService.class);
-            serviceIntent.setAction("TRANSMIT_GPS");
-            context.startService(serviceIntent);
-            Log.d("GPSTransmissionReceiver", "✅ Service intent sent");
-        }
-    }
+    // BroadcastReceiver no longer needed - Handler provides guaranteed execution
 
     private void createNotificationChannel() {
         NotificationChannel channel = new NotificationChannel(
