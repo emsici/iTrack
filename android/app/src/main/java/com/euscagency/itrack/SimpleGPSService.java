@@ -187,18 +187,28 @@ public class SimpleGPSService extends Service implements LocationListener {
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
+                Log.d(TAG, "🔄 GPS TIMER EXECUTION - courses: " + activeCourses.size());
+                
                 // Process GPS transmission for all active courses
                 if (lastLocation != null && !activeCourses.isEmpty()) {
+                    Log.d(TAG, "📡 Processing GPS for " + activeCourses.size() + " courses");
                     for (CourseData course : activeCourses.values()) {
                         if (course.status == 2) {
+                            Log.d(TAG, "📍 Transmitting GPS for course: " + course.courseId);
                             transmitGPSData(course, lastLocation);
                         }
                     }
+                } else {
+                    Log.w(TAG, "⚠️ Skipping GPS - location: " + (lastLocation != null) + ", courses: " + activeCourses.size());
                 }
                 
                 // CRITICAL: ALWAYS reschedule if courses exist
                 if (!activeCourses.isEmpty()) {
+                    Log.d(TAG, "🔄 RESCHEDULING timer in 5 seconds");
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                } else {
+                    Log.w(TAG, "🛑 STOPPING timer - no active courses");
+                    isTracking = false;
                 }
             }
         };
