@@ -103,6 +103,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Moved after successful course loading
       
       console.log(`=== DEBUGGING: Loading courses for vehicle: ${vehicleNumber} ===`);
+      const { getVehicleCourses } = await import('../services/api');
       const response = await getVehicleCourses(vehicleNumber, token);
       
       // Handle API response format
@@ -258,7 +259,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     try {
       await logoutClearAllGPS();
       const { logout } = await import('../services/api');
-    await logout(token);
+      await logout(token);
       await clearToken();
       
       // Clear all saved course statuses on logout
