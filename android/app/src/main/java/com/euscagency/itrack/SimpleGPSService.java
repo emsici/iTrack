@@ -104,7 +104,7 @@ public class SimpleGPSService extends Service implements LocationListener {
             }
         }
         
-        initializeGPSHandler();
+        // GPS Handler will be initialized when first course starts
         Log.d(TAG, "✅ SimpleGPSService ready for BACKGROUND GPS with wake lock");
     }
 
@@ -531,7 +531,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         // If location updates but timer stopped, restart it
         if (!activeCourses.isEmpty() && (gpsHandler == null || gpsRunnable == null || !isTracking)) {
             Log.w(TAG, "⚠️ GPS timer not running but courses exist - restarting");
-            initializeGPSHandler();
+            startGPSTransmissions();
             startGPSTransmissions();
         }
     }
