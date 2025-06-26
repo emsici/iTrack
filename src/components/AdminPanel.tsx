@@ -93,7 +93,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
     }
   };
 
-  const handleClearLogsOLD = async () => {
+  // Removed unused function handleClearLogsOLD
+  const handleClearLogsOLD_REMOVED = async () => {
     try {
       await clearAppLogs();
       setLogs([]);
