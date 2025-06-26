@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
-import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
+import { getVehicleCourses, logout, sendGPSData } from "../services/api";
 import {
   startGPSTracking,
   stopGPSTracking,
@@ -458,8 +458,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           gsm_signal: sensorData.gsm_signal
         };
         
-        // GPS transmission with static import - CRITICAL FIX
-        const { sendGPSData } = await import('../services/api');
+        // GPS transmission using static import
         const success = await sendGPSData(gpsData, token);
         console.log(`GPS transmission result: ${success ? 'SUCCESS' : 'FAILED'} for course ${courseId}`);
 
