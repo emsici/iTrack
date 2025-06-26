@@ -209,8 +209,8 @@ public class SimpleGPSService extends Service implements LocationListener {
             gpsData.put("gsm_signal", 4);
             
             Log.d(TAG, "Field types constructed:");
-            Log.d(TAG, "- lat: " + lat + " (type: " + lat.getClass().getSimpleName() + ")");
-            Log.d(TAG, "- lng: " + lng + " (type: " + lng.getClass().getSimpleName() + ")");
+            Log.d(TAG, "- lat: " + lat + " (type: double)");
+            Log.d(TAG, "- lng: " + lng + " (type: double)");
             Log.d(TAG, "- status: " + course.status + " (type: " + course.status.getClass().getSimpleName() + ")");
             Log.d(TAG, "Complete JSON object: " + gpsData.toString());
 
