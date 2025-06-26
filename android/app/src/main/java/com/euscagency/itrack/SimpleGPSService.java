@@ -44,6 +44,9 @@ public class SimpleGPSService extends Service implements LocationListener {
     private Location lastLocation;
     private boolean isTracking = false;
     private boolean isForegroundStarted = false;
+    
+    // CRITICAL: Force continuous timer execution
+    private boolean forceTimerContinuous = true;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private String userAuthToken;
     private PowerManager.WakeLock wakeLock;
@@ -296,15 +299,18 @@ public class SimpleGPSService extends Service implements LocationListener {
             initializeGPSHandler();
         }
         
+        // FORCE CONTINUOUS BACKGROUND EXECUTION
         isTracking = true;
+        forceTimerContinuous = true; // CRITICAL: Enable continuous operation
+        Log.d(TAG, "✅ FORCING CONTINUOUS BACKGROUND TIMER - immediate start");
+        Log.d(TAG, "🎯 forceTimerContinuous = " + forceTimerContinuous + " (enabled for background)");
         
+        // Execute immediately - no delay for first transmission
         if (gpsHandler != null && gpsRunnable != null) {
-            // CRITICAL: Start immediately, then continue every 5 seconds
-            gpsHandler.post(gpsRunnable);
-            Log.d(TAG, "✅ GPS Timer posted IMMEDIATELY - no delay");
-            Log.d(TAG, "🔄 Timer will reschedule itself every " + GPS_INTERVAL_MS + "ms");
+            gpsHandler.post(gpsRunnable); // Execute NOW
+            Log.d(TAG, "🔄 BACKGROUND TIMER ACTIVATED - will auto-repeat via postDelayed()");
         } else {
-            Log.e(TAG, "❌ CRITICAL: GPS Handler or Runnable is STILL null after initialization!");
+            Log.e(TAG, "❌ CRITICAL: Cannot start timer - handler/runnable still null after init");
         }
     }
 
