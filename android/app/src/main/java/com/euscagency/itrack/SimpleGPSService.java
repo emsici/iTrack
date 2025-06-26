@@ -255,19 +255,29 @@ public class SimpleGPSService extends Service implements LocationListener {
         Log.d(TAG, "🚀 STARTING GPS TRANSMISSIONS");
         Log.d(TAG, "📊 Active courses: " + activeCourses.size());
         Log.d(TAG, "⏰ GPS interval: " + (GPS_INTERVAL_MS/1000) + " seconds");
+        Log.d(TAG, "🗺️ Location available: " + (lastLocation != null));
         
-        // Stop any existing timer first
+        // Stop any existing timer first to prevent duplicates
         if (gpsHandler != null && gpsRunnable != null) {
             gpsHandler.removeCallbacks(gpsRunnable);
+            Log.d(TAG, "🛑 Removed any existing timer callbacks");
+        }
+        
+        // CRITICAL: Ensure handler and runnable are initialized
+        if (gpsHandler == null || gpsRunnable == null) {
+            Log.w(TAG, "⚠️ Handler or Runnable is null - reinitializing");
+            initializeGPSHandler();
         }
         
         isTracking = true;
+        
         if (gpsHandler != null && gpsRunnable != null) {
-            // CRITICAL FIX: Start immediately, then continue every 5 seconds
+            // CRITICAL: Start immediately, then continue every 5 seconds
             gpsHandler.post(gpsRunnable);
-            Log.d(TAG, "✅ GPS Timer started IMMEDIATELY - no delay");
+            Log.d(TAG, "✅ GPS Timer posted IMMEDIATELY - no delay");
+            Log.d(TAG, "🔄 Timer will reschedule itself every " + GPS_INTERVAL_MS + "ms");
         } else {
-            Log.e(TAG, "❌ GPS Handler or Runnable is null!");
+            Log.e(TAG, "❌ CRITICAL: GPS Handler or Runnable is STILL null after initialization!");
         }
     }
 
