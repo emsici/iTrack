@@ -348,24 +348,38 @@ public class SimpleGPSService extends Service implements LocationListener {
                     }
                     
                     Log.d(TAG, "🔄 EXECUTOR CYCLE COMPLETE - will run again in 5 seconds");
+                    Log.d(TAG, "🔍 EXECUTOR STATUS CHECK:");
+                    Log.d(TAG, "  - gpsExecutor null: " + (gpsExecutor == null));
+                    Log.d(TAG, "  - gpsTask cancelled: " + (gpsTask != null ? gpsTask.isCancelled() : "task is null"));
+                    Log.d(TAG, "  - gpsExecutor shutdown: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "executor is null"));
                     Log.d(TAG, "✅ === EXECUTOR GPS TRANSMISSION END ===");
                 } catch (Exception e) {
                     Log.e(TAG, "❌ GPS transmission error in executor - CONTINUING anyway", e);
+                    Log.e(TAG, "🔍 Exception details: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+                    e.printStackTrace();
                     // CRITICAL: Don't rethrow exception - let executor continue
+                    Log.d(TAG, "🔄 Exception handled - executor WILL continue to next cycle");
                 }
             }
         };
         
         // Schedule with fixed rate - GUARANTEED continuous execution
+        Log.d(TAG, "🔧 SCHEDULING GPS TASK:");
+        Log.d(TAG, "  - Initial delay: 0 seconds");
+        Log.d(TAG, "  - Interval: " + (GPS_INTERVAL_MS / 1000) + " seconds");
+        Log.d(TAG, "  - GPS_INTERVAL_MS: " + GPS_INTERVAL_MS);
+        
         gpsTask = gpsExecutor.scheduleAtFixedRate(
             gpsTransmissionTask,
             0, // Start immediately
-            GPS_INTERVAL_MS / 1000, // 5 seconds interval
+            5, // HARD-CODED 5 seconds instead of calculation
             TimeUnit.SECONDS
         );
         
-        Log.d(TAG, "✅ EXECUTOR SERVICE STARTED - GUARANTEED continuous GPS transmission");
-        Log.d(TAG, "🎯 GPS will transmit every 5 seconds regardless of background state");
+        Log.d(TAG, "✅ EXECUTOR SERVICE STARTED - task scheduled successfully");
+        Log.d(TAG, "🎯 GPS will transmit every 5 seconds HARD-CODED");
+        Log.d(TAG, "🔍 gpsTask null: " + (gpsTask == null));
+        Log.d(TAG, "🔍 gpsExecutor null: " + (gpsExecutor == null));
     }
     
     private void stopGPSExecutor() {
