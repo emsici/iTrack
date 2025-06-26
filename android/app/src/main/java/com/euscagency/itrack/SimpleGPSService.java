@@ -341,8 +341,8 @@ public class SimpleGPSService extends Service implements LocationListener {
         try {
             // Use direct HTTP instead of WebView for true background operation
             Log.d(TAG, "🚀 DIRECT HTTP GPS TRANSMISSION (background independent)");
-            Log.d(TAG, "📊 Transmitting for course: " + courseId + " (UIT: " + 
-                activeCourses.containsKey(courseId) ? activeCourses.get(courseId).uit : "unknown" + ")");
+            String uitValue = activeCourses.containsKey(courseId) ? activeCourses.get(courseId).uit : "unknown";
+            Log.d(TAG, "📊 Transmitting for course: " + courseId + " (UIT: " + uitValue + ")");
             
             URL url = new URL("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
