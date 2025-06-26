@@ -1,9 +1,7 @@
-// GPS direct Android prin Capacitor plugin - funcționează în background
-// Uses CapacitorHttp for HTTP + AndroidGPS for native background service
-import { Geolocation } from "@capacitor/geolocation";
-import { Capacitor } from '@capacitor/core';
-import { GPSData, sendGPSData, API_BASE_URL } from './api';
-import { getStoredToken, getStoredVehicleNumber } from './storage';
+// ANDROID GPS EXCLUSIVE - Background tracking with locked phone
+// Uses only AndroidGPS native service for maximum efficiency
+import { GPSData, sendGPSData } from './api';
+import { getStoredToken } from './storage';
 // Offline GPS functionality handled by Android service
 
 
