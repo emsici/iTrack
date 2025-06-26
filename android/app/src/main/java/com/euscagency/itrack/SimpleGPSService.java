@@ -317,6 +317,11 @@ public class SimpleGPSService extends Service implements LocationListener {
                     Log.d(TAG, "🚀 === EXECUTOR GPS TRANSMISSION START ===");
                     Log.d(TAG, "📊 Active courses: " + activeCourses.size());
                     Log.d(TAG, "🔄 forceTimerContinuous: " + forceTimerContinuous);
+                    Log.d(TAG, "🗺️ lastLocation: " + (lastLocation != null ? "AVAILABLE" : "NULL"));
+                    Log.d(TAG, "🎯 isTracking: " + isTracking);
+                    
+                    // CRITICAL: ALWAYS continue executing regardless of conditions
+                    // Do NOT stop executor based on activeCourses.isEmpty()
                     
                     if (lastLocation != null && !activeCourses.isEmpty() && forceTimerContinuous) {
                         Log.d(TAG, "📡 Processing GPS for " + activeCourses.size() + " courses");
@@ -330,15 +335,23 @@ public class SimpleGPSService extends Service implements LocationListener {
                             }
                         }
                     } else {
+                        // CRITICAL: Log the reason but DON'T stop executor
                         if (activeCourses.isEmpty()) {
-                            Log.w(TAG, "🛑 No active courses - stopping executor");
-                            stopGPSExecutor();
+                            Log.w(TAG, "⚠️ No active courses - but CONTINUING executor (waiting for courses)");
+                        }
+                        if (lastLocation == null) {
+                            Log.w(TAG, "⚠️ No GPS location - but CONTINUING executor (waiting for GPS)");
+                        }
+                        if (!forceTimerContinuous) {
+                            Log.w(TAG, "⚠️ forceTimerContinuous=false - but CONTINUING executor");
                         }
                     }
                     
-                    Log.d(TAG, "🚀 === EXECUTOR GPS TRANSMISSION END ===");
+                    Log.d(TAG, "🔄 EXECUTOR CYCLE COMPLETE - will run again in 5 seconds");
+                    Log.d(TAG, "✅ === EXECUTOR GPS TRANSMISSION END ===");
                 } catch (Exception e) {
-                    Log.e(TAG, "❌ GPS transmission error in executor", e);
+                    Log.e(TAG, "❌ GPS transmission error in executor - CONTINUING anyway", e);
+                    // CRITICAL: Don't rethrow exception - let executor continue
                 }
             }
         };
