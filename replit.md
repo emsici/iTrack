@@ -173,7 +173,7 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ### Versiunea Curentă: 1808.153 (June 26, 2025) - DUPLICATE TRANSMISSION ELIMINATED - SINGLE GPS SOURCE CONFIRMED
 
-**Duplicate transmission identified**: Browser GPS interval + AndroidGPS caused 2 transmissions every 5 seconds
+**Duplicate transmission eliminated**: Browser GPS interval + AndroidGPS caused 2 transmissions every 5 seconds
 **Parameter order finally corrected**: startGPSTracking export function now has correct (courseId, vehicleNumber, uit, token, status) order
 **Browser GPS transmission disabled**: Eliminated browser fallback GPS that was sending JWT in UIT field
 **Single GPS source confirmed**: Only AndroidGPS SimpleGPSService transmits GPS data with correct UIT values

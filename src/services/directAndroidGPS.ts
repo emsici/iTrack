@@ -339,15 +339,13 @@ class DirectAndroidGPSService {
         console.warn('⚠️ GPS permissions denied, starting anyway for testing');
       }
       
-      // CRITICAL: Start browser GPS tracking immediately
-      console.log("🚀 STARTING BROWSER GPS TRACKING");
-      this.startBrowserGPSInterval(course);
-      console.log("✅ Browser GPS interval started successfully");
-      this.startBrowserGPSInterval(course);
-      console.log("GPS tracking started");
+      // BROWSER GPS DISABLED: Prevent duplicate transmissions with AndroidGPS
+      console.log("⚠️ Browser GPS DISABLED - prevents duplicate transmission");
+      console.log("🔧 Only AndroidGPS SimpleGPSService should transmit GPS data");
+      console.log("GPS tracking started via AndroidGPS only");
     } catch (error) {
-      console.log("Permission request completed, starting GPS anyway");
-      this.startBrowserGPSInterval(course);
+      console.log("Permission request completed, GPS will be handled by AndroidGPS");
+      console.log("🔧 Browser GPS disabled to prevent duplicate transmissions");
     }
   }
 
@@ -362,9 +360,9 @@ class DirectAndroidGPSService {
         const result = (window as any).AndroidGPS.stopGPS(courseId);
         console.log("✅ SimpleGPSService stopped via AndroidGPS:", result);
       } else {
-        // FALLBACK pentru browser: oprește interval-ul GPS
-        console.log("⚠️ AndroidGPS not available - stopping browser GPS interval");
-        this.stopBrowserGPSInterval(courseId);
+        // NO BROWSER GPS: All GPS handled by AndroidGPS only
+        console.log("⚠️ AndroidGPS not available - no GPS fallback to prevent duplicates");
+        console.log("🔧 Browser GPS permanently disabled for clean transmission");
       }
 
       console.log(`🛑 GPS tracking stopped for course ${courseId}`);
