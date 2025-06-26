@@ -308,7 +308,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
     
     private void startGPSTimer() {
-        Log.d(TAG, "🔄 STARTING GPS TIMER WITH FIXED SELF-REFERENCE");
+        Log.d(TAG, "🔄 STARTING GPS TIMER - CLEAN IMPLEMENTATION");
         
         if (gpsHandler == null) {
             gpsHandler = new Handler(Looper.getMainLooper());
@@ -317,37 +317,30 @@ public class SimpleGPSService extends Service implements LocationListener {
         // Cancel any existing timer
         stopGPSTimer();
         
-        // Create repeating runnable with proper self-scheduling
+        // Create simple repeating runnable - use 'this' correctly
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "📡 GPS Timer cycle executing - checking conditions");
+                Log.d(TAG, "📡 GPS Timer executing");
                 Log.d(TAG, "🔄 forceTimerContinuous: " + forceTimerContinuous);
                 Log.d(TAG, "📊 activeCourses.size(): " + activeCourses.size());
                 
                 if (forceTimerContinuous && !activeCourses.isEmpty()) {
-                    Log.d(TAG, "✅ CONDITIONS MET - performing GPS transmission");
+                    Log.d(TAG, "✅ Performing GPS transmission");
                     performGPSTransmission();
                     
-                    // CRITICAL FIX: Use gpsRunnable reference for correct scheduling
-                    if (gpsHandler != null && gpsRunnable != null) {
-                        boolean scheduled = gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS);
-                        Log.d(TAG, "🔄 NEXT CYCLE SCHEDULED: " + scheduled + " in " + (GPS_INTERVAL_MS/1000) + "s");
-                    } else {
-                        Log.e(TAG, "❌ Handler or Runnable is null - cannot schedule next cycle");
-                    }
+                    // CORRECT: Use 'this' within the Runnable context
+                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                    Log.d(TAG, "🔄 Next cycle scheduled in " + (GPS_INTERVAL_MS/1000) + "s");
                 } else {
-                    Log.w(TAG, "🛑 CONDITIONS NOT MET - stopping GPS timer");
-                    Log.w(TAG, "   forceTimerContinuous: " + forceTimerContinuous);
-                    Log.w(TAG, "   activeCourses empty: " + activeCourses.isEmpty());
+                    Log.w(TAG, "🛑 Stopping GPS - conditions not met");
                 }
             }
         };
         
-        // Start immediately
+        // Start the first execution
         gpsHandler.post(gpsRunnable);
-        Log.d(TAG, "✅ GPS Timer started - first execution posted immediately");
-        Log.d(TAG, "⏰ Interval: " + (GPS_INTERVAL_MS/1000) + " seconds");
+        Log.d(TAG, "✅ GPS Timer started - first cycle posted");
     }
     
     private void stopGPSTimer() {
