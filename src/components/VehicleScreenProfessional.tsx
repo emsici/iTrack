@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
-import { getVehicleCourses, logout, sendGPSData } from "../services/api";
+import { getVehicleCourses, logout } from "../services/api";
 import {
   startGPSTracking,
   stopGPSTracking,

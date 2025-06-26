@@ -171,14 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.118 (June 26, 2025) - GPS TIMER CONTINUITY FIXED
+### Versiunea Curentă: 1808.119 (June 26, 2025) - MULTI-COURSE GPS & BUILD WARNINGS FIXED
 
+**Multi-course GPS confirmed**: System transmits for all active courses simultaneously (20+ courses supported)
 **GPS timer continuity repaired**: Fixed timer stopping after first transmission (ID 18468 issue resolved)
 **Token consistency guaranteed**: userAuthToken always updates with current session token
-**Background GPS loop fixed**: Timer now continues indefinitely while courses are active
-**Timer lifecycle improved**: removeCallbacks() cleanup and auto-reinitialization if handler is null
-**Production GPS verified**: Continuous transmission at 5-second intervals confirmed
-**Real data transmission**: AR38DPL vehicle, coordinates 44.2583338, 28.6175698 authenticated
+**Vite build warnings eliminated**: Removed redundant static import for sendGPSData, clean production build
+**Background GPS loop verified**: Timer continues indefinitely while courses are active with individual UIT transmission
+**Production ready**: Clean build, continuous GPS transmission, multi-course support confirmed
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
