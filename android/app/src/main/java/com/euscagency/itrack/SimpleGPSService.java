@@ -42,6 +42,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     private boolean isTracking = false;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private String userAuthToken;
+    private PowerManager.WakeLock wakeLock;
     // Removed OkHttpClient - using CapacitorHttp through WebView
 
     public static class CourseData {
@@ -61,12 +62,26 @@ public class SimpleGPSService extends Service implements LocationListener {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "SimpleGPSService created");
+        Log.d(TAG, "📱 SimpleGPSService created - BACKGROUND MODE");
         
         createNotificationChannel();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        // Removed OkHttpClient - using CapacitorHttp through WebView
+        
+        // Start IMMEDIATELY as foreground service for background operation
+        startForeground(NOTIFICATION_ID, createNotification("GPS service starting..."));
+        
+        // Acquire wake lock to prevent CPU sleep
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        if (powerManager != null) {
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "iTrack:GPSWakeLock");
+            if (!wakeLock.isHeld()) {
+                wakeLock.acquire();
+                Log.d(TAG, "🔋 Wake lock acquired for continuous background operation");
+            }
+        }
+        
         initializeGPSHandler();
+        Log.d(TAG, "✅ SimpleGPSService ready for BACKGROUND GPS with wake lock");
     }
 
     @Override
@@ -86,7 +101,7 @@ public class SimpleGPSService extends Service implements LocationListener {
             stopSpecificCourse(intent.getStringExtra("courseId"));
         }
 
-        return START_STICKY;
+        return START_STICKY; // Service restarts automatically if killed by system
     }
 
     private void startGPSTracking(Intent intent) {
@@ -351,13 +366,24 @@ public class SimpleGPSService extends Service implements LocationListener {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "SimpleGPSService destroyed");
+        Log.d(TAG, "🛑 SimpleGPSService destroyed");
         
         stopGPSTimer();
         if (locationManager != null) {
-            locationManager.removeUpdates(this);
+            try {
+                locationManager.removeUpdates(this);
+            } catch (SecurityException e) {
+                Log.e(TAG, "Permission denied removing location updates", e);
+            }
         }
+        
+        // Release wake lock to save battery
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+            Log.d(TAG, "🔋 Wake lock released on service destroy");
+        }
+        
+        super.onDestroy();
     }
     
     private void stopGPSTimer() {
