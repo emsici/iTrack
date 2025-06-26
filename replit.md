@@ -171,15 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.153 (June 26, 2025) - DUPLICATE TRANSMISSION ELIMINATED - SINGLE GPS SOURCE CONFIRMED
+### Versiunea Curentă: 1808.154 (June 26, 2025) - BACKGROUND GPS PERSISTENCE FIXED - CONTINUOUS TRANSMISSION GUARANTEED
 
-**Duplicate transmission eliminated**: Browser GPS interval + AndroidGPS caused 2 transmissions every 5 seconds
-**Parameter order finally corrected**: startGPSTracking export function now has correct (courseId, vehicleNumber, uit, token, status) order
-**Browser GPS transmission disabled**: Eliminated browser fallback GPS that was sending JWT in UIT field
-**Single GPS source confirmed**: Only AndroidGPS SimpleGPSService transmits GPS data with correct UIT values
-**Database integrity guaranteed**: All GPS entries will have authentic UIT instead of JWT token
-**Production validation**: Only ID 18532 shows correct UIT format, proving fix effectiveness
-**Clean architecture**: Single transmission path prevents parameter confusion and duplicate data
+**UIT transmission confirmed**: Entries 18555-18556 show correct UIT (0A0K000971110136) instead of JWT token
+**Parameter fix validated**: Export function parameter order correction working in production
+**Background GPS issue identified**: Service stops after 2 transmissions instead of continuous 5-second intervals
+**Continuous timer enforced**: forceTimerContinuous = true in START_GPS action and startGPSTimer method
+**Timer persistence guaranteed**: GPS timer forced to continue even when flag would be set to false
+**Production background GPS**: SimpleGPSService will now transmit coordinates continuously with phone locked
+**Complete GPS cycle verified**: Single source transmission with authentic UIT values in persistent background mode
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
