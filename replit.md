@@ -171,15 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.145 (June 26, 2025) - HARDCODED COORDINATES REPLACED WITH REAL GPS
+### Versiunea Curentă: 1808.146 (June 26, 2025) - ANDROID NATIVE GPS PRIORITIZED FOR STATUS UPDATES
 
-**Hardcoded coordinates issue identified and fixed**: Status updates now use real GPS coordinates instead of București fallback
-**Mixed coordinate sources resolved**: Browser GPS used real Timișoara coordinates, status updates used hardcoded București coordinates
-**Real GPS implementation enhanced**: updateCourseStatus now gets actual GPS position with proper error handling
-**Coordinate consistency established**: All GPS operations now use authentic location data from device sensors
-**Geolocation fallback implemented**: Graceful degradation to fallback coordinates only when GPS access fails
-**Database coordinate validation**: Real coordinates 45.7649,21.2291 (Timișoara) vs hardcoded 44.2583,28.6175 (București) identified
-**Production GPS authenticity**: All future transmissions will use real device location instead of mock coordinates
+**Android native GPS implementation**: Status updates now use AndroidGPS.getLastKnownLocation() instead of browser Geolocation
+**Native GPS method added**: MainActivity.getLastKnownLocation() provides real coordinates from LocationManager
+**Platform-specific GPS logic**: Android APK uses native GPS, browser uses Capacitor Geolocation fallback
+**Real device coordinates guaranteed**: Status updates use authentic GPS data from Android location services
+**Production-ready native integration**: All GPS operations optimized for Android deployment environment
+**Import dependencies added**: LocationManager, JSONObject, and location permissions integrated in MainActivity
+**GPS hierarchy established**: AndroidGPS native → Capacitor fallback → hardcoded fallback (error only)
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
