@@ -207,12 +207,14 @@ public class SimpleGPSService extends Service implements LocationListener {
                         lastLocation != null ? "available" : "null", activeCourses.size()));
                 }
                 
-                // CRITICAL: Continue timer as long as there are active courses
+                // CRITICAL: ALWAYS continue timer if any courses exist
+                Log.d(TAG, String.format("🔄 TIMER DECISION: activeCourses.size()=%d", activeCourses.size()));
                 if (!activeCourses.isEmpty()) {
+                    Log.d(TAG, "🔄 GPS Timer CONTINUING - scheduling next tick in 5 seconds");
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                    Log.d(TAG, "🔄 GPS Timer continues - next transmission in 5 seconds");
+                    Log.d(TAG, "✅ Next GPS transmission scheduled successfully");
                 } else {
-                    Log.d(TAG, "🛑 GPS Timer stopped - no active courses remaining");
+                    Log.w(TAG, "🛑 GPS Timer STOPPED - no active courses remaining");
                     isTracking = false;
                 }
             }
@@ -288,18 +290,21 @@ public class SimpleGPSService extends Service implements LocationListener {
         MainActivity.runOnMainThread(() -> {
             try {
                 String jsCode = "window.sendGPSViaCapacitor('" + jsonString.replace("'", "\\'") + "', '" + userAuthToken + "')";
-                Log.d(TAG, "🎯 Executing JavaScript GPS transmission for course: " + courseId);
+                Log.d(TAG, "🎯 EXECUTING GPS TRANSMISSION for course: " + courseId);
+                Log.d(TAG, "📡 JavaScript code length: " + jsCode.length() + " chars");
                 
                 MainActivity.getInstance().getWebView().evaluateJavascript(jsCode, result -> {
-                    Log.d(TAG, "✅ GPS RESULT for " + courseId + ": " + result);
+                    Log.d(TAG, "📨 GPS TRANSMISSION COMPLETED for " + courseId);
+                    Log.d(TAG, "📊 Result: " + result);
                     if (result != null && result.contains("true")) {
-                        Log.d(TAG, "🎉 GPS SUCCESS for course: " + courseId);
+                        Log.d(TAG, "🎉 GPS TRANSMISSION SUCCESS for course: " + courseId);
                     } else {
-                        Log.e(TAG, "❌ GPS FAILED for course: " + courseId + " - " + result);
+                        Log.w(TAG, "⚠️ GPS TRANSMISSION WARNING for course: " + courseId + " - " + result);
                     }
+                    Log.d(TAG, "🔄 GPS transmission callback completed - timer should continue");
                 });
             } catch (Exception e) {
-                Log.e(TAG, "❌ GPS transmission exception for " + courseId + ": " + e.getMessage());
+                Log.e(TAG, "❌ CRITICAL GPS TRANSMISSION ERROR for " + courseId + ": " + e.getMessage());
                 e.printStackTrace();
             }
         });
