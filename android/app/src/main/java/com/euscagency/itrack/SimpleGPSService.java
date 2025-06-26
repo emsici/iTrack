@@ -1,9 +1,13 @@
 package com.euscagency.itrack;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
@@ -52,9 +56,9 @@ public class SimpleGPSService extends Service implements LocationListener {
     // CRITICAL: Force continuous timer execution
     private boolean forceTimerContinuous = true;
     
-    // ROBUST BACKGROUND EXECUTION: ScheduledExecutorService
-    private ScheduledExecutorService gpsExecutor;
-    private ScheduledFuture<?> gpsTask;
+    // ROBUST BACKGROUND EXECUTION: AlarmManager for Android optimization
+    private AlarmManager alarmManager;
+    private PendingIntent gpsAlarmIntent;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private String userAuthToken;
     private PowerManager.WakeLock wakeLock;
@@ -294,105 +298,30 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void startGPSTransmissions() {
-        Log.d(TAG, "🚀 STARTING ROBUST BACKGROUND GPS WITH EXECUTOR SERVICE");
-        Log.d(TAG, "📊 Active courses: " + activeCourses.size());
-        Log.d(TAG, "⏰ GPS interval: " + (GPS_INTERVAL_MS/1000) + " seconds GUARANTEED");
-        Log.d(TAG, "🗺️ Location available: " + (lastLocation != null));
-        Log.d(TAG, "🔒 Background mode: WAKE LOCK + EXECUTOR SERVICE");
-        
-        // Stop any existing timers first
-        stopGPSExecutor();
-        
-        // FORCE CONTINUOUS BACKGROUND EXECUTION
         isTracking = true;
         forceTimerContinuous = true;
         
-        // ROBUST SOLUTION: ScheduledExecutorService instead of Handler
-        gpsExecutor = Executors.newSingleThreadScheduledExecutor();
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         
-        Runnable gpsTransmissionTask = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Log.d(TAG, "🚀 === EXECUTOR GPS TRANSMISSION START ===");
-                    Log.d(TAG, "📊 Active courses: " + activeCourses.size());
-                    Log.d(TAG, "🔄 forceTimerContinuous: " + forceTimerContinuous);
-                    Log.d(TAG, "🗺️ lastLocation: " + (lastLocation != null ? "AVAILABLE" : "NULL"));
-                    Log.d(TAG, "🎯 isTracking: " + isTracking);
-                    
-                    // CRITICAL: ALWAYS continue executing regardless of conditions
-                    // Do NOT stop executor based on activeCourses.isEmpty()
-                    
-                    if (lastLocation != null && !activeCourses.isEmpty() && forceTimerContinuous) {
-                        Log.d(TAG, "📡 Processing GPS for " + activeCourses.size() + " courses");
-                        
-                        for (CourseData course : activeCourses.values()) {
-                            if (course.status == 2) {
-                                Log.d(TAG, "📍 TRANSMITTING GPS for UIT: " + course.uit + " (status=2 ACTIVE)");
-                                transmitGPSData(course, lastLocation);
-                            } else {
-                                Log.d(TAG, "⏸️ SKIPPING GPS for UIT: " + course.uit + " (status: " + course.status + " - paused/stopped)");
-                            }
-                        }
-                    } else {
-                        // CRITICAL: Log the reason but DON'T stop executor
-                        if (activeCourses.isEmpty()) {
-                            Log.w(TAG, "⚠️ No active courses - but CONTINUING executor (waiting for courses)");
-                        }
-                        if (lastLocation == null) {
-                            Log.w(TAG, "⚠️ No GPS location - but CONTINUING executor (waiting for GPS)");
-                        }
-                        if (!forceTimerContinuous) {
-                            Log.w(TAG, "⚠️ forceTimerContinuous=false - but CONTINUING executor");
-                        }
-                    }
-                    
-                    Log.d(TAG, "🔄 EXECUTOR CYCLE COMPLETE - will run again in 5 seconds");
-                    Log.d(TAG, "🔍 EXECUTOR STATUS CHECK:");
-                    Log.d(TAG, "  - gpsExecutor null: " + (gpsExecutor == null));
-                    Log.d(TAG, "  - gpsTask cancelled: " + (gpsTask != null ? gpsTask.isCancelled() : "task is null"));
-                    Log.d(TAG, "  - gpsExecutor shutdown: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "executor is null"));
-                    Log.d(TAG, "✅ === EXECUTOR GPS TRANSMISSION END ===");
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ GPS transmission error in executor - CONTINUING anyway", e);
-                    Log.e(TAG, "🔍 Exception details: " + e.getClass().getSimpleName() + ": " + e.getMessage());
-                    e.printStackTrace();
-                    // CRITICAL: Don't rethrow exception - let executor continue
-                    Log.d(TAG, "🔄 Exception handled - executor WILL continue to next cycle");
-                }
-            }
-        };
+        Intent gpsIntent = new Intent(this, GPSTransmissionReceiver.class);
+        gpsAlarmIntent = PendingIntent.getBroadcast(this, 0, gpsIntent, 
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         
-        // Schedule with fixed rate - GUARANTEED continuous execution
-        Log.d(TAG, "🔧 SCHEDULING GPS TASK:");
-        Log.d(TAG, "  - Initial delay: 0 seconds");
-        Log.d(TAG, "  - Interval: " + (GPS_INTERVAL_MS / 1000) + " seconds");
-        Log.d(TAG, "  - GPS_INTERVAL_MS: " + GPS_INTERVAL_MS);
-        
-        gpsTask = gpsExecutor.scheduleAtFixedRate(
-            gpsTransmissionTask,
+        // Use ELAPSED_REALTIME_WAKEUP for guaranteed execution
+        alarmManager.setRepeating(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
             0, // Start immediately
-            5, // HARD-CODED 5 seconds instead of calculation
-            TimeUnit.SECONDS
+            GPS_INTERVAL_MS, // 5 seconds
+            gpsAlarmIntent
         );
         
-        Log.d(TAG, "✅ EXECUTOR SERVICE STARTED - task scheduled successfully");
-        Log.d(TAG, "🎯 GPS will transmit every 5 seconds HARD-CODED");
-        Log.d(TAG, "🔍 gpsTask null: " + (gpsTask == null));
-        Log.d(TAG, "🔍 gpsExecutor null: " + (gpsExecutor == null));
+        Log.d(TAG, "AlarmManager GPS transmission started");
     }
     
-    private void stopGPSExecutor() {
-        if (gpsTask != null) {
-            gpsTask.cancel(true);
-            gpsTask = null;
-            Log.d(TAG, "🛑 GPS task cancelled");
-        }
-        
-        if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
-            gpsExecutor.shutdown();
-            gpsExecutor = null;
-            Log.d(TAG, "🛑 GPS executor shutdown");
+    private void stopGPSAlarm() {
+        if (alarmManager != null && gpsAlarmIntent != null) {
+            alarmManager.cancel(gpsAlarmIntent);
+            Log.d(TAG, "GPS AlarmManager stopped");
         }
     }
 
