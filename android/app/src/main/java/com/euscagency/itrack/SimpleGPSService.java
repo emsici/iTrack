@@ -48,6 +48,7 @@ public class SimpleGPSService extends Service implements LocationListener {
 
     private LocationManager locationManager;
     private Handler gpsHandler;
+    private HandlerThread gpsHandlerThread;
     private Runnable gpsRunnable;
     private Location lastLocation;
     private boolean isTracking = false;
@@ -308,45 +309,59 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
     
     private void startGPSTimer() {
-        Log.d(TAG, "🔄 STARTING GPS TIMER - CLEAN IMPLEMENTATION");
+        Log.d(TAG, "🔄 STARTING BACKGROUND GPS TIMER WITH DEDICATED THREAD");
         
-        if (gpsHandler == null) {
-            gpsHandler = new Handler(Looper.getMainLooper());
+        // Create dedicated background thread for GPS operations
+        if (gpsHandlerThread == null) {
+            gpsHandlerThread = new HandlerThread("GPSBackgroundThread");
+            gpsHandlerThread.start();
+            gpsHandler = new Handler(gpsHandlerThread.getLooper());
+            Log.d(TAG, "✅ Background HandlerThread created for GPS");
         }
         
         // Cancel any existing timer
         stopGPSTimer();
         
-        // Create simple repeating runnable - use 'this' correctly
+        // Create background repeating runnable
         gpsRunnable = new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "📡 GPS Timer executing");
+                Log.d(TAG, "📡 BACKGROUND GPS Timer executing on thread: " + Thread.currentThread().getName());
                 Log.d(TAG, "🔄 forceTimerContinuous: " + forceTimerContinuous);
                 Log.d(TAG, "📊 activeCourses.size(): " + activeCourses.size());
                 
                 if (forceTimerContinuous && !activeCourses.isEmpty()) {
-                    Log.d(TAG, "✅ Performing GPS transmission");
+                    Log.d(TAG, "✅ Performing BACKGROUND GPS transmission");
                     performGPSTransmission();
                     
-                    // CORRECT: Use 'this' within the Runnable context
+                    // Schedule next execution on background thread
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                    Log.d(TAG, "🔄 Next cycle scheduled in " + (GPS_INTERVAL_MS/1000) + "s");
+                    Log.d(TAG, "🔄 Next BACKGROUND cycle scheduled in " + (GPS_INTERVAL_MS/1000) + "s");
                 } else {
-                    Log.w(TAG, "🛑 Stopping GPS - conditions not met");
+                    Log.w(TAG, "🛑 Stopping BACKGROUND GPS - conditions not met");
+                    Log.w(TAG, "   forceTimerContinuous: " + forceTimerContinuous);
+                    Log.w(TAG, "   activeCourses empty: " + activeCourses.isEmpty());
                 }
             }
         };
         
-        // Start the first execution
+        // Start the first execution on background thread
         gpsHandler.post(gpsRunnable);
-        Log.d(TAG, "✅ GPS Timer started - first cycle posted");
+        Log.d(TAG, "✅ BACKGROUND GPS Timer started on dedicated thread");
     }
     
     private void stopGPSTimer() {
         if (gpsHandler != null && gpsRunnable != null) {
             gpsHandler.removeCallbacks(gpsRunnable);
-            Log.d(TAG, "🛑 Handler GPS timer stopped");
+            Log.d(TAG, "🛑 Background GPS timer stopped");
+        }
+        
+        // Clean up background thread
+        if (gpsHandlerThread != null) {
+            gpsHandlerThread.quitSafely();
+            gpsHandlerThread = null;
+            gpsHandler = null;
+            Log.d(TAG, "🧹 Background HandlerThread cleaned up");
         }
     }
 
