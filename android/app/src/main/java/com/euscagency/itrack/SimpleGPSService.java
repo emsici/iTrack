@@ -267,7 +267,7 @@ public class SimpleGPSService extends Service implements LocationListener {
             Log.d(TAG, "- status: " + course.status + " (int)");
             Log.d(TAG, "Complete JSON object: " + gpsData.toString());
 
-            sendGPSRequest(gpsData);
+            sendGPSRequest(gpsData, course.courseId);
             Log.d(TAG, "GPS transmitted for UIT: " + course.uit);
             
         } catch (Exception e) {
