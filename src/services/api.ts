@@ -369,27 +369,28 @@ export const logout = async (token: string): Promise<boolean> => {
     try {
       const response = await CapacitorHttp.post({
         url: `${API_BASE_URL}/gps.php`,
-        headers: headers,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'User-Agent': 'iTrack-Android-Service/1.0'
+        },
         data: gpsData
       });
       
       console.log('=== ANDROID CapacitorHttp GPS Response ===');
       console.log('Status:', response.status);
       console.log('Data:', response.data);
-      console.log('Headers sent:', JSON.stringify(headers, null, 2));
       
       if (response.status === 401) {
         console.error('❌ 401 UNAUTHORIZED - Android GPS Token rejected');
         console.error('Full token used:', `Bearer ${token}`);
         console.error('Request URL:', `${API_BASE_URL}/gps.php`);
-        console.error('Headers sent:', JSON.stringify(headers, null, 2));
-        console.error('Data sent:', JSON.stringify(gpsData, null, 2));
         return false;
       } else if (response.status === 403) {
         console.error('❌ 403 FORBIDDEN - Server blocking GPS requests');
         console.error('This is a server configuration issue, not authentication');
         console.error('Request URL:', `${API_BASE_URL}/gps.php`);
-        console.error('Headers sent:', JSON.stringify(headers, null, 2));
         return false;
       }
       
@@ -401,7 +402,7 @@ export const logout = async (token: string): Promise<boolean> => {
       console.error('GPS server rejected data:', response.status);
       return false;
       
-    } catch (capacitorError) {
+    } catch (capacitorError: any) {
       console.error('CapacitorHttp failed, trying fallback fetch:', capacitorError.message);
       
       const fallbackResponse = await fetch(`${API_BASE_URL}/gps.php`, {
@@ -424,7 +425,7 @@ export const logout = async (token: string): Promise<boolean> => {
       return false;
     }
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Android GPS transmission error:', error.message);
     return false;
   }
