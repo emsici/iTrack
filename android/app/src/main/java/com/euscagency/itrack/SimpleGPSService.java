@@ -313,18 +313,26 @@ public class SimpleGPSService extends Service implements LocationListener {
         gpsAlarmIntent = PendingIntent.getBroadcast(this, 0, gpsIntent, 
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         
-        // Start immediately then repeat every 5 seconds
+        // Start immediately 
         performGPSTransmission();
         
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            System.currentTimeMillis() + GPS_INTERVAL_MS,
-            GPS_INTERVAL_MS,
-            gpsAlarmIntent
-        );
+        // Schedule first alarm
+        scheduleNextAlarm();
         
         Log.d(TAG, "✅ AlarmManager GPS transmission scheduled for 1 second");
         Log.d(TAG, "⏰ Will repeat every " + (GPS_INTERVAL_MS/1000) + " seconds");
+    }
+    
+    private void scheduleNextAlarm() {
+        if (forceTimerContinuous && alarmManager != null && gpsAlarmIntent != null) {
+            long nextTime = System.currentTimeMillis() + GPS_INTERVAL_MS;
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                nextTime,
+                gpsAlarmIntent
+            );
+            Log.d(TAG, "⏰ NEXT ALARM SCHEDULED for " + nextTime + " (in " + (GPS_INTERVAL_MS/1000) + "s)");
+        }
     }
     
     private void stopGPSAlarm() {
@@ -556,9 +564,11 @@ public class SimpleGPSService extends Service implements LocationListener {
         public void onReceive(Context context, Intent intent) {
             long timestamp = System.currentTimeMillis();
             Log.d("GPSTransmissionReceiver", "🚨 ALARM FIRED at " + timestamp + " - triggering GPS");
+            Log.d("GPSTransmissionReceiver", "📱 Context: " + context.getClass().getSimpleName());
             Intent serviceIntent = new Intent(context, SimpleGPSService.class);
             serviceIntent.setAction("TRANSMIT_GPS");
             context.startService(serviceIntent);
+            Log.d("GPSTransmissionReceiver", "✅ Service intent sent");
         }
     }
 
