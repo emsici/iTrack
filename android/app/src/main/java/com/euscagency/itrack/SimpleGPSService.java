@@ -191,20 +191,30 @@ public class SimpleGPSService extends Service implements LocationListener {
                 
                 // Process GPS transmission for all active courses
                 if (lastLocation != null && !activeCourses.isEmpty()) {
-                    Log.d(TAG, "📡 Processing GPS for " + activeCourses.size() + " courses");
+                    Log.d(TAG, "📡 Processing GPS for " + activeCourses.size() + " total courses");
+                    
+                    int transmittedCount = 0;
                     for (CourseData course : activeCourses.values()) {
+                        Log.d(TAG, String.format("📋 Course %s (UIT: %s) - Status: %d", 
+                            course.courseId, course.uit, course.status));
+                        
                         if (course.status == 2) {
-                            Log.d(TAG, "📍 Transmitting GPS for course: " + course.courseId);
+                            Log.d(TAG, "📍 TRANSMITTING GPS for UIT: " + course.uit);
                             transmitGPSData(course, lastLocation);
+                            transmittedCount++;
+                        } else {
+                            Log.d(TAG, "⏸️ SKIPPING GPS for UIT: " + course.uit + " (status: " + course.status + ")");
                         }
                     }
+                    
+                    Log.d(TAG, String.format("✅ GPS transmitted for %d/%d courses", transmittedCount, activeCourses.size()));
                 } else {
                     Log.w(TAG, "⚠️ Skipping GPS - location: " + (lastLocation != null) + ", courses: " + activeCourses.size());
                 }
                 
                 // CRITICAL: ALWAYS reschedule if courses exist
                 if (!activeCourses.isEmpty()) {
-                    Log.d(TAG, "🔄 RESCHEDULING timer in 5 seconds");
+                    Log.d(TAG, "🔄 RESCHEDULING timer in " + (GPS_INTERVAL_MS/1000) + " seconds");
                     gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
                 } else {
                     Log.w(TAG, "🛑 STOPPING timer - no active courses");
