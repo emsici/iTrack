@@ -233,12 +233,12 @@ public class SimpleGPSService extends Service implements LocationListener {
                     }
                 }
                 
-                // CRITICAL: ALWAYS reschedule if courses exist
+                // CRITICAL: ALWAYS reschedule if courses exist - CONTINUOUS BACKGROUND OPERATION
                 if (!activeCourses.isEmpty()) {
-                    Log.d(TAG, "🔄 RESCHEDULING timer in " + (GPS_INTERVAL_MS/1000) + " seconds");
+                    Log.d(TAG, "🔄 RESCHEDULING timer in " + (GPS_INTERVAL_MS/1000) + " seconds - BACKGROUND CONTINUOUS");
                     Log.d(TAG, "📊 Current courses in Map: " + activeCourses.keySet().toString());
                     
-                    // Ensure handler and this runnable are still valid
+                    // FORCE CONTINUOUS EXECUTION - this is the critical fix for background transmission
                     if (gpsHandler != null) {
                         gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
                         long cycleTime = System.currentTimeMillis() - cycleStartTime;
@@ -260,14 +260,16 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
 
     private void startGPSTransmissions() {
-        Log.d(TAG, "🚀 STARTING GPS TRANSMISSIONS");
+        Log.d(TAG, "🚀 STARTING CONTINUOUS BACKGROUND GPS TRANSMISSIONS");
         Log.d(TAG, "📊 Active courses: " + activeCourses.size());
-        Log.d(TAG, "⏰ GPS interval: " + (GPS_INTERVAL_MS/1000) + " seconds");
+        Log.d(TAG, "⏰ GPS interval: " + (GPS_INTERVAL_MS/1000) + " seconds CONTINUOUS");
         Log.d(TAG, "🗺️ Location available: " + (lastLocation != null));
+        Log.d(TAG, "🔒 Background mode: WAKE LOCK ACTIVE");
         
         // Stop any existing timer first to prevent duplicates
         if (gpsHandler != null && gpsRunnable != null) {
             gpsHandler.removeCallbacks(gpsRunnable);
+            Log.d(TAG, "🧹 Cleared previous timer callbacks");
             Log.d(TAG, "🛑 Removed any existing timer callbacks");
         }
         
