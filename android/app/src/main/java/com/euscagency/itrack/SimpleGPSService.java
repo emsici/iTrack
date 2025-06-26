@@ -68,7 +68,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         
         // Start IMMEDIATELY as foreground service for background operation
-        startForeground(NOTIFICATION_ID, createNotification("GPS service starting..."));
+        startForeground(NOTIFICATION_ID, createNotification());
         
         // Acquire wake lock to prevent CPU sleep
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);

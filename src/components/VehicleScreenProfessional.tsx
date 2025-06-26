@@ -458,7 +458,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           gsm_signal: sensorData.gsm_signal
         };
         
-        // Use static import instead of dynamic
+        // GPS transmission with static import
         const success = await sendGPSData(gpsData, token);
         console.log(`GPS transmission result: ${success ? 'SUCCESS' : 'FAILED'} for course ${courseId}`);
 
