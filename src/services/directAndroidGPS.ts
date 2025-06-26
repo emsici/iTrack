@@ -520,8 +520,8 @@ const directAndroidGPSService = new DirectAndroidGPSService();
 export const startGPSTracking = (
   courseId: string,
   vehicleNumber: string,
-  token: string,
   uit: string,
+  token: string,
   status: number = 2,
 ) =>
   directAndroidGPSService.startTracking(

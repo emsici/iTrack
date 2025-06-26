@@ -171,15 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.152 (June 26, 2025) - PARAMETER ORDER BUG FIXED - ROOT CAUSE RESOLVED
+### Versiunea Curentă: 1808.153 (June 26, 2025) - DUPLICATE TRANSMISSION ELIMINATED - SINGLE GPS SOURCE CONFIRMED
 
-**Root cause identified**: Export function startGPSTracking had swapped token/uit parameter order causing JWT in UIT field
-**Parameter order corrected**: startGPSTracking(courseId, vehicleNumber, uit, token, status) now matches startTracking signature
-**Database corruption eliminated**: JWT token no longer sent in UIT field to GPS database
-**Clean parameter flow**: uit=UIT real, token=JWT authentication - proper separation maintained
-**Production integrity restored**: All GPS transmissions will use correct UIT values from API
-**Architectural fix**: Corrected at function signature level preventing all future UIT/JWT confusion
-**Complete validation**: GPS transmission parameter flow now clean from VehicleScreen → startGPSTracking → SimpleGPSService
+**Duplicate transmission identified**: Browser GPS interval + AndroidGPS caused 2 transmissions every 5 seconds
+**Parameter order finally corrected**: startGPSTracking export function now has correct (courseId, vehicleNumber, uit, token, status) order
+**Browser GPS transmission disabled**: Eliminated browser fallback GPS that was sending JWT in UIT field
+**Single GPS source confirmed**: Only AndroidGPS SimpleGPSService transmits GPS data with correct UIT values
+**Database integrity guaranteed**: All GPS entries will have authentic UIT instead of JWT token
+**Production validation**: Only ID 18532 shows correct UIT format, proving fix effectiveness
+**Clean architecture**: Single transmission path prevents parameter confusion and duplicate data
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 
