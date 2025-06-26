@@ -280,12 +280,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   };
 
   const handleTimestampClick = async () => {
-    setClickCount(prev => prev + 1);
     const newCount = infoClickCount + 1;
     setInfoClickCount(newCount);
     
+    console.log(`Debug click: ${newCount}/50`);
+    
     if (newCount === 50) {
       try {
+        console.log("Opening debug panel after 50 clicks...");
         const logs = await getAppLogs();
         setDebugLogs(logs);
         setShowDebugPanel(true);
@@ -357,21 +359,43 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }
       }
 
-      // Update course status through GPS service
+      // Update course status through GPS service - FOLOSIND TOKEN-UL DE LOGIN
       try {
+        console.log('🔑 Using login token for GPS transmission (NOT course.token)');
+        console.log('Login token preview:', token.substring(0, 30) + '...');
+        
+        // Transmit GPS data cu token-ul real de login
+        const gpsData = {
+          numar_inmatriculare: vehicleNumber,
+          uit: courseToUpdate.uit,
+          status: newStatus,
+          lat: 45.7649,
+          lng: 21.2291,
+          timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
+          viteza: 0,
+          directie: 0,
+          altitudine: 0,
+          baterie: 85,
+          hdop: 1.2,
+          gsm_signal: 4
+        };
+        
+        console.log('📡 Sending GPS data to server with LOGIN TOKEN...');
+        const success = await sendGPSData(gpsData, token);  // FOLOSEȘTE TOKEN-UL DE LOGIN
+        
+        if (success) {
+          console.log(`✅ GPS data sent successfully for course ${courseId}`);
+        } else {
+          console.error(`❌ GPS transmission failed for course ${courseId}`);
+        }
+
+        // Actualizează și serviciul GPS Android
         await updateCourseStatus(courseId, newStatus);
         console.log(`✅ Status updated to ${newStatus} for course ${courseId}`);
 
       } catch (error) {
         console.error(`❌ Status update error:`, error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        if (errorMessage.includes('401')) {
-          console.error('🔐 Token expired - redirecting to login');
-          await clearToken();
-          onLogout();
-          return;
-        }
-        
         setError(`Status update failed: ${errorMessage}`);
         logAPIError(`Status update failed: ${errorMessage}`);
       }
