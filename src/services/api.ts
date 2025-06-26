@@ -455,21 +455,9 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       console.log('Raw headers object:', headers);
       console.log('Raw data object:', gpsData);
       console.log('Data stringified for comparison:', JSON.stringify(gpsData));
-      console.log('🔑 TOKEN VERIFICATION FOR GPS:');
-      console.log('Full Bearer token being used:', `Bearer ${token}`);
-      console.log('Token length:', token.length);
-      
-      // Compare with known working Postman token
-      const workingToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Iis0MDcyMjIyMjIyMiIsImV4cCI6MTc1MDcxMjM5OX0.H3PYDKpgD0naelCaZ5NQosMMCKYH2tHL6AHjNEEnJnY";
-      console.log('App token matches Postman?', token === workingToken);
-      
-      if (token !== workingToken) {
-        console.log('❌ App token differs from working Postman token');
-        console.log('App token:     ', token.substring(0, 50) + '...');
-        console.log('Postman token: ', workingToken.substring(0, 50) + '...');
-      } else {
-        console.log('✅ App token matches working Postman token');
-      }
+      console.log('🔑 GPS TRANSMISSION ATTEMPT:');
+      console.log('Using same token as course loading:', `Bearer ${token.substring(0, 20)}...`);
+      console.log('Sending to gps.php with data:', JSON.stringify(gpsData));
       
       // Silent token validation
       try {

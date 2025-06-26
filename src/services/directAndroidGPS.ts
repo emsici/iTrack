@@ -83,7 +83,9 @@ class DirectAndroidGPSService {
       console.log('- Battery level from sensors:', gpsData.baterie + '%');
       console.log('- Status:', gpsData.status);
       console.log('- Vehicle:', gpsData.numar_inmatriculare);
-      console.log('Complete object:', JSON.stringify(gpsData, null, 2));
+      console.log('- UIT:', gpsData.uit);
+      console.log('- Token preview:', course.token.substring(0, 20) + '...');
+      console.log('Sending to gps.php:', JSON.stringify(gpsData, null, 2));
       
       const success = await sendGPSData(gpsData, course.token);
       console.log("✅ Server status update success:", success);
