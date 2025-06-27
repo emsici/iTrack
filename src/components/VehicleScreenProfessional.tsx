@@ -440,29 +440,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           console.log('Network sensor error, using default value');
         }
 
-        // Transmit with ALL real sensor data
-        const gpsData = {
-          numar_inmatriculare: vehicleNumber,
-          uit: courseToUpdate.uit,
-          status: newStatus,
-          lat: sensorData.lat,
-          lng: sensorData.lng,
-          timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
-          viteza: sensorData.viteza,
-          directie: sensorData.directie,
-          altitudine: sensorData.altitudine,
-          baterie: sensorData.baterie,
-          hdop: sensorData.hdop,
-          gsm_signal: sensorData.gsm_signal
-        };
-        
-        // GPS transmission with same token as vehicle loading
-        const success = await sendGPSData(gpsData, token);
-        console.log(`GPS transmission: ${success ? 'SUCCESS' : 'FAILED'} for ${courseId}`);
+        // CRITICAL FIX: REMOVE DUPLICATE GPS TRANSMISSION
+        // Only Android native service should transmit GPS data
+        console.log(`🛑 GPS transmission delegated to Android native service only`);
+        console.log(`📱 No browser GPS transmission to prevent duplicates`);
 
-        // Actualizează și serviciul GPS Android
+        // Direct Android GPS service status update (will handle GPS transmission)
         await updateCourseStatus(courseId, newStatus);
-        console.log(`✅ Status updated to ${newStatus} for course ${courseId}`);
+        console.log(`✅ Status updated to ${newStatus} for course ${courseId} via Android service`);
 
       } catch (error) {
         console.error(`❌ Status update error:`, error);
