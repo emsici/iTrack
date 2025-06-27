@@ -127,12 +127,12 @@ public class OptimalGPSService extends Service {
                 
                 Log.d(TAG, "✅ Using recent GPS location (battery efficient) - NO fresh request needed");
                 transmitGPSForAllCourses(lastLocation);
-                // IMPORTANT: Don't request fresh location if we already have recent data
+                // IMPORTANT: scheduleNextOptimalGPSCycle() called inside transmitGPSForAllCourses
                 
             } else {
                 Log.d(TAG, "🔄 Requesting fresh GPS location (minimal battery impact)");
                 requestSingleGPSLocation();
-                // IMPORTANT: Only fresh request when no recent location available
+                // IMPORTANT: onLocationChanged will call transmitGPSForAllCourses → scheduleNextOptimalGPSCycle
             }
             
         } catch (Exception e) {
@@ -162,7 +162,7 @@ public class OptimalGPSService extends Service {
                         Log.d(TAG, "📍 Fresh OPTIMAL GPS location received");
                         transmitGPSForAllCourses(location);
                         // GPS automatically turns off after this callback
-                        // Note: transmitGPSForAllCourses already calls scheduleNextOptimalGPSCycle
+                        // IMPORTANT: scheduleNextOptimalGPSCycle() called inside transmitGPSForAllCourses
                     }
                     
                     @Override
@@ -186,16 +186,25 @@ public class OptimalGPSService extends Service {
     private void transmitGPSForAllCourses(Location location) {
         int transmissionCount = 0;
         int activeCoursesCount = 0;
+        java.util.Set<String> transmittedUITs = new java.util.HashSet<>();
         
         Log.d(TAG, "🚀 STARTING GPS transmission for " + activeCourses.size() + " total courses");
         
         for (CourseData course : activeCourses.values()) {
             if (course.status == 2) { // Only ACTIVE courses
                 activeCoursesCount++;
+                
+                // ANTI-DUPLICATE: Check if UIT already transmitted in this cycle
+                if (transmittedUITs.contains(course.uit)) {
+                    Log.w(TAG, "⚠️ SKIPPING duplicate UIT: " + course.uit + " for course: " + course.courseId);
+                    continue;
+                }
+                
                 Log.d(TAG, "🚀 OPTIMAL transmission for: " + course.courseId + " (UIT: " + course.uit + ")");
                 
                 try {
                     transmitOptimalGPSData(course, location);
+                    transmittedUITs.add(course.uit); // Mark UIT as transmitted
                     transmissionCount++;
                     Log.d(TAG, "✅ OPTIMAL GPS SUCCESS for: " + course.courseId);
                 } catch (Exception e) {
@@ -208,9 +217,10 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "📊 OPTIMAL GPS SUMMARY:");
         Log.d(TAG, "  - Active courses: " + activeCoursesCount);
         Log.d(TAG, "  - Successfully transmitted: " + transmissionCount);
+        Log.d(TAG, "  - UITs transmitted: " + transmittedUITs.size());
         Log.d(TAG, "✅ Optimal GPS cycle completed - next in exactly " + (GPS_INTERVAL_MS/1000) + "s");
         
-        // Schedule next exact alarm
+        // CRITICAL: Schedule next GPS cycle to continue background operation
         scheduleNextOptimalGPSCycle();
     }
     
