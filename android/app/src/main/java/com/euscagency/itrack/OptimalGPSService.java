@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -222,8 +223,8 @@ public class OptimalGPSService extends Service {
         gpsData.put("numar_inmatriculare", course.vehicleNumber);
         gpsData.put("uit", course.uit);
         gpsData.put("status", course.status);
-        gpsData.put("hdop", "1.0");
-        gpsData.put("gsm_signal", "4G");
+        gpsData.put("hdop", String.format("%.1f", getHdopFromLocation(location)));
+        gpsData.put("gsm_signal", getSignalStrength());
         
         Log.d(TAG, "📡 OPTIMAL GPS data: " + gpsData.toString());
         
@@ -275,6 +276,64 @@ public class OptimalGPSService extends Service {
         } catch (Exception e) {
             return 85; // Fallback
         }
+    }
+    
+    /**
+     * Calculate HDOP from GPS accuracy (real data)
+     */
+    private float getHdopFromLocation(Location location) {
+        try {
+            if (location.hasAccuracy()) {
+                float accuracy = location.getAccuracy(); // meters
+                // Convert accuracy to HDOP approximation
+                // Good GPS: accuracy < 5m → HDOP ~1.0
+                // Fair GPS: accuracy 5-10m → HDOP ~2.0  
+                // Poor GPS: accuracy > 10m → HDOP ~3.0+
+                if (accuracy <= 5.0f) return 1.0f;
+                else if (accuracy <= 10.0f) return 2.0f;
+                else return Math.min(accuracy / 5.0f, 5.0f); // Cap at 5.0
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Error calculating HDOP: " + e.getMessage());
+        }
+        return 1.0f; // Default good signal
+    }
+    
+    /**
+     * Get real GSM signal strength
+     */
+    private String getSignalStrength() {
+        try {
+            android.telephony.TelephonyManager telephonyManager = 
+                (android.telephony.TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            
+            if (telephonyManager != null) {
+                int networkType = telephonyManager.getNetworkType();
+                
+                switch (networkType) {
+                    case android.telephony.TelephonyManager.NETWORK_TYPE_LTE:
+                    case android.telephony.TelephonyManager.NETWORK_TYPE_NR: // 5G
+                        return "4G";
+                    case android.telephony.TelephonyManager.NETWORK_TYPE_HSDPA:
+                    case android.telephony.TelephonyManager.NETWORK_TYPE_HSUPA:
+                    case android.telephony.TelephonyManager.NETWORK_TYPE_HSPA:
+                    case android.telephony.TelephonyManager.NETWORK_TYPE_HSPAP:
+                    case android.telephony.TelephonyManager.NETWORK_TYPE_UMTS:
+                        return "3G";
+                    case android.telephony.TelephonyManager.NETWORK_TYPE_EDGE:
+                    case android.telephony.TelephonyManager.NETWORK_TYPE_GPRS:
+                        return "2G";
+                    case android.telephony.TelephonyManager.NETWORK_TYPE_CDMA:
+                    case android.telephony.TelephonyManager.NETWORK_TYPE_1xRTT:
+                        return "2G";
+                    default:
+                        return "4G"; // Default assume good connection
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Error getting signal strength: " + e.getMessage());
+        }
+        return "4G"; // Fallback
     }
     
     /**
