@@ -531,25 +531,23 @@ public class SimpleGPSService extends Service implements LocationListener {
         Log.d(TAG, "✅ All courses cleared and GPS Service stopped");
     }
     
-    private void performGPSTransmission() {
+    /**
+     * OPTIMAL: Direct GPS transmission triggered by native LocationListener
+     * Most efficient - no timers, no handlers, direct hardware callback
+     */
+    private void performDirectGPSTransmission(Location location) {
         long currentTime = System.currentTimeMillis();
-        Log.d(TAG, "=== GPS TRANSMISSION CYCLE " + currentTime + " ===");
-        Log.d(TAG, "📊 Active courses: " + activeCourses.size());
-        Log.d(TAG, "📍 Location available: " + (lastLocation != null));
         
-        // Check location availability
-        if (lastLocation == null) {
-            Log.d(TAG, "⏳ Waiting for GPS location - timer continues");
+        // CRITICAL: Prevent duplicate transmissions in same second
+        if (currentTime - lastExecutionTime < 1000) {
+            Log.w(TAG, "⚠️ SKIPPING duplicate native transmission - too soon (" + (currentTime - lastExecutionTime) + "ms ago)");
             return;
         }
         
-        // Check if any courses need transmission
-        if (activeCourses.isEmpty()) {
-            Log.d(TAG, "⏳ No active courses - timer continues");
-            return;
-        }
+        lastExecutionTime = currentTime;
         
-        Log.d(TAG, "📍 GPS: " + lastLocation.getLatitude() + ", " + lastLocation.getLongitude());
+        Log.d(TAG, "=== NATIVE GPS TRANSMISSION " + currentTime + " ===");
+        Log.d(TAG, "📍 Native location: " + location.getLatitude() + ", " + location.getLongitude());
         
         // CRITICAL: Transmit GPS for ALL courses with status 2 (ACTIVE)
         int transmissionCount = 0;
@@ -611,25 +609,16 @@ public class SimpleGPSService extends Service implements LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         lastLocation = location;
-        Log.d(TAG, String.format("📍 Location updated: lat=%.6f, lng=%.6f, accuracy=%.1fm", 
+        Log.d(TAG, String.format("📍 NATIVE GPS: lat=%.6f, lng=%.6f, accuracy=%.1fm", 
             location.getLatitude(), location.getLongitude(), location.getAccuracy()));
         
-        // CRITICAL: Verify that GPS timer is running when location changes
-        Log.d(TAG, "🔍 GPS Timer Status Check:");
-        Log.d(TAG, "  - isTracking: " + isTracking);
-        Log.d(TAG, "  - activeCourses size: " + activeCourses.size());
-        Log.d(TAG, "  - gpsHandler null: " + (gpsHandler == null));
-        Log.d(TAG, "  - gpsRunnable null: " + (gpsRunnable == null));
-        
-        // CRITICAL: Only restart timer if completely stopped AND courses exist
-        if (!activeCourses.isEmpty() && gpsHandler == null) {
-            Log.w(TAG, "⚠️ GPS handler null but courses exist - recreating timer");
-            startGPSTransmissions();
-        } else if (!activeCourses.isEmpty() && gpsRunnable == null) {
-            Log.w(TAG, "⚠️ GPS runnable null but courses exist - recreating timer");
-            startGPSTransmissions();
+        // OPTIMAL: Direct GPS transmission on native callback (most efficient)
+        if (!activeCourses.isEmpty()) {
+            Log.d(TAG, "🚀 NATIVE LocationListener triggered - transmitting for " + activeCourses.size() + " courses");
+            performDirectGPSTransmission(location);
+        } else {
+            Log.d(TAG, "⏸️ No active courses - native GPS callback ignored");
         }
-        // Do NOT restart if handler exists - let it continue normally
     }
 
     @Override
