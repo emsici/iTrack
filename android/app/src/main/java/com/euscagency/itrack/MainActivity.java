@@ -128,7 +128,7 @@ public class MainActivity extends BridgeActivity {
                     }
                 }
             }
-        });
+        }, 1000); // FIXED: Added delay parameter (1000ms)
     }
     
 
