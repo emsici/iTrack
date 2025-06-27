@@ -23,6 +23,49 @@ interface ActiveCourse {
 class DirectAndroidGPSService {
   private activeCourses: Map<string, ActiveCourse> = new Map();
 
+  async startTracking(
+    courseId: string,
+    vehicleNumber: string,
+    uit: string,
+    token: string,
+    status: number = 2
+  ): Promise<void> {
+    console.log("=== STARTING GPS TRACKING ===");
+    console.log(`Course ID: ${courseId}`);
+    console.log(`Vehicle: ${vehicleNumber}`);
+    console.log(`UIT: ${uit}`);
+    console.log(`Token: ${token.substring(0, 10)}...`);
+    console.log(`Status: ${status} (${status === 2 ? 'ACTIVE' : status === 3 ? 'PAUSED' : 'OTHER'})`);
+    
+    // CRITICAL DEBUG: Verify UIT vs Token confusion
+    if (uit && uit.startsWith('eyJ')) {
+      console.error('❌ CRITICAL: UIT parameter contains JWT token!');
+      console.error('This will cause database corruption in GPS transmissions');
+      console.error('UIT should be course identifier, not authentication token');
+      throw new Error('Invalid UIT parameter - contains JWT token instead of course UIT');
+    }
+
+    const courseData: ActiveCourse = {
+      courseId,
+      vehicleNumber,
+      uit,
+      token,
+      status
+    };
+
+    this.activeCourses.set(courseId, courseData);
+    console.log(`📊 Course ${courseId} added to activeCourses Map (size: ${this.activeCourses.size})`);
+
+    try {
+      await this.startAndroidNativeService(courseData);
+      console.log("✅ Android GPS service started successfully");
+    } catch (error) {
+      console.error("❌ Failed to start Android GPS service:", error);
+      this.activeCourses.delete(courseId);
+      throw error;
+    }
+  }
+
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
     console.log(`=== UPDATING STATUS: ${courseId} → ${newStatus} ===`);
     console.log(`Active courses in map: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
