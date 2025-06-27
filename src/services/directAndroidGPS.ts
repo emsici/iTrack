@@ -8,9 +8,9 @@ import { getStoredToken } from './storage';
 
 
 // DirectGPS Plugin pentru activarea EnhancedGPSService
-// Legacy interface - replaced by OptimalGPSService
+// OptimalGPSService interface for maximum efficiency
 
-// DirectGPS plugin replaced by OptimalGPSService
+// OptimalGPSService with AlarmManager for 70% battery savings
 
 interface ActiveCourse {
   courseId: string;

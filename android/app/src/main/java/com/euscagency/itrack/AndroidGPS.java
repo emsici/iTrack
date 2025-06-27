@@ -39,7 +39,7 @@ public class AndroidGPS {
             Log.d(TAG, "✅ OptimalGPSService START_GPS intent sent");
             return "SUCCESS";
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error starting optimal GPS: " + e.getMessage(), e);
+            Log.e(TAG, "❌ Error starting OptimalGPSService: " + e.getMessage(), e);
             return "ERROR: " + e.getMessage();
         }
     }
@@ -61,7 +61,7 @@ public class AndroidGPS {
             Log.d(TAG, "✅ OptimalGPSService STOP_GPS intent sent for: " + courseId);
             return "SUCCESS";
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error stopping optimal GPS: " + e.getMessage(), e);
+            Log.e(TAG, "❌ Error stopping OptimalGPSService: " + e.getMessage(), e);
             return "ERROR: " + e.getMessage();
         }
     }
@@ -84,7 +84,7 @@ public class AndroidGPS {
             Log.d(TAG, "✅ OptimalGPSService UPDATE_STATUS intent sent");
             return "SUCCESS";
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error updating optimal status: " + e.getMessage(), e);
+            Log.e(TAG, "❌ Error updating OptimalGPSService status: " + e.getMessage(), e);
             return "ERROR: " + e.getMessage();
         }
     }
@@ -105,7 +105,7 @@ public class AndroidGPS {
             Log.d(TAG, "✅ OptimalGPSService CLEAR_ALL intent sent");
             return "SUCCESS";
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error clearing all optimal GPS: " + e.getMessage(), e);
+            Log.e(TAG, "❌ Error clearing OptimalGPSService: " + e.getMessage(), e);
             return "ERROR: " + e.getMessage();
         }
     }
