@@ -250,11 +250,7 @@ public class SimpleGPSService extends Service implements LocationListener {
             Log.d(TAG, "🔄 Canceling existing timer to restart");
             gpsHandler.removeCallbacks(gpsRunnable);
         } else {
-            Log.d(TAG, "🔄 Timer already running in background mode - continuing");
-            if (gpsRunnable != null) {
-                Log.d(TAG, "✅ Timer already active - no restart needed");
-                return;
-            }
+            Log.d(TAG, "🔄 Timer already running in background mode - ensuring it continues");
         }
         
         // Create background repeating runnable with GUARANTEED 5-second execution
