@@ -4,6 +4,7 @@ import { Course } from "../types";
 import { getVehicleCourses, logout, sendGPSData } from "../services/api";
 import {
   startGPSTracking,
+  stopGPSTracking,
   updateCourseStatus,
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
@@ -11,8 +12,6 @@ import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../servi
 import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
 import { startCourseAnalytics, stopCourseAnalytics } from "../services/courseAnalytics";
-
-
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";

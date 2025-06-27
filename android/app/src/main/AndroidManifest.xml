@@ -31,6 +31,7 @@
 
         </activity>
 
+        <!-- OptimalGPSService for maximum battery efficiency -->
         <service
             android:name="com.euscagency.itrack.OptimalGPSService"
             android:enabled="true"

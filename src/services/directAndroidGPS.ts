@@ -332,7 +332,7 @@ class DirectAndroidGPSService {
     console.log("🔧 Development mode - requesting GPS permissions");
     
     try {
-      const permissions = await Geolocation.requestPermissions();
+      // const permissions = await Geolocation.requestPermissions(); // Android handles permissions
       console.log("🔧 GPS permissions result:", permissions.location);
       
       if (permissions.location !== 'granted') {
@@ -395,10 +395,10 @@ class DirectAndroidGPSService {
         }
 
         // Obține poziția curentă
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 8000,
-        });
+        // const position = await Geolocation.getCurrentPosition({ // Browser GPS disabled
+        //   enableHighAccuracy: true,
+        //   timeout: 8000,
+        // });
 
         // Transmite coordonatele la server
         const gpsData: GPSData = {
@@ -476,7 +476,7 @@ class DirectAndroidGPSService {
         }
       }
       
-      if (Capacitor.isNativePlatform()) {
+      // if (Capacitor.isNativePlatform()) { // Platform detection commented
         // Send logout signal to Android service via WebView interface
         if ((window as any).AndroidGPS && (window as any).AndroidGPS.clearAllOnLogout) {
           try {
@@ -501,8 +501,8 @@ class DirectAndroidGPSService {
 
   getServiceInfo() {
     return {
-      platform: Capacitor.getPlatform(),
-      isNative: Capacitor.isNativePlatform(),
+      platform: "android", // Capacitor.getPlatform(),
+      isNative: true, // Capacitor.isNativePlatform(),
       activeCourses: this.activeCourses.size,
       implementation: "Direct Android Intent to OptimalGPSService",
       pluginUsed: "NONE - Direct Android service activation",
