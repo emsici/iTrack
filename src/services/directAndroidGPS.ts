@@ -272,17 +272,15 @@ class DirectAndroidGPSService {
     console.log(`📈 Total active courses: ${this.activeCourses.size}`);
 
     try {
-      console.log("🚀 Attempting Android native GPS service");
+      console.log("🚀 Starting Android native GPS service (APK ONLY)");
       console.log("Starting Android GPS for course:", courseId);
       await this.startAndroidNativeService(courseData);
       console.log("✅ Android native GPS service activated");
     } catch (error) {
-      console.log("⚠️ AndroidGPS not available - using browser fallback");
-      console.log("🌐 BROWSER MODE: Starting browser GPS transmission every 5s");
-      console.log("📊 GPS transmission active for course", courseId, "- coordinates will be sent to gps.php");
-      
-      // Start browser GPS fallback when Android is not available
-      this.startBrowserGPSInterval(courseData);
+      console.log("❌ AndroidGPS not available - APPLICATION REQUIRES APK");
+      console.log("📱 This application is designed for Android APK only");
+      console.log("📊 GPS transmission will work in APK via SimpleGPSService");
+      // No browser fallback - this is an Android-only application
     }
   }
 
@@ -293,17 +291,15 @@ class DirectAndroidGPSService {
     if (!course) return;
 
     try {
-      console.log('🔴 Stopping GPS for course:', courseId);
+      console.log('🔴 Stopping Android GPS for course:', courseId);
       await this.stopAndroidNativeService(courseId);
       console.log('✅ Android GPS stopped for course:', courseId);
     } catch (error) {
-      console.log('⚠️ AndroidGPS stop failed - stopping browser GPS instead');
+      console.log('⚠️ AndroidGPS stop failed - APK required for GPS functionality');
     }
 
-    // Always stop browser GPS when stopping tracking
-    this.stopBrowserGPSInterval(courseId);
     this.activeCourses.delete(courseId);
-    console.log("✅ GPS service stopped and cleaned up");
+    console.log("✅ Android GPS service stopped and cleaned up");
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
