@@ -135,6 +135,8 @@ public class OptimalGPSService extends Service {
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error in optimal GPS cycle: " + e.getMessage());
+            // Still schedule next cycle even on error to maintain background operation
+            scheduleNextOptimalGPSCycle();
         }
     }
     
@@ -158,6 +160,7 @@ public class OptimalGPSService extends Service {
                         Log.d(TAG, "📍 Fresh OPTIMAL GPS location received");
                         transmitGPSForAllCourses(location);
                         // GPS automatically turns off after this callback
+                        // Note: transmitGPSForAllCourses already calls scheduleNextOptimalGPSCycle
                     }
                     
                     @Override
