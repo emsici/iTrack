@@ -171,13 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.164 (June 26, 2025) - COMPILATION ERROR FIXED - DUPLICATE METHODS REMOVED
+### Versiunea Curentă: 1808.165 (June 27, 2025) - APK GPS TIMER FIXED - CONTINUOUS TRANSMISSION GUARANTEED
 
-**Compilation error fixed**: Removed duplicate transmitGPSData() and getBatteryLevel() method definitions
-**Clean implementation**: Single complete transmitGPSData() with HTTP POST, JSON data, and Bearer authentication
-**Build ready**: Zero compilation errors, APK will build successfully
-**Method consistency**: One implementation per function, clean code structure
-**Production deployment ready**: Complete GPS tracking system with continuous 5-second transmission guaranteed
+**APK GPS timer issue resolved**: Fixed SimpleGPSService timer stopping after first transmission
+**HTTP blocking eliminated**: Removed new Thread() from transmitGPSData() preventing timer interference
+**Always schedule policy**: Timer reprogramming guaranteed regardless of errors or conditions
+**Thread consistency**: All GPS operations on single handler thread with timeout protection
+**Enhanced logging**: Detailed diagnostics for timer lifecycle and transmission status
+**Browser fallback implemented**: GPS continues in browser when Android GPS unavailable
+**UI improvements**: Eliminated empty card gap, enhanced statistics cards styling
+**Production deployment ready**: Continuous 5-second GPS transmission guaranteed in APK
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 

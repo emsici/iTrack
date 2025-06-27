@@ -260,34 +260,63 @@ public class SimpleGPSService extends Service implements LocationListener {
                 long currentTime = System.currentTimeMillis();
                 Log.d(TAG, "⏰ GPS TIMER CYCLE: " + currentTime + " on thread: " + Thread.currentThread().getName());
                 
-                // CRITICAL: Verify handler still exists and schedule next execution FIRST
-                if (gpsHandler != null && gpsHandlerThread != null && gpsHandlerThread.isAlive()) {
-                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                } else {
-                    Log.e(TAG, "❌ GPS Handler died - restarting handler thread");
-                    // Restart handler if it died
-                    gpsHandlerThread = new HandlerThread("GPSBackgroundThread");
-                    gpsHandlerThread.start();
-                    gpsHandler = new Handler(gpsHandlerThread.getLooper());
-                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                // CRITICAL: Always schedule next execution - NO CONDITIONS
+                try {
+                    if (gpsHandler != null) {
+                        gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                        Log.d(TAG, "✅ NEXT CYCLE scheduled successfully");
+                    } else {
+                        Log.e(TAG, "❌ GPS Handler is null - recreating");
+                        // Recreate handler if null
+                        gpsHandlerThread = new HandlerThread("GPSBackgroundThread");
+                        gpsHandlerThread.start();
+                        gpsHandler = new Handler(gpsHandlerThread.getLooper());
+                        gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                        Log.d(TAG, "✅ Handler recreated and next cycle scheduled");
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ Error scheduling next GPS cycle: " + e.getMessage());
+                    // Force recreate everything if there's any error
+                    try {
+                        gpsHandlerThread = new HandlerThread("GPSBackgroundThread");
+                        gpsHandlerThread.start();
+                        gpsHandler = new Handler(gpsHandlerThread.getLooper());
+                        gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                        Log.d(TAG, "✅ Force recreated handler after error");
+                    } catch (Exception e2) {
+                        Log.e(TAG, "❌ CRITICAL: Cannot recreate GPS handler: " + e2.getMessage());
+                    }
                 }
                 Log.d(TAG, "✅ NEXT CYCLE scheduled for: " + (currentTime + GPS_INTERVAL_MS) + " (+5 seconds)");
+                
+                // Verify timer is actually scheduled
+                if (gpsHandler.hasMessages(0)) {
+                    Log.d(TAG, "✅ Confirmed: Handler has pending messages");
+                } else {
+                    Log.d(TAG, "ℹ️ Handler message queue status unknown");
+                }
                 
                 // Then perform GPS transmission with full error protection
                 try {
                     Log.d(TAG, "📊 activeCourses.size(): " + activeCourses.size());
                     Log.d(TAG, "📊 forceTimerContinuous: " + forceTimerContinuous);
+                    Log.d(TAG, "📊 gpsHandler != null: " + (gpsHandler != null));
+                    Log.d(TAG, "📊 handlerThread.isAlive(): " + (gpsHandlerThread != null && gpsHandlerThread.isAlive()));
                     
                     if (!activeCourses.isEmpty()) {
                         Log.d(TAG, "🚀 Performing GPS transmission for " + activeCourses.size() + " courses");
                         performGPSTransmission();
+                        Log.d(TAG, "✅ GPS transmission completed - Timer should continue in 5 seconds");
                     } else {
-                        Log.d(TAG, "⏳ Timer running - no active courses");
+                        Log.d(TAG, "⏳ Timer running - no active courses - will continue anyway");
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "❌ GPS transmission error (timer continues): " + e.getMessage());
                     // Timer continues regardless of any errors
                 }
+                
+                // Final verification that timer is still alive
+                Log.d(TAG, "🔄 Timer cycle COMPLETE - Next execution in 5 seconds");
                 
                 // Force flag to true to prevent any interruption
                 if (!forceTimerContinuous) {
@@ -537,6 +566,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         }
         
         Log.d(TAG, "✅ Transmitted GPS for " + transmissionCount + " courses at " + currentTime);
+        Log.d(TAG, "✅ performGPSTransmission COMPLETED - timer should continue normally");
     }
     
     // BroadcastReceiver no longer needed - Handler provides guaranteed execution
@@ -630,34 +660,37 @@ public class SimpleGPSService extends Service implements LocationListener {
             
             Log.d(TAG, "📡 Transmitting GPS data: " + gpsData.toString());
             
-            // Send HTTP POST request
-            new Thread(() -> {
-                try {
-                    URL url = new URL(API_BASE_URL + "/gps.php");
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setRequestProperty("Authorization", "Bearer " + userAuthToken);
-                    connection.setDoOutput(true);
-                    
-                    OutputStream os = connection.getOutputStream();
-                    os.write(gpsData.toString().getBytes("UTF-8"));
-                    os.close();
-                    
-                    int responseCode = connection.getResponseCode();
-                    Log.d(TAG, "📡 GPS transmission response: " + responseCode);
-                    
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        Log.d(TAG, "✅ GPS data transmitted successfully for course: " + course.courseId);
-                    } else {
-                        Log.w(TAG, "⚠️ GPS transmission failed with code: " + responseCode);
-                    }
-                    
-                    connection.disconnect();
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ GPS transmission error: " + e.getMessage(), e);
+            // CRITICAL: Send HTTP POST on SAME thread to avoid blocking timer
+            try {
+                URL url = new URL(API_BASE_URL + "/gps.php");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("Authorization", "Bearer " + userAuthToken);
+                connection.setRequestProperty("User-Agent", "iTrack-Android-Service/1.0");
+                connection.setDoOutput(true);
+                connection.setConnectTimeout(8000); // Shorter timeout to prevent blocking
+                connection.setReadTimeout(8000);
+                
+                OutputStream os = connection.getOutputStream();
+                os.write(gpsData.toString().getBytes("UTF-8"));
+                os.close();
+                
+                int responseCode = connection.getResponseCode();
+                Log.d(TAG, "📡 GPS transmission response: " + responseCode + " for course: " + course.courseId);
+                
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    Log.d(TAG, "✅ GPS SUCCESS: " + course.courseId + " - Timer continues");
+                } else {
+                    Log.w(TAG, "⚠️ GPS FAILED: " + responseCode + " - Timer continues anyway");
                 }
-            }).start();
+                
+                connection.disconnect();
+                Log.d(TAG, "✅ HTTP transmission completed - Timer should continue");
+            } catch (Exception e) {
+                Log.e(TAG, "❌ GPS transmission error: " + e.getMessage() + " - Timer continues");
+                // Timer continues regardless of HTTP errors
+            }
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error creating GPS data: " + e.getMessage(), e);
