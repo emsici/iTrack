@@ -123,14 +123,16 @@ public class OptimalGPSService extends Service {
             }
             
             if (lastLocation != null && 
-                (System.currentTimeMillis() - lastLocation.getTime()) < 10000) { // Less than 10s old
+                (System.currentTimeMillis() - lastLocation.getTime()) < 3000) { // Less than 3s old
                 
-                Log.d(TAG, "✅ Using recent GPS location (battery efficient)");
+                Log.d(TAG, "✅ Using recent GPS location (battery efficient) - NO fresh request needed");
                 transmitGPSForAllCourses(lastLocation);
+                // IMPORTANT: Don't request fresh location if we already have recent data
                 
             } else {
                 Log.d(TAG, "🔄 Requesting fresh GPS location (minimal battery impact)");
                 requestSingleGPSLocation();
+                // IMPORTANT: Only fresh request when no recent location available
             }
             
         } catch (Exception e) {
@@ -184,6 +186,8 @@ public class OptimalGPSService extends Service {
     private void transmitGPSForAllCourses(Location location) {
         int transmissionCount = 0;
         int activeCoursesCount = 0;
+        
+        Log.d(TAG, "🚀 STARTING GPS transmission for " + activeCourses.size() + " total courses");
         
         for (CourseData course : activeCourses.values()) {
             if (course.status == 2) { // Only ACTIVE courses
@@ -394,6 +398,14 @@ public class OptimalGPSService extends Service {
             int status = intent.getIntExtra("status", 2);
             
             userAuthToken = authToken;
+            
+            // Check if course already exists to prevent duplicates
+            if (activeCourses.containsKey(courseId)) {
+                Log.w(TAG, "⚠️ Course " + courseId + " already exists - updating status only");
+                activeCourses.get(courseId).status = status;
+                return; // Don't add duplicate or restart timer
+            }
+            
             CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber);
             activeCourses.put(courseId, courseData);
             
