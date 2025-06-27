@@ -245,8 +245,17 @@ public class SimpleGPSService extends Service implements LocationListener {
             Log.d(TAG, "✅ Background HandlerThread created for GPS");
         }
         
-        // Cancel any existing timer
-        stopGPSTimer();
+        // CRITICAL: Don't cancel existing timer in background mode
+        if (!forceTimerContinuous && gpsHandler != null && gpsRunnable != null) {
+            Log.d(TAG, "🔄 Canceling existing timer to restart");
+            gpsHandler.removeCallbacks(gpsRunnable);
+        } else {
+            Log.d(TAG, "🔄 Timer already running in background mode - continuing");
+            if (gpsRunnable != null) {
+                Log.d(TAG, "✅ Timer already active - no restart needed");
+                return;
+            }
+        }
         
         // Create background repeating runnable with GUARANTEED 5-second execution
         gpsRunnable = new Runnable() {
@@ -285,6 +294,13 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
     
     private void stopGPSTimer() {
+        // CRITICAL: In background mode, timer should NEVER stop
+        if (forceTimerContinuous) {
+            Log.w(TAG, "⚠️ BLOCKING stopGPSTimer() - forceTimerContinuous is true");
+            Log.w(TAG, "⚠️ GPS timer will continue running in background mode");
+            return;
+        }
+        
         if (gpsHandler != null && gpsRunnable != null) {
             gpsHandler.removeCallbacks(gpsRunnable);
             Log.d(TAG, "🛑 Background GPS timer stopped");
