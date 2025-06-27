@@ -307,6 +307,9 @@ class DirectAndroidGPSService {
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
     console.log("Starting Android GPS for course:", course.courseId);
 
+    // CRITICAL: Wait for AndroidGPS bridge to be ready
+    await this.waitForAndroidGPS();
+
     // ANDROID APK: Use native AndroidGPS interface
     if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
       console.log("Using native Android GPS service");
@@ -511,6 +514,40 @@ class DirectAndroidGPSService {
       gpsMethod: "Android AlarmManager + GPS on-demand in OptimalGPSService.java",
       transmission: "OkHttp direct from Android service to server",
     };
+  }
+
+  /**
+   * CRITICAL: Wait for AndroidGPS bridge to be available
+   */
+  private async waitForAndroidGPS(): Promise<void> {
+    return new Promise((resolve) => {
+      // Check if AndroidGPS is already available
+      if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
+        console.log("✅ AndroidGPS bridge already available");
+        resolve();
+        return;
+      }
+
+      console.log("⏳ Waiting for AndroidGPS bridge to become available...");
+      
+      // Setup callback for when AndroidGPS becomes available
+      if (!(window as any).androidGPSReadyCallbacks) {
+        (window as any).androidGPSReadyCallbacks = [];
+      }
+      
+      (window as any).androidGPSReadyCallbacks.push(() => {
+        console.log("🔔 AndroidGPS bridge is now ready!");
+        resolve();
+      });
+
+      // Fallback timeout
+      setTimeout(() => {
+        if (!((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS)) {
+          console.warn("⚠️ AndroidGPS bridge not available after timeout - proceeding anyway");
+        }
+        resolve();
+      }, 5000);
+    });
   }
 }
 

@@ -59,9 +59,10 @@ public class MainActivity extends BridgeActivity {
     }
     
     private void addAndroidGPSInterface() {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        // CRITICAL: Wait for WebView to be completely ready before adding interface
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             int retryCount = 0;
-            final int maxRetries = 20;
+            final int maxRetries = 30; // Increased from 20 to 30
             
             @Override
             public void run() {
