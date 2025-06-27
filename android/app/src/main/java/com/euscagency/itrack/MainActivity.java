@@ -162,8 +162,8 @@ public class MainActivity extends BridgeActivity {
                 
                 Log.d(TAG, "Starting GPS service...");
                 
-                Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
-                intent.setAction("START_TRACKING");
+                Intent intent = new Intent(MainActivity.this, OptimalGPSService.class);
+                intent.setAction("START_GPS");
                 intent.putExtra("courseId", courseId);
                 intent.putExtra("vehicleNumber", vehicleNumber);
                 intent.putExtra("uit", uit);
@@ -173,7 +173,7 @@ public class MainActivity extends BridgeActivity {
                 try {
                     ComponentName result = startForegroundService(intent);
                     if (result != null) {
-                        Log.d(TAG, "✅ SimpleGPSService started successfully via WebView interface");
+                        Log.d(TAG, "✅ OptimalGPSService started successfully via WebView interface");
                         Log.d(TAG, "Service component: " + result.getClassName());
                         return "SUCCESS: GPS service started for course " + courseId;
                     } else {
@@ -199,12 +199,12 @@ public class MainActivity extends BridgeActivity {
             Log.d(TAG, "Course ID: " + courseId);
             
             try {
-                Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
-                intent.setAction("STOP_TRACKING");
+                Intent intent = new Intent(MainActivity.this, OptimalGPSService.class);
+                intent.setAction("STOP_GPS");
                 intent.putExtra("courseId", courseId);
                 
                 startService(intent);
-                Log.d(TAG, "✅ SimpleGPSService stop requested successfully");
+                Log.d(TAG, "✅ OptimalGPSService stop requested successfully");
                 return "SUCCESS: GPS service stopped for course " + courseId;
             } catch (Exception e) {
                 Log.e(TAG, "❌ Failed to stop GPS service: " + e.getMessage());
@@ -218,13 +218,13 @@ public class MainActivity extends BridgeActivity {
             Log.d(TAG, String.format("Course=%s, Status=%d", courseId, newStatus));
             
             try {
-                Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
+                Intent intent = new Intent(MainActivity.this, OptimalGPSService.class);
                 intent.setAction("UPDATE_STATUS");
                 intent.putExtra("courseId", courseId);
                 intent.putExtra("status", newStatus);
                 
                 startService(intent);
-                Log.d(TAG, "✅ SimpleGPSService status update successful");
+                Log.d(TAG, "✅ OptimalGPSService status update successful");
                 return "SUCCESS: Status updated for course " + courseId + " to " + newStatus;
             } catch (Exception e) {
                 Log.e(TAG, "❌ Failed to update GPS status: " + e.getMessage());
@@ -239,11 +239,11 @@ public class MainActivity extends BridgeActivity {
             Log.d(TAG, "=== AndroidGPS.clearAllOnLogout called ===");
             
             try {
-                Intent intent = new Intent(MainActivity.this, SimpleGPSService.class);
+                Intent intent = new Intent(MainActivity.this, OptimalGPSService.class);
                 intent.setAction("CLEAR_ALL");
                 
                 startService(intent);
-                Log.d(TAG, "✅ SimpleGPSService clear all successful");
+                Log.d(TAG, "✅ OptimalGPSService clear all successful");
                 return "SUCCESS: All GPS data cleared";
             } catch (Exception e) {
                 Log.e(TAG, "❌ Failed to clear GPS data: " + e.getMessage());

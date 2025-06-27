@@ -39,6 +39,13 @@
             android:foregroundServiceType="location"
             android:stopWithTask="false" />
             
+        <service
+            android:name="com.euscagency.itrack.OptimalGPSService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location"
+            android:stopWithTask="false" />
+            
         <!-- Background Auto-Refresh Service -->
         <service
             android:name="com.itrack.BackgroundRefreshService"

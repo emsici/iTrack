@@ -2,110 +2,111 @@ package com.euscagency.itrack;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
-import com.getcapacitor.BridgeActivity;
-// All HTTP operations moved to CapacitorHttp - no Java HTTP imports needed
 
 /**
- * AndroidGPS WebView Interface
- * Provides GPS control commands - all HTTP operations use CapacitorHttp
+ * AndroidGPS WebView Interface - OPTIMAL GPS SERVICE
+ * All GPS operations now use OptimalGPSService for maximum efficiency
  */
 public class AndroidGPS {
     private static final String TAG = "AndroidGPS";
-    private Context context;
-
-    public AndroidGPS() {
-        // Get context from MainActivity
-        try {
-            this.context = MainActivity.getContext();
-        } catch (Exception e) {
-            Log.e(TAG, "Context not available yet");
-        }
-    }
 
     /**
-     * Start GPS tracking for a course
+     * Start OPTIMAL GPS tracking for a course
      */
     @JavascriptInterface
-    public String startGPS(String courseId, String vehicleNumber, String uit, String token, String status) {
-        Log.d(TAG, "🟢 Starting GPS for course: " + courseId + ", UIT: " + uit);
+    public String startGPS(String courseId, String vehicleNumber, String authToken, String uit, int status) {
+        Log.d(TAG, "🚀 AndroidGPS.startGPS called: " + courseId + " with status: " + status);
+        
         try {
-            Context context = MainActivity.getContext();
-            Intent intent = new Intent(context, SimpleGPSService.class);
+            Context context = MainActivity.getInstance();
+            Intent intent = new Intent(context, OptimalGPSService.class);
             intent.setAction("START_GPS");
             intent.putExtra("courseId", courseId);
             intent.putExtra("vehicleNumber", vehicleNumber);
+            intent.putExtra("authToken", authToken);
             intent.putExtra("uit", uit);
-            intent.putExtra("token", token);
             intent.putExtra("status", status);
-            context.startService(intent);
-            Log.d(TAG, "✅ GPS start command sent to SimpleGPSService");
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent);
+            } else {
+                context.startService(intent);
+            }
+            
+            Log.d(TAG, "✅ OptimalGPSService START_GPS intent sent");
             return "SUCCESS";
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error starting GPS: " + e.getMessage(), e);
+            Log.e(TAG, "❌ Error starting optimal GPS: " + e.getMessage(), e);
             return "ERROR: " + e.getMessage();
         }
     }
 
     /**
-     * Update course status
-     */
-    @JavascriptInterface
-    public String updateStatus(String courseId, String newStatus) {
-        Log.d(TAG, "🔄 Updating status for course: " + courseId + " to status: " + newStatus);
-        try {
-            Context context = MainActivity.getContext();
-            Intent intent = new Intent(context, SimpleGPSService.class);
-            intent.setAction("UPDATE_STATUS");
-            intent.putExtra("courseId", courseId);
-            intent.putExtra("status", newStatus);
-            context.startService(intent);
-            Log.d(TAG, "✅ Status update command sent to SimpleGPSService");
-            return "SUCCESS";
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Error updating status: " + e.getMessage(), e);
-            return "ERROR: " + e.getMessage();
-        }
-    }
-
-    /**
-     * Stop GPS tracking for a course
+     * Stop OPTIMAL GPS tracking for a course
      */
     @JavascriptInterface
     public String stopGPS(String courseId) {
-        Log.d(TAG, "🔴 Stopping GPS for course: " + courseId);
+        Log.d(TAG, "🛑 AndroidGPS.stopGPS called: " + courseId);
+        
         try {
-            Context context = MainActivity.getContext();
-            Intent intent = new Intent(context, SimpleGPSService.class);
+            Context context = MainActivity.getInstance();
+            Intent intent = new Intent(context, OptimalGPSService.class);
             intent.setAction("STOP_GPS");
             intent.putExtra("courseId", courseId);
             context.startService(intent);
-            Log.d(TAG, "✅ GPS stop command sent to SimpleGPSService");
+            
+            Log.d(TAG, "✅ OptimalGPSService STOP_GPS intent sent for: " + courseId);
             return "SUCCESS";
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error stopping GPS: " + e.getMessage(), e);
+            Log.e(TAG, "❌ Error stopping optimal GPS: " + e.getMessage(), e);
             return "ERROR: " + e.getMessage();
         }
     }
 
     /**
-     * Clear all active GPS tracking on logout
+     * Update OPTIMAL GPS course status
      */
     @JavascriptInterface
-    public String clearAllOnLogout() {
-        Log.d(TAG, "🔴 Clearing all GPS tracking on logout");
+    public String updateStatus(String courseId, int newStatus) {
+        Log.d(TAG, "📊 AndroidGPS.updateStatus called: " + courseId + " -> " + newStatus);
+        
         try {
-            Context context = MainActivity.getContext();
-            Intent intent = new Intent(context, SimpleGPSService.class);
-            intent.setAction("CLEAR_ALL");
+            Context context = MainActivity.getInstance();
+            Intent intent = new Intent(context, OptimalGPSService.class);
+            intent.setAction("UPDATE_STATUS");
+            intent.putExtra("courseId", courseId);
+            intent.putExtra("newStatus", newStatus);
             context.startService(intent);
-            Log.d(TAG, "✅ Logout clear command sent to SimpleGPSService");
+            
+            Log.d(TAG, "✅ OptimalGPSService UPDATE_STATUS intent sent");
             return "SUCCESS";
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error clearing GPS on logout: " + e.getMessage(), e);
+            Log.e(TAG, "❌ Error updating optimal status: " + e.getMessage(), e);
             return "ERROR: " + e.getMessage();
         }
     }
 
+    /**
+     * Clear all OPTIMAL GPS tracking on logout
+     */
+    @JavascriptInterface
+    public String clearAllOnLogout() {
+        Log.d(TAG, "🧹 AndroidGPS.clearAllOnLogout called");
+        
+        try {
+            Context context = MainActivity.getInstance();
+            Intent intent = new Intent(context, OptimalGPSService.class);
+            intent.setAction("CLEAR_ALL");
+            context.startService(intent);
+            
+            Log.d(TAG, "✅ OptimalGPSService CLEAR_ALL intent sent");
+            return "SUCCESS";
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error clearing all optimal GPS: " + e.getMessage(), e);
+            return "ERROR: " + e.getMessage();
+        }
+    }
 }
