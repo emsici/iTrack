@@ -8,9 +8,9 @@ import { getStoredToken } from './storage';
 
 
 // DirectGPS Plugin pentru activarea EnhancedGPSService
-// Legacy interface - replaced by SimpleGPSService
+// Legacy interface - replaced by OptimalGPSService
 
-// DirectGPS plugin replaced by SimpleGPSService
+// DirectGPS plugin replaced by OptimalGPSService
 
 interface ActiveCourse {
   courseId: string;
@@ -200,7 +200,7 @@ class DirectAndroidGPSService {
 
       // 2. THEN: Update AndroidGPS service
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.updateStatus) {
-        console.log("✅ AndroidGPS.updateStatus called for SimpleGPSService");
+        console.log("✅ AndroidGPS.updateStatus called for OptimalGPSService");
         const androidResult = (window as any).AndroidGPS.updateStatus(courseId, newStatus);
         console.log("✅ AndroidGPS result:", androidResult);
         
@@ -211,15 +211,15 @@ class DirectAndroidGPSService {
         console.log("⚠️ AndroidGPS not available - APK only feature");
       }
       
-      // Status logic pentru SimpleGPSService:
+      // Status logic pentru OptimalGPSService:
       if (newStatus === 2) {
-        console.log("📍 ACTIVE/RESUME: SimpleGPSService will transmit GPS every 5s");
+        console.log("📍 ACTIVE/RESUME: OptimalGPSService will transmit GPS every 5s");
         console.log(`📊 GPS transmission active for course ${courseId} - coordinates will be sent to gps.php`);
       } else if (newStatus === 3) {
-        console.log("⏸️ PAUSE: SimpleGPSService sends single status update then stops GPS transmission");
+        console.log("⏸️ PAUSE: OptimalGPSService sends single status update then stops GPS transmission");
         console.log(`⏹️ GPS transmission paused for course ${courseId} - no coordinates sent until resumed`);
       } else if (newStatus === 4) {
-        console.log("🏁 STOP: SimpleGPSService sends final status then terminates completely");
+        console.log("🏁 STOP: OptimalGPSService sends final status then terminates completely");
         console.log(`🛑 GPS transmission stopped for course ${courseId} - no more coordinates`);
         // Programează ștergerea din activeCourses după terminare
         setTimeout(() => {
@@ -279,7 +279,7 @@ class DirectAndroidGPSService {
     } catch (error) {
       console.log("❌ AndroidGPS not available - APPLICATION REQUIRES APK");
       console.log("📱 This application is designed for Android APK only");
-      console.log("📊 GPS transmission will work in APK via SimpleGPSService");
+      console.log("📊 GPS transmission will work in APK via OptimalGPSService");
       // No browser fallback - this is an Android-only application
     }
   }
@@ -324,7 +324,7 @@ class DirectAndroidGPSService {
         throw new Error(`GPS failed: ${result}`);
       }
       
-      console.log("✅ Android GPS started successfully - course should be in SimpleGPSService activeCourses Map");
+      console.log("✅ Android GPS started successfully - course should be in OptimalGPSService activeCourses Map");
       return;
     }
 
@@ -341,7 +341,7 @@ class DirectAndroidGPSService {
       
       // BROWSER GPS DISABLED: Prevent duplicate transmissions with AndroidGPS
       console.log("⚠️ Browser GPS DISABLED - prevents duplicate transmission");
-      console.log("🔧 Only AndroidGPS SimpleGPSService should transmit GPS data");
+      console.log("🔧 Only AndroidGPS OptimalGPSService should transmit GPS data");
       console.log("GPS tracking started via AndroidGPS only");
     } catch (error) {
       console.log("Permission request completed, GPS will be handled by AndroidGPS");
@@ -356,9 +356,9 @@ class DirectAndroidGPSService {
     try {
       // PRIORITATE 1: AndroidGPS nativ (doar în APK)
       if ((window as any).AndroidGPS && (window as any).AndroidGPS.stopGPS) {
-        console.log("✅ AndroidGPS available - stopping SimpleGPSService");
+        console.log("✅ AndroidGPS available - stopping OptimalGPSService");
         const result = (window as any).AndroidGPS.stopGPS(courseId);
-        console.log("✅ SimpleGPSService stopped via AndroidGPS:", result);
+        console.log("✅ OptimalGPSService stopped via AndroidGPS:", result);
       } else {
         // NO BROWSER GPS: All GPS handled by AndroidGPS only
         console.log("⚠️ AndroidGPS not available - no GPS fallback to prevent duplicates");
@@ -481,7 +481,7 @@ class DirectAndroidGPSService {
         if ((window as any).AndroidGPS && (window as any).AndroidGPS.clearAllOnLogout) {
           try {
             (window as any).AndroidGPS.clearAllOnLogout();
-            console.log("✅ SimpleGPSService WebView interface logout called");
+            console.log("✅ OptimalGPSService WebView interface logout called");
           } catch (error) {
             console.log("WebView logout failed:", error);
           }
@@ -504,10 +504,10 @@ class DirectAndroidGPSService {
       platform: Capacitor.getPlatform(),
       isNative: Capacitor.isNativePlatform(),
       activeCourses: this.activeCourses.size,
-      implementation: "Direct Android Intent to SimpleGPSService",
+      implementation: "Direct Android Intent to OptimalGPSService",
       pluginUsed: "NONE - Direct Android service activation",
       backgroundSupport: "Full native Android background tracking",
-      gpsMethod: "Android LocationManager in SimpleGPSService.java",
+      gpsMethod: "Android AlarmManager + GPS on-demand in OptimalGPSService.java",
       transmission: "OkHttp direct from Android service to server",
     };
   }
