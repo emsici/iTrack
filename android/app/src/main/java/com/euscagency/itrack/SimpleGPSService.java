@@ -260,32 +260,19 @@ public class SimpleGPSService extends Service implements LocationListener {
                 long currentTime = System.currentTimeMillis();
                 Log.d(TAG, "⏰ GPS TIMER CYCLE: " + currentTime + " on thread: " + Thread.currentThread().getName());
                 
-                // CRITICAL: Always schedule next execution - NO CONDITIONS
+                // CRITICAL: Schedule next execution EXACTLY ONCE
                 try {
                     if (gpsHandler != null) {
+                        // Remove any pending callbacks first to prevent duplicates
+                        gpsHandler.removeCallbacks(this);
+                        // Then schedule exactly one execution
                         gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                        Log.d(TAG, "✅ NEXT CYCLE scheduled successfully");
+                        Log.d(TAG, "✅ SINGLE next cycle scheduled at " + (currentTime + GPS_INTERVAL_MS));
                     } else {
-                        Log.e(TAG, "❌ GPS Handler is null - recreating");
-                        // Recreate handler if null
-                        gpsHandlerThread = new HandlerThread("GPSBackgroundThread");
-                        gpsHandlerThread.start();
-                        gpsHandler = new Handler(gpsHandlerThread.getLooper());
-                        gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                        Log.d(TAG, "✅ Handler recreated and next cycle scheduled");
+                        Log.e(TAG, "❌ GPS Handler is null during scheduling");
                     }
                 } catch (Exception e) {
                     Log.e(TAG, "❌ Error scheduling next GPS cycle: " + e.getMessage());
-                    // Force recreate everything if there's any error
-                    try {
-                        gpsHandlerThread = new HandlerThread("GPSBackgroundThread");
-                        gpsHandlerThread.start();
-                        gpsHandler = new Handler(gpsHandlerThread.getLooper());
-                        gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                        Log.d(TAG, "✅ Force recreated handler after error");
-                    } catch (Exception e2) {
-                        Log.e(TAG, "❌ CRITICAL: Cannot recreate GPS handler: " + e2.getMessage());
-                    }
                 }
                 Log.d(TAG, "✅ NEXT CYCLE scheduled for: " + (currentTime + GPS_INTERVAL_MS) + " (+5 seconds)");
                 
