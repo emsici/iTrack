@@ -486,7 +486,6 @@ class DirectAndroidGPSService {
             console.log("WebView logout failed:", error);
           }
         }
-      }
       
       // Clear local tracking data
       this.activeCourses.clear();
