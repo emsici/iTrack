@@ -177,20 +177,26 @@ public class SimpleGPSService extends Service implements LocationListener {
             courseId, status, status == 2 ? "YES" : "NO"));
 
         if (!isTracking) {
-            Log.d(TAG, "🚀 CRITICAL: Starting foreground service FIRST");
-            // CRITICAL: startForeground MUST be called FIRST on Android 8+
+            Log.d(TAG, "🚀 CRITICAL: Starting foreground service for background operation");
+            // CRITICAL: startForeground MUST be called for background location
             startForeground(NOTIFICATION_ID, createNotification());
-            Log.d(TAG, "✅ Foreground service started successfully");
+            Log.d(TAG, "✅ Foreground service started - protected from system kill");
             
-            Log.d(TAG, "🗺️ Starting location updates");
+            Log.d(TAG, "🗺️ Starting location updates with background permissions");
             startLocationUpdates();
             
             Log.d(TAG, "🎯 Setting isTracking = true");
             isTracking = true;
             
-            Log.d(TAG, "✅ GPS SYSTEM FULLY INITIALIZED - Timer already running every 5 seconds");
+            // CRITICAL: Ensure wake lock is active
+            if (wakeLock != null && !wakeLock.isHeld()) {
+                wakeLock.acquire();
+                Log.d(TAG, "🔋 Wake lock reacquired");
+            }
+            
+            Log.d(TAG, "✅ BACKGROUND GPS FULLY ACTIVE - Timer + WakeLock + Foreground Service");
         } else {
-            Log.d(TAG, "📊 GPS already running - course added to existing session");
+            Log.d(TAG, "📊 GPS already running - course added to existing background session");
         }
     }
 
