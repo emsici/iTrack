@@ -95,10 +95,9 @@ public class SimpleGPSService extends Service implements LocationListener {
         gpsHandler = new Handler(gpsHandlerThread.getLooper());
         Log.d(TAG, "✅ GPS Handler Thread started: " + gpsHandlerThread.isAlive());
         
-        // CRITICAL: Start GPS timer IMMEDIATELY for continuous 5-second operation
-        Log.d(TAG, "🚀 Starting GPS timer IMMEDIATELY - will run every 5 seconds");
+        // Initialize GPS handler for when courses are added
+        Log.d(TAG, "🚀 GPS service ready - timer will start when first course is added");
         forceTimerContinuous = true;
-        startGPSTransmissions();
         Log.d(TAG, "✅ GPS timer activated on service creation");
         
         // Acquire ENHANCED wake lock for true background operation
@@ -176,7 +175,8 @@ public class SimpleGPSService extends Service implements LocationListener {
         Log.d(TAG, String.format("🎯 Course %s status: %d (GPS will transmit: %s)", 
             courseId, status, status == 2 ? "YES" : "NO"));
 
-        if (!isTracking) {
+        // Start GPS timer if this is the first course or if timer is not running
+        if (!isTracking || gpsHandler == null || gpsRunnable == null) {
             Log.d(TAG, "🚀 CRITICAL: Starting foreground service for background operation");
             // CRITICAL: startForeground MUST be called for background location
             startForeground(NOTIFICATION_ID, createNotification());
@@ -193,6 +193,9 @@ public class SimpleGPSService extends Service implements LocationListener {
                 wakeLock.acquire();
                 Log.d(TAG, "🔋 Wake lock reacquired");
             }
+            
+            // Start GPS transmission timer
+            startGPSTransmissions();
             
             Log.d(TAG, "✅ BACKGROUND GPS FULLY ACTIVE - Timer + WakeLock + Foreground Service");
         } else {
@@ -301,13 +304,10 @@ public class SimpleGPSService extends Service implements LocationListener {
                     Log.d(TAG, "📊 gpsHandler != null: " + (gpsHandler != null));
                     Log.d(TAG, "📊 handlerThread.isAlive(): " + (gpsHandlerThread != null && gpsHandlerThread.isAlive()));
                     
-                    if (!activeCourses.isEmpty()) {
-                        Log.d(TAG, "🚀 Performing GPS transmission for " + activeCourses.size() + " courses");
-                        performGPSTransmission();
-                        Log.d(TAG, "✅ GPS transmission completed - Timer should continue in 5 seconds");
-                    } else {
-                        Log.d(TAG, "⏳ Timer running - no active courses - will continue anyway");
-                    }
+                    // Always call performGPSTransmission - it will handle empty courses
+                    Log.d(TAG, "🚀 Performing GPS transmission check");
+                    performGPSTransmission();
+                    Log.d(TAG, "✅ GPS transmission check completed")
                 } catch (Exception e) {
                     Log.e(TAG, "❌ GPS transmission error (timer continues): " + e.getMessage());
                     // Timer continues regardless of any errors
