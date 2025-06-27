@@ -55,6 +55,9 @@ public class SimpleGPSService extends Service implements LocationListener {
     // CRITICAL: Force continuous timer execution
     private boolean forceTimerContinuous = true;
     
+    // Prevent duplicate executions in same second
+    private long lastExecutionTime = 0;
+    
     // ROBUST BACKGROUND EXECUTION: Handler in foreground service (no restrictions)
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private String userAuthToken;
@@ -272,16 +275,24 @@ public class SimpleGPSService extends Service implements LocationListener {
             @Override
             public void run() {
                 long currentTime = System.currentTimeMillis();
+                
+                // CRITICAL: Prevent duplicate executions in same second
+                if (currentTime - lastExecutionTime < 1000) {
+                    Log.w(TAG, "⚠️ SKIPPING duplicate execution - too soon (" + (currentTime - lastExecutionTime) + "ms ago)");
+                    return;
+                }
+                
+                lastExecutionTime = currentTime;
                 Log.d(TAG, "⏰ GPS TIMER CYCLE: " + currentTime + " on thread: " + Thread.currentThread().getName());
                 
-                // CRITICAL: Schedule next execution EXACTLY ONCE
+                // CRITICAL: Schedule next execution with precise timing
+                long nextExecutionTime = currentTime + GPS_INTERVAL_MS;
                 try {
                     if (gpsHandler != null) {
-                        // Remove any pending callbacks first to prevent duplicates
-                        gpsHandler.removeCallbacks(this);
-                        // Then schedule exactly one execution
+                        // Schedule next execution without removing current one (prevents race conditions)
                         gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-                        Log.d(TAG, "✅ SINGLE next cycle scheduled at " + (currentTime + GPS_INTERVAL_MS));
+                        Log.d(TAG, "✅ Next GPS cycle scheduled for: " + nextExecutionTime + " (+5000ms)");
+                        Log.d(TAG, "⏰ Exact interval maintained: " + GPS_INTERVAL_MS + "ms");
                     } else {
                         Log.e(TAG, "❌ GPS Handler is null during scheduling");
                     }
@@ -324,10 +335,10 @@ public class SimpleGPSService extends Service implements LocationListener {
             }
         };
         
-        // Start the first execution immediately
-        Log.d(TAG, "🚀 Starting GPS timer - GUARANTEED 5-second intervals");
-        gpsHandler.post(gpsRunnable);
-        Log.d(TAG, "✅ GPS Timer activated - will execute every " + (GPS_INTERVAL_MS/1000) + " seconds");
+        // Start the first execution with delay to maintain exact intervals
+        Log.d(TAG, "🚀 Starting GPS timer - EXACT 5-second intervals");
+        gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS);
+        Log.d(TAG, "✅ GPS Timer scheduled - first execution in " + (GPS_INTERVAL_MS/1000) + " seconds");
     }
     
     private void stopGPSTimer() {
@@ -610,11 +621,15 @@ public class SimpleGPSService extends Service implements LocationListener {
         Log.d(TAG, "  - gpsHandler null: " + (gpsHandler == null));
         Log.d(TAG, "  - gpsRunnable null: " + (gpsRunnable == null));
         
-        // If location updates but timer stopped, restart it
-        if (!activeCourses.isEmpty() && (gpsHandler == null || gpsRunnable == null || !isTracking)) {
-            Log.w(TAG, "⚠️ GPS timer not running but courses exist - restarting ONCE");
+        // CRITICAL: Only restart timer if completely stopped AND courses exist
+        if (!activeCourses.isEmpty() && gpsHandler == null) {
+            Log.w(TAG, "⚠️ GPS handler null but courses exist - recreating timer");
+            startGPSTransmissions();
+        } else if (!activeCourses.isEmpty() && gpsRunnable == null) {
+            Log.w(TAG, "⚠️ GPS runnable null but courses exist - recreating timer");
             startGPSTransmissions();
         }
+        // Do NOT restart if handler exists - let it continue normally
     }
 
     @Override
