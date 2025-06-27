@@ -171,16 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.165 (June 27, 2025) - APK GPS TIMER FIXED - CONTINUOUS TRANSMISSION GUARANTEED
+### Versiunea Curentă: 1808.166 (June 27, 2025) - CRITICAL BACKGROUND GPS ISSUES FIXED
 
-**APK GPS timer issue resolved**: Fixed SimpleGPSService timer stopping after first transmission
-**HTTP blocking eliminated**: Removed new Thread() from transmitGPSData() preventing timer interference
-**Always schedule policy**: Timer reprogramming guaranteed regardless of errors or conditions
-**Thread consistency**: All GPS operations on single handler thread with timeout protection
-**Enhanced logging**: Detailed diagnostics for timer lifecycle and transmission status
-**Browser fallback implemented**: GPS continues in browser when Android GPS unavailable
-**UI improvements**: Eliminated empty card gap, enhanced statistics cards styling
-**Production deployment ready**: Continuous 5-second GPS transmission guaranteed in APK
+**Duplicate timer creation fixed**: Eliminated double startGPSTransmissions() calls causing conflicts
+**Timer cleanup corrected**: Proper cleanup before restart prevents multiple concurrent timers
+**Handler thread management fixed**: Single thread instance with proper reuse instead of chaos
+**Wake lock implementation**: PowerManager.WakeLock prevents device sleep during GPS tracking
+**Background location permissions**: ACCESS_BACKGROUND_LOCATION added for true background operation
+**Foreground service protection**: Service protected from system kill with persistent notification
+**Production deployment ready**: True background GPS transmission with phone locked guaranteed
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401
 

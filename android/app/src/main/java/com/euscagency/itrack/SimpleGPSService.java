@@ -242,22 +242,23 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
     
     private void startGPSTimer() {
-        Log.d(TAG, "🔄 STARTING BACKGROUND GPS TIMER WITH DEDICATED THREAD");
+        Log.d(TAG, "🔄 STARTING BACKGROUND GPS TIMER - SINGLE INSTANCE");
+        
+        // CRITICAL: Stop everything first to prevent duplicates
+        stopGPSTimer();
         
         // Create dedicated background thread for GPS operations
-        if (gpsHandlerThread == null) {
+        if (gpsHandlerThread == null || !gpsHandlerThread.isAlive()) {
+            if (gpsHandlerThread != null) {
+                gpsHandlerThread.quitSafely();
+            }
             gpsHandlerThread = new HandlerThread("GPSBackgroundThread");
             gpsHandlerThread.start();
             gpsHandler = new Handler(gpsHandlerThread.getLooper());
-            Log.d(TAG, "✅ Background HandlerThread created for GPS");
+            Log.d(TAG, "✅ NEW Background HandlerThread created for GPS");
         }
         
-        // FORCE TIMER RECREATION: Always cancel existing timer and create new one
-        if (gpsHandler != null && gpsRunnable != null) {
-            Log.d(TAG, "🔄 Stopping existing timer to recreate");
-            gpsHandler.removeCallbacks(gpsRunnable);
-        }
-        Log.d(TAG, "🔄 Creating fresh timer - guaranteed execution");
+        Log.d(TAG, "🔄 Creating single timer instance");
         
         // Create background repeating runnable with GUARANTEED 5-second execution
         gpsRunnable = new Runnable() {
@@ -598,8 +599,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         
         // If location updates but timer stopped, restart it
         if (!activeCourses.isEmpty() && (gpsHandler == null || gpsRunnable == null || !isTracking)) {
-            Log.w(TAG, "⚠️ GPS timer not running but courses exist - restarting");
-            startGPSTransmissions();
+            Log.w(TAG, "⚠️ GPS timer not running but courses exist - restarting ONCE");
             startGPSTransmissions();
         }
     }
