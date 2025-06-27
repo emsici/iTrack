@@ -62,7 +62,7 @@ public class MainActivity extends BridgeActivity {
         // CRITICAL: Wait for WebView to be completely ready before adding interface
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             int retryCount = 0;
-            final int maxRetries = 30; // Increased from 20 to 30
+            final int maxRetries = 50; // Increased to 50 for slower devices
             
             @Override
             public void run() {
@@ -128,7 +128,7 @@ public class MainActivity extends BridgeActivity {
                     }
                 }
             }
-        }, 1000); // FIXED: Added delay parameter (1000ms)
+        }, 2000); // FIXED: Increased to 2000ms for better WebView readiness
     }
     
 

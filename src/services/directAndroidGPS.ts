@@ -333,25 +333,12 @@ class DirectAndroidGPSService {
       return;
     }
 
-    // DEVELOPMENT: Request Android permissions through Capacitor
-    console.log("🔧 Development mode - requesting GPS permissions");
+    // CRITICAL FIX: COMPLETE BROWSER GPS BLOCKING
+    logGPS('🛑 BROWSER GPS BLOCKED - APK exclusive application');
+    console.log('🛑 This application requires APK build - NO browser GPS support');
     
-    try {
-      // const permissions = await Geolocation.requestPermissions(); // Android handles permissions
-      console.log("🔧 GPS permissions result:", permissions.location);
-      
-      if (permissions.location !== 'granted') {
-        console.warn('⚠️ GPS permissions denied, starting anyway for testing');
-      }
-      
-      // BROWSER GPS DISABLED: Prevent duplicate transmissions with AndroidGPS
-      console.log("⚠️ Browser GPS DISABLED - prevents duplicate transmission");
-      console.log("🔧 Only AndroidGPS OptimalGPSService should transmit GPS data");
-      console.log("GPS tracking started via AndroidGPS only");
-    } catch (error) {
-      console.log("Permission request completed, GPS will be handled by AndroidGPS");
-      console.log("🔧 Browser GPS disabled to prevent duplicate transmissions");
-    }
+    // Throw error to prevent any browser GPS operations
+    throw new Error('GPS tracking is only available in APK build. Browser GPS is completely disabled to prevent duplicate transmissions.');
   }
 
   private async stopAndroidNativeService(courseId: string): Promise<void> {
