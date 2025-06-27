@@ -295,12 +295,15 @@ export const logout = async (token: string): Promise<boolean> => {
     console.log('Starting logout process with Bearer token');
     logAPI('Starting logout process');
     
+    // FIXED: Use explicit URL instead of potentially undefined API_BASE_URL
+    const logoutUrl = 'https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php';
+    
     // CapacitorHttp pentru logout (unified HTTP method)
     try {
       console.log('=== CapacitorHttp logout ===');
       
       const response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}/logout.php`,
+        url: logoutUrl,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -317,7 +320,7 @@ export const logout = async (token: string): Promise<boolean> => {
       console.log('CapacitorHttp logout failed, using fetch fallback');
       
       try {
-        const fetchResponse = await fetch(`${API_BASE_URL}/logout.php`, {
+        const fetchResponse = await fetch(logoutUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
