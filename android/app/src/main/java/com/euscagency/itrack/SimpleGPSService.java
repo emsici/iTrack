@@ -244,8 +244,12 @@ public class SimpleGPSService extends Service implements LocationListener {
     private void startGPSTimer() {
         Log.d(TAG, "🔄 STARTING BACKGROUND GPS TIMER - SINGLE INSTANCE");
         
-        // CRITICAL: Stop everything first to prevent duplicates
-        stopGPSTimer();
+        // CRITICAL: Clean up existing timer WITHOUT respecting forceTimerContinuous
+        if (gpsHandler != null && gpsRunnable != null) {
+            gpsHandler.removeCallbacks(gpsRunnable);
+            gpsHandler.removeCallbacksAndMessages(null);
+            Log.d(TAG, "🧹 Cleaned up existing timer for restart");
+        }
         
         // Create dedicated background thread for GPS operations
         if (gpsHandlerThread == null || !gpsHandlerThread.isAlive()) {
@@ -327,12 +331,7 @@ public class SimpleGPSService extends Service implements LocationListener {
     }
     
     private void stopGPSTimer() {
-        // CRITICAL: In background mode, timer should NEVER stop
-        if (forceTimerContinuous) {
-            Log.w(TAG, "⚠️ BLOCKING stopGPSTimer() - forceTimerContinuous is true");
-            Log.w(TAG, "⚠️ GPS timer will continue running in background mode");
-            return;
-        }
+        Log.d(TAG, "🛑 Stopping GPS timer for restart");
         
         if (gpsHandler != null && gpsRunnable != null) {
             gpsHandler.removeCallbacks(gpsRunnable);
