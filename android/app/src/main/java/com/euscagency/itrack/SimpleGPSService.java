@@ -93,6 +93,7 @@ public class SimpleGPSService extends Service implements LocationListener {
         gpsHandlerThread = new HandlerThread("GPSBackgroundThread");
         gpsHandlerThread.start();
         gpsHandler = new Handler(gpsHandlerThread.getLooper());
+        Log.d(TAG, "✅ GPS Handler Thread started: " + gpsHandlerThread.isAlive());
         
         // CRITICAL: Start GPS timer IMMEDIATELY for continuous 5-second operation
         Log.d(TAG, "🚀 Starting GPS timer IMMEDIATELY - will run every 5 seconds");
@@ -245,13 +246,12 @@ public class SimpleGPSService extends Service implements LocationListener {
             Log.d(TAG, "✅ Background HandlerThread created for GPS");
         }
         
-        // CRITICAL: Don't cancel existing timer in background mode
-        if (!forceTimerContinuous && gpsHandler != null && gpsRunnable != null) {
-            Log.d(TAG, "🔄 Canceling existing timer to restart");
+        // FORCE TIMER RECREATION: Always cancel existing timer and create new one
+        if (gpsHandler != null && gpsRunnable != null) {
+            Log.d(TAG, "🔄 Stopping existing timer to recreate");
             gpsHandler.removeCallbacks(gpsRunnable);
-        } else {
-            Log.d(TAG, "🔄 Timer already running in background mode - ensuring it continues");
         }
+        Log.d(TAG, "🔄 Creating fresh timer - guaranteed execution");
         
         // Create background repeating runnable with GUARANTEED 5-second execution
         gpsRunnable = new Runnable() {
@@ -260,19 +260,33 @@ public class SimpleGPSService extends Service implements LocationListener {
                 long currentTime = System.currentTimeMillis();
                 Log.d(TAG, "⏰ GPS TIMER CYCLE: " + currentTime + " on thread: " + Thread.currentThread().getName());
                 
-                // CRITICAL: Schedule next execution FIRST - timer NEVER stops
-                gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                // CRITICAL: Verify handler still exists and schedule next execution FIRST
+                if (gpsHandler != null && gpsHandlerThread != null && gpsHandlerThread.isAlive()) {
+                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                } else {
+                    Log.e(TAG, "❌ GPS Handler died - restarting handler thread");
+                    // Restart handler if it died
+                    gpsHandlerThread = new HandlerThread("GPSBackgroundThread");
+                    gpsHandlerThread.start();
+                    gpsHandler = new Handler(gpsHandlerThread.getLooper());
+                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                }
                 Log.d(TAG, "✅ NEXT CYCLE scheduled for: " + (currentTime + GPS_INTERVAL_MS) + " (+5 seconds)");
                 
-                // Then perform GPS transmission
-                Log.d(TAG, "📊 activeCourses.size(): " + activeCourses.size());
-                Log.d(TAG, "📊 forceTimerContinuous: " + forceTimerContinuous);
-                
-                if (!activeCourses.isEmpty()) {
-                    Log.d(TAG, "🚀 Performing GPS transmission for " + activeCourses.size() + " courses");
-                    performGPSTransmission();
-                } else {
-                    Log.d(TAG, "⏳ Timer running - no active courses");
+                // Then perform GPS transmission with full error protection
+                try {
+                    Log.d(TAG, "📊 activeCourses.size(): " + activeCourses.size());
+                    Log.d(TAG, "📊 forceTimerContinuous: " + forceTimerContinuous);
+                    
+                    if (!activeCourses.isEmpty()) {
+                        Log.d(TAG, "🚀 Performing GPS transmission for " + activeCourses.size() + " courses");
+                        performGPSTransmission();
+                    } else {
+                        Log.d(TAG, "⏳ Timer running - no active courses");
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ GPS transmission error (timer continues): " + e.getMessage());
+                    // Timer continues regardless of any errors
                 }
                 
                 // Force flag to true to prevent any interruption
@@ -509,8 +523,14 @@ public class SimpleGPSService extends Service implements LocationListener {
         for (CourseData course : activeCourses.values()) {
             if (course.status == 2) {
                 Log.d(TAG, "🚀 TRANSMITTING GPS for: " + course.courseId + " (UIT: " + course.uit + ")");
-                transmitGPSData(course, lastLocation);
-                transmissionCount++;
+                try {
+                    transmitGPSData(course, lastLocation);
+                    transmissionCount++;
+                    Log.d(TAG, "✅ GPS transmission successful for: " + course.courseId);
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ GPS transmission failed for " + course.courseId + ": " + e.getMessage());
+                    // Continue with timer regardless of transmission failure
+                }
             } else {
                 Log.d(TAG, "⏸️ Skipping: " + course.courseId + " - status: " + course.status);
             }
@@ -597,7 +617,7 @@ public class SimpleGPSService extends Service implements LocationListener {
             JSONObject gpsData = new JSONObject();
             gpsData.put("lat", String.format("%.4f", location.getLatitude()));
             gpsData.put("lng", String.format("%.4f", location.getLongitude()));
-            gpsData.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
+            gpsData.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(new Date()));
             gpsData.put("viteza", (int)(location.getSpeed() * 3.6)); // m/s to km/h
             gpsData.put("directie", (int)location.getBearing());
             gpsData.put("altitudine", (int)location.getAltitude());
