@@ -540,22 +540,36 @@ public class SimpleGPSService extends Service implements LocationListener {
         
         Log.d(TAG, "📍 GPS: " + lastLocation.getLatitude() + ", " + lastLocation.getLongitude());
         
-        // Transmit for all active courses with status 2
+        // CRITICAL: Transmit GPS for ALL courses with status 2 (ACTIVE)
         int transmissionCount = 0;
+        int activeCoursesCount = 0;
+        
         for (CourseData course : activeCourses.values()) {
             if (course.status == 2) {
-                Log.d(TAG, "🚀 TRANSMITTING GPS for: " + course.courseId + " (UIT: " + course.uit + ")");
+                activeCoursesCount++;
+                Log.d(TAG, "🚀 PROCESSING ACTIVE course: " + course.courseId + " (UIT: " + course.uit + ")");
                 try {
                     transmitGPSData(course, lastLocation);
                     transmissionCount++;
-                    Log.d(TAG, "✅ GPS transmission successful for: " + course.courseId);
+                    Log.d(TAG, "✅ GPS transmission SUCCESS for: " + course.courseId);
                 } catch (Exception e) {
-                    Log.e(TAG, "❌ GPS transmission failed for " + course.courseId + ": " + e.getMessage());
-                    // Continue with timer regardless of transmission failure
+                    Log.e(TAG, "❌ GPS transmission FAILED for " + course.courseId + ": " + e.getMessage());
+                    e.printStackTrace();
+                    // Continue with other courses even if one fails
                 }
             } else {
-                Log.d(TAG, "⏸️ Skipping: " + course.courseId + " - status: " + course.status);
+                Log.d(TAG, "⏸️ SKIPPING inactive course: " + course.courseId + " - status: " + course.status);
             }
+        }
+        
+        // Verification logging
+        Log.d(TAG, "📊 GPS TRANSMISSION SUMMARY:");
+        Log.d(TAG, "  - Total courses: " + activeCourses.size());
+        Log.d(TAG, "  - Active courses (status 2): " + activeCoursesCount);
+        Log.d(TAG, "  - Successfully transmitted: " + transmissionCount);
+        
+        if (activeCoursesCount != transmissionCount) {
+            Log.w(TAG, "⚠️ WARNING: Not all active courses transmitted GPS successfully!");
         }
         
         Log.d(TAG, "✅ Transmitted GPS for " + transmissionCount + " courses at " + currentTime);
@@ -635,7 +649,9 @@ public class SimpleGPSService extends Service implements LocationListener {
      */
     private void transmitGPSData(CourseData course, Location location) {
         try {
-            // Create GPS data JSON
+            Log.d(TAG, "🚀 TRANSMITTING GPS for course: " + course.courseId + " (UIT: " + course.uit + ", Status: " + course.status + ")");
+            
+            // Create GPS data JSON with all required fields
             JSONObject gpsData = new JSONObject();
             gpsData.put("lat", String.format("%.4f", location.getLatitude()));
             gpsData.put("lng", String.format("%.4f", location.getLongitude()));
@@ -647,6 +663,13 @@ public class SimpleGPSService extends Service implements LocationListener {
             gpsData.put("numar_inmatriculare", course.vehicleNumber);
             gpsData.put("uit", course.uit);
             gpsData.put("status", course.status);
+            
+            // Enhanced logging for verification
+            Log.d(TAG, "📊 GPS Data for " + course.courseId + ":");
+            Log.d(TAG, "  - Coordinates: " + gpsData.getString("lat") + ", " + gpsData.getString("lng"));
+            Log.d(TAG, "  - UIT: " + gpsData.getString("uit"));
+            Log.d(TAG, "  - Vehicle: " + gpsData.getString("numar_inmatriculare"));
+            Log.d(TAG, "  - Status: " + gpsData.getInt("status"));
             gpsData.put("hdop", "1.0");
             gpsData.put("gsm_signal", "4G");
             
