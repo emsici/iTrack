@@ -2,6 +2,7 @@
 // Uses DirectGPS Capacitor Plugin (no WebView dependency)
 import { getStoredToken, getStoredVehicleNumber } from './storage';
 import { logGPS, logGPSError } from './appLogger';
+import DirectGPS from './directGPSPlugin';
 
 interface ActiveCourse {
   courseId: string;
@@ -91,25 +92,28 @@ class DirectAndroidGPSService {
       // ANDROID NATIVE STATUS UPDATE: Update course status via OptimalGPSService
       console.log(`📡 Updating course status via AndroidGPS: ${courseId} → ${newStatus}`);
       
-      // Update status through DirectGPS interface
-      if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.updateGPS) {
-        console.log("✅ DirectGPS interface available - calling updateGPS");
+      // Update status through Capacitor Plugin
+      try {
+        console.log("🔌 Updating GPS status via DirectGPS Capacitor Plugin...");
         
-        const result = (window as any).DirectGPS.updateGPS(courseId, newStatus);
+        const result = await DirectGPS.updateGPS({
+          courseId: courseId,
+          status: newStatus
+        });
         
-        console.log("📡 DirectGPS updateGPS result:", result);
+        console.log("📡 DirectGPS Plugin updateGPS result:", result);
         
-        if (result === "SUCCESS") {
+        if (result.success) {
           console.log(`✅ Course ${courseId} status updated to ${newStatus} successfully`);
           logGPS(`Course ${courseId} status updated to ${newStatus}`);
         } else {
-          console.log(`⚠️ AndroidGPS status update had issues for course ${courseId}`);
-          logGPSError(`Status update failed for course ${courseId}`);
+          console.log(`⚠️ GPS status update issues: ${result.message}`);
+          logGPSError(`Status update failed for course ${courseId}: ${result.message}`);
         }
-      } else {
-        console.log(`⚠️ DirectGPS interface not available for status update`);
+      } catch (pluginError) {
+        console.log(`❌ DirectGPS Plugin update failed: ${pluginError}`);
         console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
-        logGPSError(`Status update failed for course ${courseId} - DirectGPS not available`);
+        logGPSError(`Status update failed for course ${courseId} - Plugin not available`);
       }
 
       // Handle special status logic
@@ -199,27 +203,27 @@ class DirectAndroidGPSService {
       // ANDROID NATIVE GPS: Use OptimalGPSService through AndroidGPS interface
       console.log(`📱 AndroidGPS: Starting OptimalGPSService for ${course.courseId}`);
       
-      // Start OptimalGPSService through MainActivity DirectGPS interface
-      if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.startGPS) {
-        console.log("✅ DirectGPS interface available - calling startGPS");
+      // Use Capacitor Plugin for reliable GPS service communication
+      try {
+        console.log("🔌 Starting GPS via DirectGPS Capacitor Plugin...");
         
-        const result = (window as any).DirectGPS.startGPS(
-          course.courseId,
-          course.vehicleNumber, 
-          course.uit,
-          course.token,
-          course.status
-        );
+        const result = await DirectGPS.startGPS({
+          courseId: course.courseId,
+          vehicleNumber: course.vehicleNumber,
+          uit: course.uit,
+          authToken: course.token,
+          status: course.status
+        });
         
-        console.log("📡 DirectGPS startGPS result:", result);
+        console.log("📡 DirectGPS Plugin result:", result);
         
-        if (result === "SUCCESS") {
-          console.log("✅ OptimalGPSService started successfully - will transmit GPS every 5 seconds");
+        if (result.success) {
+          console.log("✅ OptimalGPSService started via Capacitor Plugin - will transmit GPS every 5 seconds");
         } else {
-          console.log("⚠️ OptimalGPSService start had issues - but service may still work");
+          console.log("⚠️ OptimalGPSService start issues:", result.message);
         }
-      } else {
-        console.log("❌ DirectGPS interface not available");
+      } catch (pluginError) {
+        console.log("❌ DirectGPS Capacitor Plugin failed:", pluginError);
         console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
       }
       

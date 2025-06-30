@@ -27,7 +27,15 @@ public class MainActivity extends BridgeActivity {
     }
     
     public WebView getWebView() {
-        return getBridge().getWebView();
+        try {
+            WebView webView = getBridge().getWebView();
+            Log.e(TAG, "📍 getBridge().getWebView() result: " + (webView == null ? "NULL" : "SUCCESS"));
+            return webView;
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error getting WebView: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -35,12 +43,22 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
         instance = this;
         
-        Log.e(TAG, "🔧 MainActivity onCreate() - Setting up direct GPS bridge...");
+        // Register DirectGPS plugin
+        registerPlugin(DirectGPSPlugin.class);
+        
+        Log.e(TAG, "🔧 MainActivity onCreate() - DirectGPS plugin registered and direct GPS bridge setup...");
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        Log.e(TAG, "🎯 MainActivity onStart() called");
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.e(TAG, "🎯 MainActivity onResume() called - Setting up DirectGPS bridge");
         
         // Setup DirectGPS bridge with multiple retry attempts
         Handler handler = new Handler(Looper.getMainLooper());
@@ -49,9 +67,9 @@ public class MainActivity extends BridgeActivity {
             public void run() {
                 setupDirectGPSBridgeWithRetry(0);
             }
-        }, 3000); // Wait 3 seconds for WebView to be fully ready and stable
+        }, 2000); // Wait 2 seconds for Capacitor WebView to be fully ready
         
-        Log.e(TAG, "🎯 MainActivity onStart() completed - Direct GPS bridge setup scheduled with retry");
+        Log.e(TAG, "🎯 MainActivity onResume() completed - Direct GPS bridge setup scheduled");
     }
 
     private void setupDirectGPSBridgeWithRetry(int attempt) {
@@ -59,28 +77,47 @@ public class MainActivity extends BridgeActivity {
         
         try {
             WebView webView = getWebView();
+            Log.e(TAG, "📍 WebView null check: " + (webView == null ? "NULL" : "NOT NULL"));
+            
             if (webView != null) {
+                Log.e(TAG, "🔧 Adding DirectGPS interface to WebView - attempt " + (attempt + 1));
+                
+                // CRITICAL: Force WebView settings for interface exposure
+                webView.getSettings().setJavaScriptEnabled(true);
+                webView.getSettings().setDomStorageEnabled(true);
+                
                 // Add direct JavaScript interface for GPS methods
                 webView.addJavascriptInterface(new DirectGPSInterface(), "DirectGPS");
                 
-                // FORCE interface verification and method exposure
+                Log.e(TAG, "✅ DirectGPS interface added to WebView successfully");
+                
+                // MULTIPLE VERIFICATION STRATEGIES for interface exposure
                 String jsCode = 
                     "setTimeout(function() {" +
-                    "  console.log('🔧 DirectGPS interface verification starting...'); " +
-                    "  console.log('🔍 DirectGPS object type:', typeof window.DirectGPS); " +
-                    "  console.log('🔍 DirectGPS methods:', Object.getOwnPropertyNames(window.DirectGPS || {})); " +
-                    "  console.log('🔍 startGPS function available:', typeof window.DirectGPS.startGPS); " +
-                    "  console.log('🔍 stopGPS function available:', typeof window.DirectGPS.stopGPS); " +
-                    "  console.log('🔍 updateGPS function available:', typeof window.DirectGPS.updateGPS); " +
-                    "  console.log('🔍 clearAllGPS function available:', typeof window.DirectGPS.clearAllGPS); " +
-                    "  if (typeof window.DirectGPS === 'object' && typeof window.DirectGPS.startGPS === 'function') { " +
-                    "    window.DirectGPSReady = true; " +
-                    "    window.directGPSAvailable = true; " +
-                    "    console.log('✅ DirectGPS interface FULLY READY - attempt " + (attempt + 1) + "'); " +
-                    "  } else { " +
-                    "    console.log('❌ DirectGPS interface NOT fully ready - attempt " + (attempt + 1) + "'); " +
+                    "  console.log('🔧 DirectGPS DETAILED interface verification - attempt " + (attempt + 1) + "'); " +
+                    "  console.log('🔍 window.DirectGPS exists:', typeof window.DirectGPS); " +
+                    "  console.log('🔍 window.DirectGPS object:', window.DirectGPS); " +
+                    "  if (window.DirectGPS) { " +
+                    "    console.log('🔍 DirectGPS properties:', Object.getOwnPropertyNames(window.DirectGPS)); " +
+                    "    console.log('🔍 DirectGPS methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(window.DirectGPS))); " +
+                    "    console.log('🔍 startGPS type:', typeof window.DirectGPS.startGPS); " +
+                    "    console.log('🔍 stopGPS type:', typeof window.DirectGPS.stopGPS); " +
+                    "    console.log('🔍 updateGPS type:', typeof window.DirectGPS.updateGPS); " +
+                    "    console.log('🔍 clearAllGPS type:', typeof window.DirectGPS.clearAllGPS); " +
                     "  } " +
-                    "}, 500);"; // Wait 500ms for interface to be fully attached
+                    "  try { " +
+                    "    if (window.DirectGPS && window.DirectGPS.startGPS) { " +
+                    "      console.log('✅ DirectGPS startGPS function AVAILABLE - interface WORKING'); " +
+                    "      window.DirectGPSReady = true; " +
+                    "      window.directGPSAvailable = true; " +
+                    "    } else { " +
+                    "      console.log('❌ DirectGPS startGPS NOT AVAILABLE - interface FAILED'); " +
+                    "      console.log('🔧 Debugging - DirectGPS object details:', JSON.stringify(window.DirectGPS, null, 2)); " +
+                    "    } " +
+                    "  } catch (e) { " +
+                    "    console.log('❌ DirectGPS verification error:', e.message); " +
+                    "  } " +
+                    "}, 1000);"; // Increased to 1 second for full interface attachment
                 
                 webView.evaluateJavascript(jsCode, null);
                 
