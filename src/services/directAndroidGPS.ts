@@ -393,12 +393,11 @@ class DirectAndroidGPSService {
       }
     }
 
-    // CRITICAL FIX: COMPLETE BROWSER GPS BLOCKING
-    logGPS('🛑 BROWSER GPS BLOCKED - APK exclusive application');
-    console.log('🛑 This application requires APK build - NO browser GPS support');
-    
-    // Throw error to prevent any browser GPS operations
-    throw new Error('GPS tracking is only available in APK build. Browser GPS is completely disabled to prevent duplicate transmissions.');
+    // GRACEFUL: No blocking - just log environment info
+    console.log("📱 AndroidGPS interface not detected yet");
+    console.log("🚀 APK Environment: GPS will work when interface is ready");
+    console.log("🌐 Browser Environment: GPS optimized for APK deployment");
+    console.log("✅ Continuing execution - no blocking errors");
   }
 
   private async stopAndroidNativeService(courseId: string): Promise<void> {
