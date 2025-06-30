@@ -49,7 +49,7 @@ public class MainActivity extends BridgeActivity {
             public void run() {
                 setupDirectGPSBridgeWithRetry(0);
             }
-        }, 2000); // Wait 2 seconds for WebView to be fully ready
+        }, 3000); // Wait 3 seconds for WebView to be fully ready and stable
         
         Log.e(TAG, "🎯 MainActivity onStart() completed - Direct GPS bridge setup scheduled with retry");
     }
@@ -63,15 +63,24 @@ public class MainActivity extends BridgeActivity {
                 // Add direct JavaScript interface for GPS methods
                 webView.addJavascriptInterface(new DirectGPSInterface(), "DirectGPS");
                 
-                // Set multiple ready flags for JavaScript detection with comprehensive debugging
+                // FORCE interface verification and method exposure
                 String jsCode = 
-                    "window.DirectGPS = window.DirectGPS || {}; " +
-                    "window.DirectGPSReady = true; " +
-                    "window.directGPSAvailable = true; " +
-                    "console.log('✅ DirectGPS interface ready - attempt " + (attempt + 1) + "'); " +
-                    "console.log('🔍 DirectGPS object type:', typeof window.DirectGPS); " +
-                    "console.log('🔍 DirectGPS methods:', Object.getOwnPropertyNames(window.DirectGPS || {})); " +
-                    "console.log('🔍 startGPS function available:', typeof window.DirectGPS.startGPS);";
+                    "setTimeout(function() {" +
+                    "  console.log('🔧 DirectGPS interface verification starting...'); " +
+                    "  console.log('🔍 DirectGPS object type:', typeof window.DirectGPS); " +
+                    "  console.log('🔍 DirectGPS methods:', Object.getOwnPropertyNames(window.DirectGPS || {})); " +
+                    "  console.log('🔍 startGPS function available:', typeof window.DirectGPS.startGPS); " +
+                    "  console.log('🔍 stopGPS function available:', typeof window.DirectGPS.stopGPS); " +
+                    "  console.log('🔍 updateGPS function available:', typeof window.DirectGPS.updateGPS); " +
+                    "  console.log('🔍 clearAllGPS function available:', typeof window.DirectGPS.clearAllGPS); " +
+                    "  if (typeof window.DirectGPS === 'object' && typeof window.DirectGPS.startGPS === 'function') { " +
+                    "    window.DirectGPSReady = true; " +
+                    "    window.directGPSAvailable = true; " +
+                    "    console.log('✅ DirectGPS interface FULLY READY - attempt " + (attempt + 1) + "'); " +
+                    "  } else { " +
+                    "    console.log('❌ DirectGPS interface NOT fully ready - attempt " + (attempt + 1) + "'); " +
+                    "  } " +
+                    "}, 500);"; // Wait 500ms for interface to be fully attached
                 
                 webView.evaluateJavascript(jsCode, null);
                 
