@@ -2,10 +2,15 @@
 // Uses GPS Capacitor Plugin (no WebView dependency)
 import { getStoredToken, getStoredVehicleNumber } from './storage';
 import { logGPS, logGPSError } from './appLogger';
-import { Capacitor } from '@capacitor/core';
+import { registerPlugin } from '@capacitor/core';
 
-// Access existing GPS plugin through Capacitor.Plugins (no duplicate registration)
-const GPS = Capacitor.Plugins.GPS as any;
+// Register GPS plugin for Capacitor communication
+const GPS = registerPlugin<{
+  startGPS(options: { courseId: string; vehicleNumber: string; uit: string; authToken: string; status: number }): Promise<{ success: boolean; message?: string }>;
+  stopGPS(options: { courseId: string }): Promise<{ success: boolean; message?: string }>;
+  updateGPS(options: { courseId: string; status: number }): Promise<{ success: boolean; message?: string }>;
+  clearAllGPS(): Promise<{ success: boolean; message?: string }>;
+}>('GPS');
 
 interface ActiveCourse {
   courseId: string;

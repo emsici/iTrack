@@ -43,8 +43,8 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
         instance = this;
         
-        // Register DirectGPS plugin
-        registerPlugin(DirectGPSPlugin.class);
+        // Register GPS plugin
+        registerPlugin(GPSPlugin.class);
         
         Log.e(TAG, "🔧 MainActivity onCreate() - DirectGPS plugin registered and direct GPS bridge setup...");
     }
