@@ -572,17 +572,20 @@ class DirectAndroidGPSService {
         return;
       }
       
-      // Log current status for debugging
+      // Reduced logging - only every 3 seconds instead of 500ms
       const elapsed = Math.round((Date.now() - startTime) / 1000);
-      console.log(`🔍 AndroidGPS check ${elapsed}s: ${typeof (window as any).AndroidGPS}`);
+      if (elapsed % 3 === 0 && elapsed > 0) { // Log only every 3 seconds after initial second
+        console.log(`🔍 AndroidGPS bridge status ${elapsed}s: ${typeof (window as any).AndroidGPS !== 'undefined' ? 'DETECTED' : 'searching...'}`);
+      }
       
       // Wait before next check
       await new Promise(resolve => setTimeout(resolve, checkInterval));
     }
     
-    console.error("❌ AndroidGPS bridge not available after 15s timeout");
-    console.error("📱 This may indicate MainActivity WebView bridge issue");
-    throw new Error("AndroidGPS bridge not available - MainActivity WebView issue");
+    console.log("⏰ AndroidGPS bridge timeout after 15s - normal in browser/development");
+    console.log("📱 For full GPS functionality, install APK on Android device");
+    console.log("🔧 APK will have MainActivity → AndroidGPS → OptimalGPSService → Background GPS");
+    throw new Error("AndroidGPS bridge timeout - APK environment required");
   }
 }
 
