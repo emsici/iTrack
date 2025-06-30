@@ -2,6 +2,10 @@
 // Uses only AndroidGPS native service for maximum efficiency
 import { GPSData, sendGPSData } from './api';
 import { getStoredToken } from './storage';
+import { Course } from '../types';
+import { startCourseAnalytics, updateCourseGPS, stopCourseAnalytics } from './courseAnalytics';
+import { saveGPSCoordinateOffline } from './offlineGPS';
+import { logGPS, logGPSError } from './appLogger';
 // Offline GPS functionality handled by Android service
 
 
@@ -34,9 +38,9 @@ class DirectAndroidGPSService {
     if (newStatus === 2) {
       console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
       
-      // Get course data from localStorage
+      // Get course data from Capacitor Preferences (same as login storage)
       const vehicleNumber = localStorage.getItem('vehicleNumber') || 'UNKNOWN';
-      const token = localStorage.getItem('authToken') || '';
+      const token = await getStoredToken() || ''; // Use Capacitor Preferences like login
       
       // Get real UIT from courses data
       const storedCourses = localStorage.getItem(`courses_${vehicleNumber}`);
@@ -72,9 +76,9 @@ class DirectAndroidGPSService {
       if (newStatus === 3 || newStatus === 4) {
         console.log(`🔧 Creating minimal course entry for ${courseId} with status ${newStatus}`);
         
-        // Folosește datele din localStorage
+        // Folosește datele din Capacitor Preferences (consistent cu login)
         const vehicleNumber = localStorage.getItem('vehicleNumber') || 'UNKNOWN';
-        const token = localStorage.getItem('authToken') || '';
+        const token = await getStoredToken() || ''; // Consistent cu storeToken()
         
         // Get real UIT from courses data
         const storedCourses = localStorage.getItem(`courses_${vehicleNumber}`);

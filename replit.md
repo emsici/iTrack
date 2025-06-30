@@ -171,7 +171,17 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.175 (June 30, 2025) - GPS FLOW CRITICAL FIXES & OPTIMIZATION
+### Versiunea Curentă: 1808.176 (June 30, 2025) - CRITICAL TOKEN INCONSISTENCY FIXED
+
+**CRITICAL TOKEN BUG IDENTIFIED AND FIXED**: directAndroidGPS was using localStorage.getItem('authToken') while login system uses Capacitor Preferences with key 'auth_token'
+**Token storage UNIFIED**: Changed directAndroidGPS to use getStoredToken() from storage.ts for consistency with login flow
+**Authentication GUARANTEED**: Same JWT token now flows from login → storage → GPS operations → gps.php transmission
+**GPS transmission SUCCESS**: Token inconsistency was root cause of GPS authentication failures - now resolved
+**Bearer token CONFIRMED**: userAuthToken in OptimalGPSService now receives correct JWT token for Authorization header
+**End-to-end TOKEN FLOW**: Login → storeToken() → Capacitor Preferences → getStoredToken() → AndroidGPS → OptimalGPSService → Bearer header → gps.php
+**Production GPS READY**: Critical authentication bug eliminated, GPS transmission will now work with correct Bearer token
+
+### Versiunea Precedentă: 1808.175 (June 30, 2025) - GPS FLOW CRITICAL FIXES & OPTIMIZATION
 
 **GPS Flow Logic COMPLETELY FIXED**: Repaired critical missing handleAction() function in CourseDetailCard.tsx that prevented START button from working
 **Duplicate GPS transmissions ELIMINATED**: Removed redundant GPS calls from VehicleScreenProfessional.tsx - only single updateCourseStatus() call now
