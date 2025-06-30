@@ -208,34 +208,62 @@ public class OptimalGPSService extends Service {
         
         Log.d(TAG, "🚀 STARTING GPS transmission for " + activeCourses.size() + " total courses");
         
+        java.util.List<String> coursesToRemove = new java.util.ArrayList<>();
+        
         for (CourseData course : activeCourses.values()) {
-            if (course.status == 2) { // Only ACTIVE courses
+            if (course.status == 2 || course.status == 4) { // ACTIVE courses OR FINAL transmission
                 activeCoursesCount++;
                 
                 // ANTI-DUPLICATE: Check if UIT already transmitted in this cycle
                 if (transmittedUITs.contains(course.uit)) {
                     Log.w(TAG, "⚠️ SKIPPING duplicate UIT: " + course.uit + " for course: " + course.courseId);
+                    
+                    // Still handle status 4 removal even if skipped transmission
+                    if (course.status == 4) {
+                        coursesToRemove.add(course.courseId);
+                    }
                     continue;
                 }
                 
-                Log.d(TAG, "🚀 OPTIMAL transmission for: " + course.courseId + " (UIT: " + course.uit + ")");
+                String statusType = (course.status == 2) ? "ACTIVE" : "FINAL";
+                Log.d(TAG, "🚀 OPTIMAL " + statusType + " transmission for: " + course.courseId + " (UIT: " + course.uit + ")");
                 
                 try {
                     transmitOptimalGPSData(course, location);
                     transmittedUITs.add(course.uit); // Mark UIT as transmitted
                     transmissionCount++;
-                    Log.d(TAG, "✅ OPTIMAL GPS SUCCESS for: " + course.courseId);
+                    Log.d(TAG, "✅ OPTIMAL GPS SUCCESS for: " + course.courseId + " (status: " + course.status + ")");
+                    
+                    // Schedule removal for status 4 after successful transmission
+                    if (course.status == 4) {
+                        coursesToRemove.add(course.courseId);
+                        Log.d(TAG, "🏁 Course " + course.courseId + " marked for removal after FINAL transmission");
+                    }
+                    
                 } catch (Exception e) {
                     Log.e(TAG, "❌ OPTIMAL GPS FAILED for " + course.courseId + ": " + e.getMessage());
                     e.printStackTrace();
+                    
+                    // Still remove status 4 courses even if transmission failed
+                    if (course.status == 4) {
+                        coursesToRemove.add(course.courseId);
+                    }
                 }
             }
         }
         
+        // Remove completed courses (status 4) after transmission
+        for (String courseIdToRemove : coursesToRemove) {
+            activeCourses.remove(courseIdToRemove);
+            Log.d(TAG, "🗑️ REMOVED completed course: " + courseIdToRemove);
+        }
+        
         Log.d(TAG, "📊 OPTIMAL GPS SUMMARY:");
-        Log.d(TAG, "  - Active courses: " + activeCoursesCount);
+        Log.d(TAG, "  - Processed courses: " + activeCoursesCount + " (active + final)");
         Log.d(TAG, "  - Successfully transmitted: " + transmissionCount);
         Log.d(TAG, "  - UITs transmitted: " + transmittedUITs.size());
+        Log.d(TAG, "  - Completed courses removed: " + coursesToRemove.size());
+        Log.d(TAG, "  - Remaining active courses: " + activeCourses.size());
         Log.d(TAG, "✅ Optimal GPS cycle completed - next in exactly " + (GPS_INTERVAL_MS/1000) + "s");
         
         // CRITICAL: Schedule next GPS cycle to continue background operation
