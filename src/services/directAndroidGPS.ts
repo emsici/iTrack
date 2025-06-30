@@ -1,8 +1,11 @@
 // DIRECT GPS SERVICE - Single source of truth for GPS operations  
-// Uses DirectGPS Capacitor Plugin (no WebView dependency)
+// Uses GPS Capacitor Plugin (no WebView dependency)
 import { getStoredToken, getStoredVehicleNumber } from './storage';
 import { logGPS, logGPSError } from './appLogger';
-import DirectGPS from './directGPSPlugin';
+import { Capacitor } from '@capacitor/core';
+
+// Access existing GPS plugin through Capacitor.Plugins (no duplicate registration)
+const GPS = Capacitor.Plugins.GPS as any;
 
 interface ActiveCourse {
   courseId: string;
@@ -94,9 +97,9 @@ class DirectAndroidGPSService {
       
       // Update status through Capacitor Plugin
       try {
-        console.log("🔌 Updating GPS status via DirectGPS Capacitor Plugin...");
+        console.log("🔌 Updating GPS status via GPS Capacitor Plugin...");
         
-        const result = await DirectGPS.updateGPS({
+        const result = await GPS.updateGPS({
           courseId: courseId,
           status: newStatus
         });
@@ -205,9 +208,9 @@ class DirectAndroidGPSService {
       
       // Use Capacitor Plugin for reliable GPS service communication
       try {
-        console.log("🔌 Starting GPS via DirectGPS Capacitor Plugin...");
+        console.log("🔌 Starting GPS via GPS Capacitor Plugin...");
         
-        const result = await DirectGPS.startGPS({
+        const result = await GPS.startGPS({
           courseId: course.courseId,
           vehicleNumber: course.vehicleNumber,
           uit: course.uit,
