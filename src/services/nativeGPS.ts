@@ -39,7 +39,24 @@ export const startNativeGPS = async (
   status: number
 ): Promise<boolean> => {
   try {
-    console.log('🚀 Starting native GPS via Capacitor Plugin');
+    // Check if DirectGPS interface is available (Android APK)
+    if (typeof (window as any).DirectGPS !== 'undefined') {
+      console.log('🚀 Using DirectGPS interface for Android');
+      console.log(`Course: ${courseId}, Vehicle: ${vehicleNumber}, UIT: ${uit}, Status: ${status}`);
+      
+      const result = (window as any).DirectGPS.startGPS(courseId, vehicleNumber, uit, authToken, status);
+      
+      if (result === 'SUCCESS') {
+        console.log('✅ DirectGPS started successfully');
+        return true;
+      } else {
+        console.error('❌ DirectGPS start failed:', result);
+        return false;
+      }
+    }
+    
+    // Fallback: Try Capacitor GPS plugin (for testing in browser)
+    console.log('🚀 Starting native GPS via Capacitor Plugin (fallback)');
     console.log(`Course: ${courseId}, Vehicle: ${vehicleNumber}, UIT: ${uit}, Status: ${status}`);
     
     const result = await GPS.startGPS({
@@ -50,10 +67,10 @@ export const startNativeGPS = async (
       status
     });
     
-    console.log('✅ Native GPS Plugin result:', result);
+    console.log('✅ Capacitor GPS Plugin result:', result);
     return result.success;
   } catch (error) {
-    console.error('❌ Native GPS Plugin error:', error);
+    console.error('❌ GPS Plugin error:', error);
     return false;
   }
 };
