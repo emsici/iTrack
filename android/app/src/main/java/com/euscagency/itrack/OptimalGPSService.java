@@ -43,6 +43,7 @@ public class OptimalGPSService extends Service {
         public int status;
         public String vehicleNumber;
         public String authToken;
+        public boolean pauseTransmitted = false; // Track if status 3 was already transmitted
         
         public CourseData(String courseId, String uit, int status, String vehicleNumber, String authToken) {
             this.courseId = courseId;
@@ -211,7 +212,7 @@ public class OptimalGPSService extends Service {
         java.util.List<String> coursesToRemove = new java.util.ArrayList<>();
         
         for (CourseData course : activeCourses.values()) {
-            if (course.status == 2 || course.status == 4) { // ACTIVE courses OR FINAL transmission
+            if (course.status == 2 || course.status == 3 || course.status == 4) { // ACTIVE, PAUSE, or FINAL transmission
                 activeCoursesCount++;
                 
                 // ANTI-DUPLICATE: Check if UIT already transmitted in this cycle
@@ -225,7 +226,16 @@ public class OptimalGPSService extends Service {
                     continue;
                 }
                 
-                String statusType = (course.status == 2) ? "ACTIVE" : "FINAL";
+                // STATUS 3 (PAUSE): Transmit only once, then skip
+                if (course.status == 3) {
+                    if (course.pauseTransmitted) {
+                        Log.d(TAG, "⏸️ PAUSE already transmitted for: " + course.courseId + " - SKIPPING");
+                        continue; // Skip transmission - pause was already sent
+                    }
+                }
+                
+                String statusType = (course.status == 2) ? "ACTIVE" : 
+                                  (course.status == 3) ? "PAUSE" : "FINAL";
                 Log.d(TAG, "🚀 OPTIMAL " + statusType + " transmission for: " + course.courseId + " (UIT: " + course.uit + ")");
                 
                 try {
@@ -233,6 +243,12 @@ public class OptimalGPSService extends Service {
                     transmittedUITs.add(course.uit); // Mark UIT as transmitted
                     transmissionCount++;
                     Log.d(TAG, "✅ OPTIMAL GPS SUCCESS for: " + course.courseId + " (status: " + course.status + ")");
+                    
+                    // Mark STATUS 3 (PAUSE) as transmitted to prevent future transmissions
+                    if (course.status == 3) {
+                        course.pauseTransmitted = true;
+                        Log.d(TAG, "⏸️ PAUSE marked as transmitted for: " + course.courseId + " - no more GPS until RESUME");
+                    }
                     
                     // Schedule removal for status 4 after successful transmission
                     if (course.status == 4) {
@@ -503,6 +519,13 @@ public class OptimalGPSService extends Service {
             CourseData course = activeCourses.get(courseId);
             if (course != null) {
                 course.status = newStatus;
+                
+                // Reset pauseTransmitted flag when resuming (status 2)
+                if (newStatus == 2) {
+                    course.pauseTransmitted = false;
+                    Log.d(TAG, "▶️ RESUME: Reset pause flag for " + courseId + " - GPS will transmit continuously");
+                }
+                
                 Log.d(TAG, "📊 OPTIMAL status updated: " + courseId + " -> " + newStatus);
             }
             
