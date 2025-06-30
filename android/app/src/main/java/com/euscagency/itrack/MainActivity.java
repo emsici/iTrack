@@ -28,16 +28,20 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.e(TAG, "🚀 CRITICAL: MainActivity.onCreate() STARTED - APK is running!");
+        Log.e(TAG, "📱 Testing WebView bridge setup...");
+        
         super.onCreate(savedInstanceState);
         instance = this;
         context = this;
         
-        Log.d(TAG, "iTrack MainActivity starting with multiple HTTP methods");
+        Log.e(TAG, "✅ MainActivity super.onCreate() completed successfully");
+        Log.e(TAG, "🔧 Starting AndroidGPS interface setup...");
         
         // Add AndroidGPS interface for GPS control only
         addAndroidGPSInterface();
         
-        Log.d(TAG, "iTrack ready with CapacitorHttp unified HTTP");
+        Log.e(TAG, "🎯 MainActivity onCreate() completed - AndroidGPS bridge setup initiated");
     }
     
     public static Context getContext() {
@@ -67,23 +71,24 @@ public class MainActivity extends BridgeActivity {
             @Override
             public void run() {
                 try {
-                    Log.d(TAG, "Attempting to add AndroidGPS interface (attempt " + (retryCount + 1) + "/" + maxRetries + ")");
+                    Log.e(TAG, "🔄 ATTEMPT " + (retryCount + 1) + "/" + maxRetries + " - Adding AndroidGPS interface");
+                    Log.e(TAG, "📊 Bridge status: " + (getBridge() != null ? "EXISTS" : "NULL"));
+                    Log.e(TAG, "📊 WebView status: " + (getBridge() != null && getBridge().getWebView() != null ? "EXISTS" : "NULL"));
                     
                     if (getBridge() != null && getBridge().getWebView() != null) {
+                        Log.e(TAG, "✅ BRIDGE AND WEBVIEW READY - Adding AndroidGPS interface");
                         AndroidGPS androidGPSInterface = new AndroidGPS();
                         getBridge().getWebView().addJavascriptInterface(androidGPSInterface, "AndroidGPS");
                         
                         // Enable JavaScript
                         getBridge().getWebView().getSettings().setJavaScriptEnabled(true);
                         
-                        Log.d(TAG, "✅ AndroidGPS WebView interface added successfully");
-                        Log.d(TAG, "📱 AndroidGPS methods ready for iTrack:");
-                        Log.d(TAG, "  - startGPS: available");
-                        Log.d(TAG, "  - stopGPS: available");
-                        Log.d(TAG, "  - updateStatus: available");
-                        Log.d(TAG, "  - clearAllOnLogout: available");
-                        Log.d(TAG, "  - postNativeHttp: available");
-                        Log.d(TAG, "  - getNativeHttp: available");
+                        Log.e(TAG, "🎉 SUCCESS: AndroidGPS WebView interface added successfully!");
+                        Log.e(TAG, "📱 AndroidGPS methods ready for iTrack:");
+                        Log.e(TAG, "  ✅ startGPS: available");
+                        Log.e(TAG, "  ✅ stopGPS: available");
+                        Log.e(TAG, "  ✅ updateStatus: available");
+                        Log.e(TAG, "  ✅ clearAllOnLogout: available");
                         
                         // Force interface validation
                         getBridge().getWebView().evaluateJavascript(
@@ -112,12 +117,19 @@ public class MainActivity extends BridgeActivity {
                         }, 1000);
                         
                     } else {
+                        Log.e(TAG, "❌ Bridge/WebView not ready - RETRYING...");
+                        Log.e(TAG, "🔍 Bridge null? " + (getBridge() == null));
+                        if (getBridge() != null) {
+                            Log.e(TAG, "🔍 WebView null? " + (getBridge().getWebView() == null));
+                        }
+                        
                         retryCount++;
                         if (retryCount < maxRetries) {
-                            Log.w(TAG, "Bridge/WebView not ready, retrying in 250ms (attempt " + retryCount + "/" + maxRetries + ")");
+                            Log.e(TAG, "⏳ RETRY " + retryCount + "/" + maxRetries + " in 250ms");
                             new Handler(Looper.getMainLooper()).postDelayed(this, 250);
                         } else {
-                            Log.e(TAG, "❌ Failed to add AndroidGPS interface after " + maxRetries + " attempts");
+                            Log.e(TAG, "💥 CRITICAL FAILURE: AndroidGPS interface failed after " + maxRetries + " attempts");
+                            Log.e(TAG, "🚨 WEBVIEW BRIDGE IS BROKEN - This will cause GPS transmission failure");
                         }
                     }
                 } catch (Exception e) {
