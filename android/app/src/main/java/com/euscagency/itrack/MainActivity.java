@@ -34,20 +34,6 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onStart() {
         super.onStart();
-        
-        // Add WebView JavaScript interface as fallback for GPS control
-        try {
-            if (getBridge().getWebView() != null) {
-                getBridge().getWebView().addJavascriptInterface(
-                    new DirectGPSInterface(this), 
-                    "DirectGPSInterface"
-                );
-                Log.d(TAG, "✅ DirectGPSInterface added to WebView as fallback");
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "⚠️ Could not add DirectGPSInterface: " + e.getMessage());
-        }
-        
         Log.d(TAG, "MainActivity onStart() - GPS Plugin ready");
     }
 

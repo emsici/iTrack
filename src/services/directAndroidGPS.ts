@@ -205,66 +205,32 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    console.log("🚀 Starting Android Native GPS Service via OptimalGPSService");
+    console.log("🚀 Starting OptimalGPSService via GPS Plugin");
 
     try {
-      // PRIMARY: Try GPS Capacitor Plugin
-      try {
-        console.log("🔌 Starting GPS via GPS Capacitor Plugin...");
-        
-        const result = await GPS.startGPS({
-          courseId: course.courseId,
-          vehicleNumber: course.vehicleNumber,
-          uit: course.uit,
-          authToken: course.token,
-          status: course.status
-        });
-        
-        console.log("📡 GPS Plugin result:", result);
-        
-        if (result.success) {
-          console.log("✅ OptimalGPSService started via Capacitor Plugin - will transmit GPS every 5 seconds");
-          return;
-        } else {
-          console.log("⚠️ GPS Plugin issues:", result.message);
-          console.log("🔄 Falling back to direct Intent...");
-        }
-      } catch (pluginError) {
-        console.log("❌ GPS Capacitor Plugin failed:", pluginError);
-        console.log("🔄 Falling back to direct Intent approach...");
+      console.log("📱 Calling GPS.startGPS() → GPSPlugin → OptimalGPSService");
+      
+      const result = await GPS.startGPS({
+        courseId: course.courseId,
+        vehicleNumber: course.vehicleNumber,
+        uit: course.uit,
+        authToken: course.token,
+        status: course.status
+      });
+      
+      console.log("📡 GPS Plugin result:", result);
+      
+      if (result.success) {
+        console.log("✅ OptimalGPSService started - GPS transmission every 5 seconds");
+      } else {
+        console.log("⚠️ GPS Plugin reported issues:", result.message);
+        console.log("📱 APK: OptimalGPSService may still start successfully");
       }
       
-      // FALLBACK: WebView DirectGPSInterface (APK only)
-      try {
-        console.log("🎯 FALLBACK: Using WebView DirectGPSInterface");
-        
-        // Check if DirectGPSInterface is available (APK only)
-        if (typeof (window as any).DirectGPSInterface !== 'undefined') {
-          console.log("📱 DirectGPSInterface available - calling startGPS");
-          
-          const result = (window as any).DirectGPSInterface.startGPS(
-            course.courseId,
-            course.vehicleNumber, 
-            course.uit,
-            course.token,
-            course.status
-          );
-          
-          console.log("📡 DirectGPSInterface result:", result);
-          console.log("✅ OptimalGPSService started via WebView fallback");
-        } else {
-          console.log("📱 DirectGPSInterface not available - APK environment required");
-          console.log("✅ Course remains in activeCourses - GPS will work on real device");
-        }
-        
-      } catch (webviewError) {
-        console.log("❌ WebView fallback failed:", webviewError);
-        console.log("📱 APK Environment: GPS service will be available on real device");
-      }
-      
-    } catch (error) {
-      console.log(`⚠️ OptimalGPSService start error: ${error}`);
-      console.log("✅ Course remains active in activeCourses for retry");
+    } catch (pluginError) {
+      console.log("❌ GPS Plugin failed:", pluginError);
+      console.log("📱 APK Environment: Plugin will be available on real device");
+      console.log("✅ Course remains in activeCourses for when plugin becomes available");
     }
   }
   
@@ -273,30 +239,26 @@ class DirectAndroidGPSService {
 
 
   private async stopAndroidNativeService(courseId: string): Promise<void> {
-    console.log("🛑 Stopping Android Native GPS Service via OptimalGPSService");
-    console.log(`Course: ${courseId}`);
+    console.log("🛑 Stopping OptimalGPSService via GPS Plugin");
 
     try {
-      // Stop OptimalGPSService through GPS Capacitor Plugin
-      console.log("🔌 Stopping GPS via GPS Capacitor Plugin...");
+      console.log("📱 Calling GPS.stopGPS() → GPSPlugin → OptimalGPSService");
       
       const result = await GPS.stopGPS({
         courseId: courseId
       });
       
-      console.log("📡 GPS Plugin stopGPS result:", result);
+      console.log("📡 GPS Plugin result:", result);
       
       if (result.success) {
-        console.log(`✅ OptimalGPSService stopped successfully for course ${courseId}`);
+        console.log(`✅ OptimalGPSService stopped for course ${courseId}`);
       } else {
-        console.log(`⚠️ GPS Plugin stop issues for course ${courseId}:`, result.message);
+        console.log(`⚠️ GPS Plugin reported issues:`, result.message);
       }
     } catch (pluginError) {
-      console.log("❌ GPS Capacitor Plugin stop failed:", pluginError);
-      console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
+      console.log("❌ GPS Plugin failed:", pluginError);
+      console.log("📱 APK Environment: Plugin will be available on real device");
     }
-    
-    console.log("✅ Android Native GPS service stopped and cleaned up");
   }
 
   getActiveCourses(): string[] {
