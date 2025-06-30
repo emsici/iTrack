@@ -345,39 +345,52 @@ class DirectAndroidGPSService {
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
     console.log("🚀 Starting Android native GPS service (APK ONLY)");
 
+    let androidGPSAvailable = false;
+    
     try {
       // CRITICAL: Wait for AndroidGPS bridge to be ready
       await this.waitForAndroidGPS();
       console.log("✅ AndroidGPS bridge detected - starting OptimalGPSService");
+      androidGPSAvailable = true;
     } catch (error) {
       console.log("❌ AndroidGPS bridge not available - this application requires APK on Android device");
       console.log("📱 GPS functionality will work when APK is installed on Android device");
       console.log("🔧 Development environment: GPS service simulation disabled");
-      // Don't throw error in development - just log and return gracefully
-      return;
+      // Continue to attempt direct GPS call even if bridge detection fails
+      androidGPSAvailable = false;
     }
 
-    // ANDROID APK: Use native AndroidGPS interface
-    if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-      console.log("Using native Android GPS service");
-      console.log(`📱 Calling AndroidGPS.startGPS(${course.courseId}, ${course.vehicleNumber}, ${course.uit}, token, ${course.status})`);
+    // ANDROID APK: Try to use native AndroidGPS interface 
+    console.log(`🔍 Checking AndroidGPS availability: ${typeof (window as any).AndroidGPS}`);
+    console.log(`🔍 Checking startGPS method: ${typeof (window as any).AndroidGPS?.startGPS}`);
+    
+    if ((window as any).AndroidGPS && typeof (window as any).AndroidGPS.startGPS === 'function') {
+      console.log("✅ AndroidGPS interface confirmed available - calling startGPS");
+      console.log(`📱 CALLING: AndroidGPS.startGPS(${course.courseId}, ${course.vehicleNumber}, ${course.uit}, [token], ${course.status})`);
       
-      const result = (window as any).AndroidGPS.startGPS(
-        course.courseId,
-        course.vehicleNumber, 
-        course.uit,
-        course.token,
-        course.status
-      );
-      
-      console.log(`📱 AndroidGPS.startGPS result: ${result}`);
-      
-      if (result && result.includes("ERROR")) {
-        throw new Error(`GPS failed: ${result}`);
+      try {
+        const result = (window as any).AndroidGPS.startGPS(
+          course.courseId,
+          course.vehicleNumber, 
+          course.uit,
+          course.token,
+          course.status
+        );
+        
+        console.log(`📱 AndroidGPS.startGPS result: ${result}`);
+        
+        if (result && typeof result === 'string' && result.includes("ERROR")) {
+          console.error(`❌ GPS service returned error: ${result}`);
+          throw new Error(`GPS failed: ${result}`);
+        }
+        
+        console.log("✅ Android GPS started successfully - OptimalGPSService should be running");
+        console.log(`✅ Course ${course.courseId} should now transmit GPS every 5 seconds`);
+        return;
+      } catch (error) {
+        console.error(`❌ Exception calling AndroidGPS.startGPS: ${error}`);
+        throw error;
       }
-      
-      console.log("✅ Android GPS started successfully - course should be in OptimalGPSService activeCourses Map");
-      return;
     }
 
     // CRITICAL FIX: COMPLETE BROWSER GPS BLOCKING

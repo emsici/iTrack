@@ -151,8 +151,8 @@ public class MainActivity extends BridgeActivity {
                     
                     if (getBridge() != null && getBridge().getWebView() != null) {
                         Log.e(TAG, "✅ BRIDGE AND WEBVIEW READY - Adding AndroidGPS interface");
-                        AndroidGPS androidGPSInterface = new AndroidGPS();
-                        getBridge().getWebView().addJavascriptInterface(androidGPSInterface, "AndroidGPS");
+                        // Use MainActivity directly as AndroidGPS interface (not inner class)
+                        getBridge().getWebView().addJavascriptInterface(MainActivity.this, "AndroidGPS");
                         
                         // Enable JavaScript
                         getBridge().getWebView().getSettings().setJavaScriptEnabled(true);
@@ -227,8 +227,8 @@ public class MainActivity extends BridgeActivity {
      */
     public class AndroidGPS {
         
-        @JavascriptInterface
-        public String startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
+    @JavascriptInterface
+    public String startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
             Log.d(TAG, "=== AndroidGPS.startGPS called ===");
             Log.d(TAG, "Course ID: " + courseId);
             Log.d(TAG, "Vehicle: " + vehicleNumber);
@@ -291,8 +291,8 @@ public class MainActivity extends BridgeActivity {
             }
         }
         
-        @JavascriptInterface
-        public String stopGPS(String courseId) {
+    @JavascriptInterface
+    public String stopGPS(String courseId) {
             Log.d(TAG, "=== AndroidGPS.stopGPS called ===");
             Log.d(TAG, "Course ID: " + courseId);
             
@@ -332,8 +332,8 @@ public class MainActivity extends BridgeActivity {
         
 
         
-        @JavascriptInterface
-        public String clearAllOnLogout() {
+    @JavascriptInterface
+    public String clearAllOnLogout() {
             Log.d(TAG, "=== AndroidGPS.clearAllOnLogout called ===");
             
             try {
