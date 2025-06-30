@@ -222,119 +222,116 @@ public class MainActivity extends BridgeActivity {
 
 
     /**
-     * WebView JavaScript Interface pentru controlul GPS-ului
-     * Permite apelarea directă din JavaScript: window.AndroidGPS.startGPS(...)
+     * JavaScript Interface Methods for GPS Control - MOVED TO MAINACTIVITY
+     * These methods are called directly from WebView JavaScript code
      */
-    public class AndroidGPS {
-        
+    
     @JavascriptInterface
     public String startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
-            Log.d(TAG, "=== AndroidGPS.startGPS called ===");
-            Log.d(TAG, "Course ID: " + courseId);
-            Log.d(TAG, "Vehicle: " + vehicleNumber);
-            Log.d(TAG, "UIT: " + uit);
-            Log.d(TAG, "Status: " + status);
-            Log.d(TAG, "Token: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
+        Log.d(TAG, "=== MainActivity.startGPS called ===");
+        Log.d(TAG, "Course ID: " + courseId);
+        Log.d(TAG, "Vehicle: " + vehicleNumber);
+        Log.d(TAG, "UIT: " + uit);
+        Log.d(TAG, "Status: " + status);
+        Log.d(TAG, "Token: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
+        
+        try {
+            // Validare parametri
+            if (courseId == null || uit == null || authToken == null) {
+                Log.e(TAG, "Invalid parameters for GPS service");
+                return "ERROR: Invalid parameters";
+            }
+            
+            // CRITICAL FIX: Request GPS permissions if not granted
+            if (checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
+                Log.w(TAG, "❌ GPS permissions not granted - requesting now");
+                
+                // Request GPS permissions from user
+                requestPermissions(new String[]{
+                    "android.permission.ACCESS_FINE_LOCATION",
+                    "android.permission.ACCESS_BACKGROUND_LOCATION"
+                }, 1001);
+                
+                return "REQUESTING_PERMISSIONS: Please grant GPS permissions and try again";
+            }
+            
+            Log.d(TAG, "✅ GPS permissions granted - starting service");
+            
+            Log.d(TAG, "Starting GPS service...");
+            
+            Intent intent = new Intent(MainActivity.this, OptimalGPSService.class);
+            intent.setAction("START_GPS");
+            intent.putExtra("courseId", courseId);
+            intent.putExtra("vehicleNumber", vehicleNumber);
+            intent.putExtra("uit", uit);
+            intent.putExtra("authToken", authToken);
+            intent.putExtra("status", status);
             
             try {
-                // Validare parametri
-                if (courseId == null || uit == null || authToken == null) {
-                    Log.e(TAG, "Invalid parameters for GPS service");
-                    return "ERROR: Invalid parameters";
+                ComponentName result = startForegroundService(intent);
+                if (result != null) {
+                    Log.d(TAG, "✅ OptimalGPSService started successfully - 70% battery efficiency");
+                    Log.d(TAG, "Service component: " + result.getClassName());
+                    return "SUCCESS: GPS service started for course " + courseId;
+                } else {
+                    Log.e(TAG, "Failed to start GPS service - result is null");
+                    return "ERROR: Service start failed";
                 }
-                
-                // CRITICAL FIX: Request GPS permissions if not granted
-                if (checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
-                    Log.w(TAG, "❌ GPS permissions not granted - requesting now");
-                    
-                    // Request GPS permissions from user
-                    requestPermissions(new String[]{
-                        "android.permission.ACCESS_FINE_LOCATION",
-                        "android.permission.ACCESS_BACKGROUND_LOCATION"
-                    }, 1001);
-                    
-                    return "REQUESTING_PERMISSIONS: Please grant GPS permissions and try again";
-                }
-                
-                Log.d(TAG, "✅ GPS permissions granted - starting service");
-                
-                Log.d(TAG, "Starting GPS service...");
-                
-                Intent intent = new Intent(MainActivity.this, OptimalGPSService.class);
-                intent.setAction("START_GPS");
-                intent.putExtra("courseId", courseId);
-                intent.putExtra("vehicleNumber", vehicleNumber);
-                intent.putExtra("uit", uit);
-                intent.putExtra("authToken", authToken);
-                intent.putExtra("status", status);
-                
-                try {
-                    ComponentName result = startForegroundService(intent);
-                    if (result != null) {
-                        Log.d(TAG, "✅ OptimalGPSService started successfully - 70% battery efficiency");
-                        Log.d(TAG, "Service component: " + result.getClassName());
-                        return "SUCCESS: GPS service started for course " + courseId;
-                    } else {
-                        Log.e(TAG, "Failed to start GPS service - result is null");
-                        return "ERROR: Service start failed";
-                    }
-                } catch (SecurityException e) {
-                    Log.e(TAG, "Security exception starting GPS service: " + e.getMessage());
-                    return "ERROR: Security exception - " + e.getMessage();
-                } catch (Exception e) {
-                    Log.e(TAG, "Exception starting GPS service: " + e.getMessage());
-                    return "ERROR: Exception - " + e.getMessage();
-                }
+            } catch (SecurityException e) {
+                Log.e(TAG, "Security exception starting GPS service: " + e.getMessage());
+                return "ERROR: Security exception - " + e.getMessage();
             } catch (Exception e) {
-                Log.e(TAG, "❌ Failed to start GPS service: " + e.getMessage(), e);
-                return "ERROR: " + e.getMessage();
+                Log.e(TAG, "Exception starting GPS service: " + e.getMessage());
+                return "ERROR: Exception - " + e.getMessage();
             }
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Failed to start GPS service: " + e.getMessage(), e);
+            return "ERROR: " + e.getMessage();
+        }
         }
         
     @JavascriptInterface
     public String stopGPS(String courseId) {
-            Log.d(TAG, "=== AndroidGPS.stopGPS called ===");
-            Log.d(TAG, "Course ID: " + courseId);
+        Log.d(TAG, "=== MainActivity.stopGPS called ===");
+        Log.d(TAG, "Course ID: " + courseId);
+        
+        try {
+            Intent intent = new Intent(MainActivity.this, OptimalGPSService.class);
+            intent.setAction("STOP_GPS");
+            intent.putExtra("courseId", courseId);
             
-            try {
-                Intent intent = new Intent(MainActivity.this, OptimalGPSService.class);
-                intent.setAction("STOP_GPS");
-                intent.putExtra("courseId", courseId);
-                
-                startService(intent);
-                Log.d(TAG, "✅ OptimalGPSService stop requested - AlarmManager cancelled");
-                return "SUCCESS: GPS service stopped for course " + courseId;
-            } catch (Exception e) {
-                Log.e(TAG, "❌ Failed to stop GPS service: " + e.getMessage());
-                return "ERROR: " + e.getMessage();
-            }
+            startService(intent);
+            Log.d(TAG, "✅ OptimalGPSService stop requested - AlarmManager cancelled");
+            return "SUCCESS: GPS service stopped for course " + courseId;
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Failed to stop GPS service: " + e.getMessage());
+            return "ERROR: " + e.getMessage();
+        }
         }
         
-        @JavascriptInterface
-        public String updateStatus(String courseId, int newStatus) {
-            Log.d(TAG, String.format("=== AndroidGPS.updateStatus called ==="));
-            Log.d(TAG, String.format("Course=%s, Status=%d", courseId, newStatus));
-            
-            try {
-                Intent intent = new Intent(MainActivity.this, OptimalGPSService.class);
-                intent.setAction("UPDATE_STATUS");
-                intent.putExtra("courseId", courseId);
-                intent.putExtra("status", newStatus);
-                
-                startService(intent);
-                Log.d(TAG, "✅ OptimalGPSService status updated - efficient transmission");
-                return "SUCCESS: Status updated for course " + courseId + " to " + newStatus;
-            } catch (Exception e) {
-                Log.e(TAG, "❌ Failed to update GPS status: " + e.getMessage());
-                return "ERROR: " + e.getMessage();
-            }
-        }
+    @JavascriptInterface
+    public String updateStatus(String courseId, int newStatus) {
+        Log.d(TAG, String.format("=== MainActivity.updateStatus called ==="));
+        Log.d(TAG, String.format("Course=%s, Status=%d", courseId, newStatus));
         
-
+        try {
+            Intent intent = new Intent(MainActivity.this, OptimalGPSService.class);
+            intent.setAction("UPDATE_STATUS");
+            intent.putExtra("courseId", courseId);
+            intent.putExtra("status", newStatus);
+            
+            startService(intent);
+            Log.d(TAG, "✅ OptimalGPSService status updated - efficient transmission");
+            return "SUCCESS: Status updated for course " + courseId + " to " + newStatus;
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Failed to update GPS status: " + e.getMessage());
+            return "ERROR: " + e.getMessage();
+        }
+        }
         
     @JavascriptInterface
     public String clearAllOnLogout() {
-            Log.d(TAG, "=== AndroidGPS.clearAllOnLogout called ===");
+        Log.d(TAG, "=== MainActivity.clearAllOnLogout called ===");
             
             try {
                 Intent intent = new Intent(MainActivity.this, OptimalGPSService.class);
