@@ -36,6 +36,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onStart() {
         super.onStart();
+        Log.d(TAG, "MainActivity onStart() - GPS Plugin ready");
         
         // Add AndroidGPS interface to WebView
         addAndroidGPSInterface();
@@ -173,17 +174,7 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d(TAG, "MainActivity onStart() - GPS Plugin ready");
-    }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d(TAG, "MainActivity onStart() - GPS Plugin ready");
-    }
 
     @Override
     public void onResume() {
