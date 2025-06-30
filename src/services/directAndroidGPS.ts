@@ -1,7 +1,8 @@
-// ANDROID GPS EXCLUSIVE - Background tracking with locked phone
-// Uses only Native GPS Plugin for maximum efficiency
+// DIRECT GPS SERVICE - Single source of truth for GPS operations
+// Uses DirectGPS Capacitor Plugin (no WebView dependency)
 import { getStoredToken, getStoredVehicleNumber } from './storage';
 import { logGPS, logGPSError } from './appLogger';
+import { startNativeGPS, stopNativeGPS, updateNativeGPS, clearAllNativeGPS } from './nativeGPS';
 
 interface ActiveCourse {
   courseId: string;
@@ -183,13 +184,11 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    console.log("🚀 Starting Android native GPS service via Capacitor Plugin");
+    console.log("🚀 Starting DirectGPS Capacitor Plugin (no WebView dependency)");
 
     try {
-      // EFFICIENT: Direct Capacitor Plugin call - no bridge timing issues
-      const { startNativeGPS } = await import('./nativeGPS');
-      
-      console.log(`📱 CALLING: GPS Plugin startGPS(${course.courseId}, ${course.vehicleNumber}, ${course.uit}, [token], ${course.status})`);
+      // DIRECT GPS PLUGIN: Uses BroadcastReceiver system instead of WebView
+      console.log(`📱 DirectGPS Plugin: startGPS(${course.courseId}, ${course.vehicleNumber}, ${course.uit}, [token], ${course.status})`);
       
       const success = await startNativeGPS(
         course.courseId,
