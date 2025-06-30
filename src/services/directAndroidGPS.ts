@@ -91,13 +91,13 @@ class DirectAndroidGPSService {
       // ANDROID NATIVE STATUS UPDATE: Update course status via OptimalGPSService
       console.log(`📡 Updating course status via AndroidGPS: ${courseId} → ${newStatus}`);
       
-      // Update status through AndroidGPS interface
-      if (typeof (window as any).AndroidGPS !== 'undefined' && (window as any).AndroidGPS.updateGPS) {
-        console.log("✅ AndroidGPS interface available - calling updateGPS");
+      // Update status through DirectGPS interface
+      if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.updateGPS) {
+        console.log("✅ DirectGPS interface available - calling updateGPS");
         
-        const result = (window as any).AndroidGPS.updateGPS(courseId, newStatus);
+        const result = (window as any).DirectGPS.updateGPS(courseId, newStatus);
         
-        console.log("📡 AndroidGPS updateGPS result:", result);
+        console.log("📡 DirectGPS updateGPS result:", result);
         
         if (result === "SUCCESS") {
           console.log(`✅ Course ${courseId} status updated to ${newStatus} successfully`);
@@ -107,9 +107,9 @@ class DirectAndroidGPSService {
           logGPSError(`Status update failed for course ${courseId}`);
         }
       } else {
-        console.log(`⚠️ AndroidGPS interface not available for status update`);
+        console.log(`⚠️ DirectGPS interface not available for status update`);
         console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
-        logGPSError(`Status update failed for course ${courseId} - AndroidGPS not available`);
+        logGPSError(`Status update failed for course ${courseId} - DirectGPS not available`);
       }
 
       // Handle special status logic
@@ -199,19 +199,19 @@ class DirectAndroidGPSService {
       // ANDROID NATIVE GPS: Use OptimalGPSService through AndroidGPS interface
       console.log(`📱 AndroidGPS: Starting OptimalGPSService for ${course.courseId}`);
       
-      // Start OptimalGPSService through MainActivity AndroidGPS interface
-      if (typeof (window as any).AndroidGPS !== 'undefined' && (window as any).AndroidGPS.startGPS) {
-        console.log("✅ AndroidGPS interface available - calling startGPS");
+      // Start OptimalGPSService through MainActivity DirectGPS interface
+      if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.startGPS) {
+        console.log("✅ DirectGPS interface available - calling startGPS");
         
-        const result = (window as any).AndroidGPS.startGPS(
+        const result = (window as any).DirectGPS.startGPS(
           course.courseId,
           course.vehicleNumber, 
-          course.token,
           course.uit,
+          course.token,
           course.status
         );
         
-        console.log("📡 AndroidGPS startGPS result:", result);
+        console.log("📡 DirectGPS startGPS result:", result);
         
         if (result === "SUCCESS") {
           console.log("✅ OptimalGPSService started successfully - will transmit GPS every 5 seconds");
@@ -219,7 +219,7 @@ class DirectAndroidGPSService {
           console.log("⚠️ OptimalGPSService start had issues - but service may still work");
         }
       } else {
-        console.log("❌ AndroidGPS interface not available");
+        console.log("❌ DirectGPS interface not available");
         console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
       }
       
@@ -238,13 +238,13 @@ class DirectAndroidGPSService {
     console.log(`Course: ${courseId}`);
 
     try {
-      // Stop OptimalGPSService through AndroidGPS interface
-      if (typeof (window as any).AndroidGPS !== 'undefined' && (window as any).AndroidGPS.stopGPS) {
-        console.log("✅ AndroidGPS interface available - calling stopGPS");
+      // Stop OptimalGPSService through DirectGPS interface
+      if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.stopGPS) {
+        console.log("✅ DirectGPS interface available - calling stopGPS");
         
-        const result = (window as any).AndroidGPS.stopGPS(courseId);
+        const result = (window as any).DirectGPS.stopGPS(courseId);
         
-        console.log("📡 AndroidGPS stopGPS result:", result);
+        console.log("📡 DirectGPS stopGPS result:", result);
         
         if (result === "SUCCESS") {
           console.log(`✅ OptimalGPSService stopped successfully for course ${courseId}`);
@@ -252,7 +252,7 @@ class DirectAndroidGPSService {
           console.log(`⚠️ OptimalGPSService stop had issues for course ${courseId}`);
         }
       } else {
-        console.log("❌ AndroidGPS interface not available for stop operation");
+        console.log("❌ DirectGPS interface not available for stop operation");
         console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
       }
       
@@ -291,12 +291,12 @@ class DirectAndroidGPSService {
       
       // Clear all Android GPS services
       try {
-        if (typeof (window as any).AndroidGPS !== 'undefined' && (window as any).AndroidGPS.clearAllGPS) {
-          console.log("✅ AndroidGPS interface available - calling clearAllGPS");
+        if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.clearAllGPS) {
+          console.log("✅ DirectGPS interface available - calling clearAllGPS");
           
-          const result = (window as any).AndroidGPS.clearAllGPS();
+          const result = (window as any).DirectGPS.clearAllGPS();
           
-          console.log("📡 AndroidGPS clearAllGPS result:", result);
+          console.log("📡 DirectGPS clearAllGPS result:", result);
           
           if (result === "SUCCESS") {
             console.log("✅ All OptimalGPSService instances cleared successfully");
