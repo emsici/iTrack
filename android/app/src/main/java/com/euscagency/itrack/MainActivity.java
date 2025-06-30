@@ -2,6 +2,8 @@ package com.euscagency.itrack;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -42,6 +44,59 @@ public class MainActivity extends BridgeActivity {
         addAndroidGPSInterface();
         
         Log.e(TAG, "🎯 MainActivity onCreate() completed - AndroidGPS bridge setup initiated");
+    }
+    
+    /**
+     * CRITICAL: Add AndroidGPS interface to WebView for JavaScript access
+     */
+    private void addAndroidGPSInterface() {
+        Log.d(TAG, "🔧 Adding AndroidGPS interface to WebView...");
+        
+        // Wait for WebView to be ready and add AndroidGPS interface
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (getBridge() != null && getBridge().getWebView() != null) {
+                        // Add AndroidGPS interface to WebView for JavaScript access
+                        getBridge().getWebView().addJavascriptInterface(MainActivity.this, "AndroidGPS");
+                        Log.d(TAG, "✅ AndroidGPS interface attached to WebView successfully");
+                        
+                        // Set multiple ready flags for JavaScript detection
+                        getBridge().getWebView().evaluateJavascript(
+                            "window.AndroidGPSReady = true; " +
+                            "window.androidGPSBridgeReady = true; " +
+                            "window.androidGPSInterfaceReady = true; " +
+                            "console.log('✅ AndroidGPS bridge added to WebView - ready for GPS operations');",
+                            null
+                        );
+                        
+                        Log.d(TAG, "✅ AndroidGPS ready flags set in JavaScript - bridge fully operational");
+                    } else {
+                        Log.w(TAG, "⚠️ WebView not ready yet, retrying in 1 second...");
+                        // Retry after 1 second if WebView not ready
+                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                addAndroidGPSInterface();
+                            }
+                        }, 1000);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ Failed to add AndroidGPS interface: " + e.getMessage());
+                    e.printStackTrace();
+                    
+                    // Retry after 1 second if failed
+                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "🔄 Retrying AndroidGPS interface setup...");
+                            addAndroidGPSInterface();
+                        }
+                    }, 1000);
+                }
+            }
+        }, 500); // Wait 500ms for WebView initialization
     }
     
     public static Context getContext() {
