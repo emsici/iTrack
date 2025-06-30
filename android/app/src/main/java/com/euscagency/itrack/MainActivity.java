@@ -44,6 +44,15 @@ public class MainActivity extends BridgeActivity {
         Log.e(TAG, "🎯 MainActivity onCreate() completed - AndroidGPS bridge setup initiated");
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.e(TAG, "🔧 MainActivity onStart() - ensuring AndroidGPS bridge is ready");
+        
+        // Ensure AndroidGPS bridge is established when activity starts
+        addAndroidGPSInterface();
+    }
+
     /**
      * CRITICAL: Add AndroidGPS interface to WebView for JavaScript access
      * This enables GPS control from JavaScript: AndroidGPS.startGPS(), AndroidGPS.stopGPS(), etc.
@@ -55,8 +64,8 @@ public class MainActivity extends BridgeActivity {
     private void addAndroidGPSInterface() {
         Log.e(TAG, "🔧 STARTING addAndroidGPSInterface() - CRITICAL for GPS functionality");
         
-        final int maxRetries = 10;
-        final int retryDelayMs = 1000;
+        final int maxRetries = 15;
+        final int retryDelayMs = 500;
         
         Handler handler = new Handler(Looper.getMainLooper());
         Runnable setupBridge = new Runnable() {
@@ -65,7 +74,7 @@ public class MainActivity extends BridgeActivity {
             @Override
             public void run() {
                 try {
-                    Log.e(TAG, "🔄 Attempt " + retryCount + "/" + maxRetries + " to add AndroidGPS interface");
+                    Log.e(TAG, "🔄 Attempt " + (retryCount + 1) + "/" + maxRetries + " to add AndroidGPS interface");
                     
                     // Check if Bridge and WebView are available
                     if (getBridge() == null) {
@@ -82,21 +91,32 @@ public class MainActivity extends BridgeActivity {
                     
                     Log.e(TAG, "✅ Bridge and WebView are ready - adding AndroidGPS interface");
                     
+                    // CRITICAL: Enable JavaScript in WebView first
+                    getBridge().getWebView().getSettings().setJavaScriptEnabled(true);
+                    getBridge().getWebView().getSettings().setDomStorageEnabled(true);
+                    
                     // CRITICAL: Add MainActivity as AndroidGPS interface to WebView
                     getBridge().getWebView().addJavascriptInterface(MainActivity.this, "AndroidGPS");
-                    Log.e(TAG, "✅ SUCCESS: AndroidGPS interface attached to WebView");
+                    Log.e(TAG, "✅ SUCCESS: AndroidGPS interface attached to WebView with JavaScript enabled");
                     
-                    // Set ready flags in JavaScript
+                    // ENHANCED: Set multiple ready flags and test methods in JavaScript
                     String readyScript = 
-                        "window.AndroidGPS = window.AndroidGPS || {}; " +
-                        "window.AndroidGPSReady = true; " +
-                        "window.androidGPSBridgeReady = true; " +
-                        "window.androidGPSInterfaceReady = true; " +
-                        "console.log('✅ CRITICAL: AndroidGPS bridge established - GPS operations enabled'); " +
-                        "console.log('AndroidGPS methods available:', Object.keys(window.AndroidGPS));";
+                        "try { " +
+                        "  window.AndroidGPS = window.AndroidGPS || {}; " +
+                        "  window.AndroidGPSReady = true; " +
+                        "  window.androidGPSBridgeReady = true; " +
+                        "  window.androidGPSInterfaceReady = true; " +
+                        "  window.androidGPSMethodsAvailable = !!window.AndroidGPS.startGPS; " +
+                        "  console.log('✅ CRITICAL: AndroidGPS bridge established - GPS operations enabled'); " +
+                        "  console.log('AndroidGPS object:', typeof window.AndroidGPS); " +
+                        "  console.log('startGPS method:', typeof window.AndroidGPS.startGPS); " +
+                        "  console.log('stopGPS method:', typeof window.AndroidGPS.stopGPS); " +
+                        "  console.log('updateGPS method:', typeof window.AndroidGPS.updateGPS); " +
+                        "  console.log('All AndroidGPS methods available:', window.androidGPSMethodsAvailable); " +
+                        "} catch(e) { console.error('AndroidGPS setup error:', e); }";
                     
                     getBridge().getWebView().evaluateJavascript(readyScript, null);
-                    Log.e(TAG, "✅ SUCCESS: AndroidGPS ready flags set in JavaScript");
+                    Log.e(TAG, "✅ SUCCESS: AndroidGPS ready flags set and methods tested in JavaScript");
                     Log.e(TAG, "🎯 AndroidGPS bridge is now FULLY OPERATIONAL for GPS transmission");
                     
                 } catch (Exception e) {
@@ -109,7 +129,7 @@ public class MainActivity extends BridgeActivity {
             private void scheduleRetry() {
                 if (retryCount < maxRetries) {
                     retryCount++;
-                    Log.e(TAG, "🔄 Retrying AndroidGPS interface in 1 second... (attempt " + (retryCount + 1) + "/" + maxRetries + ")");
+                    Log.e(TAG, "🔄 Retrying AndroidGPS interface in " + retryDelayMs + "ms... (attempt " + (retryCount + 1) + "/" + maxRetries + ")");
                     handler.postDelayed(this, retryDelayMs);
                 } else {
                     Log.e(TAG, "❌ FAILED: AndroidGPS interface setup failed after " + maxRetries + " attempts");
@@ -118,7 +138,7 @@ public class MainActivity extends BridgeActivity {
             }
         };
         
-        // Start the setup process
+        // Start the setup process immediately
         handler.post(setupBridge);
     }
 
