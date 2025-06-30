@@ -303,8 +303,8 @@ public class OptimalGPSService extends Service {
     private void transmitOptimalGPSData(CourseData course, Location location) throws Exception {
         // Create GPS data JSON
         org.json.JSONObject gpsData = new org.json.JSONObject();
-        gpsData.put("lat", String.format("%.4f", location.getLatitude()));
-        gpsData.put("lng", String.format("%.4f", location.getLongitude()));
+        gpsData.put("lat", String.format("%.6f", location.getLatitude()));
+        gpsData.put("lng", String.format("%.6f", location.getLongitude()));
         gpsData.put("timestamp", new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", java.util.Locale.getDefault()).format(new java.util.Date()));
         gpsData.put("viteza", (int)(location.getSpeed() * 3.6)); // m/s to km/h
         gpsData.put("directie", (int)location.getBearing());
@@ -316,7 +316,9 @@ public class OptimalGPSService extends Service {
         gpsData.put("hdop", String.format("%.1f", getHdopFromLocation(location)));
         gpsData.put("gsm_signal", getSignalStrength());
         
-        Log.d(TAG, "📡 OPTIMAL GPS data: " + gpsData.toString());
+        Log.d(TAG, "📡 OPTIMAL GPS data for course " + course.courseId + ": " + gpsData.toString());
+        Log.d(TAG, "🔑 Auth token length: " + course.authToken.length() + " chars (starts with: " + course.authToken.substring(0, Math.min(20, course.authToken.length())) + "...)");
+        Log.d(TAG, "🌐 Transmitting to: https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
         
         // FOREGROUND OPTIMIZED: Instant transmission with single optimized thread
         // No batching - GPS must be sent immediately for real-time tracking
@@ -352,10 +354,28 @@ public class OptimalGPSService extends Service {
             }
             
             int responseCode = connection.getResponseCode();
+            
+            // Read response body for debugging
+            String responseBody = "";
+            try {
+                java.io.InputStream inputStream = (responseCode >= 200 && responseCode < 300) 
+                    ? connection.getInputStream() 
+                    : connection.getErrorStream();
+                
+                if (inputStream != null) {
+                    java.util.Scanner scanner = new java.util.Scanner(inputStream, "UTF-8");
+                    responseBody = scanner.useDelimiter("\\A").hasNext() ? scanner.next() : "";
+                    scanner.close();
+                }
+            } catch (Exception readError) {
+                Log.w(TAG, "Could not read response body: " + readError.getMessage());
+            }
+            
             if (responseCode == 200) {
-                Log.d(TAG, "✅ FOREGROUND GPS SUCCESS: " + responseCode + " for course: " + courseId);
+                Log.d(TAG, "✅ GPS SUCCESS " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
             } else {
-                Log.w(TAG, "⚠️ FOREGROUND GPS response: " + responseCode + " for course: " + courseId);
+                Log.w(TAG, "⚠️ GPS FAILED " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
+                Log.w(TAG, "🔍 Request was: " + jsonData);
             }
             
         } catch (Exception e) {
