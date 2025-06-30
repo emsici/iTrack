@@ -338,8 +338,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           await Geolocation.requestPermissions();
           console.log('✅ GPS permissions granted');
         } catch (permError) {
-          console.error('❌ GPS permissions denied:', permError);
-          throw new Error('Permisiunile GPS sunt necesare pentru a porni cursele');
+          console.log('⚠️ GPS permissions not immediately granted:', permError);
+          console.log('📱 APK Environment: Permissions will be requested by Android service');
+          console.log('✅ Continuing course start - GPS service will handle permissions');
         }
       }
 
