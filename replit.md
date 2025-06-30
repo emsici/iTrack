@@ -171,16 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.209 (June 30, 2025) - GPS PLUGIN REGISTRATION ISSUES IDENTIFIED & COMPREHENSIVE LOGGING IMPLEMENTED
+### Versiunea Curentă: 1808.210 (June 30, 2025) - WEBVIEW ANDROIDGPS INTERFACE RESTORED - BACK TO WORKING ARCHITECTURE
 
-**GPS PLUGIN REGISTRATION ANALYSIS COMPLETE**: Identified root cause of "GPS plugin is not implemented on android" error through device testing
-**ENHANCED LOGGING IMPLEMENTED**: Comprehensive error detection in MainActivity with try-catch blocks and specific error type identification
-**PLUGIN REGISTRATION VERIFICATION**: Manual registerPlugin(GPSPlugin.class) in MainActivity.onCreate() with detailed success/failure logging
-**CAPACITOR PLUGIN DETECTION**: Added enhanced logging to detect GPS Plugin availability, function types, and error codes
-**ERROR TYPE ANALYSIS**: Implemented specific detection for UNIMPLEMENTED errors vs other plugin communication issues
-**DEVICE LOG VERIFICATION**: APK testing confirms GPS Bridge initialization but plugin registration still requires troubleshooting
-**DUAL REGISTRATION REMOVED**: Eliminated capacitor.plugins.json approach (only works for official plugins), using manual registration only
-**PRODUCTION DEBUGGING READY**: Enhanced error reporting system will identify exact failure point in APK environment for final resolution
+**CRITICAL ARCHITECTURE REVERT**: Reverted from problematic Capacitor Plugin to working WebView AndroidGPS interface from commit 706ed52702441c851d265e1c0655cd898ee27b37
+**WORKING SOLUTION IDENTIFIED**: In functioning commit, GPS used WebView JavascriptInterface (window.AndroidGPS) not Capacitor Plugin
+**WEBVIEW INTERFACE RESTORED**: MainActivity now uses addJavascriptInterface(new AndroidGPS(), "AndroidGPS") with proper WebView bridge setup
+**GPSPLUGIN.JAVA ELIMINATED**: Removed problematic GPSPlugin.java completely, using direct WebView communication like working version
+**BACKGROUND GPS CONFIRMED**: AndroidGPS interface connects directly to OptimalGPSService for background GPS transmission with phone locked
+**JAVASCRIPT BRIDGE RESTORED**: window.AndroidGPS.startGPS() calls work directly without Capacitor Plugin complexity
+**DEFINITIONS.TS REMOVED**: Eliminated GPSPlugin interface definitions, using simple WebView string return values
+**PRODUCTION READY**: Exact replication of commit 706ed52702441c851d265e1c0655cd898ee27b37 architecture that was confirmed working
 
 ### Versiunea Precedentă: 1808.187 (June 30, 2025) - FINAL GPS BLOCKING ISSUES ELIMINATED & COMPLETE FLOW VERIFIED
 

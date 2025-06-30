@@ -2,13 +2,21 @@
 // Uses GPS Capacitor Plugin (no WebView dependency)
 import { getStoredToken, getStoredVehicleNumber } from './storage';
 import { logGPS, logGPSError } from './appLogger';
-import { registerPlugin } from '@capacitor/core';
-import { GPSPlugin } from '../definitions';
 
-// Register GPS plugin for Capacitor communication
-const GPS = registerPlugin<GPSPlugin>('GPS');
-
-// GPS Plugin test removed - testing will happen when user actually uses GPS functions
+// WebView AndroidGPS interface check - will be available when MainActivity initializes
+declare global {
+  interface Window {
+    AndroidGPS?: {
+      startGPS: (courseId: string, vehicleNumber: string, uit: string, authToken: string, status: number) => string;
+      stopGPS: (courseId: string) => string;
+      updateStatus: (courseId: string, newStatus: number) => string;
+      clearAllOnLogout: () => string;
+    };
+    AndroidGPSReady?: boolean;
+    androidGPSBridgeReady?: boolean;
+    androidGPSInterfaceReady?: boolean;
+  }
+}
 
 interface ActiveCourse {
   courseId: string;
@@ -98,28 +106,29 @@ class DirectAndroidGPSService {
       // ANDROID NATIVE STATUS UPDATE: Update course status via OptimalGPSService
       console.log(`📡 Updating course status via AndroidGPS: ${courseId} → ${newStatus}`);
       
-      // Update status through Capacitor Plugin
+      // Update status through AndroidGPS WebView interface
       try {
-        console.log("🔌 Updating GPS status via GPS Capacitor Plugin...");
+        console.log("🔌 Updating GPS status via AndroidGPS WebView interface...");
         
-        const result = await GPS.updateGPS({
-          courseId: courseId,
-          status: newStatus
-        });
+        if (!window.AndroidGPS) {
+          throw new Error("AndroidGPS WebView interface not available - APK required");
+        }
         
-        console.log("📡 GPS Plugin updateGPS result:", result);
+        const result = window.AndroidGPS.updateStatus(courseId, newStatus);
         
-        if (result.success) {
+        console.log("📡 AndroidGPS updateStatus result:", result);
+        
+        if (result.includes("SUCCESS")) {
           console.log(`✅ Course ${courseId} status updated to ${newStatus} successfully`);
           logGPS(`Course ${courseId} status updated to ${newStatus}`);
         } else {
-          console.log(`⚠️ GPS status update issues: ${result.message}`);
-          logGPSError(`Status update failed for course ${courseId}: ${result.message}`);
+          console.log(`⚠️ GPS status update issues: ${result}`);
+          logGPSError(`Status update failed for course ${courseId}: ${result}`);
         }
-      } catch (pluginError) {
-        console.log(`❌ GPS Plugin update failed: ${pluginError}`);
+      } catch (androidError) {
+        console.log(`❌ AndroidGPS update failed: ${androidError}`);
         console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
-        logGPSError(`Status update failed for course ${courseId} - Plugin not available`);
+        logGPSError(`Status update failed for course ${courseId} - AndroidGPS not available`);
       }
 
       // Handle special status logic
@@ -207,48 +216,51 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    console.log("🚀 Starting OptimalGPSService via GPS Plugin");
-    console.log(`📊 GPS Plugin available: ${typeof GPS}`);
-    console.log(`📊 GPS.startGPS function: ${typeof GPS.startGPS}`);
+    console.log("🚀 Starting OptimalGPSService via WebView AndroidGPS");
+    console.log(`📊 AndroidGPS available: ${typeof window.AndroidGPS}`);
+    console.log(`📊 AndroidGPS.startGPS function: ${typeof window.AndroidGPS?.startGPS}`);
 
     try {
-      console.log("📱 Calling GPS.startGPS() → GPSPlugin → OptimalGPSService");
+      console.log("📱 Calling window.AndroidGPS.startGPS() → MainActivity → OptimalGPSService");
       console.log(`📤 Parameters: courseId=${course.courseId}, vehicle=${course.vehicleNumber}, uit=${course.uit}`);
       
-      const result = await GPS.startGPS({
-        courseId: course.courseId,
-        vehicleNumber: course.vehicleNumber,
-        uit: course.uit,
-        authToken: course.token,
-        status: course.status
-      });
+      if (!window.AndroidGPS) {
+        throw new Error("AndroidGPS WebView interface not available - APK required");
+      }
       
-      console.log("📡 GPS Plugin result:", result);
+      const result = window.AndroidGPS.startGPS(
+        course.courseId,
+        course.vehicleNumber,
+        course.uit,
+        course.token,
+        course.status
+      );
       
-      if (result.success) {
+      console.log("📡 AndroidGPS result:", result);
+      
+      if (result.includes("SUCCESS")) {
         console.log("✅ OptimalGPSService started - GPS transmission every 5 seconds");
+        logGPS(`GPS started successfully for course ${course.courseId}`);
       } else {
-        console.log("⚠️ GPS Plugin reported issues:", result.message);
-        console.log("📱 APK: OptimalGPSService may still start successfully");
+        console.log("⚠️ AndroidGPS reported issues:", result);
+        logGPSError(`GPS start warning for course ${course.courseId}: ${result}`);
       }
       
-    } catch (pluginError: any) {
-      console.log("❌ GPS Plugin failed:", pluginError);
-      console.log("❌ Error type:", pluginError?.constructor?.name || 'Unknown');
-      console.log("❌ Error message:", pluginError?.message || 'No message');
-      console.log("❌ Error code:", pluginError?.code || 'No code');
-      console.log("❌ Full error object:", JSON.stringify(pluginError, null, 2));
+    } catch (androidError: any) {
+      console.log("❌ AndroidGPS failed:", androidError);
+      console.log("❌ Error type:", androidError?.constructor?.name || 'Unknown');
+      console.log("❌ Error message:", androidError?.message || 'No message');
       
-      if (pluginError?.code === 'UNIMPLEMENTED') {
-        console.log("🚨 CRITICAL: GPS Plugin is not implemented - registerPlugin() may have failed");
-        logGPSError("GPS Plugin registration failed - plugin not available in APK");
+      if (androidError?.message?.includes("not available")) {
+        console.log("📱 AndroidGPS WebView interface not available - normal in browser");
+        logGPSError("AndroidGPS interface not available - APK required for GPS functionality");
       } else {
-        console.log("📱 Other GPS Plugin error - may work on real device");
-        logGPSError(`GPS Plugin error: ${pluginError?.message || pluginError}`);
+        console.log("📱 Other AndroidGPS error - may work on real device");
+        logGPSError(`AndroidGPS error: ${androidError?.message || androidError}`);
       }
       
-      console.log("✅ Course remains in activeCourses for when plugin becomes available");
-      throw pluginError; // Re-throw to bubble up the specific error
+      console.log("✅ Course remains in activeCourses for when AndroidGPS becomes available");
+      throw androidError; // Re-throw to bubble up the specific error
     }
   }
   
@@ -257,25 +269,27 @@ class DirectAndroidGPSService {
 
 
   private async stopAndroidNativeService(courseId: string): Promise<void> {
-    console.log("🛑 Stopping OptimalGPSService via GPS Plugin");
+    console.log("🛑 Stopping OptimalGPSService via AndroidGPS WebView");
 
     try {
-      console.log("📱 Calling GPS.stopGPS() → GPSPlugin → OptimalGPSService");
+      console.log("📱 Calling window.AndroidGPS.stopGPS() → MainActivity → OptimalGPSService");
       
-      const result = await GPS.stopGPS({
-        courseId: courseId
-      });
+      if (!window.AndroidGPS) {
+        throw new Error("AndroidGPS WebView interface not available - APK required");
+      }
       
-      console.log("📡 GPS Plugin result:", result);
+      const result = window.AndroidGPS.stopGPS(courseId);
       
-      if (result.success) {
+      console.log("📡 AndroidGPS result:", result);
+      
+      if (result.includes("SUCCESS")) {
         console.log(`✅ OptimalGPSService stopped for course ${courseId}`);
       } else {
-        console.log(`⚠️ GPS Plugin reported issues:`, result.message);
+        console.log(`⚠️ AndroidGPS reported issues:`, result);
       }
-    } catch (pluginError) {
-      console.log("❌ GPS Plugin failed:", pluginError);
-      console.log("📱 APK Environment: Plugin will be available on real device");
+    } catch (androidError) {
+      console.log("❌ AndroidGPS failed:", androidError);
+      console.log("📱 APK Environment: AndroidGPS will be available on real device");
     }
   }
 
@@ -305,21 +319,25 @@ class DirectAndroidGPSService {
         }
       }
       
-      // Clear all Android GPS services via GPS Plugin
+      // Clear all Android GPS services via AndroidGPS WebView
       try {
-        console.log("🔌 Clearing all GPS via GPS Capacitor Plugin...");
+        console.log("🔌 Clearing all GPS via AndroidGPS WebView interface...");
         
-        const result = await GPS.clearAllGPS();
+        if (!window.AndroidGPS) {
+          throw new Error("AndroidGPS WebView interface not available - APK required");
+        }
         
-        console.log("📡 GPS Plugin clearAllGPS result:", result);
+        const result = window.AndroidGPS.clearAllOnLogout();
         
-        if (result.success) {
+        console.log("📡 AndroidGPS clearAllOnLogout result:", result);
+        
+        if (result.includes("SUCCESS")) {
           console.log("✅ All OptimalGPSService instances cleared successfully");
         } else {
-          console.log("⚠️ GPS Plugin clearAll issues:", result.message);
+          console.log("⚠️ AndroidGPS clearAll issues:", result);
         }
-      } catch (pluginError) {
-        console.log("❌ GPS Plugin clearAll failed:", pluginError);
+      } catch (androidError) {
+        console.log("❌ AndroidGPS clearAll failed:", androidError);
         console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
       }
       
