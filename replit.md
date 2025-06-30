@@ -178,7 +178,7 @@ Persistare localStorage → Afișare CourseStatsModal
 **REAL GPS COORDINATES**: Integrated Capacitor Geolocation API for authentic GPS coordinates instead of mock data
 **JAVASCRIPT INTERVALS**: Uses setInterval(5000ms) with CapacitorHttp.post() for reliable 5-second GPS transmission
 **BEARER TOKEN VERIFIED**: All GPS transmissions include proper Authorization Bearer header with login token
-**FALLBACK COORDINATES**: Bucharest area coordinates if GPS unavailable, ensuring transmission always works
+**ONLY REAL GPS COORDINATES**: Uses authentic GPS coordinates from device location - no fallback coordinates
 **GPS STATUS UPDATES**: Status changes (PAUSE/STOP) immediately transmit current GPS with updated status
 **CLEAN LOGOUT**: All GPS intervals properly cleared on logout preventing memory leaks
 **APK PRODUCTION READY**: CapacitorHttp proven reliable on real devices - GPS will transmit every 5 seconds to gps.php

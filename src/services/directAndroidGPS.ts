@@ -230,48 +230,27 @@ class DirectAndroidGPSService {
       // Get real GPS coordinates using Capacitor Geolocation
       let gpsData;
       
-      try {
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000
-        });
-        
-        gpsData = {
-          lat: parseFloat(position.coords.latitude.toFixed(6)),
-          lng: parseFloat(position.coords.longitude.toFixed(6)),
-          timestamp: new Date().toISOString(),
-          viteza: position.coords.speed ? Math.max(0, Math.round(position.coords.speed * 3.6)) : 0, // m/s to km/h
-          directie: position.coords.heading || 0,
-          altitudine: Math.round(position.coords.altitude || 0),
-          baterie: 85, // Would need native plugin for real battery
-          numar_inmatriculare: course.vehicleNumber,
-          uit: course.uit,
-          status: course.status,
-          hdop: position.coords.accuracy ? position.coords.accuracy.toFixed(1) : "1.0",
-          gsm_signal: "4G"
-        };
-        
-        console.log(`📍 Real GPS coordinates obtained for ${course.courseId}: ${gpsData.lat}, ${gpsData.lng}`);
-        
-      } catch (gpsError) {
-        console.log(`⚠️ GPS unavailable, using fallback coordinates: ${gpsError}`);
-        
-        // Fallback coordinates (Bucharest area) if GPS not available
-        gpsData = {
-          lat: 44.4268 + (Math.random() - 0.5) * 0.01,
-          lng: 26.1025 + (Math.random() - 0.5) * 0.01,
-          timestamp: new Date().toISOString(),
-          viteza: Math.floor(Math.random() * 60) + 20,
-          directie: Math.floor(Math.random() * 360),
-          altitudine: 100 + Math.floor(Math.random() * 50),
-          baterie: 85,
-          numar_inmatriculare: course.vehicleNumber,
-          uit: course.uit,
-          status: course.status,
-          hdop: "1.2",
-          gsm_signal: "4G"
-        };
-      }
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000
+      });
+      
+      gpsData = {
+        lat: parseFloat(position.coords.latitude.toFixed(6)),
+        lng: parseFloat(position.coords.longitude.toFixed(6)),
+        timestamp: new Date().toISOString(),
+        viteza: position.coords.speed ? Math.max(0, Math.round(position.coords.speed * 3.6)) : 0, // m/s to km/h
+        directie: position.coords.heading || 0,
+        altitudine: Math.round(position.coords.altitude || 0),
+        baterie: 85, // Would need native plugin for real battery
+        numar_inmatriculare: course.vehicleNumber,
+        uit: course.uit,
+        status: course.status,
+        hdop: position.coords.accuracy ? position.coords.accuracy.toFixed(1) : "1.0",
+        gsm_signal: "4G"
+      };
+      
+      console.log(`📍 Real GPS coordinates obtained for ${course.courseId}: ${gpsData.lat}, ${gpsData.lng}`);
       
       const response = await CapacitorHttp.post({
         url: 'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php',
