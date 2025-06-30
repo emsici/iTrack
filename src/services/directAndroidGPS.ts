@@ -88,18 +88,28 @@ class DirectAndroidGPSService {
     course.status = newStatus;
 
     try {
-      // CAPACITORHTTP STATUS UPDATE: Update course status with current GPS data
-      console.log(`📡 Updating course status via CapacitorHttp: ${courseId} → ${newStatus}`);
+      // ANDROID NATIVE STATUS UPDATE: Update course status via OptimalGPSService
+      console.log(`📡 Updating course status via AndroidGPS: ${courseId} → ${newStatus}`);
       
-      // For status updates, transmit current status immediately
-      if (course) {
-        course.status = newStatus;
-        await this.transmitGPSViaCapacitor(course);
-        console.log(`✅ Course ${courseId} status updated to ${newStatus} successfully`);
-        logGPS(`Course ${courseId} status updated to ${newStatus}`);
+      // Update status through AndroidGPS interface
+      if (typeof (window as any).AndroidGPS !== 'undefined' && (window as any).AndroidGPS.updateGPS) {
+        console.log("✅ AndroidGPS interface available - calling updateGPS");
+        
+        const result = (window as any).AndroidGPS.updateGPS(courseId, newStatus);
+        
+        console.log("📡 AndroidGPS updateGPS result:", result);
+        
+        if (result === "SUCCESS") {
+          console.log(`✅ Course ${courseId} status updated to ${newStatus} successfully`);
+          logGPS(`Course ${courseId} status updated to ${newStatus}`);
+        } else {
+          console.log(`⚠️ AndroidGPS status update had issues for course ${courseId}`);
+          logGPSError(`Status update failed for course ${courseId}`);
+        }
       } else {
-        console.log(`⚠️ Course ${courseId} not found for status update`);
-        logGPSError(`Status update failed for course ${courseId} - course not found`);
+        console.log(`⚠️ AndroidGPS interface not available for status update`);
+        console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
+        logGPSError(`Status update failed for course ${courseId} - AndroidGPS not available`);
       }
 
       // Handle special status logic
@@ -183,117 +193,74 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    console.log("🚀 Starting GPS via CapacitorHttp (bypassing DirectGPS interface)");
+    console.log("🚀 Starting Android Native GPS Service via OptimalGPSService");
 
     try {
-      // DIRECT CAPACITORHTTP APPROACH: Skip JavaScript interface completely
-      console.log(`📱 CapacitorHttp GPS: Starting background transmission for ${course.courseId}`);
+      // ANDROID NATIVE GPS: Use OptimalGPSService through AndroidGPS interface
+      console.log(`📱 AndroidGPS: Starting OptimalGPSService for ${course.courseId}`);
       
-      // Start background GPS transmission using CapacitorHttp directly
-      this.startCapacitorHttpGPS(course);
-      
-      console.log("✅ CapacitorHttp GPS transmission started successfully");
-      console.log(`✅ Course ${course.courseId} will transmit GPS every 5 seconds via CapacitorHttp`);
+      // Start OptimalGPSService through MainActivity AndroidGPS interface
+      if (typeof (window as any).AndroidGPS !== 'undefined' && (window as any).AndroidGPS.startGPS) {
+        console.log("✅ AndroidGPS interface available - calling startGPS");
+        
+        const result = (window as any).AndroidGPS.startGPS(
+          course.courseId,
+          course.vehicleNumber, 
+          course.token,
+          course.uit,
+          course.status
+        );
+        
+        console.log("📡 AndroidGPS startGPS result:", result);
+        
+        if (result === "SUCCESS") {
+          console.log("✅ OptimalGPSService started successfully - will transmit GPS every 5 seconds");
+        } else {
+          console.log("⚠️ OptimalGPSService start had issues - but service may still work");
+        }
+      } else {
+        console.log("❌ AndroidGPS interface not available");
+        console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
+      }
       
     } catch (error) {
-      console.log(`⚠️ CapacitorHttp GPS startup error: ${error}`);
+      console.log(`⚠️ OptimalGPSService start error: ${error}`);
       console.log("✅ Course remains active in activeCourses for retry");
     }
   }
   
-  private startCapacitorHttpGPS(course: ActiveCourse): void {
-    // Set interval for GPS transmission every 5 seconds using CapacitorHttp
-    const intervalKey = `gpsInterval_${course.courseId}`;
-    
-    // Clear any existing interval
-    if ((window as any)[intervalKey]) {
-      clearInterval((window as any)[intervalKey]);
-    }
-    
-    // Start new GPS transmission interval
-    (window as any)[intervalKey] = setInterval(async () => {
-      try {
-        await this.transmitGPSViaCapacitor(course);
-      } catch (error) {
-        console.log(`GPS transmission error for ${course.courseId}:`, error);
-      }
-    }, 5000); // 5 seconds interval
-    
-    console.log(`📡 GPS interval started for course ${course.courseId} - transmitting every 5 seconds`);
-  }
+
   
-  private async transmitGPSViaCapacitor(course: ActiveCourse): Promise<void> {
-    try {
-      const { CapacitorHttp } = await import('@capacitor/core');
-      const { Geolocation } = await import('@capacitor/geolocation');
-      
-      // Get real GPS coordinates using Capacitor Geolocation
-      let gpsData;
-      
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000
-      });
-      
-      gpsData = {
-        lat: parseFloat(position.coords.latitude.toFixed(6)),
-        lng: parseFloat(position.coords.longitude.toFixed(6)),
-        timestamp: new Date().toISOString(),
-        viteza: position.coords.speed ? Math.max(0, Math.round(position.coords.speed * 3.6)) : 0, // m/s to km/h
-        directie: position.coords.heading || 0,
-        altitudine: Math.round(position.coords.altitude || 0),
-        baterie: 85, // Would need native plugin for real battery
-        numar_inmatriculare: course.vehicleNumber,
-        uit: course.uit,
-        status: course.status,
-        hdop: position.coords.accuracy ? position.coords.accuracy.toFixed(1) : "1.0",
-        gsm_signal: "4G"
-      };
-      
-      console.log(`📍 Real GPS coordinates obtained for ${course.courseId}: ${gpsData.lat}, ${gpsData.lng}`);
-      
-      const response = await CapacitorHttp.post({
-        url: 'https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php',
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': `Bearer ${course.token}`,
-          'User-Agent': 'iTrack-CapacitorHttp-GPS/1.0'
-        },
-        data: gpsData
-      });
-      
-      if (response.status === 200) {
-        console.log(`✅ GPS transmitted successfully for ${course.courseId} via CapacitorHttp`);
-      } else {
-        console.log(`⚠️ GPS transmission response ${response.status} for ${course.courseId}`);
-      }
-      
-    } catch (error) {
-      console.log(`❌ GPS transmission failed for ${course.courseId}:`, error);
-    }
-  }
+
 
   private async stopAndroidNativeService(courseId: string): Promise<void> {
-    console.log("🛑 Stopping CapacitorHttp GPS interval");
+    console.log("🛑 Stopping Android Native GPS Service via OptimalGPSService");
     console.log(`Course: ${courseId}`);
 
     try {
-      // Stop CapacitorHttp GPS interval
-      const intervalKey = `gpsInterval_${courseId}`;
-      
-      if ((window as any)[intervalKey]) {
-        clearInterval((window as any)[intervalKey]);
-        delete (window as any)[intervalKey];
-        console.log(`✅ GPS interval stopped for course ${courseId}`);
+      // Stop OptimalGPSService through AndroidGPS interface
+      if (typeof (window as any).AndroidGPS !== 'undefined' && (window as any).AndroidGPS.stopGPS) {
+        console.log("✅ AndroidGPS interface available - calling stopGPS");
+        
+        const result = (window as any).AndroidGPS.stopGPS(courseId);
+        
+        console.log("📡 AndroidGPS stopGPS result:", result);
+        
+        if (result === "SUCCESS") {
+          console.log(`✅ OptimalGPSService stopped successfully for course ${courseId}`);
+        } else {
+          console.log(`⚠️ OptimalGPSService stop had issues for course ${courseId}`);
+        }
       } else {
-        console.log(`⚠️ No GPS interval found for course ${courseId}`);
+        console.log("❌ AndroidGPS interface not available for stop operation");
+        console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
       }
       
     } catch (error) {
-      console.log(`⚠️ Error stopping GPS interval for ${courseId}: ${error}`);
+      console.log(`⚠️ OptimalGPSService stop error for ${courseId}: ${error}`);
     }
     
-    console.log("✅ CapacitorHttp GPS service stopped and cleaned up");
+    console.log("✅ Android Native GPS service stopped and cleaned up");
   }
 
   getActiveCourses(): string[] {
@@ -322,19 +289,25 @@ class DirectAndroidGPSService {
         }
       }
       
-      // Clear all CapacitorHttp GPS intervals
+      // Clear all Android GPS services
       try {
-        for (const courseId of this.activeCourses.keys()) {
-          const intervalKey = `gpsInterval_${courseId}`;
-          if ((window as any)[intervalKey]) {
-            clearInterval((window as any)[intervalKey]);
-            delete (window as any)[intervalKey];
-            console.log(`✅ GPS interval cleared for course ${courseId}`);
+        if (typeof (window as any).AndroidGPS !== 'undefined' && (window as any).AndroidGPS.clearAllGPS) {
+          console.log("✅ AndroidGPS interface available - calling clearAllGPS");
+          
+          const result = (window as any).AndroidGPS.clearAllGPS();
+          
+          console.log("📡 AndroidGPS clearAllGPS result:", result);
+          
+          if (result === "SUCCESS") {
+            console.log("✅ All OptimalGPSService instances cleared successfully");
+          } else {
+            console.log("⚠️ AndroidGPS clearAll had issues");
           }
+        } else {
+          console.log("⚠️ AndroidGPS interface not available for clearAll");
         }
-        console.log("✅ All CapacitorHttp GPS intervals cleared successfully");
       } catch (error) {
-        console.log("CapacitorHttp cleanup failed:", error);
+        console.log("AndroidGPS cleanup failed:", error);
       }
       
       // Clear local tracking data
