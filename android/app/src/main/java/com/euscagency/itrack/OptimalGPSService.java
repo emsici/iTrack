@@ -42,12 +42,14 @@ public class OptimalGPSService extends Service {
         public String uit;
         public int status;
         public String vehicleNumber;
+        public String authToken;
         
-        public CourseData(String courseId, String uit, int status, String vehicleNumber) {
+        public CourseData(String courseId, String uit, int status, String vehicleNumber, String authToken) {
             this.courseId = courseId;
             this.uit = uit;
             this.status = status;
             this.vehicleNumber = vehicleNumber;
+            this.authToken = authToken;
         }
     }
     
@@ -272,7 +274,7 @@ public class OptimalGPSService extends Service {
                     java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("POST");
                     connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setRequestProperty("Authorization", "Bearer " + userAuthToken);
+                    connection.setRequestProperty("Authorization", "Bearer " + course.authToken);
                     connection.setRequestProperty("User-Agent", "iTrack-Optimal-GPS/1.0");
                     connection.setDoOutput(true);
                     connection.setConnectTimeout(8000);
@@ -427,8 +429,6 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "🛑 Optimal GPS timer stopped");
     }
     
-    private String userAuthToken;
-    
     private void handleServiceCommand(Intent intent) {
         if (intent == null) return;
         
@@ -442,8 +442,6 @@ public class OptimalGPSService extends Service {
             String authToken = intent.getStringExtra("AUTH_TOKEN");
             int status = intent.getIntExtra("STATUS", 2);
             
-            userAuthToken = authToken;
-            
             // Check if course already exists to prevent duplicates
             if (activeCourses.containsKey(courseId)) {
                 Log.w(TAG, "⚠️ Course " + courseId + " already exists - updating status only");
@@ -451,7 +449,7 @@ public class OptimalGPSService extends Service {
                 return; // Don't add duplicate or restart timer
             }
             
-            CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber);
+            CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber, authToken);
             activeCourses.put(courseId, courseData);
             
             Log.d(TAG, "✅ OPTIMAL course added: " + courseId + " (UIT: " + uit + ")");
