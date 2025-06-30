@@ -42,35 +42,80 @@ public class MainActivity extends BridgeActivity {
     public void onStart() {
         super.onStart();
         
-        // Add direct WebView bridge as fallback for GPS plugin issues
+        // Setup DirectGPS bridge with multiple retry attempts
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                setupDirectGPSBridge();
+                setupDirectGPSBridgeWithRetry(0);
             }
-        }, 1000); // Wait 1 second for WebView to be ready
+        }, 2000); // Wait 2 seconds for WebView to be fully ready
         
-        Log.e(TAG, "🎯 MainActivity onStart() completed - Direct GPS bridge setup scheduled");
+        Log.e(TAG, "🎯 MainActivity onStart() completed - Direct GPS bridge setup scheduled with retry");
     }
 
-    private void setupDirectGPSBridge() {
+    private void setupDirectGPSBridgeWithRetry(int attempt) {
+        final int MAX_ATTEMPTS = 5;
+        
         try {
             WebView webView = getWebView();
             if (webView != null) {
                 // Add direct JavaScript interface for GPS methods
                 webView.addJavascriptInterface(new DirectGPSInterface(), "DirectGPS");
                 
-                // Set ready flag for JavaScript detection
-                webView.evaluateJavascript("window.DirectGPSReady = true; console.log('✅ DirectGPS interface ready');", null);
+                // Set multiple ready flags for JavaScript detection with comprehensive debugging
+                String jsCode = 
+                    "window.DirectGPS = window.DirectGPS || {}; " +
+                    "window.DirectGPSReady = true; " +
+                    "window.directGPSAvailable = true; " +
+                    "console.log('✅ DirectGPS interface ready - attempt " + (attempt + 1) + "'); " +
+                    "console.log('🔍 DirectGPS object type:', typeof window.DirectGPS); " +
+                    "console.log('🔍 DirectGPS methods:', Object.getOwnPropertyNames(window.DirectGPS || {})); " +
+                    "console.log('🔍 startGPS function available:', typeof window.DirectGPS.startGPS);";
                 
-                Log.e(TAG, "✅ DirectGPS interface added successfully");
+                webView.evaluateJavascript(jsCode, null);
+                
+                Log.e(TAG, "✅ DirectGPS interface added successfully on attempt " + (attempt + 1));
+                
+                // Verify interface is actually available
+                webView.evaluateJavascript("typeof window.DirectGPS", new android.webkit.ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String value) {
+                        Log.e(TAG, "DirectGPS type check result: " + value);
+                        if (!"\"object\"".equals(value) && !"\"undefined\"".equals(value)) {
+                            Log.e(TAG, "✅ DirectGPS interface verified as available");
+                        }
+                    }
+                });
+                
             } else {
-                Log.e(TAG, "❌ WebView not available for DirectGPS interface");
+                Log.e(TAG, "❌ WebView not available for DirectGPS interface - attempt " + (attempt + 1));
+                
+                // Retry if we haven't reached max attempts
+                if (attempt < MAX_ATTEMPTS - 1) {
+                    Handler retryHandler = new Handler(Looper.getMainLooper());
+                    retryHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            setupDirectGPSBridgeWithRetry(attempt + 1);
+                        }
+                    }, 1000 * (attempt + 1)); // Increasing delay: 1s, 2s, 3s, 4s
+                }
             }
         } catch (Exception e) {
-            Log.e(TAG, "❌ Failed to setup DirectGPS interface: " + e.getMessage());
+            Log.e(TAG, "❌ Failed to setup DirectGPS interface on attempt " + (attempt + 1) + ": " + e.getMessage());
             e.printStackTrace();
+            
+            // Retry if we haven't reached max attempts
+            if (attempt < MAX_ATTEMPTS - 1) {
+                Handler retryHandler = new Handler(Looper.getMainLooper());
+                retryHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        setupDirectGPSBridgeWithRetry(attempt + 1);
+                    }
+                }, 1000 * (attempt + 1));
+            }
         }
     }
 

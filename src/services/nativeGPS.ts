@@ -39,8 +39,18 @@ export const startNativeGPS = async (
   status: number
 ): Promise<boolean> => {
   try {
-    // ANDROID APK ONLY: Use DirectGPS interface exclusively
-    if (typeof (window as any).DirectGPS !== 'undefined') {
+    // ANDROID APK ONLY: Use DirectGPS interface exclusively with enhanced detection
+    const directGPSAvailable = typeof (window as any).DirectGPS !== 'undefined' && 
+                               typeof (window as any).DirectGPS.startGPS === 'function';
+    
+    console.log('🔍 DirectGPS detection:', {
+      DirectGPS: typeof (window as any).DirectGPS,
+      startGPS: typeof (window as any).DirectGPS?.startGPS,
+      DirectGPSReady: (window as any).DirectGPSReady,
+      directGPSAvailable: (window as any).directGPSAvailable
+    });
+    
+    if (directGPSAvailable) {
       console.log('🚀 Using DirectGPS interface for Android APK');
       console.log(`Course: ${courseId}, Vehicle: ${vehicleNumber}, UIT: ${uit}, Status: ${status}`);
       
