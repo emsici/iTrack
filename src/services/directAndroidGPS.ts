@@ -8,21 +8,7 @@ import { GPSPlugin } from '../definitions';
 // Register GPS plugin for Capacitor communication
 const GPS = registerPlugin<GPSPlugin>('GPS');
 
-// Test GPS Plugin availability - but only in APK environment
-if (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform()) {
-  setTimeout(() => {
-    console.log("🔍 Testing GPS Plugin availability (APK environment)...");
-    try {
-      GPS.clearAllGPS().then(result => {
-        console.log("✅ GPS Plugin test successful:", result);
-      }).catch(error => {
-        console.log("❌ GPS Plugin test failed (expected in browser):", error);
-      });
-    } catch (error) {
-      console.log("❌ GPS Plugin not available (expected in browser):", error);
-    }
-  }, 3000); // Wait 3 seconds for full APK initialization
-}
+// GPS Plugin test removed - testing will happen when user actually uses GPS functions
 
 interface ActiveCourse {
   courseId: string;
@@ -222,9 +208,12 @@ class DirectAndroidGPSService {
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
     console.log("🚀 Starting OptimalGPSService via GPS Plugin");
+    console.log(`📊 GPS Plugin available: ${typeof GPS}`);
+    console.log(`📊 GPS.startGPS function: ${typeof GPS.startGPS}`);
 
     try {
       console.log("📱 Calling GPS.startGPS() → GPSPlugin → OptimalGPSService");
+      console.log(`📤 Parameters: courseId=${course.courseId}, vehicle=${course.vehicleNumber}, uit=${course.uit}`);
       
       const result = await GPS.startGPS({
         courseId: course.courseId,
@@ -243,10 +232,23 @@ class DirectAndroidGPSService {
         console.log("📱 APK: OptimalGPSService may still start successfully");
       }
       
-    } catch (pluginError) {
+    } catch (pluginError: any) {
       console.log("❌ GPS Plugin failed:", pluginError);
-      console.log("📱 APK Environment: Plugin will be available on real device");
+      console.log("❌ Error type:", pluginError?.constructor?.name || 'Unknown');
+      console.log("❌ Error message:", pluginError?.message || 'No message');
+      console.log("❌ Error code:", pluginError?.code || 'No code');
+      console.log("❌ Full error object:", JSON.stringify(pluginError, null, 2));
+      
+      if (pluginError?.code === 'UNIMPLEMENTED') {
+        console.log("🚨 CRITICAL: GPS Plugin is not implemented - registerPlugin() may have failed");
+        logGPSError("GPS Plugin registration failed - plugin not available in APK");
+      } else {
+        console.log("📱 Other GPS Plugin error - may work on real device");
+        logGPSError(`GPS Plugin error: ${pluginError?.message || pluginError}`);
+      }
+      
       console.log("✅ Course remains in activeCourses for when plugin becomes available");
+      throw pluginError; // Re-throw to bubble up the specific error
     }
   }
   

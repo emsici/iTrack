@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.getcapacitor.BridgeActivity;
+import com.euscagency.itrack.GPSPlugin;
 
 /**
  * MainActivity for iTrack GPS Application
@@ -24,14 +25,15 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
         instance = this;
         
-        // MANUAL PLUGIN REGISTRATION - ensure GPS plugin is available
+        // Initialize GPS plugin manually (custom plugins require manual registration)
         try {
+            Log.d(TAG, "🔄 Attempting to register GPSPlugin...");
             this.registerPlugin(GPSPlugin.class);
-            Log.d(TAG, "✅ MainActivity initialized - GPS Plugin manually registered");
-            Log.d(TAG, "✅ GPSPlugin registered successfully with name: GPS");
-            Log.d(TAG, "✅ GPSPlugin class: " + GPSPlugin.class.getName());
+            Log.d(TAG, "✅ MainActivity initialized - GPSPlugin registered successfully");
+            Log.d(TAG, "✅ GPSPlugin class: " + GPSPlugin.class.getSimpleName());
         } catch (Exception e) {
-            Log.e(TAG, "❌ Failed to register GPSPlugin: " + e.getMessage());
+            Log.e(TAG, "❌ CRITICAL: Failed to register GPSPlugin: " + e.getMessage());
+            Log.e(TAG, "❌ Exception type: " + e.getClass().getSimpleName());
             e.printStackTrace();
         }
     }
