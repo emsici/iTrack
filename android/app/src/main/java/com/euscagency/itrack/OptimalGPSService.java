@@ -221,7 +221,9 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "✅ Optimal GPS cycle completed - next in exactly " + (GPS_INTERVAL_MS/1000) + "s");
         
         // CRITICAL: Schedule next GPS cycle to continue background operation
+        Log.d(TAG, "🔄 SCHEDULING NEXT GPS CYCLE - activeCourses size: " + activeCourses.size());
         scheduleNextOptimalGPSCycle();
+        Log.d(TAG, "⏰ NEXT GPS CYCLE SCHEDULED successfully");
     }
     
     /**
@@ -293,12 +295,16 @@ public class OptimalGPSService extends Service {
      */
     private void scheduleNextOptimalGPSCycle() {
         if (!activeCourses.isEmpty()) {
+            long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + GPS_INTERVAL_MS,
+                nextTriggerTime,
                 gpsPendingIntent
             );
-            Log.d(TAG, "⏰ Next OPTIMAL GPS cycle scheduled in exactly " + (GPS_INTERVAL_MS/1000) + "s");
+            Log.d(TAG, "⏰ NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
+            Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
+        } else {
+            Log.w(TAG, "❌ NO ACTIVE COURSES - GPS cycle NOT scheduled");
         }
     }
     
