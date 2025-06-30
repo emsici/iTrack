@@ -6,6 +6,7 @@ import VehicleScreen from './components/VehicleScreenProfessional';
 import AdminPanel from './components/AdminPanel';
 import { getStoredToken, storeToken, clearToken } from './services/storage';
 import { API_BASE_URL } from './services/api';
+import { setupGPSBridge } from './gps-bridge';
 
 type AppState = 'login' | 'vehicle' | 'admin';
 
@@ -21,6 +22,10 @@ const App: React.FC = () => {
       setIsLoading(false);
       
       try {
+        // CRITICAL: Initialize GPS bridge for Android service communication
+        setupGPSBridge();
+        console.log('✅ GPS Bridge initialized - Android service ready for GPS transmission');
+        
         // Check for stored authentication token (non-blocking)
         const storedToken = await getStoredToken();
         if (storedToken) {
