@@ -88,28 +88,27 @@ class DirectAndroidGPSService {
     course.status = newStatus;
 
     try {
-      // DIRECT GPS PLUGIN: Update status via DirectGPS Capacitor Plugin
-      console.log(`📡 Updating course status via DirectGPS Plugin: ${courseId} → ${newStatus}`);
+      // DIRECT GPS INTERFACE: Update status via DirectGPS JavaScript Interface
+      console.log(`📡 Updating course status via DirectGPS Interface: ${courseId} → ${newStatus}`);
       
-      const { Capacitor, registerPlugin } = await import('@capacitor/core');
-      
-      if (Capacitor.isNativePlatform()) {
-        const DirectGPS = registerPlugin('DirectGPS') as any;
+      // Use DirectGPS JavaScript interface from MainActivity
+      if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.updateGPS) {
+        console.log("✅ DirectGPS JavaScript interface available - calling updateGPS");
         
-        const result = await DirectGPS.updateGPS({
-          courseId: courseId,
-          status: newStatus
-        });
+        const result = (window as any).DirectGPS.updateGPS(courseId, newStatus);
         
-        if (result.success) {
+        console.log("📡 DirectGPS updateGPS result:", result);
+        
+        if (result === "SUCCESS") {
           console.log(`✅ Course ${courseId} status updated to ${newStatus} successfully`);
           logGPS(`Course ${courseId} status updated to ${newStatus}`);
         } else {
-          console.log(`⚠️ DirectGPS Plugin status update had issues - but service continues`);
+          console.log(`⚠️ DirectGPS Interface status update had issues - but service continues`);
           logGPSError(`Status update failed for course ${courseId}`);
         }
       } else {
-        console.log(`⚠️ DirectGPS Plugin not available - status update skipped`);
+        console.log(`⚠️ DirectGPS JavaScript interface not available - status update skipped`);
+        console.log("🔧 This is normal during app startup - interface will be ready soon");
       }
 
       // Handle special status logic
@@ -193,69 +192,70 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    console.log("🚀 Starting DirectGPS Capacitor Plugin (no WebView dependency)");
+    console.log("🚀 Starting DirectGPS JavaScript Interface (MainActivity bridge)");
 
     try {
-      // DIRECT GPS PLUGIN: Uses BroadcastReceiver system instead of WebView
-      console.log(`📱 DirectGPS Plugin: startGPS(${course.courseId}, ${course.vehicleNumber}, ${course.uit}, [token], ${course.status})`);
+      // Use DirectGPS JavaScript interface from MainActivity (not Capacitor plugin)
+      console.log(`📱 DirectGPS Interface: startGPS(${course.courseId}, ${course.vehicleNumber}, ${course.uit}, [token], ${course.status})`);
       
-      // Direct Capacitor Plugin call - no intermediate wrapper needed
-      const { Capacitor, registerPlugin } = await import('@capacitor/core');
-      
-      if (Capacitor.isNativePlatform()) {
-        const DirectGPS = registerPlugin('DirectGPS') as any;
+      // Check if DirectGPS JavaScript interface is available
+      if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.startGPS) {
+        console.log("✅ DirectGPS JavaScript interface available - calling startGPS");
         
-        const result = await DirectGPS.startGPS({
-          courseId: course.courseId,
-          vehicleNumber: course.vehicleNumber,
-          uit: course.uit,
-          authToken: course.token,
-          status: course.status
-        });
+        const result = (window as any).DirectGPS.startGPS(
+          course.courseId,
+          course.vehicleNumber, 
+          course.uit,
+          course.token,
+          course.status
+        );
         
-        if (result.success) {
-          console.log("✅ DirectGPS Plugin started successfully - OptimalGPSService should be running");
+        console.log("📡 DirectGPS startGPS result:", result);
+        
+        if (result === "SUCCESS") {
+          console.log("✅ DirectGPS Interface started successfully - OptimalGPSService should be running");
           console.log(`✅ Course ${course.courseId} should now transmit GPS every 5 seconds`);
         } else {
-          console.log("⚠️ DirectGPS Plugin returned error - but course remains active for retry");
+          console.log("⚠️ DirectGPS Interface returned error - but course remains active for retry");
           console.log("🔧 GPS service will retry when conditions are ready");
         }
       } else {
-        console.log("❌ DirectGPS Plugin not available - app requires Android APK installation");
+        console.log("❌ DirectGPS JavaScript interface not available - waiting for WebView bridge");
+        console.log("🔧 This is normal during app startup - interface will be ready soon");
       }
       
     } catch (error) {
-      console.log(`⚠️ DirectGPS Plugin error: ${error}`);
-      console.log("🔧 APK Environment: Plugin errors during startup are normal");
+      console.log(`⚠️ DirectGPS Interface error: ${error}`);
+      console.log("🔧 APK Environment: Interface errors during startup are normal");
       console.log("✅ Course remains active in activeCourses for automatic retry");
     }
   }
 
   private async stopAndroidNativeService(courseId: string): Promise<void> {
-    console.log("🛑 Stopping DirectGPS Capacitor Plugin");
+    console.log("🛑 Stopping DirectGPS JavaScript Interface");
     console.log(`Course: ${courseId}`);
 
     try {
-      const { Capacitor, registerPlugin } = await import('@capacitor/core');
-      
-      if (Capacitor.isNativePlatform()) {
-        const DirectGPS = registerPlugin('DirectGPS') as any;
+      // Use DirectGPS JavaScript interface from MainActivity
+      if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.stopGPS) {
+        console.log("✅ DirectGPS JavaScript interface available - calling stopGPS");
         
-        const result = await DirectGPS.stopGPS({
-          courseId: courseId
-        });
+        const result = (window as any).DirectGPS.stopGPS(courseId);
         
-        if (result.success) {
-          console.log("✅ DirectGPS Plugin stopped successfully");
+        console.log("📡 DirectGPS stopGPS result:", result);
+        
+        if (result === "SUCCESS") {
+          console.log("✅ DirectGPS Interface stopped successfully");
         } else {
-          console.log("⚠️ DirectGPS Plugin stop had issues - cleanup anyway");
+          console.log("⚠️ DirectGPS Interface stop had issues - cleanup anyway");
         }
       } else {
-        console.log("❌ DirectGPS Plugin not available for stop operation");
+        console.log("❌ DirectGPS JavaScript interface not available for stop operation");
+        console.log("🔧 This is normal during app startup - interface will be ready soon");
       }
       
     } catch (error) {
-      console.log(`⚠️ DirectGPS Plugin stop error: ${error}`);
+      console.log(`⚠️ DirectGPS Interface stop error: ${error}`);
       console.log("🔧 Continue GPS cleanup despite error");
     }
     
@@ -288,24 +288,25 @@ class DirectAndroidGPSService {
         }
       }
       
-      // Send logout signal to Android service via DirectGPS Plugin
+      // Send logout signal to Android service via DirectGPS JavaScript Interface
       try {
-        const { Capacitor, registerPlugin } = await import('@capacitor/core');
-        
-        if (Capacitor.isNativePlatform()) {
-          const DirectGPS = registerPlugin('DirectGPS') as any;
-          const result = await DirectGPS.clearAllGPS();
+        if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.clearAllGPS) {
+          console.log("✅ DirectGPS JavaScript interface available - calling clearAllGPS");
           
-          if (result.success) {
-            console.log("✅ DirectGPS Plugin logout called successfully");
+          const result = (window as any).DirectGPS.clearAllGPS();
+          
+          console.log("📡 DirectGPS clearAllGPS result:", result);
+          
+          if (result === "SUCCESS") {
+            console.log("✅ DirectGPS Interface logout called successfully");
           } else {
-            console.log("⚠️ DirectGPS Plugin logout had issues");
+            console.log("⚠️ DirectGPS Interface logout had issues");
           }
         } else {
-          console.log("⚠️ DirectGPS Plugin not available for logout");
+          console.log("⚠️ DirectGPS JavaScript interface not available for logout");
         }
       } catch (error) {
-        console.log("DirectGPS Plugin logout failed:", error);
+        console.log("DirectGPS Interface logout failed:", error);
       }
       
       // Clear local tracking data
