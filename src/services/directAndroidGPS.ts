@@ -30,6 +30,39 @@ class DirectAndroidGPSService {
     console.log(`Active courses in map: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
     console.log(`Total active courses: ${this.activeCourses.size}`);
     
+    // FOR STATUS 2 (START): Setup complete GPS tracking
+    if (newStatus === 2) {
+      console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
+      
+      // Get course data from localStorage
+      const vehicleNumber = localStorage.getItem('vehicleNumber') || 'UNKNOWN';
+      const token = localStorage.getItem('authToken') || '';
+      
+      // Get real UIT from courses data
+      const storedCourses = localStorage.getItem(`courses_${vehicleNumber}`);
+      let realUIT = courseId; // fallback
+      
+      if (storedCourses) {
+        try {
+          const coursesData = JSON.parse(storedCourses);
+          const foundCourse = coursesData.find((c: any) => c.id === courseId);
+          if (foundCourse && foundCourse.uit) {
+            realUIT = foundCourse.uit;
+            console.log(`✅ Found real UIT ${realUIT} for courseId ${courseId}`);
+          }
+        } catch (error) {
+          console.log(`⚠️ Error parsing courses, using courseId as UIT:`, error);
+        }
+      }
+      
+      // Start GPS tracking FIRST (adds to activeCourses Map)
+      console.log(`📍 Starting GPS tracking for course ${courseId}`);
+      await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
+      console.log(`✅ GPS tracking started successfully for ${courseId}`);
+      return; // startTracking handles everything for status 2
+    }
+    
+    // FOR OTHER STATUSES: Get existing course
     let course = this.activeCourses.get(courseId);
     if (!course) {
       console.log(`⚠️ Course ${courseId} not found in activeCourses Map`);
@@ -39,11 +72,11 @@ class DirectAndroidGPSService {
       if (newStatus === 3 || newStatus === 4) {
         console.log(`🔧 Creating minimal course entry for ${courseId} with status ${newStatus}`);
         
-        // Folosește datele din localStorage sau valori default
+        // Folosește datele din localStorage
         const vehicleNumber = localStorage.getItem('vehicleNumber') || 'UNKNOWN';
         const token = localStorage.getItem('authToken') || '';
         
-        // CRITICAL FIX: Get real UIT from courses data instead of assuming courseId = UIT
+        // Get real UIT from courses data
         const storedCourses = localStorage.getItem(`courses_${vehicleNumber}`);
         let realUIT = courseId; // fallback to courseId
         
@@ -65,7 +98,7 @@ class DirectAndroidGPSService {
         course = {
           courseId,
           vehicleNumber,
-          uit: realUIT, // Use real UIT from courses data
+          uit: realUIT,
           token,
           status: newStatus
         };

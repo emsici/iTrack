@@ -343,111 +343,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }
       }
 
-      // Pentru status 2 (START/RESUME): Start GPS tracking APOI update status
-      if (newStatus === 2) {
-        console.log('🚀 Starting GPS tracking for ACTIVE status...');
-        try {
-          await startGPSTracking(courseId, vehicleNumber, courseToUpdate.uit, token, newStatus);
-          console.log(`✅ GPS tracking started for course ${courseId} with status ${newStatus}`);
-          console.log(`📍 Course ${courseId} added to activeCourses Map with UIT: ${courseToUpdate.uit}`);
-        } catch (error) {
-          console.error(`❌ GPS start failed:`, error);
-          setError(`GPS start failed: ${error}`);
-          return;
-        }
-      }
-
-      // Update course status through GPS service - FOLOSIND TOKEN-UL DE LOGIN
+      // SIMPLIFIED: All GPS logic handled by directAndroidGPS service
       try {
-        console.log('🔑 Using login token for GPS transmission (NOT course.token)');
-        console.log('Login token preview:', token.substring(0, 30) + '...');
+        console.log(`🎯 Delegating all GPS logic to directAndroidGPS service`);
+        console.log(`📞 Calling updateCourseStatus(${courseId}, ${newStatus})`);
         
-        // Get ALL data from real sensors
-        let sensorData = {
-          lat: 45.7649,
-          lng: 21.2291,
-          viteza: 0,
-          directie: 0,
-          altitudine: 0,
-          baterie: 85,
-          hdop: 1.2,
-          gsm_signal: 4
-        };
-
-        try {
-          if (navigator.geolocation) {
-            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-              navigator.geolocation.getCurrentPosition(resolve, reject, {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 5000
-              });
-            });
-            
-            // Real GPS coordinates
-            sensorData.lat = position.coords.latitude;
-            sensorData.lng = position.coords.longitude;
-            
-            // Real speed (m/s to km/h)
-            if (position.coords.speed !== null) {
-              sensorData.viteza = Math.round(position.coords.speed * 3.6);
-            }
-            
-            // Real heading/direction
-            if (position.coords.heading !== null) {
-              sensorData.directie = Math.round(position.coords.heading);
-            }
-            
-            // Real altitude
-            if (position.coords.altitude !== null) {
-              sensorData.altitudine = Math.round(position.coords.altitude);
-            }
-            
-            // Real GPS accuracy as HDOP equivalent
-            if (position.coords.accuracy !== null) {
-              sensorData.hdop = Math.max(1.0, position.coords.accuracy / 10);
-            }
-            
-            console.log(`📍 Real sensor data: ${sensorData.lat}, ${sensorData.lng}, speed: ${sensorData.viteza}km/h`);
-          }
-        } catch (error) {
-          console.log('Sensor read error, using current values:', error);
-        }
-
-        // Get real battery level
-        try {
-          if ('getBattery' in navigator) {
-            const battery = await (navigator as any).getBattery();
-            sensorData.baterie = Math.round(battery.level * 100);
-          } else if ('battery' in navigator) {
-            const battery = (navigator as any).battery;
-            sensorData.baterie = Math.round(battery.level * 100);
-          }
-        } catch (error) {
-          console.log('Battery sensor error, using current value');
-        }
-
-        // Get network signal type
-        try {
-          if ('connection' in navigator) {
-            const connection = (navigator as any).connection;
-            if (connection.effectiveType === '4g') sensorData.gsm_signal = 4;
-            else if (connection.effectiveType === '3g') sensorData.gsm_signal = 3;
-            else if (connection.effectiveType === '2g') sensorData.gsm_signal = 2;
-            else sensorData.gsm_signal = 1;
-          }
-        } catch (error) {
-          console.log('Network sensor error, using default value');
-        }
-
-        // CRITICAL FIX: REMOVE DUPLICATE GPS TRANSMISSION
-        // Only Android native service should transmit GPS data
-        console.log(`🛑 GPS transmission delegated to Android native service only`);
-        console.log(`📱 No browser GPS transmission to prevent duplicates`);
-
-        // Direct Android GPS service status update (will handle GPS transmission)
+        // Single call handles everything: startGPS + updateStatus + transmission
         await updateCourseStatus(courseId, newStatus);
-        console.log(`✅ Status updated to ${newStatus} for course ${courseId} via Android service`);
+        console.log(`✅ Course ${courseId} status updated to ${newStatus} successfully`);
 
       } catch (error) {
         console.error(`❌ Status update error:`, error);
