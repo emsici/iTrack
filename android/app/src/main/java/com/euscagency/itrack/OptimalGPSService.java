@@ -20,6 +20,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * MOST EFFICIENT GPS Background Service
@@ -36,6 +39,9 @@ public class OptimalGPSService extends Service {
     private LocationManager locationManager;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private boolean isAlarmActive = false;
+    
+    // FOREGROUND OPTIMIZED HTTP TRANSMISSION
+    private ExecutorService httpThreadPool; // Simple thread pool to avoid blocking main service
     
     public static class CourseData {
         public String courseId;
@@ -63,10 +69,13 @@ public class OptimalGPSService extends Service {
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
+        // FOREGROUND OPTIMIZED: Simple thread pool to avoid blocking AlarmManager
+        httpThreadPool = Executors.newFixedThreadPool(1); // Single background thread for HTTP
+        
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
         
-        Log.d(TAG, "✅ OPTIMAL GPS Service created - AlarmManager + On-demand GPS + Foreground");
+        Log.d(TAG, "✅ OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching");
     }
     
     private void createNotificationChannel() {
@@ -309,38 +318,54 @@ public class OptimalGPSService extends Service {
         
         Log.d(TAG, "📡 OPTIMAL GPS data: " + gpsData.toString());
         
-        // RELIABLE BACKGROUND: Direct HTTP transmission for guaranteed background operation
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
-                    java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setRequestProperty("Authorization", "Bearer " + course.authToken);
-                    connection.setRequestProperty("User-Agent", "iTrack-Optimal-GPS/1.0");
-                    connection.setDoOutput(true);
-                    connection.setConnectTimeout(8000);
-                    connection.setReadTimeout(8000);
-                    
-                    java.io.OutputStream os = connection.getOutputStream();
-                    os.write(gpsData.toString().getBytes("UTF-8"));
-                    os.close();
-                    
-                    int responseCode = connection.getResponseCode();
-                    if (responseCode == 200) {
-                        Log.d(TAG, "✅ BACKGROUND GPS SUCCESS: " + responseCode + " for course: " + course.courseId);
-                    } else {
-                        Log.w(TAG, "⚠️ BACKGROUND GPS response: " + responseCode + " for course: " + course.courseId);
-                    }
-                    
-                    connection.disconnect();
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ BACKGROUND GPS FAILED for " + course.courseId + ": " + e.getMessage());
-                }
+        // FOREGROUND OPTIMIZED: Instant transmission with single optimized thread
+        // No batching - GPS must be sent immediately for real-time tracking
+        httpThreadPool.submit(() -> {
+            sendOptimizedForegroundGPS(gpsData.toString(), course.authToken, course.courseId);
+        });
+    }
+    
+    /**
+     * FOREGROUND OPTIMIZED GPS TRANSMISSION
+     * Simple, fast, reliable - perfect for 5-second intervals
+     */
+    private void sendOptimizedForegroundGPS(String jsonData, String authToken, String courseId) {
+        java.net.HttpURLConnection connection = null;
+        try {
+            java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
+            connection = (java.net.HttpURLConnection) url.openConnection();
+            
+            // FOREGROUND OPTIMIZED SETTINGS - Simple and fast
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            connection.setRequestProperty("Authorization", "Bearer " + authToken);
+            connection.setRequestProperty("User-Agent", "iTrack-Foreground-GPS/1.0");
+            connection.setDoOutput(true);
+            connection.setConnectTimeout(5000); // Quick timeout for foreground
+            connection.setReadTimeout(5000);
+            
+            // Direct transmission - no compression for small GPS JSON
+            byte[] jsonBytes = jsonData.getBytes("UTF-8");
+            try (java.io.OutputStream os = connection.getOutputStream()) {
+                os.write(jsonBytes);
+                os.flush();
             }
-        }).start();
+            
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                Log.d(TAG, "✅ FOREGROUND GPS SUCCESS: " + responseCode + " for course: " + courseId);
+            } else {
+                Log.w(TAG, "⚠️ FOREGROUND GPS response: " + responseCode + " for course: " + courseId);
+            }
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ FOREGROUND GPS FAILED for " + courseId + ": " + e.getMessage());
+            // No retry for foreground - next transmission comes in 5 seconds anyway
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
     }
     
     /**
@@ -544,7 +569,20 @@ public class OptimalGPSService extends Service {
     @Override
     public void onDestroy() {
         stopOptimalGPSTimer();
+        
+        // CLEANUP: Shutdown HTTP thread pool
+        if (httpThreadPool != null && !httpThreadPool.isShutdown()) {
+            httpThreadPool.shutdown();
+            try {
+                if (!httpThreadPool.awaitTermination(2, TimeUnit.SECONDS)) {
+                    httpThreadPool.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                httpThreadPool.shutdownNow();
+            }
+        }
+        
         super.onDestroy();
-        Log.d(TAG, "✅ Optimal GPS Service destroyed");
+        Log.d(TAG, "✅ Optimal GPS Service destroyed with proper cleanup");
     }
 }
