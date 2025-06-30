@@ -90,12 +90,14 @@ public class MainActivity extends BridgeActivity {
                         Log.e(TAG, "  ✅ updateStatus: available");
                         Log.e(TAG, "  ✅ clearAllOnLogout: available");
                         
-                        // Force interface validation
+                        // Set multiple bridge ready flags for reliable detection
                         getBridge().getWebView().evaluateJavascript(
                             "window.AndroidGPSReady = true; " +
-                            "console.log('✅ AndroidGPS interface confirmed ready'); " +
+                            "window.androidGPSBridgeReady = true; " +
+                            "window.androidGPSInterfaceReady = true; " +
+                            "console.log('✅ AndroidGPS bridge completely ready - all detection flags set'); " +
                             "if (typeof window.AndroidGPS !== 'undefined') { " +
-                            "console.log('AndroidGPS methods:', Object.keys(window.AndroidGPS)); " +
+                            "console.log('✅ AndroidGPS methods available:', Object.getOwnPropertyNames(window.AndroidGPS)); " +
                             "}",
                             null
                         );

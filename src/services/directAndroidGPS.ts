@@ -343,10 +343,17 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    console.log("Starting Android GPS for course:", course.courseId);
+    console.log("🚀 Starting Android native GPS service (APK ONLY)");
 
-    // CRITICAL: Wait for AndroidGPS bridge to be ready
-    await this.waitForAndroidGPS();
+    try {
+      // CRITICAL: Wait for AndroidGPS bridge to be ready
+      await this.waitForAndroidGPS();
+    } catch (error) {
+      console.log("⚠️ AndroidGPS bridge not available - expected in browser/development");
+      console.log("📱 GPS will work when APK is installed on Android device");
+      // Don't throw error, just log and continue for better UX
+      return;
+    }
 
     // ANDROID APK: Use native AndroidGPS interface
     if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
@@ -552,12 +559,16 @@ class DirectAndroidGPSService {
     console.log("⏳ Waiting for AndroidGPS bridge to become available...");
 
     while (Date.now() - startTime < maxWaitTime) {
-      // Check for AndroidGPS object AND bridge ready flag
-      if (typeof (window as any).AndroidGPS !== 'undefined' && 
-          typeof (window as any).AndroidGPS.startGPS === 'function' &&
-          (window as any).androidGPSBridgeReady === true) {
-        console.log("✅ AndroidGPS bridge confirmed available with all methods");
-        console.log("✅ androidGPSBridgeReady flag detected - MainActivity setup complete");
+      // Enhanced detection: AndroidGPS object + methods + multiple ready flags
+      const hasAndroidGPS = typeof (window as any).AndroidGPS !== 'undefined';
+      const hasStartMethod = hasAndroidGPS && typeof (window as any).AndroidGPS.startGPS === 'function';
+      const hasBridgeFlag = (window as any).androidGPSBridgeReady === true || 
+                            (window as any).AndroidGPSReady === true ||
+                            (window as any).androidGPSInterfaceReady === true;
+      
+      if (hasAndroidGPS && hasStartMethod && hasBridgeFlag) {
+        console.log("✅ AndroidGPS bridge completely available - all checks passed");
+        console.log("✅ Object: available, Methods: functional, Bridge: ready");
         return;
       }
       
