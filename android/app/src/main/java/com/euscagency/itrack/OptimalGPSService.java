@@ -245,25 +245,47 @@ public class OptimalGPSService extends Service {
         
         Log.d(TAG, "📡 OPTIMAL GPS data: " + gpsData.toString());
         
-        // EFFICIENT: Direct HTTP transmission
-        java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
-        java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestProperty("Authorization", "Bearer " + userAuthToken);
-        connection.setRequestProperty("User-Agent", "iTrack-Optimal-GPS/1.0");
-        connection.setDoOutput(true);
-        connection.setConnectTimeout(8000);
-        connection.setReadTimeout(8000);
-        
-        java.io.OutputStream os = connection.getOutputStream();
-        os.write(gpsData.toString().getBytes("UTF-8"));
-        os.close();
-        
-        int responseCode = connection.getResponseCode();
-        Log.d(TAG, "📡 OPTIMAL GPS response: " + responseCode + " for course: " + course.courseId);
-        
-        connection.disconnect();
+        // UNIFIED: Use CapacitorHttp through WebView for consistent HTTP method
+        MainActivity mainActivity = MainActivity.getInstance();
+        if (mainActivity != null && mainActivity.getWebView() != null) {
+            // Call JavaScript function to send GPS via CapacitorHttp
+            String jsCode = String.format(
+                "window.sendGPSViaCapacitor && window.sendGPSViaCapacitor(%s, '%s');",
+                gpsData.toString(),
+                userAuthToken
+            );
+            
+            mainActivity.runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    mainActivity.getWebView().evaluateJavascript(jsCode, null);
+                }
+            });
+            
+            Log.d(TAG, "📡 UNIFIED GPS sent via CapacitorHttp for course: " + course.courseId);
+        } else {
+            Log.w(TAG, "⚠️ WebView not available - falling back to direct HTTP");
+            
+            // Fallback: Direct HTTP transmission if WebView unavailable
+            java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
+            java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", "Bearer " + userAuthToken);
+            connection.setRequestProperty("User-Agent", "iTrack-Optimal-GPS/1.0");
+            connection.setDoOutput(true);
+            connection.setConnectTimeout(8000);
+            connection.setReadTimeout(8000);
+            
+            java.io.OutputStream os = connection.getOutputStream();
+            os.write(gpsData.toString().getBytes("UTF-8"));
+            os.close();
+            
+            int responseCode = connection.getResponseCode();
+            Log.d(TAG, "📡 FALLBACK GPS response: " + responseCode + " for course: " + course.courseId);
+            
+            connection.disconnect();
+        }
     }
     
     /**

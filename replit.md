@@ -179,7 +179,8 @@ Persistare localStorage → Afișare CourseStatsModal
 **OptimalGPSService connection CONFIRMED**: MainActivity.AndroidGPS correctly starts OptimalGPSService with proper Intent and parameters
 **Background GPS architecture COMPLETE**: AlarmManager + LocationManager + Foreground Service for continuous 5-second GPS transmission
 **Root cause IDENTIFIED and FIXED**: User not seeing GPS permissions dialog was the core issue preventing GPS functionality
-**Clean architecture finalized**: JavaScript → MainActivity.AndroidGPS → OptimalGPSService (simple, no redundancy)
+**HTTP method UNIFIED**: OptimalGPSService now uses CapacitorHttp via WebView bridge for consistent Bearer token authentication
+**Clean architecture finalized**: JavaScript → MainActivity.AndroidGPS → OptimalGPSService → CapacitorHttp (unified HTTP stack)
 **APK production ready**: GPS permissions will be requested, OptimalGPSService will start, background GPS guaranteed functional
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401

@@ -560,3 +560,35 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
     return false;
   }
 };
+
+// Global function for OptimalGPSService to send GPS via CapacitorHttp
+(window as any).sendGPSViaCapacitor = async (gpsData: any, token: string): Promise<boolean> => {
+  try {
+    console.log('🚀 OptimalGPSService → CapacitorHttp GPS transmission');
+    logAPI(`OptimalGPSService GPS via CapacitorHttp: ${gpsData.uit}`);
+    
+    const response = await CapacitorHttp.post({
+      url: `${API_BASE_URL}/gps.php`,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'User-Agent': 'iTrack-Optimal-GPS/1.0'
+      },
+      data: gpsData
+    });
+    
+    if (response.status >= 200 && response.status < 300) {
+      console.log('✅ OptimalGPSService GPS sent successfully via CapacitorHttp');
+      logAPI(`OptimalGPSService GPS success: ${response.status}`);
+      return true;
+    } else {
+      console.error('❌ OptimalGPSService GPS failed:', response.status);
+      logAPI(`OptimalGPSService GPS failed: ${response.status}`);
+      return false;
+    }
+  } catch (error: any) {
+    console.error('❌ OptimalGPSService GPS error:', error.message);
+    logAPI(`OptimalGPSService GPS error: ${error.message}`);
+    return false;
+  }
+};
