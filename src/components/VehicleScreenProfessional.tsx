@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
-import { getVehicleCourses, logout, sendGPSData } from "../services/api";
+import { getVehicleCourses, logout } from "../services/api";
 import {
-  startGPSTracking,
-  stopGPSTracking,
   updateCourseStatus,
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
-import { startCourseAnalytics, stopCourseAnalytics } from "../services/courseAnalytics";
+// Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
@@ -27,13 +25,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [coursesLoaded, setCoursesLoaded] = useState(false);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [clickCount, setClickCount] = useState(0);
   const [showStatsModal, setShowStatsModal] = useState(false);
-  const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const [debugLogs, setDebugLogs] = useState<any[]>([]);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<NodeJS.Timeout | null>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
@@ -285,21 +280,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log("Opening debug panel after 50 clicks...");
         const logs = await getAppLogs();
         console.log("Logs loaded:", logs.length);
-        setDebugLogs(logs);
-        setShowDebugPanel(true);
+        // Debug panel functionality removed
+        console.log('Debug logs available:', logs.length);
         setClickCount(0);
       } catch (error) {
         console.error("Error loading debug logs:", error);
         // Show panel anyway with empty logs
-        setDebugLogs([]);
-        setShowDebugPanel(true);
+        console.log('Debug panel would show empty logs');
         setClickCount(0);
       }
     }
   };
 
   const handleStatusUpdate = async (courseId: string, newStatus: number) => {
-    setActionLoading(courseId);
+    console.log(`Processing course action: ${courseId}`);
 
     try {
       const courseToUpdate = courses.find((c) => c.id === courseId);
@@ -375,7 +369,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Clear error after 5 seconds
       setTimeout(() => setError(''), 5000);
     } finally {
-      setActionLoading(null);
+      console.log(`Course action completed: ${courseId}`);
     }
   };
 

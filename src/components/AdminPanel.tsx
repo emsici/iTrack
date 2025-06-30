@@ -93,15 +93,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
     }
   };
 
-  // Removed unused function handleClearLogsOLD
-  const handleClearLogsOLD_REMOVED = async () => {
-    try {
-      await clearAppLogs();
-      setLogs([]);
-    } catch (error) {
-      console.error('Failed to clear logs:', error);
-    }
-  };
+  // Removed unused function - cleaned up
 
   // Filter logs based on search criteria
   useEffect(() => {

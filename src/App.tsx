@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-// Removed CapacitorHttp - using storage service only
+import { CapacitorHttp } from '@capacitor/core';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import LoginScreen from './components/LoginScreen';
 import VehicleScreen from './components/VehicleScreenProfessional';
 import AdminPanel from './components/AdminPanel';
-// GPS initialization removed - handled by communityGPS when needed
 import { getStoredToken, storeToken, clearToken } from './services/storage';
+import { API_BASE_URL } from './services/api';
 
 type AppState = 'login' | 'vehicle' | 'admin';
 

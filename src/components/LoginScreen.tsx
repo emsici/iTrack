@@ -38,7 +38,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       }
 
       // Debug CapacitorHttp availability
-      console.log('CapacitorHttp available:', typeof CapacitorHttp !== 'undefined');
+      console.log('CapacitorHttp available:', typeof window !== 'undefined');
       console.log('Platform info:', navigator.userAgent);
       
       const response = await login(email, password);

@@ -475,7 +475,7 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
           }
         }
       } catch (e) {
-        if (e.message === 'TOKEN_EXPIRED') {
+        if (e instanceof Error && e.message === 'TOKEN_EXPIRED') {
           throw e;
         }
       }
@@ -485,7 +485,7 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
         headers,
         data: gpsData,
         webFetchExtra: {
-          timeout: 15000
+          signal: AbortSignal.timeout(15000)
         }
       });
 
