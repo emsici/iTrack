@@ -436,11 +436,11 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "🎯 OPTIMAL GPS Command: " + action);
         
         if ("START_GPS".equals(action)) {
-            String courseId = intent.getStringExtra("courseId");
-            String uit = intent.getStringExtra("uit");
-            String vehicleNumber = intent.getStringExtra("vehicleNumber");
-            String authToken = intent.getStringExtra("authToken");
-            int status = intent.getIntExtra("status", 2);
+            String courseId = intent.getStringExtra("COURSE_ID");
+            String uit = intent.getStringExtra("UIT");
+            String vehicleNumber = intent.getStringExtra("VEHICLE_NUMBER");
+            String authToken = intent.getStringExtra("AUTH_TOKEN");
+            int status = intent.getIntExtra("STATUS", 2);
             
             userAuthToken = authToken;
             
@@ -461,7 +461,7 @@ public class OptimalGPSService extends Service {
             }
             
         } else if ("STOP_GPS".equals(action)) {
-            String courseId = intent.getStringExtra("courseId");
+            String courseId = intent.getStringExtra("COURSE_ID");
             activeCourses.remove(courseId);
             
             Log.d(TAG, "🛑 OPTIMAL course removed: " + courseId);
@@ -471,8 +471,8 @@ public class OptimalGPSService extends Service {
             }
             
         } else if ("UPDATE_STATUS".equals(action)) {
-            String courseId = intent.getStringExtra("courseId");
-            int newStatus = intent.getIntExtra("newStatus", 2);
+            String courseId = intent.getStringExtra("COURSE_ID");
+            int newStatus = intent.getIntExtra("STATUS", 2);
             
             CourseData course = activeCourses.get(courseId);
             if (course != null) {
