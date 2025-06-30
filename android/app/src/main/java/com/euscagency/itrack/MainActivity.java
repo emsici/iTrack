@@ -155,11 +155,20 @@ public class MainActivity extends BridgeActivity {
                     return "ERROR: Invalid parameters";
                 }
                 
-                // GPS permissions - start service if any location permission exists
-                if (checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") != PackageManager.PERMISSION_GRANTED &&
-                    checkSelfPermission("android.permission.ACCESS_COARSE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
-                    Log.w(TAG, "No location permissions - continuing anyway");
+                // CRITICAL FIX: Request GPS permissions if not granted
+                if (checkSelfPermission("android.permission.ACCESS_FINE_LOCATION") != PackageManager.PERMISSION_GRANTED) {
+                    Log.w(TAG, "❌ GPS permissions not granted - requesting now");
+                    
+                    // Request GPS permissions from user
+                    requestPermissions(new String[]{
+                        "android.permission.ACCESS_FINE_LOCATION",
+                        "android.permission.ACCESS_BACKGROUND_LOCATION"
+                    }, 1001);
+                    
+                    return "REQUESTING_PERMISSIONS: Please grant GPS permissions and try again";
                 }
+                
+                Log.d(TAG, "✅ GPS permissions granted - starting service");
                 
                 Log.d(TAG, "Starting GPS service...");
                 
