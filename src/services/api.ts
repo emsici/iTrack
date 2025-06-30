@@ -76,18 +76,24 @@ export const login = async (email: string, password: string): Promise<LoginRespo
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.status === 'success' && data.token) {
-        logAPI(`Browser login successful for ${email}`);
-        return { status: 'success', token: data.token };
+        logAPI(`Login HTTP error ${response.status} - continuing with fallback`);
+        // Continue to fallback method
       } else {
-        logAPI(`Browser login failed: ${data.message}`);
-        return { status: 'error', error: data.message || 'Date de conectare incorecte' };
+        try {
+          const data = await response.json();
+          
+          if (data.status === 'success' && data.token) {
+            logAPI(`Browser login successful for ${email}`);
+            return { status: 'success', token: data.token };
+          } else {
+            logAPI(`Browser login failed: ${data.message}`);
+            return { status: 'error', error: data.message || 'Date de conectare incorecte' };
+          }
+        } catch (parseError) {
+          logAPI(`JSON parse error - continuing with fallback`);
+        }
       }
+
     } catch (error: any) {
       logAPI(`Browser login error: ${error.message}`);
       return { status: 'error', error: 'Eroare de conexiune la server' };
@@ -187,7 +193,8 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
       console.log('Data length:', capacitorResponse.data?.length || 'No data');
       
       if (capacitorResponse.status === 401) {
-        throw new Error('TOKEN_EXPIRED');
+        console.log('CapacitorHttp: Token expired - continuing with error response');
+        return { status: 'error', error: 'TOKEN_EXPIRED' };
       }
       
       response = { status: capacitorResponse.status, data: capacitorResponse.data };
@@ -213,11 +220,13 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
       console.log('OK:', fetchResponse.ok);
       
       if (fetchResponse.status === 401) {
-        throw new Error('TOKEN_EXPIRED');
+        console.log('Fetch: Token expired - continuing with error response');
+        return { status: 'error', error: 'TOKEN_EXPIRED' };
       }
       
       if (!fetchResponse.ok) {
-        throw new Error(`HTTP ${fetchResponse.status}`);
+        console.log(`Fetch: HTTP error ${fetchResponse.status} - continuing with error response`);
+        return { status: 'error', error: `HTTP_ERROR_${fetchResponse.status}` };
       }
       
       response = { status: fetchResponse.status, data: await fetchResponse.json() };
@@ -280,7 +289,8 @@ const performVehicleCoursesRequest = async (vehicleNumber: string, token: string
       }
     } else {
       console.log('Non-200 HTTP response:', response.status);
-      throw new Error(`Server error: ${response.status}`);
+      console.log('Continuing with empty array instead of throwing error');
+      return [];
     }
   } catch (error) {
     console.error('Error loading vehicle courses:', error);
@@ -460,7 +470,8 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
           const currentTime = Date.now();
           
           if (currentTime >= expTime) {
-            throw new Error('TOKEN_EXPIRED');
+            console.log('Token expired - returning false');
+            return false;
           }
         }
       } catch (e) {
@@ -517,7 +528,8 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       logAPI(`CapacitorHttp GPS result: ${response.status} - ${JSON.stringify(response.data)}`);
       
       if (response.status === 401) {
-        throw new Error('TOKEN_EXPIRED');
+        console.log('GPS: Token expired - returning false');
+        return false;
       }
       
       return response.status === 200 || response.status === 201 || response.status === 204;
@@ -545,14 +557,16 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       logAPI(`Fetch GPS response: ${response.status} - ${responseText}`);
       
       if (response.status === 401) {
-        throw new Error('TOKEN_EXPIRED');
+        console.log('GPS fetch: Token expired - returning false');
+        return false;
       }
       
       return response.status === 200 || response.status === 201 || response.status === 204;
     }
   } catch (error) {
     if (error instanceof Error && error.message === 'TOKEN_EXPIRED') {
-      throw error;
+      console.log('GPS transmission: Token expired - returning false');
+      return false;
     }
     
     console.error('GPS transmission error:', error);
