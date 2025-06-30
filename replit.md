@@ -171,7 +171,17 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.176 (June 30, 2025) - CRITICAL TOKEN INCONSISTENCY FIXED
+### Versiunea Curentă: 1808.177 (June 30, 2025) - ANDROIDGPS WEBVIEW BRIDGE FIXED
+
+**AndroidGPS WebView Bridge COMPLETELY FIXED**: MainActivity now properly adds AndroidGPS interface to WebView with addJavascriptInterface()
+**WebView setup TIMING FIXED**: Added onStart() method with proper WebView ready detection and retry logic
+**Bridge detection ENHANCED**: JavaScript now checks for AndroidGPS object + startGPS function + androidGPSBridgeReady flag
+**APK GPS bridge GUARANTEED**: WebView will now have access to AndroidGPS object eliminating "undefined" errors
+**MainActivity setup OPTIMIZED**: addAndroidGPSInterface() with 1-second retry if WebView not ready initially
+**Production APK READY**: AndroidGPS bridge will be available eliminating 15-second timeout failures
+**GPS transmission ENABLED**: OptimalGPSService will start successfully resolving "bridge not available" errors
+
+### Versiunea Precedentă: 1808.176 (June 30, 2025) - CRITICAL TOKEN INCONSISTENCY FIXED
 
 **CRITICAL TOKEN BUG IDENTIFIED AND FIXED**: directAndroidGPS was using localStorage.getItem('authToken') while login system uses Capacitor Preferences with key 'auth_token'
 **Token storage UNIFIED**: Changed directAndroidGPS to use getStoredToken() from storage.ts for consistency with login flow

@@ -552,9 +552,12 @@ class DirectAndroidGPSService {
     console.log("⏳ Waiting for AndroidGPS bridge to become available...");
 
     while (Date.now() - startTime < maxWaitTime) {
+      // Check for AndroidGPS object AND bridge ready flag
       if (typeof (window as any).AndroidGPS !== 'undefined' && 
-          typeof (window as any).AndroidGPS.startGPS === 'function') {
+          typeof (window as any).AndroidGPS.startGPS === 'function' &&
+          (window as any).androidGPSBridgeReady === true) {
         console.log("✅ AndroidGPS bridge confirmed available with all methods");
+        console.log("✅ androidGPSBridgeReady flag detected - MainActivity setup complete");
         return;
       }
       
