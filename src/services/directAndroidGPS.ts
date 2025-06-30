@@ -348,11 +348,11 @@ class DirectAndroidGPSService {
     try {
       // CRITICAL: Wait for AndroidGPS bridge to be ready
       await this.waitForAndroidGPS();
+      console.log("✅ AndroidGPS bridge detected - starting OptimalGPSService");
     } catch (error) {
-      console.log("⚠️ AndroidGPS bridge not available - expected in browser/development");
-      console.log("📱 GPS will work when APK is installed on Android device");
-      // Don't throw error, just log and continue for better UX
-      return;
+      console.log("❌ AndroidGPS bridge not available - this application requires APK on Android device");
+      console.log("📱 GPS functionality is exclusively designed for Android APK deployment");
+      throw new Error("AndroidGPS bridge required - install APK on Android device");
     }
 
     // ANDROID APK: Use native AndroidGPS interface
@@ -410,76 +410,11 @@ class DirectAndroidGPSService {
     }
   }
 
-  private startBrowserGPSInterval(course: ActiveCourse): void {
-    const intervalKey = `gpsInterval_${course.courseId}`;
-    
-    // Curăță interval existent dacă există
-    if ((window as any)[intervalKey]) {
-      clearInterval((window as any)[intervalKey]);
-    }
+  // REMOVED: Browser GPS fallback - Application is APK-only
+  // GPS functionality exclusively through Android native OptimalGPSService
 
-    console.log(`Starting browser GPS interval for course ${course.courseId}`);
-    
-    (window as any)[intervalKey] = setInterval(async () => {
-      try {
-        // Verifică dacă cursul este încă activ
-        const activeCourse = this.activeCourses.get(course.courseId);
-        if (!activeCourse || activeCourse.status !== 2) {
-          console.log(`Course ${course.courseId} no longer active, stopping interval`);
-          clearInterval((window as any)[intervalKey]);
-          delete (window as any)[intervalKey];
-          return;
-        }
-
-        // Obține poziția curentă
-        // const position = await Geolocation.getCurrentPosition({ // Browser GPS disabled
-        //   enableHighAccuracy: true,
-        //   timeout: 8000,
-        // });
-
-        // Transmite coordonatele la server
-        const gpsData: GPSData = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          timestamp: new Date().toISOString().slice(0, 19).replace('T', ' '),
-          viteza: position.coords.speed || 0,
-          directie: position.coords.heading || 0,
-          altitudine: position.coords.altitude || 0,
-          baterie: 85, // Browser fallback
-          numar_inmatriculare: course.vehicleNumber,
-          uit: course.uit,
-          status: 2,
-          hdop: Math.round(position.coords.accuracy || 1),
-          gsm_signal: 5
-        };
-
-        console.log(`🚀 TRANSMITTING GPS: ${gpsData.lat}, ${gpsData.lng} for UIT: ${gpsData.uit}`);
-        
-        // CRITICAL FIX: Use JWT token from storage instead of course.token (UIT)
-        const storedToken = await getStoredToken();
-        const success = await sendGPSData(gpsData, storedToken || '');
-        
-        if (success) {
-          console.log(`✅ GPS SUCCESS for course ${course.courseId} - UIT: ${course.uit}`);
-        } else {
-          console.error(`❌ GPS FAILED for course ${course.courseId} - UIT: ${course.uit}`);
-        }
-        
-      } catch (error) {
-        console.warn(`Browser GPS transmission failed for course ${course.courseId}:`, error);
-      }
-    }, 5000); // 5 secunde interval
-  }
-
-  private stopBrowserGPSInterval(courseId: string): void {
-    const intervalKey = `gpsInterval_${courseId}`;
-    
-    if ((window as any)[intervalKey]) {
-      clearInterval((window as any)[intervalKey]);
-      delete (window as any)[intervalKey];
-      console.log(`Browser GPS interval stopped for course ${courseId}`);
-    }
-  }
+  // REMOVED: Browser GPS stop - Application is APK-only
+  // All GPS operations handled by Android native OptimalGPSService
 
   getActiveCourses(): string[] {
     return Array.from(this.activeCourses.keys());
