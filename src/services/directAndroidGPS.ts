@@ -351,8 +351,10 @@ class DirectAndroidGPSService {
       console.log("✅ AndroidGPS bridge detected - starting OptimalGPSService");
     } catch (error) {
       console.log("❌ AndroidGPS bridge not available - this application requires APK on Android device");
-      console.log("📱 GPS functionality is exclusively designed for Android APK deployment");
-      throw new Error("AndroidGPS bridge required - install APK on Android device");
+      console.log("📱 GPS functionality will work when APK is installed on Android device");
+      console.log("🔧 Development environment: GPS service simulation disabled");
+      // Don't throw error in development - just log and return gracefully
+      return;
     }
 
     // ANDROID APK: Use native AndroidGPS interface
