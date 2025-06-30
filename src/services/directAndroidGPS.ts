@@ -109,7 +109,7 @@ class DirectAndroidGPSService {
           status: newStatus
         });
         
-        console.log("📡 DirectGPS Plugin updateGPS result:", result);
+        console.log("📡 GPS Plugin updateGPS result:", result);
         
         if (result.success) {
           console.log(`✅ Course ${courseId} status updated to ${newStatus} successfully`);
@@ -119,7 +119,7 @@ class DirectAndroidGPSService {
           logGPSError(`Status update failed for course ${courseId}: ${result.message}`);
         }
       } catch (pluginError) {
-        console.log(`❌ DirectGPS Plugin update failed: ${pluginError}`);
+        console.log(`❌ GPS Plugin update failed: ${pluginError}`);
         console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
         logGPSError(`Status update failed for course ${courseId} - Plugin not available`);
       }
@@ -227,7 +227,7 @@ class DirectAndroidGPSService {
           status: course.status
         });
         
-        console.log("📡 DirectGPS Plugin result:", result);
+        console.log("📡 GPS Plugin result:", result);
         
         if (result.success) {
           console.log("✅ OptimalGPSService started via Capacitor Plugin - will transmit GPS every 5 seconds");
@@ -235,7 +235,7 @@ class DirectAndroidGPSService {
           console.log("⚠️ OptimalGPSService start issues:", result.message);
         }
       } catch (pluginError) {
-        console.log("❌ DirectGPS Capacitor Plugin failed:", pluginError);
+        console.log("❌ GPS Capacitor Plugin failed:", pluginError);
         console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
       }
       
@@ -254,26 +254,23 @@ class DirectAndroidGPSService {
     console.log(`Course: ${courseId}`);
 
     try {
-      // Stop OptimalGPSService through DirectGPS interface
-      if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.stopGPS) {
-        console.log("✅ DirectGPS interface available - calling stopGPS");
-        
-        const result = (window as any).DirectGPS.stopGPS(courseId);
-        
-        console.log("📡 DirectGPS stopGPS result:", result);
-        
-        if (result === "SUCCESS") {
-          console.log(`✅ OptimalGPSService stopped successfully for course ${courseId}`);
-        } else {
-          console.log(`⚠️ OptimalGPSService stop had issues for course ${courseId}`);
-        }
-      } else {
-        console.log("❌ DirectGPS interface not available for stop operation");
-        console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
-      }
+      // Stop OptimalGPSService through GPS Capacitor Plugin
+      console.log("🔌 Stopping GPS via GPS Capacitor Plugin...");
       
-    } catch (error) {
-      console.log(`⚠️ OptimalGPSService stop error for ${courseId}: ${error}`);
+      const result = await GPS.stopGPS({
+        courseId: courseId
+      });
+      
+      console.log("📡 GPS Plugin stopGPS result:", result);
+      
+      if (result.success) {
+        console.log(`✅ OptimalGPSService stopped successfully for course ${courseId}`);
+      } else {
+        console.log(`⚠️ GPS Plugin stop issues for course ${courseId}:`, result.message);
+      }
+    } catch (pluginError) {
+      console.log("❌ GPS Capacitor Plugin stop failed:", pluginError);
+      console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
     }
     
     console.log("✅ Android Native GPS service stopped and cleaned up");
@@ -305,25 +302,22 @@ class DirectAndroidGPSService {
         }
       }
       
-      // Clear all Android GPS services
+      // Clear all Android GPS services via GPS Plugin
       try {
-        if (typeof (window as any).DirectGPS !== 'undefined' && (window as any).DirectGPS.clearAllGPS) {
-          console.log("✅ DirectGPS interface available - calling clearAllGPS");
-          
-          const result = (window as any).DirectGPS.clearAllGPS();
-          
-          console.log("📡 DirectGPS clearAllGPS result:", result);
-          
-          if (result === "SUCCESS") {
-            console.log("✅ All OptimalGPSService instances cleared successfully");
-          } else {
-            console.log("⚠️ AndroidGPS clearAll had issues");
-          }
+        console.log("🔌 Clearing all GPS via GPS Capacitor Plugin...");
+        
+        const result = await GPS.clearAllGPS();
+        
+        console.log("📡 GPS Plugin clearAllGPS result:", result);
+        
+        if (result.success) {
+          console.log("✅ All OptimalGPSService instances cleared successfully");
         } else {
-          console.log("⚠️ AndroidGPS interface not available for clearAll");
+          console.log("⚠️ GPS Plugin clearAll issues:", result.message);
         }
-      } catch (error) {
-        console.log("AndroidGPS cleanup failed:", error);
+      } catch (pluginError) {
+        console.log("❌ GPS Plugin clearAll failed:", pluginError);
+        console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
       }
       
       // Clear local tracking data
