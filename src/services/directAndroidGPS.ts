@@ -120,7 +120,11 @@ class DirectAndroidGPSService {
       }
 
       // Handle special status logic
-      if (newStatus === 3) {
+      if (newStatus === 2) {
+        console.log(`🚀 STATUS 2 (START): Starting GPS tracking for ${courseId}`);
+        // CRITICAL: Start GPS tracking when status = 2
+        await this.startTracking(course.courseId, course.vehicleNumber, course.uit, course.token, 2);
+      } else if (newStatus === 3) {
         console.log(`⏸️ STATUS 3 (PAUSE): GPS transmission paused for ${courseId}`);
       } else if (newStatus === 4) {
         console.log(`🛑 STATUS 4 (STOP): Scheduling course removal for ${courseId}`);
