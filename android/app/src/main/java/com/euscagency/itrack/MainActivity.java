@@ -128,7 +128,7 @@ public class MainActivity extends BridgeActivity {
                     }
                 }
             }
-        }, 2000); // FIXED: Increased to 2000ms for better WebView readiness
+        }, 3000); // CRITICAL: Increased to 3000ms for reliable WebView bridge setup
     }
     
 

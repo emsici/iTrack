@@ -171,7 +171,7 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.173 (June 30, 2025) - BACKGROUND GPS LOGIC COMPLETELY FIXED
+### Versiunea Curentă: 1808.174 (June 30, 2025) - WEBVIEW BRIDGE TIMING FIXES
 
 **GPS permissions issue COMPLETELY FIXED**: MainActivity now requests ACCESS_FINE_LOCATION and ACCESS_BACKGROUND_LOCATION when user clicks START
 **Duplicate GPS transmissions ELIMINATED**: Removed sendGPSData() from VehicleScreenProfessional.tsx - only Android native service transmits
@@ -183,6 +183,8 @@ Persistare localStorage → Afișare CourseStatsModal
 **Background GPS logic COMPLETELY FIXED**: Fixed critical bug where GPS cycle was not executed after service commands - now transmits continuously every 5 seconds
 **Background GPS debugging ENHANCED**: Added comprehensive logging for AlarmManager cycles, activeCourses tracking, and GPS transmission flow
 **Clean architecture finalized**: JavaScript → MainActivity.AndroidGPS → OptimalGPSService → CapacitorHttp (unified HTTP stack)
+**WebView bridge timing FIXED**: MainActivity delay increased to 3000ms, JavaScript timeout to 15000ms for reliable AndroidGPS bridge
+**Enhanced debugging ADDED**: Detailed logging for AndroidGPS bridge availability with 500ms checks for troubleshooting
 **APK production ready**: GPS permissions will be requested, OptimalGPSService will start, background GPS guaranteed functional
 
 ### Versiunea Precedentă: 1808.110 (June 23, 2025) - GPS ERROR IDENTIFICATION: 403 FORBIDDEN NOT 401

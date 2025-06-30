@@ -275,14 +275,15 @@ class DirectAndroidGPSService {
 
     try {
       console.log("🚀 Starting Android native GPS service (APK ONLY)");
-      console.log("Starting Android GPS for course:", courseId);
       await this.startAndroidNativeService(courseData);
-      console.log("✅ Android native GPS service activated");
+      console.log("✅ GPS tracking started for course", courseId, "with status", status);
     } catch (error) {
-      console.log("❌ AndroidGPS not available - APPLICATION REQUIRES APK");
-      console.log("📱 This application is designed for Android APK only");
-      console.log("📊 GPS transmission will work in APK via OptimalGPSService");
-      // No browser fallback - this is an Android-only application
+      console.error("❌ AndroidGPS not available - APPLICATION REQUIRES APK");
+      console.error("📱 This application is designed for Android APK only");
+      console.error("📊 GPS transmission will work in APK via OptimalGPSService");
+      console.error("🔧 Error details:", error);
+      // Don't remove from activeCourses - let it stay for retry
+      throw error;
     }
   }
 
@@ -507,34 +508,30 @@ class DirectAndroidGPSService {
    * CRITICAL: Wait for AndroidGPS bridge to be available
    */
   private async waitForAndroidGPS(): Promise<void> {
-    return new Promise((resolve) => {
-      // Check if AndroidGPS is already available
-      if ((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS) {
-        console.log("✅ AndroidGPS bridge already available");
-        resolve();
+    const maxWaitTime = 15000; // INCREASED: 15 seconds for slower devices
+    const checkInterval = 500; // Check every 500ms
+    const startTime = Date.now();
+
+    console.log("⏳ Waiting for AndroidGPS bridge to become available...");
+
+    while (Date.now() - startTime < maxWaitTime) {
+      if (typeof (window as any).AndroidGPS !== 'undefined' && 
+          typeof (window as any).AndroidGPS.startGPS === 'function') {
+        console.log("✅ AndroidGPS bridge confirmed available with all methods");
         return;
       }
-
-      console.log("⏳ Waiting for AndroidGPS bridge to become available...");
       
-      // Setup callback for when AndroidGPS becomes available
-      if (!(window as any).androidGPSReadyCallbacks) {
-        (window as any).androidGPSReadyCallbacks = [];
-      }
+      // Log current status for debugging
+      const elapsed = Math.round((Date.now() - startTime) / 1000);
+      console.log(`🔍 AndroidGPS check ${elapsed}s: ${typeof (window as any).AndroidGPS}`);
       
-      (window as any).androidGPSReadyCallbacks.push(() => {
-        console.log("🔔 AndroidGPS bridge is now ready!");
-        resolve();
-      });
-
-      // Fallback timeout
-      setTimeout(() => {
-        if (!((window as any).AndroidGPS && (window as any).AndroidGPS.startGPS)) {
-          console.warn("⚠️ AndroidGPS bridge not available after timeout - proceeding anyway");
-        }
-        resolve();
-      }, 5000);
-    });
+      // Wait before next check
+      await new Promise(resolve => setTimeout(resolve, checkInterval));
+    }
+    
+    console.error("❌ AndroidGPS bridge not available after 15s timeout");
+    console.error("📱 This may indicate MainActivity WebView bridge issue");
+    throw new Error("AndroidGPS bridge not available - MainActivity WebView issue");
   }
 }
 
