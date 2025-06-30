@@ -49,54 +49,73 @@ public class MainActivity extends BridgeActivity {
     /**
      * CRITICAL: Add AndroidGPS interface to WebView for JavaScript access
      */
+    /**
+     * CRITICAL: Add AndroidGPS interface to WebView for JavaScript access
+     * This method is called from onCreate() to establish bridge communication
+     */
     private void addAndroidGPSInterface() {
-        Log.d(TAG, "🔧 Adding AndroidGPS interface to WebView...");
+        Log.e(TAG, "🔧 STARTING addAndroidGPSInterface() - CRITICAL for GPS functionality");
         
-        // Wait for WebView to be ready and add AndroidGPS interface
+        // Use main thread handler for WebView operations
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            private int retryCount = 0;
+            private final int maxRetries = 10;
+            
             @Override
             public void run() {
                 try {
-                    if (getBridge() != null && getBridge().getWebView() != null) {
-                        // Add AndroidGPS interface to WebView for JavaScript access
-                        getBridge().getWebView().addJavascriptInterface(MainActivity.this, "AndroidGPS");
-                        Log.d(TAG, "✅ AndroidGPS interface attached to WebView successfully");
-                        
-                        // Set multiple ready flags for JavaScript detection
-                        getBridge().getWebView().evaluateJavascript(
-                            "window.AndroidGPSReady = true; " +
-                            "window.androidGPSBridgeReady = true; " +
-                            "window.androidGPSInterfaceReady = true; " +
-                            "console.log('✅ AndroidGPS bridge added to WebView - ready for GPS operations');",
-                            null
-                        );
-                        
-                        Log.d(TAG, "✅ AndroidGPS ready flags set in JavaScript - bridge fully operational");
-                    } else {
-                        Log.w(TAG, "⚠️ WebView not ready yet, retrying in 1 second...");
-                        // Retry after 1 second if WebView not ready
-                        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                addAndroidGPSInterface();
-                            }
-                        }, 1000);
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Failed to add AndroidGPS interface: " + e.getMessage());
-                    e.printStackTrace();
+                    retryCount++;
+                    Log.e(TAG, "🔄 Attempt " + retryCount + "/" + maxRetries + " to add AndroidGPS interface");
                     
-                    // Retry after 1 second if failed
-                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d(TAG, "🔄 Retrying AndroidGPS interface setup...");
-                            addAndroidGPSInterface();
-                        }
-                    }, 1000);
+                    // Check if bridge and WebView are available
+                    if (getBridge() == null) {
+                        Log.e(TAG, "❌ getBridge() is NULL - Capacitor bridge not ready");
+                        retryIfPossible();
+                        return;
+                    }
+                    
+                    if (getBridge().getWebView() == null) {
+                        Log.e(TAG, "❌ getWebView() is NULL - WebView not ready");
+                        retryIfPossible();
+                        return;
+                    }
+                    
+                    Log.e(TAG, "✅ Bridge and WebView are ready - adding AndroidGPS interface");
+                    
+                    // CRITICAL: Add MainActivity as AndroidGPS interface to WebView
+                    getBridge().getWebView().addJavascriptInterface(MainActivity.this, "AndroidGPS");
+                    Log.e(TAG, "✅ SUCCESS: AndroidGPS interface attached to WebView");
+                    
+                    // Set ready flags in JavaScript for detection
+                    String jsCode = 
+                        "window.AndroidGPS = window.AndroidGPS || {}; " +
+                        "window.AndroidGPSReady = true; " +
+                        "window.androidGPSBridgeReady = true; " +
+                        "window.androidGPSInterfaceReady = true; " +
+                        "console.log('✅ CRITICAL: AndroidGPS bridge established - GPS operations enabled'); " +
+                        "console.log('AndroidGPS methods available:', Object.keys(window.AndroidGPS));";
+                    
+                    getBridge().getWebView().evaluateJavascript(jsCode, null);
+                    Log.e(TAG, "✅ SUCCESS: AndroidGPS ready flags set in JavaScript");
+                    Log.e(TAG, "🎯 AndroidGPS bridge is now FULLY OPERATIONAL for GPS transmission");
+                    
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ EXCEPTION in addAndroidGPSInterface: " + e.getMessage());
+                    e.printStackTrace();
+                    retryIfPossible();
                 }
             }
-        }, 500); // Wait 500ms for WebView initialization
+            
+            private void retryIfPossible() {
+                if (retryCount < maxRetries) {
+                    Log.e(TAG, "🔄 Retrying AndroidGPS interface in 1 second... (attempt " + (retryCount + 1) + "/" + maxRetries + ")");
+                    new Handler(Looper.getMainLooper()).postDelayed(this, 1000);
+                } else {
+                    Log.e(TAG, "❌ FAILED: AndroidGPS interface setup failed after " + maxRetries + " attempts");
+                    Log.e(TAG, "🚨 GPS functionality will NOT work without AndroidGPS bridge");
+                }
+            }
+        }, 1000); // Wait 1 second for complete initialization
     }
     
     public static Context getContext() {
