@@ -8,6 +8,22 @@ import { GPSPlugin } from '../definitions';
 // Register GPS plugin for Capacitor communication
 const GPS = registerPlugin<GPSPlugin>('GPS');
 
+// Test GPS Plugin availability - but only in APK environment
+if (typeof window !== 'undefined' && (window as any).Capacitor?.isNativePlatform()) {
+  setTimeout(() => {
+    console.log("🔍 Testing GPS Plugin availability (APK environment)...");
+    try {
+      GPS.clearAllGPS().then(result => {
+        console.log("✅ GPS Plugin test successful:", result);
+      }).catch(error => {
+        console.log("❌ GPS Plugin test failed (expected in browser):", error);
+      });
+    } catch (error) {
+      console.log("❌ GPS Plugin not available (expected in browser):", error);
+    }
+  }, 3000); // Wait 3 seconds for full APK initialization
+}
+
 interface ActiveCourse {
   courseId: string;
   vehicleNumber: string;

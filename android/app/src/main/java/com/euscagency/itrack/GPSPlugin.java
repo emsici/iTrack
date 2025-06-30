@@ -22,6 +22,9 @@ public class GPSPlugin extends Plugin {
     public void load() {
         super.load();
         Log.d(TAG, "✅ GPSPlugin loaded successfully - ready for JavaScript calls");
+        Log.d(TAG, "✅ GPSPlugin name: GPS");
+        Log.d(TAG, "✅ GPSPlugin class: " + this.getClass().getName());
+        Log.d(TAG, "✅ GPSPlugin bridge ready: " + (getBridge() != null));
     }
 
     @PluginMethod

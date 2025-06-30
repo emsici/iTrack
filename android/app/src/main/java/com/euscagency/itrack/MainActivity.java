@@ -25,10 +25,15 @@ public class MainActivity extends BridgeActivity {
         instance = this;
         
         // MANUAL PLUGIN REGISTRATION - ensure GPS plugin is available
-        this.registerPlugin(GPSPlugin.class);
-        
-        Log.d(TAG, "✅ MainActivity initialized - GPS Plugin manually registered");
-        Log.d(TAG, "✅ GPSPlugin registered with name: GPS");
+        try {
+            this.registerPlugin(GPSPlugin.class);
+            Log.d(TAG, "✅ MainActivity initialized - GPS Plugin manually registered");
+            Log.d(TAG, "✅ GPSPlugin registered successfully with name: GPS");
+            Log.d(TAG, "✅ GPSPlugin class: " + GPSPlugin.class.getName());
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Failed to register GPSPlugin: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override
