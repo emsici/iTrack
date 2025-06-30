@@ -1,0 +1,310 @@
+iTrack Application Logs
+Generated: 30.06.2025, 22:28:07
+Total Logs: 141
+
+[2025-06-30T19:28:06.427Z] INFO (APP): Login successful, storing token...
+[2025-06-30T19:28:06.427Z] INFO (APP): Admin login detected - bypassing server authentication
+[2025-06-30T19:27:57.183Z] INFO (APP): Logged out - cleared local storage
+[2025-06-30T19:27:57.154Z] INFO (APP): Logout completed via AndroidGPS
+[2025-06-30T19:27:57.153Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-06-30T19:27:57.074Z] INFO (APP): 🧹 Cleared saved status for course_status_7W4H410135410166
+[2025-06-30T19:27:57.074Z] INFO (APP): 🧹 Cleared saved status for course_status_1V2L800135410164
+[2025-06-30T19:27:57.039Z] INFO (API): CapacitorHttp logout successful
+[2025-06-30T19:27:57.039Z] INFO (APP): CapacitorHttp logout successful
+[2025-06-30T19:27:56.827Z] INFO (APP): === CapacitorHttp logout ===
+[2025-06-30T19:27:56.826Z] INFO (API): Starting logout process
+[2025-06-30T19:27:56.826Z] INFO (APP): Starting logout process with Bearer token
+[2025-06-30T19:27:56.823Z] INFO (APP): ✅ All local GPS tracking data cleared
+[2025-06-30T19:27:56.823Z] INFO (APP): ⚠️ DirectGPS JavaScript interface not available for logout
+[2025-06-30T19:27:56.822Z] INFO (APP): 🔴 LOGOUT - Clearing all GPS data and stopping all tracking
+[2025-06-30T19:27:50.932Z] INFO (APP): Course action completed: 4270
+[2025-06-30T19:27:50.932Z] INFO (APP): === STATUS UPDATE COMPLETE ===
+[2025-06-30T19:27:50.932Z] INFO (API): Course 4270 status updated successfully to 2
+[2025-06-30T19:27:50.932Z] INFO (APP): ✅ Course 4270 status updated to 2 successfully
+[2025-06-30T19:27:50.931Z] INFO (APP): ✅ GPS tracking started successfully for 4270
+[2025-06-30T19:27:50.928Z] INFO (GPS): GPS tracking started for course 4270
+[2025-06-30T19:27:50.928Z] INFO (APP): ✅ GPS tracking started for course 4270 with status 2
+[2025-06-30T19:27:50.920Z] INFO (APP): 🔧 This is normal during app startup - interface will be ready soon
+[2025-06-30T19:27:50.919Z] INFO (APP): ❌ DirectGPS JavaScript interface not available - waiting for WebView bridge
+[2025-06-30T19:27:50.919Z] INFO (APP): 📱 DirectGPS Interface: startGPS(4270, TM31ECC, 4270, [token], 2)
+[2025-06-30T19:27:50.919Z] INFO (APP): 🚀 Starting DirectGPS JavaScript Interface (MainActivity bridge)
+[2025-06-30T19:27:50.919Z] INFO (APP): 🚀 Starting Android native GPS service via Capacitor Plugin
+[2025-06-30T19:27:50.918Z] INFO (APP): 📈 Total active courses: 2
+[2025-06-30T19:27:50.918Z] INFO (APP): 📊 activeCourses Map now contains: [4262, 4270]
+[2025-06-30T19:27:50.918Z] INFO (APP): 📍 Course 4270 successfully added to activeCourses Map
+[2025-06-30T19:27:50.918Z] INFO (APP): ✅ UIT parameter appears correct
+[2025-06-30T19:27:50.917Z] INFO (APP): Status: 2 (ACTIVE)
+[2025-06-30T19:27:50.917Z] INFO (APP): Token: eyJhbGciOi...
+[2025-06-30T19:27:50.917Z] INFO (APP): UIT: 4270
+[2025-06-30T19:27:50.917Z] INFO (APP): Vehicle: TM31ECC
+[2025-06-30T19:27:50.916Z] INFO (APP): Course ID: 4270
+[2025-06-30T19:27:50.916Z] INFO (APP): === STARTING GPS TRACKING ===
+[2025-06-30T19:27:50.915Z] INFO (APP): 📍 Starting GPS tracking for course 4270
+[2025-06-30T19:27:50.830Z] INFO (APP): 🚀 STATUS 2 (START): Setting up complete GPS tracking for 4270
+[2025-06-30T19:27:50.830Z] INFO (APP): Total active courses: 1
+[2025-06-30T19:27:50.829Z] INFO (APP): Active courses in map: [4262]
+[2025-06-30T19:27:50.829Z] INFO (APP): === UPDATING STATUS: 4270 → 2 ===
+[2025-06-30T19:27:50.829Z] INFO (APP): 📞 Calling updateCourseStatus(4270, 2)
+[2025-06-30T19:27:50.829Z] INFO (APP): 🎯 Delegating all GPS logic to directAndroidGPS service
+[2025-06-30T19:27:50.828Z] INFO (APP): ✅ GPS permissions granted
+[2025-06-30T19:27:50.703Z] INFO (APP): 🔍 Requesting GPS permissions for course start...
+[2025-06-30T19:27:50.702Z] INFO (APP): Token available: true, Token length: 136
+[2025-06-30T19:27:50.702Z] INFO (APP): UIT REAL: 7W4H410135410166, Vehicle: TM31ECC
+[2025-06-30T19:27:50.702Z] INFO (APP): Course: 4270, Status: 1 → 2
+[2025-06-30T19:27:50.701Z] INFO (APP): === STATUS UPDATE START ===
+[2025-06-30T19:27:50.701Z] INFO (APP): 💾 Saved status 2 for UIT 7W4H410135410166
+[2025-06-30T19:27:50.700Z] INFO (APP): Processing course action: 4270
+[2025-06-30T19:27:14.111Z] INFO (APP): Course action completed: 4262
+[2025-06-30T19:27:14.111Z] INFO (APP): === STATUS UPDATE COMPLETE ===
+[2025-06-30T19:27:14.111Z] INFO (API): Course 4262 status updated successfully to 2
+[2025-06-30T19:27:14.111Z] INFO (APP): ✅ Course 4262 status updated to 2 successfully
+[2025-06-30T19:27:14.110Z] INFO (APP): ✅ GPS tracking started successfully for 4262
+[2025-06-30T19:27:14.110Z] INFO (GPS): GPS tracking started for course 4262
+[2025-06-30T19:27:14.110Z] INFO (APP): ✅ GPS tracking started for course 4262 with status 2
+[2025-06-30T19:27:14.105Z] INFO (APP): 🔧 This is normal during app startup - interface will be ready soon
+[2025-06-30T19:27:14.105Z] INFO (APP): ❌ DirectGPS JavaScript interface not available - waiting for WebView bridge
+[2025-06-30T19:27:14.105Z] INFO (APP): 📱 DirectGPS Interface: startGPS(4262, TM31ECC, 4262, [token], 2)
+[2025-06-30T19:27:14.105Z] INFO (APP): 🚀 Starting DirectGPS JavaScript Interface (MainActivity bridge)
+[2025-06-30T19:27:14.104Z] INFO (APP): 🚀 Starting Android native GPS service via Capacitor Plugin
+[2025-06-30T19:27:14.104Z] INFO (APP): 📈 Total active courses: 1
+[2025-06-30T19:27:14.104Z] INFO (APP): 📊 activeCourses Map now contains: [4262]
+[2025-06-30T19:27:14.104Z] INFO (APP): 📍 Course 4262 successfully added to activeCourses Map
+[2025-06-30T19:27:14.104Z] INFO (APP): ✅ UIT parameter appears correct
+[2025-06-30T19:27:14.104Z] INFO (APP): Status: 2 (ACTIVE)
+[2025-06-30T19:27:14.104Z] INFO (APP): Token: eyJhbGciOi...
+[2025-06-30T19:27:14.104Z] INFO (APP): UIT: 4262
+[2025-06-30T19:27:14.104Z] INFO (APP): Vehicle: TM31ECC
+[2025-06-30T19:27:14.103Z] INFO (APP): Course ID: 4262
+[2025-06-30T19:27:14.103Z] INFO (APP): === STARTING GPS TRACKING ===
+[2025-06-30T19:27:14.103Z] INFO (APP): 📍 Starting GPS tracking for course 4262
+[2025-06-30T19:27:14.054Z] INFO (APP): 🚀 STATUS 2 (START): Setting up complete GPS tracking for 4262
+[2025-06-30T19:27:14.054Z] INFO (APP): Total active courses: 0
+[2025-06-30T19:27:14.054Z] INFO (APP): Active courses in map: []
+[2025-06-30T19:27:14.052Z] INFO (APP): === UPDATING STATUS: 4262 → 2 ===
+[2025-06-30T19:27:14.052Z] INFO (APP): 📞 Calling updateCourseStatus(4262, 2)
+[2025-06-30T19:27:14.051Z] INFO (APP): 🎯 Delegating all GPS logic to directAndroidGPS service
+[2025-06-30T19:27:14.051Z] INFO (APP): ✅ GPS permissions granted
+[2025-06-30T19:27:12.919Z] INFO (APP): 🔍 Requesting GPS permissions for course start...
+[2025-06-30T19:27:12.918Z] INFO (APP): Token available: true, Token length: 136
+[2025-06-30T19:27:12.918Z] INFO (APP): UIT REAL: 1V2L800135410164, Vehicle: TM31ECC
+[2025-06-30T19:27:12.918Z] INFO (APP): Course: 4262, Status: 1 → 2
+[2025-06-30T19:27:12.917Z] INFO (APP): === STATUS UPDATE START ===
+[2025-06-30T19:27:12.917Z] INFO (APP): 💾 Saved status 2 for UIT 1V2L800135410164
+[2025-06-30T19:27:12.916Z] INFO (APP): Processing course action: 4262
+[2025-06-30T19:27:10.696Z] INFO (APP): === Loading finished ===
+[2025-06-30T19:27:10.695Z] INFO (APP): 🆕 Found 10 new courses - displayed at top
+[2025-06-30T19:27:10.695Z] INFO (APP): Successfully loaded 10 courses for TM31ECC (sorted: new first)
+[2025-06-30T19:27:10.695Z] INFO (APP): 🔄 Android background auto-refresh activated (5 min intervals)
+[2025-06-30T19:27:10.694Z] INFO (APP): ✅ Courses loaded successfully - switching to main view with 10 courses
+[2025-06-30T19:27:10.609Z] INFO (APP): Courses found: 10
+[2025-06-30T19:27:10.608Z] INFO (API): Request completed for TM31ECC - all locks cleared
+[2025-06-30T19:27:10.608Z] INFO (APP): Request completed - locks cleared
+[2025-06-30T19:27:10.606Z] INFO (API): Processed 10 courses for TM31ECC
+[2025-06-30T19:27:10.606Z] INFO (APP): Processed 10 courses successfully
+[2025-06-30T19:27:10.605Z] INFO (APP): Processing course data
+[2025-06-30T19:27:10.605Z] INFO (APP): Found 10 courses for vehicle TM31ECC
+[2025-06-30T19:27:10.605Z] INFO (API): API response: status=200, data={"status":"success","count":10,"data":[{"ikRoTrans":4262,"codDeclarant":31933832,"denumireDeclarant":"JUICEOLOGY SRL","nrVehicul":"TM31ECC","UIT":"1V2L800135410164","dataTransport":"2025-06-25","Vama":"BV","BirouVamal":"BV Timi?oara Baz?, Jud. Timi?","Judet":"TM","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"Str. Dogarilor nr. 17 nr. -, Bucuresti","JudetStop":"B","denumireLocStop":"Bucuresti"},{"ikRoTrans":4267,"codDeclarant":31933832,"denumireDeclarant":"JUICEOLOGY SRL","nrVehicul":"TM31ECC","UIT":"9U5P100135410171","dataTransport":"2025-06-25","Vama":"BV","BirouVamal":"BV Timi?oara Baz?, Jud. Timi?","Judet":"TM","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"Str. Dogarilor nr. 17 nr. -, Bucuresti","JudetStop":"B","denumireLocStop":"Bucuresti"},{"ikRoTrans":4269,"codDeclarant":31933832,"denumireDeclarant":"JUICEOLOGY SRL","nrVehicul":"TM31ECC","UIT":"7R1W341026110172","dataTransport":"2025-06-25","Vama":"BV","BirouVamal":"BV Timi?oara Baz?, Jud. Timi?","Judet":"TM","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"Str. Dogarilor nr. 17 nr. -, Bucuresti","JudetStop":"B","denumireLocStop":"Bucuresti"},{"ikRoTrans":4270,"codDeclarant":31933832,"denumireDeclarant":"JUICEOLOGY SRL","nrVehicul":"TM31ECC","UIT":"7W4H410135410166","dataTransport":"2025-06-25","Vama":"BV","BirouVamal":"BV Timi?oara Baz?, Jud. Timi?","Judet":"TM","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"Str. Dogarilor nr. 17 nr. -, Bucuresti","JudetStop":"B","denumireLocStop":"Bucuresti"},{"ikRoTrans":4271,"codDeclarant":31933832,"denumireDeclarant":"JUICEOLOGY SRL","nrVehicul":"TM31ECC","UIT":"6Q5V010135410170","dataTransport":"2025-06-25","Vama":"BV","BirouVamal":"BV Timi?oara Baz?, Jud. Timi?","Judet":"TM","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"Str. Dogarilor nr. 17 nr. -, Bucuresti","JudetStop":"B","denumireLocStop":"Bucuresti"},{"ikRoTrans":4273,"codDeclarant":31933832,"denumireDeclarant":"JUICEOLOGY SRL","nrVehicul":"TM31ECC","UIT":"9A3N000235410147","dataTransport":"2025-06-25","Vama":"BV","BirouVamal":"BV Timi?oara Baz?, Jud. Timi?","Judet":"TM","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"Str. Dogarilor nr. 17 nr. -, Bucuresti","JudetStop":"B","denumireLocStop":"Bucuresti"},{"ikRoTrans":4275,"codDeclarant":31933832,"denumireDeclarant":"JUICEOLOGY SRL","nrVehicul":"TM31ECC","UIT":"1E9N100235410150","dataTransport":"2025-06-25","Vama":"BV","BirouVamal":"BV Timi?oara Baz?, Jud. Timi?","Judet":"TM","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"Str. Dogarilor nr. 17 nr. -, Bucuresti","JudetStop":"B","denumireLocStop":"Bucuresti"},{"ikRoTrans":4282,"codDeclarant":31933832,"denumireDeclarant":"JUICEOLOGY SRL","nrVehicul":"TM31ECC","UIT":"1K1K000302410139","dataTransport":"2025-06-25","Vama":"BV","BirouVamal":"BV Timi?oara Baz?, Jud. Timi?","Judet":"TM","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"Str. Dogarilor nr. 17 nr. -, Bucuresti","JudetStop":"B","denumireLocStop":"Bucuresti"},{"ikRoTrans":4284,"codDeclarant":14507322,"denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM31ECC","UIT":"2D8U120412010151","dataTransport":"2025-06-25","Vama":"ADR","BirouVamal":"SOSEAUA DE CENTURA nr. 220, Pantelimon, Jud. Ilfov","Judet":"IF","denumireLocStart":"PANTELIMON","VamaStop":"ADR","BirouVamalStop":"REPUBLICII nr. 104, Babadag, Jud. Tulcea","JudetStop":"TL","denumireLocStop":"BABADAG"},{"ikRoTrans":4285,"codDeclarant":14507322,"denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM31ECC","UIT":"0A0K000971110136","dataTransport":"2025-06-25","Vama":"ADR","BirouVamal":"SOSEAUA DE CENTURA nr. 220, Pantelimon, Jud. Ilfov","Judet":"IF","denumireLocStart":"PANTELIMON","VamaStop":"ADR","BirouVamalStop":"VICTORIEI nr. 50, Tulcea, Jud. Tulcea","JudetStop":"TL","denumireLocStop":"TULCEA"}]}
+[2025-06-30T19:27:10.605Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 10,
+  "data": [
+    {
+      "ikRoTrans": 4262,
+      "codDeclarant": 31933832,
+      "denumireDeclarant": "JUICEOLOGY SRL",
+      "nrVehicul": "TM31ECC",
+      "UIT": "1V2L800135410164",
+      "dataTransport": "2025-06-25",
+      "Vama": "BV",
+      "BirouVamal": "BV Timi?oara Baz?, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": null,
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Str. Dogarilor nr. 17 nr. -, Bucuresti",
+      "JudetStop": "B",
+      "denumireLocStop": "Bucuresti"
+    },
+    {
+      "ikRoTrans": 4267,
+      "codDeclarant": 31933832,
+      "denumireDeclarant": "JUICEOLOGY SRL",
+      "nrVehicul": "TM31ECC",
+      "UIT": "9U5P100135410171",
+      "dataTransport": "2025-06-25",
+      "Vama": "BV",
+      "BirouVamal": "BV Timi?oara Baz?, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": null,
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Str. Dogarilor nr. 17 nr. -, Bucuresti",
+      "JudetStop": "B",
+      "denumireLocStop": "Bucuresti"
+    },
+    {
+      "ikRoTrans": 4269,
+      "codDeclarant": 31933832,
+      "denumireDeclarant": "JUICEOLOGY SRL",
+      "nrVehicul": "TM31ECC",
+      "UIT": "7R1W341026110172",
+      "dataTransport": "2025-06-25",
+      "Vama": "BV",
+      "BirouVamal": "BV Timi?oara Baz?, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": null,
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Str. Dogarilor nr. 17 nr. -, Bucuresti",
+      "JudetStop": "B",
+      "denumireLocStop": "Bucuresti"
+    },
+    {
+      "ikRoTrans": 4270,
+      "codDeclarant": 31933832,
+      "denumireDeclarant": "JUICEOLOGY SRL",
+      "nrVehicul": "TM31ECC",
+      "UIT": "7W4H410135410166",
+      "dataTransport": "2025-06-25",
+      "Vama": "BV",
+      "BirouVamal": "BV Timi?oara Baz?, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": null,
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Str. Dogarilor nr. 17 nr. -, Bucuresti",
+      "JudetStop": "B",
+      "denumireLocStop": "Bucuresti"
+    },
+    {
+      "ikRoTrans": 4271,
+      "codDeclarant": 31933832,
+      "denumireDeclarant": "JUICEOLOGY SRL",
+      "nrVehicul": "TM31ECC",
+      "UIT": "6Q5V010135410170",
+      "dataTransport": "2025-06-25",
+      "Vama": "BV",
+      "BirouVamal": "BV Timi?oara Baz?, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": null,
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Str. Dogarilor nr. 17 nr. -, Bucuresti",
+      "JudetStop": "B",
+      "denumireLocStop": "Bucuresti"
+    },
+    {
+      "ikRoTrans": 4273,
+      "codDeclarant": 31933832,
+      "denumireDeclarant": "JUICEOLOGY SRL",
+      "nrVehicul": "TM31ECC",
+      "UIT": "9A3N000235410147",
+      "dataTransport": "2025-06-25",
+      "Vama": "BV",
+      "BirouVamal": "BV Timi?oara Baz?, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": null,
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Str. Dogarilor nr. 17 nr. -, Bucuresti",
+      "JudetStop": "B",
+      "denumireLocStop": "Bucuresti"
+    },
+    {
+      "ikRoTrans": 4275,
+      "codDeclarant": 31933832,
+      "denumireDeclarant": "JUICEOLOGY SRL",
+      "nrVehicul": "TM31ECC",
+      "UIT": "1E9N100235410150",
+      "dataTransport": "2025-06-25",
+      "Vama": "BV",
+      "BirouVamal": "BV Timi?oara Baz?, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": null,
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Str. Dogarilor nr. 17 nr. -, Bucuresti",
+      "JudetStop": "B",
+      "denumireLocStop": "Bucuresti"
+    },
+    {
+      "ikRoTrans": 4282,
+      "codDeclarant": 31933832,
+      "denumireDeclarant": "JUICEOLOGY SRL",
+      "nrVehicul": "TM31ECC",
+      "UIT": "1K1K000302410139",
+      "dataTransport": "2025-06-25",
+      "Vama": "BV",
+      "BirouVamal": "BV Timi?oara Baz?, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": null,
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Str. Dogarilor nr. 17 nr. -, Bucuresti",
+      "JudetStop": "B",
+      "denumireLocStop": "Bucuresti"
+    },
+    {
+      "ikRoTrans": 4284,
+      "codDeclarant": 14507322,
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM31ECC",
+      "UIT": "2D8U120412010151",
+      "dataTransport": "2025-06-25",
+      "Vama": "ADR",
+      "BirouVamal": "SOSEAUA DE CENTURA nr. 220, Pantelimon, Jud. Ilfov",
+      "Judet": "IF",
+      "denumireLocStart": "PANTELIMON",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "REPUBLICII nr. 104, Babadag, Jud. Tulcea",
+      "JudetStop": "TL",
+      "denumireLocStop": "BABADAG"
+    },
+    {
+      "ikRoTrans": 4285,
+      "codDeclarant": 14507322,
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM31ECC",
+      "UIT": "0A0K000971110136",
+      "dataTransport": "2025-06-25",
+      "Vama": "ADR",
+      "BirouVamal": "SOSEAUA DE CENTURA nr. 220, Pantelimon, Jud. Ilfov",
+      "Judet": "IF",
+      "denumireLocStart": "PANTELIMON",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "VICTORIEI nr. 50, Tulcea, Jud. Tulcea",
+      "JudetStop": "TL",
+      "denumireLocStop": "TULCEA"
+    }
+  ]
+}
+[2025-06-30T19:27:10.604Z] INFO (APP): API Response Status: 200
+[2025-06-30T19:27:10.604Z] INFO (APP): Data length: No data
+[2025-06-30T19:27:10.604Z] INFO (APP): Status: 200
+[2025-06-30T19:27:10.604Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-06-30T19:27:10.501Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-06-30T19:27:10.501Z] INFO (API): Loading courses for vehicle TM31ECC
+[2025-06-30T19:27:10.501Z] INFO (APP): Loading courses for vehicle: TM31ECC
+[2025-06-30T19:27:10.500Z] INFO (APP): === DEBUGGING: Loading courses for vehicle: TM31ECC ===
+[2025-06-30T19:27:10.500Z] INFO (APP): === APK DEBUG: Current courses count: 0
+[2025-06-30T19:27:10.500Z] INFO (APP): === APK DEBUG: Current coursesLoaded state: false
+[2025-06-30T19:27:10.500Z] INFO (APP): === APK DEBUG: Token available: true
+[2025-06-30T19:27:10.500Z] INFO (APP): === APK DEBUG: Vehicle number: TM31ECC
+[2025-06-30T19:27:10.499Z] INFO (APP): === APK DEBUG: Starting course loading process ===
+[2025-06-30T19:27:09.410Z] INFO (APP): 📝 Vehicle number changed to: TM31ECC
+[2025-06-30T19:27:09.268Z] INFO (APP): 📝 Vehicle number changed to: TM31EC
+[2025-06-30T19:27:09.129Z] INFO (APP): 📝 Vehicle number changed to: TM31E
+[2025-06-30T19:27:08.378Z] INFO (APP): 📝 Vehicle number changed to: TM31
+[2025-06-30T19:27:08.254Z] INFO (APP): 📝 Vehicle number changed to: TM3
+[2025-06-30T19:27:07.521Z] INFO (APP): 📝 Vehicle number changed to: TM
+[2025-06-30T19:27:07.238Z] INFO (APP): 📝 Vehicle number changed to: T
+[2025-06-30T19:27:05.589Z] INFO (APP): Token stored successfully
+[2025-06-30T19:27:05.573Z] INFO (APP): Login successful, storing token...
+[2025-06-30T19:27:05.573Z] INFO (API): CapacitorHttp login successful for +40722222222
+[2025-06-30T19:27:05.572Z] INFO (APP): CapacitorHttp login successful
+[2025-06-30T19:27:05.330Z] INFO (APP): Using CapacitorHttp for fast login
+[2025-06-30T19:27:05.330Z] INFO (API): Direct CapacitorHttp login attempt for +40722222222
+[2025-06-30T19:27:05.330Z] INFO (APP): Direct CapacitorHttp login for: +40722222222
+[2025-06-30T19:27:05.330Z] INFO (APP): Platform info: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.115 Mobile Safari/537.36
+[2025-06-30T19:27:05.329Z] INFO (APP): CapacitorHttp available: true
+[2025-06-30T19:27:05.329Z] INFO (APP): Test credentials detected - proceeding with server authentication
+[2025-06-30T19:26:59.124Z] INFO (APP): 🔍 startGPS function available: undefined
+[2025-06-30T19:26:59.124Z] INFO (APP): 🔍 DirectGPS methods: 
+[2025-06-30T19:26:59.124Z] INFO (APP): 🔍 DirectGPS object type: object
+[2025-06-30T19:26:59.124Z] INFO (APP): ✅ DirectGPS interface ready - attempt 1
+[2025-06-30T19:26:57.891Z] INFO (APP): No stored token - showing login
+[2025-06-30T19:26:57.873Z] INFO (APP): ✅ GPS Bridge initialized - Android service ready for GPS transmission
+[2025-06-30T19:26:57.873Z] INFO (APP): ✅ GPS Bridge setup complete - Android service ready
+[2025-06-30T19:26:57.865Z] INFO (SYSTEM): AppLogger initialized
