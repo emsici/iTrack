@@ -91,12 +91,28 @@ public class OptimalGPSService extends Service {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "📡 OPTIMAL GPS Service started with action: " + (intent != null ? intent.getAction() : "NULL"));
+        Log.d(TAG, "⚡ Current activeCourses count: " + activeCourses.size());
+        
+        // IMMEDIATE: Start foreground service to prevent termination
+        startForeground(NOTIFICATION_ID, createNotification());
+        
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
-            // ALARM TRIGGERED: Get GPS location and transmit
+            // ALARM TRIGGERED: Get GPS location and transmit for all active courses
+            Log.d(TAG, "🔄 ALARM TRIGGERED - performing GPS cycle");
             performOptimalGPSCycle();
         } else {
             // Regular service commands (START_GPS, STOP_GPS, etc.)
+            Log.d(TAG, "📥 HANDLING SERVICE COMMAND");
             handleServiceCommand(intent);
+            
+            // CRITICAL: After handling command, perform GPS cycle if we have active courses
+            if (!activeCourses.isEmpty()) {
+                Log.d(TAG, "🚀 EXECUTING INITIAL GPS CYCLE for " + activeCourses.size() + " active courses");
+                performOptimalGPSCycle();
+            } else {
+                Log.w(TAG, "⚠️ NO ACTIVE COURSES - skipping GPS cycle");
+            }
         }
         
         return START_STICKY; // Restart if killed
