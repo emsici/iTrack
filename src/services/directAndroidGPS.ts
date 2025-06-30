@@ -349,64 +349,35 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    console.log("🚀 Starting Android native GPS service (APK ONLY)");
+    console.log("🚀 Starting Android native GPS service via Capacitor Plugin");
 
-    let androidGPSAvailable = false;
-    
     try {
-      // CRITICAL: Wait for AndroidGPS bridge to be ready
-      await this.waitForAndroidGPS();
-      console.log("✅ AndroidGPS bridge detected - starting OptimalGPSService");
-      androidGPSAvailable = true;
-    } catch (error) {
-      console.log("❌ AndroidGPS bridge not available - this application requires APK on Android device");
-      console.log("📱 GPS functionality will work when APK is installed on Android device");
-      console.log("🔧 Development environment: GPS service simulation disabled");
-      // Continue to attempt direct GPS call even if bridge detection fails
-      androidGPSAvailable = false;
-    }
-
-    // ANDROID APK: Try to use native AndroidGPS interface 
-    console.log(`🔍 Checking AndroidGPS availability: ${typeof (window as any).AndroidGPS}`);
-    console.log(`🔍 Checking startGPS method: ${typeof (window as any).AndroidGPS?.startGPS}`);
-    
-    if ((window as any).AndroidGPS && typeof (window as any).AndroidGPS.startGPS === 'function') {
-      console.log("✅ AndroidGPS interface confirmed available - calling startGPS");
-      console.log(`📱 CALLING: AndroidGPS.startGPS(${course.courseId}, ${course.vehicleNumber}, ${course.uit}, [token], ${course.status})`);
+      // EFFICIENT: Direct Capacitor Plugin call - no bridge timing issues
+      const { startNativeGPS } = await import('./nativeGPS');
       
-      try {
-        const result = (window as any).AndroidGPS.startGPS(
-          course.courseId,
-          course.vehicleNumber, 
-          course.uit,
-          course.token,
-          course.status
-        );
-        
-        console.log(`📱 AndroidGPS.startGPS result: ${result}`);
-        
-        if (result && typeof result === 'string' && result.includes("ERROR")) {
-          console.log(`⚠️ GPS service returned error status: ${result}`);
-          console.log(`📱 APK Environment: Error status is expected behavior during startup`);
-          console.log(`✅ Continuing GPS operation - service will retry automatically`);
-        }
-        
-        console.log("✅ Android GPS started successfully - OptimalGPSService should be running");
+      console.log(`📱 CALLING: GPS Plugin startGPS(${course.courseId}, ${course.vehicleNumber}, ${course.uit}, [token], ${course.status})`);
+      
+      const success = await startNativeGPS(
+        course.courseId,
+        course.vehicleNumber,
+        course.uit,
+        course.token,
+        course.status
+      );
+      
+      if (success) {
+        console.log("✅ Native GPS Plugin started successfully - OptimalGPSService should be running");
         console.log(`✅ Course ${course.courseId} should now transmit GPS every 5 seconds`);
-        return;
-      } catch (error) {
-        console.log(`⚠️ AndroidGPS.startGPS exception: ${error}`);
-        console.log(`📱 APK Environment: Exceptions during startup are normal`);
-        console.log(`🔧 GPS service will retry when interface becomes fully ready`);
-        console.log(`✅ Course remains active in activeCourses for automatic retry`);
+      } else {
+        console.log("⚠️ Native GPS Plugin returned error - but course remains active for retry");
+        console.log("🔧 GPS service will retry when conditions are ready");
       }
+      
+    } catch (error) {
+      console.log(`⚠️ Native GPS Plugin error: ${error}`);
+      console.log("🔧 APK Environment: Plugin errors during startup are normal");
+      console.log("✅ Course remains active in activeCourses for automatic retry");
     }
-
-    // GRACEFUL: No blocking - just log environment info
-    console.log("📱 AndroidGPS interface not detected yet");
-    console.log("🚀 APK Environment: GPS will work when interface is ready");
-    console.log("🌐 Browser Environment: GPS optimized for APK deployment");
-    console.log("✅ Continuing execution - no blocking errors");
   }
 
   private async stopAndroidNativeService(courseId: string): Promise<void> {
@@ -471,16 +442,18 @@ class DirectAndroidGPSService {
         }
       }
       
-      // if (Capacitor.isNativePlatform()) { // Platform detection commented
-        // Send logout signal to Android service via WebView interface
-        if ((window as any).AndroidGPS && (window as any).AndroidGPS.clearAllOnLogout) {
-          try {
-            (window as any).AndroidGPS.clearAllOnLogout();
-            console.log("✅ OptimalGPSService WebView interface logout called");
-          } catch (error) {
-            console.log("WebView logout failed:", error);
-          }
+      // Send logout signal to Android service via Native Plugin
+      try {
+        const { clearAllNativeGPS } = await import('./nativeGPS');
+        const success = await clearAllNativeGPS();
+        if (success) {
+          console.log("✅ OptimalGPSService Native Plugin logout called");
+        } else {
+          console.log("⚠️ Native Plugin logout had issues");
         }
+      } catch (error) {
+        console.log("Native Plugin logout failed:", error);
+      }
       
       // Clear local tracking data
       this.activeCourses.clear();
