@@ -17,6 +17,12 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 @CapacitorPlugin(name = "GPS")
 public class GPSPlugin extends Plugin {
     private static final String TAG = "GPSPlugin";
+    
+    @Override
+    public void load() {
+        super.load();
+        Log.d(TAG, "✅ GPSPlugin loaded successfully - ready for JavaScript calls");
+    }
 
     @PluginMethod
     public void startGPS(PluginCall call) {
