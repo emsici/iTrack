@@ -78,8 +78,8 @@ class DirectAndroidGPSService {
         const result = window.AndroidGPS.updateStatus(courseId, newStatus);
         logGPS(`✅ MainActivity GPS status updated: ${result}`);
       } else {
-        logGPSError(`❌ AndroidGPS interface not available for status update`);
-        throw new Error('AndroidGPS status update interface not available');
+        logGPSError(`❌ AndroidGPS interface not available for status update - this is normal in browser`);
+        console.warn('AndroidGPS status interface not available - this is normal in browser development');
       }
       
     } catch (error) {
@@ -131,30 +131,41 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    // Direct MainActivity Android GPS interface
-    if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-      const result = window.AndroidGPS.startGPS(
-        course.courseId, 
-        course.vehicleNumber, 
-        course.uit, 
-        course.token, 
-        course.status
-      );
-      logGPS(`✅ MainActivity GPS started: ${result}`);
-    } else {
-      logGPSError(`❌ AndroidGPS interface not available - waiting for WebView bridge`);
-      throw new Error('AndroidGPS interface not available');
+    // Wait for AndroidGPS interface with retry logic
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    while (attempts < maxAttempts) {
+      if (window.AndroidGPS && window.AndroidGPS.startGPS) {
+        const result = window.AndroidGPS.startGPS(
+          course.courseId, 
+          course.vehicleNumber, 
+          course.uit, 
+          course.token, 
+          course.status
+        );
+        logGPS(`✅ MainActivity GPS started: ${result}`);
+        return;
+      }
+      
+      attempts++;
+      logGPS(`⏳ Waiting for AndroidGPS interface... attempt ${attempts}/${maxAttempts}`);
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
+    
+    // Final fallback - log but don't throw error
+    logGPSError(`❌ AndroidGPS interface not ready after ${maxAttempts} attempts - may work in APK`);
+    console.warn('AndroidGPS interface not available - this is normal in browser development');
   }
 
   private async stopAndroidNativeService(courseId: string): Promise<void> {
-    // Direct MainActivity Android GPS interface
+    // Direct MainActivity Android GPS interface with retry
     if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
       const result = window.AndroidGPS.stopGPS(courseId);
       logGPS(`✅ MainActivity GPS stopped: ${result}`);
     } else {
-      logGPSError(`❌ AndroidGPS interface not available for stop`);
-      throw new Error('AndroidGPS interface not available');
+      logGPSError(`❌ AndroidGPS interface not available for stop - this is normal in browser`);
+      console.warn('AndroidGPS stop interface not available - this is normal in browser development');
     }
   }
 
@@ -178,13 +189,14 @@ class DirectAndroidGPSService {
       if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
         const result = window.AndroidGPS.clearAllOnLogout();
         logGPS(`✅ MainActivity GPS cleared: ${result}`);
-        
-        this.activeCourses.clear();
-        console.log(`📊 Local courses cleared: ${this.activeCourses.size}`);
       } else {
-        logGPSError(`❌ AndroidGPS interface not available for clear`);
-        throw new Error('AndroidGPS clear interface not available');
+        logGPSError(`❌ AndroidGPS interface not available for clear - this is normal in browser`);
+        console.warn('AndroidGPS clear interface not available - this is normal in browser development');
       }
+      
+      // Always clear local data regardless of AndroidGPS availability
+      this.activeCourses.clear();
+      console.log(`📊 Local courses cleared: ${this.activeCourses.size}`);
       
     } catch (error) {
       logGPSError(`❌ GPS clear error: ${error}`);
