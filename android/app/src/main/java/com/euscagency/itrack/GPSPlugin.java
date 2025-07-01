@@ -37,11 +37,11 @@ public class GPSPlugin extends Plugin {
             // Create intent for OptimalGPSService
             Intent intent = new Intent(getContext(), OptimalGPSService.class);
             intent.setAction("START_GPS");
-            intent.putExtra("COURSE_ID", courseId);
-            intent.putExtra("VEHICLE_NUMBER", vehicleNumber);
-            intent.putExtra("UIT", uit);
-            intent.putExtra("AUTH_TOKEN", authToken);
-            intent.putExtra("STATUS", status);
+            intent.putExtra("courseId", courseId);
+            intent.putExtra("vehicleNumber", vehicleNumber);
+            intent.putExtra("uit", uit);
+            intent.putExtra("authToken", authToken);
+            intent.putExtra("status", status);
             
             getContext().startService(intent);
             
@@ -68,7 +68,7 @@ public class GPSPlugin extends Plugin {
             
             Intent intent = new Intent(getContext(), OptimalGPSService.class);
             intent.setAction("STOP_GPS");
-            intent.putExtra("COURSE_ID", courseId);
+            intent.putExtra("courseId", courseId);
             
             getContext().startService(intent);
             
@@ -97,8 +97,8 @@ public class GPSPlugin extends Plugin {
             
             Intent intent = new Intent(getContext(), OptimalGPSService.class);
             intent.setAction("UPDATE_STATUS");
-            intent.putExtra("COURSE_ID", courseId);
-            intent.putExtra("NEW_STATUS", newStatus);
+            intent.putExtra("courseId", courseId);
+            intent.putExtra("newStatus", newStatus);
             
             getContext().startService(intent);
             
