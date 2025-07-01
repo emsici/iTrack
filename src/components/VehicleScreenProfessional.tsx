@@ -4,8 +4,8 @@ import { Course } from "../types";
 import { getVehicleCourses, logout } from "../services/api";
 import {
   updateCourseStatus,
-  logoutClearAllGPS,
-} from "../services/directAndroidGPS";
+  clearAllGPS,
+} from "../services/capacitorGPS";
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
@@ -245,7 +245,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const handleLogout = async () => {
     try {
-      await logoutClearAllGPS();
+      await clearAllGPS();
       await logout(token);
       await clearToken();
       

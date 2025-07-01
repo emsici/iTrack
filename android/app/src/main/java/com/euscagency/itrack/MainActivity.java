@@ -30,13 +30,11 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
-        Log.d(TAG, "✅ MainActivity initialized with AndroidGPS WebView interface");
+        Log.d(TAG, "✅ MainActivity initialized with Capacitor GPSPlugin");
         
-        // Initialize AndroidGPS interface immediately after WebView is created
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Log.d(TAG, "🔧 Post-onCreate AndroidGPS interface setup...");
-            addAndroidGPSInterface();
-        }, 2000); // Wait 2 seconds after onCreate
+        // Register GPS Plugin for Capacitor
+        registerPlugin(GPSPlugin.class);
+        Log.d(TAG, "🔧 GPSPlugin registered successfully - GPS operations ready");
     }
 
     @Override
@@ -44,57 +42,11 @@ public class MainActivity extends BridgeActivity {
         super.onStart();
         Log.d(TAG, "MainActivity onStart() - GPS Plugin ready");
         
-        // Add AndroidGPS interface to WebView
-        addAndroidGPSInterface();
+        // GPSPlugin handles all GPS operations
     }
 
-    /**
-     * Adaugă interfața AndroidGPS la WebView pentru apeluri din JavaScript
-     */
-    private void addAndroidGPSInterface() {
-        Log.d(TAG, "🔧 Starting AndroidGPS interface setup...");
-        
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            try {
-                Log.d(TAG, "🔍 Checking WebView availability...");
-                Log.d(TAG, "getBridge(): " + (getBridge() != null ? "available" : "null"));
-                Log.d(TAG, "getWebView(): " + (getBridge() != null && getBridge().getWebView() != null ? "available" : "null"));
-                
-                if (getBridge() != null && getBridge().getWebView() != null) {
-                    Log.d(TAG, "🚀 Adding AndroidGPS interface to WebView...");
-                    
-                    // Create AndroidGPS instance and add to WebView
-                    AndroidGPS androidGPSInstance = new AndroidGPS();
-                    getBridge().getWebView().addJavascriptInterface(androidGPSInstance, "AndroidGPS");
-                    
-                    Log.d(TAG, "📱 AndroidGPS instance created: " + androidGPSInstance.getClass().getName());
-                    Log.d(TAG, "🌐 WebView instance: " + getBridge().getWebView().getClass().getName());
-                    
-                    // Notify JavaScript that interface is ready
-                    getBridge().getWebView().evaluateJavascript(
-                        "console.log('AndroidGPS interface added by MainActivity'); " +
-                        "window.AndroidGPSReady = true; " +
-                        "window.androidGPSBridgeReady = true; " +
-                        "window.androidGPSInterfaceReady = true; " +
-                        "console.log('AndroidGPS type: ' + typeof window.AndroidGPS);",
-                        null
-                    );
-                    
-                    Log.d(TAG, "✅ AndroidGPS interface added to WebView successfully");
-                } else {
-                    Log.e(TAG, "❌ WebView not available for AndroidGPS interface - retrying in 2 seconds");
-                    
-                    // Retry after additional delay
-                    new Handler(Looper.getMainLooper()).postDelayed(this::addAndroidGPSInterface, 2000);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "❌ Failed to add AndroidGPS interface: " + e.getMessage(), e);
-                
-                // Retry after error
-                new Handler(Looper.getMainLooper()).postDelayed(this::addAndroidGPSInterface, 2000);
-            }
-        }, 1000); // Wait 1 second for WebView to be ready
-    }
+    // Capacitor GPSPlugin replaces WebView AndroidGPS interface
+    // No longer needed - GPS operations handled by GPSPlugin.java
 
     /**
      * WebView JavaScript Interface pentru controlul GPS-ului
