@@ -171,16 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.210 (June 30, 2025) - WEBVIEW ANDROIDGPS INTERFACE RESTORED - BACK TO WORKING ARCHITECTURE
+### Versiunea Curentă: 1808.211 (July 01, 2025) - ANDROIDGPS WEBVIEW INTERFACE APK DEBUGGING ENHANCED
 
-**CRITICAL ARCHITECTURE REVERT**: Reverted from problematic Capacitor Plugin to working WebView AndroidGPS interface from commit 706ed52702441c851d265e1c0655cd898ee27b37
-**WORKING SOLUTION IDENTIFIED**: In functioning commit, GPS used WebView JavascriptInterface (window.AndroidGPS) not Capacitor Plugin
-**WEBVIEW INTERFACE RESTORED**: MainActivity now uses addJavascriptInterface(new AndroidGPS(), "AndroidGPS") with proper WebView bridge setup
-**GPSPLUGIN.JAVA ELIMINATED**: Removed problematic GPSPlugin.java completely, using direct WebView communication like working version
-**BACKGROUND GPS CONFIRMED**: AndroidGPS interface connects directly to OptimalGPSService for background GPS transmission with phone locked
-**JAVASCRIPT BRIDGE RESTORED**: window.AndroidGPS.startGPS() calls work directly without Capacitor Plugin complexity
-**DEFINITIONS.TS REMOVED**: Eliminated GPSPlugin interface definitions, using simple WebView string return values
-**PRODUCTION READY**: Exact replication of commit 706ed52702441c851d265e1c0655cd898ee27b37 architecture that was confirmed working
+**CRITICAL APK ISSUE IDENTIFIED**: AndroidGPS WebView interface not available in actual APK deployment on Android device (SM-A566B)
+**PROBLEM CONFIRMED**: Logs show `window.AndroidGPS: undefined` and `AndroidGPS interface NOT detected` after 10 attempts on real device
+**DEBUGGING ENHANCED**: Added comprehensive logging in MainActivity.java with force-add AndroidGPS interface in onResume()
+**ROOT CAUSE**: MainActivity.java addJavascriptInterface() not executing properly in APK environment vs browser testing
+**WEBVIEW BRIDGE TIMING**: Implemented multiple trigger points (onCreate, onStart, onResume) with enhanced retry logic
+**APK DEPLOYMENT CRITICAL**: Application works in browser but AndroidGPS interface fails to initialize in production APK
+**NEXT STEPS**: APK compilation with enhanced debugging to identify exact WebView bridge failure point
+**PRODUCTION BLOCKER**: GPS transmission to gps.php blocked until AndroidGPS interface successfully added to WebView in APK
 
 ### Versiunea Precedentă: 1808.187 (June 30, 2025) - FINAL GPS BLOCKING ISSUES ELIMINATED & COMPLETE FLOW VERIFIED
 

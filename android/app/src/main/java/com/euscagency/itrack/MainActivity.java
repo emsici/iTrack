@@ -62,11 +62,21 @@ public class MainActivity extends BridgeActivity {
                 
                 if (getBridge() != null && getBridge().getWebView() != null) {
                     Log.d(TAG, "🚀 Adding AndroidGPS interface to WebView...");
-                    getBridge().getWebView().addJavascriptInterface(new AndroidGPS(), "AndroidGPS");
+                    
+                    // Create AndroidGPS instance and add to WebView
+                    AndroidGPS androidGPSInstance = new AndroidGPS();
+                    getBridge().getWebView().addJavascriptInterface(androidGPSInstance, "AndroidGPS");
+                    
+                    Log.d(TAG, "📱 AndroidGPS instance created: " + androidGPSInstance.getClass().getName());
+                    Log.d(TAG, "🌐 WebView instance: " + getBridge().getWebView().getClass().getName());
                     
                     // Notify JavaScript that interface is ready
                     getBridge().getWebView().evaluateJavascript(
-                        "console.log('AndroidGPS interface added'); window.AndroidGPSReady = true; window.androidGPSBridgeReady = true; window.androidGPSInterfaceReady = true;",
+                        "console.log('AndroidGPS interface added by MainActivity'); " +
+                        "window.AndroidGPSReady = true; " +
+                        "window.androidGPSBridgeReady = true; " +
+                        "window.androidGPSInterfaceReady = true; " +
+                        "console.log('AndroidGPS type: ' + typeof window.AndroidGPS);",
                         null
                     );
                     
@@ -200,21 +210,31 @@ public class MainActivity extends BridgeActivity {
         super.onResume();
         Log.d(TAG, "MainActivity onResume() - GPS Plugin available");
         
-        // Re-attempt to add AndroidGPS interface when activity resumes
+        // Force AndroidGPS interface addition in onResume
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (getBridge() != null && getBridge().getWebView() != null) {
                 try {
-                    // Check if interface already exists
+                    Log.d(TAG, "🔧 onResume: Force adding AndroidGPS interface...");
+                    
+                    // Always re-add the interface to ensure it's available
+                    getBridge().getWebView().addJavascriptInterface(new AndroidGPS(), "AndroidGPS");
+                    
+                    // Set all ready flags
                     getBridge().getWebView().evaluateJavascript(
-                        "console.log('Checking AndroidGPS availability: ' + (typeof window.AndroidGPS)); " +
-                        "if (typeof window.AndroidGPS === 'undefined') { console.log('AndroidGPS missing - will re-add'); } " +
-                        "else { console.log('AndroidGPS available - ready for GPS operations'); }",
+                        "console.log('AndroidGPS interface FORCE-ADDED in onResume'); " +
+                        "window.AndroidGPSReady = true; " +
+                        "window.androidGPSBridgeReady = true; " +
+                        "window.androidGPSInterfaceReady = true;",
                         null
                     );
+                    
+                    Log.d(TAG, "✅ AndroidGPS interface FORCE-ADDED in onResume");
                 } catch (Exception e) {
-                    Log.w(TAG, "Could not check AndroidGPS interface: " + e.getMessage());
+                    Log.e(TAG, "❌ Failed to force-add AndroidGPS interface in onResume: " + e.getMessage());
                 }
+            } else {
+                Log.w(TAG, "❌ WebView not available in onResume for AndroidGPS interface");
             }
-        }, 500);
+        }, 100); // Shorter delay for immediate availability
     }
 }
