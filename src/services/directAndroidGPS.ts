@@ -252,15 +252,13 @@ class DirectAndroidGPSService {
       console.log("❌ Error message:", androidError?.message || 'No message');
       
       if (androidError?.message?.includes("not available")) {
-        console.log("📱 AndroidGPS WebView interface not available - normal in browser");
+        console.log("📱 AndroidGPS WebView interface not available - APK required for GPS functionality");
         logGPSError("AndroidGPS interface not available - APK required for GPS functionality");
       } else {
         console.log("📱 Other AndroidGPS error - may work on real device");
         logGPSError(`AndroidGPS error: ${androidError?.message || androidError}`);
+        throw androidError; // Re-throw to bubble up the specific error
       }
-      
-      console.log("✅ Course remains in activeCourses for when AndroidGPS becomes available");
-      throw androidError; // Re-throw to bubble up the specific error
     }
   }
   

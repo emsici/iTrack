@@ -525,11 +525,29 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "🎯 OPTIMAL GPS Command: " + action);
         
         if ("START_GPS".equals(action)) {
-            String courseId = intent.getStringExtra("COURSE_ID");
-            String uit = intent.getStringExtra("UIT");
-            String vehicleNumber = intent.getStringExtra("VEHICLE_NUMBER");
-            String authToken = intent.getStringExtra("AUTH_TOKEN");
-            int status = intent.getIntExtra("STATUS", 2);
+            String courseId = intent.getStringExtra("courseId");
+            String uit = intent.getStringExtra("uit");
+            String vehicleNumber = intent.getStringExtra("vehicleNumber");
+            String authToken = intent.getStringExtra("authToken");
+            int status = intent.getIntExtra("status", 2);
+            
+            Log.d(TAG, "📋 RECEIVED GPS PARAMETERS:");
+            Log.d(TAG, "  courseId: " + courseId);
+            Log.d(TAG, "  uit: " + uit);
+            Log.d(TAG, "  vehicleNumber: " + vehicleNumber);
+            Log.d(TAG, "  authToken: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
+            Log.d(TAG, "  status: " + status);
+            
+            // Validate critical parameters
+            if (courseId == null || uit == null || authToken == null || vehicleNumber == null) {
+                Log.e(TAG, "❌ CRITICAL: Missing required GPS parameters - cannot start GPS");
+                Log.e(TAG, "Missing: " + 
+                      (courseId == null ? "courseId " : "") +
+                      (uit == null ? "uit " : "") +
+                      (authToken == null ? "authToken " : "") +
+                      (vehicleNumber == null ? "vehicleNumber " : ""));
+                return;
+            }
             
             // Check if course already exists to prevent duplicates
             if (activeCourses.containsKey(courseId)) {
