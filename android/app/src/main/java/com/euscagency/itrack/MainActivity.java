@@ -60,31 +60,19 @@ public class MainActivity extends BridgeActivity {
         try {
             WebView webView = getBridge().getWebView();
             if (webView != null) {
+                // FORCE ADD - no delay, no retry complexity
                 webView.addJavascriptInterface(this, "AndroidGPS");
-                Log.d(TAG, "🔧 AndroidGPS interface added to WebView successfully");
+                webView.evaluateJavascript("window.AndroidGPS = AndroidGPS;", null);
+                webView.evaluateJavascript("window.AndroidGPSReady = true;", null);
+                webView.evaluateJavascript("console.log('FORCE: AndroidGPS available = ' + (typeof window.AndroidGPS !== 'undefined'));", null);
                 
-                // Set multiple ready flags for reliable detection with delay
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    webView.evaluateJavascript("window.AndroidGPSReady = true;", null);
-                    webView.evaluateJavascript("window.androidGPSBridgeReady = true;", null);
-                    webView.evaluateJavascript("window.androidGPSInterfaceReady = true;", null);
-                    webView.evaluateJavascript("console.log('✅ AndroidGPS interface confirmed ready');", null);
-                    Log.d(TAG, "✅ AndroidGPS ready flags set - GPS operations available");
-                }, 200);
+                Log.d(TAG, "🔧 FORCE AndroidGPS interface added to WebView");
                 
             } else {
-                Log.e(TAG, "❌ WebView is null - cannot add AndroidGPS interface");
-                // Retry after delay if WebView not ready
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    addAndroidGPSInterface();
-                }, 1000);
+                Log.e(TAG, "❌ WebView is null");
             }
         } catch (Exception e) {
             Log.e(TAG, "❌ Error adding AndroidGPS interface: " + e.getMessage());
-            // Retry after delay on error
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                addAndroidGPSInterface();
-            }, 1000);
         }
     }
 
