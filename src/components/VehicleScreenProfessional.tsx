@@ -338,9 +338,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }
       }
 
-      // SIMPLIFIED: All GPS logic handled by directAndroidGPS service
+      // SIMPLIFIED: All GPS logic handled by capacitorGPS service
       try {
-        console.log(`🎯 Delegating all GPS logic to directAndroidGPS service`);
+        console.log(`🎯 Delegating all GPS logic to capacitorGPS service`);
         console.log(`📞 Calling updateCourseStatus(${courseId}, ${newStatus})`);
         
         // Single call handles everything: startGPS + updateStatus + transmission

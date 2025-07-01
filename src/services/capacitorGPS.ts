@@ -108,6 +108,36 @@ class CapacitorGPSService {
     try {
       console.log(`🔄 Updating course status via Capacitor Plugin: ${courseId} → ${newStatus}`);
       
+      // STATUS 2 (START): Setup complete GPS tracking like directAndroidGPS
+      if (newStatus === 2) {
+        console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
+        
+        // Get course data from Capacitor Preferences (consistent with login system)
+        const { getStoredToken, getStoredVehicleNumber } = await import('./storage');
+        const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
+        const token = await getStoredToken() || '';
+        
+        // Get real UIT from courses data
+        const storedCourses = localStorage.getItem(`courses_${vehicleNumber}`);
+        let realUIT = courseId; // fallback
+        
+        if (storedCourses) {
+          try {
+            const coursesData = JSON.parse(storedCourses);
+            const foundCourse = coursesData.find((c: any) => c.id === courseId);
+            if (foundCourse && foundCourse.uit) {
+              realUIT = foundCourse.uit;
+              console.log(`📋 Found UIT for ${courseId}: ${realUIT}`);
+            }
+          } catch (error) {
+            console.warn('Error parsing courses data:', error);
+          }
+        }
+        
+        // Start GPS tracking first
+        await this.startGPSTracking(courseId, vehicleNumber, realUIT, token, newStatus);
+      }
+      
       // Update local tracking
       const course = this.activeCourses.get(courseId);
       if (course) {
