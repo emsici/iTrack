@@ -171,16 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.212 (July 01, 2025) - DIRECT ANDROID GPS ARCHITECTURE FINALIZED
+### Versiunea Curentă: 1808.213 (July 01, 2025) - DUPLICATE TRANSMISSIONS FIXED & ANDROID-ONLY GPS
 
-**CAPACITOR PLUGIN APPROACH ABANDONED**: GPSPlugin.java causes "plugin is not implemented on android" error - Capacitor sync only detects 3 standard plugins
-**SINGLE METHOD IMPLEMENTED**: Direct AndroidGPS WebView interface through MainActivity.java → OptimalGPSService.java chain
-**HYBRID CODE ELIMINATED**: Removed all Capacitor Plugin fallback code and capacitorGPS.ts service layer
-**DIRECT ANDROID IMPLEMENTATION**: directAndroidGPS.ts uses only window.AndroidGPS interface with guaranteed WebView bridge
-**MAINACTIVITY OPTIMIZED**: Enhanced addAndroidGPSInterface() with multiple trigger points (onStart, onResume) and ready flags
-**SINGLE GPS SERVICE**: OptimalGPSService.java handles all background GPS with 5-second transmission intervals
-**ARCHITECTURE SIMPLIFIED**: JavaScript → AndroidGPS WebView bridge → MainActivity Intent → OptimalGPSService foreground service
-**PRODUCTION READY**: Single working method eliminates confusion and guarantees GPS functionality in APK deployment
+**DUPLICATE TRANSMISSIONS ELIMINATED**: Removed browser GPS interval that was running parallel with Android service causing double transmissions
+**ANDROID-ONLY GPS ARCHITECTURE**: Now uses exclusively Android OptimalGPSService background service for all GPS tracking
+**NO BROWSER GPS**: Eliminated startBrowserGPS_June26thFormat to prevent duplicate coordinate submissions  
+**VITE WARNINGS FIXED**: Converted all dynamic imports to static imports, eliminated TypeScript errors
+**UIT TRANSMISSION VERIFIED**: Android service correctly uses real course UIT (8L7F120964320165 for CT17NSL)
+**SINGLE GPS SOURCE**: Only OptimalGPSService transmits coordinates - no hybrid browser/Android approach
+**EXACT 5-SECOND INTERVALS**: AlarmManager setExactAndAllowWhileIdle configured for precise timing with phone locked
+**PRODUCTION DEPLOYMENT**: Clean architecture with zero duplicate transmissions and authentic course UIT usage
 
 ### Versiunea Precedentă: 1808.187 (June 30, 2025) - FINAL GPS BLOCKING ISSUES ELIMINATED & COMPLETE FLOW VERIFIED
 

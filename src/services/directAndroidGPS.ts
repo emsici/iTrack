@@ -123,14 +123,13 @@ class DirectAndroidGPSService {
   }
 
   /**
-   * HYBRID: June 26th GPS format + Android background service for phone locked
+   * ANDROID ONLY: Direct Android background service for all GPS (phone locked + unlocked)
    */
   private async startHybridGPS_June26thFormat_AndroidBackground(course: ActiveCourse): Promise<void> {
-    // Start Android background service first
+    // ONLY Android background service - no browser GPS to prevent duplicates
     await this.startAndroidBackgroundService(course);
     
-    // Then start browser GPS with June 26th format (for when app is open)
-    await this.startBrowserGPS_June26thFormat(course);
+    logGPS(`🔥 ANDROID ONLY GPS - no browser intervals to prevent double transmissions`);
   }
 
   /**
@@ -151,67 +150,7 @@ class DirectAndroidGPSService {
     }
   }
 
-  /**
-   * June 26th GPS format but for foreground use
-   */
-  private async startBrowserGPS_June26thFormat(course: ActiveCourse): Promise<void> {
-    const { courseId, vehicleNumber, uit, token, status } = course;
-    
-    try {
-      // Simple permissions (June 26th method)
-      await Geolocation.requestPermissions();
-      logGPS(`📍 GPS permissions requested (June 26th method)`);
-      
-      // Start GPS interval - EXACT 5 seconds like June 26th
-      const intervalId = setInterval(async () => {
-        try {
-          const position = await Geolocation.getCurrentPosition({
-            enableHighAccuracy: true,
-            timeout: 8000
-          });
-          
-          const { coords } = position;
-          
-          // Build GPS data EXACTLY like June 26th (JWT token in UIT field!)
-          const gpsData = {
-            lat: coords.latitude,  // REAL coordinates
-            lng: coords.longitude, // REAL coordinates  
-            timestamp: new Date().toISOString(),
-            viteza: coords.speed || 0,
-            directie: coords.heading || 0,
-            altitudine: coords.altitude || 0,
-            baterie: Math.floor(Math.random() * 95) + 5, // REAL battery-like values 5-99%
-            numar_inmatriculare: vehicleNumber,
-            uit: uit, // Real UIT from course data
-            status: status,
-            hdop: 1, // Numeric value like June 26th
-            gsm_signal: 4 // Numeric value like June 26th
-          };
-          
-          // Send via API exactly like June 26th
-          const success = await sendGPSData(gpsData, token);
-          
-          if (success) {
-            logGPS(`✅ JUNE 26TH GPS transmitted: ${coords.latitude}, ${coords.longitude} for ${courseId}`);
-          } else {
-            logGPSError(`❌ June 26th GPS transmission failed for ${courseId}`);
-          }
-          
-        } catch (error) {
-          logGPSError(`❌ June 26th GPS error: ${error}`);
-        }
-      }, 5000); // EXACT 5 seconds like June 26th
-      
-      // Store interval for cleanup
-      this.activeCourses.get(courseId)!.intervalId = intervalId;
-      
-      logGPS(`✅ JUNE 26TH GPS started for ${courseId} - real coordinates transmission`);
-      
-    } catch (error) {
-      logGPSError(`❌ June 26th GPS method failed: ${error}`);
-      throw error;
-    }
-  }
+
 
   async stopTracking(courseId: string): Promise<void> {
     try {
