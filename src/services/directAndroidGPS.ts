@@ -183,20 +183,22 @@ class DirectAndroidGPSService {
 
   async logoutClearAll(): Promise<void> {
     try {
-      logGPS(`🧹 Clearing all GPS data via MainActivity Android`);
+      logGPS(`🧹 Clearing all GPS data - LOCAL ONLY approach`);
       
-      // Direct MainActivity Android GPS interface
-      if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
-        const result = window.AndroidGPS.clearAllOnLogout();
-        logGPS(`✅ MainActivity GPS cleared: ${result}`);
-      } else {
-        logGPSError(`❌ AndroidGPS interface not available for clear - this is normal in browser`);
-        console.warn('AndroidGPS clear interface not available - this is normal in browser development');
+      // SKIP AndroidGPS completely - it's unreliable
+      // Just stop all GPS operations locally
+      for (const courseId of this.activeCourses.keys()) {
+        try {
+          await this.stopTracking(courseId);
+          logGPS(`✅ Stopped GPS for course: ${courseId}`);
+        } catch (error) {
+          logGPSError(`⚠️ Error stopping course ${courseId}: ${error}`);
+        }
       }
       
-      // Always clear local data regardless of AndroidGPS availability
+      // Clear local data
       this.activeCourses.clear();
-      console.log(`📊 Local courses cleared: ${this.activeCourses.size}`);
+      logGPS(`📊 All local GPS data cleared: ${this.activeCourses.size} courses`);
       
     } catch (error) {
       logGPSError(`❌ GPS clear error: ${error}`);
