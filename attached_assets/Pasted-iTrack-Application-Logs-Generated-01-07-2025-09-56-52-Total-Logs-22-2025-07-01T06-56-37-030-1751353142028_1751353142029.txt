@@ -1,0 +1,26 @@
+iTrack Application Logs
+Generated: 01.07.2025, 09:56:52
+Total Logs: 22
+
+[2025-07-01T06:56:37.030Z] INFO (APP): Login successful, storing token...
+[2025-07-01T06:56:37.030Z] INFO (APP): Admin login detected - bypassing server authentication
+[2025-07-01T06:56:29.745Z] INFO (APP): Logged out - cleared local storage
+[2025-07-01T06:56:29.732Z] INFO (APP): Logout completed via AndroidGPS
+[2025-07-01T06:56:29.732Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-07-01T06:56:29.655Z] ERROR (APP): Eroare la logout: Error: AndroidGPS clear interface not available
+[2025-07-01T06:56:29.653Z] ERROR (GPS): ❌ GPS clear error: Error: AndroidGPS clear interface not available
+[2025-07-01T06:56:29.653Z] ERROR (GPS): ❌ AndroidGPS interface not available for clear
+[2025-07-01T06:56:29.653Z] INFO (GPS): 🧹 Clearing all GPS data via MainActivity Android
+[2025-07-01T06:56:25.970Z] INFO (APP): Token stored successfully
+[2025-07-01T06:56:25.942Z] INFO (APP): Login successful, storing token...
+[2025-07-01T06:56:25.941Z] INFO (API): CapacitorHttp login successful for +40722222222
+[2025-07-01T06:56:25.940Z] INFO (APP): CapacitorHttp login successful
+[2025-07-01T06:56:25.693Z] INFO (APP): Using CapacitorHttp for fast login
+[2025-07-01T06:56:25.692Z] INFO (API): Direct CapacitorHttp login attempt for +40722222222
+[2025-07-01T06:56:25.692Z] INFO (APP): Direct CapacitorHttp login for: +40722222222
+[2025-07-01T06:56:25.691Z] INFO (APP): Platform info: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.115 Mobile Safari/537.36
+[2025-07-01T06:56:25.691Z] INFO (APP): CapacitorHttp available: true
+[2025-07-01T06:56:25.691Z] INFO (APP): Test credentials detected - proceeding with server authentication
+[2025-07-01T06:56:13.277Z] INFO (APP): No stored token - showing login
+[2025-07-01T06:56:13.208Z] INFO (APP): ✅ GPS Bridge initialized - Android service ready for GPS transmission
+[2025-07-01T06:56:13.181Z] INFO (SYSTEM): AppLogger initialized
