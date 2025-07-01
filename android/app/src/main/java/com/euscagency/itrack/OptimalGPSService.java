@@ -566,7 +566,7 @@ public class OptimalGPSService extends Service {
             }
             
         } else if ("STOP_GPS".equals(action)) {
-            String courseId = intent.getStringExtra("COURSE_ID");
+            String courseId = intent.getStringExtra("courseId");
             activeCourses.remove(courseId);
             
             Log.d(TAG, "🛑 OPTIMAL course removed: " + courseId);
@@ -576,8 +576,8 @@ public class OptimalGPSService extends Service {
             }
             
         } else if ("UPDATE_STATUS".equals(action)) {
-            String courseId = intent.getStringExtra("COURSE_ID");
-            int newStatus = intent.getIntExtra("STATUS", 2);
+            String courseId = intent.getStringExtra("courseId");
+            int newStatus = intent.getIntExtra("newStatus", 2);
             
             CourseData course = activeCourses.get(courseId);
             if (course != null) {
