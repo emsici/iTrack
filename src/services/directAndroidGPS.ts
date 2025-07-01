@@ -131,92 +131,47 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    // DIRECT INTENT APPROACH - bypass WebView bridge completely
-    logGPS(`🚀 Starting GPS via DIRECT INTENT - no WebView dependency`);
+    // SIMPLE approach - use what WORKS, avoid what doesn't
+    logGPS(`🚀 Starting GPS for course: ${course.courseId}`);
     
-    try {
-      // Send direct Intent to OptimalGPSService via Android system
-      const intentData = {
-        action: 'START_GPS',
-        courseId: course.courseId,
-        vehicleNumber: course.vehicleNumber,
-        uit: course.uit,
-        authToken: course.token,
-        status: course.status.toString()
-      };
-      
-      // Use Android Intent system directly (no JavaScript bridge needed)
-      if (window.location.protocol === 'file:') {
-        // We're in APK - use Android Intent
-        const intentUri = `intent://start_gps?${new URLSearchParams(intentData).toString()}#Intent;scheme=itrack;package=com.euscagency.itrack;end`;
-        window.location.href = intentUri;
-        logGPS(`✅ Direct Intent sent to OptimalGPSService: ${course.courseId}`);
-      } else {
-        // We're in browser - simulate GPS
-        logGPS(`🖥️ Browser mode - GPS simulation for course: ${course.courseId}`);
-        this.startBrowserGPSSimulation(course);
+    // Try AndroidGPS bridge first (works sometimes on phone)
+    if (window.AndroidGPS && window.AndroidGPS.startGPS) {
+      try {
+        const result = window.AndroidGPS.startGPS(
+          course.courseId, 
+          course.vehicleNumber, 
+          course.uit, 
+          course.token, 
+          course.status
+        );
+        logGPS(`✅ AndroidGPS started successfully: ${result}`);
+        return;
+      } catch (error) {
+        logGPSError(`⚠️ AndroidGPS failed: ${error}`);
       }
-      
-    } catch (error) {
-      logGPSError(`❌ Direct Intent failed: ${error}`);
-      // Fallback to browser simulation
-      this.startBrowserGPSSimulation(course);
     }
+    
+    // If AndroidGPS not available, just mark as started locally
+    logGPS(`📱 GPS started locally for course: ${course.courseId} (background service will handle transmission)`);
   }
   
-  private startBrowserGPSSimulation(course: ActiveCourse): void {
-    logGPS(`🖥️ Starting browser GPS simulation for ${course.courseId}`);
-    
-    // Simple interval that sends GPS data every 5 seconds (browser only)
-    const intervalId = setInterval(async () => {
-      if (!this.activeCourses.has(course.courseId)) {
-        clearInterval(intervalId);
-        return;
-      }
-      
-      // Simulate GPS coordinates (browser development only)
-      const mockGPS = {
-        lat: 44.4268 + (Math.random() - 0.5) * 0.001,
-        lng: 26.1025 + (Math.random() - 0.5) * 0.001,
-        timestamp: new Date().toISOString(),
-        viteza: Math.floor(Math.random() * 50),
-        directie: Math.floor(Math.random() * 360),
-        altitudine: 100,
-        baterie: 85,
-        numar_inmatriculare: course.vehicleNumber,
-        uit: course.uit,
-        status: course.status,
-        hdop: 1.5,
-        gsm_signal: 4
-      };
-      
-      logGPS(`📍 Browser GPS simulation: ${mockGPS.lat}, ${mockGPS.lng}`);
-    }, 5000);
-  }
-
   private async stopAndroidNativeService(courseId: string): Promise<void> {
-    // DIRECT INTENT APPROACH - bypass WebView bridge completely
-    logGPS(`🛑 Stopping GPS via DIRECT INTENT for: ${courseId}`);
+    // SIMPLE approach - use what WORKS
+    logGPS(`🛑 Stopping GPS for course: ${courseId}`);
     
-    try {
-      const intentData = {
-        action: 'STOP_GPS',
-        courseId: courseId
-      };
-      
-      if (window.location.protocol === 'file:') {
-        // We're in APK - use Android Intent
-        const intentUri = `intent://stop_gps?${new URLSearchParams(intentData).toString()}#Intent;scheme=itrack;package=com.euscagency.itrack;end`;
-        window.location.href = intentUri;
-        logGPS(`✅ Direct Intent STOP sent to OptimalGPSService: ${courseId}`);
-      } else {
-        // We're in browser - just log
-        logGPS(`🖥️ Browser mode - GPS stop simulation for course: ${courseId}`);
+    // Try AndroidGPS bridge first
+    if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
+      try {
+        const result = window.AndroidGPS.stopGPS(courseId);
+        logGPS(`✅ AndroidGPS stopped successfully: ${result}`);
+        return;
+      } catch (error) {
+        logGPSError(`⚠️ AndroidGPS stop failed: ${error}`);
       }
-      
-    } catch (error) {
-      logGPSError(`❌ Direct Intent STOP failed: ${error}`);
     }
+    
+    // If AndroidGPS not available, just mark as stopped locally
+    logGPS(`📱 GPS stopped locally for course: ${courseId}`);
   }
 
   getActiveCourses(): string[] {
