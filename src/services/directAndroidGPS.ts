@@ -21,6 +21,8 @@ declare global {
 
 import { logGPS, logGPSError } from './appLogger';
 import { getStoredToken, getStoredVehicleNumber } from './storage';
+import { Geolocation } from '@capacitor/geolocation';
+import { sendGPSData } from './api';
 
 interface ActiveCourse {
   courseId: string;
@@ -36,8 +38,8 @@ class DirectAndroidGPSService {
 
   private isAndroidGPSAvailable(): boolean {
     return typeof window !== 'undefined' && 
-           window.AndroidGPS && 
-           typeof window.AndroidGPS.startGPS === 'function';
+           !!window.AndroidGPS && 
+           typeof window.AndroidGPS?.startGPS === 'function';
   }
 
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
@@ -156,9 +158,6 @@ class DirectAndroidGPSService {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
     try {
-      // Import Capacitor Geolocation (EXACT June 26th)
-      const { Geolocation } = await import('@capacitor/geolocation');
-      
       // Simple permissions (June 26th method)
       await Geolocation.requestPermissions();
       logGPS(`📍 GPS permissions requested (June 26th method)`);
@@ -190,7 +189,6 @@ class DirectAndroidGPSService {
           };
           
           // Send via API exactly like June 26th
-          const { sendGPSData } = await import('./api');
           const success = await sendGPSData(gpsData, token);
           
           if (success) {
@@ -238,33 +236,7 @@ class DirectAndroidGPSService {
     }
   }
 
-  private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    // Use AndroidGPS bridge - it WORKS on phone for START (confirmed in logs)
-    if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-      const result = window.AndroidGPS.startGPS(
-        course.courseId, 
-        course.vehicleNumber, 
-        course.uit, 
-        course.token, 
-        course.status
-      );
-      logGPS(`✅ MainActivity GPS started: ${result}`);
-    } else {
-      logGPSError(`❌ AndroidGPS interface not available - this is normal in browser`);
-      console.warn('AndroidGPS interface not available - this is normal in browser development');
-    }
-  }
-  
-  private async stopAndroidNativeService(courseId: string): Promise<void> {
-    // Use AndroidGPS bridge - it WORKS on phone for STOP
-    if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-      const result = window.AndroidGPS.stopGPS(courseId);
-      logGPS(`✅ MainActivity GPS stopped: ${result}`);
-    } else {
-      logGPSError(`❌ AndroidGPS interface not available for stop - this is normal in browser`);
-      console.warn('AndroidGPS stop interface not available - this is normal in browser development');
-    }
-  }
+
 
   getActiveCourses(): string[] {
     return Array.from(this.activeCourses.keys());
