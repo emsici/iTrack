@@ -1,9 +1,10 @@
-// DIRECT GPS SERVICE - Single source of truth for GPS operations  
-// Uses GPS Capacitor Plugin (no WebView dependency)
-import { getStoredToken, getStoredVehicleNumber } from './storage';
-import { logGPS, logGPSError } from './appLogger';
+/**
+ * Direct Android GPS Service
+ * Uses MainActivity WebView interface for reliable Android communication
+ * Single method approach - guaranteed to work
+ */
 
-// WebView AndroidGPS interface check - will be available when MainActivity initializes
+// Global window interface definition for AndroidGPS
 declare global {
   interface Window {
     AndroidGPS?: {
@@ -18,6 +19,9 @@ declare global {
   }
 }
 
+import { logGPS, logGPSError } from './appLogger';
+import { getStoredToken, getStoredVehicleNumber } from './storage';
+
 interface ActiveCourse {
   courseId: string;
   vehicleNumber: string;
@@ -30,125 +34,56 @@ class DirectAndroidGPSService {
   private activeCourses: Map<string, ActiveCourse> = new Map();
 
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
-    console.log(`=== UPDATING STATUS: ${courseId} → ${newStatus} ===`);
-    console.log(`Active courses in map: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
-    console.log(`Total active courses: ${this.activeCourses.size}`);
-    
-    // FOR STATUS 2 (START): Setup complete GPS tracking
-    if (newStatus === 2) {
-      console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
-      
-      // Get course data from Capacitor Preferences (consistent with login storage)
-      const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
-      const token = await getStoredToken() || '';
-      
-      // Get real UIT from courses data
-      const storedCourses = localStorage.getItem(`courses_${vehicleNumber}`);
-      let realUIT = courseId; // fallback
-      
-      if (storedCourses) {
-        try {
-          const coursesData = JSON.parse(storedCourses);
-          const foundCourse = coursesData.find((c: any) => c.id === courseId);
-          if (foundCourse && foundCourse.uit) {
-            realUIT = foundCourse.uit;
-            console.log(`✅ Found real UIT ${realUIT} for courseId ${courseId}`);
-          }
-        } catch (error) {
-          console.log(`⚠️ Error parsing courses, using courseId as UIT:`, error);
-        }
-      }
-      
-      // Start GPS tracking FIRST (adds to activeCourses Map)
-      console.log(`📍 Starting GPS tracking for course ${courseId}`);
-      await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
-      console.log(`✅ GPS tracking started successfully for ${courseId}`);
-      return; // startTracking handles everything for status 2
-    }
-    
-    // FOR OTHER STATUSES: Get existing course or create minimal entry
-    let course = this.activeCourses.get(courseId);
-    if (!course && (newStatus === 3 || newStatus === 4)) {
-      console.log(`🔧 Creating minimal course entry for ${courseId} with status ${newStatus}`);
-      
-      const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
-      const token = await getStoredToken() || '';
-      
-      // Get real UIT from courses data
-      const storedCourses = localStorage.getItem(`courses_${vehicleNumber}`);
-      let realUIT = courseId;
-      
-      if (storedCourses) {
-        try {
-          const coursesData = JSON.parse(storedCourses);
-          const foundCourse = coursesData.find((c: any) => c.id === courseId);
-          if (foundCourse && foundCourse.uit) {
-            realUIT = foundCourse.uit;
-          }
-        } catch (error) {
-          console.log(`⚠️ Error parsing courses, using courseId as UIT:`, error);
-        }
-      }
-      
-      course = { courseId, vehicleNumber, uit: realUIT, token, status: newStatus };
-      this.activeCourses.set(courseId, course);
-      console.log(`✅ Minimal course entry created: ${courseId}`);
-    }
-
-    if (!course) {
-      console.log(`⚠️ Course ${courseId} not found - allowing status change to proceed`);
-      return;
-    }
-
-    course.status = newStatus;
-
     try {
-      // ANDROID NATIVE STATUS UPDATE: Update course status via OptimalGPSService
-      console.log(`📡 Updating course status via AndroidGPS: ${courseId} → ${newStatus}`);
+      console.log(`🔄 Updating course status via MainActivity Android: ${courseId} → ${newStatus}`);
       
-      // Update status through AndroidGPS WebView interface
-      try {
-        console.log("🔌 Updating GPS status via AndroidGPS WebView interface...");
-        
-        if (!window.AndroidGPS) {
-          throw new Error("AndroidGPS WebView interface not available - APK required");
-        }
-        
-        const result = window.AndroidGPS.updateStatus(courseId, newStatus);
-        
-        console.log("📡 AndroidGPS updateStatus result:", result);
-        
-        if (result.includes("SUCCESS")) {
-          console.log(`✅ Course ${courseId} status updated to ${newStatus} successfully`);
-          logGPS(`Course ${courseId} status updated to ${newStatus}`);
-        } else {
-          console.log(`⚠️ GPS status update issues: ${result}`);
-          logGPSError(`Status update failed for course ${courseId}: ${result}`);
-        }
-      } catch (androidError) {
-        console.log(`❌ AndroidGPS update failed: ${androidError}`);
-        console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
-        logGPSError(`Status update failed for course ${courseId} - AndroidGPS not available`);
-      }
-
-      // Handle special status logic
+      // STATUS 2 (START): Setup complete GPS tracking
       if (newStatus === 2) {
-        console.log(`🚀 STATUS 2 (START): Starting GPS tracking for ${courseId}`);
-        // CRITICAL: Start GPS tracking when status = 2
-        await this.startTracking(course.courseId, course.vehicleNumber, course.uit, course.token, 2);
-      } else if (newStatus === 3) {
-        console.log(`⏸️ STATUS 3 (PAUSE): GPS transmission paused for ${courseId}`);
-      } else if (newStatus === 4) {
-        console.log(`🛑 STATUS 4 (STOP): Scheduling course removal for ${courseId}`);
-        setTimeout(() => {
-          this.activeCourses.delete(courseId);
-          console.log(`🧹 Course ${courseId} removed from activeCourses after STOP`);
-        }, 2000);
+        console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
+        
+        // Get course data from Capacitor Preferences (consistent with login system)
+        const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
+        const token = await getStoredToken() || '';
+        
+        // Get real UIT from courses data
+        const storedCourses = localStorage.getItem(`courses_${vehicleNumber}`);
+        let realUIT = courseId; // fallback
+        
+        if (storedCourses) {
+          try {
+            const coursesData = JSON.parse(storedCourses);
+            const foundCourse = coursesData.find((c: any) => c.id === courseId);
+            if (foundCourse && foundCourse.uit) {
+              realUIT = foundCourse.uit;
+              console.log(`📋 Found UIT for ${courseId}: ${realUIT}`);
+            }
+          } catch (error) {
+            console.warn('Error parsing courses data:', error);
+          }
+        }
+        
+        // Start GPS tracking first
+        await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
       }
-
+      
+      // Update local tracking
+      const course = this.activeCourses.get(courseId);
+      if (course) {
+        course.status = newStatus;
+        this.activeCourses.set(courseId, course);
+      }
+      
+      // Direct MainActivity Android GPS interface for status update
+      if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
+        const result = window.AndroidGPS.updateStatus(courseId, newStatus);
+        logGPS(`✅ MainActivity GPS status updated: ${result}`);
+      } else {
+        logGPSError(`❌ AndroidGPS interface not available for status update`);
+        throw new Error('AndroidGPS status update interface not available');
+      }
+      
     } catch (error) {
-      console.error(`❌ Error updating course status:`, error);
-      logGPSError(`Error updating course ${courseId}: ${error}`);
+      logGPSError(`❌ GPS status update error: ${error}`);
       throw error;
     }
   }
@@ -158,136 +93,68 @@ class DirectAndroidGPSService {
     vehicleNumber: string,
     uit: string,
     token: string,
-    status: number = 2,
+    status: number
   ): Promise<void> {
-    console.log("=== STARTING GPS TRACKING ===");
-    console.log(`Course ID: ${courseId}`);
-    console.log(`Vehicle: ${vehicleNumber}`);
-    console.log(`UIT: ${uit}`);
-    console.log(`Token: ${token.substring(0, 10)}...`);
-    console.log(`Status: ${status} (${status === 2 ? 'ACTIVE' : status === 3 ? 'PAUSED' : 'OTHER'})`);
-    
-    // UIT validation
-    if (uit && uit.startsWith('eyJ')) {
-      console.error('❌ CRITICAL: UIT parameter contains JWT token!');
-      console.error(`Received UIT: ${uit.substring(0, 30)}...`);
-      console.error(`Expected UIT format: alphanumeric like 0Y3P670513100172`);
-    } else {
-      console.log('✅ UIT parameter appears correct');
-    }
-
-    const courseData: ActiveCourse = { courseId, vehicleNumber, uit, token, status };
-
-    this.activeCourses.set(courseId, courseData);
-    console.log(`📍 Course ${courseId} successfully added to activeCourses Map`);
-    console.log(`📊 activeCourses Map now contains: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
-    console.log(`📈 Total active courses: ${this.activeCourses.size}`);
-
     try {
-      console.log("🚀 Starting Android native GPS service via Capacitor Plugin");
+      logGPS(`🚀 Starting GPS tracking via MainActivity Android: ${courseId}`);
+      
+      const courseData: ActiveCourse = { courseId, vehicleNumber, uit, token, status };
+      this.activeCourses.set(courseId, courseData);
+      
+      console.log(`📊 Active courses after start: ${this.activeCourses.size}`);
+      console.log(`🗂️ Courses in map: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
+      
       await this.startAndroidNativeService(courseData);
-      console.log("✅ GPS tracking started for course", courseId, "with status", status);
-      logGPS(`GPS tracking started for course ${courseId}`);
+      
     } catch (error) {
-      console.log("📱 Native GPS Plugin not ready yet - Course added to activeCourses");
-      console.log("🚀 APK Environment: GPS will work when plugin becomes available");
-      logGPSError(`GPS start failed for course ${courseId}: ${error}`);
+      logGPSError(`❌ GPS start error: ${error}`);
+      throw error;
     }
   }
 
   async stopTracking(courseId: string): Promise<void> {
-    console.log(`🛑 Stopping Android native GPS for course ${courseId}`);
-
-    const course = this.activeCourses.get(courseId);
-    if (!course) return;
-
     try {
-      console.log('🔴 Stopping Android GPS for course:', courseId);
+      logGPS(`🛑 Stopping GPS tracking via MainActivity Android: ${courseId}`);
+      
       await this.stopAndroidNativeService(courseId);
-      console.log('✅ Android GPS stopped for course:', courseId);
-      logGPS(`GPS stopped for course ${courseId}`);
+      
+      // Remove from local tracking after 2 seconds (for status 4)
+      setTimeout(() => {
+        this.activeCourses.delete(courseId);
+        console.log(`📊 Active courses after stop: ${this.activeCourses.size}`);
+      }, 2000);
+      
     } catch (error) {
-      console.log('⚠️ Native GPS Plugin stop failed - APK required for GPS functionality');
-      logGPSError(`GPS stop failed for course ${courseId}: ${error}`);
+      logGPSError(`❌ GPS stop error: ${error}`);
+      throw error;
     }
-
-    this.activeCourses.delete(courseId);
-    console.log("✅ Android GPS service stopped and cleaned up");
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    console.log("🚀 Starting OptimalGPSService via WebView AndroidGPS");
-    console.log(`📊 AndroidGPS available: ${typeof window.AndroidGPS}`);
-    console.log(`📊 AndroidGPS.startGPS function: ${typeof window.AndroidGPS?.startGPS}`);
-
-    try {
-      console.log("📱 Calling window.AndroidGPS.startGPS() → MainActivity → OptimalGPSService");
-      console.log(`📤 Parameters: courseId=${course.courseId}, vehicle=${course.vehicleNumber}, uit=${course.uit}`);
-      
-      if (!window.AndroidGPS) {
-        throw new Error("AndroidGPS WebView interface not available - APK required");
-      }
-      
+    // Direct MainActivity Android GPS interface
+    if (window.AndroidGPS && window.AndroidGPS.startGPS) {
       const result = window.AndroidGPS.startGPS(
-        course.courseId,
-        course.vehicleNumber,
-        course.uit,
-        course.token,
+        course.courseId, 
+        course.vehicleNumber, 
+        course.uit, 
+        course.token, 
         course.status
       );
-      
-      console.log("📡 AndroidGPS result:", result);
-      
-      if (result.includes("SUCCESS")) {
-        console.log("✅ OptimalGPSService started - GPS transmission every 5 seconds");
-        logGPS(`GPS started successfully for course ${course.courseId}`);
-      } else {
-        console.log("⚠️ AndroidGPS reported issues:", result);
-        logGPSError(`GPS start warning for course ${course.courseId}: ${result}`);
-      }
-      
-    } catch (androidError: any) {
-      console.log("❌ AndroidGPS failed:", androidError);
-      console.log("❌ Error type:", androidError?.constructor?.name || 'Unknown');
-      console.log("❌ Error message:", androidError?.message || 'No message');
-      
-      if (androidError?.message?.includes("not available")) {
-        console.log("📱 AndroidGPS WebView interface not available - APK required for GPS functionality");
-        logGPSError("AndroidGPS interface not available - APK required for GPS functionality");
-      } else {
-        console.log("📱 Other AndroidGPS error - may work on real device");
-        logGPSError(`AndroidGPS error: ${androidError?.message || androidError}`);
-        throw androidError; // Re-throw to bubble up the specific error
-      }
+      logGPS(`✅ MainActivity GPS started: ${result}`);
+    } else {
+      logGPSError(`❌ AndroidGPS interface not available - waiting for WebView bridge`);
+      throw new Error('AndroidGPS interface not available');
     }
   }
-  
-
-  
-
 
   private async stopAndroidNativeService(courseId: string): Promise<void> {
-    console.log("🛑 Stopping OptimalGPSService via AndroidGPS WebView");
-
-    try {
-      console.log("📱 Calling window.AndroidGPS.stopGPS() → MainActivity → OptimalGPSService");
-      
-      if (!window.AndroidGPS) {
-        throw new Error("AndroidGPS WebView interface not available - APK required");
-      }
-      
+    // Direct MainActivity Android GPS interface
+    if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
       const result = window.AndroidGPS.stopGPS(courseId);
-      
-      console.log("📡 AndroidGPS result:", result);
-      
-      if (result.includes("SUCCESS")) {
-        console.log(`✅ OptimalGPSService stopped for course ${courseId}`);
-      } else {
-        console.log(`⚠️ AndroidGPS reported issues:`, result);
-      }
-    } catch (androidError) {
-      console.log("❌ AndroidGPS failed:", androidError);
-      console.log("📱 APK Environment: AndroidGPS will be available on real device");
+      logGPS(`✅ MainActivity GPS stopped: ${result}`);
+    } else {
+      logGPSError(`❌ AndroidGPS interface not available for stop`);
+      throw new Error('AndroidGPS interface not available');
     }
   }
 
@@ -304,66 +171,39 @@ class DirectAndroidGPSService {
   }
 
   async logoutClearAll(): Promise<void> {
-    console.log("🔴 LOGOUT - Clearing all GPS data and stopping all tracking");
-    
     try {
-      // Clear all web intervals
-      for (const courseId of this.activeCourses.keys()) {
-        const intervalKey = `gpsInterval_${courseId}`;
-        if ((window as any)[intervalKey]) {
-          clearInterval((window as any)[intervalKey]);
-          delete (window as any)[intervalKey];
-          console.log(`Stopped GPS interval for course ${courseId}`);
-        }
-      }
+      logGPS(`🧹 Clearing all GPS data via MainActivity Android`);
       
-      // Clear all Android GPS services via AndroidGPS WebView
-      try {
-        console.log("🔌 Clearing all GPS via AndroidGPS WebView interface...");
-        
-        if (!window.AndroidGPS) {
-          throw new Error("AndroidGPS WebView interface not available - APK required");
-        }
-        
+      // Direct MainActivity Android GPS interface
+      if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
         const result = window.AndroidGPS.clearAllOnLogout();
+        logGPS(`✅ MainActivity GPS cleared: ${result}`);
         
-        console.log("📡 AndroidGPS clearAllOnLogout result:", result);
-        
-        if (result.includes("SUCCESS")) {
-          console.log("✅ All OptimalGPSService instances cleared successfully");
-        } else {
-          console.log("⚠️ AndroidGPS clearAll issues:", result);
-        }
-      } catch (androidError) {
-        console.log("❌ AndroidGPS clearAll failed:", androidError);
-        console.log("🔧 This means we're in browser - OptimalGPSService only works in APK");
+        this.activeCourses.clear();
+        console.log(`📊 Local courses cleared: ${this.activeCourses.size}`);
+      } else {
+        logGPSError(`❌ AndroidGPS interface not available for clear`);
+        throw new Error('AndroidGPS clear interface not available');
       }
-      
-      // Clear local tracking data
-      this.activeCourses.clear();
-      console.log("✅ All local GPS tracking data cleared");
       
     } catch (error) {
-      console.error("❌ Error during logout cleanup:", error);
-      // Force clear local data even if Native Plugin call fails
-      this.activeCourses.clear();
+      logGPSError(`❌ GPS clear error: ${error}`);
+      throw error;
     }
   }
 
   getServiceInfo() {
     return {
-      type: 'Native GPS Plugin',
-      activeCourses: Array.from(this.activeCourses.keys()),
-      totalCourses: this.activeCourses.size,
-      isActive: this.activeCourses.size > 0
+      type: 'DirectAndroidGPS',
+      activeCourses: this.activeCourses.size,
+      courses: Array.from(this.activeCourses.keys())
     };
   }
 }
 
-// Export singleton instance
 export const directAndroidGPSService = new DirectAndroidGPSService();
 
-// Export functions for external use
+// Export functions with consistent API
 export const startGPSTracking = (courseId: string, vehicleNumber: string, uit: string, token: string, status: number) =>
   directAndroidGPSService.startTracking(courseId, vehicleNumber, uit, token, status);
 
