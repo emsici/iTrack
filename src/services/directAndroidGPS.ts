@@ -131,47 +131,31 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    // SIMPLE approach - use what WORKS, avoid what doesn't
-    logGPS(`🚀 Starting GPS for course: ${course.courseId}`);
-    
-    // Try AndroidGPS bridge first (works sometimes on phone)
+    // Use AndroidGPS bridge - it WORKS on phone for START (confirmed in logs)
     if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-      try {
-        const result = window.AndroidGPS.startGPS(
-          course.courseId, 
-          course.vehicleNumber, 
-          course.uit, 
-          course.token, 
-          course.status
-        );
-        logGPS(`✅ AndroidGPS started successfully: ${result}`);
-        return;
-      } catch (error) {
-        logGPSError(`⚠️ AndroidGPS failed: ${error}`);
-      }
+      const result = window.AndroidGPS.startGPS(
+        course.courseId, 
+        course.vehicleNumber, 
+        course.uit, 
+        course.token, 
+        course.status
+      );
+      logGPS(`✅ MainActivity GPS started: ${result}`);
+    } else {
+      logGPSError(`❌ AndroidGPS interface not available - this is normal in browser`);
+      console.warn('AndroidGPS interface not available - this is normal in browser development');
     }
-    
-    // If AndroidGPS not available, just mark as started locally
-    logGPS(`📱 GPS started locally for course: ${course.courseId} (background service will handle transmission)`);
   }
   
   private async stopAndroidNativeService(courseId: string): Promise<void> {
-    // SIMPLE approach - use what WORKS
-    logGPS(`🛑 Stopping GPS for course: ${courseId}`);
-    
-    // Try AndroidGPS bridge first
+    // Use AndroidGPS bridge - it WORKS on phone for STOP
     if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-      try {
-        const result = window.AndroidGPS.stopGPS(courseId);
-        logGPS(`✅ AndroidGPS stopped successfully: ${result}`);
-        return;
-      } catch (error) {
-        logGPSError(`⚠️ AndroidGPS stop failed: ${error}`);
-      }
+      const result = window.AndroidGPS.stopGPS(courseId);
+      logGPS(`✅ MainActivity GPS stopped: ${result}`);
+    } else {
+      logGPSError(`❌ AndroidGPS interface not available for stop - this is normal in browser`);
+      console.warn('AndroidGPS stop interface not available - this is normal in browser development');
     }
-    
-    // If AndroidGPS not available, just mark as stopped locally
-    logGPS(`📱 GPS stopped locally for course: ${courseId}`);
   }
 
   getActiveCourses(): string[] {
