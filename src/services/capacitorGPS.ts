@@ -6,6 +6,7 @@
 
 import { registerPlugin } from '@capacitor/core';
 import { logGPS, logGPSError } from './appLogger';
+import { getStoredToken, getStoredVehicleNumber } from './storage';
 
 // GPS Plugin interface definition
 export interface GPSPlugin {
@@ -113,7 +114,6 @@ class CapacitorGPSService {
         console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
         
         // Get course data from Capacitor Preferences (consistent with login system)
-        const { getStoredToken, getStoredVehicleNumber } = await import('./storage');
         const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
         const token = await getStoredToken() || '';
         
