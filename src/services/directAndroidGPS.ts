@@ -131,41 +131,91 @@ class DirectAndroidGPSService {
   }
 
   private async startAndroidNativeService(course: ActiveCourse): Promise<void> {
-    // Wait for AndroidGPS interface with retry logic
-    let attempts = 0;
-    const maxAttempts = 10;
+    // DIRECT INTENT APPROACH - bypass WebView bridge completely
+    logGPS(`🚀 Starting GPS via DIRECT INTENT - no WebView dependency`);
     
-    while (attempts < maxAttempts) {
-      if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-        const result = window.AndroidGPS.startGPS(
-          course.courseId, 
-          course.vehicleNumber, 
-          course.uit, 
-          course.token, 
-          course.status
-        );
-        logGPS(`✅ MainActivity GPS started: ${result}`);
+    try {
+      // Send direct Intent to OptimalGPSService via Android system
+      const intentData = {
+        action: 'START_GPS',
+        courseId: course.courseId,
+        vehicleNumber: course.vehicleNumber,
+        uit: course.uit,
+        authToken: course.token,
+        status: course.status.toString()
+      };
+      
+      // Use Android Intent system directly (no JavaScript bridge needed)
+      if (window.location.protocol === 'file:') {
+        // We're in APK - use Android Intent
+        const intentUri = `intent://start_gps?${new URLSearchParams(intentData).toString()}#Intent;scheme=itrack;package=com.euscagency.itrack;end`;
+        window.location.href = intentUri;
+        logGPS(`✅ Direct Intent sent to OptimalGPSService: ${course.courseId}`);
+      } else {
+        // We're in browser - simulate GPS
+        logGPS(`🖥️ Browser mode - GPS simulation for course: ${course.courseId}`);
+        this.startBrowserGPSSimulation(course);
+      }
+      
+    } catch (error) {
+      logGPSError(`❌ Direct Intent failed: ${error}`);
+      // Fallback to browser simulation
+      this.startBrowserGPSSimulation(course);
+    }
+  }
+  
+  private startBrowserGPSSimulation(course: ActiveCourse): void {
+    logGPS(`🖥️ Starting browser GPS simulation for ${course.courseId}`);
+    
+    // Simple interval that sends GPS data every 5 seconds (browser only)
+    const intervalId = setInterval(async () => {
+      if (!this.activeCourses.has(course.courseId)) {
+        clearInterval(intervalId);
         return;
       }
       
-      attempts++;
-      logGPS(`⏳ Waiting for AndroidGPS interface... attempt ${attempts}/${maxAttempts}`);
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-    
-    // Final fallback - log but don't throw error
-    logGPSError(`❌ AndroidGPS interface not ready after ${maxAttempts} attempts - may work in APK`);
-    console.warn('AndroidGPS interface not available - this is normal in browser development');
+      // Simulate GPS coordinates (browser development only)
+      const mockGPS = {
+        lat: 44.4268 + (Math.random() - 0.5) * 0.001,
+        lng: 26.1025 + (Math.random() - 0.5) * 0.001,
+        timestamp: new Date().toISOString(),
+        viteza: Math.floor(Math.random() * 50),
+        directie: Math.floor(Math.random() * 360),
+        altitudine: 100,
+        baterie: 85,
+        numar_inmatriculare: course.vehicleNumber,
+        uit: course.uit,
+        status: course.status,
+        hdop: 1.5,
+        gsm_signal: 4
+      };
+      
+      logGPS(`📍 Browser GPS simulation: ${mockGPS.lat}, ${mockGPS.lng}`);
+    }, 5000);
   }
 
   private async stopAndroidNativeService(courseId: string): Promise<void> {
-    // Direct MainActivity Android GPS interface with retry
-    if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-      const result = window.AndroidGPS.stopGPS(courseId);
-      logGPS(`✅ MainActivity GPS stopped: ${result}`);
-    } else {
-      logGPSError(`❌ AndroidGPS interface not available for stop - this is normal in browser`);
-      console.warn('AndroidGPS stop interface not available - this is normal in browser development');
+    // DIRECT INTENT APPROACH - bypass WebView bridge completely
+    logGPS(`🛑 Stopping GPS via DIRECT INTENT for: ${courseId}`);
+    
+    try {
+      const intentData = {
+        action: 'STOP_GPS',
+        courseId: courseId
+      };
+      
+      if (window.location.protocol === 'file:') {
+        // We're in APK - use Android Intent
+        const intentUri = `intent://stop_gps?${new URLSearchParams(intentData).toString()}#Intent;scheme=itrack;package=com.euscagency.itrack;end`;
+        window.location.href = intentUri;
+        logGPS(`✅ Direct Intent STOP sent to OptimalGPSService: ${courseId}`);
+      } else {
+        // We're in browser - just log
+        logGPS(`🖥️ Browser mode - GPS stop simulation for course: ${courseId}`);
+      }
+      
+    } catch (error) {
+      logGPSError(`❌ Direct Intent STOP failed: ${error}`);
     }
   }
 
