@@ -31,6 +31,12 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
         instance = this;
         Log.d(TAG, "✅ MainActivity initialized with AndroidGPS WebView interface");
+        
+        // Initialize AndroidGPS interface immediately after WebView is created
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Log.d(TAG, "🔧 Post-onCreate AndroidGPS interface setup...");
+            addAndroidGPSInterface();
+        }, 2000); // Wait 2 seconds after onCreate
     }
 
     @Override
@@ -46,23 +52,36 @@ public class MainActivity extends BridgeActivity {
      * Adaugă interfața AndroidGPS la WebView pentru apeluri din JavaScript
      */
     private void addAndroidGPSInterface() {
+        Log.d(TAG, "🔧 Starting AndroidGPS interface setup...");
+        
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             try {
+                Log.d(TAG, "🔍 Checking WebView availability...");
+                Log.d(TAG, "getBridge(): " + (getBridge() != null ? "available" : "null"));
+                Log.d(TAG, "getWebView(): " + (getBridge() != null && getBridge().getWebView() != null ? "available" : "null"));
+                
                 if (getBridge() != null && getBridge().getWebView() != null) {
+                    Log.d(TAG, "🚀 Adding AndroidGPS interface to WebView...");
                     getBridge().getWebView().addJavascriptInterface(new AndroidGPS(), "AndroidGPS");
                     
                     // Notify JavaScript that interface is ready
                     getBridge().getWebView().evaluateJavascript(
-                        "window.AndroidGPSReady = true; window.androidGPSBridgeReady = true; window.androidGPSInterfaceReady = true;",
+                        "console.log('AndroidGPS interface added'); window.AndroidGPSReady = true; window.androidGPSBridgeReady = true; window.androidGPSInterfaceReady = true;",
                         null
                     );
                     
                     Log.d(TAG, "✅ AndroidGPS interface added to WebView successfully");
                 } else {
-                    Log.e(TAG, "❌ WebView not available for AndroidGPS interface");
+                    Log.e(TAG, "❌ WebView not available for AndroidGPS interface - retrying in 2 seconds");
+                    
+                    // Retry after additional delay
+                    new Handler(Looper.getMainLooper()).postDelayed(this::addAndroidGPSInterface, 2000);
                 }
             } catch (Exception e) {
-                Log.e(TAG, "❌ Failed to add AndroidGPS interface: " + e.getMessage());
+                Log.e(TAG, "❌ Failed to add AndroidGPS interface: " + e.getMessage(), e);
+                
+                // Retry after error
+                new Handler(Looper.getMainLooper()).postDelayed(this::addAndroidGPSInterface, 2000);
             }
         }, 1000); // Wait 1 second for WebView to be ready
     }
@@ -180,5 +199,22 @@ public class MainActivity extends BridgeActivity {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "MainActivity onResume() - GPS Plugin available");
+        
+        // Re-attempt to add AndroidGPS interface when activity resumes
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (getBridge() != null && getBridge().getWebView() != null) {
+                try {
+                    // Check if interface already exists
+                    getBridge().getWebView().evaluateJavascript(
+                        "console.log('Checking AndroidGPS availability: ' + (typeof window.AndroidGPS)); " +
+                        "if (typeof window.AndroidGPS === 'undefined') { console.log('AndroidGPS missing - will re-add'); } " +
+                        "else { console.log('AndroidGPS available - ready for GPS operations'); }",
+                        null
+                    );
+                } catch (Exception e) {
+                    Log.w(TAG, "Could not check AndroidGPS interface: " + e.getMessage());
+                }
+            }
+        }, 500);
     }
 }

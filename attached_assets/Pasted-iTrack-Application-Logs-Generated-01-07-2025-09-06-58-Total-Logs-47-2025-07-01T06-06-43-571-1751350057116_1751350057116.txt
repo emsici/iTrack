@@ -1,0 +1,51 @@
+iTrack Application Logs
+Generated: 01.07.2025, 09:06:58
+Total Logs: 47
+
+[2025-07-01T06:06:43.571Z] INFO (APP): Login successful, storing token...
+[2025-07-01T06:06:43.569Z] INFO (APP): Admin login detected - bypassing server authentication
+[2025-06-30T21:18:10.309Z] INFO (APP): Logged out - cleared local storage
+[2025-06-30T21:18:10.295Z] INFO (APP): Logout completed via AndroidGPS
+[2025-06-30T21:18:10.295Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-06-30T21:18:10.229Z] INFO (API): CapacitorHttp logout successful
+[2025-06-30T21:18:10.229Z] INFO (APP): CapacitorHttp logout successful
+[2025-06-30T21:18:09.992Z] INFO (APP): === CapacitorHttp logout ===
+[2025-06-30T21:18:09.992Z] INFO (API): Starting logout process
+[2025-06-30T21:18:09.992Z] INFO (APP): Starting logout process with Bearer token
+[2025-06-30T21:18:09.990Z] INFO (APP): ✅ All local GPS tracking data cleared
+[2025-06-30T21:18:09.990Z] INFO (APP): 🔧 This means we're in browser - OptimalGPSService only works in APK
+[2025-06-30T21:18:09.990Z] INFO (APP): ❌ AndroidGPS clearAll failed: Error: AndroidGPS WebView interface not available - APK required
+[2025-06-30T21:18:09.990Z] INFO (APP): 🔌 Clearing all GPS via AndroidGPS WebView interface...
+[2025-06-30T21:18:09.990Z] INFO (APP): 🔴 LOGOUT - Clearing all GPS data and stopping all tracking
+[2025-06-30T21:17:15.056Z] INFO (APP): Logs copied to clipboard successfully
+[2025-06-30T21:17:07.279Z] INFO (APP): Login successful, storing token...
+[2025-06-30T21:17:07.279Z] INFO (APP): Admin login detected - bypassing server authentication
+[2025-06-30T21:11:43.944Z] INFO (APP): Login successful, storing token...
+[2025-06-30T21:11:43.944Z] INFO (APP): Admin login detected - bypassing server authentication
+[2025-06-30T21:11:34.696Z] INFO (APP): Logged out - cleared local storage
+[2025-06-30T21:11:34.685Z] INFO (APP): Logout completed via AndroidGPS
+[2025-06-30T21:11:34.685Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-06-30T21:11:34.606Z] INFO (API): CapacitorHttp logout successful
+[2025-06-30T21:11:34.606Z] INFO (APP): CapacitorHttp logout successful
+[2025-06-30T21:11:34.434Z] INFO (APP): === CapacitorHttp logout ===
+[2025-06-30T21:11:34.434Z] INFO (API): Starting logout process
+[2025-06-30T21:11:34.434Z] INFO (APP): Starting logout process with Bearer token
+[2025-06-30T21:11:34.433Z] INFO (APP): ✅ All local GPS tracking data cleared
+[2025-06-30T21:11:34.433Z] INFO (APP): 🔧 This means we're in browser - OptimalGPSService only works in APK
+[2025-06-30T21:11:34.433Z] INFO (APP): ❌ AndroidGPS clearAll failed: Error: AndroidGPS WebView interface not available - APK required
+[2025-06-30T21:11:34.431Z] INFO (APP): 🔌 Clearing all GPS via AndroidGPS WebView interface...
+[2025-06-30T21:11:34.431Z] INFO (APP): 🔴 LOGOUT - Clearing all GPS data and stopping all tracking
+[2025-06-30T21:11:28.302Z] INFO (APP): Token stored successfully
+[2025-06-30T21:11:28.292Z] INFO (APP): Login successful, storing token...
+[2025-06-30T21:11:28.291Z] INFO (API): CapacitorHttp login successful for +40722222222
+[2025-06-30T21:11:28.290Z] INFO (APP): CapacitorHttp login successful
+[2025-06-30T21:11:28.034Z] INFO (APP): Using CapacitorHttp for fast login
+[2025-06-30T21:11:28.034Z] INFO (API): Direct CapacitorHttp login attempt for +40722222222
+[2025-06-30T21:11:28.034Z] INFO (APP): Direct CapacitorHttp login for: +40722222222
+[2025-06-30T21:11:28.033Z] INFO (APP): Platform info: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.115 Mobile Safari/537.36
+[2025-06-30T21:11:28.033Z] INFO (APP): CapacitorHttp available: true
+[2025-06-30T21:11:28.033Z] INFO (APP): Test credentials detected - proceeding with server authentication
+[2025-06-30T21:11:16.278Z] INFO (APP): No stored token - showing login
+[2025-06-30T21:11:16.261Z] INFO (APP): ✅ GPS Bridge initialized - Android service ready for GPS transmission
+[2025-06-30T21:11:16.261Z] INFO (APP): ✅ GPS Bridge setup complete - Android service ready
+[2025-06-30T21:11:16.257Z] INFO (SYSTEM): AppLogger initialized
