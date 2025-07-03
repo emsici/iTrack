@@ -13,7 +13,9 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -40,6 +42,25 @@ public class OptimalGPSService extends Service {
     private LocationManager locationManager;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private boolean isAlarmActive = false;
+    
+    // HYBRID: AlarmManager (efficient) + Handler backup (guaranteed)
+    private Handler gpsHandler = new Handler(Looper.getMainLooper());
+    private long lastAlarmTrigger = 0;
+    private Runnable gpsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            long now = System.currentTimeMillis();
+            if (now - lastAlarmTrigger > 7000) { // If AlarmManager hasn't triggered in 7s
+                Log.d(TAG, "🔄 HANDLER BACKUP GPS CYCLE - AlarmManager not working");
+                performOptimalGPSCycle();
+            }
+            
+            // Schedule next backup check
+            if (!activeCourses.isEmpty()) {
+                gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+            }
+        }
+    };
     
 
     
@@ -121,7 +142,7 @@ public class OptimalGPSService extends Service {
         
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
             // ALARM TRIGGERED: Get GPS location and transmit for all active courses
-            Log.d(TAG, "🔄 DIAGNOSTIC: ALARM TRIGGERED - performing GPS cycle");
+            Log.d(TAG, "🔄 ALARMMANAGER: ALARM TRIGGERED - performing GPS cycle");
             Log.d(TAG, "⏰ ALARM DEBUG: Current time=" + SystemClock.elapsedRealtime());
             Log.d(TAG, "📊 ALARM DEBUG: Active courses count=" + activeCourses.size());
             Log.d(TAG, "🎯 ALARM DEBUG: AlarmManager working correctly - scheduling next cycle");
@@ -152,14 +173,15 @@ public class OptimalGPSService extends Service {
     }
     
     /**
-     * MOST EFFICIENT: AlarmManager triggers GPS reading exactly every 5 seconds
+     * OPTIMAL GPS CYCLE: Triggered by AlarmManager (efficient) or Handler backup (guaranteed)
      * GPS hardware is activated ONLY when needed, then immediately turned off
      */
     private void performOptimalGPSCycle() {
-        Log.d(TAG, "🔍 DIAGNOSTIC: performOptimalGPSCycle() called - activeCourses size: " + activeCourses.size());
+        lastAlarmTrigger = System.currentTimeMillis(); // Track when GPS runs
+        Log.d(TAG, "🔍 GPS CYCLE: performOptimalGPSCycle() called - activeCourses size: " + activeCourses.size());
         
         if (activeCourses.isEmpty()) {
-            Log.d(TAG, "⏸️ No active courses - stopping optimal GPS cycle");
+            Log.d(TAG, "⏸️ No active courses - stopping GPS cycles");
             stopOptimalGPSTimer();
             return;
         }
@@ -591,10 +613,11 @@ public class OptimalGPSService extends Service {
             gpsPendingIntent = null;
         }
         
-
+        // Stop Handler backup
+        gpsHandler.removeCallbacks(gpsRunnable);
         
         isAlarmActive = false;
-        Log.d(TAG, "🛑 Optimal GPS timer stopped");
+        Log.d(TAG, "🛑 HYBRID GPS system stopped (AlarmManager + Handler)");
     }
     
     private void handleServiceCommand(Intent intent) {
@@ -641,8 +664,10 @@ public class OptimalGPSService extends Service {
             
             // CRITICAL: ALWAYS ensure GPS timer is running when we have active courses
             if (!isAlarmActive && !activeCourses.isEmpty()) {
-                Log.d(TAG, "🚀 STARTING GPS timer - " + activeCourses.size() + " active courses need GPS");
-                startOptimalGPSTimer();
+                Log.d(TAG, "🚀 STARTING HYBRID GPS system - " + activeCourses.size() + " active courses need GPS");
+                startOptimalGPSTimer(); // AlarmManager (most efficient)
+                gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS); // Handler backup
+                Log.d(TAG, "✅ HYBRID: AlarmManager + Handler backup both started");
             } else if (isAlarmActive) {
                 Log.d(TAG, "✅ GPS timer already active - " + activeCourses.size() + " courses tracking");
             }
