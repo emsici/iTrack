@@ -192,6 +192,7 @@ Persistare localStorage → Afișare CourseStatsModal
 **SINGLE GPS SERVICE**: Now uses only Android native GPS via MainActivity interface, eliminating guaranteed GPS service overlap
 **COMPLETE LOGOUT GPS STOP**: Enhanced logout function to stop ALL GPS transmissions - DirectAndroid + GuaranteedGPS + Native Android service clearAllOnLogout()
 **UI IMPROVEMENTS COMPLETED**: Eliminated empty debug card, centered statistics cards perfectly, fixed expand bug with course reset, enhanced logout button styling
+**VITE WARNINGS FIXED**: Converted all dynamic imports to static imports eliminating mixed import warnings for @capacitor/geolocation, @capacitor/device, and api.ts
 
 ### Versiunea Precedentă: 1808.187 (June 30, 2025) - FINAL GPS BLOCKING ISSUES ELIMINATED & COMPLETE FLOW VERIFIED
 

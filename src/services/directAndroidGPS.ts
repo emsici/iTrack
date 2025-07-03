@@ -20,6 +20,9 @@ declare global {
 }
 
 import { logGPS, logGPSError } from './appLogger';
+import { sendGPSData } from './api';
+import { Geolocation } from '@capacitor/geolocation';
+import { Device } from '@capacitor/device';
 import { getStoredToken, getStoredVehicleNumber } from './storage';
 // Direct AndroidGPS service handles native interface operations
 
@@ -42,17 +45,13 @@ class DirectAndroidGPSService {
    */
   private async sendStatusToServer(uit: string, vehicleNumber: string, token: string, status: number): Promise<void> {
     try {
-      const { sendGPSData } = await import('./api');
-      
       // Create GPS data with current position for status update
-      const { Geolocation } = await import('@capacitor/geolocation');
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 5000,
         maximumAge: 30000
       });
 
-      const { Device } = await import('@capacitor/device');
       const batteryInfo = await Device.getBatteryInfo();
       
       const gpsData = {

@@ -7,6 +7,8 @@
 import { logGPS, logGPSError } from './appLogger';
 import { getStoredToken } from './storage';
 import { sendGPSData, GPSData } from './api';
+import { Geolocation } from '@capacitor/geolocation';
+import { Device } from '@capacitor/device';
 
 interface GPSCourse {
   courseId: string;
@@ -102,8 +104,6 @@ class GuaranteedGPSService {
 
     try {
       // Obținem locația curentă
-      const { Geolocation } = await import('@capacitor/geolocation');
-      
       logGPS(`🔍 Getting GPS position...`);
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
@@ -207,7 +207,6 @@ class GuaranteedGPSService {
    */
   private async getBatteryLevel(): Promise<number> {
     try {
-      const { Device } = await import('@capacitor/device');
       const info = await Device.getBatteryInfo();
       return Math.round(info.batteryLevel! * 100);
     } catch {
