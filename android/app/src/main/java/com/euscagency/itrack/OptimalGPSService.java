@@ -109,6 +109,10 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "🚨🚨🚨 CRITICAL: OPTIMAL GPS Service onCreate() called - SERVICE IS STARTING 🚨🚨🚨");
         
         try {
+            // CRITICAL: Initialize activeCourses first
+            activeCourses = new java.util.concurrent.ConcurrentHashMap<>();
+            Log.d(TAG, "✅ DIAGNOSTIC: activeCourses Map initialized: " + (activeCourses != null));
+            
             alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             Log.d(TAG, "✅ DIAGNOSTIC: AlarmManager initialized: " + (alarmManager != null));
             
