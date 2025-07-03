@@ -137,30 +137,9 @@ public class MainActivity extends BridgeActivity {
         Log.d(TAG, "  - authToken length: " + (authToken != null ? authToken.length() : "NULL"));
         Log.d(TAG, "  - status: " + status);
         
-        // CRITICAL: Check SCHEDULE_EXACT_ALARM permission before starting GPS
-        if (android.os.Build.VERSION.SDK_INT >= 31) {
-            android.app.AlarmManager alarmManager = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            if (!alarmManager.canScheduleExactAlarms()) {
-                Log.e(TAG, "❌ CRITICAL: SCHEDULE_EXACT_ALARM permission DENIED - this blocks GPS completely");
-                Log.e(TAG, "   User must enable: Settings > Apps > iTrack > Special permissions > Alarms & reminders");
-                
-                // FORCE user to fix permission immediately - do not start GPS without it
-                try {
-                    android.content.Intent settingsIntent = new android.content.Intent();
-                    settingsIntent.setAction(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                    settingsIntent.setData(android.net.Uri.parse("package:" + getPackageName()));
-                    startActivity(settingsIntent);
-                    return "PERMISSION_REQUIRED: Enable 'Alarms & reminders' in Settings. GPS cannot work without this permission.";
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Could not open alarm permission settings: " + e.getMessage());
-                    return "ERROR: Need 'Alarms & reminders' permission in Settings > Apps > iTrack > Special permissions";
-                }
-            } else {
-                Log.d(TAG, "✅ SCHEDULE_EXACT_ALARM permission VERIFIED - GPS will work in background");
-            }
-        } else {
-            Log.d(TAG, "✅ Android < 12 - SCHEDULE_EXACT_ALARM not required");
-        }
+        // NOTE: SCHEDULE_EXACT_ALARM permission check moved to OptimalGPSService
+        // Let service start but it will handle permission internally
+        Log.d(TAG, "🔧 Permission check delegated to OptimalGPSService for compatibility");
 
         try {
             Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for OptimalGPSService");
