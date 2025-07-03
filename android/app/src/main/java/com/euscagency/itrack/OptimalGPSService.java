@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -40,6 +41,7 @@ public class OptimalGPSService extends Service {
     private AlarmManager alarmManager;
     private PendingIntent gpsPendingIntent;
     private LocationManager locationManager;
+    private PowerManager.WakeLock wakeLock;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private boolean isAlarmActive = false;
     
@@ -100,6 +102,10 @@ public class OptimalGPSService extends Service {
         super.onCreate();
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        
+        // CRITICAL: PARTIAL_WAKE_LOCK for background GPS with phone locked
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "OptimalGPS:WakeLock");
         
         // FOREGROUND OPTIMIZED: Simple thread pool to avoid blocking AlarmManager
         httpThreadPool = Executors.newFixedThreadPool(1); // Single background thread for HTTP
@@ -597,6 +603,12 @@ public class OptimalGPSService extends Service {
             gpsPendingIntent
         );
         
+        // CRITICAL: Acquire PARTIAL_WAKE_LOCK for background GPS with phone locked
+        if (wakeLock != null && !wakeLock.isHeld()) {
+            wakeLock.acquire();
+            Log.d(TAG, "🔒 WAKE_LOCK acquired - GPS will work with phone locked");
+        }
+        
         isAlarmActive = true;
         Log.d(TAG, "✅ OPTIMAL GPS timer started - EXACT " + (GPS_INTERVAL_MS/1000) + "s intervals");
         Log.d(TAG, "⏰ ALARM DEBUG: First trigger at " + triggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
@@ -631,6 +643,12 @@ public class OptimalGPSService extends Service {
         
         // Stop Handler backup
         gpsHandler.removeCallbacks(gpsRunnable);
+        
+        // CRITICAL: Release PARTIAL_WAKE_LOCK when GPS stops
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+            Log.d(TAG, "🔓 WAKE_LOCK released - GPS background service stopped");
+        }
         
         isAlarmActive = false;
         Log.d(TAG, "🛑 HYBRID GPS system stopped (AlarmManager + Handler)");
@@ -749,6 +767,12 @@ public class OptimalGPSService extends Service {
             } catch (InterruptedException e) {
                 httpThreadPool.shutdownNow();
             }
+        }
+        
+        // FINAL CLEANUP: Release WakeLock if still held
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+            Log.d(TAG, "🔓 FINAL: WakeLock released in onDestroy");
         }
         
         super.onDestroy();
