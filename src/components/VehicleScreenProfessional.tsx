@@ -8,7 +8,7 @@ import {
 } from "../services/directAndroidGPS";
 import { runGPSDiagnostic } from "../services/gpsdiagnostic";
 import { startGuaranteedGPS, stopGuaranteedGPS, getGuaranteedGPSStatus } from "../services/garanteedGPS";
-import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
+import { clearToken, storeVehicleNumber, getStoredVehicleNumber, getStoredToken } from "../services/storage";
 import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
 // Analytics imports removed - unused
@@ -807,12 +807,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <button className="action-button diagnostic" onClick={async () => {
                 console.log('🔥 Testing Guaranteed GPS Service...');
                 try {
-                  const { startGuaranteedGPS, getGuaranteedGPSStatus } = await import('../services/garanteedGPS');
-                  const token = await import('../services/storage').then(s => s.getStoredToken());
+                  const currentToken = await getStoredToken();
                   
-                  if (token) {
+                  if (currentToken) {
                     console.log('🚀 Starting test GPS transmission...');
-                    await startGuaranteedGPS('TEST_GPS', vehicleNumber || 'TEST_VEHICLE', 'TEST_UIT', token, 2);
+                    await startGuaranteedGPS('TEST_GPS', vehicleNumber || 'TEST_VEHICLE', 'TEST_UIT', currentToken, 2);
                     
                     setTimeout(() => {
                       const status = getGuaranteedGPSStatus();
