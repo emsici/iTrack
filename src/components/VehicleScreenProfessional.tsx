@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
-import { getVehicleCourses, logout, sendGPSData } from "../services/api";
+import { getVehicleCourses, logout } from "../services/api";
 import {
   updateCourseStatus,
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
-import { runGPSDiagnostic } from "../services/gpsdiagnostic";
 import { startGuaranteedGPS, stopGuaranteedGPS, getGuaranteedGPSStatus } from "../services/garanteedGPS";
-import { clearToken, storeVehicleNumber, getStoredVehicleNumber, getStoredToken } from "../services/storage";
+import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
 // Analytics imports removed - unused
@@ -424,12 +423,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return handleStatusUpdate(courseId, newStatus);
   };
 
-  const handleRefreshCourses = () => {
-    if (vehicleNumber && token) {
-      handleLoadCourses();
-    }
-  };
-
   // SIMPLIFICARE: Elimină logica complexă și folosește doar coursesLoaded
 
   // Filter courses based on selected status
@@ -800,66 +793,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
             {/* Action Buttons */}
             <div className="action-buttons-row">
-              <button className="action-button refresh" onClick={handleRefreshCourses}>
-                <i className="fas fa-sync-alt"></i>
-                <span>Actualizează</span>
-              </button>
-              <button className="action-button diagnostic" onClick={async () => {
-                console.log('🔥 Testing Guaranteed GPS Service...');
-                try {
-                  // Verificare că avem token
-                  if (!token) {
-                    console.log('❌ No auth token available for GPS test');
-                    setError('Token necesar pentru testul GPS');
-                    return;
-                  }
-                  
-                  console.log('🚀 Starting GPS test transmission...');
-                  console.log('📍 Vehicle:', vehicleNumber || 'TEST_VEHICLE');
-                  console.log('🔑 Token available:', !!token);
-                  
-                  // Găsesc prima cursă activă pentru UIT real
-                  const activeCourse = courses.find(c => c.status === 2) || courses[0];
-                  const realUIT = activeCourse?.uit || 'NO_COURSE_UIT';
-                  
-                  console.log('📦 Using UIT from course:', realUIT);
-                  console.log('🚛 Course info:', activeCourse ? `${activeCourse.name} (Status: ${activeCourse.status})` : 'No course available');
-                  
-                  const testGPSData = {
-                    lat: 44.4268 + (Math.random() - 0.5) * 0.01,
-                    lng: 26.1025 + (Math.random() - 0.5) * 0.01,
-                    timestamp: new Date().toISOString(),
-                    viteza: 30 + Math.random() * 20,
-                    directie: Math.random() * 360,
-                    altitudine: 80 + Math.random() * 20,
-                    baterie: 85,
-                    numar_inmatriculare: vehicleNumber || 'TEST_VEHICLE',
-                    uit: realUIT,
-                    status: 2,
-                    hdop: 1,
-                    gsm_signal: 4
-                  };
-                  
-                  console.log('📊 Test GPS Data:', testGPSData);
-                  console.log('⚠️ IMPORTANT: Using REAL UIT from course, not test UIT');
-                  const success = await sendGPSData(testGPSData, token);
-                  
-                  if (success) {
-                    console.log('✅ GPS test transmission successful!');
-                    setError('');
-                  } else {
-                    console.log('❌ GPS test transmission failed');
-                    setError('Testul GPS a eșuat');
-                  }
-                  
-                } catch (error) {
-                  console.error('❌ GPS test failed:', error);
-                  setError(`Eroare test GPS: ${error instanceof Error ? error.message : 'Unknown error'}`);
-                }
-              }}>
-                <i className="fas fa-satellite"></i>
-                <span>Test GPS Garantat</span>
-              </button>
               <button className="action-button logout" onClick={handleLogout}>
                 <i className="fas fa-sign-out-alt"></i>
                 <span>Ieșire</span>

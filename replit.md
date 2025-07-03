@@ -183,6 +183,7 @@ Persistare localStorage → Afișare CourseStatsModal
 **PRODUCTION GUARANTEE**: GPS transmission CONFIRMED WORKING - data arriving at gps.php server successfully
 **TIMESTAMP OPTIMIZATION**: Added delay between multiple course transmissions to prevent duplicate timestamps
 **REAL UIT USAGE**: Test GPS now uses actual UIT from loaded courses instead of test values
+**UI CLEANUP**: Removed refresh and test GPS buttons leaving only logout button for cleaner interface
 
 ### Versiunea Precedentă: 1808.187 (June 30, 2025) - FINAL GPS BLOCKING ISSUES ELIMINATED & COMPLETE FLOW VERIFIED
 
