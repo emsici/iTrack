@@ -641,8 +641,17 @@ public class OptimalGPSService extends Service {
             if (!isAlarmActive && !activeCourses.isEmpty()) {
                 Log.d(TAG, "🚀 STARTING GPS timer - " + activeCourses.size() + " active courses need GPS");
                 startOptimalGPSTimer();
+                
+                // CRITICAL: Force immediate GPS cycle after starting timer
+                Log.d(TAG, "🔥 FORCE IMMEDIATE GPS CYCLE after timer start");
+                performOptimalGPSCycle();
+                
             } else if (isAlarmActive) {
                 Log.d(TAG, "✅ GPS timer already active - " + activeCourses.size() + " courses tracking");
+                
+                // FORCE GPS cycle even if timer was already active
+                Log.d(TAG, "🔥 FORCE GPS CYCLE for existing timer");
+                performOptimalGPSCycle();
             }
             
         } else if ("STOP_GPS".equals(action)) {
