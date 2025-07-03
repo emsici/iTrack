@@ -7,6 +7,8 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.getcapacitor.BridgeActivity;
+import java.util.ArrayList;
+import com.getcapacitor.Plugin;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.Context;
@@ -31,7 +33,25 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
-        Log.d(TAG, "✅ MainActivity initialized - preparing AndroidGPS WebView interface");
+        Log.d(TAG, "✅ MainActivity initialized - preparing AndroidGPS interfaces");
+        
+        // Register AndroidGPS Plugin as fallback
+        registerPlugin(AndroidGPSPlugin.class);
+        Log.d(TAG, "🔌 AndroidGPSPlugin registered as Capacitor plugin");
+    }
+    
+    @Override
+    protected void onBridgeReady() {
+        super.onBridgeReady();
+        Log.d(TAG, "🌉 Capacitor Bridge is ready - adding AndroidGPS interface immediately");
+        
+        // This is the OPTIMAL moment - Capacitor bridge and WebView are fully initialized
+        addAndroidGPSInterface();
+        
+        // Backup attempt after 1 second
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            addAndroidGPSInterface();
+        }, 1000);
     }
 
     @Override
@@ -75,31 +95,56 @@ public class MainActivity extends BridgeActivity {
                 // Add JavaScript interface - this creates window.AndroidGPS
                 webView.addJavascriptInterface(this, "AndroidGPS");
                 
-                // Wait for WebView to be ready, then set flags
+                // Wait for WebView to be ready, then set flags and verify
                 webView.post(() -> {
                     webView.evaluateJavascript("window.AndroidGPSReady = true;", null);
                     webView.evaluateJavascript("window.androidGPSBridgeReady = true;", null);
                     webView.evaluateJavascript("window.androidGPSInterfaceReady = true;", null);
                     
-                    // Log the result for debugging
+                    // CRITICAL: Test and report if interface is working
                     webView.evaluateJavascript(
+                        "const isAvailable = (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function');" +
                         "console.log('🔧 AndroidGPS Interface Status:');" +
                         "console.log('  - typeof AndroidGPS: ' + typeof AndroidGPS);" +
                         "console.log('  - typeof AndroidGPS.startGPS: ' + typeof AndroidGPS.startGPS);" +
                         "console.log('  - AndroidGPSReady: ' + window.AndroidGPSReady);" +
-                        "console.log('FORCE: AndroidGPS available = ' + (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function'));",
+                        "console.log('FORCE: AndroidGPS available = ' + isAvailable);" +
+                        "if (isAvailable) { console.log('✅ AndroidGPS INTERFACE SUCCESSFUL - GPS will work'); }" +
+                        "else { console.log('❌ AndroidGPS INTERFACE FAILED - retrying...'); }",
                         null
                     );
+                    
+                    // If interface fails, schedule periodic retry
+                    scheduleInterfaceVerification();
                 });
                 
                 Log.d(TAG, "✅ AndroidGPS interface added successfully");
                 
             } else {
-                Log.e(TAG, "❌ WebView is null - cannot add AndroidGPS interface");
+                Log.e(TAG, "❌ WebView is null - retrying in 1 second");
+                new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 1000);
             }
         } catch (Exception e) {
             Log.e(TAG, "❌ Error adding AndroidGPS interface: " + e.getMessage(), e);
+            // Retry on error
+            new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 2000);
         }
+    }
+    
+    private void scheduleInterfaceVerification() {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            WebView webView = getBridge().getWebView();
+            if (webView != null) {
+                webView.evaluateJavascript(
+                    "if (typeof window.AndroidGPS === 'undefined' || typeof window.AndroidGPS.startGPS !== 'function') {" +
+                    "console.log('🔄 AndroidGPS still not available - attempting re-add');" +
+                    "} else {" +
+                    "console.log('✅ AndroidGPS verification PASSED - interface is working');" +
+                    "}",
+                    null
+                );
+            }
+        }, 3000);
     }
 
     // AndroidGPS WebView Interface Methods

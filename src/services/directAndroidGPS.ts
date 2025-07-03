@@ -21,7 +21,7 @@ declare global {
 
 import { logGPS, logGPSError } from './appLogger';
 import { getStoredToken, getStoredVehicleNumber } from './storage';
-// Removed unused imports - Android-only GPS architecture
+import { startCapacitorGPS, stopCapacitorGPS, updateCapacitorGPSStatus } from './capacitorGPS';
 
 interface ActiveCourse {
   courseId: string;
@@ -141,34 +141,40 @@ class DirectAndroidGPSService {
   }
 
   /**
-   * Start Android background service for GPS with phone locked
+   * HYBRID APPROACH: Try both WebView bridge and Capacitor Plugin
+   * Maximum compatibility and reliability
    */
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
+    logGPS(`🔀 HYBRID GPS APPROACH: Trying both WebView bridge and Capacitor plugin`);
+    
+    // Method 1: Try WebView AndroidGPS interface (original method)
     if (this.isAndroidGPSAvailable()) {
       try {
-        logGPS(`🚀 Calling AndroidGPS.startGPS with parameters:`);
-        logGPS(`  - courseId: ${courseId}`);
-        logGPS(`  - vehicleNumber: ${vehicleNumber}`);
-        logGPS(`  - uit: ${uit}`);
-        logGPS(`  - token length: ${token.length}`);
-        logGPS(`  - status: ${status}`);
+        logGPS(`🚀 Method 1: WebView AndroidGPS.startGPS`);
+        logGPS(`  - courseId: ${courseId}, vehicleNumber: ${vehicleNumber}, uit: ${uit}`);
         
         const result = window.AndroidGPS!.startGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ Android background GPS result: ${result}`);
-        
-        // Test if service is actually running
-        setTimeout(() => {
-          logGPS(`🔍 Testing service status after 3 seconds...`);
-        }, 3000);
+        logGPS(`✅ WebView GPS result: ${result}`);
+        return; // Success - exit early
         
       } catch (error) {
-        logGPSError(`❌ Android background GPS error: ${error}`);
-        logGPSError(`❌ Error details: ${JSON.stringify(error)}`);
+        logGPSError(`❌ WebView AndroidGPS failed: ${error}`);
       }
     } else {
-      logGPS(`📱 AndroidGPS not available - background GPS not started`);
+      logGPS(`📱 WebView AndroidGPS not available`);
+    }
+    
+    // Method 2: Fallback to Capacitor Plugin (new method)
+    try {
+      logGPS(`🔌 Method 2: Capacitor Plugin fallback`);
+      await startCapacitorGPS(courseId, vehicleNumber, uit, token, status);
+      logGPS(`✅ Capacitor GPS plugin successful`);
+      
+    } catch (error) {
+      logGPSError(`❌ Capacitor GPS plugin failed: ${error}`);
+      logGPSError(`❌ BOTH METHODS FAILED - GPS not started for ${courseId}`);
     }
   }
 
