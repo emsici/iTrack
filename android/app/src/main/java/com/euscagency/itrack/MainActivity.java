@@ -239,4 +239,52 @@ public class MainActivity extends BridgeActivity {
             return "ERROR: Failed to get offline count - " + e.getMessage();
         }
     }
+    
+    @JavascriptInterface
+    public String getGPSServiceStatus() {
+        try {
+            // Check if OptimalGPSService is running
+            android.app.ActivityManager activityManager = (android.app.ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            
+            for (android.app.ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+                if (OptimalGPSService.class.getName().equals(service.service.getClassName())) {
+                    Log.d(TAG, "✅ OptimalGPSService is RUNNING in background");
+                    return "SUCCESS: GPS service is running in background";
+                }
+            }
+            
+            Log.w(TAG, "❌ OptimalGPSService is NOT running");
+            return "WARNING: GPS service is not running";
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error checking GPS service status: " + e.getMessage());
+            return "ERROR: Failed to check service status - " + e.getMessage();
+        }
+    }
+    
+    @JavascriptInterface
+    public String restartGPSService() {
+        try {
+            Log.d(TAG, "🔄 Attempting to restart GPS service...");
+            
+            // Stop existing service first
+            Intent stopIntent = new Intent(this, OptimalGPSService.class);
+            stopService(stopIntent);
+            
+            // Wait briefly
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {}
+            
+            // Start service again
+            Intent startIntent = new Intent(this, OptimalGPSService.class);
+            startIntent.setAction("RESTART_SERVICE");
+            startService(startIntent);
+            
+            Log.d(TAG, "✅ GPS service restart initiated");
+            return "SUCCESS: GPS service restarted";
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error restarting GPS service: " + e.getMessage());
+            return "ERROR: Failed to restart service - " + e.getMessage();
+        }
+    }
 }

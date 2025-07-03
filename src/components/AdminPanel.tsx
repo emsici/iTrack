@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAppLogs, clearAppLogs, AppLog } from '../services/appLogger';
+import { checkGPSServiceStatus, getOfflineGPSCount, restartGPSService } from '../services/directAndroidGPS';
 
 interface AdminPanelProps {
   onLogout: () => void;
@@ -13,6 +14,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
   const [selectedLevel, setSelectedLevel] = useState('');
   const [isCopyingLogs, setIsCopyingLogs] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [gpsStatus, setGpsStatus] = useState('');
 
   // Load logs from persistent storage
   useEffect(() => {
@@ -90,6 +92,27 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
       console.log('Logs cleared successfully');
     } catch (error) {
       console.error('Error clearing logs:', error);
+    }
+  };
+
+  // Check GPS service status
+  const handleCheckGPSStatus = () => {
+    try {
+      const serviceStatus = checkGPSServiceStatus();
+      const offlineCount = getOfflineGPSCount();
+      setGpsStatus(`Service: ${serviceStatus} | Offline: ${offlineCount}`);
+    } catch (error) {
+      setGpsStatus('Error checking GPS status');
+    }
+  };
+
+  // Restart GPS service
+  const handleRestartGPS = () => {
+    try {
+      const result = restartGPSService();
+      setGpsStatus(`Restart: ${result}`);
+    } catch (error) {
+      setGpsStatus('Error restarting GPS service');
     }
   };
 
@@ -233,11 +256,54 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
             color: 'white',
             border: 'none',
             borderRadius: '6px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            marginRight: '8px'
           }}
         >
           Clear Logs
         </button>
+        
+        <button
+          onClick={handleCheckGPSStatus}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#22c55e',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            marginRight: '8px'
+          }}
+        >
+          Check GPS Status
+        </button>
+        
+        <button
+          onClick={handleRestartGPS}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          Restart GPS Service
+        </button>
+        
+        {gpsStatus && (
+          <div style={{
+            marginTop: '8px',
+            padding: '8px',
+            backgroundColor: '#f3f4f6',
+            borderRadius: '6px',
+            fontSize: '12px',
+            fontFamily: 'monospace'
+          }}>
+            {gpsStatus}
+          </div>
+        )}
       </div>
 
       <div style={{

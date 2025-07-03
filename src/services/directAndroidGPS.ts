@@ -12,6 +12,9 @@ declare global {
       stopGPS: (courseId: string) => string;
       updateStatus: (courseId: string, newStatus: number) => string;
       clearAllOnLogout: () => string;
+      getGPSServiceStatus: () => string;
+      getOfflineGPSCount: () => string;
+      restartGPSService: () => string;
     };
     AndroidGPSReady?: boolean;
     androidGPSBridgeReady?: boolean;
@@ -293,3 +296,24 @@ export const getDirectGPSInfo = () => directAndroidGPSService.getServiceInfo();
 
 export const logoutClearAllGPS = () =>
   directAndroidGPSService.logoutClearAll();
+
+export const checkGPSServiceStatus = () => {
+  if (window.AndroidGPS && window.AndroidGPS.getGPSServiceStatus) {
+    return window.AndroidGPS.getGPSServiceStatus();
+  }
+  return "ERROR: AndroidGPS interface not available";
+};
+
+export const getOfflineGPSCount = () => {
+  if (window.AndroidGPS && window.AndroidGPS.getOfflineGPSCount) {
+    return window.AndroidGPS.getOfflineGPSCount();
+  }
+  return "ERROR: AndroidGPS interface not available";
+};
+
+export const restartGPSService = () => {
+  if (window.AndroidGPS && window.AndroidGPS.restartGPSService) {
+    return window.AndroidGPS.restartGPSService();
+  }
+  return "ERROR: AndroidGPS interface not available";
+};
