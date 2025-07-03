@@ -81,6 +81,24 @@ class CapacitorGPSService {
     try {
       logGPS(`🔄 Updating Capacitor GPS status: ${courseId} → ${newStatus}`);
       
+      // STATUS 2 (START): Setup complete GPS tracking
+      if (newStatus === 2) {
+        // Need to get vehicleNumber and token from storage
+        const { getStoredVehicleNumber, getStoredToken } = await import('./storage');
+        const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
+        const token = await getStoredToken() || '';
+        
+        logGPS(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
+        await this.startGPS(courseId, vehicleNumber, courseId, token, newStatus);
+      }
+      
+      // STATUS 3 (PAUSE) or STATUS 4 (STOP): Stop GPS transmission  
+      if (newStatus === 3 || newStatus === 4) {
+        logGPS(`⏸️ STATUS ${newStatus} (${newStatus === 3 ? 'PAUSE' : 'STOP'}): Stopping GPS for ${courseId}`);
+        await this.stopGPS(courseId);
+      }
+      
+      // Also call the plugin updateStatus for consistency
       const result = await AndroidGPS.updateStatus({ courseId, newStatus });
       
       if (result.success) {

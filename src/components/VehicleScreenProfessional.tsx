@@ -3,9 +3,9 @@ import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
 import { getVehicleCourses, logout } from "../services/api";
 import {
-  updateCourseStatus,
-  logoutClearAllGPS,
-} from "../services/directAndroidGPS";
+  updateCapacitorGPSStatus,
+  clearAllCapacitorGPS,
+} from "../services/capacitorGPS";
 
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 import { getOfflineGPSCount } from "../services/offlineGPS";
@@ -273,7 +273,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const handleLogout = async () => {
     try {
-      await logoutClearAllGPS();
+      await clearAllCapacitorGPS();
       await logout(token);
       await clearToken();
       
@@ -372,7 +372,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`📞 Calling updateCourseStatus with UIT: ${courseToUpdate.uit} (not ID: ${courseId})`);
         
         // CRITICAL FIX: Use UIT instead of courseId for GPS service
-        await updateCourseStatus(courseToUpdate.uit, newStatus);
+        await updateCapacitorGPSStatus(courseToUpdate.uit, newStatus);
         console.log(`✅ Course ${courseToUpdate.uit} status updated to ${newStatus} successfully`);
 
       } catch (error) {
