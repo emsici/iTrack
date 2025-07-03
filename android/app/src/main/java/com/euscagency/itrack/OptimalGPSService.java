@@ -45,17 +45,25 @@ public class OptimalGPSService extends Service {
     
     // HYBRID: AlarmManager (efficient) + Handler backup (guaranteed)
     private Handler gpsHandler = new Handler(Looper.getMainLooper());
-    private long lastAlarmTrigger = 0;
+    private long lastGPSTransmission = 0;
+    private boolean alarmManagerWorking = false;
     private Runnable gpsRunnable = new Runnable() {
         @Override
         public void run() {
             long now = System.currentTimeMillis();
-            if (now - lastAlarmTrigger > 7000) { // If AlarmManager hasn't triggered in 7s
-                Log.d(TAG, "🔄 HANDLER BACKUP GPS CYCLE - AlarmManager not working");
+            long timeSinceLastGPS = now - lastGPSTransmission;
+            
+            // Only trigger if it's been more than 6 seconds since last GPS transmission
+            if (timeSinceLastGPS > 6000) {
+                Log.d(TAG, "🔄 HANDLER BACKUP GPS CYCLE - " + timeSinceLastGPS + "ms since last GPS");
+                alarmManagerWorking = false;
                 performOptimalGPSCycle();
+            } else {
+                Log.d(TAG, "⏸️ HANDLER: Skipping GPS - recent transmission " + timeSinceLastGPS + "ms ago");
+                alarmManagerWorking = true;
             }
             
-            // Schedule next backup check
+            // Schedule next backup check only if we have active courses
             if (!activeCourses.isEmpty()) {
                 gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
             }
@@ -142,11 +150,19 @@ public class OptimalGPSService extends Service {
         
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
             // ALARM TRIGGERED: Get GPS location and transmit for all active courses
-            Log.d(TAG, "🔄 ALARMMANAGER: ALARM TRIGGERED - performing GPS cycle");
-            Log.d(TAG, "⏰ ALARM DEBUG: Current time=" + SystemClock.elapsedRealtime());
-            Log.d(TAG, "📊 ALARM DEBUG: Active courses count=" + activeCourses.size());
-            Log.d(TAG, "🎯 ALARM DEBUG: AlarmManager working correctly - scheduling next cycle");
-            performOptimalGPSCycle();
+            long now = System.currentTimeMillis();
+            long timeSinceLastGPS = now - lastGPSTransmission;
+            
+            Log.d(TAG, "🔄 ALARMMANAGER: ALARM TRIGGERED - " + timeSinceLastGPS + "ms since last GPS");
+            
+            // Only proceed if it's been more than 4 seconds since last GPS
+            if (timeSinceLastGPS > 4000) {
+                Log.d(TAG, "✅ ALARMMANAGER: Proceeding with GPS cycle");
+                alarmManagerWorking = true;
+                performOptimalGPSCycle();
+            } else {
+                Log.d(TAG, "⏸️ ALARMMANAGER: Skipping - too recent GPS transmission (" + timeSinceLastGPS + "ms)");
+            }
         } else {
             // Regular service commands (START_GPS, STOP_GPS, etc.)
             Log.d(TAG, "📥 DIAGNOSTIC: HANDLING SERVICE COMMAND");
@@ -177,7 +193,7 @@ public class OptimalGPSService extends Service {
      * GPS hardware is activated ONLY when needed, then immediately turned off
      */
     private void performOptimalGPSCycle() {
-        lastAlarmTrigger = System.currentTimeMillis(); // Track when GPS runs
+        lastGPSTransmission = System.currentTimeMillis(); // Track when GPS runs
         Log.d(TAG, "🔍 GPS CYCLE: performOptimalGPSCycle() called - activeCourses size: " + activeCourses.size());
         
         if (activeCourses.isEmpty()) {
