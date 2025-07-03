@@ -356,17 +356,6 @@ public class OptimalGPSService extends Service {
             Log.d(TAG, "🗑️ REMOVED completed course: " + courseIdToRemove);
         }
         
-        // CRITICAL DEBUG: Check remaining courses after removal
-        Log.d(TAG, "📊 AFTER REMOVAL: " + activeCourses.size() + " courses remaining");
-        if (activeCourses.isEmpty()) {
-            Log.d(TAG, "🛑 ALL COURSES COMPLETED - GPS will stop after this cycle");
-        } else {
-            Log.d(TAG, "🔄 GPS will continue for remaining " + activeCourses.size() + " active courses");
-            for (CourseData remainingCourse : activeCourses.values()) {
-                Log.d(TAG, "  - Course: " + remainingCourse.courseId + " (status: " + remainingCourse.status + ")");
-            }
-        }
-        
         Log.d(TAG, "📊 OPTIMAL GPS SUMMARY:");
         Log.d(TAG, "  - Processed courses: " + activeCoursesCount + " (active + final)");
         Log.d(TAG, "  - Successfully transmitted: " + transmissionCount);
@@ -391,16 +380,7 @@ public class OptimalGPSService extends Service {
         gpsData.put("lat", location.getLatitude()); // Real coordinates as numbers
         gpsData.put("lng", location.getLongitude()); // Real coordinates as numbers
         gpsData.put("timestamp", new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(new java.util.Date()));
-        // CRITICAL FIX: Ensure realistic speed (GPS can return unrealistic values when stationary)
-        float speedMs = location.getSpeed(); // Speed in m/s
-        float speedKmh = speedMs * 3.6f; // Convert to km/h
-        
-        // If speed is unrealistic when stationary (GPS noise), set to 0
-        if (speedKmh < 1.0f) {
-            speedKmh = 0.0f;
-        }
-        
-        gpsData.put("viteza", speedKmh); // Corrected speed as float
+        gpsData.put("viteza", location.getSpeed() * 3.6); // m/s to km/h as float
         gpsData.put("directie", location.getBearing()); // Real bearing as float
         gpsData.put("altitudine", location.getAltitude()); // Real altitude as float
         gpsData.put("baterie", getBatteryLevel() + "%"); // Battery with % like June 26th
@@ -486,10 +466,7 @@ public class OptimalGPSService extends Service {
      * Schedule next exact GPS cycle
      */
     private void scheduleNextOptimalGPSCycle() {
-        Log.d(TAG, "🔄 SCHEDULE CHECK: activeCourses.size() = " + activeCourses.size());
-        
         if (!activeCourses.isEmpty()) {
-            Log.d(TAG, "✅ SCHEDULING next GPS cycle - " + activeCourses.size() + " courses need GPS");
             long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
             
             // CRITICAL: Ensure PendingIntent exists before scheduling
@@ -513,8 +490,7 @@ public class OptimalGPSService extends Service {
             Log.d(TAG, "🔧 ALARM DEBUG: AlarmManager=" + alarmManager + ", PendingIntent=" + gpsPendingIntent);
             Log.d(TAG, "🎯 ALARM DEBUG: Expected trigger in " + (nextTriggerTime - SystemClock.elapsedRealtime()) + "ms");
         } else {
-            Log.w(TAG, "❌ NO ACTIVE COURSES - GPS cycle NOT scheduled, stopping timer");
-            stopOptimalGPSTimer();
+            Log.w(TAG, "❌ NO ACTIVE COURSES - GPS cycle NOT scheduled");
         }
     }
     
@@ -736,19 +712,13 @@ public class OptimalGPSService extends Service {
             
         } else if ("STOP_GPS".equals(action)) {
             String courseId = intent.getStringExtra("courseId");
+            activeCourses.remove(courseId);
             
-            // CRITICAL FIX: Don't remove immediately - set status 4 for final transmission
-            CourseData course = activeCourses.get(courseId);
-            if (course != null) {
-                course.status = 4; // Set to STOP status for final GPS transmission
-                Log.d(TAG, "🏁 OPTIMAL course marked for FINAL transmission: " + courseId + " (status 4)");
-                Log.d(TAG, "📡 Course will be removed AFTER final GPS transmission with status 4");
-            } else {
-                Log.w(TAG, "⚠️ Course " + courseId + " not found for STOP - already removed?");
+            Log.d(TAG, "🛑 OPTIMAL course removed: " + courseId);
+            
+            if (activeCourses.isEmpty()) {
+                stopOptimalGPSTimer();
             }
-            
-            // Don't stop GPS timer yet - let it transmit status 4 first
-            // GPS timer will auto-stop when activeCourses becomes empty after transmission
             
         } else if ("UPDATE_STATUS".equals(action)) {
             String courseId = intent.getStringExtra("courseId");

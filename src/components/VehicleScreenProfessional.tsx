@@ -30,8 +30,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [clickCount, setClickCount] = useState(0);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
-  const [showDebugPanel, setShowDebugPanel] = useState(false);
-  const [debugLogs, setDebugLogs] = useState<any[]>([]);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<NodeJS.Timeout | null>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
@@ -310,50 +308,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log("Opening debug panel after 50 clicks...");
         const logs = await getAppLogs();
         console.log("Logs loaded:", logs.length);
-        setDebugLogs(logs);
-        setShowDebugPanel(true);
+        // Debug panel functionality removed
+        console.log('Debug logs available:', logs.length);
         setClickCount(0);
       } catch (error) {
         console.error("Error loading debug logs:", error);
         // Show panel anyway with empty logs
-        setDebugLogs([]);
-        setShowDebugPanel(true);
+        console.log('Debug panel would show empty logs');
         setClickCount(0);
       }
-    }
-  };
-
-  const handleCopyLogs = async () => {
-    try {
-      const logsText = debugLogs.map((log, index) => 
-        `${index + 1}. [${log.timestamp}] ${log.level} (${log.category || 'APP'}): ${log.message}`
-      ).join('\n');
-      
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(logsText);
-        console.log('Logs copied to clipboard');
-      } else {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = logsText;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        console.log('Logs copied to clipboard (fallback)');
-      }
-    } catch (error) {
-      console.error('Failed to copy logs:', error);
-    }
-  };
-
-  const handleRefreshLogs = async () => {
-    try {
-      const logs = await getAppLogs();
-      setDebugLogs(logs);
-      console.log('Debug logs refreshed:', logs.length);
-    } catch (error) {
-      console.error('Failed to refresh logs:', error);
     }
   };
 
@@ -875,51 +838,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 onLogout={handleLogout}
                 onClose={() => setShowAdminPanel(false)}
               />
-            )}
-
-            {/* Debug Panel Modal */}
-            {showDebugPanel && (
-              <div className="debug-panel-overlay">
-                <div className="debug-panel-content">
-                  <div className="debug-panel-header">
-                    <h3>Debug Panel - Application Logs</h3>
-                    <button 
-                      className="debug-close-btn"
-                      onClick={() => setShowDebugPanel(false)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                  <div className="debug-panel-body">
-                    <div className="debug-logs-container">
-                      {debugLogs.length === 0 ? (
-                        <div style={{ color: '#64748b', textAlign: 'center', padding: '20px' }}>
-                          No logs available
-                        </div>
-                      ) : (
-                        debugLogs.map((log, index) => (
-                          <div key={index} className="debug-log-entry">
-                            <span className="debug-log-index">{index + 1}</span>
-                            <span className="debug-log-text">
-                              [{log.timestamp}] {log.level} ({log.category || 'APP'}): {log.message}
-                            </span>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                    <div className="debug-panel-footer">
-                      <button className="debug-action-btn" onClick={handleCopyLogs}>
-                        <i className="fas fa-copy"></i>
-                        Copy Logs
-                      </button>
-                      <button className="debug-action-btn" onClick={handleRefreshLogs}>
-                        <i className="fas fa-sync-alt"></i>
-                        Refresh
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
             )}
           </div>
         </>
