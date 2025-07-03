@@ -804,11 +804,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <span>Actualizează</span>
               </button>
               <button className="action-button diagnostic" onClick={async () => {
-                console.log('🚨 Running GPS Diagnostic...');
-                await runGPSDiagnostic();
+                console.log('🔥 Testing Guaranteed GPS Service...');
+                try {
+                  const { startGuaranteedGPS, getGuaranteedGPSStatus } = await import('../services/garanteedGPS');
+                  const token = await import('../services/storage').then(s => s.getStoredToken());
+                  
+                  if (token) {
+                    console.log('🚀 Starting test GPS transmission...');
+                    await startGuaranteedGPS('TEST_GPS', vehicleNumber || 'TEST_VEHICLE', 'TEST_UIT', token, 2);
+                    
+                    setTimeout(() => {
+                      const status = getGuaranteedGPSStatus();
+                      console.log('📊 GPS Status:', status);
+                    }, 10000);
+                  } else {
+                    console.log('❌ No auth token for GPS test');
+                  }
+                } catch (error) {
+                  console.error('❌ GPS test failed:', error);
+                }
               }}>
-                <i className="fas fa-wrench"></i>
-                <span>Diagnosticare GPS</span>
+                <i className="fas fa-satellite"></i>
+                <span>Test GPS Garantat</span>
               </button>
               <button className="action-button logout" onClick={handleLogout}>
                 <i className="fas fa-sign-out-alt"></i>

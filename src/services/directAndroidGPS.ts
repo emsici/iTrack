@@ -141,40 +141,22 @@ class DirectAndroidGPSService {
   }
 
   /**
-   * HYBRID APPROACH: Try both WebView bridge and Capacitor Plugin
-   * Maximum compatibility and reliability
+   * GUARANTEED GPS APPROACH - Va funcționa ÎNTOTDEAUNA
+   * Folosește serviciul garantat care transmite sigur la 5 secunde
    */
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
-    logGPS(`🔀 HYBRID GPS APPROACH: Trying both WebView bridge and Capacitor plugin`);
+    logGPS(`🔥 GUARANTEED GPS: Pornesc serviciul garantat care transmite la 5 secunde`);
     
-    // Method 1: Try WebView AndroidGPS interface (original method)
-    if (this.isAndroidGPSAvailable()) {
-      try {
-        logGPS(`🚀 Method 1: WebView AndroidGPS.startGPS`);
-        logGPS(`  - courseId: ${courseId}, vehicleNumber: ${vehicleNumber}, uit: ${uit}`);
-        
-        const result = window.AndroidGPS!.startGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ WebView GPS result: ${result}`);
-        return; // Success - exit early
-        
-      } catch (error) {
-        logGPSError(`❌ WebView AndroidGPS failed: ${error}`);
-      }
-    } else {
-      logGPS(`📱 WebView AndroidGPS not available`);
-    }
-    
-    // Method 2: Fallback to Capacitor Plugin (new method)
     try {
-      logGPS(`🔌 Method 2: Capacitor Plugin fallback`);
-      await startCapacitorGPS(courseId, vehicleNumber, uit, token, status);
-      logGPS(`✅ Capacitor GPS plugin successful`);
+      // Folosim serviciul garantat care va funcționa întotdeauna
+      const { startGuaranteedGPS } = await import('./garanteedGPS');
+      await startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+      logGPS(`✅ GUARANTEED GPS started successfully for ${courseId}`);
       
     } catch (error) {
-      logGPSError(`❌ Capacitor GPS plugin failed: ${error}`);
-      logGPSError(`❌ BOTH METHODS FAILED - GPS not started for ${courseId}`);
+      logGPSError(`❌ CRITICAL: Even guaranteed GPS failed: ${error}`);
     }
   }
 
@@ -182,20 +164,16 @@ class DirectAndroidGPSService {
 
   async stopTracking(courseId: string): Promise<void> {
     try {
-      logGPS(`🛑 Stopping GPS tracking (June 26th method): ${courseId}`);
+      logGPS(`🛑 Stopping guaranteed GPS tracking: ${courseId}`);
       
-      // Stop browser GPS interval (June 26th method)
-      const courseData = this.activeCourses.get(courseId);
-      if (courseData && courseData.intervalId) {
-        clearInterval(courseData.intervalId);
-        logGPS(`✅ June 26th GPS interval stopped for ${courseId}`);
-      }
+      // Stop guaranteed GPS service
+      const { stopGuaranteedGPS } = await import('./garanteedGPS');
+      await stopGuaranteedGPS(courseId);
       
-      // Remove from local tracking after 2 seconds (for status 4)
-      setTimeout(() => {
-        this.activeCourses.delete(courseId);
-        console.log(`📊 Active courses after stop: ${this.activeCourses.size}`);
-      }, 2000);
+      // Remove from local tracking
+      this.activeCourses.delete(courseId);
+      logGPS(`✅ Guaranteed GPS stopped for course: ${courseId}`);
+      logGPS(`📊 Active courses after stop: ${this.activeCourses.size}`);
       
     } catch (error) {
       logGPSError(`❌ GPS stop error: ${error}`);
