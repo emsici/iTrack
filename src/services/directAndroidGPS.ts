@@ -35,21 +35,7 @@ interface ActiveCourse {
 class DirectAndroidGPSService {
   private activeCourses: Map<string, ActiveCourse> = new Map();
 
-  // Removed unused isAndroidGPSAvailable method
-  private checkAndroidGPSAvailable(): boolean {
-    const available = typeof window !== 'undefined' && 
-           !!window.AndroidGPS && 
-           typeof window.AndroidGPS?.startGPS === 'function';
-    
-    // EXPLICIT debugging for Android interface availability
-    logGPS(`🔍 Android Interface Check:`);
-    logGPS(`  - window exists: ${typeof window !== 'undefined'}`);
-    logGPS(`  - AndroidGPS exists: ${!!(window as any)?.AndroidGPS}`);
-    logGPS(`  - startGPS function: ${typeof (window as any)?.AndroidGPS?.startGPS}`);
-    logGPS(`  - Final result: ${available}`);
-    
-    return available;
-  }
+
 
   /**
    * Send status update to server via gps.php
@@ -240,25 +226,18 @@ class DirectAndroidGPSService {
 
   async logoutClearAll(): Promise<void> {
     try {
-      logGPS(`🧹 Clearing all GPS data - LOCAL ONLY approach`);
+      logGPS(`🧹 LOGOUT: Clearing courses from Map but NOT stopping background GPS service`);
       
-      // SKIP AndroidGPS completely - it's unreliable
-      // Just stop all GPS operations locally
-      for (const courseId of this.activeCourses.keys()) {
-        try {
-          await this.stopTracking(courseId);
-          logGPS(`✅ Stopped GPS for course: ${courseId}`);
-        } catch (error) {
-          logGPSError(`⚠️ Error stopping course ${courseId}: ${error}`);
-        }
-      }
+      // DON'T CALL stopTracking - that would stop the background GPS service
+      // Just clear the Map so new courses can be loaded after login
+      const courseCount = this.activeCourses.size;
       
-      // Clear local data
       this.activeCourses.clear();
-      logGPS(`📊 All local GPS data cleared: ${this.activeCourses.size} courses`);
+      logGPS(`✅ Cleared ${courseCount} courses from Map, GPS service continues in background`);
+      logGPS(`📊 Active courses after logout: ${this.activeCourses.size} courses`);
       
     } catch (error) {
-      logGPSError(`❌ GPS clear error: ${error}`);
+      logGPSError(`❌ Logout clear error: ${error}`);
       throw error;
     }
   }
