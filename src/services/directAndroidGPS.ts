@@ -176,22 +176,25 @@ class DirectAndroidGPSService {
   }
 
   /**
-   * GUARANTEED GPS APPROACH - Va funcționa ÎNTOTDEAUNA
-   * Folosește serviciul garantat care transmite sigur la 5 secunde
+   * SIMPLIFIED GPS: Only use Android native GPS via MainActivity
+   * No guaranteed GPS service call to prevent duplicate transmissions
    */
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
-    logGPS(`🔥 GUARANTEED GPS: Pornesc serviciul garantat care transmite la 5 secunde`);
+    logGPS(`🔥 ANDROID NATIVE GPS: Starting MainActivity GPS service only`);
     
     try {
-      // Folosim serviciul garantat care va funcționa întotdeauna
-      const { startGuaranteedGPS } = await import('./garanteedGPS');
-      await startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-      logGPS(`✅ GUARANTEED GPS started successfully for ${courseId}`);
+      // Direct MainActivity Android GPS interface for single GPS service
+      if (window.AndroidGPS && window.AndroidGPS.startGPS) {
+        const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
+        logGPS(`✅ MainActivity GPS result: ${result}`);
+      } else {
+        logGPS(`⚠️ AndroidGPS interface not available - APK only feature`);
+      }
       
     } catch (error) {
-      logGPSError(`❌ CRITICAL: Even guaranteed GPS failed: ${error}`);
+      logGPSError(`❌ MainActivity GPS failed: ${error}`);
     }
   }
 
@@ -199,15 +202,19 @@ class DirectAndroidGPSService {
 
   async stopTracking(courseId: string): Promise<void> {
     try {
-      logGPS(`🛑 Stopping guaranteed GPS tracking: ${courseId}`);
+      logGPS(`🛑 Stopping Android native GPS tracking: ${courseId}`);
       
-      // Stop guaranteed GPS service
-      const { stopGuaranteedGPS } = await import('./garanteedGPS');
-      await stopGuaranteedGPS(courseId);
+      // Stop Android native GPS only
+      if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
+        const result = window.AndroidGPS.stopGPS(courseId);
+        logGPS(`✅ MainActivity GPS stop result: ${result}`);
+      } else {
+        logGPS(`⚠️ AndroidGPS interface not available - APK only feature`);
+      }
       
       // Remove from local tracking
       this.activeCourses.delete(courseId);
-      logGPS(`✅ Guaranteed GPS stopped for course: ${courseId}`);
+      logGPS(`✅ Native GPS stopped for course: ${courseId}`);
       logGPS(`📊 Active courses after stop: ${this.activeCourses.size}`);
       
     } catch (error) {

@@ -188,6 +188,8 @@ Persistare localStorage → Afișare CourseStatsModal
 **UIT TRANSMISSION**: Corrected GPS service to transmit real UIT values instead of course IDs by passing courseToUpdate.uit
 **GPS STATUS CONTROL**: Fixed PAUSE/STOP functionality - status 3 and 4 now send to server and stop GPS coordinate transmission
 **PAUSE/STOP GPS LOGIC**: GPS tracking properly stops when courses are paused (status 3) or stopped (status 4)
+**DUPLICATE GPS TRANSMISSIONS ELIMINATED**: Fixed duplicate GPS transmissions in same second by removing redundant garanteedGPS calls from directAndroidGPS
+**SINGLE GPS SERVICE**: Now uses only Android native GPS via MainActivity interface, eliminating guaranteed GPS service overlap
 
 ### Versiunea Precedentă: 1808.187 (June 30, 2025) - FINAL GPS BLOCKING ISSUES ELIMINATED & COMPLETE FLOW VERIFIED
 
