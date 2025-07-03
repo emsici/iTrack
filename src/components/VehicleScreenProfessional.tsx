@@ -7,6 +7,7 @@ import {
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
 import { runGPSDiagnostic } from "../services/gpsdiagnostic";
+import { startGuaranteedGPS, stopGuaranteedGPS, getGuaranteedGPSStatus } from "../services/garanteedGPS";
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";

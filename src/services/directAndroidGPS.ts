@@ -21,7 +21,7 @@ declare global {
 
 import { logGPS, logGPSError } from './appLogger';
 import { getStoredToken, getStoredVehicleNumber } from './storage';
-import { startCapacitorGPS, stopCapacitorGPS, updateCapacitorGPSStatus } from './capacitorGPS';
+// Direct AndroidGPS service handles native interface operations
 
 interface ActiveCourse {
   courseId: string;
