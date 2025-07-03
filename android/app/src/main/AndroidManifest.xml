@@ -39,6 +39,14 @@
             android:foregroundServiceType="location"
             android:stopWithTask="false" />
             
+        <!-- TestGPSService for debugging -->
+        <service
+            android:name="com.euscagency.itrack.TestGPSService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location"
+            android:stopWithTask="false" />
+            
         <!-- GPS handled via MainActivity AndroidGPS WebView interface -->
             
         <!-- Background Auto-Refresh Service -->

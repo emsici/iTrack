@@ -38,6 +38,12 @@ public class OptimalGPSService extends Service {
     private static final long GPS_INTERVAL_MS = 5000; // Exact 5 seconds
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.GPS_ALARM";
     
+    // DIAGNOSTIC CONSTRUCTOR
+    public OptimalGPSService() {
+        super();
+        Log.d(TAG, "🚨🚨🚨 CRITICAL: OptimalGPSService CONSTRUCTOR called - class is loading 🚨🚨🚨");
+    }
+    
     private AlarmManager alarmManager;
     private PendingIntent gpsPendingIntent;
     private LocationManager locationManager;
@@ -100,20 +106,38 @@ public class OptimalGPSService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Log.d(TAG, "🚨🚨🚨 CRITICAL: OPTIMAL GPS Service onCreate() called - SERVICE IS STARTING 🚨🚨🚨");
         
-        // CRITICAL: PARTIAL_WAKE_LOCK for background GPS with phone locked
-        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "OptimalGPS:WakeLock");
-        
-        // FOREGROUND OPTIMIZED: Simple thread pool to avoid blocking AlarmManager
-        httpThreadPool = Executors.newFixedThreadPool(1); // Single background thread for HTTP
-        
-        createNotificationChannel();
-        startForeground(NOTIFICATION_ID, createNotification());
-        
-        Log.d(TAG, "✅ OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching");
+        try {
+            alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Log.d(TAG, "✅ DIAGNOSTIC: AlarmManager initialized: " + (alarmManager != null));
+            
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            Log.d(TAG, "✅ DIAGNOSTIC: LocationManager initialized: " + (locationManager != null));
+            
+            // CRITICAL: PARTIAL_WAKE_LOCK for background GPS with phone locked
+            PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "OptimalGPS:WakeLock");
+            Log.d(TAG, "✅ DIAGNOSTIC: WakeLock initialized: " + (wakeLock != null));
+            
+            // FOREGROUND OPTIMIZED: Simple thread pool to avoid blocking AlarmManager
+            httpThreadPool = Executors.newFixedThreadPool(1); // Single background thread for HTTP
+            Log.d(TAG, "✅ DIAGNOSTIC: HTTP ThreadPool initialized");
+            
+            Log.d(TAG, "🔧 DIAGNOSTIC: Creating notification channel...");
+            createNotificationChannel();
+            Log.d(TAG, "✅ DIAGNOSTIC: Notification channel created");
+            
+            Log.d(TAG, "🔧 DIAGNOSTIC: Starting foreground service...");
+            startForeground(NOTIFICATION_ID, createNotification());
+            Log.d(TAG, "✅ DIAGNOSTIC: Foreground service started successfully");
+            
+            Log.d(TAG, "🎯 OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌❌❌ CRITICAL ERROR in onCreate(): " + e.getMessage(), e);
+            throw e; // Re-throw to see the crash
+        }
     }
     
     private void createNotificationChannel() {

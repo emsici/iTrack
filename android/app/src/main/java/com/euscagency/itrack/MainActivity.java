@@ -161,8 +161,8 @@ public class MainActivity extends BridgeActivity {
         }
 
         try {
-            Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for OptimalGPSService");
-            Intent intent = new Intent(this, OptimalGPSService.class);
+            Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for TestGPSService (debugging)");
+            Intent intent = new Intent(this, TestGPSService.class);
             intent.setAction("START_GPS");
             intent.putExtra("courseId", courseId);
             intent.putExtra("vehicleNumber", vehicleNumber);
@@ -171,7 +171,26 @@ public class MainActivity extends BridgeActivity {
             intent.putExtra("status", status);
             
             Log.d(TAG, "🚀 DIAGNOSTIC: Calling startForegroundService...");
-            startForegroundService(intent);
+            
+            // CRITICAL DIAGNOSTIC: Add detailed logging to catch service startup issues
+            try {
+                ComponentName serviceComponent = startForegroundService(intent);
+                Log.d(TAG, "✅ DIAGNOSTIC: startForegroundService returned component: " + serviceComponent);
+                Log.d(TAG, "🔍 DIAGNOSTIC: Service should now be starting with action START_GPS");
+                
+                // Wait a moment to see if service starts
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    Log.d(TAG, "🕐 DIAGNOSTIC: 2 seconds after startForegroundService - checking if service responded");
+                }, 2000);
+                
+            } catch (SecurityException se) {
+                Log.e(TAG, "❌ SECURITY ERROR starting service: " + se.getMessage());
+                return "ERROR: Security exception - " + se.getMessage();
+            } catch (Exception se) {
+                Log.e(TAG, "❌ EXCEPTION starting service: " + se.getMessage());
+                return "ERROR: Service exception - " + se.getMessage();
+            }
+            
             Log.d(TAG, "✅ DIAGNOSTIC: OptimalGPSService startForegroundService completed for " + courseId);
             
             String result = "SUCCESS: GPS started for " + courseId;
