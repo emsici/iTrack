@@ -460,6 +460,7 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       console.log('Vehicle:', gpsData.numar_inmatriculare);
       console.log('UIT:', gpsData.uit);
       console.log('Status:', gpsData.status);
+      console.log('🚨 COMPLETE GPS DATA BEING SENT:', JSON.stringify(gpsData, null, 2));
       
       // Silent token validation
       try {

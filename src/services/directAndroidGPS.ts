@@ -62,35 +62,10 @@ class DirectAndroidGPSService {
         const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
         const token = await getStoredToken() || '';
         
-        // Get real UIT from courses data
-        const storedCourses = localStorage.getItem(`courses_${vehicleNumber}`);
-        let realUIT = courseId; // fallback
-        
-        if (storedCourses) {
-          try {
-            const coursesData = JSON.parse(storedCourses);
-            console.log(`🗂️ DEBUGGING: Found ${coursesData.length} courses in storage`);
-            console.log(`🔍 DEBUGGING: Looking for courseId: ${courseId}`);
-            
-            // Log all available courses and their UITs
-            coursesData.forEach((c: any, index: number) => {
-              console.log(`Course ${index}: ID=${c.id}, UIT=${c.uit}, Name=${c.name}`);
-            });
-            
-            const foundCourse = coursesData.find((c: any) => c.id === courseId);
-            if (foundCourse && foundCourse.uit) {
-              realUIT = foundCourse.uit;
-              console.log(`📋 Found UIT for ${courseId}: ${realUIT}`);
-              console.log(`🔍 CRITICAL: Will transmit with UIT: ${realUIT} instead of courseId: ${courseId}`);
-            } else {
-              console.warn(`⚠️ CRITICAL: No UIT found for courseId ${courseId}, using courseId as fallback`);
-            }
-          } catch (error) {
-            console.warn('Error parsing courses data:', error);
-          }
-        } else {
-          console.warn(`⚠️ No stored courses found for vehicle: ${vehicleNumber}`);
-        }
+        // courseId IS ALREADY THE UIT from VehicleScreen fix
+        const realUIT = courseId;
+        console.log(`🔍 CRITICAL FIX: courseId parameter IS the UIT: ${realUIT}`);
+        console.log(`✅ No more localStorage lookup needed - using UIT directly`);
         
         // Start GPS tracking first
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);

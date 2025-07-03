@@ -342,11 +342,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // SIMPLIFIED: All GPS logic handled by capacitorGPS service
       try {
         console.log(`🎯 Delegating all GPS logic to capacitorGPS service`);
-        console.log(`📞 Calling updateCourseStatus(${courseId}, ${newStatus})`);
+        console.log(`📞 Calling updateCourseStatus with UIT: ${courseToUpdate.uit} (not ID: ${courseId})`);
         
-        // Single call handles everything: startGPS + updateStatus + transmission
-        await updateCourseStatus(courseId, newStatus);
-        console.log(`✅ Course ${courseId} status updated to ${newStatus} successfully`);
+        // CRITICAL FIX: Use UIT instead of courseId for GPS service
+        await updateCourseStatus(courseToUpdate.uit, newStatus);
+        console.log(`✅ Course ${courseToUpdate.uit} status updated to ${newStatus} successfully`);
 
       } catch (error) {
         console.error(`❌ Status update error:`, error);
@@ -357,7 +357,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       // Status already updated above - no duplicate update needed
 
-      logAPI(`Course ${courseId} status updated successfully to ${newStatus}`);
+      logAPI(`Course ${courseToUpdate.uit} status updated successfully to ${newStatus}`);
       console.log(`=== STATUS UPDATE COMPLETE ===`);
     } catch (error) {
       console.error("Status update error:", error);
