@@ -93,12 +93,18 @@ class GuaranteedGPSService {
    * Transmitere coordonate pentru toate cursele active
    */
   private async transmitForAllCourses(): Promise<void> {
-    if (this.activeCourses.size === 0) return;
+    if (this.activeCourses.size === 0) {
+      logGPS(`⚠️ No active courses for transmission`);
+      return;
+    }
+
+    logGPS(`📡 TRANSMITTING GPS for ${this.activeCourses.size} active courses...`);
 
     try {
       // Obținem locația curentă
       const { Geolocation } = await import('@capacitor/geolocation');
       
+      logGPS(`🔍 Getting GPS position...`);
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 8000,
@@ -106,9 +112,12 @@ class GuaranteedGPSService {
       });
 
       const { coords } = position;
+      logGPS(`📍 GPS Position obtained: ${coords.latitude}, ${coords.longitude}`);
       
       // Transmitem pentru fiecare cursă activă
+      logGPS(`🔄 Processing ${this.activeCourses.size} courses for transmission...`);
       for (const [courseId, course] of this.activeCourses) {
+        logGPS(`📤 Transmitting for course: ${courseId} (${course.uit})`);
         await this.transmitSingleCourse(course, coords);
       }
 
@@ -124,6 +133,11 @@ class GuaranteedGPSService {
    */
   private async transmitSingleCourse(course: GPSCourse, coords: any): Promise<void> {
     try {
+      logGPS(`🔧 Preparing GPS data for ${course.courseId}...`);
+      
+      const batteryLevel = await this.getBatteryLevel();
+      logGPS(`🔋 Battery level: ${batteryLevel}%`);
+      
       const gpsData: GPSData = {
         lat: coords.latitude,
         lng: coords.longitude,
@@ -131,7 +145,7 @@ class GuaranteedGPSService {
         viteza: coords.speed || 0,
         directie: coords.heading || 0,
         altitudine: coords.altitude || 0,
-        baterie: await this.getBatteryLevel(),
+        baterie: batteryLevel,
         numar_inmatriculare: course.vehicleNumber,
         uit: course.uit,
         status: course.status,
@@ -139,16 +153,19 @@ class GuaranteedGPSService {
         gsm_signal: 4
       };
 
+      logGPS(`📊 GPS Data prepared: lat=${gpsData.lat}, lng=${gpsData.lng}, uit=${gpsData.uit}, vehicle=${gpsData.numar_inmatriculare}`);
+      logGPS(`🔑 Using token: ${course.token.substring(0, 20)}...`);
+      
       const success = await sendGPSData(gpsData, course.token);
       
       if (success) {
-        logGPS(`✅ GPS transmitted: ${coords.latitude}, ${coords.longitude} for ${course.courseId}`);
+        logGPS(`✅ GPS transmitted successfully: ${coords.latitude}, ${coords.longitude} for course ${course.courseId}`);
       } else {
-        logGPSError(`❌ GPS transmission failed for ${course.courseId}`);
+        logGPSError(`❌ GPS transmission failed for course ${course.courseId} - server rejected data`);
       }
 
     } catch (error) {
-      logGPSError(`❌ Single course transmission error: ${error}`);
+      logGPSError(`❌ Single course transmission error for ${course.courseId}: ${error}`);
     }
   }
 
