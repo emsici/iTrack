@@ -141,28 +141,30 @@ public class MainActivity extends BridgeActivity {
         if (android.os.Build.VERSION.SDK_INT >= 31) {
             android.app.AlarmManager alarmManager = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
             if (!alarmManager.canScheduleExactAlarms()) {
-                Log.e(TAG, "❌ CRITICAL: SCHEDULE_EXACT_ALARM permission required for background GPS");
-                Log.e(TAG, "   Opening Settings for user to enable: Apps > iTrack > Special permissions > Alarms & reminders");
+                Log.e(TAG, "❌ CRITICAL: SCHEDULE_EXACT_ALARM permission DENIED - this blocks GPS completely");
+                Log.e(TAG, "   User must enable: Settings > Apps > iTrack > Special permissions > Alarms & reminders");
                 
-                // Direct user to exact alarm settings
+                // FORCE user to fix permission immediately - do not start GPS without it
                 try {
                     android.content.Intent settingsIntent = new android.content.Intent();
                     settingsIntent.setAction(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
                     settingsIntent.setData(android.net.Uri.parse("package:" + getPackageName()));
                     startActivity(settingsIntent);
-                    return "PERMISSION_NEEDED: Enable 'Alarms & reminders' in Settings to start GPS";
+                    return "PERMISSION_REQUIRED: Enable 'Alarms & reminders' in Settings. GPS cannot work without this permission.";
                 } catch (Exception e) {
                     Log.e(TAG, "❌ Could not open alarm permission settings: " + e.getMessage());
-                    return "ERROR: Need 'Alarms & reminders' permission in Settings > Apps > iTrack";
+                    return "ERROR: Need 'Alarms & reminders' permission in Settings > Apps > iTrack > Special permissions";
                 }
             } else {
-                Log.d(TAG, "✅ SCHEDULE_EXACT_ALARM permission granted - GPS will work in background");
+                Log.d(TAG, "✅ SCHEDULE_EXACT_ALARM permission VERIFIED - GPS will work in background");
             }
+        } else {
+            Log.d(TAG, "✅ Android < 12 - SCHEDULE_EXACT_ALARM not required");
         }
 
         try {
-            Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for TestGPSService (debugging)");
-            Intent intent = new Intent(this, TestGPSService.class);
+            Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for OptimalGPSService");
+            Intent intent = new Intent(this, OptimalGPSService.class);
             intent.setAction("START_GPS");
             intent.putExtra("courseId", courseId);
             intent.putExtra("vehicleNumber", vehicleNumber);
