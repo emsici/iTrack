@@ -171,9 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.215 (July 03, 2025) - GUARANTEED GPS SERVICE - TRANSMISSION EVERY 5 SECONDS
+### Versiunea Curentă: 1808.216 (July 03, 2025) - BACKGROUND GPS TRANSMISSION LOGIC FIXED
 
-**GUARANTEED GPS IMPLEMENTED**: Created redundant GPS service that WILL transmit every 5 seconds regardless of AndroidGPS availability
+**CRITICAL BACKGROUND GPS ISSUE IDENTIFIED**: Problem was not Vite warnings but incorrect STATUS logic stopping GPS transmission
+**BACKGROUND TRANSMISSION LOGIC CORRECTED**: STATUS 2 (ACTIVE) now transmits continuously at 5-second intervals even with phone locked
+**PAUSE/STOP LOGIC FIXED**: STATUS 3 (PAUSE) transmits once then pauses, STATUS 4 (STOP) transmits once then stops completely
+**ANDROID SERVICE OPTIMIZED**: OptimalGPSService now checks for STATUS 2 courses before continuous transmission
+**DYNAMIC IMPORTS RESTORED**: Reverted static imports that were causing GPS service failures back to working dynamic imports
+**TRANSMISSION FLOW CORRECTED**: JavaScript no longer stops GPS service at PAUSE - Android service handles transmission control internally
 **MULTIPLE FALLBACK METHODS**: AndroidGPS native → Capacitor Plugin → JavaScript GPS interval (guaranteed to work)
 **EXACT 5-SECOND INTERVALS**: JavaScript setInterval(5000) ensures precise transmission timing 
 **REAL COORDINATES**: Uses Capacitor Geolocation for authentic GPS coordinates with backup location if needed

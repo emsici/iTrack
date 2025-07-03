@@ -102,10 +102,16 @@ class DirectAndroidGPSService {
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
       }
       
-      // STATUS 3 (PAUSE) or STATUS 4 (STOP): Stop GPS transmission
-      if (newStatus === 3 || newStatus === 4) {
-        console.log(`⏸️ STATUS ${newStatus} (${newStatus === 3 ? 'PAUSE' : 'STOP'}): Stopping GPS for ${courseId}`);
+      // STATUS 4 (STOP): Stop GPS transmission completely
+      if (newStatus === 4) {
+        console.log(`🛑 STATUS 4 (STOP): Stopping GPS completely for ${courseId}`);
         await this.stopTracking(courseId);
+      }
+      
+      // STATUS 3 (PAUSE): Update course status but keep GPS running for single transmission
+      if (newStatus === 3) {
+        console.log(`⏸️ STATUS 3 (PAUSE): GPS will transmit once with new status for ${courseId}`);
+        // Do NOT stop GPS - Android service will handle single transmission and then pause
       }
       
       // Update local tracking

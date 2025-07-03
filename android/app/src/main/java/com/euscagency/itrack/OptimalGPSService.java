@@ -169,6 +169,21 @@ public class OptimalGPSService extends Service {
             return;
         }
         
+        // Check if we have any STATUS 2 (ACTIVE) courses that need continuous transmission
+        boolean hasActiveCourses = false;
+        for (CourseData course : activeCourses.values()) {
+            if (course.status == 2) {
+                hasActiveCourses = true;
+                break;
+            }
+        }
+        
+        if (!hasActiveCourses) {
+            Log.d(TAG, "⏸️ No STATUS 2 courses - skipping GPS transmission but keeping background timer active");
+            scheduleNextOptimalGPSCycle(); // Continue timer for background readiness
+            return;
+        }
+        
         Log.d(TAG, "⏰ OPTIMAL GPS CYCLE - getting location for " + activeCourses.size() + " courses");
         
         try {
