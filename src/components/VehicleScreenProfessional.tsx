@@ -807,21 +807,49 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <button className="action-button diagnostic" onClick={async () => {
                 console.log('🔥 Testing Guaranteed GPS Service...');
                 try {
-                  const currentToken = await getStoredToken();
-                  
-                  if (currentToken) {
-                    console.log('🚀 Starting test GPS transmission...');
-                    await startGuaranteedGPS('TEST_GPS', vehicleNumber || 'TEST_VEHICLE', 'TEST_UIT', currentToken, 2);
-                    
-                    setTimeout(() => {
-                      const status = getGuaranteedGPSStatus();
-                      console.log('📊 GPS Status:', status);
-                    }, 10000);
-                  } else {
-                    console.log('❌ No auth token for GPS test');
+                  // Verificare că avem token
+                  if (!token) {
+                    console.log('❌ No auth token available for GPS test');
+                    setError('Token necesar pentru testul GPS');
+                    return;
                   }
+                  
+                  console.log('🚀 Starting GPS test transmission...');
+                  console.log('📍 Vehicle:', vehicleNumber || 'TEST_VEHICLE');
+                  console.log('🔑 Token available:', !!token);
+                  
+                  // Test simplu fără să pornească serviciul complet
+                  const { sendGPSData } = await import('../services/api');
+                  
+                  const testGPSData = {
+                    lat: 44.4268 + (Math.random() - 0.5) * 0.01,
+                    lng: 26.1025 + (Math.random() - 0.5) * 0.01,
+                    timestamp: new Date().toISOString(),
+                    viteza: 30 + Math.random() * 20,
+                    directie: Math.random() * 360,
+                    altitudine: 80 + Math.random() * 20,
+                    baterie: 85,
+                    numar_inmatriculare: vehicleNumber || 'TEST_VEHICLE',
+                    uit: 'TEST_UIT_123',
+                    status: 2,
+                    hdop: 1,
+                    gsm_signal: 4
+                  };
+                  
+                  console.log('📊 Test GPS Data:', testGPSData);
+                  const success = await sendGPSData(testGPSData, token);
+                  
+                  if (success) {
+                    console.log('✅ GPS test transmission successful!');
+                    setError('');
+                  } else {
+                    console.log('❌ GPS test transmission failed');
+                    setError('Testul GPS a eșuat');
+                  }
+                  
                 } catch (error) {
                   console.error('❌ GPS test failed:', error);
+                  setError(`Eroare test GPS: ${error instanceof Error ? error.message : 'Unknown error'}`);
                 }
               }}>
                 <i className="fas fa-satellite"></i>
