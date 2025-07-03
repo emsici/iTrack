@@ -163,8 +163,9 @@ public class OptimalGPSService extends Service {
      */
     private void performOptimalGPSCycle() {
         if (activeCourses.isEmpty()) {
-            Log.d(TAG, "⏸️ No active courses - stopping optimal GPS cycle");
-            stopOptimalGPSTimer();
+            Log.d(TAG, "⏸️ No active courses - skipping GPS transmission but keeping background timer active");
+            // DO NOT stop timer - keep background capability for fast restart
+            scheduleNextOptimalGPSCycle(); // Continue timer for background readiness
             return;
         }
         
@@ -425,18 +426,20 @@ public class OptimalGPSService extends Service {
      * Schedule next exact GPS cycle
      */
     private void scheduleNextOptimalGPSCycle() {
+        // ALWAYS schedule next cycle to maintain background GPS capability
+        long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            nextTriggerTime,
+            gpsPendingIntent
+        );
+        
         if (!activeCourses.isEmpty()) {
-            long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                nextTriggerTime,
-                gpsPendingIntent
-            );
             Log.d(TAG, "⏰ NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
-            Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
         } else {
-            Log.w(TAG, "❌ NO ACTIVE COURSES - GPS cycle NOT scheduled");
+            Log.d(TAG, "⏰ BACKGROUND GPS TIMER: maintaining 5s cycle for instant restart capability");
         }
+        Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
     }
     
     /**
@@ -767,10 +770,11 @@ public class OptimalGPSService extends Service {
             }
             
         } else if ("CLEAR_ALL".equals(action)) {
-            Log.d(TAG, "🧹 LOGOUT: Clearing all courses and stopping GPS timer");
+            Log.d(TAG, "🧹 LOGOUT: Clearing active courses but preserving background GPS capability");
             activeCourses.clear();
-            stopOptimalGPSTimer();
-            Log.d(TAG, "✅ OPTIMAL GPS cleared all courses - timer stopped until next START_GPS");
+            // DO NOT stop timer - let it continue running for background capability
+            // Timer will automatically skip transmission when no active courses exist
+            Log.d(TAG, "✅ OPTIMAL GPS courses cleared - background service remains active for next login");
             
         } else if ("RESTART_SERVICE".equals(action)) {
             Log.d(TAG, "🔄 RESTART: Force restarting GPS service");

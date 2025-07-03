@@ -228,7 +228,7 @@ class DirectAndroidGPSService {
 
   async logoutClearAll(): Promise<void> {
     try {
-      logGPS(`🧹 LOGOUT: Clearing all GPS data and stopping all transmissions`);
+      logGPS(`🧹 LOGOUT: Clearing GPS tracking data but preserving background service capability`);
       
       // STEP 1: Stop all active courses individually
       for (const courseId of this.activeCourses.keys()) {
@@ -240,21 +240,23 @@ class DirectAndroidGPSService {
         }
       }
       
-      // STEP 2: Call AndroidGPS clearAllOnLogout to stop native service completely
+      // STEP 2: Clear only active courses data, NOT the entire service
+      // This preserves the background service capability for next login
       if (window.AndroidGPS && typeof window.AndroidGPS.clearAllOnLogout === 'function') {
         try {
           const result = window.AndroidGPS.clearAllOnLogout();
-          logGPS(`✅ AndroidGPS native service cleared: ${result}`);
+          logGPS(`✅ AndroidGPS active courses cleared: ${result}`);
         } catch (error) {
-          logGPSError(`⚠️ AndroidGPS clearAllOnLogout failed: ${error}`);
+          logGPSError(`⚠️ AndroidGPS clearAll failed: ${error}`);
         }
       } else {
         logGPS(`ℹ️ AndroidGPS interface not available (browser mode)`);
       }
       
-      // STEP 3: Clear local data
+      // STEP 3: Clear local tracking data only
       this.activeCourses.clear();
-      logGPS(`📊 All local GPS data cleared: ${this.activeCourses.size} courses remaining`);
+      logGPS(`📊 Local GPS tracking data cleared: ${this.activeCourses.size} courses remaining`);
+      logGPS(`ℹ️ Background GPS service preserved for future use`);
       
     } catch (error) {
       logGPSError(`❌ GPS clear error: ${error}`);
