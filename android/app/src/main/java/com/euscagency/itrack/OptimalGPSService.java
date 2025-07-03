@@ -48,7 +48,7 @@ public class OptimalGPSService extends Service {
     private PendingIntent gpsPendingIntent;
     private LocationManager locationManager;
     private PowerManager.WakeLock wakeLock;
-    private Map<String, CourseData> activeCourses = new HashMap<>();
+    private Map<String, CourseData> activeCourses;
     private boolean isAlarmActive = false;
     
     // HYBRID: AlarmManager (efficient) + Handler backup (guaranteed)
