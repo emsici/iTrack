@@ -61,33 +61,46 @@ class DirectAndroidGPSService {
       console.log(`📡 Sending status ${newStatus} to server for UIT: ${realUIT}`);
       await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
       
-      // STATUS 2 (START): Setup complete GPS tracking
+      // STATUS 2 (START or RESUME): Setup GPS tracking if not already active
       if (newStatus === 2) {
-        console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
-        await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
+        if (!this.activeCourses.has(courseId)) {
+          console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
+          await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
+        } else {
+          console.log(`▶️ STATUS 2 (RESUME): Course ${courseId} already active - just updating status`);
+          if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
+            const result = window.AndroidGPS.updateStatus(courseId, newStatus);
+            logGPS(`✅ MainActivity GPS status updated to RESUME: ${result}`);
+          }
+        }
       }
       
-      // STATUS 3 (PAUSE) or STATUS 4 (STOP): Stop GPS transmission
-      if (newStatus === 3 || newStatus === 4) {
-        console.log(`⏸️ STATUS ${newStatus} (${newStatus === 3 ? 'PAUSE' : 'STOP'}): Stopping GPS for ${courseId}`);
+      // STATUS 3 (PAUSE): Update status only, keep GPS service running
+      // STATUS 4 (STOP): Stop GPS transmission completely
+      if (newStatus === 4) {
+        console.log(`🛑 STATUS 4 (STOP): Stopping GPS completely for ${courseId}`);
         await this.stopTracking(courseId);
       }
       
-      // Update local tracking
+      // Update local tracking for all statuses
       const course = this.activeCourses.get(courseId);
       if (course) {
         course.status = newStatus;
         this.activeCourses.set(courseId, course);
+        console.log(`✅ Local course status updated: ${courseId} → ${newStatus}`);
       }
       
-      // Direct MainActivity Android GPS interface for status update
-      if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-        const result = window.AndroidGPS.updateStatus(courseId, newStatus);
-        logGPS(`✅ MainActivity GPS status updated: ${result}`);
-      } else {
-        logGPSError(`❌ AndroidGPS interface not available for status update - this is normal in browser`);
-        console.warn('AndroidGPS status interface not available - this is normal in browser development');
+      // For PAUSE (status 3): Update Android service status but keep GPS running
+      if (newStatus === 3) {
+        console.log(`⏸️ STATUS 3 (PAUSE): Updating Android service status for ${courseId}`);
+        if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
+          const result = window.AndroidGPS.updateStatus(courseId, newStatus);
+          logGPS(`✅ MainActivity GPS status updated to PAUSE: ${result}`);
+        }
       }
+      
+      // For START/RESUME (status 2): Android service handles this in startTracking
+      // For STOP (status 4): Android service handles this in stopTracking
       
     } catch (error) {
       logGPSError(`❌ GPS status update error: ${error}`);
@@ -186,14 +199,22 @@ class DirectAndroidGPSService {
 
   async logoutClearAll(): Promise<void> {
     try {
-      logGPS(`🧹 LOGOUT: Clearing courses from Map but NOT stopping background GPS service`);
+      logGPS(`🧹 LOGOUT: Clearing all courses from both Maps (JS + Android)`);
       
-      // DON'T CALL stopTracking - that would stop the background GPS service
-      // Just clear the Map so new courses can be loaded after login
       const courseCount = this.activeCourses.size;
       
+      // Clear Android activeCourses Map via CLEAR_ALL command
+      if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
+        const result = window.AndroidGPS.clearAllOnLogout();
+        logGPS(`✅ Android GPS cleared: ${result}`);
+      } else {
+        logGPS(`⚠️ AndroidGPS interface not available - APK only feature`);
+      }
+      
+      // Clear local JavaScript Map
       this.activeCourses.clear();
-      logGPS(`✅ Cleared ${courseCount} courses from Map, GPS service continues in background`);
+      
+      logGPS(`✅ LOGOUT: Cleared ${courseCount} courses from both Maps`);
       logGPS(`📊 Active courses after logout: ${this.activeCourses.size} courses`);
       
     } catch (error) {
