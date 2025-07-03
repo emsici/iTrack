@@ -40,19 +40,7 @@ public class MainActivity extends BridgeActivity {
         Log.d(TAG, "🔌 AndroidGPSPlugin registered as Capacitor plugin");
     }
     
-    @Override
-    protected void onBridgeReady() {
-        super.onBridgeReady();
-        Log.d(TAG, "🌉 Capacitor Bridge is ready - adding AndroidGPS interface immediately");
-        
-        // This is the OPTIMAL moment - Capacitor bridge and WebView are fully initialized
-        addAndroidGPSInterface();
-        
-        // Backup attempt after 1 second
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            addAndroidGPSInterface();
-        }, 1000);
-    }
+    // Bridge ready handling moved to onResume for compatibility
 
     @Override
     public void onStart() {
@@ -75,16 +63,7 @@ public class MainActivity extends BridgeActivity {
         new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 1000);
     }
 
-    @Override
-    public void onPageFinished(String url) {
-        super.onPageFinished(url);
-        Log.d(TAG, "WebView page finished loading: " + url + " - adding AndroidGPS interface");
-        
-        // When page is completely loaded, add interface
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            addAndroidGPSInterface();
-        }, 100);
-    }
+    // Removed onPageFinished override - not available in BridgeActivity
 
     private void addAndroidGPSInterface() {
         try {
