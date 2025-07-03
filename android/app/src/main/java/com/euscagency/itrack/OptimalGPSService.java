@@ -552,6 +552,23 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "✅ OPTIMAL GPS timer started - EXACT " + (GPS_INTERVAL_MS/1000) + "s intervals");
         Log.d(TAG, "⏰ ALARM DEBUG: First trigger at " + triggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
         Log.d(TAG, "🔧 ALARM DEBUG: AlarmManager=" + alarmManager + ", PendingIntent=" + gpsPendingIntent);
+        Log.d(TAG, "⚡ ALARM CRITICAL: TIME TO TRIGGER = " + (triggerTime - SystemClock.elapsedRealtime()) + "ms");
+        Log.d(TAG, "📊 ALARM CRITICAL: ACTIVE COURSES = " + activeCourses.size());
+        
+        // CRITICAL: Immediate test to ensure alarm system works
+        Log.d(TAG, "🧪 ALARM TEST: Scheduling immediate test alarm in 2 seconds...");
+        Intent testIntent = new Intent(this, OptimalGPSService.class);
+        testIntent.setAction(ACTION_GPS_ALARM);
+        PendingIntent testPendingIntent = PendingIntent.getService(
+            this, 99, testIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+        long testTriggerTime = SystemClock.elapsedRealtime() + 2000; // 2 seconds
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            testTriggerTime,
+            testPendingIntent
+        );
+        Log.d(TAG, "🧪 TEST ALARM SET: Will trigger in 2 seconds to verify AlarmManager is working");
     }
     
     /**
