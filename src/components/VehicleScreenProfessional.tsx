@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
-import { getVehicleCourses, logout } from "../services/api";
+import { getVehicleCourses, logout, sendGPSData } from "../services/api";
 import {
   updateCourseStatus,
   logoutClearAllGPS,
@@ -819,7 +819,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   console.log('🔑 Token available:', !!token);
                   
                   // Test simplu fără să pornească serviciul complet
-                  const { sendGPSData } = await import('../services/api');
                   
                   const testGPSData = {
                     lat: 44.4268 + (Math.random() - 0.5) * 0.01,
