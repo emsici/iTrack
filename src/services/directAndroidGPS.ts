@@ -35,21 +35,7 @@ interface ActiveCourse {
 class DirectAndroidGPSService {
   private activeCourses: Map<string, ActiveCourse> = new Map();
 
-  // Removed unused isAndroidGPSAvailable method
-  private checkAndroidGPSAvailable(): boolean {
-    const available = typeof window !== 'undefined' && 
-           !!window.AndroidGPS && 
-           typeof window.AndroidGPS?.startGPS === 'function';
-    
-    // EXPLICIT debugging for Android interface availability
-    logGPS(`🔍 Android Interface Check:`);
-    logGPS(`  - window exists: ${typeof window !== 'undefined'}`);
-    logGPS(`  - AndroidGPS exists: ${!!(window as any)?.AndroidGPS}`);
-    logGPS(`  - startGPS function: ${typeof (window as any)?.AndroidGPS?.startGPS}`);
-    logGPS(`  - Final result: ${available}`);
-    
-    return available;
-  }
+
 
   /**
    * Send status update to server via gps.php
@@ -240,10 +226,9 @@ class DirectAndroidGPSService {
 
   async logoutClearAll(): Promise<void> {
     try {
-      logGPS(`🧹 Clearing all GPS data - LOCAL ONLY approach`);
+      logGPS(`🧹 LOGOUT: Clearing all GPS data and stopping all transmissions`);
       
-      // SKIP AndroidGPS completely - it's unreliable
-      // Just stop all GPS operations locally
+      // STEP 1: Stop all active courses individually
       for (const courseId of this.activeCourses.keys()) {
         try {
           await this.stopTracking(courseId);
@@ -253,9 +238,21 @@ class DirectAndroidGPSService {
         }
       }
       
-      // Clear local data
+      // STEP 2: Call AndroidGPS clearAllOnLogout to stop native service completely
+      if (window.AndroidGPS && typeof window.AndroidGPS.clearAllOnLogout === 'function') {
+        try {
+          const result = window.AndroidGPS.clearAllOnLogout();
+          logGPS(`✅ AndroidGPS native service cleared: ${result}`);
+        } catch (error) {
+          logGPSError(`⚠️ AndroidGPS clearAllOnLogout failed: ${error}`);
+        }
+      } else {
+        logGPS(`ℹ️ AndroidGPS interface not available (browser mode)`);
+      }
+      
+      // STEP 3: Clear local data
       this.activeCourses.clear();
-      logGPS(`📊 All local GPS data cleared: ${this.activeCourses.size} courses`);
+      logGPS(`📊 All local GPS data cleared: ${this.activeCourses.size} courses remaining`);
       
     } catch (error) {
       logGPSError(`❌ GPS clear error: ${error}`);

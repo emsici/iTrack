@@ -190,6 +190,8 @@ Persistare localStorage → Afișare CourseStatsModal
 **PAUSE/STOP GPS LOGIC**: GPS tracking properly stops when courses are paused (status 3) or stopped (status 4)
 **DUPLICATE GPS TRANSMISSIONS ELIMINATED**: Fixed duplicate GPS transmissions in same second by removing redundant garanteedGPS calls from directAndroidGPS
 **SINGLE GPS SERVICE**: Now uses only Android native GPS via MainActivity interface, eliminating guaranteed GPS service overlap
+**COMPLETE LOGOUT GPS STOP**: Enhanced logout function to stop ALL GPS transmissions - DirectAndroid + GuaranteedGPS + Native Android service clearAllOnLogout()
+**UI IMPROVEMENTS COMPLETED**: Eliminated empty debug card, centered statistics cards perfectly, fixed expand bug with course reset, enhanced logout button styling
 
 ### Versiunea Precedentă: 1808.187 (June 30, 2025) - FINAL GPS BLOCKING ISSUES ELIMINATED & COMPLETE FLOW VERIFIED
 
