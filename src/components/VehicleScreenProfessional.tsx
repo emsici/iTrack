@@ -325,13 +325,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log("Opening debug panel after 50 clicks...");
         const logs = await getAppLogs();
         console.log("Logs loaded:", logs.length);
-        // Debug panel functionality removed
-        console.log('Debug logs available:', logs.length);
+        setShowAdminPanel(true);
         setClickCount(0);
       } catch (error) {
         console.error("Error loading debug logs:", error);
         // Show panel anyway with empty logs
-        console.log('Debug panel would show empty logs');
+        setShowAdminPanel(true);
         setClickCount(0);
       }
     }
