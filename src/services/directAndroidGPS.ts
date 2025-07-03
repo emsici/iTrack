@@ -50,25 +50,72 @@ class DirectAndroidGPSService {
     return available;
   }
 
+  /**
+   * Send status update to server via gps.php
+   */
+  private async sendStatusToServer(uit: string, vehicleNumber: string, token: string, status: number): Promise<void> {
+    try {
+      const { sendGPSData } = await import('./api');
+      
+      // Create GPS data with current position for status update
+      const { Geolocation } = await import('@capacitor/geolocation');
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 30000
+      });
+
+      const { Device } = await import('@capacitor/device');
+      const batteryInfo = await Device.getBatteryInfo();
+      
+      const gpsData = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        timestamp: new Date().toISOString(),
+        viteza: position.coords.speed || 0,
+        directie: position.coords.heading || 0,
+        altitudine: position.coords.altitude || 0,
+        baterie: Math.round(batteryInfo.batteryLevel! * 100),
+        numar_inmatriculare: vehicleNumber,
+        uit: uit,
+        status: status,
+        hdop: position.coords.accuracy || 1,
+        gsm_signal: 4
+      };
+
+      console.log(`📡 Sending status ${status} to server for UIT: ${uit}`);
+      await sendGPSData(gpsData, token);
+      console.log(`✅ Status ${status} sent successfully to server`);
+      
+    } catch (error) {
+      console.error(`❌ Failed to send status ${status} to server:`, error);
+      throw error;
+    }
+  }
+
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
     try {
       console.log(`🔄 Updating course status via MainActivity Android: ${courseId} → ${newStatus}`);
       
+      // Get course data needed for all status updates
+      const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
+      const token = await getStoredToken() || '';
+      const realUIT = courseId; // courseId IS the UIT from VehicleScreen fix
+      
+      // CRITICAL: Send status to server FIRST before updating GPS
+      console.log(`📡 Sending status ${newStatus} to server for UIT: ${realUIT}`);
+      await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
+      
       // STATUS 2 (START): Setup complete GPS tracking
       if (newStatus === 2) {
         console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
-        
-        // Get course data from Capacitor Preferences (consistent with login system)
-        const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
-        const token = await getStoredToken() || '';
-        
-        // courseId IS ALREADY THE UIT from VehicleScreen fix
-        const realUIT = courseId;
-        console.log(`🔍 CRITICAL FIX: courseId parameter IS the UIT: ${realUIT}`);
-        console.log(`✅ No more localStorage lookup needed - using UIT directly`);
-        
-        // Start GPS tracking first
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
+      }
+      
+      // STATUS 3 (PAUSE) or STATUS 4 (STOP): Stop GPS transmission
+      if (newStatus === 3 || newStatus === 4) {
+        console.log(`⏸️ STATUS ${newStatus} (${newStatus === 3 ? 'PAUSE' : 'STOP'}): Stopping GPS for ${courseId}`);
+        await this.stopTracking(courseId);
       }
       
       // Update local tracking

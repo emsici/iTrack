@@ -186,6 +186,8 @@ Persistare localStorage → Afișare CourseStatsModal
 **UI CLEANUP**: Removed refresh and test GPS buttons leaving only logout button for cleaner interface
 **STATUS PERSISTENCE**: Fixed course status preservation during auto-refresh to maintain START/PAUSE states when returning to app
 **UIT TRANSMISSION**: Corrected GPS service to transmit real UIT values instead of course IDs by passing courseToUpdate.uit
+**GPS STATUS CONTROL**: Fixed PAUSE/STOP functionality - status 3 and 4 now send to server and stop GPS coordinate transmission
+**PAUSE/STOP GPS LOGIC**: GPS tracking properly stops when courses are paused (status 3) or stopped (status 4)
 
 ### Versiunea Precedentă: 1808.187 (June 30, 2025) - FINAL GPS BLOCKING ISSUES ELIMINATED & COMPLETE FLOW VERIFIED
 
