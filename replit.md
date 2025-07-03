@@ -179,6 +179,8 @@ Persistare localStorage → Afișare CourseStatsModal
 **ANDROID SERVICE OPTIMIZED**: OptimalGPSService now checks for STATUS 2 courses before continuous transmission
 **DYNAMIC IMPORTS RESTORED**: Reverted static imports that were causing GPS service failures back to working dynamic imports
 **TRANSMISSION FLOW CORRECTED**: JavaScript no longer stops GPS service at PAUSE - Android service handles transmission control internally
+**DUPLICATE GPS ELIMINATED**: Removed JavaScript sendGPSData() calls that were duplicating Android service transmissions
+**SINGLE GPS SOURCE**: Only OptimalGPSService transmits GPS data - no more double transmissions to gps.php
 **MULTIPLE FALLBACK METHODS**: AndroidGPS native → Capacitor Plugin → JavaScript GPS interval (guaranteed to work)
 **EXACT 5-SECOND INTERVALS**: JavaScript setInterval(5000) ensures precise transmission timing 
 **REAL COORDINATES**: Uses Capacitor Geolocation for authentic GPS coordinates with backup location if needed

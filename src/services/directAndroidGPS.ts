@@ -92,9 +92,8 @@ class DirectAndroidGPSService {
       const token = await getStoredToken() || '';
       const realUIT = courseId; // courseId IS the UIT from VehicleScreen fix
       
-      // CRITICAL: Send status to server FIRST before updating GPS
-      console.log(`📡 Sending status ${newStatus} to server for UIT: ${realUIT}`);
-      await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
+      // ANDROID SERVICE HANDLES ALL GPS: No duplicate JavaScript transmission
+      console.log(`📡 Android service will handle GPS transmission for status ${newStatus} and UIT: ${realUIT}`);
       
       // STATUS 2 (START): Setup complete GPS tracking
       if (newStatus === 2) {
