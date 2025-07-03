@@ -35,7 +35,8 @@ interface ActiveCourse {
 class DirectAndroidGPSService {
   private activeCourses: Map<string, ActiveCourse> = new Map();
 
-  private isAndroidGPSAvailable(): boolean {
+  // Removed unused isAndroidGPSAvailable method
+  private checkAndroidGPSAvailable(): boolean {
     const available = typeof window !== 'undefined' && 
            !!window.AndroidGPS && 
            typeof window.AndroidGPS?.startGPS === 'function';

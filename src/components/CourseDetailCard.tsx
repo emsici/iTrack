@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Course } from '../types';
 
 interface CourseDetailCardProps {
@@ -13,6 +13,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
   isLoading 
 }) => {
   const [showDetails, setShowDetails] = useState(false);
+
+  // Reset showDetails when course changes to prevent stuck expand state
+  useEffect(() => {
+    setShowDetails(false);
+  }, [course.id]);
 
   const getStatusText = (status: number) => {
     switch (status) {

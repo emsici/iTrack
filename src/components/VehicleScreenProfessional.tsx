@@ -6,7 +6,7 @@ import {
   updateCourseStatus,
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
-import { startGuaranteedGPS, stopGuaranteedGPS, getGuaranteedGPSStatus } from "../services/garanteedGPS";
+
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
@@ -704,8 +704,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <span className="logout-text">Ieșire</span>
                 </div>
               </div>
-              
-              <div className="debug-trigger" onClick={handleTimestampClick}></div>
             </div>
           </div>
 
