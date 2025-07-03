@@ -601,16 +601,19 @@ public class OptimalGPSService extends Service {
             if (activeCourses.containsKey(courseId)) {
                 Log.w(TAG, "⚠️ Course " + courseId + " already exists - updating status only");
                 activeCourses.get(courseId).status = status;
-                return; // Don't add duplicate or restart timer
+                Log.d(TAG, "✅ OPTIMAL course updated: " + courseId + " (UIT: " + uit + ")");
+            } else {
+                CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber, authToken);
+                activeCourses.put(courseId, courseData);
+                Log.d(TAG, "✅ OPTIMAL course added: " + courseId + " (UIT: " + uit + ")");
             }
             
-            CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber, authToken);
-            activeCourses.put(courseId, courseData);
-            
-            Log.d(TAG, "✅ OPTIMAL course added: " + courseId + " (UIT: " + uit + ")");
-            
-            if (!isAlarmActive) {
+            // CRITICAL: ALWAYS ensure GPS timer is running when we have active courses
+            if (!isAlarmActive && !activeCourses.isEmpty()) {
+                Log.d(TAG, "🚀 STARTING GPS timer - " + activeCourses.size() + " active courses need GPS");
                 startOptimalGPSTimer();
+            } else if (isAlarmActive) {
+                Log.d(TAG, "✅ GPS timer already active - " + activeCourses.size() + " courses tracking");
             }
             
         } else if ("STOP_GPS".equals(action)) {
