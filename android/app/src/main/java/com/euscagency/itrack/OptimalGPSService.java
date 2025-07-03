@@ -712,13 +712,19 @@ public class OptimalGPSService extends Service {
             
         } else if ("STOP_GPS".equals(action)) {
             String courseId = intent.getStringExtra("courseId");
-            activeCourses.remove(courseId);
             
-            Log.d(TAG, "🛑 OPTIMAL course removed: " + courseId);
-            
-            if (activeCourses.isEmpty()) {
-                stopOptimalGPSTimer();
+            // CRITICAL FIX: Don't remove immediately - set status 4 for final transmission
+            CourseData course = activeCourses.get(courseId);
+            if (course != null) {
+                course.status = 4; // Set to STOP status for final GPS transmission
+                Log.d(TAG, "🏁 OPTIMAL course marked for FINAL transmission: " + courseId + " (status 4)");
+                Log.d(TAG, "📡 Course will be removed AFTER final GPS transmission with status 4");
+            } else {
+                Log.w(TAG, "⚠️ Course " + courseId + " not found for STOP - already removed?");
             }
+            
+            // Don't stop GPS timer yet - let it transmit status 4 first
+            // GPS timer will auto-stop when activeCourses becomes empty after transmission
             
         } else if ("UPDATE_STATUS".equals(action)) {
             String courseId = intent.getStringExtra("courseId");
