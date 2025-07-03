@@ -195,6 +195,7 @@ Persistare localStorage → Afișare CourseStatsModal
 **VITE WARNINGS FIXED**: Converted all dynamic imports to static imports eliminating mixed import warnings for @capacitor/geolocation, @capacitor/device, and api.ts
 **PURE ANDROID GPS**: Removed JavaScript GPS backup service - only native Android GPS works in background when phone is locked
 **DEBUG PANEL REACTIVATED**: Fixed 50-click debug panel functionality on "Online" button to show AdminPanel with app logs
+**DUPLICATE LOGOUT REMOVED**: Eliminated redundant "Ieșire" button from bottom action area - keeping only the header logout button
 
 ### Versiunea Precedentă: 1808.187 (June 30, 2025) - FINAL GPS BLOCKING ISSUES ELIMINATED & COMPLETE FLOW VERIFIED
 

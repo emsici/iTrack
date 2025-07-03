@@ -832,13 +832,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="action-buttons-row">
-              <button className="action-button logout" onClick={handleLogout}>
-                <i className="fas fa-sign-out-alt"></i>
-                <span>Ieșire</span>
-              </button>
-            </div>
+
 
             {/* Course Stats Modal */}
             <CourseStatsModal
