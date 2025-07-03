@@ -356,6 +356,17 @@ public class OptimalGPSService extends Service {
             Log.d(TAG, "🗑️ REMOVED completed course: " + courseIdToRemove);
         }
         
+        // CRITICAL DEBUG: Check remaining courses after removal
+        Log.d(TAG, "📊 AFTER REMOVAL: " + activeCourses.size() + " courses remaining");
+        if (activeCourses.isEmpty()) {
+            Log.d(TAG, "🛑 ALL COURSES COMPLETED - GPS will stop after this cycle");
+        } else {
+            Log.d(TAG, "🔄 GPS will continue for remaining " + activeCourses.size() + " active courses");
+            for (CourseData remainingCourse : activeCourses.values()) {
+                Log.d(TAG, "  - Course: " + remainingCourse.courseId + " (status: " + remainingCourse.status + ")");
+            }
+        }
+        
         Log.d(TAG, "📊 OPTIMAL GPS SUMMARY:");
         Log.d(TAG, "  - Processed courses: " + activeCoursesCount + " (active + final)");
         Log.d(TAG, "  - Successfully transmitted: " + transmissionCount);
@@ -466,7 +477,10 @@ public class OptimalGPSService extends Service {
      * Schedule next exact GPS cycle
      */
     private void scheduleNextOptimalGPSCycle() {
+        Log.d(TAG, "🔄 SCHEDULE CHECK: activeCourses.size() = " + activeCourses.size());
+        
         if (!activeCourses.isEmpty()) {
+            Log.d(TAG, "✅ SCHEDULING next GPS cycle - " + activeCourses.size() + " courses need GPS");
             long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
             
             // CRITICAL: Ensure PendingIntent exists before scheduling
@@ -490,7 +504,8 @@ public class OptimalGPSService extends Service {
             Log.d(TAG, "🔧 ALARM DEBUG: AlarmManager=" + alarmManager + ", PendingIntent=" + gpsPendingIntent);
             Log.d(TAG, "🎯 ALARM DEBUG: Expected trigger in " + (nextTriggerTime - SystemClock.elapsedRealtime()) + "ms");
         } else {
-            Log.w(TAG, "❌ NO ACTIVE COURSES - GPS cycle NOT scheduled");
+            Log.w(TAG, "❌ NO ACTIVE COURSES - GPS cycle NOT scheduled, stopping timer");
+            stopOptimalGPSTimer();
         }
     }
     
