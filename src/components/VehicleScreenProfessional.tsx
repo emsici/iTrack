@@ -6,6 +6,7 @@ import {
   updateCourseStatus,
   logoutClearAllGPS,
 } from "../services/directAndroidGPS";
+import { runGPSDiagnostic } from "../services/gpsdiagnostic";
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
@@ -801,6 +802,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <button className="action-button refresh" onClick={handleRefreshCourses}>
                 <i className="fas fa-sync-alt"></i>
                 <span>Actualizează</span>
+              </button>
+              <button className="action-button diagnostic" onClick={async () => {
+                console.log('🚨 Running GPS Diagnostic...');
+                await runGPSDiagnostic();
+              }}>
+                <i className="fas fa-wrench"></i>
+                <span>Diagnosticare GPS</span>
               </button>
               <button className="action-button logout" onClick={handleLogout}>
                 <i className="fas fa-sign-out-alt"></i>

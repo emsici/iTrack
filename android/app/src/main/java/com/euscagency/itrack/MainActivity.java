@@ -151,9 +151,16 @@ public class MainActivity extends BridgeActivity {
     
     @JavascriptInterface
     public String startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
-        Log.d(TAG, "🚀 AndroidGPS.startGPS called: courseId=" + courseId + ", status=" + status);
+        Log.d(TAG, "🚨 === DIAGNOSTIC === AndroidGPS.startGPS CALLED FROM JAVASCRIPT");
+        Log.d(TAG, "📍 Parameters received:");
+        Log.d(TAG, "  - courseId: " + courseId);
+        Log.d(TAG, "  - vehicleNumber: " + vehicleNumber);
+        Log.d(TAG, "  - uit: " + uit);
+        Log.d(TAG, "  - authToken length: " + (authToken != null ? authToken.length() : "NULL"));
+        Log.d(TAG, "  - status: " + status);
         
         try {
+            Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for OptimalGPSService");
             Intent intent = new Intent(this, OptimalGPSService.class);
             intent.setAction("START_GPS");
             intent.putExtra("courseId", courseId);
@@ -162,9 +169,13 @@ public class MainActivity extends BridgeActivity {
             intent.putExtra("authToken", authToken);
             intent.putExtra("status", status);
             
+            Log.d(TAG, "🚀 DIAGNOSTIC: Calling startForegroundService...");
             startForegroundService(intent);
-            Log.d(TAG, "✅ OptimalGPSService started for courseId: " + courseId);
-            return "SUCCESS: GPS started for " + courseId;
+            Log.d(TAG, "✅ DIAGNOSTIC: OptimalGPSService startForegroundService completed for " + courseId);
+            
+            String result = "SUCCESS: GPS started for " + courseId;
+            Log.d(TAG, "📤 DIAGNOSTIC: Returning result to JavaScript: " + result);
+            return result;
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error starting GPS: " + e.getMessage());
