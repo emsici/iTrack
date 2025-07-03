@@ -29,7 +29,7 @@ interface ActiveCourse {
   uit: string;
   token: string;
   status: number;
-  intervalId?: NodeJS.Timeout; // For June 26th browser GPS intervals
+  // Android-only course data - no browser intervals
 }
 
 class DirectAndroidGPSService {
@@ -103,7 +103,7 @@ class DirectAndroidGPSService {
     status: number
   ): Promise<void> {
     try {
-      logGPS(`🚀 Starting GPS tracking (June 26th method): ${courseId}`);
+      logGPS(`🚀 Starting Android GPS tracking: ${courseId}`);
       
       const courseData: ActiveCourse = { courseId, vehicleNumber, uit, token, status };
       this.activeCourses.set(courseId, courseData);
@@ -111,8 +111,8 @@ class DirectAndroidGPSService {
       console.log(`📊 Active courses after start: ${this.activeCourses.size}`);
       console.log(`🗂️ Courses in map: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
       
-      // HYBRID: June 26th format + Android background service for phone locked
-      await this.startHybridGPS_June26thFormat_AndroidBackground(courseData);
+      // DIRECT: Android background service only
+      await this.startAndroidBackgroundService(courseData);
       
     } catch (error) {
       logGPSError(`❌ GPS start error: ${error}`);
@@ -120,15 +120,7 @@ class DirectAndroidGPSService {
     }
   }
 
-  /**
-   * ANDROID ONLY: Direct Android background service for all GPS (phone locked + unlocked)
-   */
-  private async startHybridGPS_June26thFormat_AndroidBackground(course: ActiveCourse): Promise<void> {
-    // ONLY Android background service - no browser GPS to prevent duplicates
-    await this.startAndroidBackgroundService(course);
-    
-    logGPS(`🔥 ANDROID ONLY GPS - no browser intervals to prevent double transmissions`);
-  }
+
 
   /**
    * SIMPLIFIED GPS: Only use Android native GPS via MainActivity
