@@ -163,6 +163,8 @@ class GuaranteedGPSService {
         hdop: 1,
         gsm_signal: 4
       };
+      
+      logGPS(`🚨 TRANSMITTING GPS DATA WITH UIT: ${course.uit} for course ${course.courseId}`);
 
       logGPS(`📊 GPS Data prepared: lat=${gpsData.lat}, lng=${gpsData.lng}, uit=${gpsData.uit}, vehicle=${gpsData.numar_inmatriculare}`);
       logGPS(`🔑 Using token: ${course.token.substring(0, 20)}...`);

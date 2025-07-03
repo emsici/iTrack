@@ -69,14 +69,27 @@ class DirectAndroidGPSService {
         if (storedCourses) {
           try {
             const coursesData = JSON.parse(storedCourses);
+            console.log(`🗂️ DEBUGGING: Found ${coursesData.length} courses in storage`);
+            console.log(`🔍 DEBUGGING: Looking for courseId: ${courseId}`);
+            
+            // Log all available courses and their UITs
+            coursesData.forEach((c: any, index: number) => {
+              console.log(`Course ${index}: ID=${c.id}, UIT=${c.uit}, Name=${c.name}`);
+            });
+            
             const foundCourse = coursesData.find((c: any) => c.id === courseId);
             if (foundCourse && foundCourse.uit) {
               realUIT = foundCourse.uit;
               console.log(`📋 Found UIT for ${courseId}: ${realUIT}`);
+              console.log(`🔍 CRITICAL: Will transmit with UIT: ${realUIT} instead of courseId: ${courseId}`);
+            } else {
+              console.warn(`⚠️ CRITICAL: No UIT found for courseId ${courseId}, using courseId as fallback`);
             }
           } catch (error) {
             console.warn('Error parsing courses data:', error);
           }
+        } else {
+          console.warn(`⚠️ No stored courses found for vehicle: ${vehicleNumber}`);
         }
         
         // Start GPS tracking first
