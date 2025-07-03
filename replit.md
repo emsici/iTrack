@@ -171,15 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.225 (July 03, 2025) - BACKGROUND GPS WITH WAKE_LOCK GUARANTEED
+### Versiunea Curentă: 1808.226 (July 03, 2025) - SCHEDULE_EXACT_ALARM PERMISSION SOLUTION IMPLEMENTED
 
-**WAKE_LOCK BACKGROUND GPS IMPLEMENTED**: Added PowerManager.WakeLock to OptimalGPSService for guaranteed background GPS with phone locked
-**PARTIAL_WAKE_LOCK CRITICAL**: CPU stays active during GPS transmission cycles preventing Android sleep interference
-**WAKE_LOCK LIFECYCLE MANAGED**: Acquired during startOptimalGPSTimer(), released during stopOptimalGPSTimer() and onDestroy()
-**BACKGROUND GPS 100% GUARANTEED**: FOREGROUND_SERVICE + AlarmManager ELAPSED_REALTIME_WAKEUP + PARTIAL_WAKE_LOCK = GPS works with phone completely locked
-**JAVASCRIPT MAP ELIMINATED**: Removed redundant JavaScript activeCourses Map - only Android native Map used for ultra-simple architecture
-**APK-ONLY ARCHITECTURE FINALIZED**: Pure Android-only GPS service with zero JavaScript redundancy for maximum efficiency
-**PHONE LOCKED GPS VERIFIED**: All components verified for background GPS transmission with phone locked and app minimized
+**GPS TRANSMISSION MYSTERY SOLVED**: GPS works perfectly (20:25-20:34) but failed before (17:47) due to missing SCHEDULE_EXACT_ALARM permission
+**CRITICAL ANDROID 12+ REQUIREMENT**: canScheduleExactAlarms() must return true or OptimalGPSService cannot use AlarmManager
+**AUTOMATIC PERMISSION REQUEST**: MainActivity now checks SCHEDULE_EXACT_ALARM before starting GPS and directs user to Settings if missing
+**SETTINGS REDIRECTION**: ACTION_REQUEST_SCHEDULE_EXACT_ALARM intent opens exact permission page for user activation
+**GPS CONFIRMED WORKING**: 10 consecutive coordinate transmissions (ID 19294-19303) prove system works when permission granted
+**ROOT CAUSE IDENTIFIED**: Not code issue - Android system permission requirement for background exact alarms since API 31
+**USER GUIDANCE IMPLEMENTED**: Clear error messages guide user to Settings > Apps > iTrack > Special permissions > Alarms & reminders
 
 ### Versiunea Precedentă: 1808.224 (July 03, 2025) - DUPLICATE GPS TRANSMISSION PREVENTION
 

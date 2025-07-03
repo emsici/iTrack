@@ -145,6 +145,18 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "📡 Action: " + (intent != null ? intent.getAction() : "NULL_INTENT"));
         Log.d(TAG, "⚡ Current activeCourses count: " + activeCourses.size());
         Log.d(TAG, "🔍 Service flags: " + flags + ", startId: " + startId);
+        Log.d(TAG, "🔥 CRITICAL DEBUG: isAlarmActive=" + isAlarmActive + ", WakeLock held=" + (wakeLock != null && wakeLock.isHeld()));
+        
+        // CRITICAL: Log all active courses for debugging
+        if (!activeCourses.isEmpty()) {
+            Log.d(TAG, "📋 ACTIVE COURSES DEBUG:");
+            for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+                CourseData course = entry.getValue();
+                Log.d(TAG, "  📍 Course: " + course.courseId + " (UIT: " + course.uit + ", Status: " + course.status + ")");
+            }
+        } else {
+            Log.w(TAG, "⚠️ NO ACTIVE COURSES - GPS will not transmit");
+        }
         
         // IMMEDIATE: Start foreground service to prevent termination
         try {
@@ -201,12 +213,15 @@ public class OptimalGPSService extends Service {
     private void performOptimalGPSCycle() {
         lastGPSTransmission = System.currentTimeMillis(); // Track when GPS runs
         Log.d(TAG, "🔍 GPS CYCLE: performOptimalGPSCycle() called - activeCourses size: " + activeCourses.size());
+        Log.d(TAG, "🔥 CRITICAL GPS DEBUG: Thread=" + Thread.currentThread().getName() + ", Time=" + System.currentTimeMillis());
         
         if (activeCourses.isEmpty()) {
-            Log.d(TAG, "⏸️ No active courses - stopping GPS cycles");
+            Log.w(TAG, "⏸️ CRITICAL: No active courses - stopping GPS cycles");
             stopOptimalGPSTimer();
             return;
         }
+        
+        Log.d(TAG, "✅ GPS CYCLE PROCEEDING: Found " + activeCourses.size() + " active courses");
         
         Log.d(TAG, "⏰ OPTIMAL GPS CYCLE - getting location for " + activeCourses.size() + " courses");
         
@@ -217,10 +232,17 @@ public class OptimalGPSService extends Service {
         }
         
         try {
+            Log.d(TAG, "🛰️ GPS HARDWARE: Checking location permissions and hardware");
+            
             // CRITICAL: Get LAST KNOWN location first (instant, no battery)
             Location lastLocation = null;
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "✅ GPS PERMISSIONS: FINE_LOCATION granted - accessing GPS hardware");
                 lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Log.d(TAG, "📍 LAST KNOWN LOCATION: " + (lastLocation != null ? "Available (lat=" + lastLocation.getLatitude() + ")" : "NULL"));
+            } else {
+                Log.e(TAG, "❌ GPS PERMISSIONS: FINE_LOCATION denied - cannot access GPS hardware");
+                return;
             }
             
             if (lastLocation != null && 
@@ -290,6 +312,8 @@ public class OptimalGPSService extends Service {
         java.util.Set<String> transmittedUITs = new java.util.HashSet<>();
         
         Log.d(TAG, "🚀 STARTING GPS transmission for " + activeCourses.size() + " total courses");
+        Log.d(TAG, "🔥 CRITICAL: Location data - lat=" + location.getLatitude() + ", lng=" + location.getLongitude());
+        Log.d(TAG, "🔥 CRITICAL: Location accuracy=" + location.getAccuracy() + ", speed=" + location.getSpeed());
         
         java.util.List<String> coursesToRemove = new java.util.ArrayList<>();
         
@@ -630,6 +654,10 @@ public class OptimalGPSService extends Service {
             testPendingIntent
         );
         Log.d(TAG, "🧪 TEST ALARM SET: Will trigger in 2 seconds to verify AlarmManager is working");
+        
+        // CRITICAL: IMMEDIATE GPS TEST
+        Log.d(TAG, "🧪 IMMEDIATE TEST: Triggering performOptimalGPSCycle() instantly to test GPS transmission");
+        performOptimalGPSCycle();
     }
     
     /**

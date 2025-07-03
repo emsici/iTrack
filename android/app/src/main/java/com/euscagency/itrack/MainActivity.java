@@ -137,6 +137,29 @@ public class MainActivity extends BridgeActivity {
         Log.d(TAG, "  - authToken length: " + (authToken != null ? authToken.length() : "NULL"));
         Log.d(TAG, "  - status: " + status);
         
+        // CRITICAL: Check SCHEDULE_EXACT_ALARM permission before starting GPS
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            android.app.AlarmManager alarmManager = (android.app.AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            if (!alarmManager.canScheduleExactAlarms()) {
+                Log.e(TAG, "❌ CRITICAL: SCHEDULE_EXACT_ALARM permission required for background GPS");
+                Log.e(TAG, "   Opening Settings for user to enable: Apps > iTrack > Special permissions > Alarms & reminders");
+                
+                // Direct user to exact alarm settings
+                try {
+                    android.content.Intent settingsIntent = new android.content.Intent();
+                    settingsIntent.setAction(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                    settingsIntent.setData(android.net.Uri.parse("package:" + getPackageName()));
+                    startActivity(settingsIntent);
+                    return "PERMISSION_NEEDED: Enable 'Alarms & reminders' in Settings to start GPS";
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ Could not open alarm permission settings: " + e.getMessage());
+                    return "ERROR: Need 'Alarms & reminders' permission in Settings > Apps > iTrack";
+                }
+            } else {
+                Log.d(TAG, "✅ SCHEDULE_EXACT_ALARM permission granted - GPS will work in background");
+            }
+        }
+
         try {
             Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for OptimalGPSService");
             Intent intent = new Intent(this, OptimalGPSService.class);
