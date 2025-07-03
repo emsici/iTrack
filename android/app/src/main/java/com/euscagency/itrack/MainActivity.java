@@ -37,42 +37,68 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(TAG, "MainActivity onStart() - adding AndroidGPS interface to WebView");
+        Log.d(TAG, "MainActivity onStart() - scheduling AndroidGPS interface setup");
         
-        // Add AndroidGPS interface to WebView after a small delay for WebView readiness
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            addAndroidGPSInterface();
-        }, 1000);
+        // Multiple attempts to ensure WebView is ready
+        new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 500);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 1000);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 2000);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "MainActivity onResume() - ensuring AndroidGPS interface is available");
+        Log.d(TAG, "MainActivity onResume() - ensuring AndroidGPS interface availability");
         
-        // Force-add AndroidGPS interface on resume to guarantee availability
+        // Immediate and delayed attempts
+        addAndroidGPSInterface();
+        new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 1000);
+    }
+
+    @Override
+    public void onPageFinished(String url) {
+        super.onPageFinished(url);
+        Log.d(TAG, "WebView page finished loading: " + url + " - adding AndroidGPS interface");
+        
+        // When page is completely loaded, add interface
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             addAndroidGPSInterface();
-        }, 500);
+        }, 100);
     }
 
     private void addAndroidGPSInterface() {
         try {
             WebView webView = getBridge().getWebView();
             if (webView != null) {
-                // FORCE ADD - no delay, no retry complexity
-                webView.addJavascriptInterface(this, "AndroidGPS");
-                webView.evaluateJavascript("window.AndroidGPS = AndroidGPS;", null);
-                webView.evaluateJavascript("window.AndroidGPSReady = true;", null);
-                webView.evaluateJavascript("console.log('FORCE: AndroidGPS available = ' + (typeof window.AndroidGPS !== 'undefined'));", null);
+                Log.d(TAG, "🔧 Adding AndroidGPS interface to WebView...");
                 
-                Log.d(TAG, "🔧 FORCE AndroidGPS interface added to WebView");
+                // Add JavaScript interface - this creates window.AndroidGPS
+                webView.addJavascriptInterface(this, "AndroidGPS");
+                
+                // Wait for WebView to be ready, then set flags
+                webView.post(() -> {
+                    webView.evaluateJavascript("window.AndroidGPSReady = true;", null);
+                    webView.evaluateJavascript("window.androidGPSBridgeReady = true;", null);
+                    webView.evaluateJavascript("window.androidGPSInterfaceReady = true;", null);
+                    
+                    // Log the result for debugging
+                    webView.evaluateJavascript(
+                        "console.log('🔧 AndroidGPS Interface Status:');" +
+                        "console.log('  - typeof AndroidGPS: ' + typeof AndroidGPS);" +
+                        "console.log('  - typeof AndroidGPS.startGPS: ' + typeof AndroidGPS.startGPS);" +
+                        "console.log('  - AndroidGPSReady: ' + window.AndroidGPSReady);" +
+                        "console.log('FORCE: AndroidGPS available = ' + (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function'));",
+                        null
+                    );
+                });
+                
+                Log.d(TAG, "✅ AndroidGPS interface added successfully");
                 
             } else {
-                Log.e(TAG, "❌ WebView is null");
+                Log.e(TAG, "❌ WebView is null - cannot add AndroidGPS interface");
             }
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error adding AndroidGPS interface: " + e.getMessage());
+            Log.e(TAG, "❌ Error adding AndroidGPS interface: " + e.getMessage(), e);
         }
     }
 
