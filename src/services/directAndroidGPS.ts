@@ -12,9 +12,6 @@ declare global {
       stopGPS: (courseId: string) => string;
       updateStatus: (courseId: string, newStatus: number) => string;
       clearAllOnLogout: () => string;
-      getGPSServiceStatus: () => string;
-      getOfflineGPSCount: () => string;
-      restartGPSService: () => string;
     };
     AndroidGPSReady?: boolean;
     androidGPSBridgeReady?: boolean;
@@ -38,7 +35,21 @@ interface ActiveCourse {
 class DirectAndroidGPSService {
   private activeCourses: Map<string, ActiveCourse> = new Map();
 
-
+  // Removed unused isAndroidGPSAvailable method
+  private checkAndroidGPSAvailable(): boolean {
+    const available = typeof window !== 'undefined' && 
+           !!window.AndroidGPS && 
+           typeof window.AndroidGPS?.startGPS === 'function';
+    
+    // EXPLICIT debugging for Android interface availability
+    logGPS(`🔍 Android Interface Check:`);
+    logGPS(`  - window exists: ${typeof window !== 'undefined'}`);
+    logGPS(`  - AndroidGPS exists: ${!!(window as any)?.AndroidGPS}`);
+    logGPS(`  - startGPS function: ${typeof (window as any)?.AndroidGPS?.startGPS}`);
+    logGPS(`  - Final result: ${available}`);
+    
+    return available;
+  }
 
   /**
    * Send status update to server via gps.php
@@ -92,8 +103,9 @@ class DirectAndroidGPSService {
       const token = await getStoredToken() || '';
       const realUIT = courseId; // courseId IS the UIT from VehicleScreen fix
       
-      // ANDROID SERVICE HANDLES ALL GPS: No duplicate JavaScript transmission
-      console.log(`📡 Android service will handle GPS transmission for status ${newStatus} and UIT: ${realUIT}`);
+      // CRITICAL: Send status to server FIRST before updating GPS
+      console.log(`📡 Sending status ${newStatus} to server for UIT: ${realUIT}`);
+      await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
       
       // STATUS 2 (START): Setup complete GPS tracking
       if (newStatus === 2) {
@@ -101,16 +113,10 @@ class DirectAndroidGPSService {
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
       }
       
-      // STATUS 4 (STOP): Stop GPS transmission completely
-      if (newStatus === 4) {
-        console.log(`🛑 STATUS 4 (STOP): Stopping GPS completely for ${courseId}`);
+      // STATUS 3 (PAUSE) or STATUS 4 (STOP): Stop GPS transmission
+      if (newStatus === 3 || newStatus === 4) {
+        console.log(`⏸️ STATUS ${newStatus} (${newStatus === 3 ? 'PAUSE' : 'STOP'}): Stopping GPS for ${courseId}`);
         await this.stopTracking(courseId);
-      }
-      
-      // STATUS 3 (PAUSE): Update course status but keep GPS running for single transmission
-      if (newStatus === 3) {
-        console.log(`⏸️ STATUS 3 (PAUSE): GPS will transmit once with new status for ${courseId}`);
-        // Do NOT stop GPS - Android service will handle single transmission and then pause
       }
       
       // Update local tracking
@@ -171,8 +177,8 @@ class DirectAndroidGPSService {
   }
 
   /**
-   * ANDROID NATIVE GPS: Pure Android background service for real mobile GPS
-   * JavaScript GPS doesn't work in background when phone is locked
+   * SIMPLIFIED GPS: Only use Android native GPS via MainActivity
+   * No guaranteed GPS service call to prevent duplicate transmissions
    */
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
@@ -180,10 +186,10 @@ class DirectAndroidGPSService {
     logGPS(`🔥 ANDROID NATIVE GPS: Starting MainActivity GPS service only`);
     
     try {
-      // Start Android native GPS service (only method that works in background)
+      // Direct MainActivity Android GPS interface for single GPS service
       if (window.AndroidGPS && window.AndroidGPS.startGPS) {
         const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ MainActivity GPS started: ${result}`);
+        logGPS(`✅ MainActivity GPS result: ${result}`);
       } else {
         logGPS(`⚠️ AndroidGPS interface not available - APK only feature`);
       }
@@ -199,17 +205,17 @@ class DirectAndroidGPSService {
     try {
       logGPS(`🛑 Stopping Android native GPS tracking: ${courseId}`);
       
-      // Stop Android native GPS service only
+      // Stop Android native GPS only
       if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
         const result = window.AndroidGPS.stopGPS(courseId);
-        logGPS(`✅ MainActivity GPS stopped: ${result}`);
+        logGPS(`✅ MainActivity GPS stop result: ${result}`);
       } else {
         logGPS(`⚠️ AndroidGPS interface not available - APK only feature`);
       }
       
       // Remove from local tracking
       this.activeCourses.delete(courseId);
-      logGPS(`✅ Android native GPS stopped for course: ${courseId}`);
+      logGPS(`✅ Native GPS stopped for course: ${courseId}`);
       logGPS(`📊 Active courses after stop: ${this.activeCourses.size}`);
       
     } catch (error) {
@@ -234,9 +240,10 @@ class DirectAndroidGPSService {
 
   async logoutClearAll(): Promise<void> {
     try {
-      logGPS(`🧹 LOGOUT: Clearing GPS tracking data but preserving background service capability`);
+      logGPS(`🧹 Clearing all GPS data - LOCAL ONLY approach`);
       
-      // STEP 1: Stop all active courses individually
+      // SKIP AndroidGPS completely - it's unreliable
+      // Just stop all GPS operations locally
       for (const courseId of this.activeCourses.keys()) {
         try {
           await this.stopTracking(courseId);
@@ -246,23 +253,9 @@ class DirectAndroidGPSService {
         }
       }
       
-      // STEP 2: Clear only active courses data, NOT the entire service
-      // This preserves the background service capability for next login
-      if (window.AndroidGPS && typeof window.AndroidGPS.clearAllOnLogout === 'function') {
-        try {
-          const result = window.AndroidGPS.clearAllOnLogout();
-          logGPS(`✅ AndroidGPS active courses cleared: ${result}`);
-        } catch (error) {
-          logGPSError(`⚠️ AndroidGPS clearAll failed: ${error}`);
-        }
-      } else {
-        logGPS(`ℹ️ AndroidGPS interface not available (browser mode)`);
-      }
-      
-      // STEP 3: Clear local tracking data only
+      // Clear local data
       this.activeCourses.clear();
-      logGPS(`📊 Local GPS tracking data cleared: ${this.activeCourses.size} courses remaining`);
-      logGPS(`ℹ️ Background GPS service preserved for future use`);
+      logGPS(`📊 All local GPS data cleared: ${this.activeCourses.size} courses`);
       
     } catch (error) {
       logGPSError(`❌ GPS clear error: ${error}`);
@@ -304,24 +297,3 @@ export const getDirectGPSInfo = () => directAndroidGPSService.getServiceInfo();
 
 export const logoutClearAllGPS = () =>
   directAndroidGPSService.logoutClearAll();
-
-export const checkGPSServiceStatus = () => {
-  if (window.AndroidGPS && window.AndroidGPS.getGPSServiceStatus) {
-    return window.AndroidGPS.getGPSServiceStatus();
-  }
-  return "ERROR: AndroidGPS interface not available";
-};
-
-export const getOfflineGPSCount = () => {
-  if (window.AndroidGPS && window.AndroidGPS.getOfflineGPSCount) {
-    return window.AndroidGPS.getOfflineGPSCount();
-  }
-  return "ERROR: AndroidGPS interface not available";
-};
-
-export const restartGPSService = () => {
-  if (window.AndroidGPS && window.AndroidGPS.restartGPSService) {
-    return window.AndroidGPS.restartGPSService();
-  }
-  return "ERROR: AndroidGPS interface not available";
-};

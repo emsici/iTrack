@@ -163,24 +163,8 @@ public class OptimalGPSService extends Service {
      */
     private void performOptimalGPSCycle() {
         if (activeCourses.isEmpty()) {
-            Log.d(TAG, "⏸️ No active courses - skipping GPS transmission but keeping background timer active");
-            // DO NOT stop timer - keep background capability for fast restart
-            scheduleNextOptimalGPSCycle(); // Continue timer for background readiness
-            return;
-        }
-        
-        // Check if we have any STATUS 2 (ACTIVE) courses that need continuous transmission
-        boolean hasActiveCourses = false;
-        for (CourseData course : activeCourses.values()) {
-            if (course.status == 2) {
-                hasActiveCourses = true;
-                break;
-            }
-        }
-        
-        if (!hasActiveCourses) {
-            Log.d(TAG, "⏸️ No STATUS 2 courses - skipping GPS transmission but keeping background timer active");
-            scheduleNextOptimalGPSCycle(); // Continue timer for background readiness
+            Log.d(TAG, "⏸️ No active courses - stopping optimal GPS cycle");
+            stopOptimalGPSTimer();
             return;
         }
         
@@ -334,9 +318,6 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "  - Remaining active courses: " + activeCourses.size());
         Log.d(TAG, "✅ Optimal GPS cycle completed - next in exactly " + (GPS_INTERVAL_MS/1000) + "s");
         
-        // Try to sync offline GPS data on every cycle (in case connection came back)
-        syncOfflineGPSData();
-        
         // CRITICAL: Schedule next GPS cycle to continue background operation
         Log.d(TAG, "🔄 SCHEDULING NEXT GPS CYCLE - activeCourses size: " + activeCourses.size());
         scheduleNextOptimalGPSCycle();
@@ -422,14 +403,12 @@ public class OptimalGPSService extends Service {
                 Log.d(TAG, "✅ GPS SUCCESS " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
             } else {
                 Log.w(TAG, "⚠️ GPS FAILED " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
-                Log.w(TAG, "💾 Saving GPS data offline for later transmission");
-                saveGPSDataOffline(jsonData, authToken, courseId);
+                Log.w(TAG, "🔍 Request was: " + jsonData);
             }
             
         } catch (Exception e) {
             Log.e(TAG, "❌ FOREGROUND GPS FAILED for " + courseId + ": " + e.getMessage());
-            Log.w(TAG, "💾 Network error - saving GPS data offline for later transmission");
-            saveGPSDataOffline(jsonData, authToken, courseId);
+            // No retry for foreground - next transmission comes in 5 seconds anyway
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -441,154 +420,20 @@ public class OptimalGPSService extends Service {
      * Schedule next exact GPS cycle
      */
     private void scheduleNextOptimalGPSCycle() {
-        // ALWAYS schedule next cycle to maintain background GPS capability
-        long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            nextTriggerTime,
-            gpsPendingIntent
-        );
-        
         if (!activeCourses.isEmpty()) {
+            long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                nextTriggerTime,
+                gpsPendingIntent
+            );
             Log.d(TAG, "⏰ NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
+            Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
         } else {
-            Log.d(TAG, "⏰ BACKGROUND GPS TIMER: maintaining 5s cycle for instant restart capability");
-        }
-        Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
-    }
-    
-    /**
-     * Save GPS data offline when transmission fails
-     */
-    private void saveGPSDataOffline(String jsonData, String authToken, String courseId) {
-        try {
-            android.content.SharedPreferences prefs = getSharedPreferences("offline_gps", Context.MODE_PRIVATE);
-            android.content.SharedPreferences.Editor editor = prefs.edit();
-            
-            // Generate unique ID for this coordinate
-            String coordinateId = courseId + "_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 1000);
-            
-            // Save GPS data with metadata
-            org.json.JSONObject offlineData = new org.json.JSONObject();
-            offlineData.put("gpsData", jsonData);
-            offlineData.put("authToken", authToken);
-            offlineData.put("courseId", courseId);
-            offlineData.put("savedAt", System.currentTimeMillis());
-            offlineData.put("retryCount", 0);
-            
-            editor.putString("gps_" + coordinateId, offlineData.toString());
-            editor.apply();
-            
-            Log.d(TAG, "💾 GPS data saved offline: " + coordinateId);
-            
-            // Try to sync offline data immediately (maybe connection is back)
-            syncOfflineGPSData();
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Failed to save GPS data offline: " + e.getMessage());
+            Log.w(TAG, "❌ NO ACTIVE COURSES - GPS cycle NOT scheduled");
         }
     }
     
-    /**
-     * Sync all offline GPS data when connection is available
-     */
-    private void syncOfflineGPSData() {
-        try {
-            android.content.SharedPreferences prefs = getSharedPreferences("offline_gps", Context.MODE_PRIVATE);
-            java.util.Map<String, ?> allOfflineData = prefs.getAll();
-            
-            if (allOfflineData.isEmpty()) {
-                return; // No offline data to sync
-            }
-            
-            Log.d(TAG, "🔄 Syncing " + allOfflineData.size() + " offline GPS coordinates...");
-            
-            android.content.SharedPreferences.Editor editor = prefs.edit();
-            int successCount = 0;
-            int failedCount = 0;
-            
-            for (java.util.Map.Entry<String, ?> entry : allOfflineData.entrySet()) {
-                if (!entry.getKey().startsWith("gps_")) continue;
-                
-                try {
-                    org.json.JSONObject offlineData = new org.json.JSONObject((String) entry.getValue());
-                    String gpsData = offlineData.getString("gpsData");
-                    String authToken = offlineData.getString("authToken");
-                    String courseId = offlineData.getString("courseId");
-                    int retryCount = offlineData.getInt("retryCount");
-                    
-                    // Skip if too many retries
-                    if (retryCount >= 3) {
-                        Log.w(TAG, "⚠️ Max retries reached for offline GPS: " + entry.getKey());
-                        editor.remove(entry.getKey()); // Remove failed coordinate
-                        continue;
-                    }
-                    
-                    // Try to transmit offline coordinate
-                    if (transmitOfflineGPSData(gpsData, authToken)) {
-                        Log.d(TAG, "✅ Offline GPS synced successfully: " + entry.getKey());
-                        editor.remove(entry.getKey()); // Remove successful coordinate
-                        successCount++;
-                    } else {
-                        // Increment retry count and keep for later
-                        offlineData.put("retryCount", retryCount + 1);
-                        editor.putString(entry.getKey(), offlineData.toString());
-                        failedCount++;
-                    }
-                    
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Error syncing offline GPS " + entry.getKey() + ": " + e.getMessage());
-                    failedCount++;
-                }
-            }
-            
-            editor.apply();
-            
-            if (successCount > 0 || failedCount > 0) {
-                Log.d(TAG, "📊 Offline sync complete: " + successCount + " success, " + failedCount + " failed");
-            }
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Error during offline GPS sync: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Transmit a single offline GPS coordinate
-     */
-    private boolean transmitOfflineGPSData(String jsonData, String authToken) {
-        java.net.HttpURLConnection connection = null;
-        try {
-            java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
-            connection = (java.net.HttpURLConnection) url.openConnection();
-            
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            connection.setRequestProperty("Authorization", "Bearer " + authToken);
-            connection.setRequestProperty("User-Agent", "iTrack-Offline-Sync/1.0");
-            connection.setDoOutput(true);
-            connection.setConnectTimeout(10000); // Longer timeout for offline sync
-            connection.setReadTimeout(10000);
-            
-            byte[] jsonBytes = jsonData.getBytes("UTF-8");
-            try (java.io.OutputStream os = connection.getOutputStream()) {
-                os.write(jsonBytes);
-                os.flush();
-            }
-            
-            int responseCode = connection.getResponseCode();
-            return responseCode == 200;
-            
-        } catch (Exception e) {
-            Log.w(TAG, "⚠️ Offline GPS transmission failed: " + e.getMessage());
-            return false;
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-    }
-
     /**
      * Get real battery level efficiently
      */
@@ -743,18 +588,9 @@ public class OptimalGPSService extends Service {
             activeCourses.put(courseId, courseData);
             
             Log.d(TAG, "✅ OPTIMAL course added: " + courseId + " (UIT: " + uit + ")");
-            Log.d(TAG, "🔍 TIMER CHECK: isAlarmActive = " + isAlarmActive + ", activeCourses.size = " + activeCourses.size());
             
-            if (!isAlarmActive || gpsPendingIntent == null) {
-                if (gpsPendingIntent == null) {
-                    Log.w(TAG, "🔧 REPAIR: isAlarmActive=" + isAlarmActive + " but gpsPendingIntent is NULL - forcing restart");
-                    isAlarmActive = false; // Reset flag
-                }
-                Log.d(TAG, "🚀 STARTING GPS TIMER: First course added after logout/clear");
+            if (!isAlarmActive) {
                 startOptimalGPSTimer();
-                Log.d(TAG, "✅ GPS TIMER STARTED: isAlarmActive = " + isAlarmActive + ", gpsPendingIntent = " + (gpsPendingIntent != null ? "VALID" : "NULL"));
-            } else {
-                Log.d(TAG, "⚠️ GPS TIMER ALREADY ACTIVE: New course will use existing timer");
             }
             
         } else if ("STOP_GPS".equals(action)) {
@@ -785,18 +621,9 @@ public class OptimalGPSService extends Service {
             }
             
         } else if ("CLEAR_ALL".equals(action)) {
-            Log.d(TAG, "🧹 LOGOUT: Clearing active courses but preserving background GPS capability");
-            activeCourses.clear();
-            // DO NOT stop timer - let it continue running for background capability
-            // Timer will automatically skip transmission when no active courses exist
-            Log.d(TAG, "✅ OPTIMAL GPS courses cleared - background service remains active for next login");
-            
-        } else if ("RESTART_SERVICE".equals(action)) {
-            Log.d(TAG, "🔄 RESTART: Force restarting GPS service");
             activeCourses.clear();
             stopOptimalGPSTimer();
-            // Service will restart timer when next course is added
-            Log.d(TAG, "✅ GPS service restarted - ready for new courses");
+            Log.d(TAG, "🧹 OPTIMAL GPS cleared all courses");
         }
     }
     

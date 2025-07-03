@@ -5,6 +5,8 @@
  */
 
 import { logGPS, logGPSError } from './appLogger';
+import { getStoredToken } from './storage';
+import { sendGPSData, GPSData } from './api';
 
 interface GPSCourse {
   courseId: string;
@@ -100,8 +102,9 @@ class GuaranteedGPSService {
 
     try {
       // Obținem locația curentă
-      logGPS(`🔍 Getting GPS position...`);
       const { Geolocation } = await import('@capacitor/geolocation');
+      
+      logGPS(`🔍 Getting GPS position...`);
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 8000,
@@ -146,9 +149,7 @@ class GuaranteedGPSService {
       // Timestamp unic cu milisecunde pentru evitarea duplicatelor
       const uniqueTimestamp = new Date().toISOString();
       
-      const { sendGPSData } = await import('./api');
-      
-      const gpsData = {
+      const gpsData: GPSData = {
         lat: coords.latitude,
         lng: coords.longitude,
         timestamp: uniqueTimestamp,

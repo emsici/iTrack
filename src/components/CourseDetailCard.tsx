@@ -13,19 +13,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
   isLoading 
 }) => {
   const [showDetails, setShowDetails] = useState(false);
-  const [isStatusChanging, setIsStatusChanging] = useState(false);
 
   // Reset showDetails when course changes to prevent stuck expand state
   useEffect(() => {
     setShowDetails(false);
   }, [course.id]);
-
-  // Animate status changes
-  useEffect(() => {
-    setIsStatusChanging(true);
-    const timer = setTimeout(() => setIsStatusChanging(false), 500);
-    return () => clearTimeout(timer);
-  }, [course.status]);
 
   const getStatusText = (status: number) => {
     switch (status) {
@@ -34,26 +26,6 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       case 3: return 'Pauzată';
       case 4: return 'Finalizată';
       default: return 'Necunoscut';
-    }
-  };
-
-  const getStatusClass = (status: number) => {
-    switch (status) {
-      case 1: return 'status-available';
-      case 2: return 'status-active';
-      case 3: return 'status-paused';
-      case 4: return 'status-completed';
-      default: return 'status-unknown';
-    }
-  };
-
-  const getStatusIcon = (status: number) => {
-    switch (status) {
-      case 1: return 'fas fa-clock';
-      case 2: return 'fas fa-play pulse-animation';
-      case 3: return 'fas fa-pause';
-      case 4: return 'fas fa-check';
-      default: return 'fas fa-question';
     }
   };
 
@@ -87,11 +59,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       case 1: // Available
         return (
           <button 
-            className="action-btn-enhanced btn-start-enhanced"
+            className="action-btn-compact btn-start-compact"
             onClick={() => handleAction('start')}
             disabled={isLoading}
           >
-            {isLoading ? <div className="loading-spinner"></div> : <i className="fas fa-play"></i>}
+            <i className="fas fa-play"></i>
             Start
           </button>
         );
@@ -99,19 +71,19 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         return (
           <>
             <button 
-              className="action-btn-enhanced btn-pause-enhanced"
+              className="action-btn-compact btn-pause-compact"
               onClick={() => handleAction('pause')}
               disabled={isLoading}
             >
-              {isLoading ? <div className="loading-spinner"></div> : <i className="fas fa-pause"></i>}
+              <i className="fas fa-pause"></i>
               Pauză
             </button>
             <button 
-              className="action-btn-enhanced btn-finish-enhanced"
+              className="action-btn-compact btn-finish-compact"
               onClick={() => handleAction('finish')}
               disabled={isLoading}
             >
-              {isLoading ? <div className="loading-spinner"></div> : <i className="fas fa-stop"></i>}
+              <i className="fas fa-stop"></i>
               Stop
             </button>
           </>
@@ -120,19 +92,19 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         return (
           <>
             <button 
-              className="action-btn-enhanced btn-resume-enhanced"
+              className="action-btn-compact btn-resume-compact"
               onClick={() => handleAction('resume')}
               disabled={isLoading}
             >
-              {isLoading ? <div className="loading-spinner"></div> : <i className="fas fa-play"></i>}
+              <i className="fas fa-play"></i>
               Resume
             </button>
             <button 
-              className="action-btn-enhanced btn-finish-enhanced"
+              className="action-btn-compact btn-finish-compact"
               onClick={() => handleAction('finish')}
               disabled={isLoading}
             >
-              {isLoading ? <div className="loading-spinner"></div> : <i className="fas fa-stop"></i>}
+              <i className="fas fa-stop"></i>
               Stop
             </button>
           </>
@@ -165,7 +137,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
 
   return (
-    <div className={`course-card-compact ${isStatusChanging ? 'status-changing' : ''}`}>
+    <div className="course-card-compact">
       <style>{`
         .course-card-compact {
           background: rgba(255, 255, 255, 0.08);
@@ -526,12 +498,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       `}</style>
 
       <div className="course-header-compact">
-        <div className="course-uit-prominent">
-          <i className="fas fa-hashtag"></i>
-          UIT: {course.uit}
+        <div className="uit-priority">
+          <strong>UIT: {course.uit}</strong>
         </div>
-        <span className={`status-badge-modern ${getStatusClass(course.status)}`}>
-          <i className={getStatusIcon(course.status)}></i>
+        <span className="status-badge-compact">
           {getStatusText(course.status)}
         </span>
       </div>

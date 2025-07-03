@@ -273,27 +273,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const handleLogout = async () => {
     try {
-      console.log('🔐 Starting complete logout - stopping ALL GPS transmissions...');
-      
-      // STEP 1: Stop all GPS services completely
-      await logoutClearAllGPS(); // Direct Android GPS service
-      
-      // STEP 2: Clear any remaining guaranteed GPS services 
-      try {
-        const { clearAllGuaranteedGPS } = await import('../services/garanteedGPS');
-        await clearAllGuaranteedGPS();
-        console.log('✅ Guaranteed GPS service cleared');
-      } catch (error) {
-        console.warn('GuaranteedGPS clear failed (service may not be active):', error);
-      }
-      
-      // STEP 3: Server logout 
+      await logoutClearAllGPS();
       await logout(token);
-      
-      // STEP 4: Clear local authentication
       await clearToken();
       
-      // STEP 5: Clear all saved course statuses on logout
+      // Clear all saved course statuses on logout
       try {
         const keys = Object.keys(localStorage);
         keys.forEach(key => {
@@ -306,7 +290,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.error('Failed to clear course statuses:', error);
       }
       
-      console.log('✅ Complete logout finished - all GPS transmissions stopped');
       onLogout();
     } catch (error) {
       console.error("Eroare la logout:", error);
@@ -325,12 +308,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log("Opening debug panel after 50 clicks...");
         const logs = await getAppLogs();
         console.log("Logs loaded:", logs.length);
-        setShowAdminPanel(true);
+        // Debug panel functionality removed
+        console.log('Debug logs available:', logs.length);
         setClickCount(0);
       } catch (error) {
         console.error("Error loading debug logs:", error);
         // Show panel anyway with empty logs
-        setShowAdminPanel(true);
+        console.log('Debug panel would show empty logs');
         setClickCount(0);
       }
     }
@@ -832,7 +816,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
 
-
+            {/* Action Buttons */}
+            <div className="action-buttons-row">
+              <button className="action-button logout" onClick={handleLogout}>
+                <i className="fas fa-sign-out-alt"></i>
+                <span>Ieșire</span>
+              </button>
+            </div>
 
             {/* Course Stats Modal */}
             <CourseStatsModal
