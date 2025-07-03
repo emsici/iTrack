@@ -5,10 +5,6 @@
  */
 
 import { logGPS, logGPSError } from './appLogger';
-import { getStoredToken } from './storage';
-import { sendGPSData, GPSData } from './api';
-import { Geolocation } from '@capacitor/geolocation';
-import { Device } from '@capacitor/device';
 
 interface GPSCourse {
   courseId: string;
@@ -105,6 +101,7 @@ class GuaranteedGPSService {
     try {
       // Obținem locația curentă
       logGPS(`🔍 Getting GPS position...`);
+      const { Geolocation } = await import('@capacitor/geolocation');
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 8000,
@@ -149,7 +146,9 @@ class GuaranteedGPSService {
       // Timestamp unic cu milisecunde pentru evitarea duplicatelor
       const uniqueTimestamp = new Date().toISOString();
       
-      const gpsData: GPSData = {
+      const { sendGPSData } = await import('./api');
+      
+      const gpsData = {
         lat: coords.latitude,
         lng: coords.longitude,
         timestamp: uniqueTimestamp,
@@ -207,6 +206,7 @@ class GuaranteedGPSService {
    */
   private async getBatteryLevel(): Promise<number> {
     try {
+      const { Device } = await import('@capacitor/device');
       const info = await Device.getBatteryInfo();
       return Math.round(info.batteryLevel! * 100);
     } catch {
