@@ -120,6 +120,9 @@ public class OptimalGPSService extends Service {
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
             // ALARM TRIGGERED: Get GPS location and transmit for all active courses
             Log.d(TAG, "🔄 DIAGNOSTIC: ALARM TRIGGERED - performing GPS cycle");
+            Log.d(TAG, "⏰ ALARM DEBUG: Current time=" + SystemClock.elapsedRealtime());
+            Log.d(TAG, "📊 ALARM DEBUG: Active courses count=" + activeCourses.size());
+            Log.d(TAG, "🎯 ALARM DEBUG: AlarmManager working correctly - scheduling next cycle");
             performOptimalGPSCycle();
         } else {
             // Regular service commands (START_GPS, STOP_GPS, etc.)
@@ -422,6 +425,18 @@ public class OptimalGPSService extends Service {
     private void scheduleNextOptimalGPSCycle() {
         if (!activeCourses.isEmpty()) {
             long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
+            
+            // CRITICAL: Ensure PendingIntent exists before scheduling
+            if (gpsPendingIntent == null) {
+                Log.e(TAG, "❌ CRITICAL: gpsPendingIntent is NULL - recreating");
+                Intent alarmIntent = new Intent(this, OptimalGPSService.class);
+                alarmIntent.setAction(ACTION_GPS_ALARM);
+                gpsPendingIntent = PendingIntent.getService(
+                    this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+                Log.d(TAG, "✅ RECREATED gpsPendingIntent for alarm scheduling");
+            }
+            
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 nextTriggerTime,
@@ -429,6 +444,8 @@ public class OptimalGPSService extends Service {
             );
             Log.d(TAG, "⏰ NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
             Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
+            Log.d(TAG, "🔧 ALARM DEBUG: AlarmManager=" + alarmManager + ", PendingIntent=" + gpsPendingIntent);
+            Log.d(TAG, "🎯 ALARM DEBUG: Expected trigger in " + (nextTriggerTime - SystemClock.elapsedRealtime()) + "ms");
         } else {
             Log.w(TAG, "❌ NO ACTIVE COURSES - GPS cycle NOT scheduled");
         }
@@ -524,14 +541,17 @@ public class OptimalGPSService extends Service {
         );
         
         // CRITICAL: Use setExactAndAllowWhileIdle for EXACT 5-second intervals
+        long triggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + GPS_INTERVAL_MS,
+            triggerTime,
             gpsPendingIntent
         );
         
         isAlarmActive = true;
         Log.d(TAG, "✅ OPTIMAL GPS timer started - EXACT " + (GPS_INTERVAL_MS/1000) + "s intervals");
+        Log.d(TAG, "⏰ ALARM DEBUG: First trigger at " + triggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
+        Log.d(TAG, "🔧 ALARM DEBUG: AlarmManager=" + alarmManager + ", PendingIntent=" + gpsPendingIntent);
     }
     
     /**
