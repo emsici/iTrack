@@ -318,6 +318,9 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "  - Remaining active courses: " + activeCourses.size());
         Log.d(TAG, "✅ Optimal GPS cycle completed - next in exactly " + (GPS_INTERVAL_MS/1000) + "s");
         
+        // Try to sync offline GPS data on every cycle (in case connection came back)
+        syncOfflineGPSData();
+        
         // CRITICAL: Schedule next GPS cycle to continue background operation
         Log.d(TAG, "🔄 SCHEDULING NEXT GPS CYCLE - activeCourses size: " + activeCourses.size());
         scheduleNextOptimalGPSCycle();
@@ -403,12 +406,14 @@ public class OptimalGPSService extends Service {
                 Log.d(TAG, "✅ GPS SUCCESS " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
             } else {
                 Log.w(TAG, "⚠️ GPS FAILED " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
-                Log.w(TAG, "🔍 Request was: " + jsonData);
+                Log.w(TAG, "💾 Saving GPS data offline for later transmission");
+                saveGPSDataOffline(jsonData, authToken, courseId);
             }
             
         } catch (Exception e) {
             Log.e(TAG, "❌ FOREGROUND GPS FAILED for " + courseId + ": " + e.getMessage());
-            // No retry for foreground - next transmission comes in 5 seconds anyway
+            Log.w(TAG, "💾 Network error - saving GPS data offline for later transmission");
+            saveGPSDataOffline(jsonData, authToken, courseId);
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -434,6 +439,138 @@ public class OptimalGPSService extends Service {
         }
     }
     
+    /**
+     * Save GPS data offline when transmission fails
+     */
+    private void saveGPSDataOffline(String jsonData, String authToken, String courseId) {
+        try {
+            android.content.SharedPreferences prefs = getSharedPreferences("offline_gps", Context.MODE_PRIVATE);
+            android.content.SharedPreferences.Editor editor = prefs.edit();
+            
+            // Generate unique ID for this coordinate
+            String coordinateId = courseId + "_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 1000);
+            
+            // Save GPS data with metadata
+            org.json.JSONObject offlineData = new org.json.JSONObject();
+            offlineData.put("gpsData", jsonData);
+            offlineData.put("authToken", authToken);
+            offlineData.put("courseId", courseId);
+            offlineData.put("savedAt", System.currentTimeMillis());
+            offlineData.put("retryCount", 0);
+            
+            editor.putString("gps_" + coordinateId, offlineData.toString());
+            editor.apply();
+            
+            Log.d(TAG, "💾 GPS data saved offline: " + coordinateId);
+            
+            // Try to sync offline data immediately (maybe connection is back)
+            syncOfflineGPSData();
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Failed to save GPS data offline: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Sync all offline GPS data when connection is available
+     */
+    private void syncOfflineGPSData() {
+        try {
+            android.content.SharedPreferences prefs = getSharedPreferences("offline_gps", Context.MODE_PRIVATE);
+            java.util.Map<String, ?> allOfflineData = prefs.getAll();
+            
+            if (allOfflineData.isEmpty()) {
+                return; // No offline data to sync
+            }
+            
+            Log.d(TAG, "🔄 Syncing " + allOfflineData.size() + " offline GPS coordinates...");
+            
+            android.content.SharedPreferences.Editor editor = prefs.edit();
+            int successCount = 0;
+            int failedCount = 0;
+            
+            for (java.util.Map.Entry<String, ?> entry : allOfflineData.entrySet()) {
+                if (!entry.getKey().startsWith("gps_")) continue;
+                
+                try {
+                    org.json.JSONObject offlineData = new org.json.JSONObject((String) entry.getValue());
+                    String gpsData = offlineData.getString("gpsData");
+                    String authToken = offlineData.getString("authToken");
+                    String courseId = offlineData.getString("courseId");
+                    int retryCount = offlineData.getInt("retryCount");
+                    
+                    // Skip if too many retries
+                    if (retryCount >= 3) {
+                        Log.w(TAG, "⚠️ Max retries reached for offline GPS: " + entry.getKey());
+                        editor.remove(entry.getKey()); // Remove failed coordinate
+                        continue;
+                    }
+                    
+                    // Try to transmit offline coordinate
+                    if (transmitOfflineGPSData(gpsData, authToken)) {
+                        Log.d(TAG, "✅ Offline GPS synced successfully: " + entry.getKey());
+                        editor.remove(entry.getKey()); // Remove successful coordinate
+                        successCount++;
+                    } else {
+                        // Increment retry count and keep for later
+                        offlineData.put("retryCount", retryCount + 1);
+                        editor.putString(entry.getKey(), offlineData.toString());
+                        failedCount++;
+                    }
+                    
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ Error syncing offline GPS " + entry.getKey() + ": " + e.getMessage());
+                    failedCount++;
+                }
+            }
+            
+            editor.apply();
+            
+            if (successCount > 0 || failedCount > 0) {
+                Log.d(TAG, "📊 Offline sync complete: " + successCount + " success, " + failedCount + " failed");
+            }
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error during offline GPS sync: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Transmit a single offline GPS coordinate
+     */
+    private boolean transmitOfflineGPSData(String jsonData, String authToken) {
+        java.net.HttpURLConnection connection = null;
+        try {
+            java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
+            connection = (java.net.HttpURLConnection) url.openConnection();
+            
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            connection.setRequestProperty("Authorization", "Bearer " + authToken);
+            connection.setRequestProperty("User-Agent", "iTrack-Offline-Sync/1.0");
+            connection.setDoOutput(true);
+            connection.setConnectTimeout(10000); // Longer timeout for offline sync
+            connection.setReadTimeout(10000);
+            
+            byte[] jsonBytes = jsonData.getBytes("UTF-8");
+            try (java.io.OutputStream os = connection.getOutputStream()) {
+                os.write(jsonBytes);
+                os.flush();
+            }
+            
+            int responseCode = connection.getResponseCode();
+            return responseCode == 200;
+            
+        } catch (Exception e) {
+            Log.w(TAG, "⚠️ Offline GPS transmission failed: " + e.getMessage());
+            return false;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
     /**
      * Get real battery level efficiently
      */

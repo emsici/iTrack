@@ -218,4 +218,25 @@ public class MainActivity extends BridgeActivity {
             return "ERROR: " + e.getMessage();
         }
     }
+    
+    @JavascriptInterface
+    public String getOfflineGPSCount() {
+        try {
+            android.content.SharedPreferences prefs = getSharedPreferences("offline_gps", Context.MODE_PRIVATE);
+            java.util.Map<String, ?> allOfflineData = prefs.getAll();
+            
+            int count = 0;
+            for (String key : allOfflineData.keySet()) {
+                if (key.startsWith("gps_")) {
+                    count++;
+                }
+            }
+            
+            Log.d(TAG, "📊 Offline GPS count: " + count + " coordinates");
+            return "SUCCESS: " + count + " offline coordinates";
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error getting offline GPS count: " + e.getMessage());
+            return "ERROR: Failed to get offline count - " + e.getMessage();
+        }
+    }
 }
