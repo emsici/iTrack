@@ -81,24 +81,29 @@ class CapacitorGPSService {
     try {
       logGPS(`🔄 Updating Capacitor GPS status: ${courseId} → ${newStatus}`);
       
-      // STATUS 2 (START): Setup complete GPS tracking
+      // STATUS 2 (START or RESUME): Setup GPS tracking if not already active
       if (newStatus === 2) {
-        // Need to get vehicleNumber and token from storage
-        const { getStoredVehicleNumber, getStoredToken } = await import('./storage');
-        const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
-        const token = await getStoredToken() || '';
-        
-        logGPS(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
-        await this.startGPS(courseId, vehicleNumber, courseId, token, newStatus);
+        if (!this.activeCourses.has(courseId)) {
+          // Need to get vehicleNumber and token from storage
+          const { getStoredVehicleNumber, getStoredToken } = await import('./storage');
+          const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
+          const token = await getStoredToken() || '';
+          
+          logGPS(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
+          await this.startGPS(courseId, vehicleNumber, courseId, token, newStatus);
+        } else {
+          logGPS(`▶️ STATUS 2 (RESUME): Course ${courseId} already in GPS service - just updating status`);
+        }
       }
       
-      // STATUS 3 (PAUSE) or STATUS 4 (STOP): Stop GPS transmission  
-      if (newStatus === 3 || newStatus === 4) {
-        logGPS(`⏸️ STATUS ${newStatus} (${newStatus === 3 ? 'PAUSE' : 'STOP'}): Stopping GPS for ${courseId}`);
+      // STATUS 3 (PAUSE): Just update status, keep GPS active for RESUME
+      // STATUS 4 (STOP): Stop GPS transmission completely
+      if (newStatus === 4) {
+        logGPS(`🛑 STATUS 4 (STOP): Stopping GPS completely for ${courseId}`);
         await this.stopGPS(courseId);
       }
       
-      // Also call the plugin updateStatus for consistency
+      // For all statuses (including PAUSE): update status in Android service
       const result = await AndroidGPS.updateStatus({ courseId, newStatus });
       
       if (result.success) {
