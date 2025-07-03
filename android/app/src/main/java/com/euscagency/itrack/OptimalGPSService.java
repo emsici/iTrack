@@ -725,9 +725,18 @@ public class OptimalGPSService extends Service {
             activeCourses.put(courseId, courseData);
             
             Log.d(TAG, "✅ OPTIMAL course added: " + courseId + " (UIT: " + uit + ")");
+            Log.d(TAG, "🔍 TIMER CHECK: isAlarmActive = " + isAlarmActive + ", activeCourses.size = " + activeCourses.size());
             
-            if (!isAlarmActive) {
+            if (!isAlarmActive || gpsPendingIntent == null) {
+                if (gpsPendingIntent == null) {
+                    Log.w(TAG, "🔧 REPAIR: isAlarmActive=" + isAlarmActive + " but gpsPendingIntent is NULL - forcing restart");
+                    isAlarmActive = false; // Reset flag
+                }
+                Log.d(TAG, "🚀 STARTING GPS TIMER: First course added after logout/clear");
                 startOptimalGPSTimer();
+                Log.d(TAG, "✅ GPS TIMER STARTED: isAlarmActive = " + isAlarmActive + ", gpsPendingIntent = " + (gpsPendingIntent != null ? "VALID" : "NULL"));
+            } else {
+                Log.d(TAG, "⚠️ GPS TIMER ALREADY ACTIVE: New course will use existing timer");
             }
             
         } else if ("STOP_GPS".equals(action)) {
@@ -758,9 +767,17 @@ public class OptimalGPSService extends Service {
             }
             
         } else if ("CLEAR_ALL".equals(action)) {
+            Log.d(TAG, "🧹 LOGOUT: Clearing all courses and stopping GPS timer");
             activeCourses.clear();
             stopOptimalGPSTimer();
-            Log.d(TAG, "🧹 OPTIMAL GPS cleared all courses");
+            Log.d(TAG, "✅ OPTIMAL GPS cleared all courses - timer stopped until next START_GPS");
+            
+        } else if ("RESTART_SERVICE".equals(action)) {
+            Log.d(TAG, "🔄 RESTART: Force restarting GPS service");
+            activeCourses.clear();
+            stopOptimalGPSTimer();
+            // Service will restart timer when next course is added
+            Log.d(TAG, "✅ GPS service restarted - ready for new courses");
         }
     }
     

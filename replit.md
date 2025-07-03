@@ -199,6 +199,8 @@ Persistare localStorage → Afișare CourseStatsModal
 **MODERN COURSE DESIGN**: Implemented gradient status badges with animations, prominent UIT styling, enhanced action buttons with loading states, hover confirmations for STOP, and micro-animations for status changes
 **ANDROID OFFLINE GPS IMPLEMENTED**: Native Android GPS service now saves coordinates offline when internet fails and auto-syncs when connection returns, ensuring zero data loss during network outages
 **GPS DIAGNOSTICS SYSTEM**: Added complete GPS diagnostic tools in AdminPanel with service status check, offline coordinate count, and GPS service restart functionality to debug background transmission issues
+**GPS BACKGROUND FIX**: Fixed critical issue where GPS stopped transmitting in background after logout - added auto-restart mechanism and enhanced logging to ensure AlarmManager resumes when new course starts
+**LOGOUT GPS REPAIR**: Enhanced OptimalGPSService to properly restart GPS timer when first course is added after CLEAR_ALL logout operation, with auto-repair if gpsPendingIntent becomes NULL
 **REAL SENSOR DATA**: OptimalGPSService now captures real speed (km/h) and bearing/direction (degrees) from GPS sensors instead of using placeholder values
 
 ### Versiunea Precedentă: 1808.187 (June 30, 2025) - FINAL GPS BLOCKING ISSUES ELIMINATED & COMPLETE FLOW VERIFIED
