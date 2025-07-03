@@ -391,7 +391,16 @@ public class OptimalGPSService extends Service {
         gpsData.put("lat", location.getLatitude()); // Real coordinates as numbers
         gpsData.put("lng", location.getLongitude()); // Real coordinates as numbers
         gpsData.put("timestamp", new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(new java.util.Date()));
-        gpsData.put("viteza", location.getSpeed() * 3.6); // m/s to km/h as float
+        // CRITICAL FIX: Ensure realistic speed (GPS can return unrealistic values when stationary)
+        float speedMs = location.getSpeed(); // Speed in m/s
+        float speedKmh = speedMs * 3.6f; // Convert to km/h
+        
+        // If speed is unrealistic when stationary (GPS noise), set to 0
+        if (speedKmh < 1.0f) {
+            speedKmh = 0.0f;
+        }
+        
+        gpsData.put("viteza", speedKmh); // Corrected speed as float
         gpsData.put("directie", location.getBearing()); // Real bearing as float
         gpsData.put("altitudine", location.getAltitude()); // Real altitude as float
         gpsData.put("baterie", getBatteryLevel() + "%"); // Battery with % like June 26th
