@@ -162,22 +162,27 @@ class DirectAndroidGPSService {
   }
 
   /**
-   * SIMPLIFIED GPS: Only use Android native GPS via MainActivity
-   * No guaranteed GPS service call to prevent duplicate transmissions
+   * HYBRID GPS: Android native GPS + Guaranteed JavaScript backup for reliable transmission
+   * This ensures GPS transmits every 5 seconds regardless of Android service status
    */
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
-    logGPS(`🔥 ANDROID NATIVE GPS: Starting MainActivity GPS service only`);
+    logGPS(`🔥 HYBRID GPS: Starting both Android service + JavaScript backup`);
     
     try {
-      // Direct MainActivity Android GPS interface for single GPS service
+      // 1. Start Android native GPS service (primary method)
       if (window.AndroidGPS && window.AndroidGPS.startGPS) {
         const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ MainActivity GPS result: ${result}`);
+        logGPS(`✅ MainActivity GPS started: ${result}`);
       } else {
-        logGPS(`⚠️ AndroidGPS interface not available - APK only feature`);
+        logGPS(`⚠️ AndroidGPS interface not available - using JavaScript backup`);
       }
+
+      // 2. Start guaranteed JavaScript GPS backup (ensures 5-second transmission)
+      const { startGuaranteedGPS } = await import('./garanteedGPS');
+      await startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+      logGPS(`✅ Guaranteed GPS backup service started for course: ${courseId}`);
       
     } catch (error) {
       logGPSError(`❌ MainActivity GPS failed: ${error}`);
@@ -188,19 +193,24 @@ class DirectAndroidGPSService {
 
   async stopTracking(courseId: string): Promise<void> {
     try {
-      logGPS(`🛑 Stopping Android native GPS tracking: ${courseId}`);
+      logGPS(`🛑 Stopping HYBRID GPS tracking: ${courseId}`);
       
-      // Stop Android native GPS only
+      // 1. Stop Android native GPS service  
       if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
         const result = window.AndroidGPS.stopGPS(courseId);
-        logGPS(`✅ MainActivity GPS stop result: ${result}`);
+        logGPS(`✅ MainActivity GPS stopped: ${result}`);
       } else {
         logGPS(`⚠️ AndroidGPS interface not available - APK only feature`);
       }
       
+      // 2. Stop guaranteed JavaScript GPS backup
+      const { stopGuaranteedGPS } = await import('./garanteedGPS');
+      await stopGuaranteedGPS(courseId);
+      logGPS(`✅ Guaranteed GPS backup stopped for course: ${courseId}`);
+      
       // Remove from local tracking
       this.activeCourses.delete(courseId);
-      logGPS(`✅ Native GPS stopped for course: ${courseId}`);
+      logGPS(`✅ HYBRID GPS stopped for course: ${courseId}`);
       logGPS(`📊 Active courses after stop: ${this.activeCourses.size}`);
       
     } catch (error) {
@@ -237,7 +247,12 @@ class DirectAndroidGPSService {
         }
       }
       
-      // STEP 2: Call AndroidGPS clearAllOnLogout to stop native service completely
+      // STEP 2: Stop guaranteed GPS service 
+      const { clearAllGuaranteedGPS } = await import('./garanteedGPS');
+      await clearAllGuaranteedGPS();
+      logGPS(`✅ Guaranteed GPS service cleared`);
+      
+      // STEP 3: Call AndroidGPS clearAllOnLogout to stop native service completely
       if (window.AndroidGPS && typeof window.AndroidGPS.clearAllOnLogout === 'function') {
         try {
           const result = window.AndroidGPS.clearAllOnLogout();
@@ -249,7 +264,7 @@ class DirectAndroidGPSService {
         logGPS(`ℹ️ AndroidGPS interface not available (browser mode)`);
       }
       
-      // STEP 3: Clear local data
+      // STEP 4: Clear local data
       this.activeCourses.clear();
       logGPS(`📊 All local GPS data cleared: ${this.activeCourses.size} courses remaining`);
       
