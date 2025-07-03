@@ -20,8 +20,6 @@ class GuaranteedGPSService {
   private activeCourses: Map<string, GPSCourse> = new Map();
   private gpsInterval: NodeJS.Timeout | null = null;
   private isTransmitting: boolean = false;
-  private lastTransmissionTime: number = 0;
-  private healthCheckInterval: NodeJS.Timeout | null = null;
 
   /**
    * METODA 1: Capacitor GPS cu interval exact 5 secunde
@@ -68,7 +66,7 @@ class GuaranteedGPSService {
 
   /**
    * METODA GARANTATĂ: JavaScript GPS cu Capacitor
-   * BACKGROUND OPTIMIZED - Va transmite cu telefon blocat și app minimizat
+   * Aceasta va transmite ÎNTOTDEAUNA coordonate reale la 5 secunde
    */
   private startBackupInterval(): void {
     // Oprire interval existent
@@ -76,63 +74,19 @@ class GuaranteedGPSService {
       clearInterval(this.gpsInterval);
     }
 
-    // REQUEST BACKGROUND PERMISSIONS
-    this.requestBackgroundPermissions();
+    // Pornire interval exact 5 secunde
+    this.gpsInterval = setInterval(async () => {
+      if (this.activeCourses.size === 0) {
+        logGPS(`⏸️ No active courses - stopping interval`);
+        this.stopBackupInterval();
+        return;
+      }
 
-    // BACKGROUND-OPTIMIZED INTERVAL - EXACT 5 secunde
-    // Folosește setTimeout recursiv pentru mai bună compatibilitate background
-    const scheduleNextTransmission = () => {
-      this.gpsInterval = setTimeout(async () => {
-        if (this.activeCourses.size === 0) {
-          logGPS(`⏸️ No active courses - stopping background interval`);
-          this.stopBackupInterval();
-          return;
-        }
-
-        await this.transmitForAllCourses();
-      this.lastTransmissionTime = Date.now();
-        
-        // Schedule next transmission (recursive pentru background)
-        if (this.isTransmitting) {
-          scheduleNextTransmission();
-        }
-      }, 5000); // EXACT 5 secunde
-    };
-
-    // Start first transmission
-    scheduleNextTransmission();
-
-    // Start health check pentru restart automat dacă se oprește
-    this.startHealthCheck();
+      await this.transmitForAllCourses();
+    }, 5000); // EXACT 5 secunde
 
     this.isTransmitting = true;
-    logGPS(`⏰ BACKGROUND GPS INTERVAL STARTED - Transmisia garantată la 5s cu telefon blocat`);
-  }
-
-  /**
-   * Request background permissions pentru operare continuă
-   */
-  private async requestBackgroundPermissions(): Promise<void> {
-    try {
-      const { Geolocation } = await import('@capacitor/geolocation');
-      
-      // Request location permissions
-      const permissions = await Geolocation.requestPermissions();
-      logGPS(`📍 Background permissions: ${permissions.location}`);
-      
-      // Keep screen wake lock pentru operare continuă
-      if ('wakeLock' in navigator) {
-        try {
-          const wakeLock = await (navigator as any).wakeLock.request('screen');
-          logGPS(`🔒 Screen wake lock acquired pentru background GPS`);
-        } catch (error) {
-          logGPS(`⚠️ Wake lock failed (not critical): ${error}`);
-        }
-      }
-      
-    } catch (error) {
-      logGPS(`⚠️ Background permissions request failed: ${error}`);
-    }
+    logGPS(`⏰ BACKUP GPS INTERVAL STARTED - Transmisia la exact 5 secunde`);
   }
 
   /**
@@ -163,23 +117,6 @@ class GuaranteedGPSService {
       // Transmitem cu coordonate de backup
       await this.transmitWithBackupCoordinates();
     }
-  }
-
-  /**
-   * HEALTH CHECK pentru restart automat dacă serviciul se oprește
-   */
-  private startHealthCheck(): void {
-    // Check every 30 seconds if GPS is still running
-    this.healthCheckInterval = setInterval(() => {
-      const now = Date.now();
-      const timeSinceLastTransmission = now - this.lastTransmissionTime;
-      
-      // If no transmission in last 10 seconds and we have active courses
-      if (timeSinceLastTransmission > 10000 && this.activeCourses.size > 0 && !this.isTransmitting) {
-        logGPS(`🚨 GPS health check failed - restarting service`);
-        this.startBackupInterval();
-      }
-    }, 30000);
   }
 
   /**
@@ -278,17 +215,10 @@ class GuaranteedGPSService {
    */
   private stopBackupInterval(): void {
     if (this.gpsInterval) {
-      clearTimeout(this.gpsInterval); // Changed to clearTimeout for recursive approach
+      clearInterval(this.gpsInterval);
       this.gpsInterval = null;
       this.isTransmitting = false;
-      logGPS(`⏸️ Background GPS interval stopped`);
-    }
-    
-    // Stop health check when stopping GPS
-    if (this.healthCheckInterval) {
-      clearInterval(this.healthCheckInterval);
-      this.healthCheckInterval = null;
-      logGPS(`🩺 Health check stopped`);
+      logGPS(`⏸️ Backup GPS interval stopped`);
     }
   }
 
