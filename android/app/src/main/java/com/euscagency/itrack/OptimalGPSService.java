@@ -636,6 +636,8 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "🛑 HYBRID GPS system stopped (AlarmManager + Handler)");
     }
     
+
+    
     private void handleServiceCommand(Intent intent) {
         if (intent == null) return;
         
@@ -684,6 +686,8 @@ public class OptimalGPSService extends Service {
                 startOptimalGPSTimer(); // AlarmManager (most efficient)
                 gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS); // Handler backup
                 Log.d(TAG, "✅ HYBRID: AlarmManager + Handler backup both started");
+                
+
             } else if (isAlarmActive) {
                 Log.d(TAG, "✅ GPS timer already active - " + activeCourses.size() + " courses tracking");
             }
