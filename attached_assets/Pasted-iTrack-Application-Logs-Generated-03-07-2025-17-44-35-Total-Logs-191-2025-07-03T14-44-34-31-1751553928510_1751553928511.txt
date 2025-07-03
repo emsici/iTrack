@@ -1,0 +1,237 @@
+iTrack Application Logs
+Generated: 03.07.2025, 17:44:35
+Total Logs: 191
+
+[2025-07-03T14:44:34.315Z] INFO (APP): Login successful, storing token...
+[2025-07-03T14:44:34.315Z] INFO (APP): Admin login detected - bypassing server authentication
+[2025-07-03T14:44:24.849Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:44:23.833Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:44:23.831Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:44:23.358Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:44:22.931Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:44:22.780Z] INFO (APP): Logged out - cleared local storage
+[2025-07-03T14:44:22.764Z] INFO (APP): Logout completed via AndroidGPS
+[2025-07-03T14:44:22.764Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-07-03T14:44:22.719Z] INFO (APP): 🧹 Cleared saved status for course_status_4X0L151471620172
+[2025-07-03T14:44:22.703Z] INFO (API): CapacitorHttp logout successful
+[2025-07-03T14:44:22.703Z] INFO (APP): CapacitorHttp logout successful
+[2025-07-03T14:44:22.547Z] INFO (APP): === CapacitorHttp logout ===
+[2025-07-03T14:44:22.547Z] INFO (API): Starting logout process
+[2025-07-03T14:44:22.546Z] INFO (APP): Starting logout process with Bearer token
+[2025-07-03T14:44:22.539Z] INFO (GPS): 📊 Active courses after logout: 0 courses
+[2025-07-03T14:44:22.539Z] INFO (GPS): ✅ Cleared 1 courses from Map, GPS service continues in background
+[2025-07-03T14:44:22.539Z] INFO (GPS): 🧹 LOGOUT: Clearing courses from Map but NOT stopping background GPS service
+[2025-07-03T14:40:09.579Z] INFO (APP): Course action completed: 4311
+[2025-07-03T14:40:09.579Z] INFO (APP): === STATUS UPDATE COMPLETE ===
+[2025-07-03T14:40:09.579Z] INFO (API): Course 4X0L151471620172 status updated successfully to 2
+[2025-07-03T14:40:09.579Z] INFO (APP): ✅ Course 4X0L151471620172 status updated to 2 successfully
+[2025-07-03T14:40:09.575Z] INFO (GPS): ✅ MainActivity GPS status updated: SUCCESS: Status update requested for 4X0L151471620172
+[2025-07-03T14:40:09.569Z] INFO (GPS): 🔥 ANDROID ONLY GPS - no browser intervals to prevent double transmissions
+[2025-07-03T14:40:09.566Z] INFO (GPS): ✅ MainActivity GPS result: SUCCESS: GPS started for 4X0L151471620172
+[2025-07-03T14:40:09.559Z] INFO (GPS): 🔥 ANDROID NATIVE GPS: Starting MainActivity GPS service only
+[2025-07-03T14:40:09.559Z] INFO (APP): 🗂️ Courses in map: [4X0L151471620172]
+[2025-07-03T14:40:09.559Z] INFO (APP): 📊 Active courses after start: 1
+[2025-07-03T14:40:09.558Z] INFO (GPS): 🚀 Starting GPS tracking (June 26th method): 4X0L151471620172
+[2025-07-03T14:40:09.558Z] INFO (APP): 🚀 STATUS 2 (START): Setting up complete GPS tracking for 4X0L151471620172
+[2025-07-03T14:40:09.557Z] INFO (APP): ✅ Status update delegated to OptimalGPSService to prevent duplicates
+[2025-07-03T14:40:09.557Z] INFO (APP): ⚠️ Status 2 update for UIT 4X0L151471620172 - handled by OptimalGPSService only
+[2025-07-03T14:40:09.557Z] INFO (APP): 📡 Sending status 2 to server for UIT: 4X0L151471620172
+[2025-07-03T14:40:09.473Z] INFO (APP): 🔄 Updating course status via MainActivity Android: 4X0L151471620172 → 2
+[2025-07-03T14:40:09.473Z] INFO (APP): 📞 Calling updateCourseStatus with UIT: 4X0L151471620172 (not ID: 4311)
+[2025-07-03T14:40:09.473Z] INFO (APP): 🎯 Delegating all GPS logic to capacitorGPS service
+[2025-07-03T14:40:09.472Z] INFO (APP): ✅ GPS permissions granted
+[2025-07-03T14:40:09.428Z] INFO (APP): 🔍 Requesting GPS permissions for course start...
+[2025-07-03T14:40:09.428Z] INFO (APP): Token available: true, Token length: 136
+[2025-07-03T14:40:09.427Z] INFO (APP): UIT REAL: 4X0L151471620172, Vehicle: AR86AMC
+[2025-07-03T14:40:09.427Z] INFO (APP): Course: 4311, Status: 1 → 2
+[2025-07-03T14:40:09.427Z] INFO (APP): === STATUS UPDATE START ===
+[2025-07-03T14:40:09.427Z] INFO (APP): 💾 Saved status 2 for UIT 4X0L151471620172
+[2025-07-03T14:40:09.426Z] INFO (APP): Processing course action: 4311
+[2025-07-03T14:40:07.846Z] INFO (APP): === Loading finished ===
+[2025-07-03T14:40:07.845Z] INFO (APP): 🆕 Found 1 new courses - displayed at top
+[2025-07-03T14:40:07.845Z] INFO (APP): Successfully loaded 1 courses for AR86AMC (sorted: new first)
+[2025-07-03T14:40:07.845Z] INFO (APP): 🔄 Android background auto-refresh activated (5 min intervals)
+[2025-07-03T14:40:07.844Z] INFO (APP): ✅ Courses loaded successfully - switching to main view with 1 courses
+[2025-07-03T14:40:07.794Z] INFO (APP): Courses found: 1
+[2025-07-03T14:40:07.792Z] INFO (API): Request completed for AR86AMC - all locks cleared
+[2025-07-03T14:40:07.792Z] INFO (APP): Request completed - locks cleared
+[2025-07-03T14:40:07.787Z] INFO (API): Processed 1 courses for AR86AMC
+[2025-07-03T14:40:07.787Z] INFO (APP): Processed 1 courses successfully
+[2025-07-03T14:40:07.787Z] INFO (APP): Processing course data
+[2025-07-03T14:40:07.787Z] INFO (APP): Found 1 courses for vehicle AR86AMC
+[2025-07-03T14:40:07.786Z] INFO (API): API response: status=200, data={"status":"success","count":1,"data":[{"ikRoTrans":4311,"codDeclarant":33686224,"denumireDeclarant":"AR LINIA TEA SRL","nrVehicul":"AR86AMC","UIT":"4X0L151471620172","dataTransport":"2025-06-30","Vama":"ADR","BirouVamal":"CALEA ZIMANDULUI ;NR.1 nr. -, Arad, Jud. Arad, Cod po?tal 310208","Judet":"AR","denumireLocStart":"Arad","VamaStop":"ADR","BirouVamalStop":"STR. PETRU DOBRA, NR.6A nr. -, Alba Iulia, Jud. Alba","JudetStop":"AB","denumireLocStop":"Alba Iulia"}]}
+[2025-07-03T14:40:07.786Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 1,
+  "data": [
+    {
+      "ikRoTrans": 4311,
+      "codDeclarant": 33686224,
+      "denumireDeclarant": "AR LINIA TEA SRL",
+      "nrVehicul": "AR86AMC",
+      "UIT": "4X0L151471620172",
+      "dataTransport": "2025-06-30",
+      "Vama": "ADR",
+      "BirouVamal": "CALEA ZIMANDULUI ;NR.1 nr. -, Arad, Jud. Arad, Cod po?tal 310208",
+      "Judet": "AR",
+      "denumireLocStart": "Arad",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "STR. PETRU DOBRA, NR.6A nr. -, Alba Iulia, Jud. Alba",
+      "JudetStop": "AB",
+      "denumireLocStop": "Alba Iulia"
+    }
+  ]
+}
+[2025-07-03T14:40:07.786Z] INFO (APP): API Response Status: 200
+[2025-07-03T14:40:07.786Z] INFO (APP): Data length: No data
+[2025-07-03T14:40:07.786Z] INFO (APP): Status: 200
+[2025-07-03T14:40:07.785Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-07-03T14:40:07.682Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-07-03T14:40:07.680Z] INFO (API): Loading courses for vehicle AR86AMC
+[2025-07-03T14:40:07.680Z] INFO (APP): Loading courses for vehicle: AR86AMC
+[2025-07-03T14:40:07.680Z] INFO (APP): === DEBUGGING: Loading courses for vehicle: AR86AMC ===
+[2025-07-03T14:40:07.680Z] INFO (APP): === APK DEBUG: Current courses count: 0
+[2025-07-03T14:40:07.680Z] INFO (APP): === APK DEBUG: Current coursesLoaded state: false
+[2025-07-03T14:40:07.679Z] INFO (APP): === APK DEBUG: Token available: true
+[2025-07-03T14:40:07.679Z] INFO (APP): === APK DEBUG: Vehicle number: AR86AMC
+[2025-07-03T14:40:07.679Z] INFO (APP): === APK DEBUG: Starting course loading process ===
+[2025-07-03T14:40:06.402Z] INFO (APP): Loaded stored vehicle number: AR86AMC
+[2025-07-03T14:40:06.384Z] INFO (APP): Token stored successfully
+[2025-07-03T14:40:06.368Z] INFO (APP): Login successful, storing token...
+[2025-07-03T14:40:06.368Z] INFO (API): CapacitorHttp login successful for +40722222222
+[2025-07-03T14:40:06.368Z] INFO (APP): CapacitorHttp login successful
+[2025-07-03T14:40:06.215Z] INFO (APP): Using CapacitorHttp for fast login
+[2025-07-03T14:40:06.215Z] INFO (API): Direct CapacitorHttp login attempt for +40722222222
+[2025-07-03T14:40:06.215Z] INFO (APP): Direct CapacitorHttp login for: +40722222222
+[2025-07-03T14:40:06.215Z] INFO (APP): Platform info: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.115 Mobile Safari/537.36
+[2025-07-03T14:40:06.215Z] INFO (APP): CapacitorHttp available: true
+[2025-07-03T14:40:06.215Z] INFO (APP): Test credentials detected - proceeding with server authentication
+[2025-07-03T14:39:56.539Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:39:55.542Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:39:55.539Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:39:55.040Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:39:54.586Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:39:52.807Z] INFO (APP): Logged out - cleared local storage
+[2025-07-03T14:39:52.786Z] INFO (APP): Logout completed via AndroidGPS
+[2025-07-03T14:39:52.785Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-07-03T14:39:29.366Z] INFO (APP): Logs copied to clipboard successfully
+[2025-07-03T14:39:28.105Z] INFO (APP): Login successful, storing token...
+[2025-07-03T14:39:28.105Z] INFO (APP): Admin login detected - bypassing server authentication
+[2025-07-03T14:39:18.653Z] INFO (APP): Logged out - cleared local storage
+[2025-07-03T14:39:18.639Z] INFO (APP): Logout completed via AndroidGPS
+[2025-07-03T14:39:18.639Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-07-03T14:39:18.587Z] INFO (APP): 🧹 Cleared saved status for course_status_4X0L151471620172
+[2025-07-03T14:39:18.569Z] INFO (API): CapacitorHttp logout successful
+[2025-07-03T14:39:18.568Z] INFO (APP): CapacitorHttp logout successful
+[2025-07-03T14:39:18.391Z] INFO (APP): === CapacitorHttp logout ===
+[2025-07-03T14:39:18.391Z] INFO (API): Starting logout process
+[2025-07-03T14:39:18.390Z] INFO (APP): Starting logout process with Bearer token
+[2025-07-03T14:39:18.388Z] INFO (GPS): 📊 Active courses after logout: 0 courses
+[2025-07-03T14:39:18.388Z] INFO (GPS): ✅ Cleared 1 courses from Map, GPS service continues in background
+[2025-07-03T14:39:18.387Z] INFO (GPS): 🧹 LOGOUT: Clearing courses from Map but NOT stopping background GPS service
+[2025-07-03T14:39:09.375Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:39:08.384Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:39:08.378Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:39:07.873Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:39:07.423Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:37:28.177Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:37:27.185Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:37:24.240Z] INFO (APP): Course action completed: 4311
+[2025-07-03T14:37:24.240Z] INFO (APP): === STATUS UPDATE COMPLETE ===
+[2025-07-03T14:37:24.239Z] INFO (API): Course 4X0L151471620172 status updated successfully to 2
+[2025-07-03T14:37:24.239Z] INFO (APP): ✅ Course 4X0L151471620172 status updated to 2 successfully
+[2025-07-03T14:37:24.239Z] INFO (GPS): ✅ MainActivity GPS status updated: SUCCESS: Status update requested for 4X0L151471620172
+[2025-07-03T14:37:24.230Z] INFO (GPS): 🔥 ANDROID ONLY GPS - no browser intervals to prevent double transmissions
+[2025-07-03T14:37:24.229Z] INFO (GPS): ✅ MainActivity GPS result: SUCCESS: GPS started for 4X0L151471620172
+[2025-07-03T14:37:24.219Z] INFO (GPS): 🔥 ANDROID NATIVE GPS: Starting MainActivity GPS service only
+[2025-07-03T14:37:24.219Z] INFO (APP): 🗂️ Courses in map: [4X0L151471620172]
+[2025-07-03T14:37:24.218Z] INFO (APP): 📊 Active courses after start: 1
+[2025-07-03T14:37:24.218Z] INFO (GPS): 🚀 Starting GPS tracking (June 26th method): 4X0L151471620172
+[2025-07-03T14:37:24.217Z] INFO (APP): 🚀 STATUS 2 (START): Setting up complete GPS tracking for 4X0L151471620172
+[2025-07-03T14:37:24.217Z] INFO (APP): ✅ Status update delegated to OptimalGPSService to prevent duplicates
+[2025-07-03T14:37:24.217Z] INFO (APP): ⚠️ Status 2 update for UIT 4X0L151471620172 - handled by OptimalGPSService only
+[2025-07-03T14:37:24.216Z] INFO (APP): 📡 Sending status 2 to server for UIT: 4X0L151471620172
+[2025-07-03T14:37:24.176Z] INFO (APP): 🔄 Updating course status via MainActivity Android: 4X0L151471620172 → 2
+[2025-07-03T14:37:24.175Z] INFO (APP): 📞 Calling updateCourseStatus with UIT: 4X0L151471620172 (not ID: 4311)
+[2025-07-03T14:37:24.175Z] INFO (APP): 🎯 Delegating all GPS logic to capacitorGPS service
+[2025-07-03T14:37:24.174Z] INFO (APP): ✅ GPS permissions granted
+[2025-07-03T14:37:21.544Z] INFO (APP): 🔍 Requesting GPS permissions for course start...
+[2025-07-03T14:37:21.543Z] INFO (APP): Token available: true, Token length: 136
+[2025-07-03T14:37:21.543Z] INFO (APP): UIT REAL: 4X0L151471620172, Vehicle: AR86AMC
+[2025-07-03T14:37:21.543Z] INFO (APP): Course: 4311, Status: 1 → 2
+[2025-07-03T14:37:21.543Z] INFO (APP): === STATUS UPDATE START ===
+[2025-07-03T14:37:21.543Z] INFO (APP): 💾 Saved status 2 for UIT 4X0L151471620172
+[2025-07-03T14:37:21.542Z] INFO (APP): Processing course action: 4311
+[2025-07-03T14:37:20.112Z] INFO (APP): === Loading finished ===
+[2025-07-03T14:37:20.112Z] INFO (APP): 🆕 Found 1 new courses - displayed at top
+[2025-07-03T14:37:20.112Z] INFO (APP): Successfully loaded 1 courses for AR86AMC (sorted: new first)
+[2025-07-03T14:37:20.112Z] INFO (APP): 🔄 Android background auto-refresh activated (5 min intervals)
+[2025-07-03T14:37:20.111Z] INFO (APP): ✅ Courses loaded successfully - switching to main view with 1 courses
+[2025-07-03T14:37:20.065Z] INFO (APP): Courses found: 1
+[2025-07-03T14:37:20.064Z] INFO (API): Request completed for AR86AMC - all locks cleared
+[2025-07-03T14:37:20.064Z] INFO (APP): Request completed - locks cleared
+[2025-07-03T14:37:20.061Z] INFO (API): Processed 1 courses for AR86AMC
+[2025-07-03T14:37:20.061Z] INFO (APP): Processed 1 courses successfully
+[2025-07-03T14:37:20.060Z] INFO (APP): Processing course data
+[2025-07-03T14:37:20.060Z] INFO (APP): Found 1 courses for vehicle AR86AMC
+[2025-07-03T14:37:20.060Z] INFO (API): API response: status=200, data={"status":"success","count":1,"data":[{"ikRoTrans":4311,"codDeclarant":33686224,"denumireDeclarant":"AR LINIA TEA SRL","nrVehicul":"AR86AMC","UIT":"4X0L151471620172","dataTransport":"2025-06-30","Vama":"ADR","BirouVamal":"CALEA ZIMANDULUI ;NR.1 nr. -, Arad, Jud. Arad, Cod po?tal 310208","Judet":"AR","denumireLocStart":"Arad","VamaStop":"ADR","BirouVamalStop":"STR. PETRU DOBRA, NR.6A nr. -, Alba Iulia, Jud. Alba","JudetStop":"AB","denumireLocStop":"Alba Iulia"}]}
+[2025-07-03T14:37:20.060Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 1,
+  "data": [
+    {
+      "ikRoTrans": 4311,
+      "codDeclarant": 33686224,
+      "denumireDeclarant": "AR LINIA TEA SRL",
+      "nrVehicul": "AR86AMC",
+      "UIT": "4X0L151471620172",
+      "dataTransport": "2025-06-30",
+      "Vama": "ADR",
+      "BirouVamal": "CALEA ZIMANDULUI ;NR.1 nr. -, Arad, Jud. Arad, Cod po?tal 310208",
+      "Judet": "AR",
+      "denumireLocStart": "Arad",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "STR. PETRU DOBRA, NR.6A nr. -, Alba Iulia, Jud. Alba",
+      "JudetStop": "AB",
+      "denumireLocStop": "Alba Iulia"
+    }
+  ]
+}
+[2025-07-03T14:37:20.060Z] INFO (APP): API Response Status: 200
+[2025-07-03T14:37:20.060Z] INFO (APP): Data length: No data
+[2025-07-03T14:37:20.060Z] INFO (APP): Status: 200
+[2025-07-03T14:37:20.060Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-07-03T14:37:19.986Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-07-03T14:37:19.986Z] INFO (API): Loading courses for vehicle AR86AMC
+[2025-07-03T14:37:19.986Z] INFO (APP): Loading courses for vehicle: AR86AMC
+[2025-07-03T14:37:19.985Z] INFO (APP): === DEBUGGING: Loading courses for vehicle: AR86AMC ===
+[2025-07-03T14:37:19.985Z] INFO (APP): === APK DEBUG: Current courses count: 0
+[2025-07-03T14:37:19.985Z] INFO (APP): === APK DEBUG: Current coursesLoaded state: false
+[2025-07-03T14:37:19.984Z] INFO (APP): === APK DEBUG: Token available: true
+[2025-07-03T14:37:19.984Z] INFO (APP): === APK DEBUG: Vehicle number: AR86AMC
+[2025-07-03T14:37:19.984Z] INFO (APP): === APK DEBUG: Starting course loading process ===
+[2025-07-03T14:37:19.126Z] INFO (APP): 📝 Vehicle number changed to: AR86AMC
+[2025-07-03T14:37:18.879Z] INFO (APP): 📝 Vehicle number changed to: AR86AM
+[2025-07-03T14:37:18.809Z] INFO (APP): 📝 Vehicle number changed to: AR86A
+[2025-07-03T14:37:18.351Z] INFO (APP): 📝 Vehicle number changed to: AR86
+[2025-07-03T14:37:18.147Z] INFO (APP): 📝 Vehicle number changed to: AR8
+[2025-07-03T14:37:17.328Z] INFO (APP): 📝 Vehicle number changed to: AR
+[2025-07-03T14:37:17.246Z] INFO (APP): 📝 Vehicle number changed to: A
+[2025-07-03T14:37:15.740Z] INFO (APP): Token stored successfully
+[2025-07-03T14:37:15.734Z] INFO (APP): Login successful, storing token...
+[2025-07-03T14:37:15.733Z] INFO (API): CapacitorHttp login successful for +40722222222
+[2025-07-03T14:37:15.733Z] INFO (APP): CapacitorHttp login successful
+[2025-07-03T14:37:15.477Z] INFO (APP): Using CapacitorHttp for fast login
+[2025-07-03T14:37:15.476Z] INFO (API): Direct CapacitorHttp login attempt for +40722222222
+[2025-07-03T14:37:15.476Z] INFO (APP): Direct CapacitorHttp login for: +40722222222
+[2025-07-03T14:37:15.475Z] INFO (APP): Platform info: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.115 Mobile Safari/537.36
+[2025-07-03T14:37:15.475Z] INFO (APP): CapacitorHttp available: true
+[2025-07-03T14:37:15.474Z] INFO (APP): Test credentials detected - proceeding with server authentication
+[2025-07-03T14:37:11.162Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:37:10.445Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:37:10.445Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:37:09.661Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:37:09.376Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-03T14:37:06.764Z] INFO (APP): No stored token - showing login
+[2025-07-03T14:37:06.731Z] INFO (APP): ✅ GPS Bridge initialized - Android service ready for GPS transmission
+[2025-07-03T14:37:06.721Z] INFO (SYSTEM): AppLogger initialized

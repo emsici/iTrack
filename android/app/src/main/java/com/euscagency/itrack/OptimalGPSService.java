@@ -533,6 +533,18 @@ public class OptimalGPSService extends Service {
             return;
         }
         
+        // CRITICAL: Check for SCHEDULE_EXACT_ALARM permission (Android 12+)
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            if (!alarmManager.canScheduleExactAlarms()) {
+                Log.e(TAG, "❌ CRITICAL: SCHEDULE_EXACT_ALARM permission denied - AlarmManager will NOT work");
+                Log.e(TAG, "   User must enable: Settings > Apps > iTrack > Special permissions > Alarms & reminders");
+                Log.e(TAG, "   WITHOUT this permission, GPS will NOT transmit in background");
+                return;
+            } else {
+                Log.d(TAG, "✅ SCHEDULE_EXACT_ALARM permission granted - AlarmManager functional");
+            }
+        }
+        
         Intent alarmIntent = new Intent(this, OptimalGPSService.class);
         alarmIntent.setAction(ACTION_GPS_ALARM);
         

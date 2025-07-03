@@ -171,14 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.219 (July 03, 2025) - CRITICAL GPS TIMER START LOGIC FIXED
+### Versiunea Curentă: 1808.220 (July 03, 2025) - CRITICAL ALARMMANAGER PERMISSIONS FIXED
 
-**CRITICAL GPS TIMER BLOCKING BUG FIXED**: Removed early return in START_GPS command that prevented AlarmManager from starting when course already exists
-**GPS TIMER GUARANTEED START**: OptimalGPSService now ALWAYS checks and starts GPS timer when active courses exist, regardless of course duplication
-**BACKGROUND GPS CONTINUITY RESTORED**: Fixed the exact issue that broke continuous GPS transmission compared to working 09:25 logs
-**COURSE DUPLICATION HANDLING IMPROVED**: Properly updates existing courses without blocking GPS timer initialization
-**ALARM ACTIVATION LOGIC BULLETPROOF**: GPS timer starts reliably for new courses and continues for existing ones
-**PRODUCTION PARITY ACHIEVED**: GPS service now behaves identically to the working 09:25 configuration with continuous 5-second transmissions
+**CRITICAL ALARMMANAGER PERMISSION ISSUE IDENTIFIED**: Android 12+ requires SCHEDULE_EXACT_ALARM permission which was missing from AndroidManifest.xml
+**EXACT ALARM PERMISSIONS ADDED**: Added SCHEDULE_EXACT_ALARM, USE_EXACT_ALARM, SET_ALARM permissions to AndroidManifest.xml
+**PERMISSION CHECK LOGIC IMPLEMENTED**: OptimalGPSService now checks canScheduleExactAlarms() and reports permission status with detailed error messages
+**BACKGROUND GPS BLOCKER FOUND**: AlarmManager was silently failing due to missing permissions, preventing all GPS transmission cycles
+**USER GUIDANCE ENHANCED**: Clear instructions for enabling "Alarms & reminders" in Settings > Apps > iTrack > Special permissions
+**ANDROID 12+ COMPATIBILITY FIXED**: Addressed exact alarm restrictions introduced in API level 31 that broke background GPS timing
 
 ### Versiunea Precedentă: 1808.217 (July 03, 2025) - DUPLICATE GPS TRANSMISSIONS ELIMINATED COMPLETELY
 
