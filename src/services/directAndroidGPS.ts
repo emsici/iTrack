@@ -21,8 +21,7 @@ declare global {
 
 import { logGPS, logGPSError } from './appLogger';
 import { getStoredToken, getStoredVehicleNumber } from './storage';
-import { Geolocation } from '@capacitor/geolocation';
-import { sendGPSData } from './api';
+// Removed unused imports - Android-only GPS architecture
 
 interface ActiveCourse {
   courseId: string;
@@ -37,9 +36,18 @@ class DirectAndroidGPSService {
   private activeCourses: Map<string, ActiveCourse> = new Map();
 
   private isAndroidGPSAvailable(): boolean {
-    return typeof window !== 'undefined' && 
+    const available = typeof window !== 'undefined' && 
            !!window.AndroidGPS && 
            typeof window.AndroidGPS?.startGPS === 'function';
+    
+    // EXPLICIT debugging for Android interface availability
+    logGPS(`🔍 Android Interface Check:`);
+    logGPS(`  - window exists: ${typeof window !== 'undefined'}`);
+    logGPS(`  - AndroidGPS exists: ${!!(window as any)?.AndroidGPS}`);
+    logGPS(`  - startGPS function: ${typeof (window as any)?.AndroidGPS?.startGPS}`);
+    logGPS(`  - Final result: ${available}`);
+    
+    return available;
   }
 
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
@@ -140,10 +148,24 @@ class DirectAndroidGPSService {
     
     if (this.isAndroidGPSAvailable()) {
       try {
+        logGPS(`🚀 Calling AndroidGPS.startGPS with parameters:`);
+        logGPS(`  - courseId: ${courseId}`);
+        logGPS(`  - vehicleNumber: ${vehicleNumber}`);
+        logGPS(`  - uit: ${uit}`);
+        logGPS(`  - token length: ${token.length}`);
+        logGPS(`  - status: ${status}`);
+        
         const result = window.AndroidGPS!.startGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ Android background GPS started: ${result}`);
+        logGPS(`✅ Android background GPS result: ${result}`);
+        
+        // Test if service is actually running
+        setTimeout(() => {
+          logGPS(`🔍 Testing service status after 3 seconds...`);
+        }, 3000);
+        
       } catch (error) {
         logGPSError(`❌ Android background GPS error: ${error}`);
+        logGPSError(`❌ Error details: ${JSON.stringify(error)}`);
       }
     } else {
       logGPS(`📱 AndroidGPS not available - background GPS not started`);
