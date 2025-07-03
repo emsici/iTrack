@@ -38,46 +38,14 @@ class DirectAndroidGPSService {
 
 
   /**
-   * Send status update to server via gps.php
+   * REMOVED: No longer sending status to server via gps.php to prevent duplicate GPS transmissions
+   * OptimalGPSService handles ALL GPS transmissions including status updates
    */
-  private async sendStatusToServer(uit: string, vehicleNumber: string, token: string, status: number): Promise<void> {
-    try {
-      const { sendGPSData } = await import('./api');
-      
-      // Create GPS data with current position for status update
-      const { Geolocation } = await import('@capacitor/geolocation');
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 30000
-      });
-
-      const { Device } = await import('@capacitor/device');
-      const batteryInfo = await Device.getBatteryInfo();
-      
-      const gpsData = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        timestamp: new Date().toISOString(),
-        viteza: position.coords.speed || 0,
-        directie: position.coords.heading || 0,
-        altitudine: position.coords.altitude || 0,
-        baterie: Math.round(batteryInfo.batteryLevel! * 100),
-        numar_inmatriculare: vehicleNumber,
-        uit: uit,
-        status: status,
-        hdop: position.coords.accuracy || 1,
-        gsm_signal: 4
-      };
-
-      console.log(`📡 Sending status ${status} to server for UIT: ${uit}`);
-      await sendGPSData(gpsData, token);
-      console.log(`✅ Status ${status} sent successfully to server`);
-      
-    } catch (error) {
-      console.error(`❌ Failed to send status ${status} to server:`, error);
-      throw error;
-    }
+  private async sendStatusToServer(uit: string, _vehicleNumber: string, _token: string, status: number): Promise<void> {
+    // CRITICAL: Do NOT send GPS data here - this causes duplicate transmissions with OptimalGPSService
+    // OptimalGPSService handles ALL GPS coordinate transmission and status updates
+    console.log(`⚠️ Status ${status} update for UIT ${uit} - handled by OptimalGPSService only`);
+    console.log(`✅ Status update delegated to OptimalGPSService to prevent duplicates`);
   }
 
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
