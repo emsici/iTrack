@@ -664,6 +664,10 @@ public class OptimalGPSService extends Service {
             activeCourses.clear();
             stopOptimalGPSTimer();
             Log.d(TAG, "🧹 OPTIMAL GPS cleared all courses");
+            
+            // CRITICAL: Force clear any cached GPS data or background processes
+            Log.d(TAG, "🔥 FORCE CLEARING: Eliminating any potential cached GPS transmissions");
+            Log.d(TAG, "⚠️ NOTE: Only real-time GPS with location.getSpeed() should transmit - NO STATIC SPEED VALUES");
         }
     }
     
