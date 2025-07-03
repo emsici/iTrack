@@ -184,6 +184,8 @@ Persistare localStorage → Afișare CourseStatsModal
 **TIMESTAMP OPTIMIZATION**: Added delay between multiple course transmissions to prevent duplicate timestamps
 **REAL UIT USAGE**: Test GPS now uses actual UIT from loaded courses instead of test values
 **UI CLEANUP**: Removed refresh and test GPS buttons leaving only logout button for cleaner interface
+**STATUS PERSISTENCE**: Fixed course status preservation during auto-refresh to maintain START/PAUSE states when returning to app
+**UIT TRANSMISSION**: Corrected GPS service to transmit real UIT values instead of course IDs by passing courseToUpdate.uit
 
 ### Versiunea Precedentă: 1808.187 (June 30, 2025) - FINAL GPS BLOCKING ISSUES ELIMINATED & COMPLETE FLOW VERIFIED
 

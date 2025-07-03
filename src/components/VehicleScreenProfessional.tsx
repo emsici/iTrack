@@ -180,11 +180,38 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 setCourses(currentCourses => {
                   const existingUITs = new Set(currentCourses.map(course => course.uit));
                   
-                  // Process new courses and mark new ones
-                  const newCoursesData = response.map((course: any) => ({
-                    ...course,
-                    isNew: !existingUITs.has(course.uit) // Mark as new if UIT doesn't exist
-                  }));
+                  // CRITICAL: Preserve local status when auto-refreshing
+                  const newCoursesData = response.map((course: any) => {
+                    // Find existing course with same UIT
+                    const existingCourse = currentCourses.find(c => c.uit === course.uit);
+                    
+                    // Restore saved status from localStorage or use existing status
+                    let preservedStatus = course.status || 1; // Default from server
+                    
+                    if (existingCourse) {
+                      // KEEP existing status - user started/paused/stopped course
+                      preservedStatus = existingCourse.status;
+                      console.log(`🔄 Auto-refresh: Preserving status ${preservedStatus} for UIT ${course.uit}`);
+                    } else {
+                      // New course - check localStorage for saved status
+                      try {
+                        const statusKey = `course_status_${course.uit}`;
+                        const storedStatus = localStorage.getItem(statusKey);
+                        if (storedStatus) {
+                          preservedStatus = parseInt(storedStatus);
+                          console.log(`📋 Auto-refresh: Restored status ${preservedStatus} for new UIT ${course.uit}`);
+                        }
+                      } catch (error) {
+                        console.error('Failed to restore course status during auto-refresh:', error);
+                      }
+                    }
+                    
+                    return {
+                      ...course,
+                      status: preservedStatus,
+                      isNew: !existingUITs.has(course.uit)
+                    };
+                  });
                   
                   // Sort: new courses first, then existing ones
                   const sortedCourses = newCoursesData.sort((a: Course, b: Course) => {
@@ -197,7 +224,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   if (newCount > 0) {
                     console.log(`🆕 Auto-refresh: ${newCount} new UIT courses added (may be background)`);
                   } else {
-                    console.log(`✅ Auto-refresh: ${sortedCourses.length} courses updated (no new UITs)`);
+                    console.log(`✅ Auto-refresh: ${sortedCourses.length} courses updated (preserved statuses)`);
                   }
                   
                   return sortedCourses;
