@@ -41,20 +41,7 @@ public class OptimalGPSService extends Service {
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private boolean isAlarmActive = false;
     
-    // BACKUP: Handler for GPS cycles if AlarmManager fails
-    private Handler gpsHandler = new Handler(Looper.getMainLooper());
-    private Runnable gpsRunnable = new Runnable() {
-        @Override
-        public void run() {
-            Log.d(TAG, "🔄 HANDLER GPS CYCLE - backup timing mechanism");
-            performOptimalGPSCycle();
-            
-            // Schedule next cycle if we still have active courses
-            if (!activeCourses.isEmpty()) {
-                gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-            }
-        }
-    };
+
     
     // FOREGROUND OPTIMIZED HTTP TRANSMISSION
     private ExecutorService httpThreadPool; // Simple thread pool to avoid blocking main service
@@ -157,18 +144,7 @@ public class OptimalGPSService extends Service {
             
             handleServiceCommand(intent);
             
-            // CRITICAL: After handling command, perform GPS cycle if we have active courses
-            if (!activeCourses.isEmpty()) {
-                Log.d(TAG, "🚀 DIAGNOSTIC: EXECUTING INITIAL GPS CYCLE for " + activeCourses.size() + " active courses");
-                Log.d(TAG, "🔍 DIAGNOSTIC: Active courses details:");
-                for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-                    CourseData course = entry.getValue();
-                    Log.d(TAG, "  - CourseId: " + course.courseId + ", UIT: " + course.uit + ", Status: " + course.status);
-                }
-                performOptimalGPSCycle();
-            } else {
-                Log.w(TAG, "⚠️ DIAGNOSTIC: NO ACTIVE COURSES - skipping GPS cycle");
-            }
+            // Service command handled - let AlarmManager handle GPS cycles
         }
         
         Log.d(TAG, "🚨 === DIAGNOSTIC END === onStartCommand completed");
@@ -615,11 +591,10 @@ public class OptimalGPSService extends Service {
             gpsPendingIntent = null;
         }
         
-        // BACKUP: Stop Handler-based GPS cycles
-        gpsHandler.removeCallbacks(gpsRunnable);
+
         
         isAlarmActive = false;
-        Log.d(TAG, "🛑 Optimal GPS timer stopped (AlarmManager + Handler)");
+        Log.d(TAG, "🛑 Optimal GPS timer stopped");
     }
     
     private void handleServiceCommand(Intent intent) {
@@ -668,21 +643,8 @@ public class OptimalGPSService extends Service {
             if (!isAlarmActive && !activeCourses.isEmpty()) {
                 Log.d(TAG, "🚀 STARTING GPS timer - " + activeCourses.size() + " active courses need GPS");
                 startOptimalGPSTimer();
-                
-                // CRITICAL: Force immediate GPS cycle after starting timer
-                Log.d(TAG, "🔥 FORCE IMMEDIATE GPS CYCLE after timer start");
-                performOptimalGPSCycle();
-                
-                // BACKUP: Start Handler-based GPS cycles as fallback
-                Log.d(TAG, "🔄 STARTING HANDLER BACKUP GPS CYCLES");
-                gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS);
-                
             } else if (isAlarmActive) {
                 Log.d(TAG, "✅ GPS timer already active - " + activeCourses.size() + " courses tracking");
-                
-                // FORCE GPS cycle even if timer was already active
-                Log.d(TAG, "🔥 FORCE GPS CYCLE for existing timer");
-                performOptimalGPSCycle();
             }
             
         } else if ("STOP_GPS".equals(action)) {

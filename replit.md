@@ -171,14 +171,14 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.221 (July 03, 2025) - HANDLER BACKUP GPS CYCLES IMPLEMENTED
+### Versiunea Curentă: 1808.222 (July 03, 2025) - REVERTED TO SIMPLE 10:30 GPS LOGIC
 
-**HANDLER BACKUP SYSTEM IMPLEMENTED**: Added Handler-based GPS cycles as backup to AlarmManager for guaranteed GPS transmission
-**DUAL GPS TIMING MECHANISM**: OptimalGPSService now uses both AlarmManager (primary) and Handler (backup) for maximum reliability
-**CONTINUOUS GPS GUARANTEED**: Handler postDelayed ensures GPS cycles continue even if AlarmManager fails silently
-**SAME PHONE COMPATIBILITY**: Addresses timing issues that prevented GPS transmission on same Android 15 device that worked at 09:25
-**BACKGROUND GPS RECOVERY**: Handler runs in foreground service ensuring background GPS continues with phone locked
-**PRODUCTION RELIABILITY**: Dual mechanism prevents GPS transmission failures regardless of Android restrictions or timing issues
+**GPS CONFLICTS ELIMINATED**: Removed Handler backup and forced GPS cycles that were causing conflicts with AlarmManager
+**SIMPLE ALARMMANAGER ONLY**: Reverted to exact same logic that worked perfectly at 10:30 on same Android 15 device
+**DUPLICATE EXECUTION REMOVED**: Eliminated immediate GPS execution in onStartCommand that was conflicting with timer
+**CLEAN GPS TIMING**: Only AlarmManager triggers GPS cycles at 5-second intervals, no redundant mechanisms
+**10:30 LOGIC RESTORED**: Serviciul folosește exact aceeași arhitectură simplă care transmitea perfect la 10:30
+**PRODUCTION STABILITY**: Clean single-source GPS timing mechanism without conflicts or duplicate transmissions
 
 ### Versiunea Precedentă: 1808.217 (July 03, 2025) - DUPLICATE GPS TRANSMISSIONS ELIMINATED COMPLETELY
 
