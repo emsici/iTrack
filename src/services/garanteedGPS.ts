@@ -114,11 +114,19 @@ class GuaranteedGPSService {
       const { coords } = position;
       logGPS(`📍 GPS Position obtained: ${coords.latitude}, ${coords.longitude}`);
       
-      // Transmitem pentru fiecare cursă activă
+      // Transmitem pentru fiecare cursă activă cu întârziere pentru timestamp-uri unice
       logGPS(`🔄 Processing ${this.activeCourses.size} courses for transmission...`);
+      let delayMs = 0;
       for (const [courseId, course] of this.activeCourses) {
         logGPS(`📤 Transmitting for course: ${courseId} (${course.uit})`);
+        
+        // Întârziere mică pentru timestamp-uri unice
+        if (delayMs > 0) {
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+        
         await this.transmitSingleCourse(course, coords);
+        delayMs += 100; // Incrementăm cu 100ms pentru fiecare cursă următoare
       }
 
     } catch (error) {
@@ -138,10 +146,13 @@ class GuaranteedGPSService {
       const batteryLevel = await this.getBatteryLevel();
       logGPS(`🔋 Battery level: ${batteryLevel}%`);
       
+      // Timestamp unic cu milisecunde pentru evitarea duplicatelor
+      const uniqueTimestamp = new Date().toISOString();
+      
       const gpsData: GPSData = {
         lat: coords.latitude,
         lng: coords.longitude,
-        timestamp: new Date().toISOString(),
+        timestamp: uniqueTimestamp,
         viteza: coords.speed || 0,
         directie: coords.heading || 0,
         altitudine: coords.altitude || 0,

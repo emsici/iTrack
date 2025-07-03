@@ -818,7 +818,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   console.log('📍 Vehicle:', vehicleNumber || 'TEST_VEHICLE');
                   console.log('🔑 Token available:', !!token);
                   
-                  // Test simplu fără să pornească serviciul complet
+                  // Găsesc prima cursă activă pentru UIT real
+                  const activeCourse = courses.find(c => c.status === 2) || courses[0];
+                  const realUIT = activeCourse?.uit || 'NO_COURSE_UIT';
+                  
+                  console.log('📦 Using UIT from course:', realUIT);
+                  console.log('🚛 Course info:', activeCourse ? `${activeCourse.name} (Status: ${activeCourse.status})` : 'No course available');
                   
                   const testGPSData = {
                     lat: 44.4268 + (Math.random() - 0.5) * 0.01,
@@ -829,13 +834,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     altitudine: 80 + Math.random() * 20,
                     baterie: 85,
                     numar_inmatriculare: vehicleNumber || 'TEST_VEHICLE',
-                    uit: 'TEST_UIT_123',
+                    uit: realUIT,
                     status: 2,
                     hdop: 1,
                     gsm_signal: 4
                   };
                   
                   console.log('📊 Test GPS Data:', testGPSData);
+                  console.log('⚠️ IMPORTANT: Using REAL UIT from course, not test UIT');
                   const success = await sendGPSData(testGPSData, token);
                   
                   if (success) {
