@@ -175,11 +175,25 @@ public class OptimalGPSService extends Service {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "🚨 === DIAGNOSTIC START === OPTIMAL GPS Service onStartCommand");
-        Log.d(TAG, "📡 Action: " + (intent != null ? intent.getAction() : "NULL_INTENT"));
-        Log.d(TAG, "⚡ Current activeCourses count: " + activeCourses.size());
-        Log.d(TAG, "🔍 Service flags: " + flags + ", startId: " + startId);
-        Log.d(TAG, "🔥 CRITICAL DEBUG: isAlarmActive=" + isAlarmActive + ", WakeLock held=" + (wakeLock != null && wakeLock.isHeld()));
+        android.util.Log.e(TAG, "🚨🚨🚨 === OPTIMAL GPS SERVICE STARTED === 🚨🚨🚨");
+        android.util.Log.e(TAG, "📡 Action: " + (intent != null ? intent.getAction() : "NULL_INTENT"));
+        android.util.Log.e(TAG, "⚡ Current activeCourses count: " + activeCourses.size());
+        android.util.Log.e(TAG, "🔍 Service flags: " + flags + ", startId: " + startId);
+        android.util.Log.e(TAG, "🔥 CRITICAL DEBUG: isAlarmActive=" + isAlarmActive + ", WakeLock held=" + (wakeLock != null && wakeLock.isHeld()));
+        
+        // CRITICAL: Log detailed intent data if available
+        if (intent != null) {
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                android.util.Log.e(TAG, "🔍 INTENT EXTRAS:");
+                for (String key : extras.keySet()) {
+                    Object value = extras.get(key);
+                    android.util.Log.e(TAG, "  " + key + ": " + value);
+                }
+            } else {
+                android.util.Log.e(TAG, "⚠️ INTENT HAS NO EXTRAS");
+            }
+        }
         
 
         
@@ -759,7 +773,8 @@ public class OptimalGPSService extends Service {
             } else {
                 CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber, authToken);
                 activeCourses.put(courseId, courseData);
-                Log.d(TAG, "✅ OPTIMAL course added: " + courseId + " (UIT: " + uit + ")");
+                android.util.Log.e(TAG, "✅✅✅ COURSE ADDED TO ACTIVECOURSES: " + courseId + " (UIT: " + uit + ") ✅✅✅");
+                android.util.Log.e(TAG, "📊 TOTAL ACTIVE COURSES NOW: " + activeCourses.size());
             }
             
             // CRITICAL: ALWAYS ensure GPS timer is running when we have active courses
