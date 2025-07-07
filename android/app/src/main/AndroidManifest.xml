@@ -11,6 +11,7 @@
         android:requestLegacyExternalStorage="true"
         android:largeHeap="true"
         android:hardwareAccelerated="true"
+        android:persistent="true"
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:debuggable="true">
@@ -30,19 +31,26 @@
 
         </activity>
 
-        <!-- TEST: Simple GPS Service for debugging Intent delivery -->
+        <!-- OptimalGPSService for maximum battery efficiency -->
         <service
-            android:name=".SimpleTestGPSService"
-            android:enabled="true"
-            android:exported="false" />
-            
-        <!-- OptimalGPSService EXCLUSIVE - ONLY GPS SERVICE -->
-        <service
-            android:name=".OptimalGPSService"
+            android:name="com.euscagency.itrack.OptimalGPSService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location"
             android:stopWithTask="false" />
+            
+        <!-- GPS handled via MainActivity AndroidGPS WebView interface -->
+            
+        <!-- Background Auto-Refresh Service -->
+        <service
+            android:name="com.itrack.BackgroundRefreshService"
+            android:enabled="true"
+            android:exported="false" />
+            
+        <receiver
+            android:name="com.itrack.BackgroundRefreshService$RefreshReceiver"
+            android:enabled="true"
+            android:exported="false" />
             
         <!-- GPS Broadcast Receiver for independent activation -->
 
@@ -86,22 +94,43 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.TURN_SCREEN_ON" />
     
-    <!-- CRITICAL: AlarmManager exact timing permissions for Android 6+ -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.SET_ALARM" />
-    
     <!-- Storage permissions for app data -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    
+    <!-- Background refresh permissions -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     
     <!-- Real device data permissions for authentic GPS transmission -->
     <uses-permission android:name="android.permission.BATTERY_STATS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     
-    <!-- Additional GPS permissions -->
+    <!-- Phone state for GSM signal strength -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    
+    <!-- TransistorSoft Background Geolocation permissions -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+    
+    <!-- Additional permissions for robust background operation -->
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
+    
+    <!-- CRITICAL: Permissions for app minimized and phone locked operation -->
+    <uses-permission android:name="android.permission.PARTIAL_WAKE_LOCK" />
+    <uses-permission android:name="android.permission.REQUEST_COMPANION_RUN_IN_BACKGROUND" />
+    <uses-permission android:name="android.permission.REQUEST_COMPANION_USE_DATA_IN_BACKGROUND" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    
+    <!-- Prevent Android from killing the service -->
+    <uses-permission android:name="android.permission.DEVICE_POWER" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <uses-feature
         android:name="android.hardware.location"

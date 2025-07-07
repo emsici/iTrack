@@ -24,7 +24,6 @@ import android.content.pm.PackageManager;
 public class MainActivity extends BridgeActivity {
     private static final String TAG = "iTrackMainActivity";
     private static MainActivity instance;
-    private WebView webView;
 
     public static MainActivity getInstance() {
         return instance;
@@ -36,8 +35,9 @@ public class MainActivity extends BridgeActivity {
         instance = this;
         Log.d(TAG, "✅ MainActivity initialized - preparing AndroidGPS interfaces");
         
-        // AndroidGPS interface handled directly via WebView - no plugin needed
-        Log.d(TAG, "🔌 AndroidGPS interface ready - direct WebView bridge active");
+        // Register AndroidGPS Plugin as fallback
+        registerPlugin(AndroidGPSPlugin.class);
+        Log.d(TAG, "🔌 AndroidGPSPlugin registered as Capacitor plugin");
     }
     
     // Bridge ready handling moved to onResume for compatibility
@@ -67,21 +67,18 @@ public class MainActivity extends BridgeActivity {
 
     private void addAndroidGPSInterface() {
         try {
-            WebView currentWebView = getBridge().getWebView();
-            if (currentWebView != null) {
+            WebView webView = getBridge().getWebView();
+            if (webView != null) {
                 Log.d(TAG, "🔧 Adding AndroidGPS interface to WebView...");
                 
-                // Store webView reference for later use
-                this.webView = currentWebView;
-                
                 // Add JavaScript interface - this creates window.AndroidGPS
-                currentWebView.addJavascriptInterface(this, "AndroidGPS");
+                webView.addJavascriptInterface(this, "AndroidGPS");
                 
                 // Wait for WebView to be ready, then set flags and verify
-                currentWebView.post(() -> {
-                    currentWebView.evaluateJavascript("window.AndroidGPSReady = true;", null);
-                    currentWebView.evaluateJavascript("window.androidGPSBridgeReady = true;", null);
-                    currentWebView.evaluateJavascript("window.androidGPSInterfaceReady = true;", null);
+                webView.post(() -> {
+                    webView.evaluateJavascript("window.AndroidGPSReady = true;", null);
+                    webView.evaluateJavascript("window.androidGPSBridgeReady = true;", null);
+                    webView.evaluateJavascript("window.androidGPSInterfaceReady = true;", null);
                     
                     // CRITICAL: Test and report if interface is working
                     webView.evaluateJavascript(
@@ -133,17 +130,7 @@ public class MainActivity extends BridgeActivity {
     
     @JavascriptInterface
     public String startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
-        android.util.Log.e(TAG, "🚨🚨🚨 === MAINACTIVITY AndroidGPS.startGPS CALLED FROM JAVASCRIPT 🚨🚨🚨");
-        
-        // CRITICAL DEBUG: Force JavaScript callback to prove Android function is called
-        if (webView != null) {
-            webView.post(() -> {
-                webView.evaluateJavascript(
-                    "console.log('🔥🔥🔥 PROOF: MainActivity.startGPS() WAS ACTUALLY CALLED! 🔥🔥🔥');",
-                    null
-                );
-            });
-        }
+        Log.d(TAG, "🚨 === DIAGNOSTIC === AndroidGPS.startGPS CALLED FROM JAVASCRIPT");
         Log.d(TAG, "📍 Parameters received:");
         Log.d(TAG, "  - courseId: " + courseId);
         Log.d(TAG, "  - vehicleNumber: " + vehicleNumber);
@@ -151,95 +138,23 @@ public class MainActivity extends BridgeActivity {
         Log.d(TAG, "  - authToken length: " + (authToken != null ? authToken.length() : "NULL"));
         Log.d(TAG, "  - status: " + status);
         
-        // NOTE: SCHEDULE_EXACT_ALARM permission check moved to OptimalGPSService
-        // Let service start but it will handle permission internally
-        Log.d(TAG, "🔧 Permission check delegated to OptimalGPSService for compatibility");
-
         try {
-            // TEST: Try simple service first
-            Intent testIntent = new Intent(this, SimpleTestGPSService.class);
-            testIntent.setAction("START_GPS");
-            testIntent.putExtra("courseId", courseId);
-            startService(testIntent);
-            android.util.Log.e(TAG, "🔧 TEST: SimpleTestGPSService started");
+            Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for OptimalGPSService");
+            Intent intent = new Intent(this, OptimalGPSService.class);
+            intent.setAction("START_GPS");
+            intent.putExtra("courseId", courseId);
+            intent.putExtra("vehicleNumber", vehicleNumber);
+            intent.putExtra("uit", uit);
+            intent.putExtra("authToken", authToken);
+            intent.putExtra("status", status);
             
-            Intent serviceIntent = new Intent(this, OptimalGPSService.class);
-            serviceIntent.setAction("START_GPS");
-            serviceIntent.putExtra("courseId", courseId);
-            serviceIntent.putExtra("vehicleNumber", vehicleNumber);
-            serviceIntent.putExtra("uit", uit);
-            serviceIntent.putExtra("authToken", authToken);
-            serviceIntent.putExtra("status", status);
+            Log.d(TAG, "🚀 DIAGNOSTIC: Calling startForegroundService...");
+            startForegroundService(intent);
+            Log.d(TAG, "✅ DIAGNOSTIC: OptimalGPSService startForegroundService completed for " + courseId);
             
-            android.util.Log.e(TAG, "🚀🚀🚀 MAINACTIVITY: About to call startForegroundService with START_GPS 🚀🚀🚀");
-            android.util.Log.e(TAG, "📋 INTENT DETAILS:");
-            android.util.Log.e(TAG, "  Action: " + serviceIntent.getAction());
-            android.util.Log.e(TAG, "  courseId: " + courseId);
-            android.util.Log.e(TAG, "  vehicleNumber: " + vehicleNumber);
-            android.util.Log.e(TAG, "  authToken length: " + (authToken != null ? authToken.length() : "NULL"));
-            android.util.Log.e(TAG, "  vehicleNumber: " + vehicleNumber);
-            android.util.Log.e(TAG, "  uit: " + uit);
-            android.util.Log.e(TAG, "  authToken length: " + (authToken != null ? authToken.length() : "null"));
-            android.util.Log.e(TAG, "  status: " + status);
-            
-            android.util.Log.e(TAG, "🔥 CALLING startForegroundService() NOW...");
-            
-            // CRITICAL TEST: Check if service class exists and is accessible
-            try {
-                Class<?> serviceClass = OptimalGPSService.class;
-                android.util.Log.e(TAG, "✅ OptimalGPSService.class found: " + serviceClass.getName());
-            } catch (Exception e) {
-                android.util.Log.e(TAG, "❌ OptimalGPSService.class NOT FOUND: " + e.getMessage());
-            }
-            
-            // CRITICAL: Test direct service instantiation first
-            try {
-                OptimalGPSService testService = new OptimalGPSService();
-                android.util.Log.e(TAG, "✅ Direct OptimalGPSService instantiation SUCCESS");
-            } catch (Exception e) {
-                android.util.Log.e(TAG, "❌ Direct OptimalGPSService instantiation FAILED: " + e.getMessage());
-            }
-            
-            // Try both startService and startForegroundService with detailed error logging
-            try {
-                android.util.Log.e(TAG, "🔥 Attempting startService()...");
-                startService(serviceIntent);
-                android.util.Log.e(TAG, "✅ startService() completed WITHOUT EXCEPTION");
-            } catch (SecurityException se) {
-                android.util.Log.e(TAG, "❌ startService() SECURITY EXCEPTION: " + se.getMessage());
-            } catch (Exception e) {
-                android.util.Log.e(TAG, "❌ startService() GENERAL EXCEPTION: " + e.getMessage());
-                e.printStackTrace();
-            }
-            
-            try {
-                android.util.Log.e(TAG, "🔥 Attempting startForegroundService()...");
-                startForegroundService(serviceIntent);
-                android.util.Log.e(TAG, "✅ startForegroundService() completed WITHOUT EXCEPTION");
-            } catch (SecurityException se) {
-                android.util.Log.e(TAG, "❌ startForegroundService() SECURITY EXCEPTION: " + se.getMessage());
-            } catch (Exception e) {
-                android.util.Log.e(TAG, "❌ startForegroundService() GENERAL EXCEPTION: " + e.getMessage());
-                e.printStackTrace();
-            }
-            
-            android.util.Log.e(TAG, "✅✅✅ MAINACTIVITY: ALL SERVICE START ATTEMPTS COMPLETED ✅✅✅");
-            
-            // FINAL LOG: All service start attempts completed
-            android.util.Log.e(TAG, "🏁 MAINACTIVITY: All service start operations completed");
-            
-            // Force JavaScript callback to prove this completed AND check for OptimalGPSService response
-            if (webView != null) {
-                webView.post(() -> {
-                    webView.evaluateJavascript(
-                        "console.log('🚀 MAINACTIVITY: All service start attempts completed');" +
-                        "setTimeout(() => console.log('🔍 Look for Android Logs: Direct instantiation + startService + startForegroundService results'), 2000);",
-                        null
-                    );
-                });
-            }
-            
-            return "SUCCESS: GPS started for " + courseId;
+            String result = "SUCCESS: GPS started for " + courseId;
+            Log.d(TAG, "📤 DIAGNOSTIC: Returning result to JavaScript: " + result);
+            return result;
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error starting GPS: " + e.getMessage());
@@ -249,8 +164,7 @@ public class MainActivity extends BridgeActivity {
 
     @JavascriptInterface
     public String stopGPS(String courseId) {
-        android.util.Log.e(TAG, "🛑🛑🛑 === MAINACTIVITY AndroidGPS.stopGPS CALLED === 🛑🛑🛑");
-        android.util.Log.e(TAG, "📋 courseId: " + courseId);
+        Log.d(TAG, "🛑 AndroidGPS.stopGPS called: courseId=" + courseId);
         
         try {
             Intent intent = new Intent(this, OptimalGPSService.class);
@@ -269,8 +183,7 @@ public class MainActivity extends BridgeActivity {
 
     @JavascriptInterface
     public String updateStatus(String courseId, int newStatus) {
-        android.util.Log.e(TAG, "🔄🔄🔄 === MAINACTIVITY AndroidGPS.updateStatus CALLED === 🔄🔄🔄");
-        android.util.Log.e(TAG, "📋 courseId: " + courseId + ", newStatus: " + newStatus);
+        Log.d(TAG, "🔄 AndroidGPS.updateStatus called: courseId=" + courseId + ", newStatus=" + newStatus);
         
         try {
             Intent intent = new Intent(this, OptimalGPSService.class);

@@ -273,11 +273,27 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const handleLogout = async () => {
     try {
-      await logoutClearAllGPS();
+      console.log('🔐 Starting complete logout - stopping ALL GPS transmissions...');
+      
+      // STEP 1: Stop all GPS services completely
+      await logoutClearAllGPS(); // Direct Android GPS service
+      
+      // STEP 2: Clear any remaining guaranteed GPS services 
+      try {
+        const { clearAllGuaranteedGPS } = await import('../services/garanteedGPS');
+        await clearAllGuaranteedGPS();
+        console.log('✅ Guaranteed GPS service cleared');
+      } catch (error) {
+        console.warn('GuaranteedGPS clear failed (service may not be active):', error);
+      }
+      
+      // STEP 3: Server logout 
       await logout(token);
+      
+      // STEP 4: Clear local authentication
       await clearToken();
       
-      // Clear all saved course statuses on logout
+      // STEP 5: Clear all saved course statuses on logout
       try {
         const keys = Object.keys(localStorage);
         keys.forEach(key => {
@@ -290,6 +306,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.error('Failed to clear course statuses:', error);
       }
       
+      console.log('✅ Complete logout finished - all GPS transmissions stopped');
       onLogout();
     } catch (error) {
       console.error("Eroare la logout:", error);
@@ -368,7 +385,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       // SIMPLIFIED: All GPS logic handled by capacitorGPS service
       try {
-        console.log(`🎯 Delegating all GPS logic to directAndroidGPS service`);
+        console.log(`🎯 Delegating all GPS logic to capacitorGPS service`);
         console.log(`📞 Calling updateCourseStatus with UIT: ${courseToUpdate.uit} (not ID: ${courseId})`);
         
         // CRITICAL FIX: Use UIT instead of courseId for GPS service

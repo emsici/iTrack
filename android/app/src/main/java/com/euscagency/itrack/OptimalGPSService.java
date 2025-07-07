@@ -13,10 +13,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.PowerManager;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -37,50 +34,12 @@ public class OptimalGPSService extends Service {
     private static final String TAG = "OptimalGPS";
     private static final long GPS_INTERVAL_MS = 5000; // Exact 5 seconds
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.GPS_ALARM";
-    private static final String CHANNEL_ID = "OptimalGPSChannel";
-    private static final int NOTIFICATION_ID = 1001;
-    
-    // DIAGNOSTIC CONSTRUCTOR
-    public OptimalGPSService() {
-        super();
-        android.util.Log.e(TAG, "🚨🚨🚨 CRITICAL: OptimalGPSService CONSTRUCTOR called - class is loading 🚨🚨🚨");
-    }
     
     private AlarmManager alarmManager;
     private PendingIntent gpsPendingIntent;
     private LocationManager locationManager;
-    private PowerManager.WakeLock wakeLock;
-    private Map<String, CourseData> activeCourses;
+    private Map<String, CourseData> activeCourses = new HashMap<>();
     private boolean isAlarmActive = false;
-    
-    // HYBRID: AlarmManager (efficient) + Handler backup (guaranteed)
-    private Handler gpsHandler = new Handler(Looper.getMainLooper());
-    private long lastGPSTransmission = 0;
-    private boolean alarmManagerWorking = false;
-    private Runnable gpsRunnable = new Runnable() {
-        @Override
-        public void run() {
-            long now = System.currentTimeMillis();
-            long timeSinceLastGPS = now - lastGPSTransmission;
-            
-            // Only trigger if it's been more than 6 seconds since last GPS transmission
-            if (timeSinceLastGPS > 6000) {
-                Log.d(TAG, "🔄 HANDLER BACKUP GPS CYCLE - " + timeSinceLastGPS + "ms since last GPS");
-                alarmManagerWorking = false;
-                performOptimalGPSCycle();
-            } else {
-                Log.d(TAG, "⏸️ HANDLER: Skipping GPS - recent transmission " + timeSinceLastGPS + "ms ago");
-                alarmManagerWorking = true;
-            }
-            
-            // Schedule next backup check only if we have active courses
-            if (!activeCourses.isEmpty()) {
-                gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
-            }
-        }
-    };
-    
-
     
     // FOREGROUND OPTIMIZED HTTP TRANSMISSION
     private ExecutorService httpThreadPool; // Simple thread pool to avoid blocking main service
@@ -102,52 +61,22 @@ public class OptimalGPSService extends Service {
         }
     }
     
+    private static final int NOTIFICATION_ID = 1;
+    private static final String CHANNEL_ID = "OptimalGPSChannel";
+    
     @Override
     public void onCreate() {
         super.onCreate();
-        android.util.Log.e(TAG, "🚨🚨🚨 OPTIMAL GPS SERVICE onCreate() CALLED 🚨🚨🚨");
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
-        try {
-            android.util.Log.e("OptimalGPS", "🔧 Step 1: Initializing activeCourses Map...");
-            // CRITICAL: Initialize activeCourses first
-            activeCourses = new java.util.concurrent.ConcurrentHashMap<>();
-            android.util.Log.e("OptimalGPS", "✅ Step 1 DONE: activeCourses Map initialized");
-            
-            android.util.Log.e("OptimalGPS", "🔧 Step 2: Getting AlarmManager...");
-            alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            android.util.Log.e("OptimalGPS", "✅ Step 2 DONE: AlarmManager = " + (alarmManager != null));
-            
-            android.util.Log.e("OptimalGPS", "🔧 Step 3: Getting LocationManager...");
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            android.util.Log.e("OptimalGPS", "✅ Step 3 DONE: LocationManager = " + (locationManager != null));
-            
-            android.util.Log.e("OptimalGPS", "🔧 Step 4: Getting PowerManager...");
-            // CRITICAL: PARTIAL_WAKE_LOCK for background GPS with phone locked
-            PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "OptimalGPS:WakeLock");
-            android.util.Log.e("OptimalGPS", "✅ Step 4 DONE: WakeLock = " + (wakeLock != null));
-            
-            android.util.Log.e("OptimalGPS", "🔧 Step 5: Creating HTTP ThreadPool...");
-            // FOREGROUND OPTIMIZED: Simple thread pool to avoid blocking AlarmManager
-            httpThreadPool = Executors.newFixedThreadPool(1); // Single background thread for HTTP
-            android.util.Log.e("OptimalGPS", "✅ Step 5 DONE: HTTP ThreadPool initialized");
-            
-            android.util.Log.e("OptimalGPS", "🔧 Step 6: Creating notification channel...");
-            createNotificationChannel();
-            android.util.Log.e("OptimalGPS", "✅ Step 6 DONE: Notification channel created");
-            
-            android.util.Log.e("OptimalGPS", "🔧 Step 7: Starting foreground service...");
-            startForeground(NOTIFICATION_ID, createNotification());
-            android.util.Log.e("OptimalGPS", "✅ Step 7 DONE: Foreground service started successfully");
-            
-            android.util.Log.e("OptimalGPS", "🎯 SUCCESS: OPTIMAL GPS Service created successfully!");
-            
-        } catch (Exception e) {
-            android.util.Log.e("OptimalGPS", "❌❌❌ CRITICAL ERROR in onCreate(): " + e.getMessage(), e);
-            throw e; // Re-throw to see the crash
-        }
+        // FOREGROUND OPTIMIZED: Simple thread pool to avoid blocking AlarmManager
+        httpThreadPool = Executors.newFixedThreadPool(1); // Single background thread for HTTP
         
-        android.util.Log.e("OptimalGPS", "🏁 COMPLETE: onCreate() finished successfully");
+        createNotificationChannel();
+        startForeground(NOTIFICATION_ID, createNotification());
+        
+        Log.d(TAG, "✅ OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching");
     }
     
     private void createNotificationChannel() {
@@ -175,47 +104,10 @@ public class OptimalGPSService extends Service {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        android.util.Log.e(TAG, "🚨🚨🚨 OPTIMAL GPS SERVICE onStartCommand() CALLED 🚨🚨🚨");
-        if (intent != null) {
-            Log.d(TAG, "Intent action: " + intent.getAction());
-        }
-        
-        // CRITICAL: Start foreground immediately to prevent kill
-        try {
-            startForeground(NOTIFICATION_ID, createNotification());
-            Log.d(TAG, "✅ Foreground service started successfully");
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Failed to start foreground: " + e.getMessage());
-        }
-        android.util.Log.e(TAG, "🔍 Service flags: " + flags + ", startId: " + startId);
-        android.util.Log.e(TAG, "🔥 CRITICAL DEBUG: isAlarmActive=" + isAlarmActive + ", WakeLock held=" + (wakeLock != null && wakeLock.isHeld()));
-        
-        // CRITICAL: Log detailed intent data if available
-        if (intent != null) {
-            Bundle extras = intent.getExtras();
-            if (extras != null) {
-                android.util.Log.e(TAG, "🔍 INTENT EXTRAS:");
-                for (String key : extras.keySet()) {
-                    Object value = extras.get(key);
-                    android.util.Log.e(TAG, "  " + key + ": " + value);
-                }
-            } else {
-                android.util.Log.e(TAG, "⚠️ INTENT HAS NO EXTRAS");
-            }
-        }
-        
-
-        
-        // CRITICAL: Log all active courses for debugging
-        if (!activeCourses.isEmpty()) {
-            Log.d(TAG, "📋 ACTIVE COURSES DEBUG:");
-            for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-                CourseData course = entry.getValue();
-                Log.d(TAG, "  📍 Course: " + course.courseId + " (UIT: " + course.uit + ", Status: " + course.status + ")");
-            }
-        } else {
-            Log.w(TAG, "⚠️ NO ACTIVE COURSES - GPS will not transmit");
-        }
+        Log.d(TAG, "🚨 === DIAGNOSTIC START === OPTIMAL GPS Service onStartCommand");
+        Log.d(TAG, "📡 Action: " + (intent != null ? intent.getAction() : "NULL_INTENT"));
+        Log.d(TAG, "⚡ Current activeCourses count: " + activeCourses.size());
+        Log.d(TAG, "🔍 Service flags: " + flags + ", startId: " + startId);
         
         // IMMEDIATE: Start foreground service to prevent termination
         try {
@@ -227,30 +119,18 @@ public class OptimalGPSService extends Service {
         
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
             // ALARM TRIGGERED: Get GPS location and transmit for all active courses
-            long now = System.currentTimeMillis();
-            long timeSinceLastGPS = now - lastGPSTransmission;
-            
-            Log.d(TAG, "🔄 ALARMMANAGER: ALARM TRIGGERED - " + timeSinceLastGPS + "ms since last GPS");
-            
-            // Only proceed if it's been more than 4 seconds since last GPS
-            if (timeSinceLastGPS > 4000) {
-                Log.d(TAG, "✅ ALARMMANAGER: Proceeding with GPS cycle");
-                alarmManagerWorking = true;
-                performOptimalGPSCycle();
-            } else {
-                Log.d(TAG, "⏸️ ALARMMANAGER: Skipping - too recent GPS transmission (" + timeSinceLastGPS + "ms)");
-            }
+            Log.d(TAG, "🔄 DIAGNOSTIC: ALARM TRIGGERED - performing GPS cycle");
+            performOptimalGPSCycle();
         } else {
             // Regular service commands (START_GPS, STOP_GPS, etc.)
-            android.util.Log.e(TAG, "📥📥📥 HANDLING SERVICE COMMAND - NOT ALARM 📥📥📥");
+            Log.d(TAG, "📥 DIAGNOSTIC: HANDLING SERVICE COMMAND");
             
             if (intent != null) {
-                android.util.Log.e(TAG, "🔍 INTENT ACTION: " + intent.getAction());
-                android.util.Log.e(TAG, "🔍 DIAGNOSTIC: Intent extras:");
+                Log.d(TAG, "🔍 DIAGNOSTIC: Intent extras:");
                 Bundle extras = intent.getExtras();
                 if (extras != null) {
                     for (String key : extras.keySet()) {
-                        android.util.Log.e(TAG, "  - " + key + ": " + extras.get(key));
+                        Log.d(TAG, "  - " + key + ": " + extras.get(key));
                     }
                 } else {
                     Log.w(TAG, "❌ DIAGNOSTIC: Intent has no extras");
@@ -259,7 +139,18 @@ public class OptimalGPSService extends Service {
             
             handleServiceCommand(intent);
             
-            // Service command handled - let AlarmManager handle GPS cycles
+            // CRITICAL: After handling command, perform GPS cycle if we have active courses
+            if (!activeCourses.isEmpty()) {
+                Log.d(TAG, "🚀 DIAGNOSTIC: EXECUTING INITIAL GPS CYCLE for " + activeCourses.size() + " active courses");
+                Log.d(TAG, "🔍 DIAGNOSTIC: Active courses details:");
+                for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+                    CourseData course = entry.getValue();
+                    Log.d(TAG, "  - CourseId: " + course.courseId + ", UIT: " + course.uit + ", Status: " + course.status);
+                }
+                performOptimalGPSCycle();
+            } else {
+                Log.w(TAG, "⚠️ DIAGNOSTIC: NO ACTIVE COURSES - skipping GPS cycle");
+            }
         }
         
         Log.d(TAG, "🚨 === DIAGNOSTIC END === onStartCommand completed");
@@ -267,44 +158,23 @@ public class OptimalGPSService extends Service {
     }
     
     /**
-     * OPTIMAL GPS CYCLE: Triggered by AlarmManager (efficient) or Handler backup (guaranteed)
+     * MOST EFFICIENT: AlarmManager triggers GPS reading exactly every 5 seconds
      * GPS hardware is activated ONLY when needed, then immediately turned off
      */
     private void performOptimalGPSCycle() {
-        lastGPSTransmission = System.currentTimeMillis(); // Track when GPS runs
-        Log.d(TAG, "🔍 GPS CYCLE: performOptimalGPSCycle() called - activeCourses size: " + activeCourses.size());
-        Log.d(TAG, "🔥 CRITICAL GPS DEBUG: Thread=" + Thread.currentThread().getName() + ", Time=" + System.currentTimeMillis());
-        
         if (activeCourses.isEmpty()) {
-            Log.w(TAG, "⏸️ CRITICAL: No active courses - stopping GPS cycles");
-            Log.w(TAG, "🔍 DEBUG: activeCourses.isEmpty() = true, size = " + activeCourses.size());
-            // DON'T STOP - let service continue for debugging
-            // stopOptimalGPSTimer();
-            // return;
+            Log.d(TAG, "⏸️ No active courses - stopping optimal GPS cycle");
+            stopOptimalGPSTimer();
+            return;
         }
-        
-        Log.d(TAG, "✅ GPS CYCLE PROCEEDING: Found " + activeCourses.size() + " active courses");
         
         Log.d(TAG, "⏰ OPTIMAL GPS CYCLE - getting location for " + activeCourses.size() + " courses");
         
-        // CRITICAL DEBUG: Show all active courses
-        for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-            CourseData course = entry.getValue();
-            Log.d(TAG, "  📋 Active course: " + course.courseId + " (UIT: " + course.uit + ", Status: " + course.status + ")");
-        }
-        
         try {
-            Log.d(TAG, "🛰️ GPS HARDWARE: Checking location permissions and hardware");
-            
             // CRITICAL: Get LAST KNOWN location first (instant, no battery)
             Location lastLocation = null;
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "✅ GPS PERMISSIONS: FINE_LOCATION granted - accessing GPS hardware");
                 lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                Log.d(TAG, "📍 LAST KNOWN LOCATION: " + (lastLocation != null ? "Available (lat=" + lastLocation.getLatitude() + ")" : "NULL"));
-            } else {
-                Log.e(TAG, "❌ GPS PERMISSIONS: FINE_LOCATION denied - cannot access GPS hardware");
-                return;
             }
             
             if (lastLocation != null && 
@@ -374,8 +244,6 @@ public class OptimalGPSService extends Service {
         java.util.Set<String> transmittedUITs = new java.util.HashSet<>();
         
         Log.d(TAG, "🚀 STARTING GPS transmission for " + activeCourses.size() + " total courses");
-        Log.d(TAG, "🔥 CRITICAL: Location data - lat=" + location.getLatitude() + ", lng=" + location.getLongitude());
-        Log.d(TAG, "🔥 CRITICAL: Location accuracy=" + location.getAccuracy() + ", speed=" + location.getSpeed());
         
         java.util.List<String> coursesToRemove = new java.util.ArrayList<>();
         
@@ -554,18 +422,6 @@ public class OptimalGPSService extends Service {
     private void scheduleNextOptimalGPSCycle() {
         if (!activeCourses.isEmpty()) {
             long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
-            
-            // CRITICAL: Ensure PendingIntent exists before scheduling
-            if (gpsPendingIntent == null) {
-                Log.e(TAG, "❌ CRITICAL: gpsPendingIntent is NULL - recreating");
-                Intent alarmIntent = new Intent(this, OptimalGPSService.class);
-                alarmIntent.setAction(ACTION_GPS_ALARM);
-                gpsPendingIntent = PendingIntent.getService(
-                    this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-                );
-                Log.d(TAG, "✅ RECREATED gpsPendingIntent for alarm scheduling");
-            }
-            
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 nextTriggerTime,
@@ -573,8 +429,6 @@ public class OptimalGPSService extends Service {
             );
             Log.d(TAG, "⏰ NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
             Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
-            Log.d(TAG, "🔧 ALARM DEBUG: AlarmManager=" + alarmManager + ", PendingIntent=" + gpsPendingIntent);
-            Log.d(TAG, "🎯 ALARM DEBUG: Expected trigger in " + (nextTriggerTime - SystemClock.elapsedRealtime()) + "ms");
         } else {
             Log.w(TAG, "❌ NO ACTIVE COURSES - GPS cycle NOT scheduled");
         }
@@ -662,18 +516,6 @@ public class OptimalGPSService extends Service {
             return;
         }
         
-        // CRITICAL: Check for SCHEDULE_EXACT_ALARM permission (Android 12+)
-        if (android.os.Build.VERSION.SDK_INT >= 31) {
-            if (!alarmManager.canScheduleExactAlarms()) {
-                Log.e(TAG, "❌ CRITICAL: SCHEDULE_EXACT_ALARM permission denied - AlarmManager will NOT work");
-                Log.e(TAG, "   User must enable: Settings > Apps > iTrack > Special permissions > Alarms & reminders");
-                Log.e(TAG, "   WITHOUT this permission, GPS will NOT transmit in background");
-                return;
-            } else {
-                Log.d(TAG, "✅ SCHEDULE_EXACT_ALARM permission granted - AlarmManager functional");
-            }
-        }
-        
         Intent alarmIntent = new Intent(this, OptimalGPSService.class);
         alarmIntent.setAction(ACTION_GPS_ALARM);
         
@@ -682,44 +524,14 @@ public class OptimalGPSService extends Service {
         );
         
         // CRITICAL: Use setExactAndAllowWhileIdle for EXACT 5-second intervals
-        long triggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            triggerTime,
+            SystemClock.elapsedRealtime() + GPS_INTERVAL_MS,
             gpsPendingIntent
         );
         
-        // CRITICAL: Acquire PARTIAL_WAKE_LOCK for background GPS with phone locked
-        if (wakeLock != null && !wakeLock.isHeld()) {
-            wakeLock.acquire();
-            Log.d(TAG, "🔒 WAKE_LOCK acquired - GPS will work with phone locked");
-        }
-        
         isAlarmActive = true;
         Log.d(TAG, "✅ OPTIMAL GPS timer started - EXACT " + (GPS_INTERVAL_MS/1000) + "s intervals");
-        Log.d(TAG, "⏰ ALARM DEBUG: First trigger at " + triggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
-        Log.d(TAG, "🔧 ALARM DEBUG: AlarmManager=" + alarmManager + ", PendingIntent=" + gpsPendingIntent);
-        Log.d(TAG, "⚡ ALARM CRITICAL: TIME TO TRIGGER = " + (triggerTime - SystemClock.elapsedRealtime()) + "ms");
-        Log.d(TAG, "📊 ALARM CRITICAL: ACTIVE COURSES = " + activeCourses.size());
-        
-        // CRITICAL: Immediate test to ensure alarm system works
-        Log.d(TAG, "🧪 ALARM TEST: Scheduling immediate test alarm in 2 seconds...");
-        Intent testIntent = new Intent(this, OptimalGPSService.class);
-        testIntent.setAction(ACTION_GPS_ALARM);
-        PendingIntent testPendingIntent = PendingIntent.getService(
-            this, 99, testIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-        long testTriggerTime = SystemClock.elapsedRealtime() + 2000; // 2 seconds
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            testTriggerTime,
-            testPendingIntent
-        );
-        Log.d(TAG, "🧪 TEST ALARM SET: Will trigger in 2 seconds to verify AlarmManager is working");
-        
-        // CRITICAL: IMMEDIATE GPS TEST
-        Log.d(TAG, "🧪 IMMEDIATE TEST: Triggering performOptimalGPSCycle() instantly to test GPS transmission");
-        performOptimalGPSCycle();
     }
     
     /**
@@ -730,44 +542,29 @@ public class OptimalGPSService extends Service {
             alarmManager.cancel(gpsPendingIntent);
             gpsPendingIntent = null;
         }
-        
-        // Stop Handler backup
-        gpsHandler.removeCallbacks(gpsRunnable);
-        
-        // CRITICAL: Release PARTIAL_WAKE_LOCK when GPS stops
-        if (wakeLock != null && wakeLock.isHeld()) {
-            wakeLock.release();
-            Log.d(TAG, "🔓 WAKE_LOCK released - GPS background service stopped");
-        }
-        
         isAlarmActive = false;
-        Log.d(TAG, "🛑 HYBRID GPS system stopped (AlarmManager + Handler)");
+        Log.d(TAG, "🛑 Optimal GPS timer stopped");
     }
-    
-
     
     private void handleServiceCommand(Intent intent) {
         if (intent == null) return;
         
         String action = intent.getAction();
         Log.d(TAG, "🎯 OPTIMAL GPS Command: " + action);
-        Log.d(TAG, "🔍 BEFORE PROCESSING: activeCourses size = " + activeCourses.size());
         
         if ("START_GPS".equals(action)) {
-            android.util.Log.e(TAG, "🎯🎯🎯 START_GPS COMMAND RECEIVED!!! 🎯🎯🎯");
-            
             String courseId = intent.getStringExtra("courseId");
             String uit = intent.getStringExtra("uit");
             String vehicleNumber = intent.getStringExtra("vehicleNumber");
             String authToken = intent.getStringExtra("authToken");
             int status = intent.getIntExtra("status", 2);
             
-            android.util.Log.e(TAG, "📋 RECEIVED GPS PARAMETERS:");
-            android.util.Log.e(TAG, "  courseId: " + courseId);
-            android.util.Log.e(TAG, "  uit: " + uit);
-            android.util.Log.e(TAG, "  vehicleNumber: " + vehicleNumber);
-            android.util.Log.e(TAG, "  authToken: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
-            android.util.Log.e(TAG, "  status: " + status);
+            Log.d(TAG, "📋 RECEIVED GPS PARAMETERS:");
+            Log.d(TAG, "  courseId: " + courseId);
+            Log.d(TAG, "  uit: " + uit);
+            Log.d(TAG, "  vehicleNumber: " + vehicleNumber);
+            Log.d(TAG, "  authToken: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
+            Log.d(TAG, "  status: " + status);
             
             // Validate critical parameters
             if (courseId == null || uit == null || authToken == null || vehicleNumber == null) {
@@ -784,55 +581,31 @@ public class OptimalGPSService extends Service {
             if (activeCourses.containsKey(courseId)) {
                 Log.w(TAG, "⚠️ Course " + courseId + " already exists - updating status only");
                 activeCourses.get(courseId).status = status;
-                Log.d(TAG, "✅ OPTIMAL course updated: " + courseId + " (UIT: " + uit + ")");
-            } else {
-                CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber, authToken);
-                activeCourses.put(courseId, courseData);
-                android.util.Log.e(TAG, "✅✅✅ COURSE ADDED TO ACTIVECOURSES: " + courseId + " (UIT: " + uit + ") ✅✅✅");
-                android.util.Log.e(TAG, "📊 TOTAL ACTIVE COURSES NOW: " + activeCourses.size());
+                return; // Don't add duplicate or restart timer
             }
             
-            // CRITICAL: ALWAYS ensure GPS timer is running when we have active courses
-            if (!isAlarmActive && !activeCourses.isEmpty()) {
-                Log.d(TAG, "🚀 STARTING HYBRID GPS system - " + activeCourses.size() + " active courses need GPS");
-                startOptimalGPSTimer(); // AlarmManager (most efficient)
-                gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS); // Handler backup
-                Log.d(TAG, "✅ HYBRID: AlarmManager + Handler backup both started");
-                
-
-            } else if (isAlarmActive) {
-                Log.d(TAG, "✅ GPS timer already active - " + activeCourses.size() + " courses tracking");
+            CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber, authToken);
+            activeCourses.put(courseId, courseData);
+            
+            Log.d(TAG, "✅ OPTIMAL course added: " + courseId + " (UIT: " + uit + ")");
+            
+            if (!isAlarmActive) {
+                startOptimalGPSTimer();
             }
             
         } else if ("STOP_GPS".equals(action)) {
-            android.util.Log.e(TAG, "🛑🛑🛑 STOP_GPS COMMAND RECEIVED!!! 🛑🛑🛑");
-            
             String courseId = intent.getStringExtra("courseId");
-            android.util.Log.e(TAG, "📋 STOP_GPS courseId: " + courseId);
+            activeCourses.remove(courseId);
             
-            CourseData removed = activeCourses.remove(courseId);
-            if (removed != null) {
-                android.util.Log.e(TAG, "✅✅✅ COURSE REMOVED FROM ACTIVECOURSES: " + courseId + " ✅✅✅");
-            } else {
-                android.util.Log.e(TAG, "❌❌❌ COURSE NOT FOUND FOR REMOVAL: " + courseId + " ❌❌❌");
-            }
-            
-            android.util.Log.e(TAG, "📊 REMAINING ACTIVE COURSES: " + activeCourses.size());
+            Log.d(TAG, "🛑 OPTIMAL course removed: " + courseId);
             
             if (activeCourses.isEmpty()) {
-                android.util.Log.e(TAG, "🔥 NO MORE ACTIVE COURSES - STOPPING GPS TIMER 🔥");
                 stopOptimalGPSTimer();
             }
             
         } else if ("UPDATE_STATUS".equals(action)) {
-            android.util.Log.e(TAG, "📊📊📊 UPDATE_STATUS COMMAND RECEIVED!!! 📊📊📊");
-            
             String courseId = intent.getStringExtra("courseId");
             int newStatus = intent.getIntExtra("newStatus", 2);
-            
-            android.util.Log.e(TAG, "📋 UPDATE_STATUS PARAMETERS:");
-            android.util.Log.e(TAG, "  courseId: " + courseId);
-            android.util.Log.e(TAG, "  newStatus: " + newStatus);
             
             CourseData course = activeCourses.get(courseId);
             if (course != null) {
@@ -841,22 +614,16 @@ public class OptimalGPSService extends Service {
                 // Reset pauseTransmitted flag when resuming (status 2)
                 if (newStatus == 2) {
                     course.pauseTransmitted = false;
-                    android.util.Log.e(TAG, "▶️ RESUME: Reset pause flag for " + courseId + " - GPS will transmit continuously");
+                    Log.d(TAG, "▶️ RESUME: Reset pause flag for " + courseId + " - GPS will transmit continuously");
                 }
                 
-                android.util.Log.e(TAG, "✅✅✅ STATUS UPDATED: " + courseId + " -> " + newStatus + " ✅✅✅");
-            } else {
-                android.util.Log.e(TAG, "❌❌❌ COURSE NOT FOUND IN ACTIVECOURSES: " + courseId + " ❌❌❌");
+                Log.d(TAG, "📊 OPTIMAL status updated: " + courseId + " -> " + newStatus);
             }
             
         } else if ("CLEAR_ALL".equals(action)) {
             activeCourses.clear();
             stopOptimalGPSTimer();
             Log.d(TAG, "🧹 OPTIMAL GPS cleared all courses");
-            
-            // CRITICAL: Force clear any cached GPS data or background processes
-            Log.d(TAG, "🔥 FORCE CLEARING: Eliminating any potential cached GPS transmissions");
-            Log.d(TAG, "⚠️ NOTE: Only real-time GPS with location.getSpeed() should transmit - NO STATIC SPEED VALUES");
         }
     }
     
@@ -879,12 +646,6 @@ public class OptimalGPSService extends Service {
             } catch (InterruptedException e) {
                 httpThreadPool.shutdownNow();
             }
-        }
-        
-        // FINAL CLEANUP: Release WakeLock if still held
-        if (wakeLock != null && wakeLock.isHeld()) {
-            wakeLock.release();
-            Log.d(TAG, "🔓 FINAL: WakeLock released in onDestroy");
         }
         
         super.onDestroy();
