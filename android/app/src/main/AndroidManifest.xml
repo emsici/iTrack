@@ -31,6 +31,12 @@
 
         </activity>
 
+        <!-- DIAGNOSTIC GPS SERVICE - TEST LOGS -->
+        <service
+            android:name="com.euscagency.itrack.DiagnosticGPSService"
+            android:enabled="true"
+            android:exported="false" />
+            
         <!-- OptimalGPSService EXCLUSIVE - ONLY GPS SERVICE -->
         <service
             android:name="com.euscagency.itrack.OptimalGPSService"

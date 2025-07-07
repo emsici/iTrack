@@ -142,6 +142,13 @@ public class MainActivity extends BridgeActivity {
         Log.d(TAG, "🔧 Permission check delegated to OptimalGPSService for compatibility");
 
         try {
+            Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for DiagnosticGPSService FIRST");
+            Intent diagnosticIntent = new Intent(this, DiagnosticGPSService.class);
+            diagnosticIntent.setAction("START_GPS");
+            diagnosticIntent.putExtra("courseId", courseId);
+            startService(diagnosticIntent);
+            Log.d(TAG, "✅ DIAGNOSTIC: DiagnosticGPSService started - checking logs...");
+            
             Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for OptimalGPSService");
             Intent intent = new Intent(this, OptimalGPSService.class);
             intent.setAction("START_GPS");
