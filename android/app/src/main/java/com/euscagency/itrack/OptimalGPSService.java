@@ -111,10 +111,17 @@ public class OptimalGPSService extends Service {
         
         // IMMEDIATE: Start foreground service to prevent termination
         try {
+            createNotificationChannel();
             startForeground(NOTIFICATION_ID, createNotification());
-            Log.d(TAG, "✅ DIAGNOSTIC: Foreground service started successfully");
+            android.util.Log.e(TAG, "✅ FOREGROUND SERVICE STARTED - GPS will run with phone locked");
+            
+            // CRITICAL: Keep service alive with WakeLock
+            if (wakeLock != null && !wakeLock.isHeld()) {
+                wakeLock.acquire();
+                android.util.Log.e(TAG, "✅ WAKELOCK ACQUIRED - prevents deep sleep");
+            }
         } catch (Exception e) {
-            Log.e(TAG, "❌ DIAGNOSTIC: Foreground service failed: " + e.getMessage());
+            android.util.Log.e(TAG, "❌ CRITICAL: Foreground service FAILED: " + e.getMessage());
         }
         
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {

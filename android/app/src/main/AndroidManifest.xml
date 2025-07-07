@@ -104,6 +104,7 @@
     
     <!-- Real device data permissions for authentic GPS transmission -->
     <uses-permission android:name="android.permission.BATTERY_STATS" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     
     <!-- Phone state for GSM signal strength -->
