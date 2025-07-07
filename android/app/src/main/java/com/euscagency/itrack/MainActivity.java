@@ -156,8 +156,7 @@ public class MainActivity extends BridgeActivity {
         Log.d(TAG, "🔧 Permission check delegated to OptimalGPSService for compatibility");
 
         try {
-            Intent serviceIntent = new Intent();
-            serviceIntent.setClassName(this, "com.euscagency.itrack.OptimalGPSService");
+            Intent serviceIntent = new Intent(this, OptimalGPSService.class);
             serviceIntent.setAction("START_GPS");
             serviceIntent.putExtra("courseId", courseId);
             serviceIntent.putExtra("vehicleNumber", vehicleNumber);

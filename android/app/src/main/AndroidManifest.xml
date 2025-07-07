@@ -32,7 +32,7 @@
 
         <!-- OptimalGPSService EXCLUSIVE - ONLY GPS SERVICE -->
         <service
-            android:name=".OptimalGPSService"
+            android:name="com.euscagency.itrack.OptimalGPSService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location"

@@ -175,10 +175,13 @@ public class OptimalGPSService extends Service {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "OptimalGPSService onStartCommand called");
+        Log.d(TAG, "🚨 OPTIMAL GPS SERVICE STARTED");
         if (intent != null) {
             Log.d(TAG, "Intent action: " + intent.getAction());
         }
+        
+        // CRITICAL: Start foreground immediately to prevent kill
+        startForeground(NOTIFICATION_ID, createNotification());
         android.util.Log.e(TAG, "🔍 Service flags: " + flags + ", startId: " + startId);
         android.util.Log.e(TAG, "🔥 CRITICAL DEBUG: isAlarmActive=" + isAlarmActive + ", WakeLock held=" + (wakeLock != null && wakeLock.isHeld()));
         
