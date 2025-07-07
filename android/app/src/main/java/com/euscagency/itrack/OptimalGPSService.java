@@ -37,6 +37,8 @@ public class OptimalGPSService extends Service {
     private static final String TAG = "OptimalGPS";
     private static final long GPS_INTERVAL_MS = 5000; // Exact 5 seconds
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.GPS_ALARM";
+    private static final String CHANNEL_ID = "OptimalGPSChannel";
+    private static final int NOTIFICATION_ID = 1001;
     
     // DIAGNOSTIC CONSTRUCTOR
     public OptimalGPSService() {
