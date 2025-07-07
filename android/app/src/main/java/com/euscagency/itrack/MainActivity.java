@@ -38,22 +38,19 @@ public class MainActivity extends BridgeActivity {
         // AndroidGPS interface handled directly via WebView - no plugin needed
         Log.d(TAG, "🔌 AndroidGPS interface ready - direct WebView bridge active");
         
-        // CRITICAL FIX: Start OptimalGPSService immediately with application
-        Log.d(TAG, "🚀 AUTOSTART: Starting OptimalGPSService with application");
-        startOptimalGPSService();
+        // CRITICAL: Start GPS service immediately when app opens
+        Log.d(TAG, "🚀 Starting OptimalGPSService at app startup");
+        startGPSServiceAtStartup();
     }
     
-    private void startOptimalGPSService() {
+    private void startGPSServiceAtStartup() {
         try {
             Intent serviceIntent = new Intent(this, OptimalGPSService.class);
-            serviceIntent.setAction("INITIALIZE_SERVICE");
-            
-            // Start as foreground service immediately
+            serviceIntent.setAction("APP_STARTUP");
             startForegroundService(serviceIntent);
-            Log.d(TAG, "✅ AUTOSTART: OptimalGPSService started successfully");
-            
+            Log.d(TAG, "✅ OptimalGPSService started at app startup");
         } catch (Exception e) {
-            Log.e(TAG, "❌ AUTOSTART ERROR: Failed to start OptimalGPSService: " + e.getMessage());
+            Log.e(TAG, "❌ Failed to start GPS service at startup: " + e.getMessage());
         }
     }
     
