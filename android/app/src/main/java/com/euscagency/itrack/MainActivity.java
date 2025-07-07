@@ -169,13 +169,27 @@ public class MainActivity extends BridgeActivity {
             android.util.Log.e(TAG, "  Action: " + serviceIntent.getAction());
             android.util.Log.e(TAG, "  courseId: " + courseId);
             android.util.Log.e(TAG, "  vehicleNumber: " + vehicleNumber);
+            android.util.Log.e(TAG, "  authToken length: " + (authToken != null ? authToken.length() : "NULL"));
+            android.util.Log.e(TAG, "  vehicleNumber: " + vehicleNumber);
             android.util.Log.e(TAG, "  uit: " + uit);
             android.util.Log.e(TAG, "  authToken length: " + (authToken != null ? authToken.length() : "null"));
             android.util.Log.e(TAG, "  status: " + status);
             
+            android.util.Log.e(TAG, "🔥 CALLING startForegroundService() NOW...");
             startForegroundService(serviceIntent);
-            
             android.util.Log.e(TAG, "✅✅✅ MAINACTIVITY: startForegroundService COMPLETED for " + courseId + " ✅✅✅");
+            
+            // Force JavaScript callback to prove this completed AND check for OptimalGPSService response
+            if (webView != null) {
+                webView.post(() -> {
+                    webView.evaluateJavascript(
+                        "console.log('🚀 MAINACTIVITY: startForegroundService() called for OptimalGPSService');" +
+                        "setTimeout(() => console.log('🔍 Check APK Android Logs for: OPTIMAL GPS SERVICE STARTED'), 1000);",
+                        null
+                    );
+                });
+            }
+            
             return "SUCCESS: GPS started for " + courseId;
             
         } catch (Exception e) {
