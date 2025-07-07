@@ -50,6 +50,7 @@ public class OptimalGPSService extends Service {
     private PowerManager.WakeLock wakeLock;
     private Map<String, CourseData> activeCourses;
     private boolean isAlarmActive = false;
+    private boolean isForegroundServiceActive = false; // Track foreground service status
     
     // HYBRID: AlarmManager (efficient) + Handler backup (guaranteed)
     private Handler gpsHandler = new Handler(Looper.getMainLooper());
@@ -181,6 +182,25 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "⚡ Current activeCourses count: " + activeCourses.size());
         Log.d(TAG, "🔍 Service flags: " + flags + ", startId: " + startId);
         Log.d(TAG, "🔥 CRITICAL DEBUG: isAlarmActive=" + isAlarmActive + ", WakeLock held=" + (wakeLock != null && wakeLock.isHeld()));
+        
+        // CRITICAL FIX: Always ensure foreground service is active first
+        if (!isForegroundServiceActive) {
+            Log.d(TAG, "🚀 ENSURING FOREGROUND: Starting foreground service");
+            try {
+                startForeground(NOTIFICATION_ID, createNotification());
+                isForegroundServiceActive = true;
+                Log.d(TAG, "✅ FOREGROUND SERVICE: Successfully started");
+            } catch (Exception e) {
+                Log.e(TAG, "❌ FOREGROUND SERVICE ERROR: " + e.getMessage());
+            }
+        }
+        
+        // Handle different service initialization modes
+        if (intent != null && "INITIALIZE_SERVICE".equals(intent.getAction())) {
+            Log.d(TAG, "🎯 SERVICE INITIALIZATION: OptimalGPSService ready for courses");
+            Log.d(TAG, "✅ AUTOSTART: Service running in background, waiting for START_GPS commands");
+            return START_STICKY; // Keep service running
+        }
         
         // CRITICAL: Log all active courses for debugging
         if (!activeCourses.isEmpty()) {
