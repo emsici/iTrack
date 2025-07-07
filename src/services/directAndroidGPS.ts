@@ -48,23 +48,41 @@ class SimpleAndroidGPSService {
       await this.sendStatusToServer(uit, vehicleNumber, token, newStatus);
       
       // Always delegate to Android - OptimalGPSService handles START/PAUSE/RESUME/STOP logic
+      console.log(`🔍 DEBUGGING: Checking window.AndroidGPS availability...`);
+      console.log(`🔍 window.AndroidGPS exists: ${!!window.AndroidGPS}`);
+      console.log(`🔍 window.AndroidGPSReady: ${window.AndroidGPSReady}`);
+      console.log(`🔍 androidGPSBridgeReady: ${window.androidGPSBridgeReady}`);
+      
       if (window.AndroidGPS) {
+        console.log(`🔍 AndroidGPS methods available:`);
+        console.log(`  - startGPS: ${typeof window.AndroidGPS.startGPS}`);
+        console.log(`  - updateStatus: ${typeof window.AndroidGPS.updateStatus}`);
+        console.log(`  - stopGPS: ${typeof window.AndroidGPS.stopGPS}`);
+        
         let result: string = '';
         
         if (newStatus === 2) {
           // START or RESUME
+          console.log(`🚀 CALLING AndroidGPS.startGPS with params: ${courseId}, ${vehicleNumber}, ${uit}, tokenLength: ${token.length}, status: ${newStatus}`);
           result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, newStatus);
+          console.log(`📤 AndroidGPS.startGPS returned: ${result}`);
           logGPS(`✅ Android START/RESUME: ${result}`);
         } else if (newStatus === 3) {
           // PAUSE
+          console.log(`⏸️ CALLING AndroidGPS.updateStatus with params: ${courseId}, ${newStatus}`);
           result = window.AndroidGPS.updateStatus(courseId, newStatus);
+          console.log(`📤 AndroidGPS.updateStatus returned: ${result}`);
           logGPS(`✅ Android PAUSE: ${result}`);
         } else if (newStatus === 4) {
           // STOP
+          console.log(`🛑 CALLING AndroidGPS.stopGPS with params: ${courseId}`);
           result = window.AndroidGPS.stopGPS(courseId);
+          console.log(`📤 AndroidGPS.stopGPS returned: ${result}`);
           logGPS(`✅ Android STOP: ${result}`);
         }
       } else {
+        console.log(`❌ CRITICAL: window.AndroidGPS is NOT available!`);
+        console.log(`🔍 Available window properties:`, Object.keys(window).filter(key => key.includes('Android')));
         logGPS(`⚠️ AndroidGPS not available - APK only`);
       }
       
