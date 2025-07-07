@@ -106,42 +106,49 @@ public class OptimalGPSService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "🚨🚨🚨 CRITICAL: OPTIMAL GPS Service onCreate() called - SERVICE IS STARTING 🚨🚨🚨");
+        android.util.Log.e("OptimalGPS", "🚨🚨🚨 CRITICAL: SERVICE onCreate() STARTING 🚨🚨🚨");
         
         try {
+            android.util.Log.e("OptimalGPS", "🔧 Step 1: Initializing activeCourses Map...");
             // CRITICAL: Initialize activeCourses first
             activeCourses = new java.util.concurrent.ConcurrentHashMap<>();
-            Log.d(TAG, "✅ DIAGNOSTIC: activeCourses Map initialized: " + (activeCourses != null));
+            android.util.Log.e("OptimalGPS", "✅ Step 1 DONE: activeCourses Map initialized");
             
+            android.util.Log.e("OptimalGPS", "🔧 Step 2: Getting AlarmManager...");
             alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            Log.d(TAG, "✅ DIAGNOSTIC: AlarmManager initialized: " + (alarmManager != null));
+            android.util.Log.e("OptimalGPS", "✅ Step 2 DONE: AlarmManager = " + (alarmManager != null));
             
+            android.util.Log.e("OptimalGPS", "🔧 Step 3: Getting LocationManager...");
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            Log.d(TAG, "✅ DIAGNOSTIC: LocationManager initialized: " + (locationManager != null));
+            android.util.Log.e("OptimalGPS", "✅ Step 3 DONE: LocationManager = " + (locationManager != null));
             
+            android.util.Log.e("OptimalGPS", "🔧 Step 4: Getting PowerManager...");
             // CRITICAL: PARTIAL_WAKE_LOCK for background GPS with phone locked
             PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
             wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "OptimalGPS:WakeLock");
-            Log.d(TAG, "✅ DIAGNOSTIC: WakeLock initialized: " + (wakeLock != null));
+            android.util.Log.e("OptimalGPS", "✅ Step 4 DONE: WakeLock = " + (wakeLock != null));
             
+            android.util.Log.e("OptimalGPS", "🔧 Step 5: Creating HTTP ThreadPool...");
             // FOREGROUND OPTIMIZED: Simple thread pool to avoid blocking AlarmManager
             httpThreadPool = Executors.newFixedThreadPool(1); // Single background thread for HTTP
-            Log.d(TAG, "✅ DIAGNOSTIC: HTTP ThreadPool initialized");
+            android.util.Log.e("OptimalGPS", "✅ Step 5 DONE: HTTP ThreadPool initialized");
             
-            Log.d(TAG, "🔧 DIAGNOSTIC: Creating notification channel...");
+            android.util.Log.e("OptimalGPS", "🔧 Step 6: Creating notification channel...");
             createNotificationChannel();
-            Log.d(TAG, "✅ DIAGNOSTIC: Notification channel created");
+            android.util.Log.e("OptimalGPS", "✅ Step 6 DONE: Notification channel created");
             
-            Log.d(TAG, "🔧 DIAGNOSTIC: Starting foreground service...");
+            android.util.Log.e("OptimalGPS", "🔧 Step 7: Starting foreground service...");
             startForeground(NOTIFICATION_ID, createNotification());
-            Log.d(TAG, "✅ DIAGNOSTIC: Foreground service started successfully");
+            android.util.Log.e("OptimalGPS", "✅ Step 7 DONE: Foreground service started successfully");
             
-            Log.d(TAG, "🎯 OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching");
+            android.util.Log.e("OptimalGPS", "🎯 SUCCESS: OPTIMAL GPS Service created successfully!");
             
         } catch (Exception e) {
-            Log.e(TAG, "❌❌❌ CRITICAL ERROR in onCreate(): " + e.getMessage(), e);
+            android.util.Log.e("OptimalGPS", "❌❌❌ CRITICAL ERROR in onCreate(): " + e.getMessage(), e);
             throw e; // Re-throw to see the crash
         }
+        
+        android.util.Log.e("OptimalGPS", "🏁 COMPLETE: onCreate() finished successfully");
     }
     
     private void createNotificationChannel() {
