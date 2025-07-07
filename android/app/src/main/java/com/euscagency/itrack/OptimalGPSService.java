@@ -181,7 +181,12 @@ public class OptimalGPSService extends Service {
         }
         
         // CRITICAL: Start foreground immediately to prevent kill
-        startForeground(NOTIFICATION_ID, createNotification());
+        try {
+            startForeground(NOTIFICATION_ID, createNotification());
+            Log.d(TAG, "✅ Foreground service started successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Failed to start foreground: " + e.getMessage());
+        }
         android.util.Log.e(TAG, "🔍 Service flags: " + flags + ", startId: " + startId);
         android.util.Log.e(TAG, "🔥 CRITICAL DEBUG: isAlarmActive=" + isAlarmActive + ", WakeLock held=" + (wakeLock != null && wakeLock.isHeld()));
         
@@ -272,8 +277,10 @@ public class OptimalGPSService extends Service {
         
         if (activeCourses.isEmpty()) {
             Log.w(TAG, "⏸️ CRITICAL: No active courses - stopping GPS cycles");
-            stopOptimalGPSTimer();
-            return;
+            Log.w(TAG, "🔍 DEBUG: activeCourses.isEmpty() = true, size = " + activeCourses.size());
+            // DON'T STOP - let service continue for debugging
+            // stopOptimalGPSTimer();
+            // return;
         }
         
         Log.d(TAG, "✅ GPS CYCLE PROCEEDING: Found " + activeCourses.size() + " active courses");
@@ -744,6 +751,7 @@ public class OptimalGPSService extends Service {
         
         String action = intent.getAction();
         Log.d(TAG, "🎯 OPTIMAL GPS Command: " + action);
+        Log.d(TAG, "🔍 BEFORE PROCESSING: activeCourses size = " + activeCourses.size());
         
         if ("START_GPS".equals(action)) {
             android.util.Log.e(TAG, "🎯🎯🎯 START_GPS COMMAND RECEIVED!!! 🎯🎯🎯");
