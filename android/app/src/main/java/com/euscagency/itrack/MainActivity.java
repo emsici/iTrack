@@ -152,14 +152,8 @@ public class MainActivity extends BridgeActivity {
             
             startForegroundService(serviceIntent);
             
-            Log.d(TAG, "✅ OptimalGPSService START command sent successfully");
-            return "SUCCESS";
-            
-            Log.d(TAG, "✅ DIAGNOSTIC: OptimalGPSService startForegroundService completed for " + courseId);
-            
-            String result = "SUCCESS: GPS started for " + courseId;
-            Log.d(TAG, "📤 DIAGNOSTIC: Returning result to JavaScript: " + result);
-            return result;
+            Log.d(TAG, "✅ OptimalGPSService START command sent successfully for " + courseId);
+            return "SUCCESS: GPS started for " + courseId;
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error starting GPS: " + e.getMessage());
