@@ -102,9 +102,6 @@ public class OptimalGPSService extends Service {
         }
     }
     
-    private static final int NOTIFICATION_ID = 1;
-    private static final String CHANNEL_ID = "OptimalGPSChannel";
-    
     @Override
     public void onCreate() {
         super.onCreate();
