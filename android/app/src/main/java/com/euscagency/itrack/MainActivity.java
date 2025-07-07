@@ -150,9 +150,18 @@ public class MainActivity extends BridgeActivity {
             serviceIntent.putExtra("authToken", authToken);
             serviceIntent.putExtra("status", status);
             
+            android.util.Log.e(TAG, "🚀🚀🚀 MAINACTIVITY: About to call startForegroundService with START_GPS 🚀🚀🚀");
+            android.util.Log.e(TAG, "📋 INTENT DETAILS:");
+            android.util.Log.e(TAG, "  Action: " + serviceIntent.getAction());
+            android.util.Log.e(TAG, "  courseId: " + courseId);
+            android.util.Log.e(TAG, "  vehicleNumber: " + vehicleNumber);
+            android.util.Log.e(TAG, "  uit: " + uit);
+            android.util.Log.e(TAG, "  authToken length: " + (authToken != null ? authToken.length() : "null"));
+            android.util.Log.e(TAG, "  status: " + status);
+            
             startForegroundService(serviceIntent);
             
-            Log.d(TAG, "✅ OptimalGPSService START command sent successfully for " + courseId);
+            android.util.Log.e(TAG, "✅✅✅ MAINACTIVITY: startForegroundService COMPLETED for " + courseId + " ✅✅✅");
             return "SUCCESS: GPS started for " + courseId;
             
         } catch (Exception e) {

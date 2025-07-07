@@ -233,14 +233,15 @@ public class OptimalGPSService extends Service {
             }
         } else {
             // Regular service commands (START_GPS, STOP_GPS, etc.)
-            Log.d(TAG, "📥 DIAGNOSTIC: HANDLING SERVICE COMMAND");
+            android.util.Log.e(TAG, "📥📥📥 HANDLING SERVICE COMMAND - NOT ALARM 📥📥📥");
             
             if (intent != null) {
-                Log.d(TAG, "🔍 DIAGNOSTIC: Intent extras:");
+                android.util.Log.e(TAG, "🔍 INTENT ACTION: " + intent.getAction());
+                android.util.Log.e(TAG, "🔍 DIAGNOSTIC: Intent extras:");
                 Bundle extras = intent.getExtras();
                 if (extras != null) {
                     for (String key : extras.keySet()) {
-                        Log.d(TAG, "  - " + key + ": " + extras.get(key));
+                        android.util.Log.e(TAG, "  - " + key + ": " + extras.get(key));
                     }
                 } else {
                     Log.w(TAG, "❌ DIAGNOSTIC: Intent has no extras");
@@ -741,18 +742,20 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "🎯 OPTIMAL GPS Command: " + action);
         
         if ("START_GPS".equals(action)) {
+            android.util.Log.e(TAG, "🎯🎯🎯 START_GPS COMMAND RECEIVED!!! 🎯🎯🎯");
+            
             String courseId = intent.getStringExtra("courseId");
             String uit = intent.getStringExtra("uit");
             String vehicleNumber = intent.getStringExtra("vehicleNumber");
             String authToken = intent.getStringExtra("authToken");
             int status = intent.getIntExtra("status", 2);
             
-            Log.d(TAG, "📋 RECEIVED GPS PARAMETERS:");
-            Log.d(TAG, "  courseId: " + courseId);
-            Log.d(TAG, "  uit: " + uit);
-            Log.d(TAG, "  vehicleNumber: " + vehicleNumber);
-            Log.d(TAG, "  authToken: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
-            Log.d(TAG, "  status: " + status);
+            android.util.Log.e(TAG, "📋 RECEIVED GPS PARAMETERS:");
+            android.util.Log.e(TAG, "  courseId: " + courseId);
+            android.util.Log.e(TAG, "  uit: " + uit);
+            android.util.Log.e(TAG, "  vehicleNumber: " + vehicleNumber);
+            android.util.Log.e(TAG, "  authToken: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
+            android.util.Log.e(TAG, "  status: " + status);
             
             // Validate critical parameters
             if (courseId == null || uit == null || authToken == null || vehicleNumber == null) {
