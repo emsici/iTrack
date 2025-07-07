@@ -203,13 +203,6 @@ public class OptimalGPSService extends Service {
             Log.e(TAG, "❌ DIAGNOSTIC: Foreground service failed: " + e.getMessage());
         }
         
-        // Handle app startup initialization
-        if (intent != null && "APP_STARTUP".equals(intent.getAction())) {
-            Log.d(TAG, "🎯 APP_STARTUP: OptimalGPSService running in background, ready for courses");
-            Log.d(TAG, "📋 SERVICE READY: activeCourses initialized and waiting for START_GPS commands");
-            return START_STICKY; // Keep service running permanently
-        }
-        
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
             // ALARM TRIGGERED: Get GPS location and transmit for all active courses
             long now = System.currentTimeMillis();
