@@ -43,7 +43,7 @@ public class OptimalGPSService extends Service {
     // DIAGNOSTIC CONSTRUCTOR
     public OptimalGPSService() {
         super();
-        Log.d(TAG, "🚨🚨🚨 CRITICAL: OptimalGPSService CONSTRUCTOR called - class is loading 🚨🚨🚨");
+        android.util.Log.e(TAG, "🚨🚨🚨 CRITICAL: OptimalGPSService CONSTRUCTOR called - class is loading 🚨🚨🚨");
     }
     
     private AlarmManager alarmManager;
@@ -105,7 +105,7 @@ public class OptimalGPSService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "OptimalGPSService created - initializing...");
+        android.util.Log.e(TAG, "🚨🚨🚨 OPTIMAL GPS SERVICE onCreate() CALLED 🚨🚨🚨");
         
         try {
             android.util.Log.e("OptimalGPS", "🔧 Step 1: Initializing activeCourses Map...");
@@ -175,7 +175,7 @@ public class OptimalGPSService extends Service {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "🚨 OPTIMAL GPS SERVICE STARTED");
+        android.util.Log.e(TAG, "🚨🚨🚨 OPTIMAL GPS SERVICE onStartCommand() CALLED 🚨🚨🚨");
         if (intent != null) {
             Log.d(TAG, "Intent action: " + intent.getAction());
         }
