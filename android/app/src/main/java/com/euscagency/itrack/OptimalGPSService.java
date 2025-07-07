@@ -793,18 +793,34 @@ public class OptimalGPSService extends Service {
             }
             
         } else if ("STOP_GPS".equals(action)) {
-            String courseId = intent.getStringExtra("courseId");
-            activeCourses.remove(courseId);
+            android.util.Log.e(TAG, "🛑🛑🛑 STOP_GPS COMMAND RECEIVED!!! 🛑🛑🛑");
             
-            Log.d(TAG, "🛑 OPTIMAL course removed: " + courseId);
+            String courseId = intent.getStringExtra("courseId");
+            android.util.Log.e(TAG, "📋 STOP_GPS courseId: " + courseId);
+            
+            CourseData removed = activeCourses.remove(courseId);
+            if (removed != null) {
+                android.util.Log.e(TAG, "✅✅✅ COURSE REMOVED FROM ACTIVECOURSES: " + courseId + " ✅✅✅");
+            } else {
+                android.util.Log.e(TAG, "❌❌❌ COURSE NOT FOUND FOR REMOVAL: " + courseId + " ❌❌❌");
+            }
+            
+            android.util.Log.e(TAG, "📊 REMAINING ACTIVE COURSES: " + activeCourses.size());
             
             if (activeCourses.isEmpty()) {
+                android.util.Log.e(TAG, "🔥 NO MORE ACTIVE COURSES - STOPPING GPS TIMER 🔥");
                 stopOptimalGPSTimer();
             }
             
         } else if ("UPDATE_STATUS".equals(action)) {
+            android.util.Log.e(TAG, "📊📊📊 UPDATE_STATUS COMMAND RECEIVED!!! 📊📊📊");
+            
             String courseId = intent.getStringExtra("courseId");
             int newStatus = intent.getIntExtra("newStatus", 2);
+            
+            android.util.Log.e(TAG, "📋 UPDATE_STATUS PARAMETERS:");
+            android.util.Log.e(TAG, "  courseId: " + courseId);
+            android.util.Log.e(TAG, "  newStatus: " + newStatus);
             
             CourseData course = activeCourses.get(courseId);
             if (course != null) {
@@ -813,10 +829,12 @@ public class OptimalGPSService extends Service {
                 // Reset pauseTransmitted flag when resuming (status 2)
                 if (newStatus == 2) {
                     course.pauseTransmitted = false;
-                    Log.d(TAG, "▶️ RESUME: Reset pause flag for " + courseId + " - GPS will transmit continuously");
+                    android.util.Log.e(TAG, "▶️ RESUME: Reset pause flag for " + courseId + " - GPS will transmit continuously");
                 }
                 
-                Log.d(TAG, "📊 OPTIMAL status updated: " + courseId + " -> " + newStatus);
+                android.util.Log.e(TAG, "✅✅✅ STATUS UPDATED: " + courseId + " -> " + newStatus + " ✅✅✅");
+            } else {
+                android.util.Log.e(TAG, "❌❌❌ COURSE NOT FOUND IN ACTIVECOURSES: " + courseId + " ❌❌❌");
             }
             
         } else if ("CLEAR_ALL".equals(action)) {

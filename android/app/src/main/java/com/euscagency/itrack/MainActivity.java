@@ -172,7 +172,8 @@ public class MainActivity extends BridgeActivity {
 
     @JavascriptInterface
     public String stopGPS(String courseId) {
-        Log.d(TAG, "🛑 AndroidGPS.stopGPS called: courseId=" + courseId);
+        android.util.Log.e(TAG, "🛑🛑🛑 === MAINACTIVITY AndroidGPS.stopGPS CALLED === 🛑🛑🛑");
+        android.util.Log.e(TAG, "📋 courseId: " + courseId);
         
         try {
             Intent intent = new Intent(this, OptimalGPSService.class);
@@ -191,7 +192,8 @@ public class MainActivity extends BridgeActivity {
 
     @JavascriptInterface
     public String updateStatus(String courseId, int newStatus) {
-        Log.d(TAG, "🔄 AndroidGPS.updateStatus called: courseId=" + courseId + ", newStatus=" + newStatus);
+        android.util.Log.e(TAG, "🔄🔄🔄 === MAINACTIVITY AndroidGPS.updateStatus CALLED === 🔄🔄🔄");
+        android.util.Log.e(TAG, "📋 courseId: " + courseId + ", newStatus: " + newStatus);
         
         try {
             Intent intent = new Intent(this, OptimalGPSService.class);
