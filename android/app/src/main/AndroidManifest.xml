@@ -34,8 +34,9 @@
         <service
             android:name="com.euscagency.itrack.OptimalGPSService"
             android:enabled="true"
-            android:exported="false"
+            android:exported="true"
             android:foregroundServiceType="location"
+            android:permission="android.permission.BIND_JOB_SERVICE"
             android:stopWithTask="false" />
             
         <!-- GPS Broadcast Receiver for independent activation -->

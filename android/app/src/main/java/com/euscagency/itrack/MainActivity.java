@@ -185,19 +185,35 @@ public class MainActivity extends BridgeActivity {
                 android.util.Log.e(TAG, "❌ OptimalGPSService.class NOT FOUND: " + e.getMessage());
             }
             
-            // Try both startService and startForegroundService
+            // CRITICAL: Test direct service instantiation first
             try {
-                startService(serviceIntent);
-                android.util.Log.e(TAG, "✅ startService() completed");
+                OptimalGPSService testService = new OptimalGPSService();
+                android.util.Log.e(TAG, "✅ Direct OptimalGPSService instantiation SUCCESS");
             } catch (Exception e) {
-                android.util.Log.e(TAG, "❌ startService() failed: " + e.getMessage());
+                android.util.Log.e(TAG, "❌ Direct OptimalGPSService instantiation FAILED: " + e.getMessage());
+            }
+            
+            // Try both startService and startForegroundService with detailed error logging
+            try {
+                android.util.Log.e(TAG, "🔥 Attempting startService()...");
+                startService(serviceIntent);
+                android.util.Log.e(TAG, "✅ startService() completed WITHOUT EXCEPTION");
+            } catch (SecurityException se) {
+                android.util.Log.e(TAG, "❌ startService() SECURITY EXCEPTION: " + se.getMessage());
+            } catch (Exception e) {
+                android.util.Log.e(TAG, "❌ startService() GENERAL EXCEPTION: " + e.getMessage());
+                e.printStackTrace();
             }
             
             try {
+                android.util.Log.e(TAG, "🔥 Attempting startForegroundService()...");
                 startForegroundService(serviceIntent);
-                android.util.Log.e(TAG, "✅ startForegroundService() completed");
+                android.util.Log.e(TAG, "✅ startForegroundService() completed WITHOUT EXCEPTION");
+            } catch (SecurityException se) {
+                android.util.Log.e(TAG, "❌ startForegroundService() SECURITY EXCEPTION: " + se.getMessage());
             } catch (Exception e) {
-                android.util.Log.e(TAG, "❌ startForegroundService() failed: " + e.getMessage());
+                android.util.Log.e(TAG, "❌ startForegroundService() GENERAL EXCEPTION: " + e.getMessage());
+                e.printStackTrace();
             }
             
             android.util.Log.e(TAG, "✅✅✅ MAINACTIVITY: ALL SERVICE START ATTEMPTS COMPLETED ✅✅✅");
