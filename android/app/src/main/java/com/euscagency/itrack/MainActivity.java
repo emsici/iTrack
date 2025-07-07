@@ -24,6 +24,7 @@ import android.content.pm.PackageManager;
 public class MainActivity extends BridgeActivity {
     private static final String TAG = "iTrackMainActivity";
     private static MainActivity instance;
+    private WebView webView;
 
     public static MainActivity getInstance() {
         return instance;
@@ -66,18 +67,21 @@ public class MainActivity extends BridgeActivity {
 
     private void addAndroidGPSInterface() {
         try {
-            WebView webView = getBridge().getWebView();
-            if (webView != null) {
+            WebView currentWebView = getBridge().getWebView();
+            if (currentWebView != null) {
                 Log.d(TAG, "🔧 Adding AndroidGPS interface to WebView...");
                 
+                // Store webView reference for later use
+                this.webView = currentWebView;
+                
                 // Add JavaScript interface - this creates window.AndroidGPS
-                webView.addJavascriptInterface(this, "AndroidGPS");
+                currentWebView.addJavascriptInterface(this, "AndroidGPS");
                 
                 // Wait for WebView to be ready, then set flags and verify
-                webView.post(() -> {
-                    webView.evaluateJavascript("window.AndroidGPSReady = true;", null);
-                    webView.evaluateJavascript("window.androidGPSBridgeReady = true;", null);
-                    webView.evaluateJavascript("window.androidGPSInterfaceReady = true;", null);
+                currentWebView.post(() -> {
+                    currentWebView.evaluateJavascript("window.AndroidGPSReady = true;", null);
+                    currentWebView.evaluateJavascript("window.androidGPSBridgeReady = true;", null);
+                    currentWebView.evaluateJavascript("window.androidGPSInterfaceReady = true;", null);
                     
                     // CRITICAL: Test and report if interface is working
                     webView.evaluateJavascript(
