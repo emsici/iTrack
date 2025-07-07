@@ -176,8 +176,31 @@ public class MainActivity extends BridgeActivity {
             android.util.Log.e(TAG, "  status: " + status);
             
             android.util.Log.e(TAG, "🔥 CALLING startForegroundService() NOW...");
-            startForegroundService(serviceIntent);
-            android.util.Log.e(TAG, "✅✅✅ MAINACTIVITY: startForegroundService COMPLETED for " + courseId + " ✅✅✅");
+            
+            // CRITICAL TEST: Check if service class exists and is accessible
+            try {
+                Class<?> serviceClass = OptimalGPSService.class;
+                android.util.Log.e(TAG, "✅ OptimalGPSService.class found: " + serviceClass.getName());
+            } catch (Exception e) {
+                android.util.Log.e(TAG, "❌ OptimalGPSService.class NOT FOUND: " + e.getMessage());
+            }
+            
+            // Try both startService and startForegroundService
+            try {
+                startService(serviceIntent);
+                android.util.Log.e(TAG, "✅ startService() completed");
+            } catch (Exception e) {
+                android.util.Log.e(TAG, "❌ startService() failed: " + e.getMessage());
+            }
+            
+            try {
+                startForegroundService(serviceIntent);
+                android.util.Log.e(TAG, "✅ startForegroundService() completed");
+            } catch (Exception e) {
+                android.util.Log.e(TAG, "❌ startForegroundService() failed: " + e.getMessage());
+            }
+            
+            android.util.Log.e(TAG, "✅✅✅ MAINACTIVITY: ALL SERVICE START ATTEMPTS COMPLETED ✅✅✅");
             
             // Force JavaScript callback to prove this completed AND check for OptimalGPSService response
             if (webView != null) {

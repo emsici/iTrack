@@ -105,7 +105,7 @@ public class OptimalGPSService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        android.util.Log.e("OptimalGPS", "🚨🚨🚨 CRITICAL: SERVICE onCreate() STARTING 🚨🚨🚨");
+        android.util.Log.e("OptimalGPS", "🔥🔥🔥 OPTIMALGPSSERVICE ONCREATE() CALLED!!! 🔥🔥🔥");
         
         try {
             android.util.Log.e("OptimalGPS", "🔧 Step 1: Initializing activeCourses Map...");
