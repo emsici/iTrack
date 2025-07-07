@@ -105,7 +105,7 @@ public class OptimalGPSService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        android.util.Log.e("OptimalGPS", "🔥🔥🔥 OPTIMALGPSSERVICE ONCREATE() CALLED!!! 🔥🔥🔥");
+        Log.d(TAG, "OptimalGPSService created - initializing...");
         
         try {
             android.util.Log.e("OptimalGPS", "🔧 Step 1: Initializing activeCourses Map...");
@@ -175,9 +175,10 @@ public class OptimalGPSService extends Service {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        android.util.Log.e(TAG, "🚨🚨🚨 === OPTIMAL GPS SERVICE STARTED === 🚨🚨🚨");
-        android.util.Log.e(TAG, "📡 Action: " + (intent != null ? intent.getAction() : "NULL_INTENT"));
-        android.util.Log.e(TAG, "⚡ Current activeCourses count: " + activeCourses.size());
+        Log.d(TAG, "OptimalGPSService onStartCommand called");
+        if (intent != null) {
+            Log.d(TAG, "Intent action: " + intent.getAction());
+        }
         android.util.Log.e(TAG, "🔍 Service flags: " + flags + ", startId: " + startId);
         android.util.Log.e(TAG, "🔥 CRITICAL DEBUG: isAlarmActive=" + isAlarmActive + ", WakeLock held=" + (wakeLock != null && wakeLock.isHeld()));
         

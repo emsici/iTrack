@@ -1,0 +1,161 @@
+iTrack Application Logs
+Generated: 07.07.2025, 12:27:48
+Total Logs: 132
+
+[2025-07-07T09:27:47.070Z] INFO (APP): Login successful, storing token...
+[2025-07-07T09:27:47.070Z] INFO (APP): Admin login detected - bypassing server authentication
+[2025-07-07T09:27:35.784Z] INFO (APP): Logged out - cleared local storage
+[2025-07-07T09:27:35.767Z] INFO (APP): Logout completed via AndroidGPS
+[2025-07-07T09:27:35.767Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-07-07T09:27:35.719Z] INFO (APP): 🧹 Cleared saved status for course_status_3U1K864736620183
+[2025-07-07T09:27:35.695Z] INFO (API): CapacitorHttp logout successful
+[2025-07-07T09:27:35.695Z] INFO (APP): CapacitorHttp logout successful
+[2025-07-07T09:27:35.553Z] INFO (APP): === CapacitorHttp logout ===
+[2025-07-07T09:27:35.553Z] INFO (API): Starting logout process
+[2025-07-07T09:27:35.553Z] INFO (APP): Starting logout process with Bearer token
+[2025-07-07T09:27:35.551Z] INFO (GPS): ✅ Android GPS cleared: SUCCESS: All GPS data cleared
+[2025-07-07T09:27:35.545Z] INFO (GPS): 🧹 LOGOUT: Clearing Android GPS service
+[2025-07-07T09:27:21.277Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-07T09:27:20.321Z] INFO (APP): 🔍 If this message does NOT appear, then MainActivity.startGPS() is NOT called at all
+[2025-07-07T09:27:20.321Z] INFO (APP): 🔍 If this message appears, then MainActivity is called but OptimalGPSService might not start
+[2025-07-07T09:27:20.320Z] INFO (APP): 🔥 CRITICAL TEST: Look for "PROOF: MainActivity.startGPS() WAS ACTUALLY CALLED!" message
+[2025-07-07T09:27:20.280Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-07T09:27:18.360Z] INFO (APP): 🔍 Check APK Android Logs for: OPTIMAL GPS SERVICE STARTED
+[2025-07-07T09:27:17.358Z] INFO (APP): 🚀 MAINACTIVITY: startForegroundService() called for OptimalGPSService
+[2025-07-07T09:27:17.323Z] INFO (APP): 🔥🔥🔥 PROOF: MainActivity.startGPS() WAS ACTUALLY CALLED! 🔥🔥🔥
+[2025-07-07T09:27:17.322Z] INFO (APP): Course action completed: 4335
+[2025-07-07T09:27:17.322Z] INFO (APP): === STATUS UPDATE COMPLETE ===
+[2025-07-07T09:27:17.322Z] INFO (API): Course 3U1K864736620183 status updated successfully to 2
+[2025-07-07T09:27:17.322Z] INFO (APP): ✅ Course 3U1K864736620183 status updated to 2 successfully
+[2025-07-07T09:27:17.318Z] INFO (GPS): ✅ Android START/RESUME: SUCCESS: GPS started for 3U1K864736620183
+[2025-07-07T09:27:17.318Z] INFO (APP): 📤 AndroidGPS.startGPS returned: SUCCESS: GPS started for 3U1K864736620183
+[2025-07-07T09:27:17.311Z] INFO (APP): 🔍 TESTING: window.AndroidGPS.startGPS.toString() = function () { [native code] }
+[2025-07-07T09:27:17.311Z] INFO (APP): 🔍 TESTING: typeof window.AndroidGPS.startGPS = function
+[2025-07-07T09:27:17.310Z] INFO (APP): 🚀 CALLING AndroidGPS.startGPS with params: 3U1K864736620183, B13NTR, 3U1K864736620183, tokenLength: 136, status: 2
+[2025-07-07T09:27:17.310Z] INFO (APP):   - stopGPS: function
+[2025-07-07T09:27:17.310Z] INFO (APP):   - updateStatus: function
+[2025-07-07T09:27:17.309Z] INFO (APP):   - startGPS: function
+[2025-07-07T09:27:17.309Z] INFO (APP): 🔍 AndroidGPS methods available:
+[2025-07-07T09:27:17.309Z] INFO (APP): 🔍 androidGPSBridgeReady: true
+[2025-07-07T09:27:17.309Z] INFO (APP): 🔍 window.AndroidGPSReady: true
+[2025-07-07T09:27:17.309Z] INFO (APP): 🔍 window.AndroidGPS exists: true
+[2025-07-07T09:27:17.308Z] INFO (APP): 🔍 DEBUGGING: Checking window.AndroidGPS availability...
+[2025-07-07T09:27:17.308Z] INFO (APP): ✅ Status update delegated to OptimalGPSService to prevent duplicates
+[2025-07-07T09:27:17.308Z] INFO (APP): ⚠️ Status 2 update for UIT 3U1K864736620183 - handled by OptimalGPSService only
+[2025-07-07T09:27:17.307Z] INFO (APP): 📡 Sending status 2 to server for UIT: 3U1K864736620183
+[2025-07-07T09:27:17.276Z] INFO (APP): 🔄 Simple Android GPS: 3U1K864736620183 → 2
+[2025-07-07T09:27:17.276Z] INFO (APP): 📞 Calling updateCourseStatus with UIT: 3U1K864736620183 (not ID: 4335)
+[2025-07-07T09:27:17.275Z] INFO (APP): 🎯 Delegating all GPS logic to directAndroidGPS service
+[2025-07-07T09:27:17.275Z] INFO (APP): ✅ GPS permissions granted
+[2025-07-07T09:27:15.847Z] INFO (APP): 🔍 Requesting GPS permissions for course start...
+[2025-07-07T09:27:15.847Z] INFO (APP): Token available: true, Token length: 136
+[2025-07-07T09:27:15.847Z] INFO (APP): UIT REAL: 3U1K864736620183, Vehicle: B13NTR
+[2025-07-07T09:27:15.847Z] INFO (APP): Course: 4335, Status: 1 → 2
+[2025-07-07T09:27:15.846Z] INFO (APP): === STATUS UPDATE START ===
+[2025-07-07T09:27:15.846Z] INFO (APP): 💾 Saved status 2 for UIT 3U1K864736620183
+[2025-07-07T09:27:15.845Z] INFO (APP): Processing course action: 4335
+[2025-07-07T09:27:14.186Z] INFO (APP): === Loading finished ===
+[2025-07-07T09:27:14.186Z] INFO (APP): 🆕 Found 1 new courses - displayed at top
+[2025-07-07T09:27:14.186Z] INFO (APP): Successfully loaded 1 courses for B13NTR (sorted: new first)
+[2025-07-07T09:27:14.186Z] INFO (APP): 🔄 Android background auto-refresh activated (5 min intervals)
+[2025-07-07T09:27:14.186Z] INFO (APP): ✅ Courses loaded successfully - switching to main view with 1 courses
+[2025-07-07T09:27:14.137Z] INFO (APP): Courses found: 1
+[2025-07-07T09:27:14.136Z] INFO (API): Request completed for B13NTR - all locks cleared
+[2025-07-07T09:27:14.136Z] INFO (APP): Request completed - locks cleared
+[2025-07-07T09:27:14.132Z] INFO (API): Processed 1 courses for B13NTR
+[2025-07-07T09:27:14.132Z] INFO (APP): Processed 1 courses successfully
+[2025-07-07T09:27:14.132Z] INFO (APP): Processing course data
+[2025-07-07T09:27:14.132Z] INFO (APP): Found 1 courses for vehicle B13NTR
+[2025-07-07T09:27:14.132Z] INFO (API): API response: status=200, data={"status":"success","count":1,"data":[{"ikRoTrans":4335,"codDeclarant":39909082,"denumireDeclarant":"HEFFA CARGO SYSTEMS S.R.L.","nrVehicul":"B13NTR","UIT":"3U1K864736620183","dataTransport":"2025-07-04","Vama":"ADR","BirouVamal":"Calea Sagului nr. -, Chisoda, Jud. Timi?","Judet":"TM","denumireLocStart":"Chisoda","VamaStop":"ADR","BirouVamalStop":"Piata Agroalimentara nr. -, Curtici, Jud. Arad","JudetStop":"AR","denumireLocStop":"Curtici"}]}
+[2025-07-07T09:27:14.132Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 1,
+  "data": [
+    {
+      "ikRoTrans": 4335,
+      "codDeclarant": 39909082,
+      "denumireDeclarant": "HEFFA CARGO SYSTEMS S.R.L.",
+      "nrVehicul": "B13NTR",
+      "UIT": "3U1K864736620183",
+      "dataTransport": "2025-07-04",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Sagului nr. -, Chisoda, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "Chisoda",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Piata Agroalimentara nr. -, Curtici, Jud. Arad",
+      "JudetStop": "AR",
+      "denumireLocStop": "Curtici"
+    }
+  ]
+}
+[2025-07-07T09:27:14.131Z] INFO (APP): API Response Status: 200
+[2025-07-07T09:27:14.131Z] INFO (APP): Data length: No data
+[2025-07-07T09:27:14.131Z] INFO (APP): Status: 200
+[2025-07-07T09:27:14.131Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-07-07T09:27:14.050Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-07-07T09:27:14.050Z] INFO (API): Loading courses for vehicle B13NTR
+[2025-07-07T09:27:14.050Z] INFO (APP): Loading courses for vehicle: B13NTR
+[2025-07-07T09:27:14.049Z] INFO (APP): === DEBUGGING: Loading courses for vehicle: B13NTR ===
+[2025-07-07T09:27:14.049Z] INFO (APP): === APK DEBUG: Current courses count: 0
+[2025-07-07T09:27:14.048Z] INFO (APP): === APK DEBUG: Current coursesLoaded state: false
+[2025-07-07T09:27:14.048Z] INFO (APP): === APK DEBUG: Token available: true
+[2025-07-07T09:27:14.048Z] INFO (APP): === APK DEBUG: Vehicle number: B13NTR
+[2025-07-07T09:27:14.048Z] INFO (APP): === APK DEBUG: Starting course loading process ===
+[2025-07-07T09:27:13.366Z] INFO (APP): 📝 Vehicle number changed to: B13NTR
+[2025-07-07T09:27:13.237Z] INFO (APP): 📝 Vehicle number changed to: B13NT
+[2025-07-07T09:27:13.001Z] INFO (APP): 📝 Vehicle number changed to: B13N
+[2025-07-07T09:27:12.362Z] INFO (APP): 📝 Vehicle number changed to: B13
+[2025-07-07T09:27:12.212Z] INFO (APP): 📝 Vehicle number changed to: B13T
+[2025-07-07T09:27:12.117Z] INFO (APP): 📝 Vehicle number changed to: B13TN
+[2025-07-07T09:27:10.811Z] INFO (APP): === Loading finished ===
+[2025-07-07T09:27:10.811Z] INFO (APP): ✅ Staying on input screen - no courses found
+[2025-07-07T09:27:10.811Z] INFO (APP): No courses found - staying on vehicle input screen
+[2025-07-07T09:27:10.810Z] INFO (APP): Courses found: 0
+[2025-07-07T09:27:10.810Z] INFO (API): Request completed for B13TNR - all locks cleared
+[2025-07-07T09:27:10.810Z] INFO (APP): Request completed - locks cleared
+[2025-07-07T09:27:10.805Z] INFO (APP): No courses found for vehicle
+[2025-07-07T09:27:10.805Z] INFO (APP): Found 0 courses for vehicle B13TNR
+[2025-07-07T09:27:10.805Z] INFO (API): API response: status=200, data={"status":"success","count":0,"data":[]}
+[2025-07-07T09:27:10.805Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 0,
+  "data": []
+}
+[2025-07-07T09:27:10.805Z] INFO (APP): API Response Status: 200
+[2025-07-07T09:27:10.805Z] INFO (APP): Data length: No data
+[2025-07-07T09:27:10.805Z] INFO (APP): Status: 200
+[2025-07-07T09:27:10.805Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-07-07T09:27:10.719Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-07-07T09:27:10.718Z] INFO (API): Loading courses for vehicle B13TNR
+[2025-07-07T09:27:10.718Z] INFO (APP): Loading courses for vehicle: B13TNR
+[2025-07-07T09:27:10.718Z] INFO (APP): === DEBUGGING: Loading courses for vehicle: B13TNR ===
+[2025-07-07T09:27:10.718Z] INFO (APP): === APK DEBUG: Current courses count: 0
+[2025-07-07T09:27:10.717Z] INFO (APP): === APK DEBUG: Current coursesLoaded state: false
+[2025-07-07T09:27:10.717Z] INFO (APP): === APK DEBUG: Token available: true
+[2025-07-07T09:27:10.717Z] INFO (APP): === APK DEBUG: Vehicle number: B13TNR
+[2025-07-07T09:27:10.717Z] INFO (APP): === APK DEBUG: Starting course loading process ===
+[2025-07-07T09:27:09.459Z] INFO (APP): 📝 Vehicle number changed to: B13TNR
+[2025-07-07T09:27:09.409Z] INFO (APP): 📝 Vehicle number changed to: B13TN
+[2025-07-07T09:27:09.292Z] INFO (APP): 📝 Vehicle number changed to: B13T
+[2025-07-07T09:27:08.428Z] INFO (APP): 📝 Vehicle number changed to: B13
+[2025-07-07T09:27:08.371Z] INFO (APP): 📝 Vehicle number changed to: B1
+[2025-07-07T09:27:07.479Z] INFO (APP): 📝 Vehicle number changed to: B
+[2025-07-07T09:27:05.997Z] INFO (APP): Token stored successfully
+[2025-07-07T09:27:05.983Z] INFO (APP): Login successful, storing token...
+[2025-07-07T09:27:05.983Z] INFO (API): CapacitorHttp login successful for +40722222222
+[2025-07-07T09:27:05.983Z] INFO (APP): CapacitorHttp login successful
+[2025-07-07T09:27:05.782Z] INFO (APP): Using CapacitorHttp for fast login
+[2025-07-07T09:27:05.782Z] INFO (API): Direct CapacitorHttp login attempt for +40722222222
+[2025-07-07T09:27:05.781Z] INFO (APP): Direct CapacitorHttp login for: +40722222222
+[2025-07-07T09:27:05.781Z] INFO (APP): Platform info: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/137.0.7151.115 Mobile Safari/537.36
+[2025-07-07T09:27:05.781Z] INFO (APP): CapacitorHttp available: true
+[2025-07-07T09:27:05.780Z] INFO (APP): Test credentials detected - proceeding with server authentication
+[2025-07-07T09:27:02.620Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-07T09:27:02.004Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-07T09:27:02.004Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-07T09:27:01.010Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-07T09:27:00.644Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-07T09:26:58.365Z] INFO (APP): No stored token - showing login
+[2025-07-07T09:26:58.303Z] INFO (APP): ✅ GPS Bridge initialized - Android service ready for GPS transmission
+[2025-07-07T09:26:58.300Z] INFO (SYSTEM): AppLogger initialized

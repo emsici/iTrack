@@ -156,7 +156,8 @@ public class MainActivity extends BridgeActivity {
         Log.d(TAG, "🔧 Permission check delegated to OptimalGPSService for compatibility");
 
         try {
-            Intent serviceIntent = new Intent(this, OptimalGPSService.class);
+            Intent serviceIntent = new Intent();
+            serviceIntent.setClassName(this, "com.euscagency.itrack.OptimalGPSService");
             serviceIntent.setAction("START_GPS");
             serviceIntent.putExtra("courseId", courseId);
             serviceIntent.putExtra("vehicleNumber", vehicleNumber);
@@ -218,12 +219,15 @@ public class MainActivity extends BridgeActivity {
             
             android.util.Log.e(TAG, "✅✅✅ MAINACTIVITY: ALL SERVICE START ATTEMPTS COMPLETED ✅✅✅");
             
+            // FINAL LOG: All service start attempts completed
+            android.util.Log.e(TAG, "🏁 MAINACTIVITY: All service start operations completed");
+            
             // Force JavaScript callback to prove this completed AND check for OptimalGPSService response
             if (webView != null) {
                 webView.post(() -> {
                     webView.evaluateJavascript(
-                        "console.log('🚀 MAINACTIVITY: startForegroundService() called for OptimalGPSService');" +
-                        "setTimeout(() => console.log('🔍 Check APK Android Logs for: OPTIMAL GPS SERVICE STARTED'), 1000);",
+                        "console.log('🚀 MAINACTIVITY: All service start attempts completed');" +
+                        "setTimeout(() => console.log('🔍 Look for Android Logs: Direct instantiation + startService + startForegroundService results'), 2000);",
                         null
                     );
                 });

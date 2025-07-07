@@ -171,7 +171,15 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.228 (July 07, 2025) - ALL BUILD ERRORS ELIMINATED & PRODUCTION READY
+### Versiunea Curentă: 1808.229 (July 07, 2025) - CRITICAL GPS SERVICE COMMUNICATION ISSUE IDENTIFIED
+
+**PROBLEMA CRITICĂ IDENTIFICATĂ**: MainActivity.startForegroundService() se execută cu succes dar OptimalGPSService nu primește Intent-ul
+**STATUS GPS**: Ultimele coordonate transmise: 2025-07-03 20:39:15, apoi complet oprit
+**DEBUGGING ENHANCED**: Added System.out.println() logs și direct service instantiation test pentru identificarea exactă a problemei
+**FLOW VERIFICAT**: JavaScript→MainActivity=✅WORKING, MainActivity→OptimalGPSService=❌BROKEN
+**NEXT STEP**: Identificarea de ce startForegroundService() nu declanșează onCreate()/onStartCommand() în OptimalGPSService
+
+### Versiunea Precedentă: 1808.228 (July 07, 2025) - ALL BUILD ERRORS ELIMINATED & PRODUCTION READY
 
 **XML MANIFEST ERROR FIXED**: Resolved "Element type application must be followed by..." error by properly closing application tag
 **ALL PROBLEMATIC SERVICES REMOVED**: Eliminated DiagnosticGPSService.java and BackgroundRefreshService.java causing crashes
