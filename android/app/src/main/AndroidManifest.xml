@@ -13,7 +13,8 @@
         android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:debuggable="true">
+        android:debuggable="true"
+        android:persistent="true">
 
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
@@ -30,12 +31,6 @@
 
         </activity>
 
-        <!-- DIAGNOSTIC GPS SERVICE - TEST LOGS -->
-        <service
-            android:name="com.euscagency.itrack.DiagnosticGPSService"
-            android:enabled="true"
-            android:exported="false" />
-            
         <!-- OptimalGPSService EXCLUSIVE - ONLY GPS SERVICE -->
         <service
             android:name="com.euscagency.itrack.OptimalGPSService"
@@ -43,19 +38,6 @@
             android:exported="false"
             android:foregroundServiceType="location"
             android:stopWithTask="false" />
-            
-        <!-- GPS handled via MainActivity AndroidGPS WebView interface -->
-            
-        <!-- Background Auto-Refresh Service -->
-        <service
-            android:name="com.itrack.BackgroundRefreshService"
-            android:enabled="true"
-            android:exported="false" />
-            
-        <receiver
-            android:name="com.itrack.BackgroundRefreshService$RefreshReceiver"
-            android:enabled="true"
-            android:exported="false" />
             
         <!-- GPS Broadcast Receiver for independent activation -->
 
@@ -92,7 +74,12 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.TURN_SCREEN_ON" />
     
     <!-- CRITICAL: AlarmManager exact timing permissions for Android 6+ -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
@@ -103,15 +90,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     
-    <!-- Background refresh permissions -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
-    
     <!-- Real device data permissions for authentic GPS transmission -->
     <uses-permission android:name="android.permission.BATTERY_STATS" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    
-    <!-- Phone state for GSM signal strength -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     
     <!-- TransistorSoft Background Geolocation permissions -->
@@ -120,9 +100,6 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
-    
-    <!-- Essential permissions only -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <uses-feature
         android:name="android.hardware.location"

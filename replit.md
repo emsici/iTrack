@@ -171,7 +171,16 @@ Persistare localStorage → Afișare CourseStatsModal
 
 ## Versioning și Updates
 
-### Versiunea Curentă: 1808.226 (July 03, 2025) - SCHEDULE_EXACT_ALARM PERMISSION SOLUTION IMPLEMENTED
+### Versiunea Curentă: 1808.227 (July 07, 2025) - CRITICAL CRASH FIXES & MINIMAL SERVICE IMPLEMENTATION
+
+**CRITICAL CRASH RESOLUTION**: Aplicația făcea crash continuu din cauza permisiunilor excesive și serviciilor complexe
+**MINIMAL GPS SERVICE**: Simplificat radical OptimalGPSService pentru stabilitate maximă
+**PERMISSIONS CLEANUP**: Eliminat android:persistent="true" și permisiunile problematice care cauzau crash-uri
+**SERVICE ARCHITECTURE SIMPLIFIED**: Removut DiagnosticGPSService și serviciile de background refresh
+**FOREGROUND SERVICE OPTIMIZED**: Păstrat doar serviciul GPS esențial cu foregroundServiceType="location"
+**STABILITY FIRST**: Prioritate pentru pornirea aplicației fără crash-uri înainte de features avansate
+
+### Versiunea Precedentă: 1808.226 (July 03, 2025) - SCHEDULE_EXACT_ALARM PERMISSION SOLUTION IMPLEMENTED
 
 **GPS TRANSMISSION MYSTERY SOLVED**: GPS works perfectly (20:25-20:34) but failed before (17:47) due to missing SCHEDULE_EXACT_ALARM permission
 **CRITICAL ANDROID 12+ REQUIREMENT**: canScheduleExactAlarms() must return true or OptimalGPSService cannot use AlarmManager

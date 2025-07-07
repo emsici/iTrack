@@ -142,42 +142,18 @@ public class MainActivity extends BridgeActivity {
         Log.d(TAG, "🔧 Permission check delegated to OptimalGPSService for compatibility");
 
         try {
-            Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for DiagnosticGPSService FIRST");
-            Intent diagnosticIntent = new Intent(this, DiagnosticGPSService.class);
-            diagnosticIntent.setAction("START_GPS");
-            diagnosticIntent.putExtra("courseId", courseId);
-            startService(diagnosticIntent);
-            Log.d(TAG, "✅ DIAGNOSTIC: DiagnosticGPSService started - checking logs...");
+            Intent serviceIntent = new Intent(this, OptimalGPSService.class);
+            serviceIntent.setAction("START_GPS");
+            serviceIntent.putExtra("courseId", courseId);
+            serviceIntent.putExtra("vehicleNumber", vehicleNumber);
+            serviceIntent.putExtra("uit", uit);
+            serviceIntent.putExtra("authToken", authToken);
+            serviceIntent.putExtra("status", status);
             
-            Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for OptimalGPSService");
-            Intent intent = new Intent(this, OptimalGPSService.class);
-            intent.setAction("START_GPS");
-            intent.putExtra("courseId", courseId);
-            intent.putExtra("vehicleNumber", vehicleNumber);
-            intent.putExtra("uit", uit);
-            intent.putExtra("authToken", authToken);
-            intent.putExtra("status", status);
+            startForegroundService(serviceIntent);
             
-            Log.d(TAG, "🚀 DIAGNOSTIC: Calling startForegroundService...");
-            
-            // CRITICAL DIAGNOSTIC: Add detailed logging to catch service startup issues
-            try {
-                ComponentName serviceComponent = startForegroundService(intent);
-                Log.d(TAG, "✅ DIAGNOSTIC: startForegroundService returned component: " + serviceComponent);
-                Log.d(TAG, "🔍 DIAGNOSTIC: Service should now be starting with action START_GPS");
-                
-                // Wait a moment to see if service starts
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    Log.d(TAG, "🕐 DIAGNOSTIC: 2 seconds after startForegroundService - checking if service responded");
-                }, 2000);
-                
-            } catch (SecurityException se) {
-                Log.e(TAG, "❌ SECURITY ERROR starting service: " + se.getMessage());
-                return "ERROR: Security exception - " + se.getMessage();
-            } catch (Exception se) {
-                Log.e(TAG, "❌ EXCEPTION starting service: " + se.getMessage());
-                return "ERROR: Service exception - " + se.getMessage();
-            }
+            Log.d(TAG, "✅ OptimalGPSService START command sent successfully");
+            return "SUCCESS";
             
             Log.d(TAG, "✅ DIAGNOSTIC: OptimalGPSService startForegroundService completed for " + courseId);
             
