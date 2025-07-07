@@ -64,9 +64,21 @@ class SimpleAndroidGPSService {
         if (newStatus === 2) {
           // START or RESUME
           console.log(`🚀 CALLING AndroidGPS.startGPS with params: ${courseId}, ${vehicleNumber}, ${uit}, tokenLength: ${token.length}, status: ${newStatus}`);
+          
+          // CRITICAL DEBUG: Test if MainActivity.startGPS is actually called
+          console.log(`🔍 TESTING: typeof window.AndroidGPS.startGPS = ${typeof window.AndroidGPS.startGPS}`);
+          console.log(`🔍 TESTING: window.AndroidGPS.startGPS.toString() = ${window.AndroidGPS.startGPS.toString()}`);
+          
           result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, newStatus);
           console.log(`📤 AndroidGPS.startGPS returned: ${result}`);
           logGPS(`✅ Android START/RESUME: ${result}`);
+          
+          // CRITICAL TEST: Wait for MainActivity callback proving it was called
+          setTimeout(() => {
+            console.log(`🔥 CRITICAL TEST: Look for "PROOF: MainActivity.startGPS() WAS ACTUALLY CALLED!" message`);
+            console.log(`🔍 If this message appears, then MainActivity is called but OptimalGPSService might not start`);
+            console.log(`🔍 If this message does NOT appear, then MainActivity.startGPS() is NOT called at all`);
+          }, 3000);
         } else if (newStatus === 3) {
           // PAUSE
           console.log(`⏸️ CALLING AndroidGPS.updateStatus with params: ${courseId}, ${newStatus}`);

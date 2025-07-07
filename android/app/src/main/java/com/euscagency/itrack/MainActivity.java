@@ -130,6 +130,16 @@ public class MainActivity extends BridgeActivity {
     @JavascriptInterface
     public String startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
         android.util.Log.e(TAG, "🚨🚨🚨 === MAINACTIVITY AndroidGPS.startGPS CALLED FROM JAVASCRIPT 🚨🚨🚨");
+        
+        // CRITICAL DEBUG: Force JavaScript callback to prove Android function is called
+        if (webView != null) {
+            webView.post(() -> {
+                webView.evaluateJavascript(
+                    "console.log('🔥🔥🔥 PROOF: MainActivity.startGPS() WAS ACTUALLY CALLED! 🔥🔥🔥');",
+                    null
+                );
+            });
+        }
         Log.d(TAG, "📍 Parameters received:");
         Log.d(TAG, "  - courseId: " + courseId);
         Log.d(TAG, "  - vehicleNumber: " + vehicleNumber);
