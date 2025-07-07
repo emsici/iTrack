@@ -156,6 +156,13 @@ public class MainActivity extends BridgeActivity {
         Log.d(TAG, "🔧 Permission check delegated to OptimalGPSService for compatibility");
 
         try {
+            // TEST: Try simple service first
+            Intent testIntent = new Intent(this, SimpleTestGPSService.class);
+            testIntent.setAction("START_GPS");
+            testIntent.putExtra("courseId", courseId);
+            startService(testIntent);
+            android.util.Log.e(TAG, "🔧 TEST: SimpleTestGPSService started");
+            
             Intent serviceIntent = new Intent(this, OptimalGPSService.class);
             serviceIntent.setAction("START_GPS");
             serviceIntent.putExtra("courseId", courseId);

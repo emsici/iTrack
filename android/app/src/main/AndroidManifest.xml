@@ -30,9 +30,15 @@
 
         </activity>
 
+        <!-- TEST: Simple GPS Service for debugging Intent delivery -->
+        <service
+            android:name=".SimpleTestGPSService"
+            android:enabled="true"
+            android:exported="false" />
+            
         <!-- OptimalGPSService EXCLUSIVE - ONLY GPS SERVICE -->
         <service
-            android:name="com.euscagency.itrack.OptimalGPSService"
+            android:name=".OptimalGPSService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location"
