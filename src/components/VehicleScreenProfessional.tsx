@@ -14,6 +14,7 @@ import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
+import OfflineGPSMonitor from "./OfflineGPSMonitor";
 
 interface VehicleScreenProps {
   token: string;
@@ -811,6 +812,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
               </div>
             </div>
+
+            {/* Offline GPS Monitor - visible when courses are active */}
+            <OfflineGPSMonitor 
+              isOnline={isOnline} 
+              coursesActive={coursesLoaded && courses.some(c => c.status === 2)} 
+            />
 
             {/* Courses List */}
             <div className="courses-container">

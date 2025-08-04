@@ -6,7 +6,7 @@
 import { Preferences } from '@capacitor/preferences';
 import { CapacitorHttp } from '@capacitor/core';
 // Uses CapacitorHttp + fetch fallback for GPS coordinate transmission
-import { GPSData } from './api';
+import { GPSData, API_BASE_URL } from './api';
 
 export interface OfflineGPSCoordinate {
   id: string;
@@ -53,8 +53,8 @@ class OfflineGPSService {
         directie: gpsData.directie,
         altitudine: gpsData.altitudine,
         baterie: gpsData.baterie,
-        hdop: gpsData.hdop,
-        gsm_signal: gpsData.gsm_signal,
+        hdop: gpsData.hdop.toString(),
+        gsm_signal: gpsData.gsm_signal.toString(),
         retryCount: 0,
         savedAt: new Date().toISOString()
       };
@@ -200,9 +200,9 @@ class OfflineGPSService {
         baterie: coordinate.baterie,
         numar_inmatriculare: coordinate.vehicleNumber,
         uit: coordinate.uit,
-        status: coordinate.status.toString(),
-        hdop: coordinate.hdop,
-        gsm_signal: coordinate.gsm_signal
+        status: coordinate.status,
+        hdop: parseInt(coordinate.hdop),
+        gsm_signal: parseInt(coordinate.gsm_signal)
       };
 
       // PRIMARY: CapacitorHttp
