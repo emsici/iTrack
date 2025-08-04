@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -40,6 +41,9 @@ public class OptimalGPSService extends Service {
     private LocationManager locationManager;
     private Map<String, CourseData> activeCourses = new HashMap<>();
     private boolean isAlarmActive = false;
+    
+    // WAKELOCK for background operation
+    private PowerManager.WakeLock wakeLock;
     
     // FOREGROUND OPTIMIZED HTTP TRANSMISSION
     private ExecutorService httpThreadPool; // Simple thread pool to avoid blocking main service
@@ -70,13 +74,17 @@ public class OptimalGPSService extends Service {
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
+        // Initialize WakeLock for background operation
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "iTrack:OptimalGPS");
+        
         // FOREGROUND OPTIMIZED: Simple thread pool to avoid blocking AlarmManager
         httpThreadPool = Executors.newFixedThreadPool(1); // Single background thread for HTTP
         
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
         
-        Log.d(TAG, "✅ OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching");
+        Log.d(TAG, "✅ OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching + WakeLock");
     }
     
     private void createNotificationChannel() {
