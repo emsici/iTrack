@@ -41,12 +41,12 @@ Preferred communication style: Simple, everyday language.
 ## External Dependencies
 - **Capacitor**: `@capacitor/core`, `@capacitor/android`, `@capacitor/geolocation`, `@capacitor/preferences`
 - **Capacitor Community Plugins**: `@capacitor-community/background-geolocation`
-- **APIs**:
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/login.php` (Authentication)
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php` (Logout)
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/get_courses_by_vehicle.php` (Course Management)
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/update_course_status.php` (Course Status Updates)
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php` (GPS Data Transmission)
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/rezultate.php` (GPS Result Verification)
+- **APIs** (PRODUCTION - etsm_prod):
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/login.php` (Authentication)
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/logout.php` (Logout)
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php` (Course Management)
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/update_course_status.php` (Course Status Updates)
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php` (GPS Data Transmission)
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/rezultate.php` (GPS Result Verification)
 - **UI Libraries**: Bootstrap 5.3.6
 ```
