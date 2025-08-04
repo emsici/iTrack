@@ -820,21 +820,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             />
 
             {/* Courses List */}
-            <div className="courses-container">
+            <div className="courses-container" style={{ position: 'relative', zIndex: 1 }}>
               {filteredCourses.length === 0 ? (
                 <div className="no-courses-message">
                   <i className="fas fa-info-circle"></i>
                   <p>Nu există curse {selectedStatusFilter === 'all' ? '' : 'cu statusul selectat'} pentru acest vehicul.</p>
                 </div>
               ) : (
-                <div className="courses-list">
-                  {filteredCourses.map((course) => (
-                    <CourseDetailCard
-                      key={course.id}
-                      course={course}
-                      onStatusUpdate={handleCourseStatusUpdate}
-                      isLoading={loadingCourses.has(course.id)}
-                    />
+                <div className="courses-list" style={{ position: 'relative' }}>
+                  {filteredCourses.map((course, index) => (
+                    <div key={course.id} style={{ position: 'relative', zIndex: filteredCourses.length - index }}>
+                      <CourseDetailCard
+                        course={course}
+                        onStatusUpdate={handleCourseStatusUpdate}
+                        isLoading={loadingCourses.has(course.id)}
+                      />
+                    </div>
                   ))}
                 </div>
               )}

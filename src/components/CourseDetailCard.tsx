@@ -307,13 +307,21 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .course-details-enhanced {
+          margin-top: 12px;
           padding: 20px;
-          background: rgba(0, 0, 0, 0.2);
+          background: rgba(15, 23, 42, 0.95);
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(15px);
+          -webkit-backdrop-filter: blur(15px);
           animation: ${showDetails ? 'slideDown' : 'slideUp'} 0.3s ease;
-          max-height: ${showDetails ? '500px' : '0'};
-          overflow: hidden;
+          max-height: ${showDetails ? 'none' : '0'};
+          overflow: ${showDetails ? 'visible' : 'hidden'};
           opacity: ${showDetails ? '1' : '0'};
           transition: all 0.3s ease;
+          position: relative;
+          z-index: 100;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
         }
 
         .details-grid-enhanced {
