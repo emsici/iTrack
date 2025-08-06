@@ -150,8 +150,8 @@ class GuaranteedGPSService {
       const uniqueTimestamp = new Date().toISOString();
       
       const gpsData: GPSData = {
-        lat: Math.round(coords.latitude * 100000000) / 100000000,  // 8 decimale pentru consistență
-        lng: Math.round(coords.longitude * 100000000) / 100000000, // 8 decimale pentru consistență
+        lat: Math.round(coords.latitude * 1000000000000) / 1000000000000,  // 12 decimale pentru precizie maximă
+        lng: Math.round(coords.longitude * 1000000000000) / 1000000000000, // 12 decimale pentru precizie maximă
         timestamp: uniqueTimestamp,
         viteza: coords.speed || 0,
         directie: coords.heading || 0,
