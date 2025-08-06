@@ -5,7 +5,7 @@
  */
 
 import { logGPS, logGPSError } from './appLogger';
-import { getStoredToken } from './storage';
+
 import { sendGPSData, GPSData } from './api';
 import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
@@ -150,8 +150,8 @@ class GuaranteedGPSService {
       const uniqueTimestamp = new Date().toISOString();
       
       const gpsData: GPSData = {
-        lat: coords.latitude,
-        lng: coords.longitude,
+        lat: Math.round(coords.latitude * 100000000) / 100000000,  // 8 decimale pentru consistență
+        lng: Math.round(coords.longitude * 100000000) / 100000000, // 8 decimale pentru consistență
         timestamp: uniqueTimestamp,
         viteza: coords.speed || 0,
         directie: coords.heading || 0,
@@ -197,7 +197,7 @@ class GuaranteedGPSService {
       altitude: 80 + Math.random() * 20
     };
 
-    for (const [courseId, course] of this.activeCourses) {
+    for (const [, course] of this.activeCourses) {
       await this.transmitSingleCourse(course, backupCoords);
     }
   }

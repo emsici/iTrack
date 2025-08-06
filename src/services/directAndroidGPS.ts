@@ -55,8 +55,8 @@ class DirectAndroidGPSService {
       const batteryInfo = await Device.getBatteryInfo();
       
       const gpsData = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
+        lat: Math.round(position.coords.latitude * 100000000) / 100000000,  // 8 decimale pentru consistență
+        lng: Math.round(position.coords.longitude * 100000000) / 100000000, // 8 decimale pentru consistență
         timestamp: new Date().toISOString(),
         viteza: position.coords.speed || 0,
         directie: position.coords.heading || 0,

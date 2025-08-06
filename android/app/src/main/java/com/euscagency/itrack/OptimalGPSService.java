@@ -346,8 +346,11 @@ public class OptimalGPSService extends Service {
         // Create GPS data JSON
         org.json.JSONObject gpsData = new org.json.JSONObject();
         // JUNE 26TH FORMAT: Real coordinates + JWT token in UIT field
-        gpsData.put("lat", location.getLatitude()); // Real coordinates as numbers
-        gpsData.put("lng", location.getLongitude()); // Real coordinates as numbers
+        // Standardizare la 8 decimale pentru consistență cu Capacitor GPS
+        double lat = Math.round(location.getLatitude() * 100000000.0) / 100000000.0;
+        double lng = Math.round(location.getLongitude() * 100000000.0) / 100000000.0;
+        gpsData.put("lat", lat); // 8 decimale standardizate
+        gpsData.put("lng", lng); // 8 decimale standardizate
         gpsData.put("timestamp", new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(new java.util.Date()));
         gpsData.put("viteza", location.getSpeed() * 3.6); // m/s to km/h as float
         gpsData.put("directie", location.getBearing()); // Real bearing as float
