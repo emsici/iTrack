@@ -351,7 +351,10 @@ public class OptimalGPSService extends Service {
         double lng = Math.round(location.getLongitude() * 1000000000000.0) / 1000000000000.0;
         gpsData.put("lat", lat); // 12 decimale pentru precizie maximă
         gpsData.put("lng", lng); // 12 decimale pentru precizie maximă
-        gpsData.put("timestamp", new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault()).format(new java.util.Date()));
+        // TIMESTAMP UTC CORECT - consistent cu JavaScript services
+        java.text.SimpleDateFormat utcFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
+        utcFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+        gpsData.put("timestamp", utcFormat.format(new java.util.Date()));
         gpsData.put("viteza", location.getSpeed() * 3.6); // m/s to km/h as float
         gpsData.put("directie", location.getBearing()); // Real bearing as float
         gpsData.put("altitudine", location.getAltitude()); // Real altitude as float
