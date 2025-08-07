@@ -367,7 +367,7 @@ public class OptimalGPSService extends Service {
         
         Log.d(TAG, "📡 OPTIMAL GPS data for course " + course.courseId + ": " + gpsData.toString());
         Log.d(TAG, "🔑 Auth token length: " + course.authToken.length() + " chars (starts with: " + course.authToken.substring(0, Math.min(20, course.authToken.length())) + "...)");
-        Log.d(TAG, "🌐 Transmitting to: https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
+        Log.d(TAG, "🌐 Transmitting to: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
         
         // FOREGROUND OPTIMIZED: Instant transmission with single optimized thread
         // No batching - GPS must be sent immediately for real-time tracking
@@ -383,7 +383,7 @@ public class OptimalGPSService extends Service {
     private void sendOptimizedForegroundGPS(String jsonData, String authToken, String courseId) {
         java.net.HttpURLConnection connection = null;
         try {
-            java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
+            java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
             connection = (java.net.HttpURLConnection) url.openConnection();
             
             // FOREGROUND OPTIMIZED SETTINGS - Simple and fast
