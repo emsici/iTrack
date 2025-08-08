@@ -5,10 +5,10 @@
  */
 
 import { logGPS, logGPSError } from './appLogger';
-
 import { sendGPSData, GPSData } from './api';
 import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
+import { offlineGPSService } from './offlineGPS';
 
 interface GPSCourse {
   courseId: string;
@@ -186,7 +186,6 @@ class GuaranteedGPSService {
         
         // SAVE TO OFFLINE STORAGE when transmission fails
         try {
-          const { offlineGPSService } = await import('./offlineGPS');
           await offlineGPSService.saveCoordinate(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
           logGPS(`💾 GPS coordinate saved offline for course ${course.courseId}`);
         } catch (offlineError) {

@@ -24,6 +24,9 @@ import { sendGPSData } from './api';
 import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
 import { getStoredToken, getStoredVehicleNumber } from './storage';
+import { offlineGPSService } from './offlineGPS';
+import { offlineGPSService } from './offlineGPS';
+import { offlineGPSService } from './offlineGPS';
 // Direct AndroidGPS service handles native interface operations
 
 interface ActiveCourse {
@@ -86,7 +89,6 @@ class DirectAndroidGPSService {
         
         // SAVE TO OFFLINE STORAGE when transmission fails
         try {
-          const { offlineGPSService } = await import('./offlineGPS');
           await offlineGPSService.saveCoordinate(gpsData, uit, vehicleNumber, token, status);
           console.log(`💾 Status coordinate saved offline - UIT: ${uit}`);
         } catch (offlineError) {
