@@ -45,12 +45,15 @@ class DirectAndroidGPSService {
    */
   private async sendStatusToServer(uit: string, vehicleNumber: string, token: string, status: number): Promise<void> {
     try {
-      // Create GPS data with current position for status update
+      // Create GPS data with current position for status update - FORCE REAL GPS
+      console.log(`🔍 DirectAndroidGPS: Getting REAL position for status ${status}...`);
       const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 30000
+        enableHighAccuracy: true,  // Forțează GPS de înaltă precizie
+        timeout: 15000,            // Timeout extins pentru GPS real
+        maximumAge: 0              // Nu folosi cache - locație nouă
       });
+      
+      console.log(`📍 DirectAndroidGPS: Position obtained - Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}, Accuracy: ${position.coords.accuracy}m`);
 
       const batteryInfo = await Device.getBatteryInfo();
       

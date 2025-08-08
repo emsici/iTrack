@@ -103,16 +103,23 @@ class GuaranteedGPSService {
     logGPS(`📡 TRANSMITTING GPS for ${this.activeCourses.size} active courses...`);
 
     try {
-      // Obținem locația curentă
-      logGPS(`🔍 Getting GPS position...`);
+      // Obținem locația curentă REALĂ cu settings aggressive pentru debugging
+      logGPS(`🔍 Getting REAL GPS position with aggressive settings...`);
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
-        timeout: 8000,
-        maximumAge: 0
+        timeout: 15000,  // Mărit timeout pentru GPS real
+        maximumAge: 0    // Forțează locație nouă, nu cache
       });
 
       const { coords } = position;
-      logGPS(`📍 GPS Position obtained: ${coords.latitude}, ${coords.longitude}`);
+      logGPS(`📍 REAL GPS Position obtained: ${coords.latitude}, ${coords.longitude} (accuracy: ${coords.accuracy}m)`);
+      
+      // VERIFICARE CRITICĂ: Este locația reală sau backup?
+      if (coords.latitude === 44.4268 || coords.longitude === 26.1025) {
+        logGPSError(`⚠️ WARNING: GPS pare să folosească coordonate backup! Lat: ${coords.latitude}, Lng: ${coords.longitude}`);
+      } else {
+        logGPS(`✅ GPS REAL confirmat - coordonate diferite de backup București`);
+      }
       
       // Transmitem pentru fiecare cursă activă cu întârziere pentru timestamp-uri unice
       logGPS(`🔄 Processing ${this.activeCourses.size} courses for transmission...`);
@@ -131,7 +138,9 @@ class GuaranteedGPSService {
 
     } catch (error) {
       logGPSError(`❌ GPS reading failed: ${error}`);
-      // Transmitem cu coordonate de backup
+      logGPSError(`🚨 IMPORTANT: Aplicația folosește coordonate backup din București!`);
+      logGPSError(`🔧 Pentru GPS real, rulează pe telefon Android cu permisiuni de locație`);
+      // Transmitem cu coordonate de backup DOAR dacă GPS-ul real eșuează
       await this.transmitWithBackupCoordinates();
     }
   }
@@ -186,12 +195,13 @@ class GuaranteedGPSService {
    * Coordonate de backup când GPS-ul nu funcționează
    */
   private async transmitWithBackupCoordinates(): Promise<void> {
-    logGPS(`📡 Using backup coordinates for transmission`);
+    logGPS(`📡 ⚠️ FOLOSIND COORDONATE BACKUP - NU LOCAȚIA REALĂ!`);
+    logGPS(`🔧 Pentru GPS real: rulează pe Android cu permisiuni locație`);
     
-    // Coordonate București pentru backup
+    // Coordonate București pentru backup (SIMULARE - NU LOCAȚIA REALĂ)
     const backupCoords = {
-      latitude: 44.4268 + (Math.random() - 0.5) * 0.01,
-      longitude: 26.1025 + (Math.random() - 0.5) * 0.01,
+      latitude: 44.4268 + (Math.random() - 0.5) * 0.01,  // Variație mică pentru simulare mișcare
+      longitude: 26.1025 + (Math.random() - 0.5) * 0.01, // Variație mică pentru simulare mișcare
       speed: 30 + Math.random() * 20,
       heading: Math.random() * 360,
       altitude: 80 + Math.random() * 20
