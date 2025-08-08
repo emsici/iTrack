@@ -12,7 +12,8 @@ import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
 // Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
-import CourseDetailCard from "./CourseDetailCard";
+import CourseSwipeCard from "./CourseSwipeCard";
+import CourseModal from "./CourseModal";
 import AdminPanel from "./AdminPanel";
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
 
@@ -35,6 +36,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<NodeJS.Timeout | null>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [showCourseModal, setShowCourseModal] = useState(false);
 
   // Load stored vehicle number ONLY on initial component mount
   useEffect(() => {
@@ -338,7 +341,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const handleStatusUpdate = async (courseId: string, newStatus: number) => {
+  const handleCourseStatusUpdate = async (courseId: string, newStatus: number) => {
     console.log(`Processing course action: ${courseId}`);
 
     try {
@@ -463,10 +466,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Course actions handled by CourseDetailCard component
-  const handleCourseStatusUpdate = (courseId: string, newStatus: number) => {
-    return handleStatusUpdate(courseId, newStatus);
-  };
+  // Course actions are handled by the async function above
 
   // SIMPLIFICARE: Elimină logica complexă și folosește doar coursesLoaded
 
@@ -834,9 +834,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       zIndex: 1,
                       marginBottom: '8px'
                     }}>
-                      <CourseDetailCard
+                      <CourseSwipeCard
                         course={course}
-                        onStatusUpdate={handleCourseStatusUpdate}
+                        onStatusUpdate={(newStatus) => handleCourseStatusUpdate(course.id, newStatus)}
+                        onDetailsView={() => {
+                          setSelectedCourse(course);
+                          setShowCourseModal(true);
+                        }}
                         isLoading={loadingCourses.has(course.id)}
                       />
                     </div>
@@ -859,6 +863,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               onClose={() => setShowStatsModal(false)}
               courses={courses}
               vehicleNumber={vehicleNumber}
+            />
+
+            {/* Course Details Modal */}
+            <CourseModal
+              course={selectedCourse}
+              isOpen={showCourseModal}
+              onClose={() => {
+                setShowCourseModal(false);
+                setSelectedCourse(null);
+              }}
+              onStatusUpdate={(newStatus) => {
+                if (selectedCourse) {
+                  handleCourseStatusUpdate(selectedCourse.id, newStatus);
+                }
+              }}
             />
 
             {/* Admin Panel Modal */}
