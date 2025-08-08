@@ -39,11 +39,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
   const [isSyncing, setIsSyncing] = useState(false);
+  const [offlineGPSCount, setOfflineGPSCount] = useState(0);
   
-  // Use setIsSyncing for future sync operations
-  const handleSyncOperation = (syncing: boolean) => {
-    setIsSyncing(syncing);
-  };
+
   const toast = useToast();
 
   // Load stored vehicle number ONLY on initial component mount
@@ -464,12 +462,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return () => clearInterval(interval);
   }, [lastRefreshTime]);
 
+  // Update sync status when operations begin/end
+  const updateSyncStatus = (syncing: boolean) => {
+    setIsSyncing(syncing);
+  };
+
   // Monitor offline GPS count
   useEffect(() => {
     const updateOfflineCount = async () => {
       try {
-        await getOfflineGPSCount();
-        // Offline count updated
+        const count = await getOfflineGPSCount();
+        setOfflineGPSCount(count);
       } catch (error) {
         console.error("Error getting offline count:", error);
       }
