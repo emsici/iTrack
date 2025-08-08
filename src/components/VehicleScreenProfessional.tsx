@@ -442,7 +442,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     const checkConnectivity = async () => {
       try {
         // Real connectivity test
-        const response = await fetch('https://www.google.com/favicon.ico', { 
+        await fetch('https://www.google.com/favicon.ico', { 
           mode: 'no-cors',
           cache: 'no-cache',
           method: 'HEAD'
