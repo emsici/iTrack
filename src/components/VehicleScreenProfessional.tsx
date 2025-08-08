@@ -15,6 +15,9 @@ import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
+import ToastNotification from "./ToastNotification";
+import OfflineStatusIndicator from "./OfflineStatusIndicator";
+import { useToast } from "../hooks/useToast";
 
 interface VehicleScreenProps {
   token: string;
@@ -32,9 +35,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
-  const [autoRefreshInterval, setAutoRefreshInterval] = useState<NodeJS.Timeout | null>(null);
+  const [autoRefreshInterval, setAutoRefreshInterval] = useState<any>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
+  const [isSyncing, setIsSyncing] = useState(false);
+  const toast = useToast();
 
   // Load stored vehicle number ONLY on initial component mount
   useEffect(() => {
@@ -374,6 +379,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Request GPS permissions first if starting course
       if (newStatus === 2) {
         console.log('🔍 Requesting GPS permissions for course start...');
+        toast.info('Pornire cursă', 'Se pornește urmărirea GPS...');
         try {
           await Geolocation.requestPermissions();
           console.log('✅ GPS permissions granted');
@@ -392,12 +398,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         // CRITICAL FIX: Use UIT instead of courseId for GPS service
         await updateCourseStatus(courseToUpdate.uit, newStatus);
         console.log(`✅ Course ${courseToUpdate.uit} status updated to ${newStatus} successfully`);
+        const statusNames = { 1: 'Disponibilă', 2: 'În progres', 3: 'Pauzată', 4: 'Finalizată' };
+        toast.success('Status actualizat!', `Cursa este acum "${statusNames[newStatus as keyof typeof statusNames]}"`);
+        
+        // Clear any existing errors
+        setError('');
 
       } catch (error) {
         console.error(`❌ Status update error:`, error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         setError(`Status update failed: ${errorMessage}`);
         logAPIError(`Status update failed: ${errorMessage}`);
+        toast.error('Eroare la actualizare', errorMessage);
       }
 
       // Status already updated above - no duplicate update needed
@@ -867,6 +879,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 onClose={() => setShowAdminPanel(false)}
               />
             )}
+
+            {/* Toast Notifications */}
+            <ToastNotification
+              toasts={toast.toasts}
+              onRemove={toast.removeToast}
+            />
+
+            {/* Offline Status Indicator */}
+            <OfflineStatusIndicator
+              isOnline={isOnline}
+              offlineCount={offlineGpsCount}
+              isSyncing={isSyncing}
+            />
           </div>
         </>
       )}
