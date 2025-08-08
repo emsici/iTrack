@@ -36,6 +36,7 @@ class OfflineGPSService {
   private readonly BATCH_SIZE = 10; // Send coordinates in batches
   private syncInProgress = false;
   private retryTimeouts: Map<string, any> = new Map();
+  private syncCallback?: (isSyncing: boolean) => void;
 
   /**
    * Save GPS coordinate to offline storage

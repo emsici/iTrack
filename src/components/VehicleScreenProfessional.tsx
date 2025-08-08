@@ -39,6 +39,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
   const [isSyncing, setIsSyncing] = useState(false);
+  
+  // Use setIsSyncing for future sync operations
+  const handleSyncOperation = (syncing: boolean) => {
+    setIsSyncing(syncing);
+  };
   const toast = useToast();
 
   // Load stored vehicle number ONLY on initial component mount
@@ -889,7 +894,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             {/* Offline Status Indicator */}
             <OfflineStatusIndicator
               isOnline={isOnline}
-              offlineCount={offlineGpsCount}
+              offlineCount={offlineGpsCount || 0}
               isSyncing={isSyncing}
             />
           </div>
