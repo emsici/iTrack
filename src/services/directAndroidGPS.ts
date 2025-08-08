@@ -25,8 +25,6 @@ import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
 import { getStoredToken, getStoredVehicleNumber } from './storage';
 import { offlineGPSService } from './offlineGPS';
-import { offlineGPSService } from './offlineGPS';
-import { offlineGPSService } from './offlineGPS';
 // Direct AndroidGPS service handles native interface operations
 
 interface ActiveCourse {
