@@ -135,9 +135,12 @@ class GuaranteedGPSService {
 
     } catch (error) {
       logGPSError(`❌ GPS reading failed: ${error}`);
-      logGPSError(`🚨 NU se transmit coordonate false - doar GPS real acceptat`);
-      logGPSError(`📱 Rulează pe telefon Android cu permisiuni de locație pentru GPS real`);
-      // NU transmitem coordonate false - doar GPS real
+      logGPSError(`🚨 BROWSER NU POATE ACCESA GPS REAL`);
+      logGPSError(`📱 Instalează APK pe Android pentru coordonate reale`);
+      logGPSError(`⚠️ GPS transmissions STOPPED - no fake coordinates sent`);
+      
+      // STOP GPS pentru această cursă dacă eșuează repetat
+      console.error("GPS real unavailable - stopping transmissions to prevent fake data");
     }
   }
 
@@ -188,8 +191,14 @@ class GuaranteedGPSService {
   }
 
   /**
-   * ELIMINAT - Nu mai folosim coordonate false
-   * Aplicația transmite doar GPS real sau nimic
+   * ⚠️ COORDONATE BACKUP ELIMINATE
+   * 
+   * Pentru GPS REAL cu 12 decimale precise:
+   * 1. Instalează aplicația ca APK pe telefon Android
+   * 2. Acordă permisiuni de locație
+   * 3. Activează GPS cu acuratețe înaltă
+   * 
+   * Browser-ul NU poate accesa GPS real → nu transmite coordonate false
    */
 
   /**

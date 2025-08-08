@@ -82,6 +82,8 @@ class DirectAndroidGPSService {
       
     } catch (error) {
       console.error(`❌ Failed to send status ${status} to server:`, error);
+      console.error(`🚨 GPS REAL not available in browser - install APK on Android`);
+      console.error(`📱 Current environment: ${navigator.userAgent.includes('Android') ? 'Android Browser' : 'Desktop Browser'}`);
       throw error;
     }
   }
