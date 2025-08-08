@@ -158,8 +158,8 @@ class GuaranteedGPSService {
       const uniqueTimestamp = new Date().toISOString();
       
       const gpsData: GPSData = {
-        lat: Math.round(coords.latitude * 1000000000000) / 1000000000000,  // 12 decimale pentru precizie maximă
-        lng: Math.round(coords.longitude * 1000000000000) / 1000000000000, // 12 decimale pentru precizie maximă
+        lat: Math.round(coords.latitude * 10000000) / 10000000,  // Exact 7 decimale - standard GPS
+        lng: Math.round(coords.longitude * 10000000) / 10000000, // Exact 7 decimale - standard GPS
         timestamp: uniqueTimestamp,
         viteza: coords.speed || 0,
         directie: coords.heading || 0,
@@ -193,7 +193,7 @@ class GuaranteedGPSService {
   /**
    * ⚠️ COORDONATE BACKUP ELIMINATE
    * 
-   * Pentru GPS REAL cu 12 decimale precise:
+   * Pentru GPS REAL cu 7 decimale standard:
    * 1. Instalează aplicația ca APK pe telefon Android
    * 2. Acordă permisiuni de locație
    * 3. Activează GPS cu acuratețe înaltă
