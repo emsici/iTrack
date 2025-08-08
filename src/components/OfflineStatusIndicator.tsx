@@ -18,10 +18,11 @@ const OfflineStatusIndicator: React.FC<OfflineStatusIndicatorProps> = ({
       <style>{`
         .offline-status-indicator {
           position: fixed;
-          top: 80px;
+          top: 130px;
           left: 10px;
+          right: 10px;
           z-index: 999;
-          max-width: 300px;
+          max-width: calc(100vw - 20px);
         }
 
         .status-badge {

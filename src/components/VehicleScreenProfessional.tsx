@@ -754,15 +754,35 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <div className="corporate-header-professional loaded">
             <div className="header-vehicle-section">
               <div className="vehicle-info-group">
-                <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul">
-                  <i className="fas fa-truck vehicle-icon"></i>
-                  <span className="vehicle-number">{vehicleNumber}</span>
-                  <i className="edit-icon fas fa-edit"></i>
+                <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul" style={{ 
+                  background: 'rgba(255, 255, 255, 0.1)', 
+                  border: '1px solid rgba(255, 255, 255, 0.2)', 
+                  borderRadius: '12px', 
+                  padding: '12px 16px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '12px', 
+                  cursor: 'pointer',
+                  marginRight: '12px' 
+                }}>
+                  <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '16px' }}></i>
+                  <span className="vehicle-number" style={{ color: 'white', fontWeight: '600', fontSize: '16px' }}>{vehicleNumber}</span>
+                  <i className="edit-icon fas fa-edit" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '12px' }}></i>
                 </div>
                 
-                <div className="logout-button-enhanced" onClick={handleLogout} title="Logout">
-                  <i className="fas fa-sign-out-alt"></i>
-                  <span className="logout-text">Ieșire</span>
+                <div className="logout-button-enhanced" onClick={handleLogout} title="Logout" style={{ 
+                  background: 'rgba(239, 68, 68, 0.1)', 
+                  border: '1px solid rgba(239, 68, 68, 0.3)', 
+                  borderRadius: '12px', 
+                  padding: '12px 16px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  cursor: 'pointer',
+                  color: '#fca5a5' 
+                }}>
+                  <i className="fas fa-sign-out-alt" style={{ fontSize: '14px' }}></i>
+                  <span className="logout-text" style={{ fontSize: '14px', fontWeight: '600' }}>Ieșire</span>
                 </div>
               </div>
             </div>
@@ -795,7 +815,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </div>
 
           {/* Main Dashboard Content */}
-          <div className="vehicle-dashboard-main-content">
+          <div className="vehicle-dashboard-main-content" style={{ paddingTop: '130px' }}>
             {/* Statistics Cards - 4 in One Row */}
             <div style={{
               display: 'flex',

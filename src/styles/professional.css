@@ -113,7 +113,7 @@ html, body {
 .vehicle-screen-header {
   width: 100%;
   background: linear-gradient(135deg, #0f172a, #1e293b);
-  padding: calc(env(safe-area-inset-top) + 20px) 20px 20px 20px;
+  padding: calc(env(safe-area-inset-top, 25px) + 20px) 20px 20px 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   z-index: 100;
   display: flex;
@@ -121,6 +121,23 @@ html, body {
   align-items: center;
   gap: 20px;
   position: relative;
+  min-height: 110px;
+}
+
+/* Header improved positioning - No overlay issues */
+.corporate-header-professional {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%);
+  backdrop-filter: blur(25px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  padding: calc(env(safe-area-inset-top, 25px) + 18px) 15px 18px 15px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 100px;
 }
 
 .header-brand {
