@@ -828,7 +828,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
               ) : (
                 <div className="courses-list" style={{ position: 'relative', isolation: 'isolate' }}>
-                  {filteredCourses.map((course, index) => (
+                  {filteredCourses.map((course) => (
                     <div key={course.id} style={{ 
                       position: 'relative', 
                       zIndex: 1,
