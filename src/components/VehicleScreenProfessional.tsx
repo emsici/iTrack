@@ -894,7 +894,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             {/* Offline Status Indicator */}
             <OfflineStatusIndicator
               isOnline={isOnline}
-              offlineCount={offlineGpsCount || 0}
+              offlineCount={offlineGPSCount || 0}
               isSyncing={isSyncing}
             />
           </div>
