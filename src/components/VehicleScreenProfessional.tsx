@@ -733,17 +733,36 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 100% { transform: rotate(360deg); }
               }
               
-              /* Scroll optimization */
+              /* Prevent white flash during scroll */
+              html, body, #root {
+                background-color: #0f172a !important;
+                overflow-x: hidden;
+              }
+              
+              .vehicle-screen {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+                min-height: 100vh;
+                min-height: 100dvh;
+                overflow-x: hidden;
+                position: relative;
+              }
+              
+              /* Scroll optimization with flash prevention */
               .vehicle-dashboard-main-content {
                 -webkit-overflow-scrolling: touch;
                 will-change: scroll-position;
                 transform: translateZ(0);
+                background: transparent;
+                contain: layout style paint;
+                overflow-anchor: none;
               }
               
               .course-card {
                 will-change: transform;
                 transform: translateZ(0);
                 contain: layout style paint;
+                background-color: rgba(255, 255, 255, 0.05);
+                backdrop-filter: blur(10px);
               }
               
               /* Hardware acceleration for smooth scrolling */
@@ -752,12 +771,68 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 transform: translate3d(0, 0, 0);
                 backface-visibility: hidden;
                 perspective: 1000px;
+                background: transparent;
+                contain: layout;
+                overflow-anchor: none;
+                position: relative;
+                z-index: 1;
               }
               
-              /* Debounce touch events for better performance */
+              /* Prevent layout shifts */
+              .courses-list-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: transparent;
+                z-index: -1;
+                will-change: auto;
+              }
+              
+              /* Optimize hover transitions */
               .course-card:hover {
                 transform: translateY(-2px) translateZ(0);
-                transition: transform 0.2s ease;
+                transition: transform 0.15s ease-out;
+              }
+              
+              /* Prevent white flashes during transitions */
+              * {
+                -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+              }
+              
+              /* Force dark background everywhere */
+              .course-detail-card,
+              .stat-card,
+              .analytics-grid-centered {
+                background-color: rgba(255, 255, 255, 0.05) !important;
+                backdrop-filter: blur(10px) !important;
+              }
+              
+              /* Additional flash prevention */
+              .vehicle-dashboard-main-content,
+              .courses-list,
+              .courses-container {
+                background: transparent !important;
+                will-change: scroll-position;
+                contain: layout style paint;
+              }
+              
+              /* Prevent any white backgrounds during scroll */
+              .course-card-compact,
+              .feature-card,
+              .benefit-item,
+              .step,
+              .roi-card,
+              .advantage-card,
+              .timeline-step,
+              .example-calculation {
+                background-color: rgba(255, 255, 255, 0.05) !important;
+                backdrop-filter: blur(10px) !important;
               }
             `}
           </style>
