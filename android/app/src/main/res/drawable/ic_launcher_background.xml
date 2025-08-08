@@ -17,11 +17,11 @@
         </aapt:attr>
     </path>
     
-    <!-- Subtle Pattern -->
-    <group android:alpha="0.1">
+    <!-- Subtle Pattern - removed android:alpha for compatibility -->
+    <group>
         <path
             android:pathData="M0,0 L108,108 M0,108 L108,0"
-            android:strokeColor="#FFFFFF"
+            android:strokeColor="#33FFFFFF"
             android:strokeWidth="0.5"/>
     </group>
 </vector>

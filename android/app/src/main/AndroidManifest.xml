@@ -104,21 +104,14 @@
     
     <!-- Real device data permissions for authentic GPS transmission -->
     <uses-permission android:name="android.permission.BATTERY_STATS" />
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     
-    <!-- Phone state for GSM signal strength -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    
-    <!-- TransistorSoft Background Geolocation permissions -->
+    <!-- Additional background permissions -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
     
     <!-- Additional permissions for robust background operation -->
-    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.REORDER_TASKS" />
     
