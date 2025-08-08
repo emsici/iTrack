@@ -599,7 +599,15 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Data Transport:</span>
-                <span className="detail-value-enhanced">{course.dataTransport || 'N/A'}</span>
+                <span className="detail-value-enhanced">
+                  {course.dataTransport ? 
+                    new Date(course.dataTransport).toLocaleDateString('ro-RO', {
+                      day: '2-digit',
+                      month: '2-digit', 
+                      year: 'numeric'
+                    }) : 'N/A'
+                  }
+                </span>
               </div>
             </div>
 

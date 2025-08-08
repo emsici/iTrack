@@ -5,6 +5,7 @@ iTrack is a professional enterprise GPS monitoring application designed for flee
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
+Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 
 ## System Architecture
 
