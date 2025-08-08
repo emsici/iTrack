@@ -597,6 +597,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 <span className="detail-label-enhanced">Nr. Vehicul:</span>
                 <span className="detail-value-enhanced">{course.nrVehicul || 'N/A'}</span>
               </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Data Transport:</span>
+                <span className="detail-value-enhanced">{course.dataTransport || 'N/A'}</span>
+              </div>
             </div>
 
             <div className="detail-section-enhanced">
