@@ -30,6 +30,8 @@ class GuaranteedGPSService {
   async startGuaranteedGPS(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
     logGPS(`🔥 STARTING GUARANTEED GPS - Transmisia garantata la 5 secunde`);
     logGPS(`📍 Course: ${courseId}, Vehicle: ${vehicleNumber}, UIT: ${uit}`);
+    console.log(`🚀 GUARANTEED GPS STARTED for UIT: ${uit} - Status: ${status}`);
+    console.log(`📱 IMPORTANT: GPS transmissions work ONLY in Android APK, not in browser!`);
 
     // Salvăm course-ul
     this.activeCourses.set(courseId, {
@@ -139,8 +141,14 @@ class GuaranteedGPSService {
       logGPSError(`📱 Instalează APK pe Android pentru coordonate reale`);
       logGPSError(`⚠️ GPS transmissions STOPPED - no fake coordinates sent`);
       
-      // STOP GPS pentru această cursă dacă eșuează repetat
-      console.error("GPS real unavailable - stopping transmissions to prevent fake data");
+      // IMPORTANT: Browser environment detected
+      console.warn(`🌐 BROWSER ENVIRONMENT DETECTED - GPS transmissions disabled`);
+      console.warn(`📱 To get GPS coordinates: Install APK on Android device`);
+      console.warn(`✅ GPS Service is ACTIVE but waiting for real Android device`);
+      console.warn(`⚠️ No fake coordinates will be sent - only real GPS data`);
+      
+      // Keep the service running for when real GPS becomes available
+      console.log("GPS service remains active for Android APK deployment");
     }
   }
 

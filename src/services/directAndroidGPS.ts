@@ -118,6 +118,9 @@ class DirectAndroidGPSService {
       // STATUS 2 (START): Setup complete GPS tracking
       if (newStatus === 2) {
         console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
+        console.log(`📍 GPS TRACKING ACTIVATED for UIT: ${realUIT} - Vehicle: ${vehicleNumber}`);
+        console.log(`📱 IMPORTANT: Real GPS coordinates transmit ONLY in Android APK!`);
+        console.log(`🌐 Browser version shows service status but no real coordinates`);
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
       }
       
