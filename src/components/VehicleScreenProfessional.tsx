@@ -881,20 +881,71 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             />
 
             {/* Courses List */}
-            <div className="courses-container" style={{ position: 'relative', zIndex: 1 }}>
+            <div className="courses-container" style={{ 
+              position: 'relative', 
+              zIndex: 1,
+              marginBottom: '100px', // Extra space for Android navigation
+              paddingBottom: '60px'  // Ensure content is visible above navigation
+            }}>
               {filteredCourses.length === 0 ? (
-                <div className="no-courses-message">
-                  <i className="fas fa-info-circle"></i>
-                  <p>Nu există curse {selectedStatusFilter === 'all' ? '' : 'cu statusul selectat'} pentru acest vehicul.</p>
+                <div className="no-courses-message" style={{
+                  background: 'rgba(15, 23, 42, 0.95)',
+                  backdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '20px',
+                  padding: '40px 30px',
+                  margin: '20px',
+                  textAlign: 'center',
+                  color: '#cbd5e1',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                }}>
+                  <i className="fas fa-info-circle" style={{ 
+                    fontSize: '48px', 
+                    color: '#60a5fa', 
+                    marginBottom: '20px',
+                    display: 'block'
+                  }}></i>
+                  <h3 style={{ 
+                    color: '#ffffff', 
+                    margin: '0 0 12px 0',
+                    fontSize: '18px',
+                    fontWeight: '600'
+                  }}>
+                    Nicio cursă găsită
+                  </h3>
+                  <p style={{ 
+                    margin: '0',
+                    fontSize: '16px',
+                    lineHeight: '1.5',
+                    opacity: '0.9'
+                  }}>
+                    Nu există curse {selectedStatusFilter === 'all' ? '' : 'cu statusul selectat'} pentru vehiculul {vehicleNumber}.
+                  </p>
+                  <div style={{
+                    marginTop: '24px',
+                    padding: '12px 20px',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    color: '#93c5fd'
+                  }}>
+                    <i className="fas fa-lightbulb" style={{ marginRight: '8px' }}></i>
+                    Verifică numărul vehiculului sau contactează administratorul.
+                  </div>
                 </div>
               ) : (
-                <div className="courses-list" style={{ position: 'relative', isolation: 'isolate' }}>
-                  {filteredCourses.map((course) => (
+                <div className="courses-list" style={{ 
+                  position: 'relative', 
+                  isolation: 'isolate',
+                  paddingBottom: '40px' // Extra padding for last course
+                }}>
+                  {filteredCourses.map((course, index) => (
                     <div key={course.id} style={{ 
                       position: 'relative', 
                       zIndex: 1,
-                      marginBottom: '8px',
-                      isolation: 'isolate' // Each course gets its own stacking context
+                      marginBottom: index === filteredCourses.length - 1 ? '20px' : '12px', // Extra space for last item
+                      isolation: 'isolate'
                     }}>
                       <CourseDetailCard
                         course={course}
@@ -908,11 +959,59 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
 
             {/* Action Buttons */}
-            <div className="action-buttons-row">
-              <button className="action-button logout" onClick={handleLogout}>
-                <i className="fas fa-sign-out-alt"></i>
-                <span>Ieșire</span>
-              </button>
+            {/* Action Buttons - Enhanced Mobile Bottom Section */}
+            <div style={{
+              position: 'fixed',
+              bottom: '0',
+              left: '0',
+              right: '0',
+              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+              backdropFilter: 'blur(20px)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+              padding: '16px 20px',
+              paddingBottom: '20px', // Safe area for Android
+              zIndex: 1000,
+              boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.4)'
+            }}>
+              <div style={{
+                maxWidth: '400px',
+                margin: '0 auto',
+                display: 'flex',
+                gap: '12px'
+              }}>
+                <button 
+                  className="action-button logout" 
+                  onClick={handleLogout}
+                  style={{
+                    flex: '1',
+                    padding: '14px 20px',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    borderRadius: '16px',
+                    color: '#fca5a5',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 16px rgba(239, 68, 68, 0.2)'
+                  }}
+                  onTouchStart={(e) => {
+                    e.currentTarget.style.transform = 'scale(0.98)';
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                  }}
+                  onTouchEnd={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                  }}
+                >
+                  <i className="fas fa-sign-out-alt"></i>
+                  <span>Ieșire</span>
+                </button>
+              </div>
             </div>
 
             {/* Course Stats Modal */}
