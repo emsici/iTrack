@@ -889,11 +889,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
               ) : (
                 <div className="courses-list" style={{ position: 'relative', isolation: 'isolate' }}>
-                  {filteredCourses.map((course) => (
+                  {filteredCourses.map((course, index) => (
                     <div key={course.id} style={{ 
                       position: 'relative', 
                       zIndex: 1,
-                      marginBottom: '8px'
+                      marginBottom: '8px',
+                      isolation: 'isolate' // Each course gets its own stacking context
                     }}>
                       <CourseDetailCard
                         course={course}

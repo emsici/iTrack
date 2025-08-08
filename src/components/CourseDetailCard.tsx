@@ -135,7 +135,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
 
   return (
-    <div className="course-card-compact">
+    <div className={`course-card-compact ${showDetails ? 'expanded' : ''}`}>
       <style>{`
         .course-card-compact {
           background: rgba(255, 255, 255, 0.08);
@@ -151,7 +151,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           width: 96%;
           max-width: 96%;
           box-sizing: border-box;
-          z-index: ${showDetails ? '5' : '1'};
+          z-index: ${showDetails ? '999' : '1'};
           isolation: isolate;
         }
 
@@ -215,7 +215,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         /* Fix layering conflicts when multiple courses are expanded */
         .course-card-compact:focus-within {
-          z-index: 15;
+          z-index: 1001;
+        }
+        
+        /* Ensure expanded cards always stay on top */
+        .course-card-compact.expanded {
+          z-index: 1002 !important;
         }
 
         .course-details-enhanced {
@@ -332,7 +337,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           transform-origin: top;
           transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
           position: relative;
-          z-index: ${showDetails ? '10' : '1'};
+          z-index: ${showDetails ? '1000' : '1'};
           box-shadow: ${showDetails ? '0 12px 40px rgba(0, 0, 0, 0.8)' : 'none'};
           margin-bottom: ${showDetails ? '16px' : '0'};
           isolation: isolate;
