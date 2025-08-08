@@ -324,23 +324,18 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .course-details-enhanced {
           margin-top: 12px;
-          padding: ${showDetails ? '20px' : '0 20px'};
           background: rgba(15, 23, 42, 0.98);
           border-radius: 12px;
           border: 1px solid rgba(255, 255, 255, 0.2);
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
-          max-height: ${showDetails ? '2000px' : '0px'};
-          overflow: hidden;
-          opacity: ${showDetails ? '1' : '0'};
-          transform: ${showDetails ? 'scaleY(1)' : 'scaleY(0)'};
-          transform-origin: top;
-          transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
           position: relative;
           z-index: ${showDetails ? '1000' : '1'};
           box-shadow: ${showDetails ? '0 12px 40px rgba(0, 0, 0, 0.8)' : 'none'};
-          margin-bottom: ${showDetails ? '16px' : '0'};
+          margin-bottom: 16px;
           isolation: isolate;
+          display: block;
+          padding: 20px;
         }
 
         .details-grid-enhanced {
@@ -571,8 +566,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       <button 
         className="toggle-details-btn"
         onClick={() => {
-          console.log(`Toggle details for course ${course.id}: ${!showDetails}`);
-          setShowDetails(!showDetails);
+          const newState = !showDetails;
+          console.log(`🔍 Toggle details for course ${course.id}: ${newState ? 'EXPAND' : 'COLLAPSE'}`);
+          setShowDetails(newState);
+          console.log(`✅ Course ${course.id} state updated to: ${newState}`);
         }}
       >
         <i className={`fas ${showDetails ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
