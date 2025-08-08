@@ -25,6 +25,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
 import { getStoredToken, getStoredVehicleNumber } from './storage';
 import { offlineGPSService } from './offlineGPS';
+import { guaranteedGPSService } from './garanteedGPS';
 // Direct AndroidGPS service handles native interface operations
 
 interface ActiveCourse {
@@ -202,9 +203,8 @@ class DirectAndroidGPSService {
         logGPS(`⚠️ AndroidGPS interface not available - using JavaScript backup`);
       }
 
-      // 2. Start guaranteed JavaScript GPS backup (ensures 5-second transmission)
-      const { startGuaranteedGPS } = await import('./garanteedGPS');
-      await startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+      // 2. Start guaranteed JavaScript GPS backup (ensures 5-second transmission) 
+      await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
       logGPS(`✅ Guaranteed GPS backup service started for course: ${courseId}`);
       
     } catch (error) {
@@ -227,8 +227,7 @@ class DirectAndroidGPSService {
       }
       
       // 2. Stop guaranteed JavaScript GPS backup
-      const { stopGuaranteedGPS } = await import('./garanteedGPS');
-      await stopGuaranteedGPS(courseId);
+      await guaranteedGPSService.stopGPS(courseId);
       logGPS(`✅ Guaranteed GPS backup stopped for course: ${courseId}`);
       
       // Remove from local tracking
@@ -271,8 +270,7 @@ class DirectAndroidGPSService {
       }
       
       // STEP 2: Stop guaranteed GPS service 
-      const { clearAllGuaranteedGPS } = await import('./garanteedGPS');
-      await clearAllGuaranteedGPS();
+      await guaranteedGPSService.clearAll();
       logGPS(`✅ Guaranteed GPS service cleared`);
       
       // STEP 3: Call AndroidGPS clearAllOnLogout to stop native service completely
