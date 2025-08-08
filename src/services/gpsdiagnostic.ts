@@ -3,7 +3,7 @@
  * Tests every component of the GPS system step by step
  */
 
-import { logGPS, logGPSError } from './appLogger';
+import { logGPS } from './appLogger';
 import { getStoredToken } from './storage';
 
 interface DiagnosticResult {
@@ -189,7 +189,6 @@ class GPSDiagnosticService {
       const permissions = await Geolocation.checkPermissions();
       
       const fineLocationGranted = permissions.location === 'granted';
-      const coarseLocationGranted = permissions.coarseLocation === 'granted';
 
       this.addResult({
         step: "GPS Permissions",

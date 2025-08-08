@@ -18,6 +18,7 @@ import OfflineGPSMonitor from "./OfflineGPSMonitor";
 import ToastNotification from "./ToastNotification";
 import OfflineStatusIndicator from "./OfflineStatusIndicator";
 import { useToast } from "../hooks/useToast";
+import { clearAllGuaranteedGPS } from "../services/garanteedGPS";
 
 interface VehicleScreenProps {
   token: string;
@@ -292,7 +293,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       
       // STEP 2: Clear any remaining guaranteed GPS services 
       try {
-        const { clearAllGuaranteedGPS } = await import('../services/garanteedGPS');
         await clearAllGuaranteedGPS();
         console.log('✅ Guaranteed GPS service cleared');
       } catch (error) {

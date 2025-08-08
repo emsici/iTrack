@@ -39,7 +39,7 @@ export const login = async (email: string, password: string): Promise<LoginRespo
       console.log('Using CapacitorHttp for fast login');
       
       const response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}/login.php`,
+        url: `${API_BASE_URL}login.php`,
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept': 'application/json',
@@ -65,7 +65,7 @@ export const login = async (email: string, password: string): Promise<LoginRespo
     
     // Browser/fetch fallback for development
     try {
-      const response = await fetch(`${API_BASE_URL}/login.php`, {
+      const response = await fetch(`${API_BASE_URL}login.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
@@ -168,7 +168,7 @@ export const getVehicleCourses = async (vehicleNumber: string, token: string) =>
 const performVehicleCoursesRequest = async (vehicleNumber: string, token: string) => {
   try {
     const timestamp = Date.now();
-    const urlWithCacheBuster = `${API_BASE_URL}/vehicul.php?nr=${vehicleNumber}&t=${timestamp}`;
+    const urlWithCacheBuster = `${API_BASE_URL}vehicul.php?nr=${vehicleNumber}&t=${timestamp}`;
     
     console.log(`Loading courses for vehicle: ${vehicleNumber}`);
     logAPI(`Loading courses for vehicle ${vehicleNumber}`);
@@ -377,11 +377,11 @@ export const logout = async (token: string): Promise<boolean> => {
     });
     
     console.log('Using Bearer token:', token.substring(0, 20) + '...');
-    console.log('Sending to URL:', `${API_BASE_URL}/gps.php`);
+    console.log('Sending to URL:', `${API_BASE_URL}gps.php`);
     
     try {
       const response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}/gps.php`,
+        url: `${API_BASE_URL}gps.php`,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
@@ -398,12 +398,12 @@ export const logout = async (token: string): Promise<boolean> => {
       if (response.status === 401) {
         console.error('❌ 401 UNAUTHORIZED - Android GPS Token rejected');
         console.error('Full token used:', `Bearer ${token}`);
-        console.error('Request URL:', `${API_BASE_URL}/gps.php`);
+        console.error('Request URL:', `${API_BASE_URL}gps.php`);
         return false;
       } else if (response.status === 403) {
         console.error('❌ 403 FORBIDDEN - Server blocking GPS requests');
         console.error('This is a server configuration issue, not authentication');
-        console.error('Request URL:', `${API_BASE_URL}/gps.php`);
+        console.error('Request URL:', `${API_BASE_URL}gps.php`);
         return false;
       }
       
@@ -418,7 +418,7 @@ export const logout = async (token: string): Promise<boolean> => {
     } catch (capacitorError: any) {
       console.error('CapacitorHttp failed, trying fallback fetch:', capacitorError.message);
       
-      const fallbackResponse = await fetch(`${API_BASE_URL}/gps.php`, {
+      const fallbackResponse = await fetch(`${API_BASE_URL}gps.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -482,7 +482,7 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       }
       
       const response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}/gps.php`,
+        url: `${API_BASE_URL}gps.php`,
         headers,
         data: gpsData,
         webFetchExtra: {
@@ -510,7 +510,7 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
         // Try with pre-stringified data (some servers expect this)
         const alternativeResponse = await CapacitorHttp.request({
           method: 'POST',
-          url: `${API_BASE_URL}/gps.php`,
+          url: `${API_BASE_URL}gps.php`,
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -540,7 +540,7 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
       console.log('CapacitorHttp error:', capacitorError);
       
       // SECONDARY: fetch fallback
-      const response = await fetch(`${API_BASE_URL}/gps.php`, {
+      const response = await fetch(`${API_BASE_URL}gps.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -583,7 +583,7 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
     logAPI(`OptimalGPSService GPS via CapacitorHttp: ${gpsData.uit}`);
     
     const response = await CapacitorHttp.post({
-      url: `${API_BASE_URL}/gps.php`,
+      url: `${API_BASE_URL}gps.php`,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
