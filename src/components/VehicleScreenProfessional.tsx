@@ -30,7 +30,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [coursesLoaded, setCoursesLoaded] = useState(false);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(() => {
+    // Force check real connectivity, not just navigator.onLine
+    return window.navigator.onLine;
+  });
   const [clickCount, setClickCount] = useState(0);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
@@ -434,15 +437,41 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  // Monitor connection status
+  // Monitor connection status with enhanced detection
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const checkConnectivity = async () => {
+      try {
+        // Real connectivity test
+        const response = await fetch('https://www.google.com/favicon.ico', { 
+          mode: 'no-cors',
+          cache: 'no-cache',
+          method: 'HEAD'
+        });
+        setIsOnline(true);
+      } catch {
+        setIsOnline(false);
+      }
+    };
+
+    const handleOnline = () => {
+      checkConnectivity();
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+    };
+
+    // Initial check
+    checkConnectivity();
+
+    // Periodic connectivity check every 10 seconds
+    const interval = setInterval(checkConnectivity, 10000);
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
     return () => {
+      clearInterval(interval);
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
@@ -739,29 +768,27 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
           </div>
 
-          {/* Indicator Online/Offline cu Debug Trigger */}
+          {/* Debug Trigger - Hidden Timestamp Area */}
           <div 
-            className="online-indicator"
             onClick={handleTimestampClick}
             style={{
-              textAlign: 'center',
-              margin: '15px 0',
-              padding: '10px',
-              color: '#fff',
-              fontSize: '16px',
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              width: '50px',
+              height: '30px',
               cursor: 'pointer',
-              userSelect: 'none',
-              background: 'rgba(15, 23, 42, 0.8)',
-              borderRadius: '8px',
-              maxWidth: '200px',
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
+              opacity: 0,
+              zIndex: 1000
             }}
           >
-            {isOnline ? 'Online' : 'Offline'}
             {clickCount >= 30 && (
-              <span style={{ marginLeft: '8px', opacity: 0.7 }}>
+              <span style={{ 
+                color: '#64748b', 
+                fontSize: '12px',
+                opacity: 1,
+                display: 'block'
+              }}>
                 ({clickCount}/50)
               </span>
             )}

@@ -18,7 +18,7 @@ const OfflineStatusIndicator: React.FC<OfflineStatusIndicatorProps> = ({
       <style>{`
         .offline-status-indicator {
           position: fixed;
-          top: 10px;
+          top: 80px;
           left: 10px;
           z-index: 999;
           max-width: 300px;

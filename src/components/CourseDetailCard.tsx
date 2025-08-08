@@ -14,10 +14,8 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 }) => {
   const [showDetails, setShowDetails] = useState(false);
 
-  // Reset showDetails when course changes to prevent stuck expand state
-  useEffect(() => {
-    setShowDetails(false);
-  }, [course.id]);
+  // Allow independent expand/collapse for each course
+  // Removed automatic reset to allow multiple courses to be expanded
 
   const getStatusText = (status: number) => {
     switch (status) {
