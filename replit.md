@@ -7,6 +7,16 @@ iTrack is a professional enterprise GPS monitoring application designed for flee
 Preferred communication style: Simple, everyday language.
 Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 
+## Business Materials
+- **Business Presentation**: PREZENTARE_BUSINESS_iTrack.md (for technical/business audiences)
+- **Client Presentation**: PREZENTARE_CLIENTI_iTrack.md (for end clients and transport companies)
+
+## Recent Performance Optimizations (08/01/2025)
+- **Scroll Performance**: Optimized intervals (connectivity 30s, GPS monitor 20s, offline check 15s)
+- **Hardware Acceleration**: Added CSS GPU rendering with transform3d and will-change
+- **Individual Course Control**: Fixed bug where starting one course affected all courses
+- **GPS Transmission**: Verified only courses with status 2 (In Progress) transmit GPS data
+
 ## System Architecture
 
 ### Frontend
