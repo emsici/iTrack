@@ -77,8 +77,22 @@ class DirectAndroidGPSService {
       };
 
       console.log(`📡 Sending status ${status} to server for UIT: ${uit}`);
-      await sendGPSData(gpsData, token);
-      console.log(`✅ Status ${status} sent successfully to server`);
+      const success = await sendGPSData(gpsData, token);
+      
+      if (success) {
+        console.log(`✅ Status ${status} sent successfully to server`);
+      } else {
+        console.log(`❌ Status ${status} failed - saving offline for later sync`);
+        
+        // SAVE TO OFFLINE STORAGE when transmission fails
+        try {
+          const { offlineGPSService } = await import('./offlineGPS');
+          await offlineGPSService.saveCoordinate(gpsData, uit, vehicleNumber, token, status);
+          console.log(`💾 Status coordinate saved offline - UIT: ${uit}`);
+        } catch (offlineError) {
+          console.error(`❌ Failed to save status coordinate offline: ${offlineError}`);
+        }
+      }
       
     } catch (error) {
       console.error(`❌ Failed to send status ${status} to server:`, error);

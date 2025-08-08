@@ -182,7 +182,16 @@ class GuaranteedGPSService {
       if (success) {
         logGPS(`✅ GPS transmitted successfully: ${coords.latitude}, ${coords.longitude} for course ${course.courseId}`);
       } else {
-        logGPSError(`❌ GPS transmission failed for course ${course.courseId} - server rejected data`);
+        logGPSError(`❌ GPS transmission failed for course ${course.courseId} - saving offline for later sync`);
+        
+        // SAVE TO OFFLINE STORAGE when transmission fails
+        try {
+          const { offlineGPSService } = await import('./offlineGPS');
+          await offlineGPSService.saveCoordinate(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
+          logGPS(`💾 GPS coordinate saved offline for course ${course.courseId}`);
+        } catch (offlineError) {
+          logGPSError(`❌ Failed to save coordinate offline: ${offlineError}`);
+        }
       }
 
     } catch (error) {
