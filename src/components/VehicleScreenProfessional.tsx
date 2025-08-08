@@ -38,7 +38,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<any>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [isSyncing] = useState(false);
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
   
 
@@ -462,10 +462,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return () => clearInterval(interval);
   }, [lastRefreshTime]);
 
-  // Update sync status when operations begin/end
-  const updateSyncStatus = (syncing: boolean) => {
-    setIsSyncing(syncing);
-  };
+
 
   // Monitor offline GPS count
   useEffect(() => {
