@@ -53,7 +53,11 @@ class DirectAndroidGPSService {
         maximumAge: 0              // Nu folosi cache - locație nouă
       });
       
-      console.log(`📍 DirectAndroidGPS: Position obtained - Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}, Accuracy: ${position.coords.accuracy}m`);
+      // VERIFICARE GPS REAL
+      if (position.coords.accuracy && position.coords.accuracy > 100) {
+        console.warn(`⚠️ GPS accuracy poor: ${position.coords.accuracy}m - dar transmitem oricum (GPS real)`);
+      }
+      console.log(`📍 DirectAndroidGPS: REAL GPS Position - Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}, Accuracy: ${position.coords.accuracy}m`);
 
       const batteryInfo = await Device.getBatteryInfo();
       

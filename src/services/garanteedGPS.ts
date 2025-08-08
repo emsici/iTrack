@@ -114,12 +114,9 @@ class GuaranteedGPSService {
       const { coords } = position;
       logGPS(`📍 REAL GPS Position obtained: ${coords.latitude}, ${coords.longitude} (accuracy: ${coords.accuracy}m)`);
       
-      // VERIFICARE CRITICĂ: Este locația reală sau backup?
-      if (coords.latitude === 44.4268 || coords.longitude === 26.1025) {
-        logGPSError(`⚠️ WARNING: GPS pare să folosească coordonate backup! Lat: ${coords.latitude}, Lng: ${coords.longitude}`);
-      } else {
-        logGPS(`✅ GPS REAL confirmat - coordonate diferite de backup București`);
-      }
+      // VERIFICARE: Este GPS real cu variație în coordonate?
+      logGPS(`✅ GPS REAL OBȚINUT - Lat: ${coords.latitude}, Lng: ${coords.longitude}, Accuracy: ${coords.accuracy}m`);
+      logGPS(`📊 GPS Details - Speed: ${coords.speed}m/s, Heading: ${coords.heading}°, Altitude: ${coords.altitude}m`);
       
       // Transmitem pentru fiecare cursă activă cu întârziere pentru timestamp-uri unice
       logGPS(`🔄 Processing ${this.activeCourses.size} courses for transmission...`);
@@ -138,10 +135,9 @@ class GuaranteedGPSService {
 
     } catch (error) {
       logGPSError(`❌ GPS reading failed: ${error}`);
-      logGPSError(`🚨 IMPORTANT: Aplicația folosește coordonate backup din București!`);
-      logGPSError(`🔧 Pentru GPS real, rulează pe telefon Android cu permisiuni de locație`);
-      // Transmitem cu coordonate de backup DOAR dacă GPS-ul real eșuează
-      await this.transmitWithBackupCoordinates();
+      logGPSError(`🚨 NU se transmit coordonate false - doar GPS real acceptat`);
+      logGPSError(`📱 Rulează pe telefon Android cu permisiuni de locație pentru GPS real`);
+      // NU transmitem coordonate false - doar GPS real
     }
   }
 
@@ -192,25 +188,9 @@ class GuaranteedGPSService {
   }
 
   /**
-   * Coordonate de backup când GPS-ul nu funcționează
+   * ELIMINAT - Nu mai folosim coordonate false
+   * Aplicația transmite doar GPS real sau nimic
    */
-  private async transmitWithBackupCoordinates(): Promise<void> {
-    logGPS(`📡 ⚠️ FOLOSIND COORDONATE BACKUP - NU LOCAȚIA REALĂ!`);
-    logGPS(`🔧 Pentru GPS real: rulează pe Android cu permisiuni locație`);
-    
-    // Coordonate București pentru backup (SIMULARE - NU LOCAȚIA REALĂ)
-    const backupCoords = {
-      latitude: 44.4268 + (Math.random() - 0.5) * 0.01,  // Variație mică pentru simulare mișcare
-      longitude: 26.1025 + (Math.random() - 0.5) * 0.01, // Variație mică pentru simulare mișcare
-      speed: 30 + Math.random() * 20,
-      heading: Math.random() * 360,
-      altitude: 80 + Math.random() * 20
-    };
-
-    for (const [, course] of this.activeCourses) {
-      await this.transmitSingleCourse(course, backupCoords);
-    }
-  }
 
   /**
    * Obține nivelul bateriei
