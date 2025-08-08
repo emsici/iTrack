@@ -12,8 +12,7 @@ import { getOfflineGPSCount } from "../services/offlineGPS";
 import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
 // Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
-import CourseSwipeCard from "./CourseSwipeCard";
-import CourseModal from "./CourseModal";
+import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
 
@@ -36,8 +35,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<NodeJS.Timeout | null>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-  const [showCourseModal, setShowCourseModal] = useState(false);
 
   // Load stored vehicle number ONLY on initial component mount
   useEffect(() => {
@@ -834,13 +831,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       zIndex: 1,
                       marginBottom: '8px'
                     }}>
-                      <CourseSwipeCard
+                      <CourseDetailCard
                         course={course}
-                        onStatusUpdate={(newStatus) => handleCourseStatusUpdate(course.id, newStatus)}
-                        onDetailsView={() => {
-                          setSelectedCourse(course);
-                          setShowCourseModal(true);
-                        }}
+                        onStatusUpdate={handleCourseStatusUpdate}
                         isLoading={loadingCourses.has(course.id)}
                       />
                     </div>
@@ -865,20 +858,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               vehicleNumber={vehicleNumber}
             />
 
-            {/* Course Details Modal */}
-            <CourseModal
-              course={selectedCourse}
-              isOpen={showCourseModal}
-              onClose={() => {
-                setShowCourseModal(false);
-                setSelectedCourse(null);
-              }}
-              onStatusUpdate={(newStatus) => {
-                if (selectedCourse) {
-                  handleCourseStatusUpdate(selectedCourse.id, newStatus);
-                }
-              }}
-            />
+
 
             {/* Admin Panel Modal */}
             {showAdminPanel && (
