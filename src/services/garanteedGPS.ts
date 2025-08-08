@@ -92,7 +92,7 @@ class GuaranteedGPSService {
   }
 
   /**
-   * Transmitere coordonate pentru toate cursele active
+   * Transmitere coordonate DOAR pentru cursele cu status 2 (In Progress)
    */
   private async transmitForAllCourses(): Promise<void> {
     if (this.activeCourses.size === 0) {
@@ -100,7 +100,15 @@ class GuaranteedGPSService {
       return;
     }
 
-    logGPS(`📡 TRANSMITTING GPS for ${this.activeCourses.size} active courses...`);
+    // Filtrare cursele care sunt efectiv în progres (status 2)
+    const activeInProgressCourses = Array.from(this.activeCourses.values()).filter(course => course.status === 2);
+    
+    if (activeInProgressCourses.length === 0) {
+      logGPS(`📊 No courses in progress (status 2) - skipping GPS transmission`);
+      return;
+    }
+
+    logGPS(`📡 TRANSMITTING GPS for ${activeInProgressCourses.length} courses IN PROGRESS...`);
 
     try {
       // Obținem locația curentă REALĂ cu settings aggressive pentru debugging
@@ -118,11 +126,11 @@ class GuaranteedGPSService {
       logGPS(`✅ GPS REAL OBȚINUT - Lat: ${coords.latitude}, Lng: ${coords.longitude}, Accuracy: ${coords.accuracy}m`);
       logGPS(`📊 GPS Details - Speed: ${coords.speed}m/s, Heading: ${coords.heading}°, Altitude: ${coords.altitude}m`);
       
-      // Transmitem pentru fiecare cursă activă cu întârziere pentru timestamp-uri unice
-      logGPS(`🔄 Processing ${this.activeCourses.size} courses for transmission...`);
+      // Transmitem DOAR pentru cursele în progres (status 2)
+      logGPS(`🔄 Processing ${activeInProgressCourses.length} courses in progress for transmission...`);
       let delayMs = 0;
-      for (const [courseId, course] of this.activeCourses) {
-        logGPS(`📤 Transmitting for course: ${courseId} (${course.uit})`);
+      for (const course of activeInProgressCourses) {
+        logGPS(`📤 Transmitting for course IN PROGRESS: ${course.courseId} (${course.uit}) status: ${course.status}`);
         
         // Întârziere mică pentru timestamp-uri unice
         if (delayMs > 0) {
@@ -264,7 +272,20 @@ class GuaranteedGPSService {
   async updateStatus(courseId: string, newStatus: number): Promise<void> {
     const course = this.activeCourses.get(courseId);
     if (course) {
+      const previousStatus = course.status;
       course.status = newStatus;
+      
+      logGPS(`🔄 Status updated for course ${courseId}: ${previousStatus} → ${newStatus}`);
+      
+      // Oprește transmisia GPS dacă cursă este oprită sau pauzată
+      if (newStatus === 3 || newStatus === 4) {
+        logGPS(`⏸️ Course ${courseId} paused/stopped - GPS transmission will stop for this course`);
+      }
+      
+      // Pornește transmisia GPS dacă cursă este activată
+      if (newStatus === 2) {
+        logGPS(`▶️ Course ${courseId} activated - GPS transmission will resume for this course`);
+      }
       logGPS(`🔄 Updated status for ${courseId}: ${newStatus}`);
     }
   }
