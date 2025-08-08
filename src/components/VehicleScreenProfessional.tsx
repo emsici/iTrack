@@ -827,9 +827,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <p>Nu există curse {selectedStatusFilter === 'all' ? '' : 'cu statusul selectat'} pentru acest vehicul.</p>
                 </div>
               ) : (
-                <div className="courses-list" style={{ position: 'relative' }}>
+                <div className="courses-list" style={{ position: 'relative', isolation: 'isolate' }}>
                   {filteredCourses.map((course, index) => (
-                    <div key={course.id} style={{ position: 'relative', zIndex: filteredCourses.length - index }}>
+                    <div key={course.id} style={{ 
+                      position: 'relative', 
+                      zIndex: 1,
+                      marginBottom: '8px'
+                    }}>
                       <CourseDetailCard
                         course={course}
                         onStatusUpdate={handleCourseStatusUpdate}

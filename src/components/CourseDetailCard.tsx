@@ -146,13 +146,15 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           border-radius: 12px;
           padding: 16px 20px;
           margin: 0 auto 16px auto;
-          overflow: hidden;
+          overflow: visible;
           transition: all 0.3s ease;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
           position: relative;
           width: 96%;
           max-width: 96%;
           box-sizing: border-box;
+          z-index: ${showDetails ? '5' : '1'};
+          isolation: isolate;
         }
 
         .course-card-enhanced:hover {
@@ -204,11 +206,22 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           align-items: center;
           justify-content: center;
           gap: 8px;
+          z-index: 2;
         }
 
         .toggle-details-btn:hover {
           background: rgba(255, 255, 255, 0.2);
           color: #ffffff;
+          transform: scale(1.02);
+        }
+
+        /* Fix layering conflicts when multiple courses are expanded */
+        .course-card-compact:focus-within {
+          z-index: 15;
+        }
+
+        .course-details-enhanced {
+          transform-style: preserve-3d;
         }
 
         .course-preview {
@@ -309,11 +322,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .course-details-enhanced {
           margin-top: 12px;
           padding: ${showDetails ? '20px' : '0 20px'};
-          background: rgba(15, 23, 42, 0.95);
+          background: rgba(15, 23, 42, 0.98);
           border-radius: 12px;
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          backdrop-filter: blur(15px);
-          -webkit-backdrop-filter: blur(15px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           max-height: ${showDetails ? '2000px' : '0px'};
           overflow: hidden;
           opacity: ${showDetails ? '1' : '0'};
@@ -321,8 +334,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           transform-origin: top;
           transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
           position: relative;
-          z-index: 100;
-          box-shadow: ${showDetails ? '0 8px 32px rgba(0, 0, 0, 0.6)' : 'none'};
+          z-index: ${showDetails ? '10' : '1'};
+          box-shadow: ${showDetails ? '0 12px 40px rgba(0, 0, 0, 0.8)' : 'none'};
+          margin-bottom: ${showDetails ? '16px' : '0'};
+          isolation: isolate;
         }
 
         .details-grid-enhanced {
