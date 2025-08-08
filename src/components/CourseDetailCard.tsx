@@ -12,10 +12,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
   onStatusUpdate,
   isLoading 
 }) => {
+  // Each course has independent state using course.id as key
   const [showDetails, setShowDetails] = useState(false);
 
-  // Allow independent expand/collapse for each course
-  // Removed automatic reset to allow multiple courses to be expanded
+  // Independent expand/collapse for each course - each component manages its own state
 
   const getStatusText = (status: number) => {
     switch (status) {
@@ -565,7 +565,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       
       <button 
         className="toggle-details-btn"
-        onClick={() => setShowDetails(!showDetails)}
+        onClick={() => {
+          console.log(`Toggle details for course ${course.id}: ${!showDetails}`);
+          setShowDetails(!showDetails);
+        }}
       >
         <i className={`fas ${showDetails ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
         {showDetails ? 'Ascunde detalii' : 'Detalii complete'}
