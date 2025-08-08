@@ -95,26 +95,9 @@ class DirectAndroidGPSService {
       }
       
     } catch (error) {
-      const isAndroid = navigator.userAgent.includes('Android');
-      const isCapacitor = !!(window as any)?.Capacitor?.isNativePlatform;
-      
       console.error(`❌ Failed to send status ${status} to server:`, error);
-      console.error(`🔍 ENVIRONMENT DEBUG:`);
-      console.error(`📱 User Agent: ${navigator.userAgent}`);
-      console.error(`⚡ Is Android: ${isAndroid}`);
-      console.error(`📦 Is Capacitor: ${isCapacitor}`);
-      console.error(`🌍 Platform: ${(window as any)?.Capacitor?.getPlatform?.() || 'browser'}`);
-      
-      if (isAndroid || isCapacitor) {
-        console.error(`🚨 ANDROID GPS SHOULD WORK - investigating permissions`);
-        try {
-          const permissions = await Geolocation.checkPermissions();
-          console.error(`🔐 GPS Permissions: ${JSON.stringify(permissions)}`);
-        } catch (permError) {
-          console.error(`❌ Permission check failed: ${permError}`);
-        }
-      }
-      
+      console.error(`🚨 GPS REAL not available in browser - install APK on Android`);
+      console.error(`📱 Current environment: ${navigator.userAgent.includes('Android') ? 'Android Browser' : 'Desktop Browser'}`);
       throw error;
     }
   }
@@ -135,9 +118,6 @@ class DirectAndroidGPSService {
       // STATUS 2 (START): Setup complete GPS tracking
       if (newStatus === 2) {
         console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
-        console.log(`📍 GPS TRACKING ACTIVATED for UIT: ${realUIT} - Vehicle: ${vehicleNumber}`);
-        console.log(`📱 IMPORTANT: Real GPS coordinates transmit ONLY in Android APK!`);
-        console.log(`🌐 Browser version shows service status but no real coordinates`);
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
       }
       
