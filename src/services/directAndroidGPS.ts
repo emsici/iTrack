@@ -95,9 +95,26 @@ class DirectAndroidGPSService {
       }
       
     } catch (error) {
+      const isAndroid = navigator.userAgent.includes('Android');
+      const isCapacitor = !!(window as any)?.Capacitor?.isNativePlatform;
+      
       console.error(`❌ Failed to send status ${status} to server:`, error);
-      console.error(`🚨 GPS REAL not available in browser - install APK on Android`);
-      console.error(`📱 Current environment: ${navigator.userAgent.includes('Android') ? 'Android Browser' : 'Desktop Browser'}`);
+      console.error(`🔍 ENVIRONMENT DEBUG:`);
+      console.error(`📱 User Agent: ${navigator.userAgent}`);
+      console.error(`⚡ Is Android: ${isAndroid}`);
+      console.error(`📦 Is Capacitor: ${isCapacitor}`);
+      console.error(`🌍 Platform: ${(window as any)?.Capacitor?.getPlatform?.() || 'browser'}`);
+      
+      if (isAndroid || isCapacitor) {
+        console.error(`🚨 ANDROID GPS SHOULD WORK - investigating permissions`);
+        try {
+          const permissions = await Geolocation.checkPermissions();
+          console.error(`🔐 GPS Permissions: ${JSON.stringify(permissions)}`);
+        } catch (permError) {
+          console.error(`❌ Permission check failed: ${permError}`);
+        }
+      }
+      
       throw error;
     }
   }

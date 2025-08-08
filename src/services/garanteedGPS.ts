@@ -103,15 +103,24 @@ class GuaranteedGPSService {
     }
 
     logGPS(`📡 TRANSMITTING GPS for ${this.activeCourses.size} active courses...`);
+    
+    // Enhanced debugging for Android issues
+    console.log(`🔍 GPS TRANSMISSION ATTEMPT - ${new Date().toISOString()}`);
+    console.log(`📱 Environment check: Android=${navigator.userAgent.includes('Android')}, Capacitor=${!!(window as any)?.Capacitor?.isNativePlatform}`);
+    console.log(`🗂️ Active courses: ${Array.from(this.activeCourses.keys()).join(', ')}`);
 
     try {
       // Obținem locația curentă REALĂ cu settings aggressive pentru debugging
       logGPS(`🔍 Getting REAL GPS position with aggressive settings...`);
+      console.log(`⏰ GPS Request started: ${new Date().toISOString()}`);
+      
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 15000,  // Mărit timeout pentru GPS real
         maximumAge: 0    // Forțează locație nouă, nu cache
       });
+      
+      console.log(`✅ GPS Position obtained successfully: ${new Date().toISOString()}`);
 
       const { coords } = position;
       logGPS(`📍 REAL GPS Position obtained: ${coords.latitude}, ${coords.longitude} (accuracy: ${coords.accuracy}m)`);
@@ -137,18 +146,28 @@ class GuaranteedGPSService {
 
     } catch (error) {
       logGPSError(`❌ GPS reading failed: ${error}`);
-      logGPSError(`🚨 BROWSER NU POATE ACCESA GPS REAL`);
-      logGPSError(`📱 Instalează APK pe Android pentru coordonate reale`);
-      logGPSError(`⚠️ GPS transmissions STOPPED - no fake coordinates sent`);
       
-      // IMPORTANT: Browser environment detected
-      console.warn(`🌐 BROWSER ENVIRONMENT DETECTED - GPS transmissions disabled`);
-      console.warn(`📱 To get GPS coordinates: Install APK on Android device`);
-      console.warn(`✅ GPS Service is ACTIVE but waiting for real Android device`);
-      console.warn(`⚠️ No fake coordinates will be sent - only real GPS data`);
+      // ANDROID DEBUGGING: Check if we're on Android
+      const isAndroid = navigator.userAgent.includes('Android');
+      const isCapacitor = !!(window as any)?.Capacitor?.isNativePlatform;
       
-      // Keep the service running for when real GPS becomes available
-      console.log("GPS service remains active for Android APK deployment");
+      console.error(`🔍 ANDROID GPS DEBUG:`);
+      console.error(`📱 User Agent: ${navigator.userAgent}`);
+      console.error(`⚡ Is Android: ${isAndroid}`);
+      console.error(`📦 Is Capacitor Native: ${isCapacitor}`);
+      console.error(`🌐 Platform: ${(window as any)?.Capacitor?.getPlatform?.() || 'unknown'}`);
+      console.error(`❌ GPS Error: ${error}`);
+      
+      if (isAndroid || isCapacitor) {
+        console.error(`🚨 ANDROID GPS FAILED - This should work on APK!`);
+        console.error(`🔧 Check GPS permissions and location services`);
+        console.error(`📋 Error details: ${JSON.stringify(error, null, 2)}`);
+      } else {
+        console.warn(`🌐 Browser environment - GPS transmissions disabled for fake data prevention`);
+      }
+      
+      // Keep service running - don't stop on errors
+      logGPSError(`⚠️ GPS error occurred but service continues running`);
     }
   }
 
@@ -185,19 +204,26 @@ class GuaranteedGPSService {
       logGPS(`📊 GPS Data prepared: lat=${gpsData.lat}, lng=${gpsData.lng}, uit=${gpsData.uit}, vehicle=${gpsData.numar_inmatriculare}`);
       logGPS(`🔑 Using token: ${course.token.substring(0, 20)}...`);
       
+      console.log(`📡 SENDING GPS DATA to server: lat=${gpsData.lat}, lng=${gpsData.lng}, uit=${gpsData.uit}`);
+      console.log(`🔑 Token used (first 20 chars): ${course.token.substring(0, 20)}...`);
+      
       const success = await sendGPSData(gpsData, course.token);
       
       if (success) {
         logGPS(`✅ GPS transmitted successfully: ${coords.latitude}, ${coords.longitude} for course ${course.courseId}`);
+        console.log(`✅ SUCCESS: GPS data sent to server - UIT: ${course.uit}`);
       } else {
         logGPSError(`❌ GPS transmission failed for course ${course.courseId} - saving offline for later sync`);
+        console.error(`❌ FAILED: GPS transmission to server failed - UIT: ${course.uit}`);
         
         // SAVE TO OFFLINE STORAGE when transmission fails
         try {
           await offlineGPSService.saveCoordinate(gpsData, course.courseId, course.vehicleNumber, course.token, course.status);
           logGPS(`💾 GPS coordinate saved offline for course ${course.courseId}`);
+          console.log(`💾 Coordinate saved offline for retry`);
         } catch (offlineError) {
           logGPSError(`❌ Failed to save coordinate offline: ${offlineError}`);
+          console.error(`❌ Failed to save offline: ${offlineError}`);
         }
       }
 
