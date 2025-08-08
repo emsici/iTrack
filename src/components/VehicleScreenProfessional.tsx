@@ -19,7 +19,6 @@ import ToastNotification from "./ToastNotification";
 import OfflineStatusIndicator from "./OfflineStatusIndicator";
 import { useToast } from "../hooks/useToast";
 import { clearAllGuaranteedGPS } from "../services/garanteedGPS";
-import PresentationButton from "./PresentationButton";
 
 interface VehicleScreenProps {
   token: string;
@@ -1076,9 +1075,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               offlineCount={offlineGPSCount || 0}
               isSyncing={isSyncing}
             />
-
-            {/* Presentation Button */}
-            <PresentationButton />
           </div>
         </>
       )}

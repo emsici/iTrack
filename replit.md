@@ -9,7 +9,7 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 
 ## Business Materials
 - **Business Presentation**: PREZENTARE_BUSINESS_iTrack.md (for technical/business audiences)
-- **Client Presentation**: PREZENTARE_CLIENTI_iTrack.md (for end clients and transport companies)
+- **Client Presentation**: PREZENTARE_CLIENTI_iTrack.md (ready-to-use document for client meetings and proposals)
 
 ## Recent Performance Optimizations (08/01/2025)
 - **Scroll Performance**: Optimized intervals (connectivity 30s, GPS monitor 20s, offline check 15s)
