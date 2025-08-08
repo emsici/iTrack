@@ -464,8 +464,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     // Initial check
     checkConnectivity();
 
-    // Periodic connectivity check every 10 seconds
-    const interval = setInterval(checkConnectivity, 10000);
+    // Periodic connectivity check every 30 seconds (optimized for performance)
+    const interval = setInterval(checkConnectivity, 30000);
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
@@ -505,7 +505,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
 
     updateOfflineCount();
-    const interval = setInterval(updateOfflineCount, 5000);
+    const interval = setInterval(updateOfflineCount, 15000); // Optimized: every 15 seconds instead of 5
     return () => clearInterval(interval);
   }, []);
 
@@ -732,6 +732,33 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
               }
+              
+              /* Scroll optimization */
+              .vehicle-dashboard-main-content {
+                -webkit-overflow-scrolling: touch;
+                will-change: scroll-position;
+                transform: translateZ(0);
+              }
+              
+              .course-card {
+                will-change: transform;
+                transform: translateZ(0);
+                contain: layout style paint;
+              }
+              
+              /* Hardware acceleration for smooth scrolling */
+              .courses-list-container {
+                -webkit-overflow-scrolling: touch;
+                transform: translate3d(0, 0, 0);
+                backface-visibility: hidden;
+                perspective: 1000px;
+              }
+              
+              /* Debounce touch events for better performance */
+              .course-card:hover {
+                transform: translateY(-2px) translateZ(0);
+                transition: transform 0.2s ease;
+              }
             `}
           </style>
 
@@ -935,10 +962,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                 </div>
               ) : (
-                <div className="courses-list" style={{ 
+                <div className="courses-list courses-list-container" style={{ 
                   position: 'relative', 
                   isolation: 'isolate',
-                  paddingBottom: '40px' // Extra padding for last course
+                  paddingBottom: '120px', // Extra padding for last course and bottom bar
+                  overflowY: 'auto',
+                  WebkitOverflowScrolling: 'touch',
+                  transform: 'translate3d(0, 0, 0)',
+                  willChange: 'scroll-position'
                 }}>
                   {filteredCourses.map((course, index) => (
                     <div key={course.id} style={{ 

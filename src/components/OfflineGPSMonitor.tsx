@@ -66,8 +66,8 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, courses
       // Initial status check
       updateStatus();
 
-      // Set up periodic monitoring - reduced frequency to avoid log spam
-      interval = setInterval(updateStatus, 10000);
+      // Set up periodic monitoring - optimized for scroll performance
+      interval = setInterval(updateStatus, 20000); // Increased to 20 seconds for better performance
 
       // Subscribe to sync progress updates
       syncSubscription = subscribeToSyncProgress({
