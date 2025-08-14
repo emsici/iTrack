@@ -345,12 +345,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     if (newCount >= 50) {
       try {
-        console.log("Opening debug panel after 50 clicks...");
-        setShowDebugPanel(true);
+        console.log("Opening admin panel after 50 clicks...");
+        setShowAdminPanel(true);
         setClickCount(0);
       } catch (error) {
-        console.error("Error loading debug logs:", error);
-        setShowDebugPanel(true);
+        console.error("Error opening admin panel:", error);
+        setShowAdminPanel(true);
         setClickCount(0);
       }
     }
@@ -704,10 +704,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   width: '100%',
                   padding: '16px 20px',
                   marginTop: '15px',
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  background: currentTheme === 'dark' 
+                    ? 'rgba(239, 68, 68, 0.1)' 
+                    : 'rgba(239, 68, 68, 0.1)',
+                  border: currentTheme === 'dark' 
+                    ? '1px solid rgba(239, 68, 68, 0.3)' 
+                    : '1px solid rgba(239, 68, 68, 0.3)',
                   borderRadius: '16px',
-                  color: '#fca5a5',
+                  color: currentTheme === 'dark' ? '#fca5a5' : '#dc2626',
                   fontSize: '16px',
                   fontWeight: '600',
                   cursor: loading ? 'not-allowed' : 'pointer',
@@ -720,7 +724,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 }}
                 onMouseOver={(e) => {
                   if (!loading) {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                    e.currentTarget.style.background = currentTheme === 'dark' 
+                      ? 'rgba(239, 68, 68, 0.2)' 
+                      : 'rgba(239, 68, 68, 0.15)';
                     e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
                   }
                 }}
@@ -1216,84 +1222,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               currentTheme={currentTheme}
             />
 
-            {/* Debug Panel Popup */}
-            {showDebugPanel && (
-              <div style={{
-                position: 'fixed',
-                top: '0',
-                left: '0',
-                right: '0',
-                bottom: '0',
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                zIndex: 9999,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '20px'
-              }}>
-                <div style={{
-                  background: currentTheme === 'dark' 
-                    ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' 
-                    : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                  borderRadius: '16px',
-                  padding: '30px',
-                  maxWidth: '90vw',
-                  maxHeight: '90vh',
-                  overflow: 'auto',
-                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
-                  border: currentTheme === 'dark' 
-                    ? '1px solid rgba(255, 255, 255, 0.1)' 
-                    : '1px solid rgba(0, 0, 0, 0.1)'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '20px'
-                  }}>
-                    <h2 style={{
-                      color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
-                      fontSize: '20px',
-                      fontWeight: '600',
-                      margin: '0'
-                    }}>Debug Logs Panel</h2>
-                    <button 
-                      onClick={() => setShowDebugPanel(false)}
-                      style={{
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
-                        borderRadius: '8px',
-                        padding: '8px 12px',
-                        color: '#ef4444',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Închide
-                    </button>
-                  </div>
-                  
-                  <div style={{
-                    background: currentTheme === 'dark' 
-                      ? 'rgba(0, 0, 0, 0.3)' 
-                      : 'rgba(248, 250, 252, 0.8)',
-                    borderRadius: '8px',
-                    padding: '15px',
-                    maxHeight: '60vh',
-                    overflow: 'auto',
-                    fontFamily: 'monospace',
-                    fontSize: '12px',
-                    color: currentTheme === 'dark' ? '#e2e8f0' : '#334155'
-                  }}>
-                    <div>Debug panel activ!</div>
-                    <div>Aplicația funcționează cu {currentTheme} theme</div>
-                    <div>GPS Status: {isOnline ? 'Online' : 'Offline'}</div>
-                    <div>Courses loaded: {courses.length}</div>
-                    <div>Vehicle: {vehicleNumber}</div>
-                    <div>Timestamp: {new Date().toLocaleString()}</div>
-                  </div>
-                </div>
-              </div>
-            )}
+
           </div>
         </>
       )}
