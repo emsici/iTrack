@@ -540,7 +540,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       {!coursesLoaded ? (
         <div style={{
           minHeight: '100dvh',
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)',
+          background: 'var(--bg-primary)',
           backgroundAttachment: 'fixed',
           display: 'flex',
           flexDirection: 'column',
@@ -585,12 +585,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div style={{
               width: '100%',
               maxWidth: '400px',
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
+              background: 'var(--bg-modal)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid var(--border-primary)',
               borderRadius: '24px',
               padding: '40px 30px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+              boxShadow: 'var(--glass-shadow)'
             }}>
               {/* Vehicle Number Input */}
               <div style={{ marginBottom: '30px' }}>
@@ -618,7 +618,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     background: loading ? 'rgba(30, 41, 59, 0.3)' : 'rgba(30, 41, 59, 0.6)',
                     border: '2px solid rgba(148, 163, 184, 0.2)',
                     borderRadius: '16px',
-                    color: '#ffffff',
+                    color: 'var(--text-primary)',
                     fontSize: '18px',
                     fontWeight: '600',
                     textAlign: 'center',
@@ -640,12 +640,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               width: '100%',
               maxWidth: '400px',
               margin: '0 auto',
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
+              background: 'var(--bg-modal)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid var(--border-primary)',
               borderRadius: '24px',
               padding: '30px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+              boxShadow: 'var(--glass-shadow)'
             }}>
               {/* Main Action Button */}
               <button
@@ -747,7 +747,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               
               /* Lightweight scroll optimization - focus on performance */
               html, body, #root {
-                background-color: #0f172a !important;
+                background: var(--bg-primary) !important;
                 overflow-x: hidden;
               }
               
@@ -803,7 +803,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   alignItems: 'center', 
                   gap: '12px', 
                   cursor: 'pointer',
-                  marginRight: '12px' 
+                  marginRight: '12px',
+                  color: 'white'
                 }}>
                   <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '16px' }}></i>
                   <span className="vehicle-number" style={{ color: 'white', fontWeight: '600', fontSize: '16px' }}>{vehicleNumber}</span>
@@ -859,16 +860,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <div className="logout-button-enhanced" onClick={handleLogout} title="Logout" style={{ 
                     background: 'rgba(239, 68, 68, 0.1)', 
                     border: '1px solid rgba(239, 68, 68, 0.3)', 
-                    borderRadius: '12px', 
-                    padding: '12px 16px', 
+                    borderRadius: '50%', 
+                    width: '40px',
+                    height: '40px', 
                     display: 'flex', 
                     alignItems: 'center', 
-                    gap: '8px', 
+                    justifyContent: 'center',
                     cursor: 'pointer',
+                    transition: 'all 0.3s ease',
                     color: '#fca5a5' 
                   }}>
-                    <i className="fas fa-sign-out-alt" style={{ fontSize: '14px' }}></i>
-                    <span className="logout-text" style={{ fontSize: '14px', fontWeight: '600' }}>Ieșire</span>
+                    <i className="fas fa-sign-out-alt" style={{ fontSize: '16px' }}></i>
                   </div>
                 </div>
               </div>

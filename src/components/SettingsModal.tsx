@@ -55,8 +55,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onLogout
   if (!isOpen) return null;
 
   return (
-    <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-      <div className="modal-dialog modal-dialog-centered">
+    <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 9999 }}>
+      <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '500px', margin: '1.75rem auto' }}>
         <div className="modal-content settings-modal">
           <div className="modal-header">
             <h5 className="modal-title">

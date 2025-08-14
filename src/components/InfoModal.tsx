@@ -14,8 +14,8 @@ const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
-      <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', zIndex: 9999 }}>
+      <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" style={{ margin: '1.75rem auto' }}>
         <div className="modal-content" style={{
           background: 'var(--bg-modal)',
           border: '1px solid var(--border-primary)',
