@@ -19,6 +19,8 @@ import ToastNotification from "./ToastNotification";
 import OfflineStatusIndicator from "./OfflineStatusIndicator";
 import { useToast } from "../hooks/useToast";
 import { clearAllGuaranteedGPS } from "../services/garanteedGPS";
+import SettingsModal from "./SettingsModal";
+import { themeService, Theme } from "../services/themeService";
 
 interface VehicleScreenProps {
   token: string;
@@ -44,25 +46,31 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loadingCourses] = useState(new Set<string>());
   const [isSyncing] = useState(false);
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
-  
+  const [showSettings, setShowSettings] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
 
   const toast = useToast();
 
-  // Load stored vehicle number ONLY on initial component mount
+  // Initialize theme and load stored vehicle number
   useEffect(() => {
-    const loadStoredVehicleNumber = async () => {
+    const initializeApp = async () => {
       try {
+        // Initialize theme
+        const savedTheme = await themeService.initialize();
+        setCurrentTheme(savedTheme);
+        
+        // Load stored vehicle number
         const storedVehicle = await getStoredVehicleNumber();
-        if (storedVehicle && !vehicleNumber) { // Only load if current input is empty
+        if (storedVehicle && !vehicleNumber) {
           setVehicleNumber(storedVehicle);
           console.log('Loaded stored vehicle number:', storedVehicle);
         }
       } catch (error) {
-        console.error('Error loading stored vehicle number:', error);
+        console.error('Error initializing app:', error);
       }
     };
     
-    loadStoredVehicleNumber();
+    initializeApp();
   }, []); // Empty dependency array - runs only once on mount
 
   // Separate useEffect for background refresh events
@@ -509,9 +517,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Course actions are handled by the async function above
-
-  // SIMPLIFICARE: Elimină logica complexă și folosește doar coursesLoaded
+  // Theme change handler
+  const handleThemeChange = async (theme: Theme) => {
+    try {
+      await themeService.setTheme(theme);
+      setCurrentTheme(theme);
+      toast.success('Temă schimbată!', `Tema ${theme === 'dark' ? 'întunecat' : 'luminos'} aplicată`);
+    } catch (error) {
+      console.error('Error changing theme:', error);
+      toast.error('Eroare', 'Nu s-a putut schimba tema');
+    }
+  };
 
   // Filter courses based on selected status
   const filteredCourses = selectedStatusFilter === 'all' 
@@ -522,13 +538,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   // Utilizatorul trebuie să introducă un număr valid de vehicul
 
   return (
-    <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""}`} style={{
+    <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""} theme-${currentTheme}`} style={{
       paddingTop: coursesLoaded ? 'env(safe-area-inset-top)' : '0'
     }}>
       {!coursesLoaded ? (
         <div style={{
           minHeight: '100dvh',
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)',
+          background: currentTheme === 'dark' 
+            ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)'
+            : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
           backgroundAttachment: 'fixed',
           display: 'flex',
           flexDirection: 'column',
@@ -573,9 +591,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div style={{
               width: '100%',
               maxWidth: '400px',
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
+              background: currentTheme === 'dark' 
+                ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)'
+                : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
               borderRadius: '24px',
               padding: '40px 30px',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
@@ -603,10 +623,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   style={{
                     width: '100%',
                     padding: '20px',
-                    background: loading ? 'rgba(30, 41, 59, 0.3)' : 'rgba(30, 41, 59, 0.6)',
-                    border: '2px solid rgba(148, 163, 184, 0.2)',
+                    background: loading 
+                      ? (currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(148, 163, 184, 0.2)')
+                      : (currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.8)'),
+                    border: currentTheme === 'dark' ? '2px solid rgba(148, 163, 184, 0.2)' : '2px solid rgba(0, 0, 0, 0.1)',
                     borderRadius: '16px',
-                    color: '#ffffff',
+                    color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
                     fontSize: '18px',
                     fontWeight: '600',
                     textAlign: 'center',
@@ -798,19 +820,33 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <i className="edit-icon fas fa-edit" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '12px' }}></i>
                 </div>
                 
-                <div className="logout-button-enhanced" onClick={handleLogout} title="Logout" style={{ 
+                <div className="settings-button" onClick={() => setShowSettings(true)} title="Setări" style={{ 
+                  background: 'rgba(100, 116, 139, 0.1)', 
+                  border: '1px solid rgba(100, 116, 139, 0.3)', 
+                  borderRadius: '12px', 
+                  padding: '12px 16px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  cursor: 'pointer',
+                  color: '#94a3b8',
+                  marginRight: '12px'
+                }}>
+                  <i className="fas fa-cog" style={{ fontSize: '16px' }}></i>
+                </div>
+
+                <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
                   background: 'rgba(239, 68, 68, 0.1)', 
                   border: '1px solid rgba(239, 68, 68, 0.3)', 
                   borderRadius: '12px', 
                   padding: '12px 16px', 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '8px', 
+                  justifyContent: 'center', 
                   cursor: 'pointer',
                   color: '#fca5a5' 
                 }}>
-                  <i className="fas fa-sign-out-alt" style={{ fontSize: '14px' }}></i>
-                  <span className="logout-text" style={{ fontSize: '14px', fontWeight: '600' }}>Ieșire</span>
+                  <i className="fas fa-sign-out-alt" style={{ fontSize: '16px' }}></i>
                 </div>
               </div>
             </div>
@@ -1075,6 +1111,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               isOnline={isOnline}
               offlineCount={offlineGPSCount || 0}
               isSyncing={isSyncing}
+            />
+
+            {/* Settings Modal */}
+            <SettingsModal
+              isOpen={showSettings}
+              onClose={() => setShowSettings(false)}
+              currentTheme={currentTheme}
+              onThemeChange={handleThemeChange}
             />
           </div>
         </>
