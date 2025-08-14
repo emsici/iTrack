@@ -11,9 +11,11 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 - **Business Presentation**: PREZENTARE_BUSINESS_iTrack.md (for technical/business audiences)
 - **Client Presentation**: PREZENTARE_CLIENTI_iTrack.md (ready-to-use document for client meetings and proposals)
 
-## Recent Performance Optimizations (08/01/2025)
+## Recent Performance Optimizations (14/08/2025)
+- **CRITICAL GPS ORDER FIX**: Replaced HashMap with LinkedHashMap + sorting in Android service to ensure consistent coordinate transmission order
+- **TIMESTAMP SYNCHRONIZATION**: All GPS services now use shared timestamp for coordinates within same interval 
 - **Scroll Performance**: Optimized intervals (connectivity 30s, GPS monitor 20s, offline check 15s)
-- **Hardware Acceleration**: Added CSS GPU rendering with transform3d and will-change
+- **Hardware Acceleration**: Added CSS GPU rendering with transform3d and will-change  
 - **Individual Course Control**: Fixed bug where starting one course affected all courses
 - **GPS Transmission**: Verified only courses with status 2 (In Progress) transmit GPS data
 

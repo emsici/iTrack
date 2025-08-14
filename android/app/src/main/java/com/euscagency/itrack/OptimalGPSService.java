@@ -39,8 +39,11 @@ public class OptimalGPSService extends Service {
     private AlarmManager alarmManager;
     private PendingIntent gpsPendingIntent;
     private LocationManager locationManager;
-    private Map<String, CourseData> activeCourses = new HashMap<>();
+    private Map<String, CourseData> activeCourses = new java.util.LinkedHashMap<>();
     private boolean isAlarmActive = false;
+    
+    // Shared timestamp pentru toate cursele dintr-un ciclu GPS
+    private static java.util.Date gpsSharedTimestamp = null;
     
     // WAKELOCK for background operation
     private PowerManager.WakeLock wakeLock;
@@ -262,7 +265,15 @@ public class OptimalGPSService extends Service {
         
         java.util.List<String> coursesToRemove = new java.util.ArrayList<>();
         
-        for (CourseData course : activeCourses.values()) {
+        // IMPORTANT: Sort courses by courseId to ensure consistent transmission order
+        java.util.List<CourseData> sortedCourses = new java.util.ArrayList<>(activeCourses.values());
+        sortedCourses.sort((a, b) -> a.courseId.compareTo(b.courseId));
+        
+        Log.d(TAG, "🔄 TRANSMISSION ORDER: " + sortedCourses.stream()
+            .map(c -> c.courseId + "(" + c.status + ")")
+            .collect(java.util.stream.Collectors.joining(", ")));
+        
+        for (CourseData course : sortedCourses) {
             if (course.status == 2 || course.status == 3 || course.status == 4) { // ACTIVE, PAUSE, or FINAL transmission
                 activeCoursesCount++;
                 
@@ -334,6 +345,9 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "✅ Optimal GPS cycle completed - next in exactly " + (GPS_INTERVAL_MS/1000) + "s");
         
         // CRITICAL: Schedule next GPS cycle to continue background operation
+        // Reset shared timestamp pentru următorul ciclu
+        gpsSharedTimestamp = null;
+        
         Log.d(TAG, "🔄 SCHEDULING NEXT GPS CYCLE - activeCourses size: " + activeCourses.size());
         scheduleNextOptimalGPSCycle();
         Log.d(TAG, "⏰ NEXT GPS CYCLE SCHEDULED successfully");
@@ -351,10 +365,17 @@ public class OptimalGPSService extends Service {
         double lng = Math.round(location.getLongitude() * 10000000.0) / 10000000.0;
         gpsData.put("lat", lat); // Exact 7 decimale - standard GPS
         gpsData.put("lng", lng); // Exact 7 decimale - standard GPS
-        // TIMESTAMP UTC CORECT - consistent cu JavaScript services
+        // TIMESTAMP UTC CORECT - ACELAȘI pentru toate cursele din acest ciclu
+        // Folosim un timestamp static pentru întregul ciclu GPS
+        if (gpsSharedTimestamp == null) {
+            gpsSharedTimestamp = new java.util.Date();
+        }
         java.text.SimpleDateFormat utcFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
         utcFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
-        gpsData.put("timestamp", utcFormat.format(new java.util.Date()));
+        String sharedTimestamp = utcFormat.format(gpsSharedTimestamp);
+        gpsData.put("timestamp", sharedTimestamp);
+        
+        Log.d(TAG, "🕒 SHARED TIMESTAMP Android: " + sharedTimestamp + " for course: " + course.courseId);
         gpsData.put("viteza", location.getSpeed() * 3.6); // m/s to km/h as float
         gpsData.put("directie", location.getBearing()); // Real bearing as float
         gpsData.put("altitudine", location.getAltitude()); // Real altitude as float
