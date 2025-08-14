@@ -28,7 +28,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
-        paddingTop: '80px',
+        paddingTop: '20px',
         boxSizing: 'border-box'
       }}>
       <div 
