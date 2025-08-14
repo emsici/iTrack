@@ -4,7 +4,7 @@
 
 import { Preferences } from '@capacitor/preferences';
 
-export type Theme = 'dark' | 'light';
+export type Theme = 'dark' | 'light' | 'auto' | 'corporate';
 
 class ThemeService {
   private readonly THEME_KEY = 'itrack_theme';
@@ -19,11 +19,39 @@ class ThemeService {
       const { value } = await Preferences.get({ key: this.THEME_KEY });
       this.currentTheme = (value as Theme) || 'dark';
       this.applyTheme(this.currentTheme);
+      
+      // Pentru tema auto, ascultă schimbările de preferință sistem
+      if (this.currentTheme === 'auto') {
+        this.setupAutoThemeListener();
+      }
+      
       console.log(`🎨 Theme initialized: ${this.currentTheme}`);
     } catch (error) {
       console.error('Error loading theme:', error);
       this.currentTheme = 'dark';
       this.applyTheme('dark');
+    }
+  }
+
+  /**
+   * Configurează listener pentru tema automată
+   */
+  private setupAutoThemeListener(): void {
+    if (window.matchMedia) {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = () => {
+        if (this.currentTheme === 'auto') {
+          this.applyTheme('auto');
+          this.notifyListeners('auto');
+        }
+      };
+      
+      // Folosește addEventListener dacă e disponibil, altfel addListener (legacy)
+      if (mediaQuery.addEventListener) {
+        mediaQuery.addEventListener('change', handleChange);
+      } else {
+        mediaQuery.addListener(handleChange);
+      }
     }
   }
 
@@ -45,6 +73,12 @@ class ThemeService {
         value: theme
       });
       this.applyTheme(theme);
+      
+      // Configurează listener pentru tema auto
+      if (theme === 'auto') {
+        this.setupAutoThemeListener();
+      }
+      
       this.notifyListeners(theme);
       console.log(`🎨 Theme changed to: ${theme}`);
     } catch (error) {
@@ -64,16 +98,22 @@ class ThemeService {
    * Aplică tema în CSS
    */
   private applyTheme(theme: Theme): void {
-    document.documentElement.setAttribute('data-theme', theme);
-    
-    // Aplică tema și pe body pentru compatibilitate
-    if (theme === 'light') {
-      document.body.classList.add('light-theme');
-      document.body.classList.remove('dark-theme');
-    } else {
-      document.body.classList.add('dark-theme');
-      document.body.classList.remove('light-theme');
+    // Pentru tema auto, detectează preferința sistemului
+    let effectiveTheme = theme;
+    if (theme === 'auto') {
+      effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
+    
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-effective-theme', effectiveTheme);
+    
+    // Curăță toate clasele de temă existente
+    document.body.classList.remove('dark-theme', 'light-theme', 'auto-theme', 'corporate-theme');
+    
+    // Aplică clasa temei
+    document.body.classList.add(`${theme}-theme`);
+    
+    console.log(`🎨 Applied theme: ${theme} (effective: ${effectiveTheme})`);
   }
 
   /**

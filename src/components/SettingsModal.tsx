@@ -126,6 +126,52 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onLogout
                       )}
                     </div>
                   </div>
+
+                  {/* Auto Theme */}
+                  <div className="col-6">
+                    <div
+                      className={`theme-card ${currentTheme === 'auto' ? 'active' : ''}`}
+                      onClick={() => handleThemeChange('auto')}
+                    >
+                      <div className="theme-preview auto-preview">
+                        <div className="theme-preview-header"></div>
+                        <div className="theme-preview-content">
+                          <div className="theme-preview-bar"></div>
+                          <div className="theme-preview-bar short"></div>
+                        </div>
+                      </div>
+                      <div className="theme-card-info">
+                        <div className="theme-card-title">Tema Automată</div>
+                        <div className="theme-card-desc">Urmează setările sistemului</div>
+                      </div>
+                      {currentTheme === 'auto' && (
+                        <i className="fas fa-check-circle theme-card-check"></i>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Corporate Theme */}
+                  <div className="col-6">
+                    <div
+                      className={`theme-card ${currentTheme === 'corporate' ? 'active' : ''}`}
+                      onClick={() => handleThemeChange('corporate')}
+                    >
+                      <div className="theme-preview corporate-preview">
+                        <div className="theme-preview-header"></div>
+                        <div className="theme-preview-content">
+                          <div className="theme-preview-bar"></div>
+                          <div className="theme-preview-bar short"></div>
+                        </div>
+                      </div>
+                      <div className="theme-card-info">
+                        <div className="theme-card-title">Tema Corporativă</div>
+                        <div className="theme-card-desc">Design profesional cu accente albastre</div>
+                      </div>
+                      {currentTheme === 'corporate' && (
+                        <i className="fas fa-check-circle theme-card-check"></i>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -141,7 +187,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onLogout
                 <div className="app-info-item" onClick={handleVersionClick} style={{ cursor: 'pointer', position: 'relative' }}>
                   <span className="app-info-label">Versiune:</span>
                   <span className="app-info-value">
-                    iTrack v2.0
+                    iTrack
                     {clickCount >= 30 && (
                       <span style={{ 
                         marginLeft: '8px', 

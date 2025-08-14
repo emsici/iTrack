@@ -6,7 +6,9 @@
 
 /* DARK THEME (Default) */
 :root[data-theme="dark"], 
-body.dark-theme {
+:root[data-theme="auto"][data-effective-theme="dark"],
+body.dark-theme,
+body.auto-theme[data-effective-theme="dark"] {
   /* Backgrounds */
   --bg-primary: linear-gradient(135deg, #0f1419 0%, #1a1f36 50%, #2d1b69 100%);
   --bg-secondary: rgba(255, 255, 255, 0.05);
@@ -45,7 +47,9 @@ body.dark-theme {
 
 /* LIGHT THEME */
 :root[data-theme="light"], 
-body.light-theme {
+:root[data-theme="auto"][data-effective-theme="light"],
+body.light-theme,
+body.auto-theme[data-effective-theme="light"] {
   /* Backgrounds */
   --bg-primary: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
   --bg-secondary: rgba(0, 0, 0, 0.03);
@@ -80,6 +84,45 @@ body.light-theme {
   --btn-primary-hover: linear-gradient(45deg, #004499, #003366);
   --btn-secondary-bg: rgba(0, 0, 0, 0.05);
   --btn-secondary-hover: rgba(0, 0, 0, 0.1);
+}
+
+/* CORPORATE THEME */
+:root[data-theme="corporate"], 
+body.corporate-theme {
+  /* Backgrounds - Corporate Blue Gradients */
+  --bg-primary: linear-gradient(135deg, #0c1426 0%, #1e3a5f 50%, #2563eb 100%);
+  --bg-secondary: rgba(37, 99, 235, 0.08);
+  --bg-tertiary: rgba(37, 99, 235, 0.12);
+  --bg-modal: rgba(12, 20, 38, 0.97);
+  --bg-card: rgba(37, 99, 235, 0.1);
+  --bg-hover: rgba(37, 99, 235, 0.15);
+  
+  /* Text Colors - Corporate Professional */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.85);
+  --text-muted: rgba(255, 255, 255, 0.65);
+  --text-accent: #60a5fa;
+  
+  /* Borders - Corporate Blue Accents */
+  --border-primary: rgba(37, 99, 235, 0.2);
+  --border-secondary: rgba(37, 99, 235, 0.1);
+  
+  /* Status Colors - Corporate Professional */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+  
+  /* Glassmorphism - Corporate */
+  --glass-bg: rgba(37, 99, 235, 0.12);
+  --glass-border: rgba(37, 99, 235, 0.25);
+  --glass-shadow: 0 8px 32px rgba(37, 99, 235, 0.15);
+  
+  /* Buttons - Corporate Brand */
+  --btn-primary-bg: linear-gradient(45deg, #2563eb, #1d4ed8);
+  --btn-primary-hover: linear-gradient(45deg, #1d4ed8, #1e40af);
+  --btn-secondary-bg: rgba(37, 99, 235, 0.1);
+  --btn-secondary-hover: rgba(37, 99, 235, 0.2);
 }
 
 /* ===== APLICARE TEME GLOBALE ===== */
@@ -281,6 +324,43 @@ body {
 
 .light-preview .theme-preview-bar {
   background: rgba(0, 0, 0, 0.6);
+}
+
+/* Auto Theme Preview */
+.auto-preview {
+  background: linear-gradient(45deg, #0f1419 0%, #0f1419 50%, #f8f9fa 50%, #e9ecef 100%);
+  position: relative;
+}
+
+.auto-preview::after {
+  content: '🌓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  opacity: 0.8;
+}
+
+.auto-preview .theme-preview-header {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.05) 100%);
+}
+
+.auto-preview .theme-preview-bar {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+/* Corporate Theme Preview */
+.corporate-preview {
+  background: linear-gradient(135deg, #0c1426, #2563eb);
+}
+
+.corporate-preview .theme-preview-header {
+  background: rgba(37, 99, 235, 0.2);
+}
+
+.corporate-preview .theme-preview-bar {
+  background: rgba(96, 165, 250, 0.8);
 }
 
 .theme-card-info {
