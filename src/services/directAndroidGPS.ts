@@ -26,6 +26,7 @@ import { Device } from '@capacitor/device';
 import { getStoredToken, getStoredVehicleNumber } from './storage';
 import { offlineGPSService } from './offlineGPS';
 import { guaranteedGPSService } from './garanteedGPS';
+import { sharedTimestampService } from './sharedTimestamp';
 // Direct AndroidGPS service handles native interface operations
 
 interface ActiveCourse {
@@ -63,7 +64,7 @@ class DirectAndroidGPSService {
 
       const batteryInfo = await Device.getBatteryInfo();
       
-      const timestamp = new Date().toISOString();
+      const timestamp = sharedTimestampService.getSharedTimestampISO();
       
       const gpsData = {
         lat: Math.round(position.coords.latitude * 10000000) / 10000000,  // Exact 7 decimale - standard GPS
@@ -81,7 +82,7 @@ class DirectAndroidGPSService {
       };
 
       console.log(`📡 Sending status ${status} to server for UIT: ${uit}`);
-      console.log(`🕒 DirectAndroidGPS TIMESTAMP SENT: ${timestamp} (${new Date(timestamp).getTime()})`);
+      console.log(`🕒 DirectAndroidGPS SHARED TIMESTAMP: ${timestamp} (${new Date(timestamp).getTime()})`);
       const success = await sendGPSData(gpsData, token);
       
       if (success) {

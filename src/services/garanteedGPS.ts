@@ -9,6 +9,7 @@ import { sendGPSData, GPSData } from './api';
 import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
 import { offlineGPSService } from './offlineGPS';
+import { sharedTimestampService } from './sharedTimestamp';
 
 interface GPSCourse {
   courseId: string;
@@ -130,7 +131,7 @@ class GuaranteedGPSService {
       logGPS(`🔄 Processing ${activeInProgressCourses.length} courses in progress for transmission...`);
       
       // IMPORTANT: ACELAȘI timestamp pentru TOATE cursele din acest interval GPS
-      const sharedTimestamp = new Date();
+      const sharedTimestamp = sharedTimestampService.getSharedTimestamp();
       logGPS(`🕒 SHARED TIMESTAMP pentru toate cursele: ${sharedTimestamp.toISOString()}`);
       
       for (const course of activeInProgressCourses) {
@@ -138,6 +139,9 @@ class GuaranteedGPSService {
         
         await this.transmitSingleCourse(course, coords, sharedTimestamp);
       }
+      
+      // Reset shared timestamp after all transmissions in this cycle
+      sharedTimestampService.resetTimestamp();
 
     } catch (error) {
       logGPSError(`❌ GPS reading failed: ${error}`);
