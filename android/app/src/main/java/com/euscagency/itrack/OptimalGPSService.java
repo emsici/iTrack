@@ -370,9 +370,10 @@ public class OptimalGPSService extends Service {
         if (gpsSharedTimestamp == null) {
             gpsSharedTimestamp = new java.util.Date();
         }
-        java.text.SimpleDateFormat utcFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
-        utcFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
-        String sharedTimestamp = utcFormat.format(gpsSharedTimestamp);
+        // Format românesc cu sutimi: DD-MM-YYYY HH:mm:ss.mmm
+        java.text.SimpleDateFormat romaniaFormat = new java.text.SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS", java.util.Locale.getDefault());
+        romaniaFormat.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
+        String sharedTimestamp = romaniaFormat.format(gpsSharedTimestamp);
         gpsData.put("timestamp", sharedTimestamp);
         
         Log.d(TAG, "🕒 SHARED TIMESTAMP Android: " + sharedTimestamp + " for course: " + course.courseId);

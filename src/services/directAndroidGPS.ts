@@ -64,7 +64,7 @@ class DirectAndroidGPSService {
 
       const batteryInfo = await Device.getBatteryInfo();
       
-      const timestamp = sharedTimestampService.getSharedTimestampISO();
+      const timestamp = sharedTimestampService.getSharedTimestampRomania();
       
       const gpsData = {
         lat: Math.round(position.coords.latitude * 10000000) / 10000000,  // Exact 7 decimale - standard GPS
