@@ -808,7 +808,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             background: currentTheme === 'dark' 
               ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
               : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-            padding: '40px 20px 15px 20px',
+            padding: currentTheme === 'dark' ? '40px 20px 15px 20px' : '20px 20px 15px 20px',
             borderBottom: currentTheme === 'dark' 
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(0, 0, 0, 0.1)'
@@ -1081,6 +1081,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         course={course}
                         onStatusUpdate={handleCourseStatusUpdate}
                         isLoading={loadingCourses.has(course.id)}
+                        currentTheme={currentTheme}
                       />
                     </div>
                   ))}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -13,6 +13,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   currentTheme, 
   onThemeChange 
 }) => {
+  const [clickCount, setClickCount] = useState(0);
+
+  const handleTitleClick = () => {
+    setClickCount(prev => prev + 1);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -88,13 +94,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           textAlign: 'center',
           marginBottom: '25px'
         }}>
-          <h2 style={{
-            color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
-            fontSize: '22px',
-            fontWeight: '700',
-            margin: '0 0 8px 0'
-          }}>
+          <h2 
+            onClick={handleTitleClick}
+            style={{
+              color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
+              fontSize: '22px',
+              fontWeight: '700',
+              margin: '0 0 8px 0',
+              cursor: 'pointer'
+            }}>
             Setări
+            {clickCount >= 30 && (
+              <span style={{
+                marginLeft: '10px',
+                fontSize: '14px',
+                color: currentTheme === 'dark' ? '#64748b' : '#475569'
+              }}>
+                ({clickCount}/50)
+              </span>
+            )}
           </h2>
           <p style={{
             color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
@@ -104,6 +122,37 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             Personalizează aplicația
           </p>
         </div>
+
+        {/* Debug Section - Visible after 50 clicks */}
+        {clickCount >= 50 && (
+          <div style={{
+            marginBottom: '20px',
+            padding: '16px',
+            background: currentTheme === 'dark' 
+              ? 'rgba(59, 130, 246, 0.1)' 
+              : 'rgba(59, 130, 246, 0.1)',
+            border: currentTheme === 'dark' 
+              ? '1px solid rgba(59, 130, 246, 0.3)' 
+              : '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '12px'
+          }}>
+            <div style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af',
+              marginBottom: '10px'
+            }}>
+              <i className="fas fa-bug" style={{ marginRight: '8px' }}></i>
+              Debug Panel Activ
+            </div>
+            <div style={{
+              fontSize: '14px',
+              color: currentTheme === 'dark' ? '#cbd5e1' : '#475569'
+            }}>
+              Panel-ul de debug a fost activat. Toate log-urile sunt acum disponibile pentru export și analiză.
+            </div>
+          </div>
+        )}
 
         {/* Theme Section */}
         <div style={{

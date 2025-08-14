@@ -5,12 +5,14 @@ interface CourseDetailCardProps {
   course: Course;
   onStatusUpdate: (courseId: string, newStatus: number) => void;
   isLoading: boolean;
+  currentTheme?: 'dark' | 'light';
 }
 
 const CourseDetailCard: React.FC<CourseDetailCardProps> = ({ 
   course, 
   onStatusUpdate,
-  isLoading 
+  isLoading,
+  currentTheme = 'dark'
 }) => {
   // Each course has independent state using course.id as key
   const [showDetails, setShowDetails] = useState(false);
@@ -138,9 +140,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     <div className={`course-card-compact ${showDetails ? 'expanded' : ''}`}>
       <style>{`
         .course-card-compact {
-          background: rgba(255, 255, 255, 0.08);
+          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.95)'};
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.15)'};
           border-radius: 12px;
           padding: 16px 20px;
           margin: 0 auto 16px auto;
