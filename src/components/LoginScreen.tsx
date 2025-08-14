@@ -1,25 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { login } from "../services/api";
-import { themeService } from "../services/themeService";
 
 interface LoginScreenProps {
-  onLoginSuccess: (token: string) => void;
+  onLogin: (token: string, isAdmin?: boolean) => void;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  // Initialize theme on login screen
-  useEffect(() => {
-    const initTheme = async () => {
-      await themeService.initializeTheme();
-    };
-    initTheme();
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +27,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       // Check for admin credentials for debugging access
       if (email === "admin@itrack.app" && (password === "parola123" || password === "admin123")) {
         console.log("Admin login detected - bypassing server authentication");
-        onLoginSuccess("ADMIN_TOKEN");
+        onLogin("ADMIN_TOKEN", true); // Set isAdmin flag
         return;
       }
       
@@ -53,7 +44,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       const response = await login(email, password);
 
       if (response.token) {
-        onLoginSuccess(response.token);
+        onLogin(response.token);
       } else {
         setError(response.error || "Date de conectare incorecte");
       }

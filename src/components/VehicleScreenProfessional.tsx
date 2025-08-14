@@ -17,11 +17,8 @@ import AdminPanel from "./AdminPanel";
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
 import ToastNotification from "./ToastNotification";
 import OfflineStatusIndicator from "./OfflineStatusIndicator";
-import SettingsModal from "./SettingsModal";
-import InfoModal from "./InfoModal";
 import { useToast } from "../hooks/useToast";
 import { clearAllGuaranteedGPS } from "../services/garanteedGPS";
-import { themeService } from "../services/themeService";
 
 interface VehicleScreenProps {
   token: string;
@@ -47,8 +44,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loadingCourses] = useState(new Set<string>());
   const [isSyncing] = useState(false);
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [showInfoModal, setShowInfoModal] = useState(false);
+  
 
   const toast = useToast();
 
@@ -68,14 +64,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     loadStoredVehicleNumber();
   }, []); // Empty dependency array - runs only once on mount
-
-  // Initialize theme on component mount
-  useEffect(() => {
-    const initTheme = async () => {
-      await themeService.initializeTheme();
-    };
-    initTheme();
-  }, []);
 
   // Separate useEffect for background refresh events
   useEffect(() => {
@@ -540,7 +528,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       {!coursesLoaded ? (
         <div style={{
           minHeight: '100dvh',
-          background: 'var(--bg-primary)',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)',
           backgroundAttachment: 'fixed',
           display: 'flex',
           flexDirection: 'column',
@@ -585,12 +573,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div style={{
               width: '100%',
               maxWidth: '400px',
-              background: 'var(--bg-modal)',
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid var(--border-primary)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '24px',
               padding: '40px 30px',
-              boxShadow: 'var(--glass-shadow)'
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
             }}>
               {/* Vehicle Number Input */}
               <div style={{ marginBottom: '30px' }}>
@@ -618,7 +606,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     background: loading ? 'rgba(30, 41, 59, 0.3)' : 'rgba(30, 41, 59, 0.6)',
                     border: '2px solid rgba(148, 163, 184, 0.2)',
                     borderRadius: '16px',
-                    color: 'var(--text-primary)',
+                    color: '#ffffff',
                     fontSize: '18px',
                     fontWeight: '600',
                     textAlign: 'center',
@@ -640,12 +628,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               width: '100%',
               maxWidth: '400px',
               margin: '0 auto',
-              background: 'var(--bg-modal)',
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid var(--border-primary)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '24px',
               padding: '30px',
-              boxShadow: 'var(--glass-shadow)'
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
             }}>
               {/* Main Action Button */}
               <button
@@ -747,7 +735,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               
               /* Lightweight scroll optimization - focus on performance */
               html, body, #root {
-                background: var(--bg-primary) !important;
+                background-color: #0f172a !important;
                 overflow-x: hidden;
               }
               
@@ -803,75 +791,26 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   alignItems: 'center', 
                   gap: '12px', 
                   cursor: 'pointer',
-                  marginRight: '12px',
-                  color: 'white'
+                  marginRight: '12px' 
                 }}>
                   <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '16px' }}></i>
                   <span className="vehicle-number" style={{ color: 'white', fontWeight: '600', fontSize: '16px' }}>{vehicleNumber}</span>
                   <i className="edit-icon fas fa-edit" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '12px' }}></i>
                 </div>
                 
-                <div className="header-actions-group" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  {/* Info Button */}
-                  <div 
-                    className="header-info-btn" 
-                    onClick={() => setShowInfoModal(true)} 
-                    title="Informații aplicație"
-                    style={{ 
-                      background: 'rgba(255, 255, 255, 0.1)', 
-                      border: '1px solid rgba(255, 255, 255, 0.2)', 
-                      borderRadius: '50%', 
-                      width: '40px',
-                      height: '40px',
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      color: 'rgba(255, 255, 255, 0.8)'
-                    }}
-                  >
-                    <i className="fas fa-info-circle" style={{ fontSize: '16px' }}></i>
-                  </div>
-
-                  {/* Settings Button */}
-                  <div 
-                    className="header-settings-btn" 
-                    onClick={() => setShowSettingsModal(true)} 
-                    title="Setări"
-                    style={{ 
-                      background: 'rgba(255, 255, 255, 0.1)', 
-                      border: '1px solid rgba(255, 255, 255, 0.2)', 
-                      borderRadius: '50%', 
-                      width: '40px',
-                      height: '40px',
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease',
-                      color: 'rgba(255, 255, 255, 0.8)'
-                    }}
-                  >
-                    <i className="fas fa-cog" style={{ fontSize: '16px' }}></i>
-                  </div>
-
-                  {/* Logout Button */}
-                  <div className="logout-button-enhanced" onClick={handleLogout} title="Logout" style={{ 
-                    background: 'rgba(239, 68, 68, 0.1)', 
-                    border: '1px solid rgba(239, 68, 68, 0.3)', 
-                    borderRadius: '50%', 
-                    width: '40px',
-                    height: '40px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    color: '#fca5a5' 
-                  }}>
-                    <i className="fas fa-sign-out-alt" style={{ fontSize: '16px' }}></i>
-                  </div>
+                <div className="logout-button-enhanced" onClick={handleLogout} title="Logout" style={{ 
+                  background: 'rgba(239, 68, 68, 0.1)', 
+                  border: '1px solid rgba(239, 68, 68, 0.3)', 
+                  borderRadius: '12px', 
+                  padding: '12px 16px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  cursor: 'pointer',
+                  color: '#fca5a5' 
+                }}>
+                  <i className="fas fa-sign-out-alt" style={{ fontSize: '14px' }}></i>
+                  <span className="logout-text" style={{ fontSize: '14px', fontWeight: '600' }}>Ieșire</span>
                 </div>
               </div>
             </div>
@@ -1124,19 +1063,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 onClose={() => setShowAdminPanel(false)}
               />
             )}
-
-            {/* Settings Modal */}
-            <SettingsModal
-              isOpen={showSettingsModal}
-              onClose={() => setShowSettingsModal(false)}
-              onLogout={handleLogout}
-            />
-
-            {/* Info Modal */}
-            <InfoModal
-              isOpen={showInfoModal}
-              onClose={() => setShowInfoModal(false)}
-            />
 
             {/* Toast Notifications */}
             <ToastNotification

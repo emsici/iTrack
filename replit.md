@@ -6,7 +6,6 @@ iTrack is a professional enterprise GPS monitoring application designed for flee
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
-Design preference: Dark theme as default - modern dark design with blue-violet gradients, glassmorphism effects, and professional styling.
 
 ## Business Materials
 - **Business Presentation**: PREZENTARE_BUSINESS_iTrack.md (for technical/business audiences)
@@ -17,9 +16,6 @@ Design preference: Dark theme as default - modern dark design with blue-violet g
 - **SHARED TIMESTAMP SYSTEM**: Implemented SharedTimestampService for perfect synchronization across all GPS services
 - **TIMESTAMP SYNCHRONIZATION**: All GPS services now use shared timestamp for coordinates within same interval 
 - **CROSS-SERVICE CONSISTENCY**: garanteedGPS, directAndroidGPS, and Android service all use synchronized timestamps
-- **THEME CUSTOMIZATION**: Added 6 complete themes with Dark theme as preferred default (Dark, Light, Auto, Corporate, Gamer, Minimalist) with professional settings modal and header settings icon
-- **DESIGN OPTIMIZATIONS**: Clean header with circular icon buttons (Info, Settings, Logout), dark theme as default, theme variables applied globally, centered modals with proper z-index
-- **DEBUG ACCESS**: Hidden admin panel access through 50 clicks on version in settings (shows counter after 30 clicks)
 - **Scroll Performance**: Optimized intervals (connectivity 30s, GPS monitor 20s, offline check 15s)
 - **Hardware Acceleration**: Added CSS GPU rendering with transform3d and will-change  
 - **Individual Course Control**: Fixed bug where starting one course affected all courses

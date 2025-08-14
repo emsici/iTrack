@@ -165,7 +165,7 @@ class GuaranteedGPSService {
       logGPS(`🔋 Battery level: ${batteryLevel}%`);
       
       // Folosește timestamp-ul primit sau generează unul nou (pentru backward compatibility)
-      const uniqueTimestamp = timestamp ? sharedTimestampService.getSharedTimestampRomania() : sharedTimestampService.getSharedTimestampRomania();
+      const uniqueTimestamp = timestamp ? timestamp.toISOString() : new Date().toISOString();
       
       const gpsData: GPSData = {
         lat: Math.round(coords.latitude * 10000000) / 10000000,  // Exact 7 decimale - standard GPS

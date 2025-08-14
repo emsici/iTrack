@@ -7,7 +7,6 @@ import { Preferences } from '@capacitor/preferences';
 import { CapacitorHttp } from '@capacitor/core';
 // Uses CapacitorHttp + fetch fallback for GPS coordinate transmission
 import { GPSData, API_BASE_URL } from './api';
-import { sharedTimestampService } from './sharedTimestamp';
 
 export interface OfflineGPSCoordinate {
   id: string;
@@ -57,7 +56,7 @@ class OfflineGPSService {
         hdop: gpsData.hdop.toString(),
         gsm_signal: gpsData.gsm_signal.toString(),
         retryCount: 0,
-        savedAt: sharedTimestampService.getSharedTimestampRomania()
+        savedAt: new Date().toISOString()
       };
 
       const existingCoordinates = await this.getOfflineCoordinates();
