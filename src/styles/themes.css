@@ -125,6 +125,84 @@ body.corporate-theme {
   --btn-secondary-hover: rgba(37, 99, 235, 0.2);
 }
 
+/* GAMER THEME */
+:root[data-theme="gamer"], 
+body.gamer-theme {
+  /* Backgrounds - Gaming RGB Vibes */
+  --bg-primary: linear-gradient(135deg, #0d1117 0%, #1a0f2e 25%, #2d1b69 50%, #8b5cf6 100%);
+  --bg-secondary: rgba(139, 92, 246, 0.08);
+  --bg-tertiary: rgba(139, 92, 246, 0.12);
+  --bg-modal: rgba(13, 17, 23, 0.97);
+  --bg-card: rgba(139, 92, 246, 0.1);
+  --bg-hover: rgba(139, 92, 246, 0.15);
+  
+  /* Text Colors - Gaming Bright */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.9);
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --text-accent: #a855f7;
+  
+  /* Borders - RGB Gaming */
+  --border-primary: rgba(139, 92, 246, 0.3);
+  --border-secondary: rgba(139, 92, 246, 0.15);
+  
+  /* Status Colors - Gaming Neon */
+  --color-success: #00ff88;
+  --color-warning: #ffdd00;
+  --color-danger: #ff0066;
+  --color-info: #00ddff;
+  
+  /* Glassmorphism - Gaming Glow */
+  --glass-bg: rgba(139, 92, 246, 0.15);
+  --glass-border: rgba(139, 92, 246, 0.3);
+  --glass-shadow: 0 8px 32px rgba(139, 92, 246, 0.25);
+  
+  /* Buttons - Gaming RGB */
+  --btn-primary-bg: linear-gradient(45deg, #8b5cf6, #a855f7, #c084fc);
+  --btn-primary-hover: linear-gradient(45deg, #7c3aed, #8b5cf6, #a855f7);
+  --btn-secondary-bg: rgba(139, 92, 246, 0.12);
+  --btn-secondary-hover: rgba(139, 92, 246, 0.25);
+}
+
+/* MINIMALIST THEME */
+:root[data-theme="minimalist"], 
+body.minimalist-theme {
+  /* Backgrounds - Ultra Clean */
+  --bg-primary: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  --bg-secondary: rgba(0, 0, 0, 0.02);
+  --bg-tertiary: rgba(0, 0, 0, 0.03);
+  --bg-modal: rgba(255, 255, 255, 0.98);
+  --bg-card: rgba(0, 0, 0, 0.01);
+  --bg-hover: rgba(0, 0, 0, 0.03);
+  
+  /* Text Colors - Minimal Gray Scale */
+  --text-primary: #1a1a1a;
+  --text-secondary: #525252;
+  --text-muted: #737373;
+  --text-accent: #404040;
+  
+  /* Borders - Subtle Lines */
+  --border-primary: rgba(0, 0, 0, 0.08);
+  --border-secondary: rgba(0, 0, 0, 0.04);
+  
+  /* Status Colors - Minimal Tones */
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #0284c7;
+  
+  /* Glassmorphism - Barely There */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  
+  /* Buttons - Clean Monochrome */
+  --btn-primary-bg: linear-gradient(45deg, #404040, #525252);
+  --btn-primary-hover: linear-gradient(45deg, #525252, #737373);
+  --btn-secondary-bg: rgba(0, 0, 0, 0.04);
+  --btn-secondary-hover: rgba(0, 0, 0, 0.08);
+}
+
 /* ===== APLICARE TEME GLOBALE ===== */
 
 /* Body Background */
@@ -361,6 +439,43 @@ body {
 
 .corporate-preview .theme-preview-bar {
   background: rgba(96, 165, 250, 0.8);
+}
+
+/* Gamer Theme Preview */
+.gamer-preview {
+  background: linear-gradient(135deg, #0d1117, #2d1b69, #8b5cf6);
+  position: relative;
+}
+
+.gamer-preview::after {
+  content: '🎮';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  opacity: 0.9;
+}
+
+.gamer-preview .theme-preview-header {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+.gamer-preview .theme-preview-bar {
+  background: linear-gradient(90deg, #a855f7, #c084fc);
+}
+
+/* Minimalist Theme Preview */
+.minimalist-preview {
+  background: linear-gradient(135deg, #fafafa, #f5f5f5);
+}
+
+.minimalist-preview .theme-preview-header {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.minimalist-preview .theme-preview-bar {
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .theme-card-info {

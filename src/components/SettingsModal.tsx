@@ -172,6 +172,52 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onLogout
                       )}
                     </div>
                   </div>
+
+                  {/* Gamer Theme */}
+                  <div className="col-6">
+                    <div
+                      className={`theme-card ${currentTheme === 'gamer' ? 'active' : ''}`}
+                      onClick={() => handleThemeChange('gamer')}
+                    >
+                      <div className="theme-preview gamer-preview">
+                        <div className="theme-preview-header"></div>
+                        <div className="theme-preview-content">
+                          <div className="theme-preview-bar"></div>
+                          <div className="theme-preview-bar short"></div>
+                        </div>
+                      </div>
+                      <div className="theme-card-info">
+                        <div className="theme-card-title">Tema Gamer</div>
+                        <div className="theme-card-desc">Design RGB cu accente neon și gaming</div>
+                      </div>
+                      {currentTheme === 'gamer' && (
+                        <i className="fas fa-check-circle theme-card-check"></i>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Minimalist Theme */}
+                  <div className="col-6">
+                    <div
+                      className={`theme-card ${currentTheme === 'minimalist' ? 'active' : ''}`}
+                      onClick={() => handleThemeChange('minimalist')}
+                    >
+                      <div className="theme-preview minimalist-preview">
+                        <div className="theme-preview-header"></div>
+                        <div className="theme-preview-content">
+                          <div className="theme-preview-bar"></div>
+                          <div className="theme-preview-bar short"></div>
+                        </div>
+                      </div>
+                      <div className="theme-card-info">
+                        <div className="theme-card-title">Tema Minimalistă</div>
+                        <div className="theme-card-desc">Design ultra-clean și simplu</div>
+                      </div>
+                      {currentTheme === 'minimalist' && (
+                        <i className="fas fa-check-circle theme-card-check"></i>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

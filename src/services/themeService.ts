@@ -4,7 +4,7 @@
 
 import { Preferences } from '@capacitor/preferences';
 
-export type Theme = 'dark' | 'light' | 'auto' | 'corporate';
+export type Theme = 'dark' | 'light' | 'auto' | 'corporate' | 'gamer' | 'minimalist';
 
 class ThemeService {
   private readonly THEME_KEY = 'itrack_theme';
@@ -108,7 +108,7 @@ class ThemeService {
     document.documentElement.setAttribute('data-effective-theme', effectiveTheme);
     
     // Curăță toate clasele de temă existente
-    document.body.classList.remove('dark-theme', 'light-theme', 'auto-theme', 'corporate-theme');
+    document.body.classList.remove('dark-theme', 'light-theme', 'auto-theme', 'corporate-theme', 'gamer-theme', 'minimalist-theme');
     
     // Aplică clasa temei
     document.body.classList.add(`${theme}-theme`);

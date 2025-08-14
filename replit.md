@@ -16,7 +16,7 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 - **SHARED TIMESTAMP SYSTEM**: Implemented SharedTimestampService for perfect synchronization across all GPS services
 - **TIMESTAMP SYNCHRONIZATION**: All GPS services now use shared timestamp for coordinates within same interval 
 - **CROSS-SERVICE CONSISTENCY**: garanteedGPS, directAndroidGPS, and Android service all use synchronized timestamps
-- **THEME CUSTOMIZATION**: Added dark/light theme toggle with professional settings modal and header settings icon
+- **THEME CUSTOMIZATION**: Added 6 complete themes (Dark, Light, Auto, Corporate, Gamer, Minimalist) with professional settings modal and header settings icon
 - **DEBUG ACCESS**: Hidden admin panel access through 50 clicks on version in settings (shows counter after 30 clicks)
 - **Scroll Performance**: Optimized intervals (connectivity 30s, GPS monitor 20s, offline check 15s)
 - **Hardware Acceleration**: Added CSS GPU rendering with transform3d and will-change  
