@@ -5,7 +5,7 @@ interface CourseDetailCardProps {
   course: Course;
   onStatusUpdate: (courseId: string, newStatus: number) => void;
   isLoading: boolean;
-  currentTheme?: 'dark' | 'light';
+  currentTheme?: string;
 }
 
 const CourseDetailCard: React.FC<CourseDetailCardProps> = ({ 

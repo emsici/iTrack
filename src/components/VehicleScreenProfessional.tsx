@@ -1102,16 +1102,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             </div>
 
-            {/* GPS Status Display - Beautiful Card Design */}
+            {/* GPS Status Display - Beautiful Card Design with Perfect Contrast */}
             {isOnline && (
               <div style={{
                 margin: '15px 20px 20px 20px',
                 padding: '16px 20px',
-                background: currentTheme === 'nature' 
-                  ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                  : currentTheme === 'light' || currentTheme === 'business'
-                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                    : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                background: currentTheme === 'light' 
+                  ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' // Dark green for light theme
+                  : currentTheme === 'business'
+                    ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' // Dark green for business theme  
+                    : currentTheme === 'nature'
+                      ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' // Medium green for nature theme
+                      : currentTheme === 'driver'
+                        ? 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)' // Strong green for driver theme
+                        : currentTheme === 'night'
+                          ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' // Bright green for night theme
+                          : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', // Default dark theme
                 borderRadius: '16px',
                 textAlign: 'center',
                 boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
