@@ -13,7 +13,9 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 
 ## Recent Performance Optimizations (14/08/2025)
 - **CRITICAL GPS ORDER FIX**: Replaced HashMap with LinkedHashMap + sorting in Android service to ensure consistent coordinate transmission order
+- **SHARED TIMESTAMP SYSTEM**: Implemented SharedTimestampService for perfect synchronization across all GPS services
 - **TIMESTAMP SYNCHRONIZATION**: All GPS services now use shared timestamp for coordinates within same interval 
+- **CROSS-SERVICE CONSISTENCY**: garanteedGPS, directAndroidGPS, and Android service all use synchronized timestamps
 - **Scroll Performance**: Optimized intervals (connectivity 30s, GPS monitor 20s, offline check 15s)
 - **Hardware Acceleration**: Added CSS GPU rendering with transform3d and will-change  
 - **Individual Course Control**: Fixed bug where starting one course affected all courses
