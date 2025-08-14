@@ -853,15 +853,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               gap: '12px'
             }}>
               <div className="settings-button" onClick={() => setShowSettings(true)} title="Setări" style={{ 
-                background: 'rgba(100, 116, 139, 0.1)', 
-                border: '1px solid rgba(100, 116, 139, 0.3)', 
+                background: currentTheme === 'dark' 
+                  ? 'rgba(100, 116, 139, 0.1)' 
+                  : 'rgba(100, 116, 139, 0.2)', 
+                border: currentTheme === 'dark' 
+                  ? '1px solid rgba(100, 116, 139, 0.3)' 
+                  : '1px solid rgba(100, 116, 139, 0.5)', 
                 borderRadius: '12px', 
                 padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: '#94a3b8',
+                color: currentTheme === 'dark' ? '#94a3b8' : '#475569',
                 minWidth: '48px',
                 minHeight: '48px'
               }}>
@@ -869,15 +873,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
 
               <div className="about-button" onClick={() => setShowAbout(true)} title="Despre aplicație" style={{ 
-                background: 'rgba(59, 130, 246, 0.1)', 
-                border: '1px solid rgba(59, 130, 246, 0.3)', 
+                background: currentTheme === 'dark' 
+                  ? 'rgba(59, 130, 246, 0.1)' 
+                  : 'rgba(59, 130, 246, 0.2)', 
+                border: currentTheme === 'dark' 
+                  ? '1px solid rgba(59, 130, 246, 0.3)' 
+                  : '1px solid rgba(59, 130, 246, 0.5)', 
                 borderRadius: '12px', 
                 padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: '#93c5fd',
+                color: currentTheme === 'dark' ? '#93c5fd' : '#2563eb',
                 minWidth: '48px',
                 minHeight: '48px'
               }}>
@@ -885,15 +893,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
 
               <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
-                background: 'rgba(239, 68, 68, 0.1)', 
-                border: '1px solid rgba(239, 68, 68, 0.3)', 
+                background: currentTheme === 'dark' 
+                  ? 'rgba(239, 68, 68, 0.1)' 
+                  : 'rgba(239, 68, 68, 0.2)', 
+                border: currentTheme === 'dark' 
+                  ? '1px solid rgba(239, 68, 68, 0.3)' 
+                  : '1px solid rgba(239, 68, 68, 0.5)', 
                 borderRadius: '12px', 
                 padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: '#fca5a5',
+                color: currentTheme === 'dark' ? '#fca5a5' : '#dc2626',
                 minWidth: '48px',
                 minHeight: '48px'
               }}>
