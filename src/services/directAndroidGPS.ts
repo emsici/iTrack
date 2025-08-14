@@ -63,10 +63,12 @@ class DirectAndroidGPSService {
 
       const batteryInfo = await Device.getBatteryInfo();
       
+      const timestamp = new Date().toISOString();
+      
       const gpsData = {
         lat: Math.round(position.coords.latitude * 10000000) / 10000000,  // Exact 7 decimale - standard GPS
         lng: Math.round(position.coords.longitude * 10000000) / 10000000, // Exact 7 decimale - standard GPS
-        timestamp: new Date().toISOString(),
+        timestamp: timestamp,
         viteza: position.coords.speed || 0,
         directie: position.coords.heading || 0,
         altitudine: position.coords.altitude || 0,
@@ -79,6 +81,7 @@ class DirectAndroidGPSService {
       };
 
       console.log(`📡 Sending status ${status} to server for UIT: ${uit}`);
+      console.log(`🕒 DirectAndroidGPS TIMESTAMP SENT: ${timestamp} (${new Date(timestamp).getTime()})`);
       const success = await sendGPSData(gpsData, token);
       
       if (success) {

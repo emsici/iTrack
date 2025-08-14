@@ -128,17 +128,20 @@ class GuaranteedGPSService {
       
       // Transmitem DOAR pentru cursele în progres (status 2)
       logGPS(`🔄 Processing ${activeInProgressCourses.length} courses in progress for transmission...`);
-      let delayMs = 0;
-      for (const course of activeInProgressCourses) {
+      
+      // IMPORTANT: Folosim același timestamp pentru toate cursele din acest interval
+      const baseTimestamp = new Date();
+      
+      for (let i = 0; i < activeInProgressCourses.length; i++) {
+        const course = activeInProgressCourses[i];
         logGPS(`📤 Transmitting for course IN PROGRESS: ${course.courseId} (${course.uit}) status: ${course.status}`);
         
-        // Întârziere mică pentru timestamp-uri unice
-        if (delayMs > 0) {
-          await new Promise(resolve => setTimeout(resolve, delayMs));
-        }
+        // Timestamp unic pentru fiecare cursă, dar în ordine cronologică
+        const courseTimestamp = new Date(baseTimestamp.getTime() + (i * 100)); // Adăugăm 100ms pentru fiecare cursă
         
-        await this.transmitSingleCourse(course, coords);
-        delayMs += 100; // Incrementăm cu 100ms pentru fiecare cursă următoare
+        logGPS(`🕒 TIMESTAMP ORDER CHECK: Course ${i + 1}/${activeInProgressCourses.length} - ${courseTimestamp.toISOString()}`);
+        
+        await this.transmitSingleCourse(course, coords, courseTimestamp);
       }
 
     } catch (error) {
@@ -155,15 +158,15 @@ class GuaranteedGPSService {
   /**
    * Transmitere pentru o singură cursă
    */
-  private async transmitSingleCourse(course: GPSCourse, coords: any): Promise<void> {
+  private async transmitSingleCourse(course: GPSCourse, coords: any, timestamp?: Date): Promise<void> {
     try {
       logGPS(`🔧 Preparing GPS data for ${course.courseId}...`);
       
       const batteryLevel = await this.getBatteryLevel();
       logGPS(`🔋 Battery level: ${batteryLevel}%`);
       
-      // Timestamp unic cu milisecunde pentru evitarea duplicatelor
-      const uniqueTimestamp = new Date().toISOString();
+      // Folosește timestamp-ul primit sau generează unul nou (pentru backward compatibility)
+      const uniqueTimestamp = timestamp ? timestamp.toISOString() : new Date().toISOString();
       
       const gpsData: GPSData = {
         lat: Math.round(coords.latitude * 10000000) / 10000000,  // Exact 7 decimale - standard GPS
@@ -181,6 +184,7 @@ class GuaranteedGPSService {
       };
       
       logGPS(`🚨 TRANSMITTING GPS DATA WITH UIT: ${course.uit} for course ${course.courseId}`);
+      logGPS(`🕒 TIMESTAMP SENT: ${uniqueTimestamp} (${new Date(uniqueTimestamp).getTime()})`);
 
       logGPS(`📊 GPS Data prepared: lat=${gpsData.lat}, lng=${gpsData.lng}, uit=${gpsData.uit}, vehicle=${gpsData.numar_inmatriculare}`);
       logGPS(`🔑 Using token: ${course.token.substring(0, 20)}...`);

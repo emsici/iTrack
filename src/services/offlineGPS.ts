@@ -124,6 +124,12 @@ class OfflineGPSService {
       let failedCount = 0;
       const remainingCoordinates: OfflineGPSCoordinate[] = [];
 
+      // IMPORTANT: Sort coordinates by timestamp BEFORE processing
+      // This ensures chronological order is maintained
+      coordinates.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      
+      console.log(`🕒 Coordinates sorted chronologically from ${coordinates[0]?.timestamp} to ${coordinates[coordinates.length - 1]?.timestamp}`);
+      
       // Process coordinates in batches of 50 for better efficiency
       const batchSize = 50;
       for (let i = 0; i < coordinates.length; i += batchSize) {
