@@ -4,14 +4,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { themeService, Theme } from '../services/themeService';
+import AdminPanel from './AdminPanel';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onLogout?: () => void;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, onLogout }) => {
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
+  const [clickCount, setClickCount] = useState(0);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   useEffect(() => {
     // Inițializează tema curentă
@@ -31,6 +35,21 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
   const handleThemeChange = async (theme: Theme) => {
     await themeService.setTheme(theme);
+  };
+
+  const handleVersionClick = () => {
+    setClickCount(prev => {
+      const newCount = prev + 1;
+      console.log(`Settings version clicked: ${newCount}/50`);
+      
+      if (newCount >= 50) {
+        console.log('🔓 Opening Admin Panel from Settings');
+        setShowAdminPanel(true);
+        setClickCount(0); // Reset counter
+      }
+      
+      return newCount;
+    });
   };
 
   if (!isOpen) return null;
@@ -119,9 +138,21 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               </h6>
               
               <div className="app-info">
-                <div className="app-info-item">
+                <div className="app-info-item" onClick={handleVersionClick} style={{ cursor: 'pointer', position: 'relative' }}>
                   <span className="app-info-label">Versiune:</span>
-                  <span className="app-info-value">iTrack v2.0</span>
+                  <span className="app-info-value">
+                    iTrack v2.0
+                    {clickCount >= 30 && (
+                      <span style={{ 
+                        marginLeft: '8px', 
+                        fontSize: '12px', 
+                        color: 'var(--text-muted)',
+                        opacity: 0.7
+                      }}>
+                        ({clickCount}/50)
+                      </span>
+                    )}
+                  </span>
                 </div>
                 <div className="app-info-item">
                   <span className="app-info-label">Dezvoltator:</span>
@@ -147,6 +178,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
       </div>
+
+      {/* Admin Panel Modal */}
+      {showAdminPanel && onLogout && (
+        <AdminPanel
+          onLogout={onLogout}
+          onClose={() => {
+            setShowAdminPanel(false);
+            setClickCount(0); // Reset counter when closing
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -1103,6 +1103,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <SettingsModal
               isOpen={showSettingsModal}
               onClose={() => setShowSettingsModal(false)}
+              onLogout={handleLogout}
             />
 
             {/* Toast Notifications */}
