@@ -1130,20 +1130,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
 
-            {/* Action Buttons */}
             {/* Action Buttons - Enhanced Mobile Bottom Section */}
             <div style={{
               position: 'fixed',
               bottom: '0',
               left: '0',
               right: '0',
-              background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+              background: currentTheme === 'dark' 
+                ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)'
+                : 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%)',
               backdropFilter: 'blur(20px)',
-              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+              borderTop: currentTheme === 'dark' 
+                ? '1px solid rgba(255, 255, 255, 0.1)'
+                : '1px solid rgba(0, 0, 0, 0.1)',
               padding: '16px 20px',
-              paddingBottom: '20px', // Safe area for Android
+              paddingBottom: '35px', // Extra space for Android navigation bar (3 icons)
               zIndex: 1000,
-              boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.4)'
+              boxShadow: currentTheme === 'dark' 
+                ? '0 -8px 32px rgba(0, 0, 0, 0.4)'
+                : '0 -8px 32px rgba(0, 0, 0, 0.15)'
             }}>
               <div style={{
                 maxWidth: '400px',
@@ -1157,10 +1162,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   style={{
                     flex: '1',
                     padding: '14px 20px',
-                    background: 'rgba(239, 68, 68, 0.15)',
-                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    background: currentTheme === 'dark' 
+                      ? 'rgba(239, 68, 68, 0.15)'
+                      : 'rgba(239, 68, 68, 0.1)',
+                    border: currentTheme === 'dark' 
+                      ? '1px solid rgba(239, 68, 68, 0.4)'
+                      : '1px solid rgba(239, 68, 68, 0.3)',
                     borderRadius: '16px',
-                    color: '#fca5a5',
+                    color: currentTheme === 'dark' ? '#fca5a5' : '#dc2626',
                     fontSize: '16px',
                     fontWeight: '600',
                     cursor: 'pointer',
@@ -1170,24 +1179,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     gap: '10px',
                     transition: 'all 0.3s ease',
                     boxShadow: '0 4px 16px rgba(239, 68, 68, 0.2)'
-                  }}>
-                    <i className="fas fa-sign-out-alt"></i>
-                    <span>Ieșire</span>
+                  }}
+                >
+                  <i className="fas fa-sign-out-alt"></i>
+                  <span>Ieșire</span>
                 </button>
-                
-
               </div>
               
-              {/* Version Display in Footer */}
+              {/* Version Display in Footer - positioned above Android navigation */}
               <div style={{
                 position: 'absolute',
-                bottom: '4px',
+                bottom: '8px', // 8px from bottom to avoid Android nav icons
                 left: '50%',
                 transform: 'translateX(-50%)',
-                fontSize: '10px',
+                fontSize: '9px',
                 color: currentTheme === 'dark' ? '#64748b' : '#94a3b8',
                 fontWeight: '500',
-                textAlign: 'center'
+                textAlign: 'center',
+                whiteSpace: 'nowrap'
               }}>
                 v1807.99 - interfață {currentTheme === 'dark' ? 'închisă' : 'deschisă'}
               </div>
