@@ -795,6 +795,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 overflow-x: hidden;
               }
               
+              /* Pulse animation for online indicator */
+              @keyframes pulse {
+                0% { opacity: 1; }
+                50% { opacity: 0.5; }
+                100% { opacity: 1; }
+              }
+              
               /* Essential hardware acceleration only */
               .vehicle-dashboard-main-content {
                 -webkit-overflow-scrolling: touch;
@@ -875,6 +882,34 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   fontSize: '12px' 
                 }}></i>
               </div>
+            </div>
+
+            {/* Online/Offline Status - Top Right */}
+            <div style={{
+              position: 'absolute',
+              top: '50px',
+              right: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              zIndex: 1001
+            }}>
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: isOnline ? '#22c55e' : '#ef4444',
+                boxShadow: `0 0 8px ${isOnline ? '#22c55e' : '#ef4444'}`,
+                animation: isOnline ? 'pulse 2s infinite' : 'none'
+              }} />
+              <span style={{
+                color: currentTheme === 'dark' ? '#cbd5e1' : '#64748b',
+                fontSize: '11px',
+                fontWeight: '500'
+              }}>
+                {isOnline ? 'Online' : 'Offline'}
+                {offlineGPSCount > 0 && ` (${offlineGPSCount})`}
+              </span>
             </div>
 
             {/* Second Row - Action Icons */}
@@ -981,7 +1016,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div style={{
               display: 'flex',
               justifyContent: 'center',
-              margin: '20px 0',
+              margin: '15px 0',
               padding: '0 20px'
             }}>
               <div className="analytics-grid-centered">
@@ -1177,7 +1212,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               {/* Version Display - positioned above Android navigation */}
               <div style={{
                 position: 'absolute',
-                bottom: '12px', // 12px from bottom to clear Android nav icons
+                bottom: '55px', // 55px from bottom to clear Android nav icons (45px + 10px)
                 left: '50%',
                 transform: 'translateX(-50%)',
                 fontSize: '9px',
@@ -1192,7 +1227,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 borderRadius: '8px',
                 backdropFilter: 'blur(10px)'
               }}>
-                v1807.99 - interfață {currentTheme === 'dark' ? 'închisă' : 'deschisă'}
+                v1807.99 - interfață {THEME_INFO[currentTheme]?.name || 'standard'}
               </div>
             </div>
 
@@ -1220,12 +1255,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               onRemove={toast.removeToast}
             />
 
-            {/* Offline Status Indicator */}
-            <OfflineStatusIndicator
-              isOnline={isOnline}
-              offlineCount={offlineGPSCount || 0}
-              isSyncing={isSyncing}
-            />
+
 
             {/* Settings Modal */}
             <SettingsModal
