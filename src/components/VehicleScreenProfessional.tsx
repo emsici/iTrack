@@ -18,6 +18,7 @@ import OfflineGPSMonitor from "./OfflineGPSMonitor";
 import ToastNotification from "./ToastNotification";
 import OfflineStatusIndicator from "./OfflineStatusIndicator";
 import SettingsModal from "./SettingsModal";
+import InfoModal from "./InfoModal";
 import { useToast } from "../hooks/useToast";
 import { clearAllGuaranteedGPS } from "../services/garanteedGPS";
 import { themeService } from "../services/themeService";
@@ -47,6 +48,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [isSyncing] = useState(false);
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
 
   const toast = useToast();
 
@@ -809,6 +811,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
                 
                 <div className="header-actions-group" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  {/* Info Button */}
+                  <div 
+                    className="header-info-btn" 
+                    onClick={() => setShowInfoModal(true)} 
+                    title="Informații aplicație"
+                    style={{ 
+                      background: 'rgba(255, 255, 255, 0.1)', 
+                      border: '1px solid rgba(255, 255, 255, 0.2)', 
+                      borderRadius: '50%', 
+                      width: '40px',
+                      height: '40px',
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      color: 'rgba(255, 255, 255, 0.8)'
+                    }}
+                  >
+                    <i className="fas fa-info-circle" style={{ fontSize: '16px' }}></i>
+                  </div>
+
                   {/* Settings Button */}
                   <div 
                     className="header-settings-btn" 
@@ -1104,6 +1128,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               isOpen={showSettingsModal}
               onClose={() => setShowSettingsModal(false)}
               onLogout={handleLogout}
+            />
+
+            {/* Info Modal */}
+            <InfoModal
+              isOpen={showInfoModal}
+              onClose={() => setShowInfoModal(false)}
             />
 
             {/* Toast Notifications */}
