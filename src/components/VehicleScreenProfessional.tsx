@@ -39,6 +39,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return window.navigator.onLine;
   });
   const [clickCount, setClickCount] = useState(0);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
@@ -345,15 +346,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     if (newCount >= 50) {
       try {
         console.log("Opening debug panel after 50 clicks...");
-        const logs = await getAppLogs();
-        console.log("Logs loaded:", logs.length);
-        // Debug panel functionality removed
-        console.log('Debug logs available:', logs.length);
+        setShowDebugPanel(true);
         setClickCount(0);
       } catch (error) {
         console.error("Error loading debug logs:", error);
-        // Show panel anyway with empty logs
-        console.log('Debug panel would show empty logs');
+        setShowDebugPanel(true);
         setClickCount(0);
       }
     }
@@ -898,20 +895,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <i className="fas fa-info-circle" style={{ fontSize: '18px' }}></i>
               </div>
 
-              <div className="version-display" style={{ 
-                background: 'transparent',
-                padding: '8px 12px', 
+              <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
+                background: currentTheme === 'dark' 
+                  ? 'rgba(239, 68, 68, 0.1)' 
+                  : 'rgba(239, 68, 68, 0.2)', 
+                border: currentTheme === 'dark' 
+                  ? '1px solid rgba(239, 68, 68, 0.3)' 
+                  : '1px solid rgba(239, 68, 68, 0.5)', 
+                borderRadius: '12px', 
+                padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
-                color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                fontSize: '12px',
-                fontWeight: '500',
-                textAlign: 'center',
-                lineHeight: '1.3',
-                minWidth: '80px'
+                cursor: 'pointer',
+                color: currentTheme === 'dark' ? '#fca5a5' : '#b91c1c',
+                minWidth: '48px',
+                minHeight: '48px'
               }}>
-                v1807.99 - interfață {currentTheme === 'dark' ? 'închisă' : 'deschisă'}
+                <i className="fas fa-sign-out-alt" style={{ fontSize: '18px' }}></i>
               </div>
             </div>
           </div>
@@ -959,7 +960,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   border: currentTheme === 'dark' 
                     ? '1px solid rgba(148, 163, 184, 0.2)' 
                     : '1px solid rgba(203, 213, 225, 0.4)',
-                  color: currentTheme === 'dark' ? '#e2e8f0' : '#1e293b'
+                  color: currentTheme === 'dark' ? '#e2e8f0' : '#000000'
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper total">
@@ -979,7 +980,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   border: currentTheme === 'dark' 
                     ? '1px solid rgba(34, 197, 94, 0.2)' 
                     : '1px solid rgba(34, 197, 94, 0.3)',
-                  color: currentTheme === 'dark' ? '#4ade80' : '#166534'
+                  color: currentTheme === 'dark' ? '#4ade80' : '#000000'
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper active">
@@ -999,7 +1000,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   border: currentTheme === 'dark' 
                     ? '1px solid rgba(251, 191, 36, 0.2)' 
                     : '1px solid rgba(251, 191, 36, 0.3)',
-                  color: currentTheme === 'dark' ? '#fbbf24' : '#a16207'
+                  color: currentTheme === 'dark' ? '#fbbf24' : '#000000'
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper paused">
@@ -1019,7 +1020,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   border: currentTheme === 'dark' 
                     ? '1px solid rgba(59, 130, 246, 0.2)' 
                     : '1px solid rgba(59, 130, 246, 0.3)',
-                  color: currentTheme === 'dark' ? '#60a5fa' : '#1d4ed8'
+                  color: currentTheme === 'dark' ? '#60a5fa' : '#000000'
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper available">
@@ -1169,19 +1170,26 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     gap: '10px',
                     transition: 'all 0.3s ease',
                     boxShadow: '0 4px 16px rgba(239, 68, 68, 0.2)'
-                  }}
-                  onTouchStart={(e) => {
-                    e.currentTarget.style.transform = 'scale(0.98)';
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
-                  }}
-                  onTouchEnd={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
-                  }}
-                >
-                  <i className="fas fa-sign-out-alt"></i>
-                  <span>Ieșire</span>
+                  }}>
+                    <i className="fas fa-sign-out-alt"></i>
+                    <span>Ieșire</span>
                 </button>
+                
+
+              </div>
+              
+              {/* Version Display in Footer */}
+              <div style={{
+                position: 'absolute',
+                bottom: '4px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                fontSize: '10px',
+                color: currentTheme === 'dark' ? '#64748b' : '#94a3b8',
+                fontWeight: '500',
+                textAlign: 'center'
+              }}>
+                v1807.99 - interfață {currentTheme === 'dark' ? 'închisă' : 'deschisă'}
               </div>
             </div>
 
@@ -1230,6 +1238,85 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               onClose={() => setShowAbout(false)}
               currentTheme={currentTheme}
             />
+
+            {/* Debug Panel Popup */}
+            {showDebugPanel && (
+              <div style={{
+                position: 'fixed',
+                top: '0',
+                left: '0',
+                right: '0',
+                bottom: '0',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                zIndex: 9999,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '20px'
+              }}>
+                <div style={{
+                  background: currentTheme === 'dark' 
+                    ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' 
+                    : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  borderRadius: '16px',
+                  padding: '30px',
+                  maxWidth: '90vw',
+                  maxHeight: '90vh',
+                  overflow: 'auto',
+                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
+                  border: currentTheme === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : '1px solid rgba(0, 0, 0, 0.1)'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '20px'
+                  }}>
+                    <h2 style={{
+                      color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
+                      fontSize: '20px',
+                      fontWeight: '600',
+                      margin: '0'
+                    }}>Debug Logs Panel</h2>
+                    <button 
+                      onClick={() => setShowDebugPanel(false)}
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        borderRadius: '8px',
+                        padding: '8px 12px',
+                        color: '#ef4444',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Închide
+                    </button>
+                  </div>
+                  
+                  <div style={{
+                    background: currentTheme === 'dark' 
+                      ? 'rgba(0, 0, 0, 0.3)' 
+                      : 'rgba(248, 250, 252, 0.8)',
+                    borderRadius: '8px',
+                    padding: '15px',
+                    maxHeight: '60vh',
+                    overflow: 'auto',
+                    fontFamily: 'monospace',
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#e2e8f0' : '#334155'
+                  }}>
+                    <div>Debug panel activ!</div>
+                    <div>Aplicația funcționează cu {currentTheme} theme</div>
+                    <div>GPS Status: {isOnline ? 'Online' : 'Offline'}</div>
+                    <div>Courses loaded: {courses.length}</div>
+                    <div>Vehicle: {vehicleNumber}</div>
+                    <div>Timestamp: {new Date().toLocaleString()}</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
