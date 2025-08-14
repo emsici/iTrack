@@ -216,7 +216,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ isOpen, onClose }) => {
                   <div className="col-md-6">
                     <div className="detail-item">
                       <span style={{ color: 'var(--text-muted)' }}>Versiune:</span>
-                      <strong style={{ color: 'var(--text-primary)', marginLeft: '8px' }}>iTrack v18.1922</strong>
+                      <strong style={{ color: 'var(--text-primary)', marginLeft: '8px' }}>iTrack v1807.99</strong>
                     </div>
                   </div>
                   <div className="col-md-6">
