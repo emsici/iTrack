@@ -1107,28 +1107,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <div style={{
                 margin: '15px 20px 20px 20px',
                 padding: '16px 20px',
-                background: (() => {
-                  switch(currentTheme) {
-                    case 'light': return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-                    case 'dark': return 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
-                    case 'driver': return 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'; // Orange gradient for driver
-                    case 'business': return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'; // Blue gradient for business
-                    case 'nature': return 'linear-gradient(135deg, #10b981 0%, #059669 100%)'; // Green gradient for nature
-                    case 'night': return 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)'; // Purple gradient for night
-                    default: return 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
-                  }
-                })(),
+                background: currentTheme === 'nature' 
+                  ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                  : currentTheme === 'light' || currentTheme === 'business'
+                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                    : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
                 borderRadius: '16px',
                 textAlign: 'center',
-                boxShadow: (() => {
-                  switch(currentTheme) {
-                    case 'driver': return '0 4px 12px rgba(249, 115, 22, 0.3)';
-                    case 'business': return '0 4px 12px rgba(59, 130, 246, 0.3)';
-                    case 'nature': return '0 4px 12px rgba(16, 185, 129, 0.3)';
-                    case 'night': return '0 4px 12px rgba(139, 92, 246, 0.3)';
-                    default: return '0 4px 12px rgba(16, 185, 129, 0.3)';
-                  }
-                })(),
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
                 border: '1px solid rgba(255, 255, 255, 0.2)'
               }}>
                 <div style={{

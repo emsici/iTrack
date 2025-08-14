@@ -16,15 +16,15 @@
     "@capacitor/geolocation": "^7.1.2",
     "@capacitor/preferences": "^7.0.1",
     "@types/memoizee": "^0.4.12",
-    "@types/react": "^19.1.10",
-    "@types/react-dom": "^19.1.7",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.5.2",
     "bootstrap": "^5.3.6",
     "memoizee": "^0.4.17",
     "openid-client": "^6.5.1",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "typescript": "^5.9.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "typescript": "^5.8.3",
     "vite": "^6.3.5"
   }
 }
