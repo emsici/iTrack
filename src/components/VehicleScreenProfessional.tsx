@@ -9,14 +9,14 @@ import {
 
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 import { getOfflineGPSCount } from "../services/offlineGPS";
-import { getAppLogs, logAPI, logAPIError } from "../services/appLogger";
+import { logAPI, logAPIError } from "../services/appLogger";
 // Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
 import ToastNotification from "./ToastNotification";
-import OfflineStatusIndicator from "./OfflineStatusIndicator";
+
 import { useToast } from "../hooks/useToast";
 import { clearAllGuaranteedGPS } from "../services/garanteedGPS";
 import SettingsModal from "./SettingsModal";
@@ -39,14 +39,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return window.navigator.onLine;
   });
   const [clickCount, setClickCount] = useState(0);
-  const [showDebugPanel, setShowDebugPanel] = useState(false);
+
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<any>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
-  const [isSyncing] = useState(false);
+
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
@@ -1325,7 +1325,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <AboutModal
               isOpen={showAbout}
               onClose={() => setShowAbout(false)}
-              currentTheme={currentTheme}
+              currentTheme={currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night' ? 'dark' : 'light'}
             />
 
 
