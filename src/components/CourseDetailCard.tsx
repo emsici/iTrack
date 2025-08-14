@@ -284,7 +284,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .course-title-compact {
-          color: #ffffff;
+          color: ${currentTheme === 'dark' ? '#ffffff' : '#1e293b'};
           font-size: 0.85rem;
           font-weight: 600;
           margin: 0;
@@ -326,14 +326,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .course-details-enhanced {
           margin-top: 12px;
-          background: rgba(15, 23, 42, 0.98);
+          background: ${currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.98)' : 'rgba(248, 250, 252, 0.95)'};
           border-radius: 12px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(203, 213, 225, 0.4)'};
           backdrop-filter: blur(20px);
           -webkit-backdrop-filter: blur(20px);
           position: relative;
           z-index: ${showDetails ? '1000' : '1'};
-          box-shadow: ${showDetails ? '0 12px 40px rgba(0, 0, 0, 0.8)' : 'none'};
+          box-shadow: ${showDetails ? (currentTheme === 'dark' ? '0 12px 40px rgba(0, 0, 0, 0.8)' : '0 12px 40px rgba(0, 0, 0, 0.2)') : 'none'};
           margin-bottom: 16px;
           isolation: isolate;
           display: block;
@@ -348,14 +348,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .detail-section-enhanced {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.8)'};
+          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(203, 213, 225, 0.3)'};
           border-radius: 12px;
           padding: 16px;
         }
 
         .section-title-enhanced {
-          color: #ffffff;
+          color: ${currentTheme === 'dark' ? '#ffffff' : '#1e293b'};
           font-size: 0.9rem;
           font-weight: 600;
           margin: 0 0 12px 0;
@@ -369,7 +369,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           justify-content: space-between;
           align-items: center;
           padding: 6px 0;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(203, 213, 225, 0.2)'};
         }
 
         .detail-item-enhanced:last-child {
@@ -377,13 +377,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .detail-label-enhanced {
-          color: #94a3b8;
+          color: ${currentTheme === 'dark' ? '#94a3b8' : '#64748b'};
           font-size: 0.8rem;
           font-weight: 500;
         }
 
         .detail-value-enhanced {
-          color: #e2e8f0;
+          color: ${currentTheme === 'dark' ? '#e2e8f0' : '#334155'};
           font-size: 0.85rem;
           font-weight: 500;
           text-align: right;

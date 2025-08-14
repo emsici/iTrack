@@ -898,24 +898,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <i className="fas fa-info-circle" style={{ fontSize: '18px' }}></i>
               </div>
 
-              <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
-                background: currentTheme === 'dark' 
-                  ? 'rgba(239, 68, 68, 0.1)' 
-                  : 'rgba(239, 68, 68, 0.2)', 
-                border: currentTheme === 'dark' 
-                  ? '1px solid rgba(239, 68, 68, 0.3)' 
-                  : '1px solid rgba(239, 68, 68, 0.5)', 
-                borderRadius: '12px', 
-                padding: '14px 16px', 
+              <div className="version-display" style={{ 
+                background: 'transparent',
+                padding: '8px 12px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
-                cursor: 'pointer',
-                color: currentTheme === 'dark' ? '#fca5a5' : '#b91c1c',
-                minWidth: '48px',
-                minHeight: '48px'
+                color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
+                fontSize: '12px',
+                fontWeight: '500',
+                textAlign: 'center',
+                lineHeight: '1.3',
+                minWidth: '80px'
               }}>
-                <i className="fas fa-sign-out-alt" style={{ fontSize: '18px' }}></i>
+                v1807.99 - interfață {currentTheme === 'dark' ? 'închisă' : 'deschisă'}
               </div>
             </div>
           </div>
@@ -956,7 +952,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               padding: '0 20px'
             }}>
               <div className="analytics-grid-centered">
-                <div className="stat-card total" onClick={() => setSelectedStatusFilter('all')}>
+                <div className="stat-card total" onClick={() => setSelectedStatusFilter('all')} style={{
+                  background: currentTheme === 'dark' 
+                    ? 'rgba(148, 163, 184, 0.1)' 
+                    : 'rgba(248, 250, 252, 0.9)',
+                  border: currentTheme === 'dark' 
+                    ? '1px solid rgba(148, 163, 184, 0.2)' 
+                    : '1px solid rgba(203, 213, 225, 0.4)',
+                  color: currentTheme === 'dark' ? '#e2e8f0' : '#1e293b'
+                }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper total">
                       <i className="fas fa-list-alt"></i>
@@ -968,7 +972,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                 </div>
 
-                <div className="stat-card active" onClick={() => setSelectedStatusFilter(2)}>
+                <div className="stat-card active" onClick={() => setSelectedStatusFilter(2)} style={{
+                  background: currentTheme === 'dark' 
+                    ? 'rgba(34, 197, 94, 0.1)' 
+                    : 'rgba(240, 253, 244, 0.9)',
+                  border: currentTheme === 'dark' 
+                    ? '1px solid rgba(34, 197, 94, 0.2)' 
+                    : '1px solid rgba(34, 197, 94, 0.3)',
+                  color: currentTheme === 'dark' ? '#4ade80' : '#166534'
+                }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper active">
                       <i className="fas fa-play"></i>
@@ -980,7 +992,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                 </div>
 
-                <div className="stat-card paused" onClick={() => setSelectedStatusFilter(3)}>
+                <div className="stat-card paused" onClick={() => setSelectedStatusFilter(3)} style={{
+                  background: currentTheme === 'dark' 
+                    ? 'rgba(251, 191, 36, 0.1)' 
+                    : 'rgba(254, 252, 232, 0.9)',
+                  border: currentTheme === 'dark' 
+                    ? '1px solid rgba(251, 191, 36, 0.2)' 
+                    : '1px solid rgba(251, 191, 36, 0.3)',
+                  color: currentTheme === 'dark' ? '#fbbf24' : '#a16207'
+                }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper paused">
                       <i className="fas fa-pause"></i>
@@ -992,7 +1012,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                 </div>
 
-                <div className="stat-card available" onClick={() => setSelectedStatusFilter(1)}>
+                <div className="stat-card available" onClick={() => setSelectedStatusFilter(1)} style={{
+                  background: currentTheme === 'dark' 
+                    ? 'rgba(59, 130, 246, 0.1)' 
+                    : 'rgba(239, 246, 255, 0.9)',
+                  border: currentTheme === 'dark' 
+                    ? '1px solid rgba(59, 130, 246, 0.2)' 
+                    : '1px solid rgba(59, 130, 246, 0.3)',
+                  color: currentTheme === 'dark' ? '#60a5fa' : '#1d4ed8'
+                }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper available">
                       <i className="fas fa-check-circle"></i>
