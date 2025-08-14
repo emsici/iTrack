@@ -20,6 +20,7 @@ import OfflineStatusIndicator from "./OfflineStatusIndicator";
 import { useToast } from "../hooks/useToast";
 import { clearAllGuaranteedGPS } from "../services/garanteedGPS";
 import SettingsModal from "./SettingsModal";
+import AboutModal from "./AboutModal";
 import { themeService, Theme } from "../services/themeService";
 
 interface VehicleScreenProps {
@@ -47,6 +48,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [isSyncing] = useState(false);
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
 
   const toast = useToast();
@@ -835,6 +837,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <i className="fas fa-cog" style={{ fontSize: '16px' }}></i>
                 </div>
 
+                <div className="about-button" onClick={() => setShowAbout(true)} title="Despre aplicație" style={{ 
+                  background: 'rgba(59, 130, 246, 0.1)', 
+                  border: '1px solid rgba(59, 130, 246, 0.3)', 
+                  borderRadius: '12px', 
+                  padding: '12px 16px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  cursor: 'pointer',
+                  color: '#93c5fd',
+                  marginRight: '12px'
+                }}>
+                  <i className="fas fa-info-circle" style={{ fontSize: '16px' }}></i>
+                </div>
+
                 <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
                   background: 'rgba(239, 68, 68, 0.1)', 
                   border: '1px solid rgba(239, 68, 68, 0.3)', 
@@ -1119,6 +1136,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               onClose={() => setShowSettings(false)}
               currentTheme={currentTheme}
               onThemeChange={handleThemeChange}
+            />
+
+            {/* About Modal */}
+            <AboutModal
+              isOpen={showAbout}
+              onClose={() => setShowAbout(false)}
+              currentTheme={currentTheme}
             />
           </div>
         </>
