@@ -834,48 +834,54 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div style={{
               display: 'flex',
               justifyContent: 'center',
-              gap: '8px'
+              gap: '12px'
             }}>
               <div className="settings-button" onClick={() => setShowSettings(true)} title="Setări" style={{ 
                 background: 'rgba(100, 116, 139, 0.1)', 
                 border: '1px solid rgba(100, 116, 139, 0.3)', 
-                borderRadius: '10px', 
-                padding: '10px 12px', 
+                borderRadius: '12px', 
+                padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: '#94a3b8'
+                color: '#94a3b8',
+                minWidth: '48px',
+                minHeight: '48px'
               }}>
-                <i className="fas fa-cog" style={{ fontSize: '14px' }}></i>
+                <i className="fas fa-cog" style={{ fontSize: '18px' }}></i>
               </div>
 
               <div className="about-button" onClick={() => setShowAbout(true)} title="Despre aplicație" style={{ 
                 background: 'rgba(59, 130, 246, 0.1)', 
                 border: '1px solid rgba(59, 130, 246, 0.3)', 
-                borderRadius: '10px', 
-                padding: '10px 12px', 
+                borderRadius: '12px', 
+                padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: '#93c5fd'
+                color: '#93c5fd',
+                minWidth: '48px',
+                minHeight: '48px'
               }}>
-                <i className="fas fa-info-circle" style={{ fontSize: '14px' }}></i>
+                <i className="fas fa-info-circle" style={{ fontSize: '18px' }}></i>
               </div>
 
               <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
                 background: 'rgba(239, 68, 68, 0.1)', 
                 border: '1px solid rgba(239, 68, 68, 0.3)', 
-                borderRadius: '10px', 
-                padding: '10px 12px', 
+                borderRadius: '12px', 
+                padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: '#fca5a5' 
+                color: '#fca5a5',
+                minWidth: '48px',
+                minHeight: '48px'
               }}>
-                <i className="fas fa-sign-out-alt" style={{ fontSize: '14px' }}></i>
+                <i className="fas fa-sign-out-alt" style={{ fontSize: '18px' }}></i>
               </div>
             </div>
           </div>

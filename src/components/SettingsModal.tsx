@@ -28,15 +28,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         zIndex: 999999,
         backdropFilter: 'blur(10px)',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
-        padding: '20px',
+        paddingTop: '80px',
         boxSizing: 'border-box'
       }}>
       <div 
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%',
+          width: 'calc(100% - 40px)',
           maxWidth: '380px',
           maxHeight: '80vh',
           background: currentTheme === 'dark' 
