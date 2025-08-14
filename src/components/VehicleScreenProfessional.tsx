@@ -762,7 +762,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               
               /* Lightweight scroll optimization - focus on performance */
               html, body, #root {
-                background-color: ${currentTheme === 'dark' ? '#0f172a' : '#f8fafc'} !important;
+                background-color: ${currentTheme === 'dark' ? '#0f172a' : '#ffffff'} !important;
                 color: ${currentTheme === 'dark' ? '#f1f5f9' : '#0f172a'} !important;
                 overflow-x: hidden;
               }
@@ -811,7 +811,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             background: currentTheme === 'dark' 
               ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
               : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
-            padding: '40px 20px 15px 20px',
+            padding: '40px 20px 15px 20px', // Dark system bar always - 40px padding
             borderBottom: currentTheme === 'dark' 
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(0, 0, 0, 0.1)'
@@ -944,7 +944,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </div>
 
           {/* Main Dashboard Content */}
-          <div className="vehicle-dashboard-main-content" style={{ paddingTop: '145px' }}>
+          <div className="vehicle-dashboard-main-content" style={{ 
+            paddingTop: '145px',
+            background: currentTheme === 'dark' 
+              ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
+              : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
+            minHeight: 'calc(100dvh - 145px)'
+          }}>
             {/* Statistics Cards - 4 in One Row */}
             <div style={{
               display: 'flex',
@@ -1130,73 +1136,35 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
 
-            {/* Action Buttons - Enhanced Mobile Bottom Section */}
+            {/* Version Display Footer - No buttons, just version */}
             <div style={{
               position: 'fixed',
               bottom: '0',
               left: '0',
               right: '0',
-              background: currentTheme === 'dark' 
-                ? 'linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)'
-                : 'linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%)',
-              backdropFilter: 'blur(20px)',
-              borderTop: currentTheme === 'dark' 
-                ? '1px solid rgba(255, 255, 255, 0.1)'
-                : '1px solid rgba(0, 0, 0, 0.1)',
-              padding: '16px 20px',
-              paddingBottom: '35px', // Extra space for Android navigation bar (3 icons)
+              background: 'transparent',
+              padding: '0',
+              paddingBottom: '45px', // Space for Android navigation bar (3 icons)
               zIndex: 1000,
-              boxShadow: currentTheme === 'dark' 
-                ? '0 -8px 32px rgba(0, 0, 0, 0.4)'
-                : '0 -8px 32px rgba(0, 0, 0, 0.15)'
+              pointerEvents: 'none' // Don't block interactions
             }}>
-              <div style={{
-                maxWidth: '400px',
-                margin: '0 auto',
-                display: 'flex',
-                gap: '12px'
-              }}>
-                <button 
-                  className="action-button logout" 
-                  onClick={handleLogout}
-                  style={{
-                    flex: '1',
-                    padding: '14px 20px',
-                    background: currentTheme === 'dark' 
-                      ? 'rgba(239, 68, 68, 0.15)'
-                      : 'rgba(239, 68, 68, 0.1)',
-                    border: currentTheme === 'dark' 
-                      ? '1px solid rgba(239, 68, 68, 0.4)'
-                      : '1px solid rgba(239, 68, 68, 0.3)',
-                    borderRadius: '16px',
-                    color: currentTheme === 'dark' ? '#fca5a5' : '#dc2626',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '10px',
-                    transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 16px rgba(239, 68, 68, 0.2)'
-                  }}
-                >
-                  <i className="fas fa-sign-out-alt"></i>
-                  <span>Ieșire</span>
-                </button>
-              </div>
-              
-              {/* Version Display in Footer - positioned above Android navigation */}
+              {/* Version Display - positioned above Android navigation */}
               <div style={{
                 position: 'absolute',
-                bottom: '8px', // 8px from bottom to avoid Android nav icons
+                bottom: '12px', // 12px from bottom to clear Android nav icons
                 left: '50%',
                 transform: 'translateX(-50%)',
                 fontSize: '9px',
                 color: currentTheme === 'dark' ? '#64748b' : '#94a3b8',
                 fontWeight: '500',
                 textAlign: 'center',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                background: currentTheme === 'dark' 
+                  ? 'rgba(15, 23, 42, 0.8)' 
+                  : 'rgba(255, 255, 255, 0.8)',
+                padding: '4px 8px',
+                borderRadius: '8px',
+                backdropFilter: 'blur(10px)'
               }}>
                 v1807.99 - interfață {currentTheme === 'dark' ? 'închisă' : 'deschisă'}
               </div>
