@@ -27,11 +27,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 10000,
-      backdropFilter: 'blur(10px)'
+      backdropFilter: 'blur(10px)',
+      padding: '20px',
+      boxSizing: 'border-box',
+      overflow: 'auto'
     }}>
       <div style={{
-        width: '90%',
-        maxWidth: '400px',
+        width: '100%',
+        maxWidth: '380px',
+        maxHeight: '90vh',
         background: currentTheme === 'dark' 
           ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)'
           : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
@@ -40,11 +44,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           ? '1px solid rgba(255, 255, 255, 0.1)'
           : '1px solid rgba(0, 0, 0, 0.1)',
         borderRadius: '24px',
-        padding: '40px 30px',
+        padding: '30px 25px',
         boxShadow: currentTheme === 'dark'
           ? '0 8px 32px rgba(0, 0, 0, 0.5)'
           : '0 8px 32px rgba(0, 0, 0, 0.15)',
-        position: 'relative'
+        position: 'relative',
+        margin: 'auto',
+        overflowY: 'auto'
       }}>
         {/* Close Button */}
         <button
@@ -77,13 +83,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Header */}
         <div style={{
           textAlign: 'center',
-          marginBottom: '30px'
+          marginBottom: '25px'
         }}>
           <h2 style={{
             color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
-            fontSize: '24px',
+            fontSize: '22px',
             fontWeight: '700',
-            margin: '0 0 10px 0'
+            margin: '0 0 8px 0'
           }}>
             Setări
           </h2>
@@ -98,7 +104,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Theme Section */}
         <div style={{
-          marginBottom: '30px'
+          marginBottom: '25px'
         }}>
           <h3 style={{
             color: currentTheme === 'dark' ? '#e2e8f0' : '#334155',
