@@ -1102,6 +1102,62 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             </div>
 
+            {/* GPS Status Display - Beautiful Card Design */}
+            {isOnline && (
+              <div style={{
+                margin: '15px 20px 20px 20px',
+                padding: '16px 20px',
+                background: currentTheme === 'nature' 
+                  ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                  : currentTheme === 'light' || currentTheme === 'business'
+                    ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                    : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                borderRadius: '16px',
+                textAlign: 'center',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                border: '1px solid rgba(255, 255, 255, 0.2)'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  marginBottom: '6px'
+                }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px'
+                  }}>
+                    📡
+                  </div>
+                  <div>
+                    <div style={{
+                      color: 'white',
+                      fontWeight: '700',
+                      fontSize: '16px',
+                      lineHeight: '1.2'
+                    }}>
+                      GPS Activ
+                    </div>
+                  </div>
+                </div>
+                <div style={{ 
+                  fontSize: '13px', 
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  fontWeight: '500',
+                  letterSpacing: '0.3px'
+                }}>
+                  ✅ Toate datele sincronizate
+                </div>
+              </div>
+            )}
+
             {/* Offline GPS Monitor - visible when courses are active */}
             <OfflineGPSMonitor 
               isOnline={isOnline} 
