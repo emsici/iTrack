@@ -160,17 +160,17 @@ const AboutModal: React.FC<AboutModalProps> = ({
               fontWeight: '600',
               margin: '0 0 16px 0'
             }}>
-              Beneficii pentru afacerea dumneavoastră
+              Ce face aplicația
             </h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[
-                { icon: 'fas fa-map-marker-alt', title: 'Monitorizare GPS 24/7', desc: 'Urmărire continuă a vehiculelor cu localizare precisă în timp real' },
-                { icon: 'fas fa-chart-line', title: 'Reducerea costurilor', desc: 'Optimizare rute și reducere consum combustibil cu până la 20%' },
-                { icon: 'fas fa-route', title: 'Management curse eficient', desc: 'Planificare și urmărire completă a curselor și livrărilor' },
-                { icon: 'fas fa-shield-alt', title: 'Securitate și control', desc: 'Monitorizare activitate șoferi și prevenire utilizare neautorizată' },
-                { icon: 'fas fa-clock', title: 'Raportare automată', desc: 'Rapoarte detaliate pentru analiză performanță și costuri' },
-                { icon: 'fas fa-mobile-alt', title: 'Ușor de folosit', desc: 'Interfață intuitivă pentru șoferi, fără training complex' }
+                { icon: 'fas fa-map-marker-alt', title: 'Localizare GPS precisă', desc: 'Transmite coordonatele vehiculului la fiecare 5 secunde, chiar și fără internet' },
+                { icon: 'fas fa-route', title: 'Gestionare curse inteligentă', desc: 'Încarcă automat cursele pentru vehicul și urmărește statusul fiecăreia' },
+                { icon: 'fas fa-wifi', title: 'Funcționare offline', desc: 'Salvează datele local când nu ai internet și le sincronizează automat' },
+                { icon: 'fas fa-chart-line', title: 'Statistici detaliate', desc: 'Calculează distanța, timpul și viteza pentru fiecare cursă parcursă' },
+                { icon: 'fas fa-cog', title: 'Serviciu background', desc: 'Rulează continuu în fundal fără să consume bateria excesiv' },
+                { icon: 'fas fa-mobile-alt', title: 'Interfață simplă', desc: 'Design curat cu butoane mari pentru utilizare ușoară în timpul condusului' }
               ].map((feature, index) => (
                 <div key={index} style={{
                   display: 'flex',
@@ -229,7 +229,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
               fontWeight: '600',
               margin: '0 0 12px 0'
             }}>
-              De ce să alegeți iTrack?
+              Caracteristici tehnice
             </h3>
             <div style={{
               padding: '16px',
@@ -243,24 +243,24 @@ const AboutModal: React.FC<AboutModalProps> = ({
               fontSize: '13px'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ opacity: '0.8' }}>💰 Economii combustibil:</span>
-                <span style={{ fontWeight: '600', color: '#22c55e' }}>până la 20%</span>
+                <span style={{ opacity: '0.8' }}>Frecvență GPS:</span>
+                <span style={{ fontWeight: '600' }}>La fiecare 5 secunde</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ opacity: '0.8' }}>⏰ Timp economisit:</span>
-                <span style={{ fontWeight: '600', color: '#22c55e' }}>2-3 ore/zi management</span>
+                <span style={{ opacity: '0.8' }}>Funcționare:</span>
+                <span style={{ fontWeight: '600' }}>24/7 în background</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ opacity: '0.8' }}>📈 Îmbunătățire eficiență:</span>
-                <span style={{ fontWeight: '600', color: '#22c55e' }}>30-40% productivitate</span>
+                <span style={{ opacity: '0.8' }}>Sincronizare:</span>
+                <span style={{ fontWeight: '600' }}>Automată la revenirea online</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ opacity: '0.8' }}>🎯 Satisfacție clienți:</span>
-                <span style={{ fontWeight: '600', color: '#22c55e' }}>Răspunsuri instant</span>
+                <span style={{ opacity: '0.8' }}>Servicii GPS:</span>
+                <span style={{ fontWeight: '600' }}>4 redundante pentru siguranță</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ opacity: '0.8' }}>✅ Implementare:</span>
-                <span style={{ fontWeight: '600', color: '#22c55e' }}>În 24 ore</span>
+                <span style={{ opacity: '0.8' }}>Versiune:</span>
+                <span style={{ fontWeight: '600' }}>1.0.0 Professional</span>
               </div>
             </div>
           </div>
