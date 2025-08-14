@@ -1,140 +1,65 @@
-import React, { useState, useEffect } from 'react';
-import { CapacitorHttp } from '@capacitor/core';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useEffect } from 'react';
+import { themeService } from './services/themeService';
 import LoginScreen from './components/LoginScreen';
 import VehicleScreen from './components/VehicleScreenProfessional';
-import AdminPanel from './components/AdminPanel';
-import { getStoredToken, storeToken, clearToken } from './services/storage';
-import { API_BASE_URL } from './services/api';
-// GPS operations now handled by capacitorGPS service
-
-type AppState = 'login' | 'vehicle' | 'admin';
+import { getStoredToken } from './services/storage';
 
 const App: React.FC = () => {
-  const [currentScreen, setCurrentScreen] = useState<AppState>('login');
-  const [token, setToken] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [previousToken, setPreviousToken] = useState<string>('');
+  const [token, setToken] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
+  // Initialize theme on app startup
   useEffect(() => {
     const initApp = async () => {
-      // Set loading to false immediately to show login faster
-      setIsLoading(false);
-      
       try {
-        // CRITICAL: Initialize GPS bridge for Android service communication
-        // GPS operations handled by Capacitor Plugin
-        console.log('✅ GPS Bridge initialized - Android service ready for GPS transmission');
+        // Initialize theme first
+        await themeService.initializeTheme();
         
-        // Check for stored authentication token (non-blocking)
+        // Then check for stored token
         const storedToken = await getStoredToken();
-        if (storedToken) {
-          console.log('Found stored token - auto login');
-          setToken(storedToken);
-          if (storedToken.startsWith('ADMIN_DEBUG_TOKEN')) {
-            setCurrentScreen('admin');
-          } else {
-            setCurrentScreen('vehicle');
-          }
-        } else {
-          console.log('No stored token - showing login');
-        }
+        setToken(storedToken);
       } catch (error) {
         console.error('Error initializing app:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     initApp();
   }, []);
 
-  const handleLogin = async (authToken: string, isAdmin: boolean = false) => {
-    console.log("Login successful, storing token...");
-    try {
-      if (isAdmin || authToken === 'ADMIN_TOKEN' || authToken.startsWith('ADMIN_DEBUG_TOKEN')) {
-        setPreviousToken(token); // Store current session
-        setToken(authToken);
-        setCurrentScreen('admin');
-      } else {
-        await storeToken(authToken);
-        console.log("Token stored successfully");
-        setToken(authToken);
-        setCurrentScreen('vehicle');
-      }
-    } catch (error) {
-      console.error("Failed to store token:", error);
-      // Continue anyway
-      setToken(authToken);
-      setCurrentScreen(isAdmin || authToken.startsWith('ADMIN_DEBUG_TOKEN') ? 'admin' : 'vehicle');
-    }
+  const handleLoginSuccess = (newToken: string) => {
+    setToken(newToken);
   };
 
-  const handleLogout = async () => {
-    try {
-      // Send logout request to login.php with iesire: 1
-      // Logout cu CapacitorHttp
-      try {
-        await CapacitorHttp.post({
-          url: `${API_BASE_URL}/logout.php`,
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          data: {}
-        });
-        console.log('Logout completed via CapacitorHttp');
-      } catch (error) {
-        console.log('Logout CapacitorHttp failed, using fetch fallback');
-        await fetch(`${API_BASE_URL}/logout.php`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-      }
-      
-      console.log('Logout completed via AndroidGPS');
-    } catch (error) {
-      console.error('Error calling logout API:', error);
-    } finally {
-      // Clear local storage and reset state regardless of API response
-      await clearToken();
-      setToken('');
-      setPreviousToken('');
-      setCurrentScreen('login');
-      console.log('Logged out - cleared local storage');
-    }
+  const handleLogout = () => {
+    setToken(null);
   };
 
-  const handleAdminClose = () => {
-    // Return to previous session if exists, otherwise go to login
-    if (previousToken) {
-      setToken(previousToken);
-      setPreviousToken('');
-      setCurrentScreen('vehicle');
-    } else {
-      setCurrentScreen('login');
-    }
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <div className="app" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <div>Loading...</div>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        background: 'var(--bg-primary)',
+        color: 'var(--text-primary)'
+      }}>
+        <div className="text-center">
+          <i className="fas fa-spinner fa-spin fa-2x mb-3"></i>
+          <div>Se încarcă aplicația...</div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="app">
-      {currentScreen === 'login' && (
-        <LoginScreen onLogin={handleLogin} />
-      )}
-      {currentScreen === 'vehicle' && (
+      {token ? (
         <VehicleScreen token={token} onLogout={handleLogout} />
-      )}
-      {currentScreen === 'admin' && (
-        <AdminPanel onLogout={handleLogout} onClose={handleAdminClose} />
+      ) : (
+        <LoginScreen onLoginSuccess={handleLoginSuccess} />
       )}
     </div>
   );

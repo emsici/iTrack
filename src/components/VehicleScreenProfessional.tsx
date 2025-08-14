@@ -17,8 +17,10 @@ import AdminPanel from "./AdminPanel";
 import OfflineGPSMonitor from "./OfflineGPSMonitor";
 import ToastNotification from "./ToastNotification";
 import OfflineStatusIndicator from "./OfflineStatusIndicator";
+import SettingsModal from "./SettingsModal";
 import { useToast } from "../hooks/useToast";
 import { clearAllGuaranteedGPS } from "../services/garanteedGPS";
+import { themeService } from "../services/themeService";
 
 interface VehicleScreenProps {
   token: string;
@@ -44,7 +46,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loadingCourses] = useState(new Set<string>());
   const [isSyncing] = useState(false);
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
-  
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const toast = useToast();
 
@@ -64,6 +66,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     loadStoredVehicleNumber();
   }, []); // Empty dependency array - runs only once on mount
+
+  // Initialize theme on component mount
+  useEffect(() => {
+    const initTheme = async () => {
+      await themeService.initializeTheme();
+    };
+    initTheme();
+  }, []);
 
   // Separate useEffect for background refresh events
   useEffect(() => {
@@ -798,19 +808,44 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   <i className="edit-icon fas fa-edit" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '12px' }}></i>
                 </div>
                 
-                <div className="logout-button-enhanced" onClick={handleLogout} title="Logout" style={{ 
-                  background: 'rgba(239, 68, 68, 0.1)', 
-                  border: '1px solid rgba(239, 68, 68, 0.3)', 
-                  borderRadius: '12px', 
-                  padding: '12px 16px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '8px', 
-                  cursor: 'pointer',
-                  color: '#fca5a5' 
-                }}>
-                  <i className="fas fa-sign-out-alt" style={{ fontSize: '14px' }}></i>
-                  <span className="logout-text" style={{ fontSize: '14px', fontWeight: '600' }}>Ieșire</span>
+                <div className="header-actions-group" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  {/* Settings Button */}
+                  <div 
+                    className="header-settings-btn" 
+                    onClick={() => setShowSettingsModal(true)} 
+                    title="Setări"
+                    style={{ 
+                      background: 'rgba(255, 255, 255, 0.1)', 
+                      border: '1px solid rgba(255, 255, 255, 0.2)', 
+                      borderRadius: '50%', 
+                      width: '40px',
+                      height: '40px',
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      color: 'rgba(255, 255, 255, 0.8)'
+                    }}
+                  >
+                    <i className="fas fa-cog" style={{ fontSize: '16px' }}></i>
+                  </div>
+
+                  {/* Logout Button */}
+                  <div className="logout-button-enhanced" onClick={handleLogout} title="Logout" style={{ 
+                    background: 'rgba(239, 68, 68, 0.1)', 
+                    border: '1px solid rgba(239, 68, 68, 0.3)', 
+                    borderRadius: '12px', 
+                    padding: '12px 16px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    cursor: 'pointer',
+                    color: '#fca5a5' 
+                  }}>
+                    <i className="fas fa-sign-out-alt" style={{ fontSize: '14px' }}></i>
+                    <span className="logout-text" style={{ fontSize: '14px', fontWeight: '600' }}>Ieșire</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1063,6 +1098,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 onClose={() => setShowAdminPanel(false)}
               />
             )}
+
+            {/* Settings Modal */}
+            <SettingsModal
+              isOpen={showSettingsModal}
+              onClose={() => setShowSettingsModal(false)}
+            />
 
             {/* Toast Notifications */}
             <ToastNotification
