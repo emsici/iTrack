@@ -131,15 +131,24 @@ const AboutModal: React.FC<AboutModalProps> = ({
               fontWeight: '600',
               margin: '0 0 12px 0'
             }}>
-              Despre aplicație
+              Despre iTrack
             </h3>
             <p style={{
               fontSize: '14px',
               margin: '0 0 12px 0',
               opacity: '0.9'
             }}>
-              iTrack este o aplicație profesională de monitorizare GPS pentru managementul flotelor de transport în România. 
-              Oferă urmărire GPS în timp real, gestionarea curselor și capabilități offline robuste pentru optimizarea operațiunilor de transport.
+              iTrack transformă managementul flotelor de transport prin tehnologie GPS avansată. 
+              Oferim soluții complete pentru companiile de transport din România care doresc 
+              să optimizeze operațiunile, să reducă costurile și să îmbunătățească eficiența flotei.
+            </p>
+            <p style={{
+              fontSize: '14px',
+              margin: '0',
+              opacity: '0.9'
+            }}>
+              Cu iTrack, companiile de transport obțin control complet asupra vehiculelor, 
+              optimizează rutele și reduc consumul de combustibil prin monitorizare GPS precisă și raportare în timp real.
             </p>
           </div>
 
@@ -151,17 +160,17 @@ const AboutModal: React.FC<AboutModalProps> = ({
               fontWeight: '600',
               margin: '0 0 16px 0'
             }}>
-              Funcționalități principale
+              Beneficii pentru afacerea dumneavoastră
             </h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[
-                { icon: 'fas fa-map-marker-alt', title: 'GPS în timp real', desc: 'Urmărire continuă cu transmisie la 5 secunde' },
-                { icon: 'fas fa-route', title: 'Management curse', desc: 'Încărcare și gestionare curse pentru vehicul' },
-                { icon: 'fas fa-wifi', title: 'Capabilități offline', desc: 'Sincronizare automată când revii online' },
-                { icon: 'fas fa-chart-line', title: 'Analiză statistici', desc: 'Rapoarte detaliate pentru fiecare cursă' },
-                { icon: 'fas fa-shield-alt', title: 'Autentificare securizată', desc: 'Login JWT cu persistență automată' },
-                { icon: 'fas fa-mobile-alt', title: 'Optimizat Android', desc: 'Serviciu GPS nativ în background' }
+                { icon: 'fas fa-map-marker-alt', title: 'Monitorizare GPS 24/7', desc: 'Urmărire continuă a vehiculelor cu localizare precisă în timp real' },
+                { icon: 'fas fa-chart-line', title: 'Reducerea costurilor', desc: 'Optimizare rute și reducere consum combustibil cu până la 20%' },
+                { icon: 'fas fa-route', title: 'Management curse eficient', desc: 'Planificare și urmărire completă a curselor și livrărilor' },
+                { icon: 'fas fa-shield-alt', title: 'Securitate și control', desc: 'Monitorizare activitate șoferi și prevenire utilizare neautorizată' },
+                { icon: 'fas fa-clock', title: 'Raportare automată', desc: 'Rapoarte detaliate pentru analiză performanță și costuri' },
+                { icon: 'fas fa-mobile-alt', title: 'Ușor de folosit', desc: 'Interfață intuitivă pentru șoferi, fără training complex' }
               ].map((feature, index) => (
                 <div key={index} style={{
                   display: 'flex',
@@ -212,7 +221,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
             </div>
           </div>
 
-          {/* Technical Info */}
+          {/* Business Impact */}
           <div style={{ marginBottom: '16px' }}>
             <h3 style={{
               color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
@@ -220,34 +229,38 @@ const AboutModal: React.FC<AboutModalProps> = ({
               fontWeight: '600',
               margin: '0 0 12px 0'
             }}>
-              Informații tehnice
+              De ce să alegeți iTrack?
             </h3>
             <div style={{
               padding: '16px',
               background: currentTheme === 'dark' 
-                ? 'rgba(59, 130, 246, 0.1)' 
-                : 'rgba(59, 130, 246, 0.05)',
+                ? 'rgba(34, 197, 94, 0.1)' 
+                : 'rgba(34, 197, 94, 0.05)',
               border: currentTheme === 'dark' 
-                ? '1px solid rgba(59, 130, 246, 0.3)' 
-                : '1px solid rgba(59, 130, 246, 0.2)',
+                ? '1px solid rgba(34, 197, 94, 0.3)' 
+                : '1px solid rgba(34, 197, 94, 0.2)',
               borderRadius: '12px',
               fontSize: '13px'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ opacity: '0.8' }}>Platform:</span>
-                <span style={{ fontWeight: '600' }}>React + Capacitor Android</span>
+                <span style={{ opacity: '0.8' }}>💰 Economii combustibil:</span>
+                <span style={{ fontWeight: '600', color: '#22c55e' }}>până la 20%</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ opacity: '0.8' }}>GPS Interval:</span>
-                <span style={{ fontWeight: '600' }}>5 secunde (timp real)</span>
+                <span style={{ opacity: '0.8' }}>⏰ Timp economisit:</span>
+                <span style={{ fontWeight: '600', color: '#22c55e' }}>2-3 ore/zi management</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ opacity: '0.8' }}>Serviciu Background:</span>
-                <span style={{ fontWeight: '600' }}>OptimalGPSService Android</span>
+                <span style={{ opacity: '0.8' }}>📈 Îmbunătățire eficiență:</span>
+                <span style={{ fontWeight: '600', color: '#22c55e' }}>30-40% productivitate</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ opacity: '0.8' }}>🎯 Satisfacție clienți:</span>
+                <span style={{ fontWeight: '600', color: '#22c55e' }}>Răspunsuri instant</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ opacity: '0.8' }}>Versiune:</span>
-                <span style={{ fontWeight: '600' }}>1.0.0 Professional</span>
+                <span style={{ opacity: '0.8' }}>✅ Implementare:</span>
+                <span style={{ fontWeight: '600', color: '#22c55e' }}>În 24 ore</span>
               </div>
             </div>
           </div>
