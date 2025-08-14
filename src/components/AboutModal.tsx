@@ -23,7 +23,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
         right: 0,
         bottom: 0,
         background: 'rgba(0, 0, 0, 0.8)',
-        zIndex: 10000,
+        zIndex: 999999,
         backdropFilter: 'blur(10px)',
         display: 'flex',
         alignItems: 'center',

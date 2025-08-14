@@ -803,68 +803,79 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       ) : (
         <>
-          <div className="corporate-header-professional loaded">
-            <div className="header-vehicle-section">
-              <div className="vehicle-info-group">
-                <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul" style={{ 
-                  background: 'rgba(255, 255, 255, 0.1)', 
-                  border: '1px solid rgba(255, 255, 255, 0.2)', 
-                  borderRadius: '12px', 
-                  padding: '12px 16px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '12px', 
-                  cursor: 'pointer',
-                  marginRight: '12px' 
-                }}>
-                  <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '16px' }}></i>
-                  <span className="vehicle-number" style={{ color: 'white', fontWeight: '600', fontSize: '16px' }}>{vehicleNumber}</span>
-                  <i className="edit-icon fas fa-edit" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '12px' }}></i>
-                </div>
-                
-                <div className="settings-button" onClick={() => setShowSettings(true)} title="Setări" style={{ 
-                  background: 'rgba(100, 116, 139, 0.1)', 
-                  border: '1px solid rgba(100, 116, 139, 0.3)', 
-                  borderRadius: '12px', 
-                  padding: '12px 16px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  cursor: 'pointer',
-                  color: '#94a3b8',
-                  marginRight: '12px'
-                }}>
-                  <i className="fas fa-cog" style={{ fontSize: '16px' }}></i>
-                </div>
+          <div className="corporate-header-professional loaded" style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            padding: '15px 20px',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            {/* First Row - Vehicle Number */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginBottom: '10px'
+            }}>
+              <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul" style={{ 
+                background: 'rgba(255, 255, 255, 0.1)', 
+                border: '1px solid rgba(255, 255, 255, 0.2)', 
+                borderRadius: '12px', 
+                padding: '10px 20px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px', 
+                cursor: 'pointer'
+              }}>
+                <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '16px' }}></i>
+                <span className="vehicle-number" style={{ color: 'white', fontWeight: '600', fontSize: '16px' }}>{vehicleNumber}</span>
+                <i className="edit-icon fas fa-edit" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '12px' }}></i>
+              </div>
+            </div>
 
-                <div className="about-button" onClick={() => setShowAbout(true)} title="Despre aplicație" style={{ 
-                  background: 'rgba(59, 130, 246, 0.1)', 
-                  border: '1px solid rgba(59, 130, 246, 0.3)', 
-                  borderRadius: '12px', 
-                  padding: '12px 16px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  cursor: 'pointer',
-                  color: '#93c5fd',
-                  marginRight: '12px'
-                }}>
-                  <i className="fas fa-info-circle" style={{ fontSize: '16px' }}></i>
-                </div>
+            {/* Second Row - Action Icons */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '8px'
+            }}>
+              <div className="settings-button" onClick={() => setShowSettings(true)} title="Setări" style={{ 
+                background: 'rgba(100, 116, 139, 0.1)', 
+                border: '1px solid rgba(100, 116, 139, 0.3)', 
+                borderRadius: '10px', 
+                padding: '10px 12px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                cursor: 'pointer',
+                color: '#94a3b8'
+              }}>
+                <i className="fas fa-cog" style={{ fontSize: '14px' }}></i>
+              </div>
 
-                <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
-                  background: 'rgba(239, 68, 68, 0.1)', 
-                  border: '1px solid rgba(239, 68, 68, 0.3)', 
-                  borderRadius: '12px', 
-                  padding: '12px 16px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  cursor: 'pointer',
-                  color: '#fca5a5' 
-                }}>
-                  <i className="fas fa-sign-out-alt" style={{ fontSize: '16px' }}></i>
-                </div>
+              <div className="about-button" onClick={() => setShowAbout(true)} title="Despre aplicație" style={{ 
+                background: 'rgba(59, 130, 246, 0.1)', 
+                border: '1px solid rgba(59, 130, 246, 0.3)', 
+                borderRadius: '10px', 
+                padding: '10px 12px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                cursor: 'pointer',
+                color: '#93c5fd'
+              }}>
+                <i className="fas fa-info-circle" style={{ fontSize: '14px' }}></i>
+              </div>
+
+              <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
+                background: 'rgba(239, 68, 68, 0.1)', 
+                border: '1px solid rgba(239, 68, 68, 0.3)', 
+                borderRadius: '10px', 
+                padding: '10px 12px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                cursor: 'pointer',
+                color: '#fca5a5' 
+              }}>
+                <i className="fas fa-sign-out-alt" style={{ fontSize: '14px' }}></i>
               </div>
             </div>
           </div>
@@ -896,7 +907,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </div>
 
           {/* Main Dashboard Content */}
-          <div className="vehicle-dashboard-main-content" style={{ paddingTop: '130px' }}>
+          <div className="vehicle-dashboard-main-content" style={{ paddingTop: '120px' }}>
             {/* Statistics Cards - 4 in One Row */}
             <div style={{
               display: 'flex',
