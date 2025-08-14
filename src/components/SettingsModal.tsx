@@ -130,12 +130,27 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               const isSelected = currentTheme === theme;
               const isThemeDark = theme === 'dark' || theme === 'driver' || theme === 'nature' || theme === 'night';
               
+              // Theme preview colors
+              const getThemePreview = (theme: Theme) => {
+                switch (theme) {
+                  case 'dark': return ['#0f172a', '#1e293b', '#475569'];
+                  case 'light': return ['#ffffff', '#f8fafc', '#e2e8f0'];
+                  case 'driver': return ['#1c1917', '#f97316', '#fef3c7'];
+                  case 'business': return ['#f8fafc', '#3b82f6', '#1e293b'];
+                  case 'nature': return ['#064e3b', '#10b981', '#d1fae5'];
+                  case 'night': return ['#1e1b4b', '#8b5cf6', '#e0e7ff'];
+                  default: return ['#0f172a', '#1e293b', '#475569'];
+                }
+              };
+              
+              const previewColors = getThemePreview(theme);
+              
               return (
                 <button
                   key={theme}
                   onClick={() => onThemeChange(theme)}
                   style={{
-                    padding: '16px 12px',
+                    padding: '14px 10px',
                     background: isSelected 
                       ? 'rgba(59, 130, 246, 0.2)' 
                       : (isDarkVariant 
@@ -155,19 +170,44 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     gap: '8px'
                   }}
                 >
+                  {/* Theme Icon */}
                   <i 
                     className={`fas fa-${themeInfo.icon}`}
                     style={{ 
-                      fontSize: '20px',
+                      fontSize: '18px',
                       color: isSelected 
                         ? '#3b82f6' 
-                        : (isThemeDark ? '#e2e8f0' : '#64748b')
+                        : (isThemeDark ? '#e2e8f0' : '#64748b'),
+                      marginBottom: '2px'
                     }}
                   />
+                  
+                  {/* Color Preview */}
+                  <div style={{
+                    display: 'flex',
+                    gap: '3px',
+                    marginBottom: '4px'
+                  }}>
+                    {previewColors.map((color, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          width: '12px',
+                          height: '12px',
+                          backgroundColor: color,
+                          borderRadius: '50%',
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)'
+                        }}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Theme Name */}
                   <span style={{
                     color: isDarkVariant ? '#e2e8f0' : '#334155',
                     fontWeight: '600',
-                    fontSize: '12px',
+                    fontSize: '11px',
                     textAlign: 'center'
                   }}>
                     {themeInfo.name}
