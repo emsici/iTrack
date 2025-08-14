@@ -16,42 +16,45 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.8)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 10000,
-      backdropFilter: 'blur(10px)',
-      padding: '20px',
-      boxSizing: 'border-box',
-      overflow: 'auto'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '380px',
-        maxHeight: '90vh',
-        background: currentTheme === 'dark' 
-          ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)'
-          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
-        backdropFilter: 'blur(20px)',
-        border: currentTheme === 'dark' 
-          ? '1px solid rgba(255, 255, 255, 0.1)'
-          : '1px solid rgba(0, 0, 0, 0.1)',
-        borderRadius: '24px',
-        padding: '30px 25px',
-        boxShadow: currentTheme === 'dark'
-          ? '0 8px 32px rgba(0, 0, 0, 0.5)'
-          : '0 8px 32px rgba(0, 0, 0, 0.15)',
-        position: 'relative',
-        margin: 'auto',
-        overflowY: 'auto'
+    <div 
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'rgba(0, 0, 0, 0.8)',
+        zIndex: 10000,
+        backdropFilter: 'blur(10px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        boxSizing: 'border-box'
       }}>
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%',
+          maxWidth: '380px',
+          maxHeight: '80vh',
+          background: currentTheme === 'dark' 
+            ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)'
+            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: currentTheme === 'dark' 
+            ? '1px solid rgba(255, 255, 255, 0.1)'
+            : '1px solid rgba(0, 0, 0, 0.1)',
+          borderRadius: '24px',
+          padding: '30px 25px',
+          boxShadow: currentTheme === 'dark'
+            ? '0 8px 32px rgba(0, 0, 0, 0.5)'
+            : '0 8px 32px rgba(0, 0, 0, 0.15)',
+          position: 'relative',
+          overflowY: 'auto',
+          transform: 'translateZ(0)'
+        }}>
         {/* Close Button */}
         <button
           onClick={onClose}
