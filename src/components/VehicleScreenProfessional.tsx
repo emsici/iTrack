@@ -652,12 +652,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               width: '100%',
               maxWidth: '400px',
               margin: '0 auto',
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
+              background: currentTheme === 'dark' 
+                ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)'
+                : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: currentTheme === 'dark' 
+                ? '1px solid rgba(255, 255, 255, 0.1)'
+                : '1px solid rgba(0, 0, 0, 0.1)',
               borderRadius: '24px',
               padding: '30px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+              boxShadow: currentTheme === 'dark' 
+                ? '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                : '0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(0, 0, 0, 0.05)'
             }}>
               {/* Main Action Button */}
               <button
@@ -808,7 +814,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             background: currentTheme === 'dark' 
               ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
               : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-            padding: currentTheme === 'dark' ? '40px 20px 15px 20px' : '20px 20px 15px 20px',
+            padding: '40px 20px 15px 20px',
             borderBottom: currentTheme === 'dark' 
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(0, 0, 0, 0.1)'
@@ -1015,15 +1021,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
               {filteredCourses.length === 0 ? (
                 <div className="no-courses-message" style={{
-                  background: 'rgba(15, 23, 42, 0.95)',
+                  background: currentTheme === 'dark' 
+                    ? 'rgba(15, 23, 42, 0.95)'
+                    : 'rgba(255, 255, 255, 0.95)',
                   backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  border: currentTheme === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)'
+                    : '1px solid rgba(0, 0, 0, 0.1)',
                   borderRadius: '20px',
                   padding: '40px 30px',
                   margin: '20px',
                   textAlign: 'center',
-                  color: '#cbd5e1',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                  color: currentTheme === 'dark' ? '#cbd5e1' : '#475569',
+                  boxShadow: currentTheme === 'dark' 
+                    ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+                    : '0 8px 32px rgba(0, 0, 0, 0.15)'
                 }}>
                   <i className="fas fa-info-circle" style={{ 
                     fontSize: '48px', 
@@ -1032,7 +1044,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     display: 'block'
                   }}></i>
                   <h3 style={{ 
-                    color: '#ffffff', 
+                    color: currentTheme === 'dark' ? '#ffffff' : '#1e293b', 
                     margin: '0 0 12px 0',
                     fontSize: '18px',
                     fontWeight: '600'
@@ -1054,7 +1066,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     border: '1px solid rgba(59, 130, 246, 0.3)',
                     borderRadius: '12px',
                     fontSize: '14px',
-                    color: '#93c5fd'
+                    color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af'
                   }}>
                     <i className="fas fa-lightbulb" style={{ marginRight: '8px' }}></i>
                     Verifică numărul vehiculului sau contactează administratorul.
