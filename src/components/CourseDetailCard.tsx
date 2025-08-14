@@ -142,7 +142,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .course-card-compact {
           background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.95)'};
           backdrop-filter: blur(20px);
-          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.15)'};
+          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(148, 163, 184, 0.2)'};
           border-radius: 12px;
           padding: 16px 20px;
           margin: 0 auto 16px auto;
@@ -192,9 +192,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .toggle-details-btn {
-          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
-          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.2)'};
-          color: ${currentTheme === 'dark' ? '#cbd5e1' : '#475569'};
+          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(241, 245, 249, 0.9)'};
+          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(148, 163, 184, 0.25)'};
+          color: ${currentTheme === 'dark' ? '#cbd5e1' : '#374151'};
           padding: 8px 16px;
           border-radius: 8px;
           cursor: pointer;
@@ -210,7 +210,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .toggle-details-btn:hover {
-          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
+          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(226, 232, 240, 0.9)'};
           color: ${currentTheme === 'dark' ? '#ffffff' : '#1e293b'};
           transform: scale(1.02);
         }
@@ -231,10 +231,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .course-preview {
           margin-bottom: 12px;
-          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)'};
+          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(248, 250, 252, 0.8)'};
           border-radius: 8px;
           padding: 12px;
-          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)'};
+          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(203, 213, 225, 0.4)'};
         }
 
         .preview-row {
@@ -242,7 +242,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           justify-content: space-between;
           align-items: flex-start;
           padding: 8px 0;
-          border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)'};
+          border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(203, 213, 225, 0.3)'};
           min-height: 24px;
         }
 
@@ -251,7 +251,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .preview-label {
-          color: ${currentTheme === 'dark' ? '#94a3b8' : '#64748b'};
+          color: ${currentTheme === 'dark' ? '#94a3b8' : '#475569'};
           font-size: 0.75rem;
           font-weight: 600;
           min-width: 90px;
@@ -261,7 +261,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .preview-value {
-          color: ${currentTheme === 'dark' ? '#e2e8f0' : '#334155'};
+          color: ${currentTheme === 'dark' ? '#e2e8f0' : '#1e293b'};
           font-size: 0.9rem;
           font-weight: 600;
           text-align: right;

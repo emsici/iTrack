@@ -813,7 +813,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <div className="corporate-header-professional loaded" style={{
             background: currentTheme === 'dark' 
               ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-              : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+              : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
             padding: '40px 20px 15px 20px',
             borderBottom: currentTheme === 'dark' 
               ? '1px solid rgba(255, 255, 255, 0.1)'
@@ -828,10 +828,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul" style={{ 
                 background: currentTheme === 'dark' 
                   ? 'rgba(255, 255, 255, 0.1)' 
-                  : 'rgba(0, 0, 0, 0.1)', 
+                  : 'rgba(71, 85, 105, 0.08)', 
                 border: currentTheme === 'dark' 
                   ? '1px solid rgba(255, 255, 255, 0.2)' 
-                  : '1px solid rgba(0, 0, 0, 0.2)', 
+                  : '1px solid rgba(71, 85, 105, 0.2)', 
                 borderRadius: '12px', 
                 padding: '10px 20px', 
                 display: 'flex', 
@@ -841,12 +841,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               }}>
                 <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '16px' }}></i>
                 <span className="vehicle-number" style={{ 
-                  color: currentTheme === 'dark' ? 'white' : '#0f172a', 
+                  color: currentTheme === 'dark' ? 'white' : '#1e293b', 
                   fontWeight: '600', 
                   fontSize: '16px' 
                 }}>{vehicleNumber}</span>
                 <i className="edit-icon fas fa-edit" style={{ 
-                  color: currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)', 
+                  color: currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(71, 85, 105, 0.7)', 
                   fontSize: '12px' 
                 }}></i>
               </div>
@@ -861,17 +861,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <div className="settings-button" onClick={() => setShowSettings(true)} title="Setări" style={{ 
                 background: currentTheme === 'dark' 
                   ? 'rgba(100, 116, 139, 0.1)' 
-                  : 'rgba(100, 116, 139, 0.2)', 
+                  : 'rgba(241, 245, 249, 0.9)', 
                 border: currentTheme === 'dark' 
                   ? '1px solid rgba(100, 116, 139, 0.3)' 
-                  : '1px solid rgba(100, 116, 139, 0.5)', 
+                  : '1px solid rgba(148, 163, 184, 0.3)', 
                 borderRadius: '12px', 
                 padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: currentTheme === 'dark' ? '#94a3b8' : '#475569',
+                color: currentTheme === 'dark' ? '#94a3b8' : '#334155',
                 minWidth: '48px',
                 minHeight: '48px'
               }}>
@@ -891,7 +891,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: currentTheme === 'dark' ? '#93c5fd' : '#2563eb',
+                color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af',
                 minWidth: '48px',
                 minHeight: '48px'
               }}>
@@ -911,7 +911,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: currentTheme === 'dark' ? '#fca5a5' : '#dc2626',
+                color: currentTheme === 'dark' ? '#fca5a5' : '#b91c1c',
                 minWidth: '48px',
                 minHeight: '48px'
               }}>
