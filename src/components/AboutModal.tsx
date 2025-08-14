@@ -36,7 +36,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
         style={{
           width: 'calc(100% - 40px)',
           maxWidth: '500px',
-          maxHeight: '85vh',
+          maxHeight: '60vh',
           background: currentTheme === 'dark' 
             ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)'
             : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
@@ -45,7 +45,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
             ? '1px solid rgba(255, 255, 255, 0.1)'
             : '1px solid rgba(0, 0, 0, 0.1)',
           borderRadius: '24px',
-          padding: '30px 25px',
+          padding: '20px 20px',
           boxShadow: currentTheme === 'dark'
             ? '0 8px 32px rgba(0, 0, 0, 0.5)'
             : '0 8px 32px rgba(0, 0, 0, 0.15)',
@@ -153,30 +153,29 @@ const AboutModal: React.FC<AboutModalProps> = ({
           </div>
 
           {/* Features */}
-          <div style={{ marginBottom: '24px' }}>
+          <div style={{ marginBottom: '16px' }}>
             <h3 style={{
               color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
-              fontSize: '18px',
+              fontSize: '16px',
               fontWeight: '600',
-              margin: '0 0 16px 0'
+              margin: '0 0 12px 0'
             }}>
               Ce face aplicația
             </h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
-                { icon: 'fas fa-map-marker-alt', title: 'Localizare GPS precisă', desc: 'Transmite coordonatele vehiculului la fiecare 5 secunde, chiar și fără internet' },
-                { icon: 'fas fa-route', title: 'Gestionare curse inteligentă', desc: 'Încarcă automat cursele pentru vehicul și urmărește statusul fiecăreia' },
-                { icon: 'fas fa-wifi', title: 'Funcționare offline', desc: 'Salvează datele local când nu ai internet și le sincronizează automat' },
-                { icon: 'fas fa-chart-line', title: 'Statistici detaliate', desc: 'Calculează distanța, timpul și viteza pentru fiecare cursă parcursă' },
-                { icon: 'fas fa-cog', title: 'Serviciu background', desc: 'Rulează continuu în fundal fără să consume bateria excesiv' },
-                { icon: 'fas fa-mobile-alt', title: 'Interfață simplă', desc: 'Design curat cu butoane mari pentru utilizare ușoară în timpul condusului' }
+                { icon: 'fas fa-map-marker-alt', title: 'GPS în timp real', desc: 'Coordonate la 5 secunde, offline și online' },
+                { icon: 'fas fa-route', title: 'Management curse', desc: 'Încărcare automată și urmărire status' },
+                { icon: 'fas fa-wifi', title: 'Sincronizare offline', desc: 'Salvare locală și transmitere automată' },
+                { icon: 'fas fa-chart-line', title: 'Statistici curse', desc: 'Distanță, timp și viteză calculate automat' },
+                { icon: 'fas fa-cog', title: 'Serviciu background', desc: 'Funcționare continuă, consum redus baterie' }
               ].map((feature, index) => (
                 <div key={index} style={{
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: '12px',
-                  padding: '12px',
+                  gap: '8px',
+                  padding: '8px',
                   background: currentTheme === 'dark' 
                     ? 'rgba(30, 41, 59, 0.5)' 
                     : 'rgba(248, 250, 252, 0.8)',
@@ -186,15 +185,15 @@ const AboutModal: React.FC<AboutModalProps> = ({
                     : '1px solid rgba(0, 0, 0, 0.1)'
                 }}>
                   <div style={{
-                    width: '32px',
-                    height: '32px',
+                    width: '28px',
+                    height: '28px',
                     background: 'linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)',
                     borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: 'white',
-                    fontSize: '14px',
+                    fontSize: '12px',
                     flexShrink: 0
                   }}>
                     <i className={feature.icon}></i>
@@ -225,9 +224,9 @@ const AboutModal: React.FC<AboutModalProps> = ({
           <div style={{ marginBottom: '16px' }}>
             <h3 style={{
               color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
-              fontSize: '18px',
+              fontSize: '16px',
               fontWeight: '600',
-              margin: '0 0 12px 0'
+              margin: '0 0 8px 0'
             }}>
               Caracteristici tehnice
             </h3>
@@ -242,25 +241,17 @@ const AboutModal: React.FC<AboutModalProps> = ({
               borderRadius: '12px',
               fontSize: '13px'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ opacity: '0.8' }}>Frecvență GPS:</span>
-                <span style={{ fontWeight: '600' }}>La fiecare 5 secunde</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span style={{ opacity: '0.8', fontSize: '13px' }}>GPS:</span>
+                <span style={{ fontWeight: '600', fontSize: '13px' }}>5 secunde</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ opacity: '0.8' }}>Funcționare:</span>
-                <span style={{ fontWeight: '600' }}>24/7 în background</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ opacity: '0.8' }}>Sincronizare:</span>
-                <span style={{ fontWeight: '600' }}>Automată la revenirea online</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ opacity: '0.8' }}>Servicii GPS:</span>
-                <span style={{ fontWeight: '600' }}>4 redundante pentru siguranță</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span style={{ opacity: '0.8', fontSize: '13px' }}>Offline:</span>
+                <span style={{ fontWeight: '600', fontSize: '13px' }}>Sincronizare automată</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ opacity: '0.8' }}>Versiune:</span>
-                <span style={{ fontWeight: '600' }}>1.0.0 Professional</span>
+                <span style={{ opacity: '0.8', fontSize: '13px' }}>Versiune:</span>
+                <span style={{ fontWeight: '600', fontSize: '13px' }}>1.0.0</span>
               </div>
             </div>
           </div>
