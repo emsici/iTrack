@@ -21,7 +21,7 @@ import { useToast } from "../hooks/useToast";
 import { clearAllGuaranteedGPS } from "../services/garanteedGPS";
 import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
-import { themeService, Theme } from "../services/themeService";
+import { themeService, Theme, THEME_INFO } from "../services/themeService";
 
 interface VehicleScreenProps {
   token: string;
@@ -50,7 +50,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
-  const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>('dark');
+  const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
 
   const toast = useToast();
 
@@ -516,12 +516,38 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Theme helper functions
+  const isDarkTheme = (theme: Theme) => theme === 'dark' || theme === 'driver' || theme === 'nature' || theme === 'night';
+  const getThemeBackground = (theme: Theme) => {
+    switch (theme) {
+      case 'dark': return 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
+      case 'light': return 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)';
+      case 'driver': return 'linear-gradient(135deg, #1c1917 0%, #292524 100%)';
+      case 'business': return 'linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%)';
+      case 'nature': return 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)';
+      case 'night': return 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)';
+      default: return 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
+    }
+  };
+  
+  const getThemeTextColor = (theme: Theme) => {
+    switch (theme) {
+      case 'dark': return '#f1f5f9';
+      case 'light': return '#1e293b';
+      case 'driver': return '#fef3c7';
+      case 'business': return '#1e293b';
+      case 'nature': return '#d1fae5';
+      case 'night': return '#e0e7ff';
+      default: return '#f1f5f9';
+    }
+  };
+
   // Theme change handler
   const handleThemeChange = async (theme: Theme) => {
     try {
       await themeService.setTheme(theme);
       setCurrentTheme(theme);
-      toast.success('Temă schimbată!', `Tema ${theme === 'dark' ? 'întunecat' : 'luminos'} aplicată`);
+      toast.success('Temă schimbată!', `Tema ${THEME_INFO[theme].name} aplicată`);
     } catch (error) {
       console.error('Error changing theme:', error);
       toast.error('Eroare', 'Nu s-a putut schimba tema');
@@ -704,14 +730,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   width: '100%',
                   padding: '16px 20px',
                   marginTop: '15px',
-                  background: currentTheme === 'dark' 
-                    ? 'rgba(239, 68, 68, 0.1)' 
-                    : 'rgba(239, 68, 68, 0.1)',
-                  border: currentTheme === 'dark' 
-                    ? '1px solid rgba(239, 68, 68, 0.3)' 
-                    : '1px solid rgba(239, 68, 68, 0.3)',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
                   borderRadius: '16px',
-                  color: currentTheme === 'dark' ? '#fca5a5' : '#dc2626',
+                  color: isDarkTheme(currentTheme) ? '#fca5a5' : '#dc2626',
                   fontSize: '16px',
                   fontWeight: '600',
                   cursor: loading ? 'not-allowed' : 'pointer',
@@ -768,8 +790,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               
               /* Lightweight scroll optimization - focus on performance */
               html, body, #root {
-                background-color: ${currentTheme === 'dark' ? '#0f172a' : '#ffffff'} !important;
-                color: ${currentTheme === 'dark' ? '#f1f5f9' : '#0f172a'} !important;
+                background-color: ${isDarkTheme(currentTheme) ? '#0f172a' : '#ffffff'} !important;
+                color: ${getThemeTextColor(currentTheme)} !important;
                 overflow-x: hidden;
               }
               
@@ -952,9 +974,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           {/* Main Dashboard Content */}
           <div className="vehicle-dashboard-main-content" style={{ 
             paddingTop: '145px',
-            background: currentTheme === 'dark' 
-              ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-              : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
+            background: getThemeBackground(currentTheme),
             minHeight: 'calc(100dvh - 145px)'
           }}>
             {/* Statistics Cards - 4 in One Row */}
@@ -966,13 +986,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
               <div className="analytics-grid-centered">
                 <div className="stat-card total" onClick={() => setSelectedStatusFilter('all')} style={{
-                  background: currentTheme === 'dark' 
+                  background: isDarkTheme(currentTheme) 
                     ? 'rgba(148, 163, 184, 0.1)' 
                     : 'rgba(248, 250, 252, 0.9)',
-                  border: currentTheme === 'dark' 
+                  border: isDarkTheme(currentTheme) 
                     ? '1px solid rgba(148, 163, 184, 0.2)' 
                     : '1px solid rgba(203, 213, 225, 0.4)',
-                  color: currentTheme === 'dark' ? '#e2e8f0' : '#000000'
+                  color: getThemeTextColor(currentTheme)
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper total">
@@ -986,13 +1006,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
 
                 <div className="stat-card active" onClick={() => setSelectedStatusFilter(2)} style={{
-                  background: currentTheme === 'dark' 
+                  background: isDarkTheme(currentTheme) 
                     ? 'rgba(34, 197, 94, 0.1)' 
                     : 'rgba(240, 253, 244, 0.9)',
-                  border: currentTheme === 'dark' 
+                  border: isDarkTheme(currentTheme) 
                     ? '1px solid rgba(34, 197, 94, 0.2)' 
                     : '1px solid rgba(34, 197, 94, 0.3)',
-                  color: currentTheme === 'dark' ? '#4ade80' : '#000000'
+                  color: isDarkTheme(currentTheme) ? '#4ade80' : '#000000'
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper active">

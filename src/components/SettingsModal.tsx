@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
+import { Theme, THEME_INFO } from '../services/themeService';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentTheme: 'dark' | 'light';
-  onThemeChange: (theme: 'dark' | 'light') => void;
+  currentTheme: Theme;
+  onThemeChange: (theme: Theme) => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ 
@@ -20,6 +21,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   if (!isOpen) return null;
+
+  const isDarkVariant = currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night';
 
   return (
     <div 
@@ -45,16 +48,16 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           width: 'calc(100% - 40px)',
           maxWidth: '380px',
           maxHeight: '80vh',
-          background: currentTheme === 'dark' 
+          background: isDarkVariant 
             ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)'
             : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
           backdropFilter: 'blur(20px)',
-          border: currentTheme === 'dark' 
+          border: isDarkVariant 
             ? '1px solid rgba(255, 255, 255, 0.1)'
             : '1px solid rgba(0, 0, 0, 0.1)',
           borderRadius: '24px',
           padding: '30px 25px',
-          boxShadow: currentTheme === 'dark'
+          boxShadow: isDarkVariant
             ? '0 8px 32px rgba(0, 0, 0, 0.5)'
             : '0 8px 32px rgba(0, 0, 0, 0.15)',
           position: 'relative',
@@ -70,215 +73,164 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             right: '20px',
             background: 'transparent',
             border: 'none',
-            color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
+            color: isDarkVariant ? '#94a3b8' : '#64748b',
             fontSize: '24px',
             cursor: 'pointer',
-            padding: '8px',
-            borderRadius: '50%',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = currentTheme === 'dark' 
-              ? 'rgba(255, 255, 255, 0.1)' 
-              : 'rgba(0, 0, 0, 0.1)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = 'transparent';
+            padding: '5px',
+            borderRadius: '8px',
+            transition: 'all 0.3s ease'
           }}
         >
-          <i className="fas fa-times"></i>
+          ✕
         </button>
 
         {/* Header */}
-        <div style={{
+        <h2 
+          onClick={handleTitleClick}
+          style={{
+            color: isDarkVariant ? '#ffffff' : '#1e293b',
+            fontSize: '24px',
+            fontWeight: '700',
+            margin: '0 0 8px 0',
+            cursor: 'pointer',
+            textAlign: 'center'
+          }}
+        >
+          Setări
+        </h2>
+
+        <p style={{
+          color: isDarkVariant ? '#cbd5e1' : '#64748b',
+          fontSize: '14px',
           textAlign: 'center',
-          marginBottom: '25px'
+          margin: '0 0 30px 0',
+          lineHeight: '1.5'
         }}>
-          <h2 
-            onClick={handleTitleClick}
-            style={{
-              color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
-              fontSize: '22px',
-              fontWeight: '700',
-              margin: '0 0 8px 0',
-              cursor: 'pointer'
-            }}>
-            Setări
-            {clickCount >= 30 && (
-              <span style={{
-                marginLeft: '10px',
-                fontSize: '14px',
-                color: currentTheme === 'dark' ? '#64748b' : '#475569'
-              }}>
-                ({clickCount}/50)
-              </span>
-            )}
-          </h2>
-          <p style={{
-            color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-            fontSize: '14px',
-            margin: 0
+          Personalizează aplicația după preferințele tale
+        </p>
+
+        {/* Theme Selection */}
+        <div style={{ marginTop: '30px' }}>
+          <h3 style={{
+            color: isDarkVariant ? '#ffffff' : '#1e293b',
+            fontSize: '18px',
+            fontWeight: '600',
+            margin: '0 0 20px 0'
           }}>
-            Personalizează aplicația
-          </p>
+            Temă aplicație
+          </h3>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '12px'
+          }}>
+            {(Object.keys(THEME_INFO) as Theme[]).map((theme) => {
+              const themeInfo = THEME_INFO[theme];
+              const isSelected = currentTheme === theme;
+              const isThemeDark = theme === 'dark' || theme === 'driver' || theme === 'nature' || theme === 'night';
+              
+              return (
+                <button
+                  key={theme}
+                  onClick={() => onThemeChange(theme)}
+                  style={{
+                    padding: '16px 12px',
+                    background: isSelected 
+                      ? 'rgba(59, 130, 246, 0.2)' 
+                      : (isDarkVariant 
+                        ? 'rgba(255, 255, 255, 0.05)' 
+                        : 'rgba(0, 0, 0, 0.05)'),
+                    border: isSelected 
+                      ? '2px solid #3b82f6'
+                      : (isDarkVariant 
+                        ? '1px solid rgba(255, 255, 255, 0.1)' 
+                        : '1px solid rgba(0, 0, 0, 0.1)'),
+                    borderRadius: '16px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <i 
+                    className={`fas fa-${themeInfo.icon}`}
+                    style={{ 
+                      fontSize: '20px',
+                      color: isSelected 
+                        ? '#3b82f6' 
+                        : (isThemeDark ? '#e2e8f0' : '#64748b')
+                    }}
+                  />
+                  <span style={{
+                    color: isDarkVariant ? '#e2e8f0' : '#334155',
+                    fontWeight: '600',
+                    fontSize: '12px',
+                    textAlign: 'center'
+                  }}>
+                    {themeInfo.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          
+          {/* Theme Description */}
+          <div style={{
+            marginTop: '16px',
+            padding: '12px 16px',
+            background: isDarkVariant
+              ? 'rgba(255, 255, 255, 0.05)'
+              : 'rgba(0, 0, 0, 0.05)',
+            borderRadius: '12px',
+            textAlign: 'center'
+          }}>
+            <p style={{
+              color: isDarkVariant ? '#cbd5e1' : '#64748b',
+              fontSize: '13px',
+              margin: '0',
+              lineHeight: '1.4'
+            }}>
+              {THEME_INFO[currentTheme].description}
+            </p>
+          </div>
         </div>
 
-        {/* Debug Section - Visible after 50 clicks */}
-        {clickCount >= 50 && (
+        {/* Development Info */}
+        {clickCount >= 5 && (
           <div style={{
-            marginBottom: '20px',
+            marginTop: '30px',
             padding: '16px',
-            background: currentTheme === 'dark' 
+            background: isDarkVariant 
               ? 'rgba(59, 130, 246, 0.1)' 
-              : 'rgba(59, 130, 246, 0.1)',
-            border: currentTheme === 'dark' 
-              ? '1px solid rgba(59, 130, 246, 0.3)' 
-              : '1px solid rgba(59, 130, 246, 0.3)',
-            borderRadius: '12px'
+              : 'rgba(59, 130, 246, 0.05)',
+            border: isDarkVariant 
+              ? '1px solid rgba(59, 130, 246, 0.2)' 
+              : '1px solid rgba(59, 130, 246, 0.15)',
+            borderRadius: '16px'
           }}>
             <div style={{
-              fontSize: '16px',
+              color: isDarkVariant ? '#93c5fd' : '#3b82f6',
+              fontSize: '14px',
               fontWeight: '600',
-              color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af',
-              marginBottom: '10px'
+              marginBottom: '8px'
             }}>
-              <i className="fas fa-bug" style={{ marginRight: '8px' }}></i>
-              Debug Panel Activ
+              🔧 Informații dezvoltare
             </div>
             <div style={{
-              fontSize: '14px',
-              color: currentTheme === 'dark' ? '#cbd5e1' : '#475569'
+              color: isDarkVariant ? '#cbd5e1' : '#64748b',
+              fontSize: '12px',
+              lineHeight: '1.4'
             }}>
-              Panel-ul de debug a fost activat. Toate log-urile sunt acum disponibile pentru export și analiză.
+              <strong>iTrack GPS v1807.99</strong><br />
+              Tema activă: {THEME_INFO[currentTheme].name}<br />
+              Build: Professional Enterprise<br />
+              Framework: React + Capacitor
             </div>
           </div>
         )}
-
-        {/* Theme Section */}
-        <div style={{
-          marginBottom: '25px'
-        }}>
-          <h3 style={{
-            color: currentTheme === 'dark' ? '#e2e8f0' : '#334155',
-            fontSize: '18px',
-            fontWeight: '600',
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px'
-          }}>
-            <i className="fas fa-palette" style={{
-              color: currentTheme === 'dark' ? '#60a5fa' : '#3b82f6'
-            }}></i>
-            Temă
-          </h3>
-
-          <div style={{
-            display: 'flex',
-            gap: '15px'
-          }}>
-            {/* Dark Theme */}
-            <button
-              onClick={() => onThemeChange('dark')}
-              style={{
-                flex: 1,
-                padding: '20px',
-                background: currentTheme === 'dark' 
-                  ? (currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)')
-                  : 'transparent',
-                border: currentTheme === 'dark' 
-                  ? (currentTheme === 'dark' ? '2px solid #3b82f6' : '1px solid rgba(0, 0, 0, 0.1)')
-                  : '1px solid rgba(0, 0, 0, 0.1)',
-                borderRadius: '16px',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '12px'
-              }}
-            >
-              <div style={{
-                width: '40px',
-                height: '40px',
-                background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
-                borderRadius: '12px',
-                border: '2px solid rgba(255, 255, 255, 0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <i className="fas fa-moon" style={{ color: '#94a3b8', fontSize: '16px' }}></i>
-              </div>
-              <span style={{
-                color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                Întunecat
-              </span>
-            </button>
-
-            {/* Light Theme */}
-            <button
-              onClick={() => onThemeChange('light')}
-              style={{
-                flex: 1,
-                padding: '20px',
-                background: currentTheme === 'light' 
-                  ? 'rgba(59, 130, 246, 0.1)'
-                  : 'transparent',
-                border: currentTheme === 'light' 
-                  ? '2px solid #3b82f6'
-                  : '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '16px',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '12px'
-              }}
-            >
-              <div style={{
-                width: '40px',
-                height: '40px',
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                borderRadius: '12px',
-                border: '2px solid rgba(0, 0, 0, 0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <i className="fas fa-sun" style={{ color: '#f59e0b', fontSize: '16px' }}></i>
-              </div>
-              <span style={{
-                color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                Luminos
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div style={{
-          textAlign: 'center',
-          paddingTop: '20px',
-          borderTop: currentTheme === 'dark' 
-            ? '1px solid rgba(255, 255, 255, 0.1)'
-            : '1px solid rgba(0, 0, 0, 0.1)'
-        }}>
-          <p style={{
-            color: currentTheme === 'dark' ? '#64748b' : '#94a3b8',
-            fontSize: '12px',
-            margin: 0
-          }}>
-            iTrack GPS v1.0 • Tema actuală: {currentTheme === 'dark' ? 'Întunecat' : 'Luminos'}
-          </p>
-        </div>
       </div>
     </div>
   );
