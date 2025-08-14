@@ -129,19 +129,14 @@ class GuaranteedGPSService {
       // Transmitem DOAR pentru cursele în progres (status 2)
       logGPS(`🔄 Processing ${activeInProgressCourses.length} courses in progress for transmission...`);
       
-      // IMPORTANT: Folosim același timestamp pentru toate cursele din acest interval
-      const baseTimestamp = new Date();
+      // IMPORTANT: ACELAȘI timestamp pentru TOATE cursele din acest interval GPS
+      const sharedTimestamp = new Date();
+      logGPS(`🕒 SHARED TIMESTAMP pentru toate cursele: ${sharedTimestamp.toISOString()}`);
       
-      for (let i = 0; i < activeInProgressCourses.length; i++) {
-        const course = activeInProgressCourses[i];
+      for (const course of activeInProgressCourses) {
         logGPS(`📤 Transmitting for course IN PROGRESS: ${course.courseId} (${course.uit}) status: ${course.status}`);
         
-        // Timestamp unic pentru fiecare cursă, dar în ordine cronologică
-        const courseTimestamp = new Date(baseTimestamp.getTime() + (i * 100)); // Adăugăm 100ms pentru fiecare cursă
-        
-        logGPS(`🕒 TIMESTAMP ORDER CHECK: Course ${i + 1}/${activeInProgressCourses.length} - ${courseTimestamp.toISOString()}`);
-        
-        await this.transmitSingleCourse(course, coords, courseTimestamp);
+        await this.transmitSingleCourse(course, coords, sharedTimestamp);
       }
 
     } catch (error) {
@@ -184,7 +179,7 @@ class GuaranteedGPSService {
       };
       
       logGPS(`🚨 TRANSMITTING GPS DATA WITH UIT: ${course.uit} for course ${course.courseId}`);
-      logGPS(`🕒 TIMESTAMP SENT: ${uniqueTimestamp} (${new Date(uniqueTimestamp).getTime()})`);
+      logGPS(`🕒 SAME TIMESTAMP SENT: ${uniqueTimestamp}`);
 
       logGPS(`📊 GPS Data prepared: lat=${gpsData.lat}, lng=${gpsData.lng}, uit=${gpsData.uit}, vehicle=${gpsData.numar_inmatriculare}`);
       logGPS(`🔑 Using token: ${course.token.substring(0, 20)}...`);

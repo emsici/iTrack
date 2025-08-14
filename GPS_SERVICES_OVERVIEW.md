@@ -5,8 +5,8 @@
 ### 1. **garanteedGPS.ts** - SERVICIUL PRINCIPAL
 **ROL**: GPS principal cu redundanță garantată
 **TRANSMISIE**: 
-- Folosește `new Date().toISOString()` cu sincronizare (base + 100ms increment)
-- Timestamp sincronizat pentru multiple curse
+- Folosește `new Date().toISOString()` - ACELAȘI timestamp pentru toate cursele
+- Timestamp IDENTIC pentru toate cursele dintr-un interval
 - `sendGPSData()` din api.ts
 
 **CARACTERISTICI**:
@@ -56,14 +56,14 @@
 ## TIMESTAMP FLOW ACUM (DUPĂ FIX):
 
 ```
-1. garanteedGPS.ts: baseTime + increment (sincronizat)
+1. garanteedGPS.ts: ACELAȘI timestamp pentru toate cursele din interval
 2. directAndroidGPS.ts: new Date().toISOString() cu logging
 3. capacitorGPS.ts: delegat la Android service
 4. offlineGPS.ts: sortare cronologică înainte de sync
 ```
 
 ## TOATE SERVICIILE ACUM TRANSMIT CONSISTENT!
-✅ Timestamp sincronizat în garanteedGPS
+✅ Timestamp IDENTIC în garanteedGPS pentru toate cursele
 ✅ Logging timestamp în directAndroid  
 ✅ Sortare cronologică în offline sync
 ✅ Toate folosesc același API endpoint: `/gps.php`
