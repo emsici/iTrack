@@ -28,7 +28,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
-        paddingTop: '20px',
+        paddingTop: '40px',
         boxSizing: 'border-box'
       }}>
       <div 
@@ -36,7 +36,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
         style={{
           width: 'calc(100% - 40px)',
           maxWidth: '500px',
-          maxHeight: '60vh',
+          maxHeight: 'calc(100vh - 80px)',
           background: currentTheme === 'dark' 
             ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)'
             : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',

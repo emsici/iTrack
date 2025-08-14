@@ -759,7 +759,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               
               /* Lightweight scroll optimization - focus on performance */
               html, body, #root {
-                background-color: #0f172a !important;
+                background-color: ${currentTheme === 'dark' ? '#0f172a' : '#f8fafc'} !important;
+                color: ${currentTheme === 'dark' ? '#f1f5f9' : '#0f172a'} !important;
                 overflow-x: hidden;
               }
               
@@ -804,9 +805,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       ) : (
         <>
           <div className="corporate-header-professional loaded" style={{
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-            padding: '15px 20px',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+            background: currentTheme === 'dark' 
+              ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
+              : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+            padding: '40px 20px 15px 20px',
+            borderBottom: currentTheme === 'dark' 
+              ? '1px solid rgba(255, 255, 255, 0.1)'
+              : '1px solid rgba(0, 0, 0, 0.1)'
           }}>
             {/* First Row - Vehicle Number */}
             <div style={{
@@ -815,8 +820,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               marginBottom: '10px'
             }}>
               <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul" style={{ 
-                background: 'rgba(255, 255, 255, 0.1)', 
-                border: '1px solid rgba(255, 255, 255, 0.2)', 
+                background: currentTheme === 'dark' 
+                  ? 'rgba(255, 255, 255, 0.1)' 
+                  : 'rgba(0, 0, 0, 0.1)', 
+                border: currentTheme === 'dark' 
+                  ? '1px solid rgba(255, 255, 255, 0.2)' 
+                  : '1px solid rgba(0, 0, 0, 0.2)', 
                 borderRadius: '12px', 
                 padding: '10px 20px', 
                 display: 'flex', 
@@ -825,8 +834,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 cursor: 'pointer'
               }}>
                 <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '16px' }}></i>
-                <span className="vehicle-number" style={{ color: 'white', fontWeight: '600', fontSize: '16px' }}>{vehicleNumber}</span>
-                <i className="edit-icon fas fa-edit" style={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '12px' }}></i>
+                <span className="vehicle-number" style={{ 
+                  color: currentTheme === 'dark' ? 'white' : '#0f172a', 
+                  fontWeight: '600', 
+                  fontSize: '16px' 
+                }}>{vehicleNumber}</span>
+                <i className="edit-icon fas fa-edit" style={{ 
+                  color: currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)', 
+                  fontSize: '12px' 
+                }}></i>
               </div>
             </div>
 
@@ -913,7 +929,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </div>
 
           {/* Main Dashboard Content */}
-          <div className="vehicle-dashboard-main-content" style={{ paddingTop: '120px' }}>
+          <div className="vehicle-dashboard-main-content" style={{ paddingTop: '145px' }}>
             {/* Statistics Cards - 4 in One Row */}
             <div style={{
               display: 'flex',

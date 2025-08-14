@@ -30,7 +30,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
-        paddingTop: '20px',
+        paddingTop: '40px',
         boxSizing: 'border-box'
       }}>
       <div 
