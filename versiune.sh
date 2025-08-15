@@ -8,7 +8,6 @@ if [ "$1" = "" ]; then
     echo "FOLOSIRE: ./versiune.sh [DEV|TEST|PROD]"
     echo ""
     echo "Exemple:"
-    echo "  ./versiune.sh DEV   - Porneste server pentru dezvoltare"
     echo "  ./versiune.sh TEST  - Comuta la TEST si face build"
     echo "  ./versiune.sh PROD  - Comuta la PRODUCTION si face build"
     echo ""
@@ -37,13 +36,7 @@ echo "================================"
 echo ""
 
 # Step 1: Switch environment
-echo "PASUL 1/5 - Comutare la $ENV..."
-echo ""
-
-# Backup current files
-echo "Creez backup-uri..."
-cp "src/services/api.ts" "src/services/api.ts.backup" 2>/dev/null
-cp "android/app/src/main/java/com/euscagency/itrack/OptimalGPSService.java" "android/app/src/main/java/com/euscagency/itrack/OptimalGPSService.java.backup" 2>/dev/null
+echo "PASUL 1/4 - Comutare la $ENV..."
 
 if [ "$ENV" = "PROD" ] || [ "$ENV" = "prod" ]; then
     echo "Setez PRODUCTION environment..."
@@ -61,24 +54,21 @@ else
 fi
 
 echo ""
-echo "PASUL 2/5 - Building web application..."
+echo "PASUL 2/4 - Building web application..."
 npm run build
 if [ $? -ne 0 ]; then
     echo "EROARE: Build-ul web a esuat!"
     exit 1
 fi
 
-echo "PASUL 3/5 - Syncing with Capacitor..."
+echo "PASUL 3/4 - Syncing with Capacitor..."
 npx cap sync android
 if [ $? -ne 0 ]; then
     echo "EROARE: Capacitor sync a esuat!"
     exit 1
 fi
 
-echo "PASUL 4/5 - Copying assets to Android..."
-npx cap copy android
-
-echo "PASUL 5/5 - Opening Android Studio..."
+echo "PASUL 4/4 - Opening Android Studio..."
 echo ""
 npx cap open android
 

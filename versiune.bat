@@ -7,7 +7,6 @@ if "%1"=="" (
     echo FOLOSIRE: versiune.bat [DEV^|TEST^|PROD]
     echo.
     echo Exemple:
-    echo   versiune.bat DEV   - Porneste server pentru dezvoltare
     echo   versiune.bat TEST  - Comuta la TEST si face build
     echo   versiune.bat PROD  - Comuta la PRODUCTION si face build
     echo.
@@ -38,13 +37,7 @@ echo ================================
 echo.
 
 REM Step 1: Switch environment
-echo PASUL 1/5 - Comutare la %ENV%...
-echo.
-
-REM Backup current files
-echo Creez backup-uri...
-copy "src\services\api.ts" "src\services\api.ts.backup" >nul 2>&1
-copy "android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java" "android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java.backup" >nul 2>&1
+echo PASUL 1/4 - Comutare la %ENV%...
 
 if /i "%ENV%"=="PROD" (
     echo Setez PRODUCTION environment...
@@ -63,7 +56,7 @@ if /i "%ENV%"=="PROD" (
 )
 
 echo.
-echo PASUL 2/5 - Building web application...
+echo PASUL 2/4 - Building web application...
 call npm run build
 if errorlevel 1 (
     echo EROARE: Build-ul web a esuat!
@@ -71,7 +64,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo PASUL 3/5 - Syncing with Capacitor...
+echo PASUL 3/4 - Syncing with Capacitor...
 call npx cap sync android
 if errorlevel 1 (
     echo EROARE: Capacitor sync a esuat!
@@ -79,10 +72,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo PASUL 4/5 - Copying assets to Android...
-call npx cap copy android
-
-echo PASUL 5/5 - Opening Android Studio...
+echo PASUL 4/4 - Opening Android Studio...
 echo.
 call npx cap open android
 
