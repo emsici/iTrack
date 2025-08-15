@@ -247,39 +247,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Development Info - Always visible */}
-        {true && (
-          <div style={{
-            marginTop: '30px',
-            padding: '16px',
-            background: isDarkVariant 
-              ? 'rgba(59, 130, 246, 0.1)' 
-              : 'rgba(59, 130, 246, 0.05)',
-            border: isDarkVariant 
-              ? '1px solid rgba(59, 130, 246, 0.2)' 
-              : '1px solid rgba(59, 130, 246, 0.15)',
-            borderRadius: '16px'
-          }}>
-            <div style={{
-              color: isDarkVariant ? '#93c5fd' : '#3b82f6',
-              fontSize: '14px',
-              fontWeight: '600',
-              marginBottom: '8px'
-            }}>
-              🔧 Informații dezvoltare
-            </div>
-            <div style={{
-              color: isDarkVariant ? '#cbd5e1' : '#64748b',
-              fontSize: '12px',
-              lineHeight: '1.4'
-            }}>
-              <strong>iTrack GPS v1807.99</strong><br />
-              Tema activă: {THEME_INFO[currentTheme].name}<br />
-              Build: Professional Enterprise<br />
-              Framework: React + Capacitor
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );

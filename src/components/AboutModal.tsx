@@ -270,41 +270,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
             </div>
           </div>
 
-          {/* Business Impact */}
-          <div style={{ marginBottom: '16px' }}>
-            <h3 style={{
-              color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
-              fontSize: '16px',
-              fontWeight: '600',
-              margin: '0 0 8px 0'
-            }}>
-              Caracteristici tehnice
-            </h3>
-            <div style={{
-              padding: '16px',
-              background: currentTheme === 'dark' 
-                ? 'rgba(34, 197, 94, 0.1)' 
-                : 'rgba(34, 197, 94, 0.05)',
-              border: currentTheme === 'dark' 
-                ? '1px solid rgba(34, 197, 94, 0.3)' 
-                : '1px solid rgba(34, 197, 94, 0.2)',
-              borderRadius: '12px',
-              fontSize: '13px'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span style={{ opacity: '0.8', fontSize: '13px' }}>GPS:</span>
-                <span style={{ fontWeight: '600', fontSize: '13px' }}>5 secunde</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span style={{ opacity: '0.8', fontSize: '13px' }}>Offline:</span>
-                <span style={{ fontWeight: '600', fontSize: '13px' }}>Sincronizare automată</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ opacity: '0.8', fontSize: '13px' }}>Versiune:</span>
-                <span style={{ fontWeight: '600', fontSize: '13px' }}>1.0.0</span>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
     </div>

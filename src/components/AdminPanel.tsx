@@ -125,12 +125,25 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
 
 
   return (
-    <div style={{
-      padding: '20px',
-      backgroundColor: '#f8fafc',
-      minHeight: '100vh',
-      fontFamily: 'monospace'
-    }}>
+    <div 
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: '#f8fafc',
+        zIndex: 999999,
+        fontFamily: 'monospace',
+        overflow: 'hidden',
+        padding: '20px',
+        boxSizing: 'border-box'
+      }}
+      onClick={(e) => {
+        // Prevent accidental close when clicking background
+        e.stopPropagation();
+      }}
+    >
       <div style={{
         marginBottom: '20px',
         display: 'flex',
@@ -143,31 +156,39 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
             <button
               onClick={onClose}
               style={{
-                padding: '8px 12px',
-                backgroundColor: '#6b7280',
+                padding: '8px 16px',
+                backgroundColor: '#10b981',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
                 cursor: 'pointer',
-                fontSize: '18px'
+                fontSize: '14px',
+                fontWeight: '600'
               }}
-              title="Înapoi la aplicație"
+              title="Înapoi la aplicație - NU se deloghează"
             >
-              ✕
+              ← Înapoi la App
             </button>
           )}
           <button
-            onClick={onLogout}
+            onClick={() => {
+              if (confirm('Sigur vrei să te deloghezi complet din aplicație?')) {
+                onLogout();
+              }
+            }}
             style={{
               padding: '8px 16px',
               backgroundColor: '#dc2626',
               color: 'white',
               border: 'none',
               borderRadius: '6px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '600'
             }}
+            title="Deloghează complet din aplicație"
           >
-            Logout
+            Logout Complet
           </button>
         </div>
       </div>
