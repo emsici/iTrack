@@ -135,8 +135,30 @@ export const API_CONFIG = {
 };
 
 // PUNCT UNIC de schimbare environment
-export const API_BASE_URL = API_CONFIG.TEST;
+export const API_BASE_URL = API_CONFIG.TEST; // Schimbare aici
 ```
+
+## 🚀 SWITCH DE LA TEST LA PRODUCTION
+
+Pentru a trece aplicația de la mediul de TEST la PRODUCTION, modifică **DOAR** aceste 2 linii de cod:
+
+### **1. Frontend JavaScript (src/services/api.ts)**
+```typescript
+// Linia 138 - Schimbă TEST cu PROD
+export const API_BASE_URL = API_CONFIG.PROD;
+```
+
+### **2. Backend Android Service (android/app/src/main/java/com/euscagency/itrack/OptimalGPSService.java)**  
+```java
+// Linia 44 - Schimbă API_BASE_URL_TEST cu API_BASE_URL_PROD
+private static final String API_BASE_URL = API_BASE_URL_PROD;
+```
+
+### **Verificare URL-uri:**
+- **TEST**: `https://www.euscagency.com/etsm3/platforme/transport/apk/`
+- **PROD**: `https://www.euscagency.com/etsm_prod/platforme/transport/apk/`
+
+**⚠️ IMPORTANT:** Nu uita să modifici AMBELE fișiere - altfel vei avea probleme de sincronizare între frontend și backend!
 
 #### Funcția login()
 ```typescript
@@ -523,8 +545,8 @@ public class MainActivity extends BridgeActivity {
 private static final String API_BASE_URL_PROD = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/";
 private static final String API_BASE_URL_TEST = "https://www.euscagency.com/etsm3/platforme/transport/apk/";
 
-// Punct unic de schimbare
-private static final String API_BASE_URL = API_BASE_URL_TEST;
+// Punct unic de schimbare - Modifică aici pentru PRODUCTION
+private static final String API_BASE_URL = API_BASE_URL_TEST; // Schimbare cu API_BASE_URL_PROD
 ```
 
 #### Sistemul AlarmManager (5 secunde exact)
