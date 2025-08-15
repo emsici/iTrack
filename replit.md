@@ -131,8 +131,7 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/login.php` (Authentication)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php` (Logout)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php` (Course Management)
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/update_course_status.php` (Course Status Updates)
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php` (GPS Data Transmission)
+    - `https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php` (GPS Data Transmission - TOATE statusurile: 2, 3, 4)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/rezultate.php` (GPS Result Verification)
 - **APIs** (PROD - etsm_prod - INACTIV):
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/login.php` (Authentication)
