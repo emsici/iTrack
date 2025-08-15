@@ -38,7 +38,7 @@ public class OptimalGPSService extends Service {
     
     // Centralized API Configuration - Change only here to switch environments
     private static final String API_BASE_URL_PROD = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/";
-    private static final String API_BASE_URL_TEST = "https://www.euscagency.com/etsm_test/platforme/transport/apk/";
+    private static final String API_BASE_URL_TEST = "https://www.euscagency.com/etsm3/platforme/transport/apk/";
     
     // Current active environment - Change this single line to switch environments
     private static final String API_BASE_URL = API_BASE_URL_TEST;
