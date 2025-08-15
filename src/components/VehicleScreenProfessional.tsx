@@ -141,9 +141,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // DEBUG: Log actual data structure to identify N/A issue
       console.log("🔍 DEBUG API ENVIRONMENT:", API_BASE_URL);
       console.log("🔍 DEBUG: Vehicle number used:", vehicleNumber);
+      console.log("🔍 DEBUG: Raw courses array length:", coursesArray.length);
       if (coursesArray.length > 0) {
-        console.log("🔍 DEBUG: Actual course data structure:", JSON.stringify(coursesArray[0], null, 2));
-        console.log("🔍 DEBUG: Course fields available:", Object.keys(coursesArray[0]));
+        console.log("🔍 DEBUG: First course structure:", JSON.stringify(coursesArray[0], null, 2));
+        console.log("🔍 DEBUG: All course UIT values:", coursesArray.map(c => c.UIT || c.uit));
       } else {
         console.log("🔍 DEBUG: No courses returned from API");
         console.log("🔍 DEBUG: Raw API response:", JSON.stringify(response, null, 2));
@@ -218,7 +219,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         // Store vehicle number ONLY after successful course loading
         await storeVehicleNumber(vehicleNumber.trim());
-        console.log(`✅ Curse încărcate cu succes - se comută la vizualizarea principală cu ${finalCourses.length} curse`);
+        console.log(`✅ ${finalCourses.length} curse finale încărcate pentru vehiculul ${vehicleNumber}`);
+        console.log("🔍 DEBUG: Final mapped courses:", finalCourses.map(c => ({ 
+          id: c.id, 
+          uit: c.uit, 
+          name: c.name,
+          ikRoTrans: c.ikRoTrans
+        })));
         
         // Update last refresh timestamp
         setLastRefreshTime(new Date());
