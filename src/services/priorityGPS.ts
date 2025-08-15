@@ -285,6 +285,7 @@ class PriorityGPSService {
 
     // Handle pause/stop - remove from active courses
     if (newStatus === 3 || newStatus === 4) {
+      logGPS(`🛑 PRIORITY GPS: PAUSE/STOP (${newStatus}) - Removing course ${courseId} from active GPS transmission`);
       await this.stopGPS(courseId);
       return;
     }
@@ -414,13 +415,26 @@ class PriorityGPSService {
     if (!activeMethod) return;
 
     try {
+      // CRITICAL ANTI-DUPLICATE: Check if GuaranteedGPS already transmitted for this course in this timestamp cycle
+      const currentTimestamp = sharedTimestampService.getSharedTimestampISO();
+      const timestampKey = `priority_gps_${course.courseId}_${currentTimestamp}`;
+      
+      if ((window as any)[timestampKey]) {
+        logGPS(`⏭️ ANTI-DUPLICATE: Priority GPS skipping ${course.courseId} - already transmitted by another service in this cycle`);
+        return;
+      }
+      
+      // Mark this transmission to prevent duplicates
+      (window as any)[timestampKey] = true;
+      
       const success = await activeMethod.transmit(course);
       if (success) {
         course.lastSuccessfulTransmission = new Date().toISOString();
         this.activeCourses.set(course.courseId, course);
+        logGPS(`✅ Priority GPS transmitted successfully for ${course.courseId}`);
       }
     } catch (error) {
-      logGPSError(`❌ Transmission failed for ${course.courseId}: ${error}`);
+      logGPSError(`❌ Priority GPS transmission failed for ${course.courseId}: ${error}`);
     }
   }
 

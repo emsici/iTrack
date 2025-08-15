@@ -126,19 +126,29 @@ class DirectAndroidGPSService {
       
       // STEP 2: Handle GPS coordinate transmission based on status
       if (newStatus === 3 || newStatus === 4) {
-        console.log(`🛑 STEP 2: STOPPING GPS coordinates after ${newStatus === 3 ? 'PAUSE' : 'STOP'} status transmission`);
+        console.log(`🛑 STEP 2: IMMEDIATELY STOPPING all GPS coordinates - NO MORE TRANSMISSIONS for ${courseId}`);
+        
+        // IMMEDIATE STOP: Stop tracking BEFORE any more transmissions can happen
         await this.stopTracking(courseId);
         
-        // EMERGENCY STOP: Stop all guaranteed GPS services to prevent race conditions
-        if ((window as any).garanteedGPS) {
-          try {
-            (window as any).garanteedGPS.emergencyStopAll();
-            console.log(`🛑 EMERGENCY STOP: All GaranteedGPS services stopped to prevent concurrent transmissions`);
-          } catch (e) {
-            console.log(`⚠️ Could not emergency stop garanteedGPS: ${e}`);
-          }
+        // CRITICAL FIX: Also update Priority GPS status to prevent further transmissions
+        try {
+          const { priorityGPSService } = await import('./priorityGPS');
+          await priorityGPSService.updateStatus(courseId, newStatus);
+          console.log(`✅ Priority GPS status updated to ${newStatus} - no more transmissions`);
+        } catch (priorityError) {
+          console.error(`⚠️ Could not update Priority GPS status: ${priorityError}`);
         }
-        console.log(`✅ GPS coordinates STOPPED after ${newStatus === 3 ? 'PAUSE' : 'STOP'} status`);
+        
+        // CRITICAL FIX: Also update Guaranteed GPS status to prevent further transmissions
+        try {
+          await guaranteedGPSService.updateStatus(courseId, newStatus);
+          console.log(`✅ Guaranteed GPS status updated to ${newStatus} - no more transmissions`);
+        } catch (guaranteedError) {
+          console.error(`⚠️ Could not update Guaranteed GPS status: ${guaranteedError}`);
+        }
+        
+        console.log(`✅ ALL GPS services stopped for course ${courseId} - status ${newStatus === 3 ? 'PAUSE' : 'STOP'}`);
       }
       
       // STEP 3: Handle GPS coordinate transmission for START/RESUME

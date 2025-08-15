@@ -168,11 +168,22 @@ class GuaranteedGPSService {
     try {
       logGPS(`🔧 Preparing GPS data for ${course.courseId}...`);
       
-      const batteryLevel = await this.getBatteryLevel();
-      logGPS(`🔋 Battery level: ${batteryLevel}%`);
-      
       // Folosește timestamp-ul primit sau generează unul nou (pentru backward compatibility)
       const uniqueTimestamp = timestamp ? timestamp.toISOString() : new Date().toISOString();
+      
+      // CRITICAL ANTI-DUPLICATE: Check if PriorityGPS or AndroidGPS already transmitted for this course in this timestamp cycle
+      const timestampKey = `guaranteed_gps_${course.courseId}_${uniqueTimestamp}`;
+      
+      if ((window as any)[timestampKey]) {
+        logGPS(`⏭️ ANTI-DUPLICATE: Guaranteed GPS skipping ${course.courseId} - already transmitted by PriorityGPS in this cycle`);
+        return;
+      }
+      
+      // Mark this transmission to prevent other services from duplicating
+      (window as any)[timestampKey] = true;
+      
+      const batteryLevel = await this.getBatteryLevel();
+      logGPS(`🔋 Battery level: ${batteryLevel}%`);
       
       const gpsData: GPSData = {
         lat: Math.round(coords.latitude * 10000000) / 10000000,  // Exact 7 decimale - standard GPS
@@ -189,8 +200,8 @@ class GuaranteedGPSService {
         gsm_signal: navigator.onLine ? ((navigator as any).connection?.effectiveType === '4g' ? 4 : 3) : 1
       };
       
-      logGPS(`🚨 TRANSMITTING GPS DATA WITH UIT: ${course.uit} for course ${course.courseId}`);
-      logGPS(`🕒 SAME TIMESTAMP SENT: ${uniqueTimestamp}`);
+      logGPS(`🚨 GUARANTEED GPS BACKUP TRANSMISSION: ${course.uit} for course ${course.courseId}`);
+      logGPS(`🕒 BACKUP TIMESTAMP: ${uniqueTimestamp}`);
 
       logGPS(`📊 GPS Data prepared: lat=${gpsData.lat}, lng=${gpsData.lng}, uit=${gpsData.uit}, vehicle=${gpsData.numar_inmatriculare}`);
       logGPS(`🔑 Using token: ${course.token.substring(0, 20)}...`);
@@ -198,9 +209,9 @@ class GuaranteedGPSService {
       const success = await sendGPSData(gpsData, course.token);
       
       if (success) {
-        logGPS(`✅ GPS transmitted successfully: ${coords.latitude}, ${coords.longitude} for course ${course.courseId}`);
+        logGPS(`✅ Guaranteed GPS BACKUP transmitted successfully: ${coords.latitude}, ${coords.longitude} for course ${course.courseId}`);
       } else {
-        logGPSError(`❌ GPS transmission failed for course ${course.courseId} - saving offline for later sync`);
+        logGPSError(`❌ Guaranteed GPS BACKUP transmission failed for course ${course.courseId} - saving offline for later sync`);
         
         // SAVE TO OFFLINE STORAGE when transmission fails
         try {
@@ -212,7 +223,7 @@ class GuaranteedGPSService {
       }
 
     } catch (error) {
-      logGPSError(`❌ Single course transmission error for ${course.courseId}: ${error}`);
+      logGPSError(`❌ Guaranteed GPS single course transmission error for ${course.courseId}: ${error}`);
     }
   }
 
