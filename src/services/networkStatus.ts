@@ -12,18 +12,19 @@ class NetworkStatusService {
   private consecutiveFailures: number = 0;
   private statusCallbacks: ((isOnline: boolean) => void)[] = [];
   
-  // Configurări
+  // Configurări pentru detectare precisă
   private readonly OFFLINE_THRESHOLD_MS = 30000; // 30 secunde fără succes = offline
   private readonly MAX_CONSECUTIVE_FAILURES = 3; // 3 eșecuri consecutive = offline
-  private readonly ONLINE_CONFIRMATION_DELAY = 2000; // 2 secunde după succes = online
+  private readonly ONLINE_CONFIRMATION_DELAY = 1000; // 1 secundă după succes = online (mai rapid)
+  private readonly STATUS_CHECK_INTERVAL = 3000; // Verificare la 3 secunde pentru răspuns rapid
 
   constructor() {
     logAPI('🌐 Serviciu status rețea inițializat - detectare bazată pe transmisiile GPS reale');
     
-    // Verificare periodică a status-ului
+    // Verificare periodică rapidă pentru detectare imediată
     setInterval(() => {
       this.checkNetworkStatus();
-    }, 5000); // La 5 secunde
+    }, this.STATUS_CHECK_INTERVAL); // La 3 secunde pentru răspuns rapid
   }
 
   /**
