@@ -6,6 +6,7 @@ iTrack is a professional enterprise GPS monitoring application for fleet managem
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
+Timestamp preference: Romania local time (+3 hours from UTC) for all GPS data and system timestamps.
 Performance optimization: Universal optimization for ALL Android phones (not device-specific).
 Code comments: All comments must be in Romanian language.
 Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java removed).
