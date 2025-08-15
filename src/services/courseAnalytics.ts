@@ -365,6 +365,7 @@ class CourseAnalyticsService {
 
 // Export singleton instance
 export const courseAnalyticsService = new CourseAnalyticsService();
+export default courseAnalyticsService;
 
 // Convenience functions
 export const startCourseAnalytics = (courseId: string, uit: string, vehicleNumber: string) =>

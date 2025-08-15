@@ -116,12 +116,17 @@ class DirectAndroidGPSService {
       const token = await getStoredToken() || '';
       const realUIT = courseId; // courseId IS the UIT from VehicleScreen fix
       
-      // CRITICAL: Send status to server FIRST before updating GPS
-      console.log(`📡 Sending status ${newStatus} to server for UIT: ${realUIT}`);
+      // CRITICAL FLOW:
+      // 1. For PAUSE (3) or STOP (4): Send status FIRST, then stop GPS coordinates
+      // 2. For START (2): Send status FIRST, then start GPS coordinates
       
-      // IMPORTANT: Stop all other GPS services before status transmission to prevent concurrent transmissions
+      console.log(`📡 STEP 1: Sending status ${newStatus} to server for UIT: ${realUIT}`);
+      await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
+      console.log(`✅ Status ${newStatus} sent to server successfully`);
+      
+      // STEP 2: Handle GPS coordinate transmission based on status
       if (newStatus === 3 || newStatus === 4) {
-        console.log(`🛑 PRE-STOPPING all GPS services before ${newStatus === 3 ? 'PAUSE' : 'STOP'} transmission to prevent race conditions`);
+        console.log(`🛑 STEP 2: STOPPING GPS coordinates after ${newStatus === 3 ? 'PAUSE' : 'STOP'} status transmission`);
         await this.stopTracking(courseId);
         
         // EMERGENCY STOP: Stop all guaranteed GPS services to prevent race conditions
@@ -133,23 +138,14 @@ class DirectAndroidGPSService {
             console.log(`⚠️ Could not emergency stop garanteedGPS: ${e}`);
           }
         }
-        
-        // Small delay to ensure other services have stopped
-        await new Promise(resolve => setTimeout(resolve, 100));
+        console.log(`✅ GPS coordinates STOPPED after ${newStatus === 3 ? 'PAUSE' : 'STOP'} status`);
       }
       
-      await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
-      
-      // STATUS 2 (START): Setup complete GPS tracking
+      // STEP 3: Handle GPS coordinate transmission for START/RESUME
       if (newStatus === 2) {
-        console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
+        console.log(`🚀 STEP 3: STARTING GPS coordinates after START/RESUME status transmission`);
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
-      }
-      
-      // STATUS 3 (PAUSE) or STATUS 4 (STOP): Ensure GPS transmission is completely stopped
-      if (newStatus === 3 || newStatus === 4) {
-        console.log(`⏸️ STATUS ${newStatus} (${newStatus === 3 ? 'PAUSE' : 'STOP'}): Final GPS stop confirmation for ${courseId}`);
-        // Already stopped above - this is just for logging consistency
+        console.log(`✅ GPS coordinates STARTED after START/RESUME status`);
       }
       
       // Update local tracking - CRITICAL FIX: Remove courses with status 3/4 completely
@@ -217,39 +213,32 @@ class DirectAndroidGPSService {
   }
 
   /**
-   * HYBRID GPS: Android native GPS + Guaranteed JavaScript backup for reliable transmission
-   * This ensures GPS transmits every 5 seconds regardless of Android service status
+   * PRIORITY GPS: Smart method selection with fallback - no duplicate transmissions
+   * Uses priority system: Android Native → Capacitor → JavaScript backup
    */
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
-    logGPS(`🔥 HYBRID GPS: Starting both Android service + JavaScript backup`);
+    logGPS(`🎯 PRIORITY GPS: Starting intelligent GPS with method prioritization`);
     
     try {
-      // 1. Start Android native GPS service (primary method)
-      if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-        try {
-          const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
-          logGPS(`✅ MainActivity GPS started: ${result}`);
-        } catch (androidError) {
-          logGPSError(`❌ AndroidGPS.startGPS failed: ${androidError}`);
-        }
-      } else {
-        logGPS(`⚠️ AndroidGPS interface not available - using JavaScript backup only`);
-      }
-
-      // 2. ALWAYS start guaranteed JavaScript GPS backup (ensures 5-second transmission) 
-      try {
-        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ Guaranteed GPS backup service started for course: ${courseId}`);
-      } catch (backupError) {
-        logGPSError(`❌ Guaranteed GPS backup failed: ${backupError}`);
-        throw backupError; // Rethrow as this is critical
-      }
+      // Import and use Priority GPS Service
+      const { priorityGPSService } = await import('./priorityGPS');
+      await priorityGPSService.startGPS(courseId, vehicleNumber, uit, token, status);
+      
+      logGPS(`✅ Priority GPS started successfully for course: ${courseId}`);
       
     } catch (error) {
-      logGPSError(`❌ GPS service startup failed: ${error}`);
-      throw error;
+      // Fallback to guaranteed GPS if priority system fails
+      logGPSError(`❌ Priority GPS failed, falling back to guaranteed GPS: ${error}`);
+      
+      try {
+        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+        logGPS(`✅ Fallback to Guaranteed GPS successful for course: ${courseId}`);
+      } catch (fallbackError) {
+        logGPSError(`❌ Both Priority and Guaranteed GPS failed: ${fallbackError}`);
+        throw fallbackError;
+      }
     }
   }
 
@@ -257,23 +246,31 @@ class DirectAndroidGPSService {
 
   async stopTracking(courseId: string): Promise<void> {
     try {
-      logGPS(`🛑 Stopping HYBRID GPS tracking: ${courseId}`);
+      logGPS(`🛑 Stopping PRIORITY GPS tracking: ${courseId}`);
       
-      // 1. Stop Android native GPS service  
-      if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-        const result = window.AndroidGPS.stopGPS(courseId);
-        logGPS(`✅ MainActivity GPS stopped: ${result}`);
-      } else {
-        logGPS(`⚠️ AndroidGPS interface not available - APK only feature`);
+      try {
+        // 1. Stop Priority GPS Service (handles all methods intelligently)
+        const { priorityGPSService } = await import('./priorityGPS');
+        await priorityGPSService.stopGPS(courseId);
+        logGPS(`✅ Priority GPS stopped for course: ${courseId}`);
+      } catch (priorityError) {
+        // Fallback to manual stopping
+        logGPSError(`❌ Priority GPS stop failed, using manual cleanup: ${priorityError}`);
+        
+        // Stop Android native GPS service  
+        if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
+          const result = window.AndroidGPS.stopGPS(courseId);
+          logGPS(`✅ MainActivity GPS stopped: ${result}`);
+        }
+        
+        // Stop guaranteed JavaScript GPS backup
+        await guaranteedGPSService.stopGPS(courseId);
+        logGPS(`✅ Guaranteed GPS backup stopped for course: ${courseId}`);
       }
-      
-      // 2. Stop guaranteed JavaScript GPS backup
-      await guaranteedGPSService.stopGPS(courseId);
-      logGPS(`✅ Guaranteed GPS backup stopped for course: ${courseId}`);
       
       // Remove from local tracking
       this.activeCourses.delete(courseId);
-      logGPS(`✅ HYBRID GPS stopped for course: ${courseId}`);
+      logGPS(`✅ GPS tracking stopped for course: ${courseId}`);
       logGPS(`📊 Active courses after stop: ${this.activeCourses.size}`);
       
     } catch (error) {
