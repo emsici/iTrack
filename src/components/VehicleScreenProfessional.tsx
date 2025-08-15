@@ -1210,10 +1210,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     </div>
                     <div className="stat-details">
                       <div className="stat-label" style={{ 
-                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                        color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : 'inherit' 
                       }}>TOTAL</div>
                       <div className="stat-value" style={{ 
-                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                        color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : 'inherit' 
                       }}>{courses.length}</div>
                     </div>
                   </div>
@@ -1246,10 +1246,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     </div>
                     <div className="stat-details">
                       <div className="stat-label" style={{ 
-                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                        color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : 'inherit' 
                       }}>ACTIV</div>
                       <div className="stat-value" style={{ 
-                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                        color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : 'inherit' 
                       }}>{courses.filter(c => c.status === 2).length}</div>
                     </div>
                   </div>
@@ -1282,10 +1282,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     </div>
                     <div className="stat-details">
                       <div className="stat-label" style={{ 
-                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                        color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : 'inherit' 
                       }}>PAUZĂ</div>
                       <div className="stat-value" style={{ 
-                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                        color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : 'inherit' 
                       }}>{courses.filter(c => c.status === 3).length}</div>
                     </div>
                   </div>
@@ -1318,10 +1318,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     </div>
                     <div className="stat-details">
                       <div className="stat-label" style={{ 
-                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                        color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : 'inherit' 
                       }}>DISPONIBIL</div>
                       <div className="stat-value" style={{ 
-                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                        color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : 'inherit' 
                       }}>{courses.filter(c => c.status === 1).length}</div>
                     </div>
                   </div>
