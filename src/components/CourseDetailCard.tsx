@@ -185,9 +185,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .uit-priority {
-          color: ${currentTheme === 'light' || currentTheme === 'business' 
-            ? '#000000'  /* PURE BLACK text for Light/Business themes */
-            : '#ffffff'  /* White text for other themes */
+          color: ${currentTheme === 'light' 
+            ? '#000000'  /* BLACK text for Light theme */
+            : currentTheme === 'business'
+              ? '#000000'  /* BLACK text for Business theme */
+              : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
+                : '#ffffff'  /* White text for Dark theme only */
           };
           font-size: 1rem;
           font-weight: 600;
@@ -197,9 +201,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .toggle-details-btn {
           background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(241, 245, 249, 0.9)'};
           border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(148, 163, 184, 0.25)'};
-          color: ${currentTheme === 'light' || currentTheme === 'business' 
-            ? '#000000'  /* BLACK text for Light/Business themes */
-            : '#cbd5e1'  /* Light text for other themes */
+          color: ${currentTheme === 'light' 
+            ? '#000000'  /* BLACK text for Light theme */
+            : currentTheme === 'business'
+              ? '#000000'  /* BLACK text for Business theme */
+              : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
+                : '#cbd5e1'  /* Light text for Dark theme only */
           };
           padding: 8px 16px;
           border-radius: 8px;
@@ -260,9 +268,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .preview-label {
-          color: ${currentTheme === 'light' || currentTheme === 'business' 
-            ? '#1e293b'  /* BLACK text for Light/Business themes */
-            : '#94a3b8'  /* Gray text for other themes */
+          color: ${currentTheme === 'light' 
+            ? '#1e293b'  /* Dark text for Light theme */
+            : currentTheme === 'business'
+              ? '#000000'  /* BLACK text for Business theme */
+              : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
+                : '#94a3b8'  /* Gray text for Dark theme only */
           };
           font-size: 0.75rem;
           font-weight: 600;
@@ -273,9 +285,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .preview-value {
-          color: ${currentTheme === 'light' || currentTheme === 'business' 
-            ? '#000000'  /* PURE BLACK text for Light/Business themes */
-            : '#e2e8f0'  /* Light text for other themes */
+          color: ${currentTheme === 'light' 
+            ? '#000000'  /* BLACK text for Light theme */
+            : currentTheme === 'business'
+              ? '#000000'  /* BLACK text for Business theme */
+              : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
+                : '#e2e8f0'  /* Light text for Dark theme only */
           };
           font-size: 0.9rem;
           font-weight: 600;
@@ -299,9 +315,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .course-title-compact {
-          color: ${currentTheme === 'light' || currentTheme === 'business' 
-            ? '#000000'  /* PURE BLACK text for Light/Business themes */
-            : '#ffffff'  /* White text for other themes */
+          color: ${currentTheme === 'light' 
+            ? '#000000'  /* BLACK text for Light theme */
+            : currentTheme === 'business'
+              ? '#000000'  /* BLACK text for Business theme */
+              : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
+                : '#ffffff'  /* White text for Dark theme only */
           };
           font-size: 0.85rem;
           font-weight: 600;
@@ -373,9 +393,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .section-title-enhanced {
-          color: ${currentTheme === 'light' || currentTheme === 'business' 
-            ? '#000000'  /* PURE BLACK text for Light/Business themes */
-            : '#ffffff'  /* White text for other themes */
+          color: ${currentTheme === 'light' 
+            ? '#000000'  /* BLACK text for Light theme */
+            : currentTheme === 'business'
+              ? '#000000'  /* BLACK text for Business theme */
+              : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
+                : '#ffffff'  /* White text for Dark theme only */
           };
           font-size: 0.9rem;
           font-weight: 600;
@@ -398,18 +422,26 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .detail-label-enhanced {
-          color: ${currentTheme === 'light' || currentTheme === 'business' 
-            ? '#1e293b'  /* DARK text for Light/Business themes */
-            : '#94a3b8'  /* Gray text for other themes */
+          color: ${currentTheme === 'light' 
+            ? '#1e293b'  /* Dark text for Light theme */
+            : currentTheme === 'business'
+              ? '#000000'  /* BLACK text for Business theme */
+              : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
+                : '#94a3b8'  /* Gray text for Dark theme only */
           };
           font-size: 0.8rem;
           font-weight: 500;
         }
 
         .detail-value-enhanced {
-          color: ${currentTheme === 'light' || currentTheme === 'business' 
-            ? '#000000'  /* PURE BLACK text for Light/Business themes */
-            : '#e2e8f0'  /* Light text for other themes */
+          color: ${currentTheme === 'light' 
+            ? '#000000'  /* BLACK text for Light theme */
+            : currentTheme === 'business'
+              ? '#000000'  /* BLACK text for Business theme */
+              : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
+                : '#e2e8f0'  /* Light text for Dark theme only */
           };
           font-size: 0.85rem;
           font-weight: 500;

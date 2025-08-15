@@ -892,11 +892,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
               <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul" style={{ 
                 background: currentTheme === 'light' 
-                  ? 'rgba(71, 85, 105, 0.08)' 
-                  : 'rgba(255, 255, 255, 0.1)', // All dark themes (dark, business, driver, nature, night) get white background
+                  ? 'rgba(71, 85, 105, 0.08)' // Light theme background
+                  : currentTheme === 'business'
+                    ? 'rgba(71, 85, 105, 0.08)' // Business theme - same as Light
+                    : 'rgba(255, 255, 255, 0.1)', // All other themes get white background
                 border: currentTheme === 'light' 
-                  ? '1px solid rgba(71, 85, 105, 0.2)' 
-                  : '1px solid rgba(255, 255, 255, 0.2)', // All dark themes get white border
+                  ? '1px solid rgba(71, 85, 105, 0.2)' // Light theme border
+                  : currentTheme === 'business'
+                    ? '1px solid rgba(71, 85, 105, 0.2)' // Business theme - same as Light
+                    : '1px solid rgba(255, 255, 255, 0.2)', // All other themes get white border
                 borderRadius: '12px', 
                 padding: '10px 20px', 
                 display: 'flex', 
@@ -906,12 +910,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               }}>
                 <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '16px' }}></i>
                 <span className="vehicle-number" style={{ 
-                  color: currentTheme === 'light' ? '#1e293b' : 'white', // Only Light theme gets dark text, all others get white
+                  color: currentTheme === 'light' 
+                    ? '#1e293b' // Dark text for Light theme 
+                    : currentTheme === 'business' 
+                      ? '#000000' // BLACK text for Business theme
+                      : 'white', // White text for all other themes (dark, driver, nature, night)
                   fontWeight: '600', 
                   fontSize: '16px' 
                 }}>{vehicleNumber}</span>
                 <i className="edit-icon fas fa-edit" style={{ 
-                  color: currentTheme === 'light' ? 'rgba(71, 85, 105, 0.7)' : 'rgba(255, 255, 255, 0.7)', // Only Light theme gets dark icon, all others get white
+                  color: currentTheme === 'light' 
+                    ? 'rgba(71, 85, 105, 0.7)' // Dark icon for Light theme
+                    : currentTheme === 'business' 
+                      ? 'rgba(0, 0, 0, 0.7)' // BLACK icon for Business theme  
+                      : 'rgba(255, 255, 255, 0.7)', // White icon for all other themes
                   fontSize: '12px' 
                 }}></i>
               </div>
@@ -1186,9 +1198,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   border: currentTheme === 'light' || currentTheme === 'business'
                     ? '1px solid rgba(203, 213, 225, 0.4)'
                     : '1px solid rgba(148, 163, 184, 0.2)',
-                  color: currentTheme === 'light' || currentTheme === 'business'
-                    ? '#1e293b' // Dark text for light themes
-                    : '#f1f5f9'  // Light text for dark themes
+                  color: currentTheme === 'light' 
+                    ? '#1e293b' // Dark text for Light theme
+                    : currentTheme === 'business'
+                      ? '#000000' // BLACK text for Business theme
+                      : '#f1f5f9'  // Light text for other themes
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper total">
@@ -1216,9 +1230,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   border: currentTheme === 'light' || currentTheme === 'business'
                     ? '1px solid rgba(34, 197, 94, 0.3)'
                     : '1px solid rgba(34, 197, 94, 0.4)',
-                  color: currentTheme === 'light' || currentTheme === 'business'
-                    ? '#065f46' // Dark green text for light themes
-                    : '#4ade80'  // Light green text for dark themes
+                  color: currentTheme === 'light' 
+                    ? '#065f46' // Dark green text for Light theme
+                    : currentTheme === 'business'
+                      ? '#000000' // BLACK text for Business theme
+                      : '#4ade80'  // Light green text for other themes
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper active">
@@ -1246,9 +1262,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   border: currentTheme === 'light' || currentTheme === 'business'
                     ? '1px solid rgba(251, 191, 36, 0.3)'
                     : '1px solid rgba(251, 191, 36, 0.4)',
-                  color: currentTheme === 'light' || currentTheme === 'business'
-                    ? '#a16207' // Dark orange text for light themes
-                    : '#fbbf24'  // Light yellow text for dark themes
+                  color: currentTheme === 'light' 
+                    ? '#a16207' // Dark orange text for Light theme
+                    : currentTheme === 'business'
+                      ? '#000000' // BLACK text for Business theme
+                      : '#fbbf24'  // Light yellow text for other themes
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper paused">
@@ -1276,9 +1294,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   border: currentTheme === 'light' || currentTheme === 'business'
                     ? '1px solid rgba(59, 130, 246, 0.3)'
                     : '1px solid rgba(59, 130, 246, 0.4)',
-                  color: currentTheme === 'light' || currentTheme === 'business'
-                    ? '#1d4ed8' // Dark blue text for light themes
-                    : '#60a5fa'  // Light blue text for dark themes
+                  color: currentTheme === 'light' 
+                    ? '#1d4ed8' // Dark blue text for Light theme
+                    : currentTheme === 'business'
+                      ? '#000000' // BLACK text for Business theme
+                      : '#60a5fa'  // Light blue text for other themes
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper available">
