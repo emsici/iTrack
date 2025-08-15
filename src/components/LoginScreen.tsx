@@ -831,7 +831,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         <div className="login-footer">
           <div className="version-info">
             <i className="fas fa-code-branch"></i>
-            <span>Versiunea 1807.99</span>
+            <span>iTrack GPS</span>
           </div>
         </div>
       </div>

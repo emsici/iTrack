@@ -1723,7 +1723,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 borderRadius: '8px',
                 backdropFilter: 'blur(10px)'
               }}>
-                v1807.99 - interfață {THEME_INFO[currentTheme]?.name || 'standard'}
+                iTrack - interfață {THEME_INFO[currentTheme]?.name || 'standard'}
               </div>
             </div>
 
