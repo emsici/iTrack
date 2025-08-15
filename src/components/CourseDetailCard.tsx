@@ -584,6 +584,80 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           {getStatusText(course.status)}
         </span>
       </div>
+
+      {/* GPS Stats Row - Distance and Speed for each UIT */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '12px',
+        padding: '8px 12px',
+        background: currentTheme === 'dark' 
+          ? 'rgba(255, 255, 255, 0.05)' 
+          : 'rgba(0, 0, 0, 0.03)',
+        borderRadius: '8px',
+        border: currentTheme === 'dark' 
+          ? '1px solid rgba(255, 255, 255, 0.1)' 
+          : '1px solid rgba(0, 0, 0, 0.05)'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
+        }}>
+          <i className="fas fa-route" style={{
+            color: '#3b82f6',
+            fontSize: '12px'
+          }}></i>
+          <span style={{
+            color: currentTheme === 'light' || currentTheme === 'business' 
+              ? '#475569' 
+              : '#9ca3af',
+            fontSize: '12px',
+            fontWeight: '500'
+          }}>
+            Distanță:
+          </span>
+          <span style={{
+            color: currentTheme === 'light' || currentTheme === 'business' 
+              ? '#1e293b' 
+              : '#ffffff',
+            fontSize: '12px',
+            fontWeight: '600'
+          }}>
+            {course.distance || '0.0'} km
+          </span>
+        </div>
+
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
+        }}>
+          <i className="fas fa-tachometer-alt" style={{
+            color: course.status === 2 ? '#10b981' : '#6b7280',
+            fontSize: '12px'
+          }}></i>
+          <span style={{
+            color: currentTheme === 'light' || currentTheme === 'business' 
+              ? '#475569' 
+              : '#9ca3af',
+            fontSize: '12px',
+            fontWeight: '500'
+          }}>
+            Viteză:
+          </span>
+          <span style={{
+            color: currentTheme === 'light' || currentTheme === 'business' 
+              ? '#1e293b' 
+              : '#ffffff',
+            fontSize: '12px',
+            fontWeight: '600'
+          }}>
+            {course.status === 2 ? `${course.currentSpeed || 0} km/h` : '0 km/h'}
+          </span>
+        </div>
+      </div>
       
       <div className="course-preview">
         <div className="preview-row">
