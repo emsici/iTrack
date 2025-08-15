@@ -1357,7 +1357,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   padding: '40px 30px',
                   margin: '20px',
                   textAlign: 'center',
-                  color: currentTheme === 'dark' ? '#cbd5e1' : '#475569',
+                  color: currentTheme === 'dark' 
+                    ? '#cbd5e1' 
+                    : currentTheme === 'light' || currentTheme === 'business'
+                      ? '#000000'  // BLACK text for Light/Business themes
+                      : '#475569', // Gray for other themes
                   boxShadow: currentTheme === 'dark' 
                     ? '0 8px 32px rgba(0, 0, 0, 0.3)'
                     : '0 8px 32px rgba(0, 0, 0, 0.15)'
@@ -1369,7 +1373,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     display: 'block'
                   }}></i>
                   <h3 style={{ 
-                    color: currentTheme === 'dark' ? '#ffffff' : '#1e293b', 
+                    color: currentTheme === 'dark' 
+                      ? '#ffffff' 
+                      : currentTheme === 'light' || currentTheme === 'business'
+                        ? '#000000'  // BLACK text for Light/Business themes
+                        : '#1e293b', // Default dark text for other themes
                     margin: '0 0 12px 0',
                     fontSize: '18px',
                     fontWeight: '600'
@@ -1391,7 +1399,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     border: '1px solid rgba(59, 130, 246, 0.3)',
                     borderRadius: '12px',
                     fontSize: '14px',
-                    color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af'
+                    color: currentTheme === 'dark' 
+                      ? '#93c5fd' 
+                      : currentTheme === 'light' || currentTheme === 'business'
+                        ? '#000000'  // BLACK text for Light/Business themes  
+                        : '#1e40af'  // Blue text for other themes
                   }}>
                     <i className="fas fa-lightbulb" style={{ marginRight: '8px' }}></i>
                     Verifică numărul vehiculului sau contactează administratorul.

@@ -62,7 +62,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
             right: '20px',
             background: 'transparent',
             border: 'none',
-            color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
+            color: currentTheme === 'dark' ? '#94a3b8' : '#000000',  // BLACK for light theme
             fontSize: '24px',
             cursor: 'pointer',
             padding: '8px',
@@ -102,7 +102,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
             <i className="fas fa-truck"></i>
           </div>
           <h2 style={{
-            color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
+            color: currentTheme === 'dark' ? '#ffffff' : '#000000',  // BLACK for light theme
             fontSize: '22px',
             fontWeight: '700',
             margin: '0 0 8px 0'
@@ -110,7 +110,7 @@ const AboutModal: React.FC<AboutModalProps> = ({
             iTrack GPS
           </h2>
           <p style={{
-            color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
+            color: currentTheme === 'dark' ? '#94a3b8' : '#000000',  // BLACK for light theme
             fontSize: '14px',
             margin: 0
           }}>
@@ -120,13 +120,13 @@ const AboutModal: React.FC<AboutModalProps> = ({
 
         {/* Content */}
         <div style={{
-          color: currentTheme === 'dark' ? '#e2e8f0' : '#334155',
+          color: currentTheme === 'dark' ? '#e2e8f0' : '#000000',  // BLACK for light theme
           lineHeight: '1.6'
         }}>
           {/* Description */}
           <div style={{ marginBottom: '24px' }}>
             <h3 style={{
-              color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
+              color: currentTheme === 'dark' ? '#ffffff' : '#000000',  // BLACK for light theme
               fontSize: '18px',
               fontWeight: '600',
               margin: '0 0 12px 0'
