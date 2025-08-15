@@ -4135,3 +4135,485 @@ html, body {
   border-color: rgba(147, 51, 234, 0.3);
   color: #c7d2fe;
 }
+
+/* ===========================================
+   MODERN OFFLINE SYNC PROGRESS - ADAPTIVE DESIGN FOR ALL THEMES
+   =========================================== */
+
+/* Base offline sync progress styles - Modern glassmorphism design */
+.offline-sync-progress {
+  margin: 12px 0;
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.offline-sync-progress::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #00d4aa, #00a8ff, #7b68ee, #ff6b9d);
+  background-size: 300% 100%;
+  animation: rainbow-flow 3s ease-in-out infinite;
+}
+
+@keyframes rainbow-flow {
+  0%, 100% { background-position: 0% 0; }
+  50% { background-position: 100% 0; }
+}
+
+/* Network status badges with modern styling */
+.network-status {
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.network-status::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.network-status.online::before {
+  background: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+}
+
+.network-status.offline::before {
+  background: #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+}
+
+/* Sync container states with modern card design */
+.sync-active,
+.sync-completed,
+.sync-pending {
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.sync-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sync-icon {
+  margin-right: 16px;
+  font-size: 24px;
+  background: linear-gradient(45deg, #00d4aa, #00a8ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(0, 212, 170, 0.3));
+}
+
+.sync-icon-automatic {
+  margin-right: 16px;
+  font-size: 28px;
+  background: linear-gradient(45deg, #00d4aa, #00a8ff, #7b68ee);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease-in-out infinite, float 2s ease-in-out infinite;
+  filter: drop-shadow(0 2px 8px rgba(0, 212, 170, 0.4));
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-3px) scale(1.05); }
+}
+
+.spinning {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.sync-info {
+  flex: 1;
+}
+
+.sync-title,
+.offline-title {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(45deg, currentColor, rgba(255, 255, 255, 0.8));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sync-stats,
+.offline-count {
+  font-size: 13px;
+  opacity: 0.85;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.auto-sync-note {
+  font-size: 12px;
+  opacity: 0.75;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid currentColor;
+  margin-top: 8px;
+}
+
+.network-debug {
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-left: 4px solid #ef4444;
+  font-size: 11px;
+  margin-top: 8px;
+  backdrop-filter: blur(10px);
+}
+
+/* Modern progress bar with animations */
+.progress-bar-container {
+  margin: 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00d4aa, #00a8ff, #7b68ee);
+  background-size: 300% 100%;
+  border-radius: 6px;
+  transition: width 0.4s ease;
+  position: relative;
+  animation: gradient-flow 2s ease-in-out infinite;
+  box-shadow: 0 2px 8px rgba(0, 212, 170, 0.4);
+}
+
+@keyframes gradient-flow {
+  0%, 100% { background-position: 0% 0; }
+  50% { background-position: 100% 0; }
+}
+
+.progress-fill.syncing::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: progress-wave 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-wave {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.progress-text {
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(45deg, #00d4aa, #00a8ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  min-width: 40px;
+  text-align: right;
+}
+
+.time-estimate {
+  font-size: 12px;
+  opacity: 0.8;
+  text-align: center;
+  margin-top: 12px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.sync-failed {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid #ef4444;
+}
+
+.sync-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #22c55e;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 16px;
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  animation: success-pulse 2s ease-in-out;
+}
+
+@keyframes success-pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.sync-error {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #ef4444;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(10px);
+}
+
+/* THEME-SPECIFIC ADAPTATIONS */
+
+/* Dark theme - Professional dark mode */
+[data-theme="dark"] .offline-sync-progress {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .network-status.online {
+  background: rgba(34, 197, 94, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+[data-theme="dark"] .network-status.offline {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* Light theme - Clean professional */
+[data-theme="light"] .offline-sync-progress {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  color: #334155;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .network-status.online {
+  background: rgba(34, 197, 94, 0.15);
+  color: #15803d;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+[data-theme="light"] .network-status.offline {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Blue theme - Ocean professional */
+[data-theme="blue"] .offline-sync-progress {
+  background: rgba(30, 58, 138, 0.95);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #dbeafe;
+}
+
+[data-theme="blue"] .sync-icon-automatic {
+  background: linear-gradient(45deg, #3b82f6, #1d4ed8, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Green theme - Nature professional */
+[data-theme="green"] .offline-sync-progress {
+  background: rgba(20, 83, 45, 0.95);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #dcfce7;
+}
+
+[data-theme="green"] .sync-icon-automatic {
+  background: linear-gradient(45deg, #22c55e, #16a34a, #15803d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Purple theme - Premium professional */
+[data-theme="purple"] .offline-sync-progress {
+  background: rgba(69, 39, 160, 0.95);
+  border: 1px solid rgba(147, 51, 234, 0.4);
+  color: #ede9fe;
+}
+
+[data-theme="purple"] .sync-icon-automatic {
+  background: linear-gradient(45deg, #a855f7, #9333ea, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Nature theme - Enhanced earth tones */
+[data-theme="nature"] .offline-sync-progress {
+  background: rgba(41, 37, 36, 0.95);
+  border: 1px solid rgba(132, 204, 22, 0.4);
+  color: #f7fee7;
+  box-shadow: 
+    0 8px 32px rgba(132, 204, 22, 0.15),
+    inset 0 1px 0 rgba(132, 204, 22, 0.1);
+}
+
+[data-theme="nature"] .sync-icon-automatic {
+  background: linear-gradient(45deg, #84cc16, #65a30d, #22c55e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="nature"] .network-status.online {
+  background: rgba(132, 204, 22, 0.2);
+  color: #bef264;
+  border: 1px solid rgba(132, 204, 22, 0.4);
+}
+
+[data-theme="nature"] .progress-fill {
+  background: linear-gradient(90deg, #84cc16, #22c55e, #16a34a);
+  box-shadow: 0 2px 8px rgba(132, 204, 22, 0.4);
+}
+
+/* Night theme - Deep space professional */
+[data-theme="night"] .offline-sync-progress {
+  background: rgba(30, 27, 75, 0.95);
+  border: 1px solid rgba(147, 51, 234, 0.4);
+  color: #c7d2fe;
+}
+
+[data-theme="night"] .sync-icon-automatic {
+  background: linear-gradient(45deg, #8b5cf6, #7c3aed, #6d28d9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Responsive design optimizations */
+@media (max-width: 768px) {
+  .offline-sync-progress {
+    margin: 8px 0;
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .sync-header {
+    margin-bottom: 12px;
+  }
+  
+  .sync-icon,
+  .sync-icon-automatic {
+    font-size: 20px;
+    margin-right: 12px;
+  }
+  
+  .sync-title,
+  .offline-title {
+    font-size: 14px;
+  }
+  
+  .sync-stats,
+  .offline-count {
+    font-size: 12px;
+  }
+  
+  .auto-sync-note {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  .progress-bar {
+    height: 10px;
+  }
+  
+  .progress-text {
+    font-size: 12px;
+  }
+}
+
+/* Performance optimizations */
+.offline-sync-progress *,
+.offline-sync-progress *::before,
+.offline-sync-progress *::after {
+  will-change: auto;
+}
+
+.progress-fill.syncing {
+  will-change: width;
+}
+
+.sync-icon-automatic {
+  will-change: transform;
+}
