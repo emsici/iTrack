@@ -438,7 +438,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`📞 Se apelează funcția GPS cu UIT: ${courseToUpdate.uit} (nu ID: ${courseId})`);
         console.log(`📱 Info platformă: ${navigator.userAgent.includes('Android') ? 'Android' : 'Browser'}`);
         
-        // SIMPLE LOGIC: updateCourseStatus handles everything correctly
+        // ANDROID ONLY: Delegate totul la OptimalGPSService pentru coordonate precise
+        console.log(`🤖 ANDROID GPS: Se delegă totul la OptimalGPSService pentru precizie maximă`);
+        console.log(`📱 Browser GPS OPRIT - OptimalGPSService gestionează coordonatele cu HDOP <10m`);
         await updateCourseStatus(courseToUpdate.uit, newStatus);
         
         console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);

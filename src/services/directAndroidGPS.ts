@@ -45,66 +45,17 @@ class DirectAndroidGPSService {
 
   /**
    * Send status update to server via gps.php
+   * OPRIT: Nu mai trimite coordonate din browser - OptimalGPSService gestionează tot
    */
   private async sendStatusToServer(uit: string, vehicleNumber: string, token: string, status: number): Promise<void> {
-    try {
-      // Create GPS data with current position for status update - FORCE REAL GPS
-      console.log(`🔍 DirectAndroidGPS: Getting REAL position for status ${status}...`);
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,  // Forțează GPS de înaltă precizie
-        timeout: 15000,            // Timeout extins pentru GPS real
-        maximumAge: 0              // Nu folosi cache - locație nouă
-      });
-      
-      // VERIFICARE GPS REAL
-      if (position.coords.accuracy && position.coords.accuracy > 100) {
-        console.warn(`⚠️ GPS accuracy poor: ${position.coords.accuracy}m - dar transmitem oricum (GPS real)`);
-      }
-      console.log(`📍 DirectAndroidGPS: Poziție GPS REALĂ - Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}, Precizie: ${position.coords.accuracy}m`);
-
-      const batteryInfo = await Device.getBatteryInfo();
-      
-      const timestamp = sharedTimestampService.getSharedTimestampISO();
-      
-      const gpsData = {
-        lat: Math.round(position.coords.latitude * 10000000) / 10000000,  // Exact 7 decimale - standard GPS
-        lng: Math.round(position.coords.longitude * 10000000) / 10000000, // Exact 7 decimale - standard GPS
-        timestamp: timestamp,
-        viteza: position.coords.speed || 0,
-        directie: position.coords.heading || 0,
-        altitudine: position.coords.altitude || 0,
-        baterie: Math.round(batteryInfo.batteryLevel! * 100),
-        numar_inmatriculare: vehicleNumber,
-        uit: uit,
-        status: status,
-        hdop: position.coords.accuracy || 1,
-        gsm_signal: navigator.onLine ? ((navigator as any).connection?.effectiveType === '4g' ? 4 : 3) : 1
-      };
-
-      console.log(`📡 Se trimite status ${status} la server pentru UIT: ${uit}`);
-      console.log(`🕒 DirectAndroidGPS TIMESTAMP PARTAJAT: ${timestamp} (${new Date(timestamp).getTime()})`);
-      const success = await sendGPSData(gpsData, token);
-      
-      if (success) {
-        console.log(`✅ Status ${status} trimis cu succes la server`);
-      } else {
-        console.log(`❌ Status ${status} eșuat - se salvează offline pentru sincronizare`);
-        
-        // SAVE TO OFFLINE STORAGE when transmission fails
-        try {
-          await offlineGPSService.saveCoordinate(gpsData, uit, vehicleNumber, token, status);
-          console.log(`💾 Status coordinate saved offline - UIT: ${uit}`);
-        } catch (offlineError) {
-          console.error(`❌ Failed to save status coordinate offline: ${offlineError}`);
-        }
-      }
-      
-    } catch (error) {
-      console.error(`❌ Failed to send status ${status} to server:`, error);
-      console.error(`🚨 GPS REAL not available in browser - install APK on Android`);
-      console.error(`📱 Current environment: ${navigator.userAgent.includes('Android') ? 'Android Browser' : 'Desktop Browser'}`);
-      throw error;
-    }
+    console.log(`🚫 DirectAndroidGPS: STATUS-only transmission pentru ${status} - NU mai trimite coordonate din browser`);
+    console.log(`✅ OptimalGPSService va gestiona TOATE coordonatele GPS cu precizie înaltă`);
+    
+    // IMPORTANT: NU mai apelează Geolocation.getCurrentPosition()
+    // NU mai trimite coordonate prin sendGPSData()
+    // OptimalGPSService gestionează totul acum
+    
+    console.log(`📋 Status ${status} va fi gestionat de OptimalGPSService pentru UIT: ${uit}`);
   }
 
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
