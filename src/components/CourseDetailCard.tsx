@@ -609,14 +609,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         <div className="preview-row">
           <span className="preview-label">Plecare:</span>
           <span className="preview-value">
-            {course.vama || course.denumireLocStart || 'N/A'}
+            {course.denumireLocStart || course.vama || course.birouVamal || course.BirouVamal || 'Nespecificat'}
           </span>
         </div>
         
         <div className="preview-row">
           <span className="preview-label">Sosire:</span>
           <span className="preview-value">
-            {course.vamaStop || course.denumireLocStop || 'N/A'}
+            {course.birouVamalStop || course.vamaStop || course.denumireLocStop || course.BirouVamalStop || 'Nespecificat'}
           </span>
         </div>
         

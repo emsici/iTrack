@@ -217,8 +217,8 @@ const CourseQuickView: React.FC<CourseQuickViewProps> = ({
       {/* Info Grid Compact */}
       <div className="course-info-grid">
         <div className="info-item">
-          <div className="info-label">Destinație</div>
-          <div className="info-value">{course.destinatie || 'Nu specificat'}</div>
+          <div className="info-label">Sosire</div>
+          <div className="info-value">{course.birouVamalStop || course.vamaStop || course.denumireLocStop || course.BirouVamalStop || 'Nespecificat'}</div>
         </div>
         <div className="info-item">
           <div className="info-label">Distanță</div>
@@ -226,11 +226,11 @@ const CourseQuickView: React.FC<CourseQuickViewProps> = ({
         </div>
         <div className="info-item">
           <div className="info-label">Plecare</div>
-          <div className="info-value">{course.plecare || 'Nu specificat'}</div>
+          <div className="info-value">{course.denumireLocStart || course.vama || course.birouVamal || course.BirouVamal || 'Nespecificat'}</div>
         </div>
         <div className="info-item">
-          <div className="info-label">Încărcătură</div>
-          <div className="info-value">{course.incarcatura || 'Nu specificat'}</div>
+          <div className="info-label">Declarant</div>
+          <div className="info-value">{course.denumireDeclarant || 'Nespecificat'}</div>
         </div>
       </div>
 
