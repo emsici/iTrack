@@ -143,8 +143,10 @@ public class OptimalGPSService extends Service {
             
             // CRITICAL: Keep service alive with WakeLock pentru telefon blocat
             if (wakeLock != null && !wakeLock.isHeld()) {
-                wakeLock.acquire(10*60*1000L /*10 minutes*/);
-                android.util.Log.e(TAG, "✅ WAKELOCK ACQUIRED pentru 10 min - previne deep sleep când e blocat");
+                wakeLock.acquire(); // INDEFINITE WakeLock pentru GPS continuu
+                android.util.Log.e(TAG, "✅ WAKELOCK ACQUIRED INDEFINIT - previne deep sleep când e blocat");
+            } else if (wakeLock != null && wakeLock.isHeld()) {
+                android.util.Log.e(TAG, "✅ WAKELOCK ALREADY HELD - GPS continuu garantat");
             }
         } catch (Exception e) {
             android.util.Log.e(TAG, "❌ CRITICAL: Foreground service FAILED: " + e.getMessage());
@@ -506,11 +508,10 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "  - UITs transmitted: " + transmittedUITs.size());
         Log.d(TAG, "  - Completed courses removed: " + coursesToRemove.size());
         Log.d(TAG, "  - Remaining active courses: " + activeCourses.size());
-        // Log completion with adaptive interval info
-        boolean isScreenOn = isScreenOn();
-        long nextInterval = isScreenOn ? GPS_INTERVAL_UNLOCKED_MS : GPS_INTERVAL_LOCKED_MS;
-        String screenState = isScreenOn ? "DEBLOCAT" : "BLOCAT";
-        Log.d(TAG, "✅ Optimal GPS cycle completed - next in " + (nextInterval/1000) + "s for TELEFON " + screenState);
+        // FORCE CONSISTENT 5-SECOND INTERVALS
+        long nextInterval = GPS_INTERVAL_LOCKED_MS; // ALWAYS 5 seconds
+        Log.e(TAG, "✅ Optimal GPS cycle completed - NEXT FORCED în " + (nextInterval/1000) + "s (CONSISTENCY)");
+        Log.e(TAG, "🔄 BACKGROUND CONTINUITY GUARANTEED - no adaptive intervals");
         
         // CRITICAL: Schedule next GPS cycle to continue background operation
         // Reset shared timestamp pentru următorul ciclu
@@ -519,9 +520,17 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "🔄 SCHEDULING NEXT GPS CYCLE - activeCourses size: " + activeCourses.size());
         
         // CRITICAL FIX: Always call scheduleNextOptimalGPSCycle for proper continuation
-        Log.d(TAG, "🔄 SCHEDULING NEXT GPS CYCLE after transmission complete");
+        Log.e(TAG, "🔄 SCHEDULING NEXT GPS CYCLE after transmission complete - FORȚAT");
+        
+        // EMERGENCY CHECK: Ensure we still have active courses before scheduling
+        if (activeCourses.isEmpty()) {
+            Log.e(TAG, "🚨 EMERGENCY: NO active courses during scheduling - STOPPING timer");
+            stopOptimalGPSTimer();
+            return;
+        }
+        
         scheduleNextOptimalGPSCycle();
-        Log.d(TAG, "⏰ NEXT GPS CYCLE SCHEDULED successfully");
+        Log.e(TAG, "⏰ NEXT GPS CYCLE SCHEDULED successfully - " + activeCourses.size() + " active courses");
     }
     
     /**
@@ -683,9 +692,8 @@ public class OptimalGPSService extends Service {
                 Log.e(TAG, "🔋 WakeLock ACQUIRED pentru următorul ciclu GPS - GARANTEZ background operation");
             }
             
-            // ADAPTIVE INTERVAL: Mai des când e blocat, mai rar când e deblocat
-            boolean isScreenOn = isScreenOn();
-            long intervalMs = isScreenOn ? GPS_INTERVAL_UNLOCKED_MS : GPS_INTERVAL_LOCKED_MS;
+            // FORCE CONSISTENT 5-SECOND INTERVALS - no adaptive logic
+            long intervalMs = GPS_INTERVAL_LOCKED_MS; // ALWAYS 5 seconds
             
             long nextTriggerTime = SystemClock.elapsedRealtime() + intervalMs;
             alarmManager.setExactAndAllowWhileIdle(
@@ -694,10 +702,9 @@ public class OptimalGPSService extends Service {
                 gpsPendingIntent
             );
             
-            String screenState = isScreenOn ? "DEBLOCAT" : "BLOCAT";
-            Log.d(TAG, "⏰ NEXT GPS ALARM SET: in " + (intervalMs/1000) + "s for " + activeCourses.size() + " courses - TELEFON " + screenState);
-            Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
-            Log.d(TAG, "✅ GPS CONTINUITY GUARANTEED - interval adaptat pentru " + screenState + ", WakeLock: " + wakeLock.isHeld());
+            Log.e(TAG, "⏰ NEXT GPS ALARM SET: FORȚAT în " + (intervalMs/1000) + "s for " + activeCourses.size() + " courses");
+            Log.e(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
+            Log.e(TAG, "✅ GPS CONTINUITY GUARANTEED - FORCED 5s intervals, WakeLock: " + (wakeLock != null && wakeLock.isHeld()));
         } else {
             Log.w(TAG, "❌ NO ACTIVE COURSES - stopping GPS timer");
             stopOptimalGPSTimer();
@@ -826,19 +833,18 @@ public class OptimalGPSService extends Service {
             this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
         
-        // ADAPTIVE INTERVAL: Start with screen state check
-        boolean isScreenOn = isScreenOn();
-        long initialInterval = isScreenOn ? GPS_INTERVAL_UNLOCKED_MS : GPS_INTERVAL_LOCKED_MS;
+        // FORCE 5-SECOND INTERVALS: Always use locked interval pentru consistency
+        long forcedInterval = GPS_INTERVAL_LOCKED_MS; // ALWAYS 5 seconds
         
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + initialInterval,
+            SystemClock.elapsedRealtime() + forcedInterval,
             gpsPendingIntent
         );
         
         isAlarmActive = true;
-        String screenState = isScreenOn ? "DEBLOCAT" : "BLOCAT";
-        Log.d(TAG, "✅ OPTIMAL GPS timer started - " + (initialInterval/1000) + "s intervals for TELEFON " + screenState);
+        Log.e(TAG, "✅ OPTIMAL GPS timer started - FORȚAT la " + (forcedInterval/1000) + "s intervals pentru CONTINUITATE");
+        Log.e(TAG, "🔥 AlarmManager setExactAndAllowWhileIdle - BYPASS complet Doze mode și battery optimization");
     }
     
     /**
