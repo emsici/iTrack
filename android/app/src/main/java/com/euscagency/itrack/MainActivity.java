@@ -83,13 +83,7 @@ public class MainActivity extends BridgeActivity {
                     // CRITICAL: Test and report if interface is working
                     webView.evaluateJavascript(
                         "const isAvailable = (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function');" +
-                        "console.log('🔧 AndroidGPS Interface Status:');" +
-                        "console.log('  - typeof AndroidGPS: ' + typeof AndroidGPS);" +
-                        "console.log('  - typeof AndroidGPS.startGPS: ' + typeof AndroidGPS.startGPS);" +
-                        "console.log('  - AndroidGPSReady: ' + window.AndroidGPSReady);" +
-                        "console.log('FORCE: AndroidGPS available = ' + isAvailable);" +
-                        "if (isAvailable) { console.log('✅ AndroidGPS INTERFACE SUCCESSFUL - GPS will work'); }" +
-                        "else { console.log('❌ AndroidGPS INTERFACE FAILED - retrying...'); }",
+                        "window.androidGPSVerified = isAvailable;",
                         null
                     );
                     
@@ -115,11 +109,7 @@ public class MainActivity extends BridgeActivity {
             WebView webView = getBridge().getWebView();
             if (webView != null) {
                 webView.evaluateJavascript(
-                    "if (typeof window.AndroidGPS === 'undefined' || typeof window.AndroidGPS.startGPS !== 'function') {" +
-                    "console.log('🔄 AndroidGPS still not available - attempting re-add');" +
-                    "} else {" +
-                    "console.log('✅ AndroidGPS verification PASSED - interface is working');" +
-                    "}",
+                    "window.androidGPSVerified = (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function');",
                     null
                 );
             }
