@@ -74,11 +74,12 @@ class GuaranteedGPSService {
     // Pornire interval exact 5 secunde
     this.gpsInterval = setInterval(async () => {
       if (this.activeCourses.size === 0) {
-        logGPS(`⏸️ No active courses - stopping interval`);
+        logGPS(`⏸️ No active courses - stopping guaranteed GPS interval`);
         this.stopBackupInterval();
         return;
       }
 
+      logGPS(`🔥 GUARANTEED GPS TRANSMISSION CYCLE: ${this.activeCourses.size} total courses registered`);
       await this.transmitForAllCourses();
     }, 5000); // EXACT 5 secunde
 

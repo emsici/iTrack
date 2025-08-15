@@ -325,10 +325,17 @@ class PriorityGPSService {
       this.isTransmitting = true;
       
       try {
-        for (const [courseId, course] of this.activeCourses) {
-          if (course.status === 2) { // Only transmit for active courses
+        const activeCourses = Array.from(this.activeCourses.values()).filter(course => course.status === 2);
+        
+        if (activeCourses.length > 0) {
+          logGPS(`🔥 PRIORITY GPS TRANSMISSION CYCLE: ${activeCourses.length} active courses (status 2)`);
+          
+          for (const course of activeCourses) {
+            logGPS(`📡 Transmitting Priority GPS for course: ${course.courseId} (UIT: ${course.uit})`);
             await this.transmitForCourse(course);
           }
+        } else {
+          logGPS(`⏸️ No active courses with status 2 - skipping Priority GPS transmission`);
         }
       } finally {
         this.isTransmitting = false;
