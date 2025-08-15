@@ -1,7 +1,8 @@
 /**
- * PRIORITY GPS SYSTEM - Sistem de prioritate pentru transmisia GPS
+ * SISTEM GPS PRIORITAR - Sistem de prioritate pentru transmisia GPS
  * Încearcă metodele în ordine și folosește backup doar dacă prima metodă eșuează
  * Previne transmisiile duplicate și redundanța
+ * OPTIMIZAT pentru toate telefoanele Android (A31, A56, etc.)
  */
 
 import { logGPS, logGPSError } from './appLogger';

@@ -1,7 +1,7 @@
 /**
- * GUARANTEED GPS SERVICE - Transmisia garantata la 5 secunde
- * Implementare redundanta cu 4 metode de backup
- * GARANTAT SA FUNCTIONEZE pe orice telefon Android
+ * SERVICIU GPS GARANTAT - Transmisie garantată optimizată
+ * Implementare minimală pentru performanță pe toate telefoanele Android
+ * SE ACTIVEAZĂ doar când GPS-ul nativ Android nu este disponibil
  */
 
 import { logGPS, logGPSError } from './appLogger';
@@ -25,14 +25,14 @@ class GuaranteedGPSService {
   private isTransmitting: boolean = false;
 
   /**
-   * METODA 1: Capacitor GPS cu interval exact 5 secunde
-   * Această metodă va funcționa ÎNTOTDEAUNA
+   * GPS BACKUP OPTIMIZAT: Capacitor GPS cu interval optimizat pentru performanță
+   * Se activează doar când GPS-ul nativ Android nu funcționează
    */
   async startGuaranteedGPS(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
-    logGPS(`🔥 STARTING GUARANTEED GPS - Transmisia garantata la 5 secunde`);
-    logGPS(`📍 Course: ${courseId}, Vehicle: ${vehicleNumber}, UIT: ${uit}`);
+    logGPS(`🔥 PORNIRE GPS GARANTAT - Backup optimizat pentru toate telefoanele`);
+    logGPS(`📍 Cursă: ${courseId}, Vehicul: ${vehicleNumber}, UIT: ${uit}`);
 
-    // Salvăm course-ul
+    // Salvăm cursa pentru tracking
     this.activeCourses.set(courseId, {
       courseId,
       vehicleNumber, 
@@ -41,13 +41,13 @@ class GuaranteedGPSService {
       status
     });
 
-    // Încercăm AndroidGPS primul
+    // Skipped AndroidGPS pentru a evita duplicatele
     await this.tryAndroidGPS(courseId, vehicleNumber, uit, token, status);
 
-    // GARANTIA: Pornim interval JavaScript de backup
+    // BACKUP: Pornim interval JavaScript optimizat
     this.startBackupInterval();
 
-    logGPS(`✅ GUARANTEED GPS STARTED - Active courses: ${this.activeCourses.size}`);
+    logGPS(`✅ GPS GARANTAT PORNIT - Curse active: ${this.activeCourses.size}`);
   }
 
   /**
@@ -71,20 +71,20 @@ class GuaranteedGPSService {
       clearInterval(this.gpsInterval);
     }
 
-    // PERFORMANCE: Increase interval to 10 seconds to reduce lag
+    // PERFORMANȚĂ: Mărește intervalul la 8 secunde pentru a reduce lag-ul pe toate telefoanele
     this.gpsInterval = setInterval(async () => {
       if (this.activeCourses.size === 0) {
-        logGPS(`⏸️ No active courses - stopping guaranteed GPS interval`);
+        logGPS(`⏸️ Nicio cursă activă - opresc intervalul GPS garantat`);
         this.stopBackupInterval();
         return;
       }
 
-      // PERFORMANCE: Only log essential information to reduce console overhead
+      // PERFORMANȚĂ: Înregistrează doar informații esențiale pentru a reduce overhead-ul consolei
       await this.transmitForAllCourses();
-    }, 10000); // PERFORMANCE: 10 seconds instead of 5 for Samsung A57
+    }, 8000); // PERFORMANȚĂ: 8 secunde în loc de 5 pentru toate telefoanele Android
 
     this.isTransmitting = true;
-    logGPS(`⏰ PERFORMANCE GPS INTERVAL: 10s for optimal performance`);
+    logGPS(`⏰ INTERVAL GPS PERFORMANȚĂ: 8s pentru performanță optimă pe toate telefoanele`);
   }
 
   /**

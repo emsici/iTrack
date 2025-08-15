@@ -18,60 +18,53 @@ class PerformanceOptimizer {
   }
 
   /**
-   * DETECTEAZĂ dacă telefonul este mid-range (Samsung A57, etc.)
+   * ACTIVEAZĂ optimizările pentru TOATE telefoanele Android
+   * Nu mai detectăm model specific - optimizăm universal
    */
-  private detectMidRangeDevice(): boolean {
-    const userAgent = navigator.userAgent.toLowerCase();
+  private shouldOptimize(): boolean {
+    // OPTIMIZEAZĂ ÎNTOTDEAUNA pe Android pentru performanță maximă
+    const isAndroid = /android/i.test(navigator.userAgent);
     const memory = (navigator as any).deviceMemory;
-    const hardwareConcurrency = navigator.hardwareConcurrency || 0;
-
-    // Samsung A57 și telefoane similare
-    const isMidRange = 
-      userAgent.includes('sm-a57') ||  // Samsung A57
-      memory <= 6 ||                   // ≤6GB RAM
-      hardwareConcurrency <= 6;        // ≤6 cores
-
-    logGPS(`📱 Device detection: Memory=${memory}GB, Cores=${hardwareConcurrency}, MidRange=${isMidRange}`);
-    return isMidRange;
+    
+    logGPS(`📱 Optimizare universală Android: Memory=${memory || 'unknown'}GB, Optimizing=true`);
+    return isAndroid || true; // Optimizăm întotdeauna pentru toate device-urile
   }
 
   /**
-   * OPTIMIZEAZĂ aplicația pentru performanță maximă
+   * OPTIMIZEAZĂ aplicația pentru performanță maximă pe TOATE dispozitivele
    */
   optimize(): void {
     if (this.isOptimized) return;
 
-    const isMidRange = this.detectMidRangeDevice();
+    const shouldOptimize = this.shouldOptimize();
     
-    if (isMidRange) {
-      logGPS(`🏎️ ACTIVATING PERFORMANCE MODE pentru Samsung A57/mid-range device`);
+    if (shouldOptimize) {
+      logGPS(`🏎️ ACTIVEAZĂ MODUL PERFORMANȚĂ pentru toate telefoanele Android`);
       
-      // 1. Reduce animation duration
+      // 1. Reduce durata animațiilor
       this.optimizeAnimations();
       
-      // 2. Disable heavy visual effects
+      // 2. Dezactivează efectele vizuale grele
       this.optimizeVisualEffects();
       
-      // 3. Reduce polling frequencies
+      // 3. Reduce frecvența polling-ului
       this.optimizePolling();
       
-      // 4. Cleanup unnecessary intervals
+      // 4. Curăță interval-urile inutile
       this.cleanupIntervals();
       
       this.isOptimized = true;
-      logGPS(`✅ PERFORMANCE MODE activated - lag should be eliminated`);
-    } else {
-      logGPS(`📱 High-end device detected - using standard performance settings`);
+      logGPS(`✅ MOD PERFORMANȚĂ activat - lag-ul eliminat pentru toate device-urile`);
     }
   }
 
   /**
-   * REDUCE animation durations pentru responsivitate mai bună
+   * REDUCE durata animațiilor pentru responsivitate mai bună pe toate device-urile
    */
   private optimizeAnimations(): void {
     const style = document.createElement('style');
     style.textContent = `
-      /* SAMSUNG A57 PERFORMANCE: Reduce all animation durations */
+      /* PERFORMANȚĂ UNIVERSALĂ: Reduce durata tuturor animațiilor */
       *, *::before, *::after {
         animation-duration: 0.15s !important;
         animation-delay: 0s !important;
@@ -79,7 +72,7 @@ class PerformanceOptimizer {
         transition-delay: 0s !important;
       }
       
-      /* Disable complex animations on mid-range devices */
+      /* Dezactivează animațiile complexe pe toate dispozitivele */
       .course-card-compact {
         transition: transform 0.1s ease !important;
       }
@@ -89,47 +82,47 @@ class PerformanceOptimizer {
       }
     `;
     document.head.appendChild(style);
-    logGPS(`⚡ Animations optimized for Samsung A57`);
+    logGPS(`⚡ Animații optimizate pentru toate telefoanele Android`);
   }
 
   /**
-   * DISABLE heavy visual effects pentru performanță
+   * DEZACTIVEAZĂ efectele vizuale grele pentru performanță pe toate device-urile
    */
   private optimizeVisualEffects(): void {
     const style = document.createElement('style');
     style.textContent = `
-      /* SAMSUNG A57: Disable heavy visual effects */
+      /* PERFORMANȚĂ UNIVERSALĂ: Dezactivează efectele vizuale grele */
       .vehicle-screen.courses-loaded {
         backdrop-filter: none !important;
-        background: #1e293b !important; /* Solid color */
+        background: #1e293b !important; /* Culoare solidă */
       }
       
       .course-card-compact {
-        backdrop-filter: blur(5px) !important; /* Reduced from 12px */
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important; /* Reduced shadow */
+        backdrop-filter: blur(5px) !important; /* Redus de la 12px */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important; /* Umbră redusă */
       }
       
-      /* Disable glassmorphism effects */
+      /* Dezactivează efectele glassmorphism */
       .glassmorphism {
         backdrop-filter: none !important;
         background: rgba(255, 255, 255, 0.95) !important;
       }
     `;
     document.head.appendChild(style);
-    logGPS(`🎨 Visual effects reduced for Samsung A57 performance`);
+    logGPS(`🎨 Efecte vizuale reduse pentru performanță universală Android`);
   }
 
   /**
-   * REDUCE polling frequencies pentru mai puțin CPU usage
+   * REDUCE frecvențele de polling pentru mai puțin CPU usage pe toate device-urile
    */
   private optimizePolling(): void {
     // Instrucțiuni pentru serviciile GPS să folosească intervale mai mari
     (window as any).__PERFORMANCE_MODE__ = {
-      gpsInterval: 10000,      // 10s în loc de 5s
-      monitoringInterval: 30000, // 30s în loc de 15s
-      syncInterval: 20000,     // 20s în loc de 10s
+      gpsInterval: 8000,       // 8s în loc de 5s (compromis între performanță și precizie)
+      monitoringInterval: 25000, // 25s în loc de 15s
+      syncInterval: 15000,     // 15s în loc de 10s
     };
-    logGPS(`⏱️ Polling frequencies reduced pentru Samsung A57`);
+    logGPS(`⏱️ Frecvențe polling reduse pentru performanță universală Android`);
   }
 
   /**
