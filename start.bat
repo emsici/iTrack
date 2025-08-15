@@ -34,7 +34,7 @@ if /i "%ENV%"=="PROD" (
 
 echo.
 echo PASUL 2/4 - Building web application...
-call npm run build
+call npx vite build
 if errorlevel 1 (
     echo EROARE: Build-ul web a esuat!
     pause

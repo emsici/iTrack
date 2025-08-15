@@ -16,6 +16,10 @@ author = "agent"
 task = "workflow.run"
 args = "Development Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build"
+
 [[workflows.workflow]]
 name = "Development Server"
 author = "agent"
@@ -24,6 +28,17 @@ author = "agent"
 task = "shell.exec"
 args = "npx vite --host 0.0.0.0 --port 5000"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Build"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "vite build"
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [deployment]
 run = ["sh", "-c", "npm install vite @vitejs/plugin-react typescript react react-dom @types/react @types/react-dom @capacitor/core @capacitor/cli @capacitor/android @capacitor/geolocation @capacitor/background-mode @capacitor/device @capacitor/preferences bootstrap"]

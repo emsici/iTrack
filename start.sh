@@ -35,7 +35,7 @@ fi
 
 echo ""
 echo "PASUL 2/4 - Building web application..."
-npm run build
+npx vite build
 if [ $? -ne 0 ]; then
     echo "EROARE: Build-ul web a esuat!"
     exit 1
