@@ -43,8 +43,8 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
       }
     });
 
-    // Check periodically for offline data
-    const checkInterval = setInterval(checkOfflineData, 10000); // Every 10 seconds
+    // Check more frequently for offline data for automatic sync
+    const checkInterval = setInterval(checkOfflineData, 3000); // Every 3 seconds for immediate auto-sync
 
     return () => {
       unsubscribe();
@@ -59,6 +59,9 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
       
       if (hasData && !syncProgress.isActive) {
         setShowProgress(true);
+        // AUTOMATIC SYNC: Start immediately when offline data is detected
+        console.log('🔄 Date GPS offline detectate - se pornește sincronizarea automată');
+        await startOfflineSync();
       }
     } catch (error) {
       console.error('Eroare la verificarea datelor offline:', error);
@@ -134,22 +137,18 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
         // Has offline data, not syncing
         <div className="sync-pending">
           <div className="offline-indicator">
-            <i className="fas fa-wifi-slash"></i>
+            <i className="fas fa-cloud-upload-alt sync-icon-automatic"></i>
             <div className="offline-info">
-              <div className="offline-title">Date GPS Offline</div>
+              <div className="offline-title">Sincronizare Automată</div>
               <div className="offline-count">
-                {syncProgress.remaining || syncProgress.totalToSync} coordonate în așteptare
+                {syncProgress.remaining || syncProgress.totalToSync} coordonate vor fi trimise automat
+              </div>
+              <div className="auto-sync-note">
+                <i className="fas fa-magic" style={{marginRight: '4px'}}></i>
+                Se sincronizează automat când revine internetul
               </div>
             </div>
           </div>
-          <button 
-            className="sync-button"
-            onClick={handleStartSync}
-            title="Pornește sincronizarea"
-          >
-            <i className="fas fa-cloud-upload-alt"></i>
-            <span>SINCRONIZEAZĂ</span>
-          </button>
         </div>
       ) : null}
 

@@ -11,11 +11,11 @@ const config: CapacitorConfig = {
     Geolocation: {
       requestPermissions: true,
       enableBackgroundLocationUpdates: true,
-      backgroundLocationUpdateInterval: 5000,
+      backgroundLocationUpdateInterval: 5000, // 5 seconds for consistent tracking
       distanceFilter: 0,
       enableHighAccuracy: true,
-      timeout: 30000,
-      maximumAge: 3000
+      timeout: 15000, // Reduced timeout for faster response  
+      maximumAge: 2000 // Use only fresh locations (2s or newer)
     },
     App: {
       appendUserAgent: 'iTrack/1.0',

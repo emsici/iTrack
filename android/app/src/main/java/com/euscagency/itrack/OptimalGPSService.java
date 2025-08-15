@@ -204,7 +204,7 @@ public class OptimalGPSService extends Service {
             }
             
             if (lastLocation != null && 
-                (System.currentTimeMillis() - lastLocation.getTime()) < 3000) { // Less than 3s old
+                (System.currentTimeMillis() - lastLocation.getTime()) < 2000) { // Less than 2s old for fresher data
                 
                 Log.d(TAG, "✅ Using recent GPS location (battery efficient) - NO fresh request needed");
                 transmitGPSForAllCourses(lastLocation);
