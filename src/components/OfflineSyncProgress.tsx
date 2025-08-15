@@ -68,13 +68,6 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
     }
   };
 
-  const handleStartSync = async () => {
-    try {
-      await startOfflineSync();
-    } catch (error) {
-      console.error('Eroare la pornirea sincronizării:', error);
-    }
-  };
 
   // Don't render if no offline data and no active sync
   if (!hasOfflineData && !showProgress) {
