@@ -359,7 +359,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const handleCourseStatusUpdate = async (courseId: string, newStatus: number) => {
+  const handleCourseStatusUpdate = async (courseId: string, newStatus: number, action?: string) => {
     console.log(`Se procesează acțiunea pentru cursa: ${courseId}`);
 
     try {
@@ -392,10 +392,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`UIT REAL: ${courseToUpdate.uit}, Vehicul: ${vehicleNumber}`);
       console.log(`Token disponibil: ${!!token}, Lungime token: ${token?.length || 0}`);
 
+      // Show action-specific toast and handle GPS permissions
+      if (action) {
+        const actionMessages = {
+          start: { title: 'Cursă pornită!', message: 'Urmărirea GPS a fost activată.' },
+          pause: { title: 'Cursă pauzată!', message: 'Transmisia GPS oprită temporar.' },
+          resume: { title: 'Cursă reluată!', message: 'Urmărirea GPS reactivată.' },
+          finish: { title: 'Cursă finalizată!', message: 'Urmărirea GPS oprită definitiv.' }
+        };
+        
+        const actionInfo = actionMessages[action as keyof typeof actionMessages];
+        if (actionInfo) {
+          toast.addToast({
+            type: 'info',
+            title: actionInfo.title,
+            message: actionInfo.message,
+            duration: 3000
+          });
+        }
+      }
+
       // Solicită permisiuni GPS mai întâi dacă se pornește cursa
       if (newStatus === 2) {
         console.log('🔍 Se solicită permisiuni GPS pentru pornirea cursei...');
-        toast.info('Pornire cursă', 'Se pornește urmărirea GPS...');
         try {
           await Geolocation.requestPermissions();
           console.log('✅ Permisiuni GPS acordate');
@@ -416,8 +435,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         await updateCourseStatus(courseToUpdate.uit, newStatus);
         console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);
         
-        const statusNames = { 1: 'Disponibilă', 2: 'În progres', 3: 'Pauzată', 4: 'Finalizată' };
-        toast.success('Status actualizat!', `Cursa este acum "${statusNames[newStatus as keyof typeof statusNames]}"`);
+        // Show success toast after successful API call
+        if (action) {
+          const successMessages = {
+            start: { title: '✅ Cursă pornită cu succes!', message: 'GPS activ - coordonatele se transmit la 5 secunde.' },
+            pause: { title: '⏸️ Cursă pauzată cu succes!', message: 'Transmisia GPS oprită. Poți relua oricând.' },
+            resume: { title: '▶️ Cursă reluată cu succes!', message: 'GPS reactivat - transmisia continuă.' },
+            finish: { title: '🏁 Cursă finalizată cu succes!', message: 'Toate datele GPS au fost salvate.' }
+          };
+          
+          const successInfo = successMessages[action as keyof typeof successMessages];
+          if (successInfo) {
+            toast.addToast({
+              type: 'success',
+              title: successInfo.title,
+              message: successInfo.message,
+              duration: 4000
+            });
+          }
+        }
         
         // Clear any existing errors
         setError('');
