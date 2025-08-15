@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Course } from '../types';
+import { courseAnalyticsService, CourseStatistics } from '../services/courseAnalytics';
+import RouteMapModal from './RouteMapModal';
 
 interface CourseDetailCardProps {
   course: Course;
@@ -16,6 +18,22 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 }) => {
   // Each course has independent state using course.id as key
   const [showDetails, setShowDetails] = useState(false);
+  const [courseStats, setCourseStats] = useState<CourseStatistics | null>(null);
+  const [showRouteMap, setShowRouteMap] = useState(false);
+
+  // Load course statistics when component mounts or course changes
+  useEffect(() => {
+    loadCourseStatistics();
+  }, [course.id, course.status]);
+
+  const loadCourseStatistics = async () => {
+    try {
+      const stats = await courseAnalyticsService.getCourseAnalytics(course.id);
+      setCourseStats(stats);
+    } catch (error) {
+      console.error('Error loading course statistics:', error);
+    }
+  };
 
   // Independent expand/collapse for each course - each component manages its own state
 
@@ -685,7 +703,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   fontWeight: '700'
                 }}>
                   <i className="fas fa-route" style={{ marginRight: '6px', fontSize: '12px' }}></i>
-                  {course.distance || '0.0'} km
+                  {courseStats ? `${courseStats.totalDistance.toFixed(2)} km` : '0.0 km'}
                 </span>
               </div>
               <div className="detail-item-enhanced">
@@ -695,7 +713,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   fontWeight: '700'
                 }}>
                   <i className="fas fa-tachometer-alt" style={{ marginRight: '6px', fontSize: '12px' }}></i>
-                  {course.status === 2 ? `${course.currentSpeed || 0} km/h` : '0 km/h (Oprit)'}
+                  {course.status === 2 && courseStats && courseStats.gpsPoints.length > 0
+                    ? `${courseStats.gpsPoints[courseStats.gpsPoints.length - 1].speed.toFixed(0)} km/h`
+                    : '0 km/h (Oprit)'}
                 </span>
               </div>
               <div className="detail-item-enhanced">
@@ -705,7 +725,17 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   fontWeight: '700'
                 }}>
                   <i className="fas fa-gauge-high" style={{ marginRight: '6px', fontSize: '12px' }}></i>
-                  {course.maxSpeed || '0'} km/h
+                  {courseStats ? `${courseStats.maxSpeed.toFixed(0)} km/h` : '0 km/h'}
+                </span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Viteză Medie:</span>
+                <span className="detail-value-enhanced" style={{
+                  color: '#06b6d4',
+                  fontWeight: '700'
+                }}>
+                  <i className="fas fa-chart-line" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                  {courseStats ? `${courseStats.averageSpeed.toFixed(1)} km/h` : '0.0 km/h'}
                 </span>
               </div>
               <div className="detail-item-enhanced">
@@ -715,7 +745,17 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   fontWeight: '700'
                 }}>
                   <i className="fas fa-clock" style={{ marginRight: '6px', fontSize: '12px' }}></i>
-                  {course.drivingTime || '0'} min
+                  {courseStats ? `${courseStats.drivingTime} min` : '0 min'}
+                </span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Puncte GPS Salvate:</span>
+                <span className="detail-value-enhanced" style={{
+                  color: '#10b981',
+                  fontWeight: '700'
+                }}>
+                  <i className="fas fa-map-pin" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                  {courseStats ? `${courseStats.gpsPoints.length} puncte` : '0 puncte'}
                 </span>
               </div>
               <div className="detail-item-enhanced">
@@ -728,6 +768,27 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   {course.status === 2 ? 'ACTIV - Transmite coordonate' : 'OPRIT - Nu transmite'}
                 </span>
               </div>
+
+              {/* Timp Total Cursă */}
+              {courseStats && courseStats.startTime && (
+                <div className="detail-item-enhanced">
+                  <span className="detail-label-enhanced">Timp Total Cursă:</span>
+                  <span className="detail-value-enhanced" style={{
+                    color: '#e11d48',
+                    fontWeight: '700'
+                  }}>
+                    <i className="fas fa-hourglass-half" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                    {(() => {
+                      const start = new Date(courseStats.startTime);
+                      const end = courseStats.endTime ? new Date(courseStats.endTime) : new Date();
+                      const totalMinutes = Math.floor((end.getTime() - start.getTime()) / (1000 * 60));
+                      const hours = Math.floor(totalMinutes / 60);
+                      const minutes = totalMinutes % 60;
+                      return hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`;
+                    })()}
+                  </span>
+                </div>
+              )}
               
               {/* Route Map Button */}
               <div className="detail-item-enhanced" style={{
@@ -736,37 +797,44 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 marginTop: '12px'
               }}>
                 <button
-                  onClick={() => {
-                    // Will be implemented by parent component
-                    console.log('Show route map for UIT:', course.uit);
-                  }}
+                  onClick={() => setShowRouteMap(true)}
+                  disabled={!courseStats || courseStats.gpsPoints.length < 2}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
                     borderRadius: '8px',
                     border: 'none',
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                    background: (!courseStats || courseStats.gpsPoints.length < 2)
+                      ? '#6b7280'
+                      : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
                     color: 'white',
                     fontSize: '14px',
                     fontWeight: '600',
-                    cursor: 'pointer',
+                    cursor: (!courseStats || courseStats.gpsPoints.length < 2) ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '8px',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    opacity: (!courseStats || courseStats.gpsPoints.length < 2) ? 0.6 : 1
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.02)';
-                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.4)';
+                    if (courseStats && courseStats.gpsPoints.length >= 2) {
+                      e.currentTarget.style.transform = 'scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.4)';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
+                    if (courseStats && courseStats.gpsPoints.length >= 2) {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }
                   }}
                 >
                   <i className="fas fa-map-marked-alt"></i>
-                  Vezi Traseu pe Hartă
+                  {(!courseStats || courseStats.gpsPoints.length < 2)
+                    ? 'Traseu Indisponibil (Min. 2 puncte GPS)'
+                    : `Vezi Traseu pe Hartă (${courseStats.gpsPoints.length} puncte)`}
                 </button>
               </div>
             </div>
@@ -832,6 +900,16 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           </div>
         )}
       </div>
+
+      {/* Route Map Modal */}
+      {showRouteMap && courseStats && (
+        <RouteMapModal
+          isOpen={showRouteMap}
+          onClose={() => setShowRouteMap(false)}
+          courseData={courseStats}
+          currentTheme={currentTheme}
+        />
+      )}
     </div>
   );
 };
