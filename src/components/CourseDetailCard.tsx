@@ -638,6 +638,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           <span className="preview-label">Declarant:</span>
           <span className="preview-value">{course.denumireDeclarant || 'N/A'}</span>
         </div>
+        
+        <div className="preview-row">
+          <span className="preview-label">Data Transport:</span>
+          <span className="preview-value">{course.dataTransport || 'N/A'}</span>
+        </div>
       </div>
       
       <button 
