@@ -1818,6 +1818,43 @@ html, body {
   color: white;
 }
 
+/* Theme Specific Overrides for Detail Sections */
+.theme-light .detail-section-enhanced,
+.theme-business .detail-section-enhanced {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .section-title-enhanced,
+.theme-business .section-title-enhanced {
+  color: #1e293b;
+}
+
+.theme-light .detail-label-enhanced,
+.theme-business .detail-label-enhanced {
+  color: #6b7280;
+}
+
+.theme-light .detail-value-enhanced,
+.theme-business .detail-value-enhanced {
+  color: #374151;
+}
+
+.theme-driver .detail-section-enhanced {
+  background: rgba(251, 146, 60, 0.05);
+  border: 1px solid rgba(251, 146, 60, 0.2);
+}
+
+.theme-nature .detail-section-enhanced {
+  background: rgba(34, 197, 94, 0.05);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.theme-night .detail-section-enhanced {
+  background: rgba(147, 51, 234, 0.05);
+  border: 1px solid rgba(147, 51, 234, 0.2);
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .course-details-enhanced {
@@ -4019,6 +4056,51 @@ html, body {
 }
 
 /* ===================== ENHANCED THEME STYLES ===================== */
+
+/* DARK THEME - Default Enhanced Dark Blue/Gray (Base Theme) */
+.vehicle-screen.theme-dark {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #334155 70%, #475569 100%);
+}
+
+.vehicle-screen.theme-dark.courses-loaded {
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.98) 0%, 
+    rgba(30, 41, 59, 0.98) 30%,
+    rgba(51, 65, 85, 0.98) 70%,
+    rgba(71, 85, 105, 0.98) 100%);
+}
+
+.theme-dark .vehicle-screen-header {
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.98) 0%, 
+    rgba(30, 41, 59, 0.95) 100%);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.theme-dark .course-card-enhanced {
+  background: linear-gradient(135deg, 
+    rgba(20, 25, 40, 0.95) 0%,
+    rgba(25, 30, 50, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .course-card-enhanced::before {
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8, #60a5fa);
+}
+
+.theme-dark .course-card-enhanced:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.theme-dark .logo-emblem {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+}
 
 /* DRIVER THEME - Enhanced Warm Professional Orange/Amber */
 .vehicle-screen.theme-driver {
