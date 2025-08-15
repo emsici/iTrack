@@ -235,13 +235,7 @@ public class OptimalGPSService extends Service {
                 }
                 requestSingleGPSLocation();
                 
-                // TIMEOUT SAFETY: In case GPS request hangs, schedule next cycle anyway
-                new android.os.Handler().postDelayed(() -> {
-                    if (!activeCourses.isEmpty()) {
-                        Log.w(TAG, "⏰ GPS TIMEOUT SAFETY: Ensuring next cycle is scheduled");
-                        scheduleNextOptimalGPSCycle();
-                    }
-                }, 8000); // 8 second timeout
+                // TIMEOUT SAFETY ELIMINAT - requestSingleGPSLocation acum gestionează scheduling
             }
             
         } catch (Exception e) {
@@ -257,52 +251,105 @@ public class OptimalGPSService extends Service {
     
     /**
      * Request single GPS location update (most battery efficient)
-     * GPS turns on briefly, gets location, turns off immediately
+     * ENHANCED: Multiple providers + guaranteed scheduling pentru telefon blocat
      */
     private void requestSingleGPSLocation() {
         try {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 Log.e(TAG, "❌ No location permission for optimal GPS - SCHEDULING NEXT CYCLE ANYWAY");
-                // CRITICAL FIX: Even without permission, schedule next cycle to maintain continuity
                 scheduleNextOptimalGPSCycle();
                 return;
             }
             
-            Log.d(TAG, "🚀 Requesting fresh GPS location for " + activeCourses.size() + " courses");
+            Log.e(TAG, "🚀 ENHANCED GPS REQUEST pentru telefon blocat - multiple providers");
             
-            // Single location request - GPS active for minimal time
-            locationManager.requestSingleUpdate(
-                LocationManager.GPS_PROVIDER,
-                new android.location.LocationListener() {
-                    @Override
-                    public void onLocationChanged(Location location) {
-                        Log.d(TAG, "📍 Fresh OPTIMAL GPS location received - processing transmission");
-                        transmitGPSForAllCourses(location);
-                        // GPS automatically turns off after this callback
-                        // transmitGPSForAllCourses will call scheduleNextOptimalGPSCycle()
-                    }
-                    
-                    @Override
-                    public void onStatusChanged(String provider, int status, android.os.Bundle extras) {}
-                    @Override
-                    public void onProviderEnabled(String provider) {}
-                    @Override
-                    public void onProviderDisabled(String provider) {
-                        Log.w(TAG, "⚠️ GPS provider disabled - scheduling next cycle anyway");
-                        scheduleNextOptimalGPSCycle();
-                    }
-                },
-                null // Main thread - minimal overhead
-            );
+            // ENHANCED: Try multiple providers pentru telefon blocat
+            String[] providers = {LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER};
+            boolean requestSent = false;
             
-            Log.d(TAG, "✅ GPS location request initiated successfully");
+            for (String provider : providers) {
+                if (locationManager.isProviderEnabled(provider)) {
+                    try {
+                        Log.e(TAG, "📡 Trying provider: " + provider + " pentru background GPS");
+                        locationManager.requestSingleUpdate(
+                            provider,
+                            new android.location.LocationListener() {
+                                @Override
+                                public void onLocationChanged(Location location) {
+                                    Log.e(TAG, "📍 ENHANCED GPS SUCCESS - " + provider + " location received pentru telefon blocat");
+                                    transmitGPSForAllCourses(location);
+                                }
+                                
+                                @Override
+                                public void onStatusChanged(String provider, int status, android.os.Bundle extras) {}
+                                @Override
+                                public void onProviderEnabled(String provider) {}
+                                @Override
+                                public void onProviderDisabled(String provider) {
+                                    Log.w(TAG, "⚠️ Provider " + provider + " disabled - continuăm cu următorul");
+                                }
+                            },
+                            null
+                        );
+                        requestSent = true;
+                        Log.e(TAG, "✅ GPS request sent via " + provider + " pentru background operation");
+                        break; // Success, exit loop
+                    } catch (Exception providerError) {
+                        Log.w(TAG, "⚠️ Provider " + provider + " failed: " + providerError.getMessage());
+                    }
+                }
+            }
+            
+            if (!requestSent) {
+                Log.e(TAG, "❌ CRITICAL: No GPS providers available - using FALLBACK strategy");
+                tryFallbackGPSStrategy();
+            }
+            
+            // GUARANTEED SCHEDULING: Program următorul ciclu indiferent de răspuns GPS
+            Log.e(TAG, "🔄 GUARANTEED NEXT CYCLE programming în 3 secunde...");
+            new android.os.Handler().postDelayed(() -> {
+                Log.e(TAG, "⏰ GUARANTEED NEXT CYCLE executing pentru continuitate background");
+                scheduleNextOptimalGPSCycle();
+            }, 3000); // 3 secunde timeout pentru răspuns rapid
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error requesting single GPS location: " + e.getMessage());
+            Log.e(TAG, "❌ ENHANCED GPS REQUEST FAILED: " + e.getMessage());
             e.printStackTrace();
-            // CRITICAL FIX: Even on error, schedule next cycle to maintain continuity
-            Log.w(TAG, "🔧 Scheduling next cycle despite GPS request error");
+            // CRITICAL: Program următorul ciclu oricum
             scheduleNextOptimalGPSCycle();
+        }
+    }
+
+    /**
+     * FALLBACK STRATEGY când GPS nu răspunde pentru telefon blocat
+     */
+    private void tryFallbackGPSStrategy() {
+        try {
+            // Caută ultima poziție validă din orice provider
+            Location fallbackLocation = null;
+            String[] providers = {LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER};
+            
+            for (String provider : providers) {
+                try {
+                    Location loc = locationManager.getLastKnownLocation(provider);
+                    if (loc != null && (fallbackLocation == null || loc.getTime() > fallbackLocation.getTime())) {
+                        fallbackLocation = loc;
+                    }
+                } catch (Exception e) {
+                    Log.w(TAG, "Cannot get last known from " + provider + ": " + e.getMessage());
+                }
+            }
+            
+            if (fallbackLocation != null) {
+                long age = System.currentTimeMillis() - fallbackLocation.getTime();
+                Log.e(TAG, "📍 FALLBACK GPS TRANSMISSION - using location aged " + (age/1000) + " seconds");
+                transmitGPSForAllCourses(fallbackLocation);
+            } else {
+                Log.e(TAG, "❌ NO FALLBACK LOCATION AVAILABLE - skipping transmission but continuing cycle");
+            }
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ FALLBACK STRATEGY FAILED: " + e.getMessage());
         }
     }
     
