@@ -10,8 +10,8 @@ export const API_CONFIG = {
   PROD: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/",
 };
 
-// Current active environment - Default: PROD (etsm_prod) - potrivit cu log-urile reale
-export const API_BASE_URL = API_CONFIG.PROD; // Sincronizat cu Android pentru consistență
+// Current active environment - Default: DEV (etsm3) - potrivit cu preferința utilizatorului
+export const API_BASE_URL = API_CONFIG.DEV; // Sincronizat cu Android pentru consistență
 
 // Single request management to prevent conflicts
 let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null =

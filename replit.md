@@ -16,11 +16,13 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 
 ## Recent Performance Optimizations (15/08/2025)
 
-### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 22:00**
+### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 22:07**
+- **API ENVIRONMENT SWITCH**: Schimbat pe etsm3 (DEV) conform solicitării utilizatorului - toate coordonatele se transmit pe etsm3/gps.php
+- **SINCRONIZARE FRONTEND-ANDROID**: Ambele medii (React + Java) folosesc acum etsm3 pentru consistență completă
 - **GPS START CRITICAL FIX**: Rezolvat problema unde GPS nu pornea pentru curse noi - updateCourseStatus funcționează perfect pentru toate acțiunile
 - **LOGICĂ GPS SIMPLIFICATĂ**: Revenire la fluxul eficient original - status PAUSE/STOP șterge cursa din activeCourses, status START/RESUME o readaugă
 - **FOOTER CLEANUP**: Eliminat versiunea "v18.0799" din footer pentru interfață mai curată
-- **TRANSMISIE GPS FUNCȚIONALĂ**: Confirmat că toate coordonatele ajung pe etsm_prod/gps.php la fiecare 5 secunde
+- **TRANSMISIE GPS FUNCȚIONALĂ**: Confirmat că toate coordonatele ajung pe etsm3/gps.php la fiecare 5 secunde
 - **FLUXUL CORECT GPS**: STATUS 3/4 → trimite status la server → șterge din activeCourses → oprește transmisia, STATUS 2 → trimite status → adaugă în activeCourses → pornește transmisia
 
 ### **ACTUALIZĂRI ANTERIOARE - 15/08/2025 19:53**
@@ -119,14 +121,14 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 ## External Dependencies
 - **Capacitor**: `@capacitor/core`, `@capacitor/android`, `@capacitor/geolocation`, `@capacitor/preferences`
 - **Capacitor Community Plugins**: `@capacitor-community/background-geolocation`
-- **APIs** (DEV - etsm3 by default):
+- **APIs** (DEV - etsm3 - ACTIV):
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/login.php` (Authentication)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php` (Logout)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php` (Course Management)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/update_course_status.php` (Course Status Updates)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php` (GPS Data Transmission)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/rezultate.php` (GPS Result Verification)
-- **APIs** (PROD - etsm_prod):
+- **APIs** (PROD - etsm_prod - INACTIV):
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/login.php` (Authentication)
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/logout.php` (Logout)
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php` (Course Management)
