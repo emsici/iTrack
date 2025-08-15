@@ -562,10 +562,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     try {
       await themeService.setTheme(theme);
       setCurrentTheme(theme);
-      toast.success('Temă schimbată!', `Tema ${THEME_INFO[theme].name} aplicată`);
+      
+      // Show success toast with theme name
+      toast.addToast({
+        type: 'success',
+        title: 'Tema schimbată!',
+        message: `Tema "${THEME_INFO[theme].name}" a fost aplicată cu succes.`,
+        duration: 3000
+      });
     } catch (error) {
       console.error('Error changing theme:', error);
-      toast.error('Eroare', 'Nu s-a putut schimba tema');
+      
+      // Show error toast
+      toast.addToast({
+        type: 'error',
+        title: 'Eroare temă',
+        message: 'Nu s-a putut schimba tema. Încercați din nou.',
+        duration: 4000
+      });
     }
   };
 
