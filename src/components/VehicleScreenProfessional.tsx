@@ -938,17 +938,49 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <div className="settings-button" onClick={() => setShowSettings(true)} title="Setări" style={{ 
                 background: currentTheme === 'dark' 
                   ? 'rgba(100, 116, 139, 0.1)' 
-                  : 'rgba(241, 245, 249, 0.9)', 
+                  : currentTheme === 'light'
+                    ? 'rgba(241, 245, 249, 0.9)'
+                    : currentTheme === 'driver'
+                      ? 'rgba(120, 113, 108, 0.2)'  // Maro pentru driver
+                      : currentTheme === 'business'
+                        ? 'rgba(100, 116, 139, 0.2)'  // Gri pentru business
+                        : currentTheme === 'nature'
+                          ? 'rgba(120, 113, 108, 0.2)'  // Maro pentru nature
+                          : currentTheme === 'night'
+                            ? 'rgba(139, 92, 246, 0.2)'  // Violet pentru night
+                            : 'rgba(241, 245, 249, 0.9)',
                 border: currentTheme === 'dark' 
                   ? '1px solid rgba(100, 116, 139, 0.3)' 
-                  : '1px solid rgba(148, 163, 184, 0.3)', 
+                  : currentTheme === 'light'
+                    ? '1px solid rgba(148, 163, 184, 0.3)'
+                    : currentTheme === 'driver'
+                      ? '1px solid rgba(120, 113, 108, 0.5)'
+                      : currentTheme === 'business'
+                        ? '1px solid rgba(100, 116, 139, 0.5)'
+                        : currentTheme === 'nature'
+                          ? '1px solid rgba(120, 113, 108, 0.5)'
+                          : currentTheme === 'night'
+                            ? '1px solid rgba(139, 92, 246, 0.5)'
+                            : '1px solid rgba(148, 163, 184, 0.3)',
                 borderRadius: '12px', 
                 padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: currentTheme === 'dark' ? '#94a3b8' : '#334155',
+                color: currentTheme === 'dark' 
+                  ? '#94a3b8' 
+                  : currentTheme === 'light'
+                    ? '#334155'
+                    : currentTheme === 'driver'
+                      ? '#78716c'  // Maro text pentru driver
+                      : currentTheme === 'business'
+                        ? '#475569'  // Gri text pentru business
+                        : currentTheme === 'nature'
+                          ? '#78716c'  // Maro text pentru nature
+                          : currentTheme === 'night'
+                            ? '#8b5cf6'  // Violet text pentru night
+                            : '#334155',
                 minWidth: '48px',
                 minHeight: '48px'
               }}>
@@ -957,18 +989,50 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
               <div className="about-button" onClick={() => setShowAbout(true)} title="Despre aplicație" style={{ 
                 background: currentTheme === 'dark' 
-                  ? 'rgba(16, 185, 129, 0.1)'  // Verde pentru dark theme
-                  : 'rgba(16, 185, 129, 0.2)',  // Verde pentru light theme
+                  ? 'rgba(16, 185, 129, 0.1)'
+                  : currentTheme === 'light'
+                    ? 'rgba(16, 185, 129, 0.2)'
+                    : currentTheme === 'driver'
+                      ? 'rgba(251, 191, 36, 0.2)'  // Galben/amber pentru driver
+                      : currentTheme === 'business'
+                        ? 'rgba(59, 130, 246, 0.2)'  // Albastru pentru business
+                        : currentTheme === 'nature'
+                          ? 'rgba(251, 191, 36, 0.2)'  // Galben pentru contrast pe verde
+                          : currentTheme === 'night'
+                            ? 'rgba(168, 85, 247, 0.2)'  // Violet pentru night
+                            : 'rgba(16, 185, 129, 0.2)',
                 border: currentTheme === 'dark' 
-                  ? '1px solid rgba(16, 185, 129, 0.3)'  // Bordură verde pentru dark
-                  : '1px solid rgba(16, 185, 129, 0.5)',  // Bordură verde pentru light
+                  ? '1px solid rgba(16, 185, 129, 0.3)'
+                  : currentTheme === 'light'
+                    ? '1px solid rgba(16, 185, 129, 0.5)'
+                    : currentTheme === 'driver'
+                      ? '1px solid rgba(251, 191, 36, 0.5)'
+                      : currentTheme === 'business'
+                        ? '1px solid rgba(59, 130, 246, 0.5)'
+                        : currentTheme === 'nature'
+                          ? '1px solid rgba(251, 191, 36, 0.5)'  // Galben border
+                          : currentTheme === 'night'
+                            ? '1px solid rgba(168, 85, 247, 0.5)'
+                            : '1px solid rgba(16, 185, 129, 0.5)',
                 borderRadius: '12px', 
                 padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: currentTheme === 'dark' ? '#34d399' : '#047857',  // Text verde
+                color: currentTheme === 'dark' 
+                  ? '#34d399'
+                  : currentTheme === 'light'
+                    ? '#047857'
+                    : currentTheme === 'driver'
+                      ? '#f59e0b'  // Galben text pentru driver
+                      : currentTheme === 'business'
+                        ? '#1d4ed8'  // Albastru text pentru business
+                        : currentTheme === 'nature'
+                          ? '#f59e0b'  // Galben text pentru vizibilitate pe verde
+                          : currentTheme === 'night'
+                            ? '#a855f7'  // Violet text pentru night
+                            : '#047857',
                 minWidth: '48px',
                 minHeight: '48px'
               }}>
@@ -978,17 +1042,49 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
                 background: currentTheme === 'dark' 
                   ? 'rgba(239, 68, 68, 0.1)' 
-                  : 'rgba(239, 68, 68, 0.2)', 
+                  : currentTheme === 'light'
+                    ? 'rgba(239, 68, 68, 0.2)'
+                    : currentTheme === 'driver'
+                      ? 'rgba(239, 68, 68, 0.15)'  // Roșu mai subtil pentru driver
+                      : currentTheme === 'business'
+                        ? 'rgba(239, 68, 68, 0.2)'  // Roșu standard pentru business
+                        : currentTheme === 'nature'
+                          ? 'rgba(239, 68, 68, 0.2)'  // Roșu pentru contrast cu verde
+                          : currentTheme === 'night'
+                            ? 'rgba(239, 68, 68, 0.2)'  // Roșu pentru night
+                            : 'rgba(239, 68, 68, 0.2)',
                 border: currentTheme === 'dark' 
                   ? '1px solid rgba(239, 68, 68, 0.3)' 
-                  : '1px solid rgba(239, 68, 68, 0.5)', 
+                  : currentTheme === 'light'
+                    ? '1px solid rgba(239, 68, 68, 0.5)'
+                    : currentTheme === 'driver'
+                      ? '1px solid rgba(239, 68, 68, 0.4)'
+                      : currentTheme === 'business'
+                        ? '1px solid rgba(239, 68, 68, 0.5)'
+                        : currentTheme === 'nature'
+                          ? '1px solid rgba(239, 68, 68, 0.5)'
+                          : currentTheme === 'night'
+                            ? '1px solid rgba(239, 68, 68, 0.5)'
+                            : '1px solid rgba(239, 68, 68, 0.5)',
                 borderRadius: '12px', 
                 padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: currentTheme === 'dark' ? '#fca5a5' : '#b91c1c',
+                color: currentTheme === 'dark' 
+                  ? '#fca5a5' 
+                  : currentTheme === 'light'
+                    ? '#b91c1c'
+                    : currentTheme === 'driver'
+                      ? '#dc2626'  // Roșu intens pentru driver
+                      : currentTheme === 'business'
+                        ? '#b91c1c'  // Roșu standard pentru business
+                        : currentTheme === 'nature'
+                          ? '#dc2626'  // Roșu pentru vizibilitate pe verde
+                          : currentTheme === 'night'
+                            ? '#f87171'  // Roșu mai deschis pentru night
+                            : '#b91c1c',
                 minWidth: '48px',
                 minHeight: '48px'
               }}>
@@ -1018,15 +1114,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     : 'rgba(239, 68, 68, 0.1)'  // Light red for offline
                   : currentTheme === 'nature'
                     ? isOnline
-                      ? 'rgba(16, 185, 129, 0.3)' // Nature green for online
+                      ? 'rgba(251, 191, 36, 0.2)' // Galben pentru contrast cu verde
                       : 'rgba(239, 68, 68, 0.3)'   // Red for offline
                     : currentTheme === 'night'
                       ? isOnline
-                        ? 'rgba(34, 197, 94, 0.2)' // Night green for online
+                        ? 'rgba(34, 197, 94, 0.2)' // Verde pentru night
                         : 'rgba(239, 68, 68, 0.2)'  // Red for offline
                       : currentTheme === 'driver'
                         ? isOnline
-                          ? 'rgba(34, 197, 94, 0.2)' // Driver green for online
+                          ? 'rgba(34, 197, 94, 0.2)' // Verde pentru driver
                           : 'rgba(239, 68, 68, 0.2)'  // Red for offline
                         : isOnline
                           ? 'rgba(34, 197, 94, 0.2)' // Dark green for online
@@ -1052,7 +1148,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <span style={{
                   color: currentTheme === 'light' || currentTheme === 'business'
                     ? isOnline ? '#065f46' : '#b91c1c'
-                    : isOnline ? '#4ade80' : '#fca5a5',
+                    : currentTheme === 'nature'
+                      ? isOnline ? '#f59e0b' : '#fca5a5'  // Galben pentru vizibilitate pe verde
+                      : currentTheme === 'driver'
+                        ? isOnline ? '#22c55e' : '#fca5a5'  // Verde pentru driver
+                        : currentTheme === 'night'
+                          ? isOnline ? '#4ade80' : '#f87171'  // Verde/roșu pentru night
+                          : isOnline ? '#4ade80' : '#fca5a5', // Default dark theme
                   fontSize: '10px', // Reduced from 12px
                   fontWeight: '600',
                   letterSpacing: '0.5px'
@@ -1107,7 +1209,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     alignItems: 'center',
                     marginBottom: '4px',
                     color: currentTheme === 'light' || currentTheme === 'business'
-                      ? '#64748b' : '#cbd5e1'
+                      ? '#64748b' 
+                      : currentTheme === 'nature'
+                        ? '#d1fae5'  // Verde deschis pentru Nature
+                        : currentTheme === 'driver'
+                          ? '#fef3c7'  // Galben deschis pentru Driver
+                          : currentTheme === 'night'
+                            ? '#e0e7ff'  // Violet deschis pentru Night
+                            : '#cbd5e1'  // Default pentru Dark
                   }}>
                     <span>Sincronizare GPS</span>
                     <span>{offlineGPSCount} coord.</span>
