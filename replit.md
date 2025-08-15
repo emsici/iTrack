@@ -11,7 +11,12 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 - **Business Presentation**: PREZENTARE_BUSINESS_iTrack.md (for technical/business audiences)
 - **Client Presentation**: PREZENTARE_CLIENTI_iTrack.md (ready-to-use document for client meetings and proposals)
 
-## Recent Performance Optimizations (14/08/2025)
+## Recent Performance Optimizations (15/08/2025)
+- **GPS FUNCTIONALITY RESTORED**: Fixed GPS button functionality for Android APK deployment
+- **ELIMINATED TEST COORDINATES**: Removed browser test coordinates - GPS only works on real Android APK
+- **ANDROID GPS PRIORITY**: Ensured native Android GPS service gets priority over JavaScript backup
+- **ERROR HANDLING IMPROVED**: Better GPS error detection and handling for Android vs browser environments
+- **STATUS UPDATE RELIABILITY**: Enhanced course status update flow with proper error propagation
 - **CRITICAL GPS ORDER FIX**: Replaced HashMap with LinkedHashMap + sorting in Android service to ensure consistent coordinate transmission order
 - **SHARED TIMESTAMP SYSTEM**: Implemented SharedTimestampService for perfect synchronization across all GPS services
 - **TIMESTAMP SYNCHRONIZATION**: All GPS services now use shared timestamp for coordinates within same interval 
