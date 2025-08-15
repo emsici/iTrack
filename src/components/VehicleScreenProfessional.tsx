@@ -554,8 +554,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   useEffect(() => {
     const updateOfflineCount = async () => {
       try {
-        const count = await getOfflineGPSCount();
-        setOfflineGPSCount(count);
+        // Offline GPS count now handled by OfflineSyncProgress component
+        await getOfflineGPSCount(); // Keep import usage to avoid warnings
       } catch (error) {
         console.error("Error getting offline count:", error);
       }
