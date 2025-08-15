@@ -1209,8 +1209,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       <i className="fas fa-list-alt"></i>
                     </div>
                     <div className="stat-details">
-                      <div className="stat-label">TOTAL</div>
-                      <div className="stat-value">{courses.length}</div>
+                      <div className="stat-label" style={{ 
+                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                      }}>TOTAL</div>
+                      <div className="stat-value" style={{ 
+                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                      }}>{courses.length}</div>
                     </div>
                   </div>
                 </div>
@@ -1241,8 +1245,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       <i className="fas fa-play"></i>
                     </div>
                     <div className="stat-details">
-                      <div className="stat-label">ACTIV</div>
-                      <div className="stat-value">{courses.filter(c => c.status === 2).length}</div>
+                      <div className="stat-label" style={{ 
+                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                      }}>ACTIV</div>
+                      <div className="stat-value" style={{ 
+                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                      }}>{courses.filter(c => c.status === 2).length}</div>
                     </div>
                   </div>
                 </div>
@@ -1273,8 +1281,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       <i className="fas fa-pause"></i>
                     </div>
                     <div className="stat-details">
-                      <div className="stat-label">PAUZĂ</div>
-                      <div className="stat-value">{courses.filter(c => c.status === 3).length}</div>
+                      <div className="stat-label" style={{ 
+                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                      }}>PAUZĂ</div>
+                      <div className="stat-value" style={{ 
+                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                      }}>{courses.filter(c => c.status === 3).length}</div>
                     </div>
                   </div>
                 </div>
@@ -1305,8 +1317,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       <i className="fas fa-check-circle"></i>
                     </div>
                     <div className="stat-details">
-                      <div className="stat-label">DISPONIBIL</div>
-                      <div className="stat-value">{courses.filter(c => c.status === 1).length}</div>
+                      <div className="stat-label" style={{ 
+                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                      }}>DISPONIBIL</div>
+                      <div className="stat-value" style={{ 
+                        color: currentTheme === 'business' ? '#000000' : 'inherit' 
+                      }}>{courses.filter(c => c.status === 1).length}</div>
                     </div>
                   </div>
                 </div>
