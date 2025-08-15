@@ -9,6 +9,7 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 Performance optimization: Universal optimization for ALL Android phones (not device-specific).
 Code comments: All comments must be in Romanian language.
 Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java removed).
+UI Performance: Remove heavy animations (rainbow flows, floating animations, gradient shifts, pulse effects) that may affect performance on Android devices.
 
 ## Business Materials
 - **Business Presentation**: PREZENTARE_BUSINESS_iTrack.md (for technical/business audiences)

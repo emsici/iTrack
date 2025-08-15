@@ -4161,15 +4161,8 @@ html, body {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #00d4aa, #00a8ff, #7b68ee, #ff6b9d);
-  background-size: 300% 100%;
-  animation: rainbow-flow 3s ease-in-out infinite;
-}
-
-@keyframes rainbow-flow {
-  0%, 100% { background-position: 0% 0; }
-  50% { background-position: 100% 0; }
+  height: 3px;
+  background: linear-gradient(90deg, #00d4aa, #00a8ff);
 }
 
 /* Network status badges with modern styling */
@@ -4193,22 +4186,14 @@ html, body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  animation: pulse-dot 2s ease-in-out infinite;
 }
 
 .network-status.online::before {
   background: #22c55e;
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
 }
 
 .network-status.offline::before {
   background: #ef4444;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
-}
-
-@keyframes pulse-dot {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.7; }
 }
 
 /* Sync container states with modern card design */
@@ -4232,33 +4217,13 @@ html, body {
 .sync-icon {
   margin-right: 16px;
   font-size: 24px;
-  background: linear-gradient(45deg, #00d4aa, #00a8ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 2px 4px rgba(0, 212, 170, 0.3));
+  color: #00d4aa;
 }
 
 .sync-icon-automatic {
   margin-right: 16px;
   font-size: 28px;
-  background: linear-gradient(45deg, #00d4aa, #00a8ff, #7b68ee);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease-in-out infinite, float 2s ease-in-out infinite;
-  filter: drop-shadow(0 2px 8px rgba(0, 212, 170, 0.4));
-}
-
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50% { transform: translateY(-3px) scale(1.05); }
+  color: #00a8ff;
 }
 
 .spinning {
@@ -4281,10 +4246,6 @@ html, body {
   margin-bottom: 6px;
   display: flex;
   align-items: center;
-  background: linear-gradient(45deg, currentColor, rgba(255, 255, 255, 0.8));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .sync-stats,
@@ -4340,43 +4301,16 @@ html, body {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #00d4aa, #00a8ff, #7b68ee);
-  background-size: 300% 100%;
+  background: linear-gradient(90deg, #00d4aa, #00a8ff);
   border-radius: 6px;
   transition: width 0.4s ease;
   position: relative;
-  animation: gradient-flow 2s ease-in-out infinite;
-  box-shadow: 0 2px 8px rgba(0, 212, 170, 0.4);
-}
-
-@keyframes gradient-flow {
-  0%, 100% { background-position: 0% 0; }
-  50% { background-position: 100% 0; }
-}
-
-.progress-fill.syncing::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  animation: progress-wave 1.5s ease-in-out infinite;
-}
-
-@keyframes progress-wave {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
 }
 
 .progress-text {
   font-size: 13px;
   font-weight: 700;
-  background: linear-gradient(45deg, #00d4aa, #00a8ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #00d4aa;
   min-width: 40px;
   text-align: right;
 }
@@ -4413,13 +4347,6 @@ html, body {
   background: rgba(34, 197, 94, 0.1);
   border-radius: 12px;
   border: 1px solid rgba(34, 197, 94, 0.3);
-  animation: success-pulse 2s ease-in-out;
-}
-
-@keyframes success-pulse {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  50% { transform: scale(1.02); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
 }
 
 .sync-error {
@@ -4485,10 +4412,7 @@ html, body {
 }
 
 [data-theme="blue"] .sync-icon-automatic {
-  background: linear-gradient(45deg, #3b82f6, #1d4ed8, #06b6d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #3b82f6;
 }
 
 /* Green theme - Nature professional */
@@ -4499,10 +4423,7 @@ html, body {
 }
 
 [data-theme="green"] .sync-icon-automatic {
-  background: linear-gradient(45deg, #22c55e, #16a34a, #15803d);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #22c55e;
 }
 
 /* Purple theme - Premium professional */
@@ -4513,10 +4434,7 @@ html, body {
 }
 
 [data-theme="purple"] .sync-icon-automatic {
-  background: linear-gradient(45deg, #a855f7, #9333ea, #7c3aed);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #a855f7;
 }
 
 /* Nature theme - Enhanced earth tones */
@@ -4530,10 +4448,7 @@ html, body {
 }
 
 [data-theme="nature"] .sync-icon-automatic {
-  background: linear-gradient(45deg, #84cc16, #65a30d, #22c55e);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #84cc16;
 }
 
 [data-theme="nature"] .network-status.online {
@@ -4543,8 +4458,7 @@ html, body {
 }
 
 [data-theme="nature"] .progress-fill {
-  background: linear-gradient(90deg, #84cc16, #22c55e, #16a34a);
-  box-shadow: 0 2px 8px rgba(132, 204, 22, 0.4);
+  background: linear-gradient(90deg, #84cc16, #22c55e);
 }
 
 /* Night theme - Deep space professional */
@@ -4555,10 +4469,7 @@ html, body {
 }
 
 [data-theme="night"] .sync-icon-automatic {
-  background: linear-gradient(45deg, #8b5cf6, #7c3aed, #6d28d9);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #8b5cf6;
 }
 
 /* Responsive design optimizations */
@@ -4603,17 +4514,7 @@ html, body {
   }
 }
 
-/* Performance optimizations */
-.offline-sync-progress *,
-.offline-sync-progress *::before,
-.offline-sync-progress *::after {
-  will-change: auto;
-}
-
-.progress-fill.syncing {
+/* Performance optimizations - simplified */
+.progress-fill {
   will-change: width;
-}
-
-.sync-icon-automatic {
-  will-change: transform;
 }
