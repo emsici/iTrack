@@ -1609,8 +1609,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 cursor: 'pointer',
                 zIndex: 999,
                 opacity: '0.3',
-                transition: 'all 0.3s ease',
-                /* REMOVED backdropFilter pentru ZERO lag la scroll */
+                transition: 'opacity 0.2s ease', /* SIMPLIFIED transition pentru ZERO lag */
                 background: 'rgba(100, 116, 139, 0.1)', /* Simplu background în loc de blur */
                 border: '1px solid rgba(100, 116, 139, 0.2)'
               }}
@@ -1662,7 +1661,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <div style={{
                 position: 'absolute',
                 bottom: '15px', // FIXED: Much closer to bottom, reducing large space
-                left: '50%',
                 left: 'calc(50% - 50px)', /* REPLACED transform cu calc pentru ZERO lag */
                 fontSize: '9px',
                 color: currentTheme === 'dark' || currentTheme === 'light' || currentTheme === 'business' 
