@@ -130,12 +130,12 @@ html, body {
   margin: 0;
 }
 
-/* Enhanced Header - Compact and Functional */
+/* Enhanced Header - Performance Optimized */
 .vehicle-screen-header {
   width: 100%;
   background: linear-gradient(135deg, #0f172a, #1e293b);
   padding: calc(env(safe-area-inset-top, 20px) + 12px) 16px 12px 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -143,6 +143,8 @@ html, body {
   gap: 12px;
   position: relative;
   min-height: 90px;
+  contain: layout style paint;
+  will-change: transform;
 }
 
 /* Enhanced GPS Progress Monitor - Integrated in Header */
@@ -151,6 +153,15 @@ html, body {
   padding: 0;
   width: 100%;
   max-width: 500px;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+  will-change: opacity;
+}
+
+/* Hide during scroll for performance */
+.offline-monitor-header-style.scrolling {
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 .gps-status-header-style {
@@ -158,12 +169,12 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   margin-bottom: 8px;
+  contain: layout style paint;
 }
 
 .gps-status-icon-header {
@@ -264,13 +275,19 @@ html, body {
 .sync-progress-fill-header {
   position: relative;
   height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  transition: width 0.3s ease;
+  border-radius: 6px;
+  overflow: hidden;
+  will-change: width;
+}
+
+/* Animation only when actively syncing */
+.sync-progress-fill-header.syncing {
   background: linear-gradient(90deg, #3b82f6, #1e40af, #3b82f6);
   background-size: 200% 100%;
-  animation: progressShine 2s infinite;
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 6px;
+  animation: progressShine 3s infinite ease-in-out;
   box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
-  overflow: hidden;
 }
 
 .sync-progress-shimmer-header {
@@ -298,6 +315,7 @@ html, body {
   100% { left: 100%; }
 }
 
+/* Optimized animation - only when syncing is active */
 @keyframes progressShine {
   0% { background-position: 200% 0%; }
   100% { background-position: -200% 0%; }
@@ -3569,18 +3587,18 @@ html, body {
   color: inherit;
 }
 
-/* Enhanced Sync Progress Bar - Header Integrated */
+/* Enhanced Sync Progress Bar - Performance Optimized */
 .enhanced-sync-progress {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 12px 16px;
   margin-top: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
+  contain: layout style paint;
 }
 
 .progress-header {
@@ -3612,6 +3630,7 @@ html, body {
   background: rgba(226, 232, 240, 0.8);
   border-radius: 6px;
   overflow: hidden;
+  contain: layout style paint;
 }
 
 .progress-bar-fill {
@@ -3619,8 +3638,15 @@ html, body {
   background: linear-gradient(90deg, #667eea, #764ba2);
   border-radius: 6px;
   position: relative;
-  transition: width 0.5s ease;
+  transition: width 0.3s ease;
   overflow: hidden;
+  will-change: width;
+}
+
+.progress-bar-fill.syncing {
+  background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+  background-size: 200% 100%;
+  animation: progressShine 3s infinite ease-in-out;
 }
 
 .progress-bar-shimmer {

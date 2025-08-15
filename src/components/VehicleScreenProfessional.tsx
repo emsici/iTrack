@@ -1282,8 +1282,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
             
-            {/* Offline Sync Progress - Integrated in Header */}
-            <div style={{ marginTop: '10px', width: '100%', maxWidth: '500px', margin: '10px auto 0 auto' }}>
+            {/* Offline Sync Progress - Performance Optimized */}
+            <div style={{ 
+              marginTop: '10px', 
+              width: '100%', 
+              maxWidth: '500px', 
+              margin: '10px auto 0 auto',
+              contain: 'layout style paint',
+              willChange: 'transform'
+            }}>
               <OfflineSyncProgress className="offline-monitor-header-style" />
             </div>
           </div>

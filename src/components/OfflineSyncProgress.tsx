@@ -98,8 +98,11 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
           <div className="progress-bar-container">
             <div className="progress-bar">
               <div 
-                className="progress-fill" 
-                style={{ width: `${syncProgress.percentage}%` }}
+                className={`progress-fill ${syncProgress.isActive ? 'syncing' : ''}`}
+                style={{ 
+                  width: `${syncProgress.percentage}%`,
+                  willChange: syncProgress.isActive ? 'width' : 'auto'
+                }}
               ></div>
             </div>
             <div className="progress-text">
