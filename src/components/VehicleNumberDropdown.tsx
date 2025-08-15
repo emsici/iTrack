@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getVehicleNumberHistory } from '../services/storage';
+import { getVehicleNumberHistory, removeVehicleNumberFromHistory } from '../services/storage';
 import { Theme } from '../services/themeService';
 
 interface VehicleNumberDropdownProps {
@@ -51,6 +51,17 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
   const handleChangeNumber = () => {
     onChangeNumber();
     setIsOpen(false);
+  };
+
+  const handleRemoveVehicle = async (vehicle: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent dropdown close
+    try {
+      await removeVehicleNumberFromHistory(vehicle);
+      const updatedHistory = await getVehicleNumberHistory();
+      setVehicleHistory(updatedHistory);
+    } catch (error) {
+      console.error('Error removing vehicle from history:', error);
+    }
   };
 
   return (
@@ -205,7 +216,8 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
                     background: vehicle === currentVehicle 
                       ? (currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)')
                       : 'transparent',
-                    transition: 'background 0.2s ease'
+                    transition: 'background 0.2s ease',
+                    position: 'relative'
                   }}
                   onMouseEnter={(e) => {
                     if (vehicle !== currentVehicle) {
@@ -216,7 +228,9 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
                   }}
                   onMouseLeave={(e) => {
                     if (vehicle !== currentVehicle) {
-                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.background = vehicle === currentVehicle 
+                        ? (currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)')
+                        : 'transparent';
                     }
                   }}
                 >
@@ -230,15 +244,48 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
                       ? '#1e293b'
                       : '#ffffff',
                     fontSize: '14px',
-                    fontWeight: vehicle === currentVehicle ? '600' : '500'
+                    fontWeight: vehicle === currentVehicle ? '600' : '500',
+                    flex: 1
                   }}>
                     {vehicle}
                   </span>
+                  
+                  {/* Delete Button */}
+                  <button
+                    onClick={(e) => handleRemoveVehicle(vehicle, e)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      borderRadius: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'background 0.2s ease',
+                      marginLeft: 'auto'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = currentTheme === 'dark'
+                        ? 'rgba(239, 68, 68, 0.2)'
+                        : 'rgba(239, 68, 68, 0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'none';
+                    }}
+                    title={`Șterge ${vehicle} din istoric`}
+                  >
+                    <i className="fas fa-times" style={{ 
+                      color: '#ef4444', 
+                      fontSize: '12px'
+                    }}></i>
+                  </button>
+                  
                   {vehicle === currentVehicle && (
                     <i className="fas fa-check" style={{ 
                       color: '#3b82f6', 
                       fontSize: '12px',
-                      marginLeft: 'auto'
+                      marginLeft: '8px'
                     }}></i>
                   )}
                 </div>
