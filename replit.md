@@ -17,7 +17,12 @@ UI Performance: Remove heavy animations (rainbow flows, floating animations, gra
 
 ## Recent Performance Optimizations (15/08/2025)
 
-### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 23:30**
+### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 23:45**
+- **ENVIRONMENT SWITCH TO PRODUCTION**: Întreg sistemul trecut pe mediul de producție (etsm_prod) - Frontend + Android sincronizat
+- **PRODUCTION API ACTIVE**: Toate endpoint-urile folosesc acum etsm_prod pentru autentificare, GPS, curse, logout
+- **CENTRALIZED CONFIG UPDATED**: API_BASE_URL actualizat în src/services/api.ts și OptimalGPSService.java pentru consistență maximă
+
+### **ACTUALIZĂRI ANTERIOARE - 15/08/2025 23:30**
 - **EFFICIENT OFFLINE SYSTEM IMPLEMENTED**: Sistem complet de salvare automată offline bazat pe răspunsul gps.php (status != 200)
 - **NETWORK DETECTION OPTIMIZED**: Zero ping-uri suplimentare - detectare prin răspunsul direct de la gps.php (50% mai eficient)
 - **AUTO-SYNC ON NETWORK RETURN**: Sincronizare automată instantanee când revine internetul cu progress vizual intuitiv
@@ -32,11 +37,11 @@ UI Performance: Remove heavy animations (rainbow flows, floating animations, gra
 - **GPS CONTINUITY FIX**: Rezolvat problema unde GPS s-a oprit după prima coordonată - scheduleNextOptimalGPSCycle() era omis
 - **FRONTEND-ANDROID CONSISTENCY**: Status 3 (PAUSE) elimină cursa din ambele liste pentru eficiență maximă și consistență
 - **ALTITUDE DEBUGGING**: Adăugat log-uri pentru a investiga de ce altitudinea apare negativă pe server când se trimite pozitiv
-- **API ENVIRONMENT SWITCH**: Schimbat pe etsm3 (DEV) conform solicitării utilizatorului - toate coordonatele se transmit pe etsm3/gps.php
-- **SINCRONIZARE FRONTEND-ANDROID**: Ambele medii (React + Java) folosesc acum etsm3 pentru consistență completă
+- **API ENVIRONMENT SWITCH**: Schimbat pe etsm_prod (PROD) conform solicitării utilizatorului - toate coordonatele se transmit pe etsm_prod/gps.php
+- **SINCRONIZARE FRONTEND-ANDROID**: Ambele medii (React + Java) folosesc acum etsm_prod pentru consistență completă
 - **GPS START CRITICAL FIX**: Rezolvat problema unde GPS nu pornea pentru curse noi - updateCourseStatus funcționează perfect pentru toate acțiunile
 - **LOGICĂ GPS SIMPLIFICATĂ**: Revenire la fluxul eficient original - status PAUSE/STOP șterge cursa din activeCourses, status START/RESUME o readaugă
-- **TRANSMISIE GPS FUNCȚIONALĂ**: Confirmat că toate coordonatele ajung pe etsm3/gps.php la fiecare 5 secunde
+- **TRANSMISIE GPS FUNCȚIONALĂ**: Confirmat că toate coordonatele ajung pe etsm_prod/gps.php la fiecare 5 secunde
 - **FLUXUL CORECT GPS**: STATUS 3/4 → trimite status la server → șterge din activeCourses → oprește transmisia, STATUS 2 → trimite status → adaugă în activeCourses → pornește transmisia
 
 ### **ACTUALIZĂRI ANTERIOARE - 15/08/2025 19:53**
@@ -46,7 +51,7 @@ UI Performance: Remove heavy animations (rainbow flows, floating animations, gra
 - **GPS ANDROID OPTIMIZAT**: Location age redus la 2s, timeout la 15s pentru răspuns mai rapid
 - **FIX COMPILARE ANDROID**: Adăugat API_BASE_URL_TEST lipsă pentru compilare fără erori
 - **CENTRALIZARE API CRITICĂ**: Sincronizat configurația API între frontend și Android - ambele folosesc PROD pentru consistență
-- **URL-URI UNIFICATE**: Frontend și Android folosesc aceleași URL-uri (etsm_test pentru TEST, etsm_prod pentru PROD)
+- **URL-URI UNIFICATE**: Frontend și Android folosesc aceleași URL-uri (etsm3 pentru DEV, etsm_prod pentru PROD - ACTIV)
 - **CLEANUP DEBUG LOGS**: Eliminat log-urile de debug pentru click-uri pentru consolă mai curată
 - **GPS BACKGROUND FIX**: Rezolvat problema transmisiei GPS continue - serviciul Android menține acum alarme persistente
 - **CONTINUITATE GPS**: Validare și restart automat pentru alarme GPS în background când telefonul este blocat
@@ -135,18 +140,18 @@ UI Performance: Remove heavy animations (rainbow flows, floating animations, gra
 ## External Dependencies
 - **Capacitor**: `@capacitor/core`, `@capacitor/android`, `@capacitor/geolocation`, `@capacitor/preferences`
 - **Capacitor Community Plugins**: `@capacitor-community/background-geolocation`
-- **APIs** (DEV - etsm3 - ACTIV):
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/login.php` (Authentication)
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php` (Logout)
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php` (Course Management)
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php` (GPS Data Transmission - TOATE statusurile: 2, 3, 4)
-    - `https://www.euscagency.com/etsm3/platforme/transport/apk/rezultate.php` (GPS Result Verification)
-- **APIs** (PROD - etsm_prod - INACTIV):
+- **APIs** (PROD - etsm_prod - ACTIV):
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/login.php` (Authentication)
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/logout.php` (Logout)
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php` (Course Management)
-    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/update_course_status.php` (Course Status Updates)
-    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php` (GPS Data Transmission)
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php` (GPS Data Transmission - TOATE statusurile: 2, 3, 4)
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/rezultate.php` (GPS Result Verification)
+- **APIs** (DEV - etsm3 - INACTIV):
+    - `https://www.euscagency.com/etsm3/platforme/transport/apk/login.php` (Authentication)
+    - `https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php` (Logout)
+    - `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php` (Course Management)
+    - `https://www.euscagency.com/etsm3/platforme/transport/apk/update_course_status.php` (Course Status Updates)
+    - `https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php` (GPS Data Transmission)
+    - `https://www.euscagency.com/etsm3/platforme/transport/apk/rezultate.php` (GPS Result Verification)
 - **UI Libraries**: Bootstrap 5.3.6
 ```
