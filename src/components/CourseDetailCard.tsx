@@ -147,13 +147,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     <div className="course-card-enhanced" style={{ marginBottom: '16px' }}>
       <div className="course-header-enhanced">
         <div className="course-title-row">
-          <h5 className="course-title-enhanced">Cursă #{course.id}</h5>
-          <div className="course-identifiers">
+          <div className="course-left-info">
             <span className="course-uit">
               <i className="fas fa-barcode"></i>
               UIT {course.uit}
             </span>
           </div>
+          <h5 className="course-title-enhanced">Cursă #{course.id}</h5>
         </div>
         
         <div className="status-actions-row">
