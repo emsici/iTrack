@@ -52,13 +52,12 @@ html, body {
   box-sizing: border-box;
 }
 
-/* ZERO LAG la scroll pentru toate dispozitivele */
+/* ZERO LAG GARANTAT - eliminate complet toate proprietățile GPU */
 .courses-list *, .course-card-compact * {
-  will-change: auto !important; /* Override will-change pentru a evita repainting constant */
-}
-
-.course-card-compact:not(:hover) {
-  transform: none !important; /* Elimină transform când nu e hover pentru mai puțin GPU usage */
+  will-change: auto !important;
+  transform: none !important; /* COMPLET ELIMINAT pentru zero lag */
+  backface-visibility: visible !important; /* Reset la default */
+  contain: none !important; /* Zero containment overhead */
 }
 
 /* MOMENTUM scrolling pe toate dispozitivele */
@@ -71,12 +70,8 @@ html, body {
 /* Courses List Design - Optimized for smooth scrolling */
 .vehicle-screen.courses-loaded {
   min-height: 100vh;
-  background: linear-gradient(135deg, 
-    rgba(15, 23, 42, 0.95) 0%, 
-    rgba(30, 41, 59, 0.95) 50%,
-    rgba(15, 23, 42, 0.95) 100%);
-  /* REDUCED blur for PERFORMANCE on powerful phones */
-  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.98);
+  /* ELIMINAT backdrop-filter și gradient pentru ZERO pătrate albe la scroll */
   animation: none;
   padding: 0;
   padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 90px);
@@ -90,15 +85,8 @@ html, body {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   
-  /* MINIMAL GPU usage pentru scroll optim */
-  transform: translateZ(0); /* Simplificat de la translate3d */
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  
-  /* REDUCED containment pentru mai puține calcule */
-  contain: layout style;
-  
-  /* REMOVED will-change pentru a evita constant GPU repainting */
+  /* COMPLET ELIMINAT toate proprietățile GPU pentru scroll perfect fără lag */
+  /* REMOVED: transform, backface-visibility, contain pentru zero overhead */
 }
 
 /* Improved Course Container Structure */
@@ -117,21 +105,10 @@ html, body {
   
   /* SCROLL OPTIMIZATION pentru toate telefoanele - REDUCED GPU load */
   
-  /* MINIMAL transform pentru hardware acceleration */
-  transform: translateZ(0);
-  
-  /* Essential backface pentru smooth scroll */
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  
-  /* LIGHTWEIGHT containment */
-  contain: layout;
-  
-  /* Scroll performance essentials */
+  /* ELIMINAT COMPLET toate proprietățile GPU pentru scroll perfect */
+  /* Doar essential scroll properties */
   overflow-anchor: none;
   -webkit-overflow-scrolling: touch;
-  
-  /* REMOVED will-change, isolation, z-index pentru mai puțin GPU overhead */
 }
 
 .course-card-wrapper {

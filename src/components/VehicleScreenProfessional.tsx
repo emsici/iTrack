@@ -1232,7 +1232,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               maxWidth: '500px', 
               margin: '10px auto 0 auto',
               contain: 'layout style paint',
-              willChange: 'transform'
+              /* REMOVED willChange pentru ZERO lag la scroll */
             }}>
               <OfflineSyncProgress className="offline-monitor-header-style" />
             </div>
@@ -1511,7 +1511,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   paddingBottom: '120px', // Extra padding for last course and bottom bar
                   overflowY: 'auto',
                   WebkitOverflowScrolling: 'touch',
-                  transform: 'translate3d(0, 0, 0)',
+                  /* REMOVED transform pentru ZERO lag la scroll */
                   willChange: 'scroll-position'
                 }}>
                   {filteredCourses.map((course, index) => (
@@ -1610,16 +1610,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 zIndex: 999,
                 opacity: '0.3',
                 transition: 'all 0.3s ease',
-                backdropFilter: 'blur(10px)',
+                /* REMOVED backdropFilter pentru ZERO lag la scroll */
+                background: 'rgba(100, 116, 139, 0.1)', /* Simplu background în loc de blur */
                 border: '1px solid rgba(100, 116, 139, 0.2)'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.opacity = '0.8';
-                e.currentTarget.style.transform = 'scale(1.1)';
+                /* REMOVED transform pentru ZERO lag la scroll */
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.opacity = '0.3';
-                e.currentTarget.style.transform = 'scale(1)';
+                /* REMOVED transform pentru ZERO lag la scroll */
               }}
             >
               <i className="fas fa-cog" style={{
@@ -1662,7 +1663,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 position: 'absolute',
                 bottom: '15px', // FIXED: Much closer to bottom, reducing large space
                 left: '50%',
-                transform: 'translateX(-50%)',
+                left: 'calc(50% - 50px)', /* REPLACED transform cu calc pentru ZERO lag */
                 fontSize: '9px',
                 color: currentTheme === 'dark' || currentTheme === 'light' || currentTheme === 'business' 
                   ? '#64748b' : '#94a3b8',

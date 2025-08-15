@@ -158,8 +158,8 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     <div className={`course-card-compact ${showDetails ? 'expanded' : ''}`}>
       <style>{`
         .course-card-compact {
-          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.95)'};
-          backdrop-filter: blur(12px);
+          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.98)'};
+          /* ELIMINAT backdrop-filter pentru ZERO lag la scroll - păstrează design-ul cu opacitate mărită */
           border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(148, 163, 184, 0.2)'};
           border-radius: 12px;
           padding: 16px 20px;
@@ -174,18 +174,15 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           z-index: ${showDetails ? '999' : '1'};
           isolation: isolate;
           
-          /* PERFORMANCE scroll optimizat pentru șoferi - reduced GPU usage */
-          transform: translateZ(0); /* Simplificat pentru mai puțin GPU load */
-          backface-visibility: hidden;
-          -webkit-backface-visibility: hidden;
-          contain: layout; /* Simplified containment */
+          /* ZERO LAG scroll - toate transform-urile eliminate */
+          /* REMOVED transform, backface-visibility, contain pentru zero GPU overhead */
         }
 
         .course-card-enhanced:hover {
-          transform: translateY(-2px);
+          /* ELIMINAT transform pentru ZERO lag - doar shadow ușor */
           box-shadow: 
-            0 12px 40px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            0 8px 20px rgba(0, 0, 0, 0.3);
+          transition: box-shadow 0.1s ease; /* Rapid pentru responsivitate */
         }
 
         .course-card-compact::before {

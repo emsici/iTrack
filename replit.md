@@ -16,7 +16,10 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 
 ## Recent Performance Optimizations (15/08/2025)
 
-### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 16:45**
+### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 17:55**
+- **ZERO LAG SCROLL GARANTAT**: Eliminat complet backdrop-filter, blur effects, transform properties, will-change pentru scroll perfect
+- **PĂTRATE ALBE ELIMINATE**: Removed gradient backgrounds + blur combinations care cauzau white flashes la scroll
+- **GPU USAGE MINIMIZAT**: Transform properties eliminate complet, doar essential scroll properties păstrate
 - **LOG-URI COMPLET TRADUSE ÎN ROMÂNĂ**: Toate mesajele de debug și log-urile din întreaga aplicație traduse în română pentru experiență mai bună - FINALIZAT 15/08/2025 17:21
 - **FIX DUPLICATE GPS TRANSMISSIONS**: Implementat sistem anti-duplicat între Priority GPS, Guaranteed GPS și Android service
 - **DEBUG PANEL INLINE**: Debug panel-ul apare SUB lista de curse, nu înlocuiește pagina - experiență live debugging 
