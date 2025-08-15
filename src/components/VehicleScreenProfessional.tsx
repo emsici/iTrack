@@ -403,14 +403,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }
       }
 
-      // SIMPLIFIED: All GPS logic handled by capacitorGPS service
+      // GPS logic handled by directAndroidGPS service
       try {
-        console.log(`🎯 Delegating all GPS logic to capacitorGPS service`);
+        console.log(`🎯 Delegating all GPS logic to directAndroidGPS service`);
         console.log(`📞 Calling updateCourseStatus with UIT: ${courseToUpdate.uit} (not ID: ${courseId})`);
+        console.log(`📱 Platform info: ${navigator.userAgent.includes('Android') ? 'Android' : 'Browser'}`);
         
         // CRITICAL FIX: Use UIT instead of courseId for GPS service
         await updateCourseStatus(courseToUpdate.uit, newStatus);
         console.log(`✅ Course ${courseToUpdate.uit} status updated to ${newStatus} successfully`);
+        
         const statusNames = { 1: 'Disponibilă', 2: 'În progres', 3: 'Pauzată', 4: 'Finalizată' };
         toast.success('Status actualizat!', `Cursa este acum "${statusNames[newStatus as keyof typeof statusNames]}"`);
         
@@ -419,10 +421,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       } catch (error) {
         console.error(`❌ Status update error:`, error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        setError(`Status update failed: ${errorMessage}`);
+        const errorMessage = error instanceof Error ? error.message : 'Eroare necunoscută';
+        
+        // More specific error handling for GPS issues
+        if (errorMessage.includes('GPS')) {
+          setError(`GPS Error: ${errorMessage}. Verifică permisiunile GPS.`);
+          toast.error('Eroare GPS', 'Verifică permisiunile de locație');
+        } else {
+          setError(`Status update failed: ${errorMessage}`);
+          toast.error('Eroare la actualizare', errorMessage);
+        }
+        
         logAPIError(`Status update failed: ${errorMessage}`);
-        toast.error('Eroare la actualizare', errorMessage);
       }
 
       // Status already updated above - no duplicate update needed

@@ -201,18 +201,28 @@ class DirectAndroidGPSService {
     try {
       // 1. Start Android native GPS service (primary method)
       if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-        const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ MainActivity GPS started: ${result}`);
+        try {
+          const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
+          logGPS(`✅ MainActivity GPS started: ${result}`);
+        } catch (androidError) {
+          logGPSError(`❌ AndroidGPS.startGPS failed: ${androidError}`);
+        }
       } else {
-        logGPS(`⚠️ AndroidGPS interface not available - using JavaScript backup`);
+        logGPS(`⚠️ AndroidGPS interface not available - using JavaScript backup only`);
       }
 
-      // 2. Start guaranteed JavaScript GPS backup (ensures 5-second transmission) 
-      await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-      logGPS(`✅ Guaranteed GPS backup service started for course: ${courseId}`);
+      // 2. ALWAYS start guaranteed JavaScript GPS backup (ensures 5-second transmission) 
+      try {
+        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+        logGPS(`✅ Guaranteed GPS backup service started for course: ${courseId}`);
+      } catch (backupError) {
+        logGPSError(`❌ Guaranteed GPS backup failed: ${backupError}`);
+        throw backupError; // Rethrow as this is critical
+      }
       
     } catch (error) {
-      logGPSError(`❌ MainActivity GPS failed: ${error}`);
+      logGPSError(`❌ GPS service startup failed: ${error}`);
+      throw error;
     }
   }
 
