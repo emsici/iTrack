@@ -21,6 +21,7 @@ import { useToast } from "../hooks/useToast";
 import { clearAllGuaranteedGPS } from "../services/garanteedGPS";
 import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
+import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
 
 interface VehicleScreenProps {
@@ -954,47 +955,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </span>
               </div>
 
-              {/* Vehicle Number Badge - Centered */}
-              <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul" style={{ 
-                background: currentTheme === 'light' 
-                  ? 'rgba(71, 85, 105, 0.08)' 
-                  : currentTheme === 'business'
-                    ? 'rgba(71, 85, 105, 0.08)' 
-                    : 'rgba(255, 255, 255, 0.1)', 
-                border: currentTheme === 'light' 
-                  ? '1px solid rgba(71, 85, 105, 0.2)' 
-                  : currentTheme === 'business'
-                    ? '1px solid rgba(71, 85, 105, 0.2)' 
-                    : '1px solid rgba(255, 255, 255, 0.2)', 
-                borderRadius: '12px', 
-                padding: '8px 16px', 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '8px', 
-                cursor: 'pointer',
-                minWidth: '120px',
-                justifyContent: 'center'
-              }}>
-                <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '14px' }}></i>
-                <span className="vehicle-number" style={{ 
-                  color: currentTheme === 'light' 
-                    ? '#1e293b' 
-                    : currentTheme === 'business'
-                      ? '#1e293b' 
-                      : '#ffffff', 
-                  fontSize: '14px', 
-                  fontWeight: '600',
-                  letterSpacing: '0.3px'
-                }}>
-                  {vehicleNumber}
-                </span>
-                <i className="fas fa-chevron-down" style={{ 
-                  color: currentTheme === 'light' || currentTheme === 'business' 
-                    ? '#64748b' 
-                    : '#9ca3af', 
-                  fontSize: '10px' 
-                }}></i>
-              </div>
+              {/* Vehicle Number Dropdown - Centered */}
+              <VehicleNumberDropdown
+                currentVehicle={vehicleNumber}
+                currentTheme={currentTheme}
+                onSelectVehicle={async (vehicle) => {
+                  setVehicleNumber(vehicle);
+                  await storeVehicleNumber(vehicle);
+                  setCoursesLoaded(false); // Reload courses for new vehicle
+                }}
+                onChangeNumber={() => setCoursesLoaded(false)}
+              />
 
               {/* Status Indicator */}
               <div style={{

@@ -201,13 +201,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .toggle-details-btn {
           background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(241, 245, 249, 0.9)'};
           border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(148, 163, 184, 0.25)'};
-          color: ${currentTheme === 'light' 
-            ? '#000000'  /* BLACK text for Light theme */
-            : currentTheme === 'business'
-              ? '#000000'  /* BLACK text for Business theme */
-              : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
-                : '#cbd5e1'  /* Light text for Dark theme only */
+          color: ${currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'night'
+            ? '#ffffff'  /* WHITE text for Dark/Driver/Night themes only */
+            : '#000000'  /* BLACK text for Light/Business/Nature themes */
           };
           padding: 8px 16px;
           border-radius: 8px;
@@ -225,9 +221,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .toggle-details-btn:hover {
           background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(226, 232, 240, 0.9)'};
-          color: ${currentTheme === 'light' || currentTheme === 'business' 
-            ? '#000000'  /* BLACK text for Light/Business themes */
-            : '#ffffff'  /* White text for other themes */
+          color: ${currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'night'
+            ? '#ffffff'  /* WHITE text for Dark/Driver/Night themes only */
+            : '#000000'  /* BLACK text for Light/Business/Nature themes */
           };
           transform: scale(1.02);
         }

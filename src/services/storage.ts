@@ -2,6 +2,7 @@ import { Preferences } from '@capacitor/preferences';
 
 const TOKEN_KEY = 'auth_token';
 const VEHICLE_NUMBER_KEY = 'vehicle_number';
+const VEHICLE_HISTORY_KEY = 'vehicle_number_history';
 
 export const storeToken = async (token: string): Promise<void> => {
   try {
@@ -40,6 +41,13 @@ export const storeVehicleNumber = async (vehicleNumber: string): Promise<void> =
       key: VEHICLE_NUMBER_KEY,
       value: vehicleNumber
     });
+    
+    // Store vehicle number in history for dropdown
+    const history = await getVehicleNumberHistory();
+    if (!history.includes(vehicleNumber)) {
+      const updatedHistory = [vehicleNumber, ...history.slice(0, 9)]; // Keep last 10
+      await Preferences.set({ key: VEHICLE_HISTORY_KEY, value: JSON.stringify(updatedHistory) });
+    }
   } catch (error) {
     console.error('Error storing vehicle number:', error);
     throw error;
@@ -61,6 +69,29 @@ export const clearVehicleNumber = async (): Promise<void> => {
     await Preferences.remove({ key: VEHICLE_NUMBER_KEY });
   } catch (error) {
     console.error('Error clearing vehicle number:', error);
+    throw error;
+  }
+};
+
+// Vehicle number history functions for dropdown
+export const getVehicleNumberHistory = async (): Promise<string[]> => {
+  try {
+    const result = await Preferences.get({ key: VEHICLE_HISTORY_KEY });
+    if (result.value) {
+      return JSON.parse(result.value);
+    }
+    return [];
+  } catch (error) {
+    console.error('Error getting vehicle number history:', error);
+    return [];
+  }
+};
+
+export const clearVehicleNumberHistory = async (): Promise<void> => {
+  try {
+    await Preferences.remove({ key: VEHICLE_HISTORY_KEY });
+  } catch (error) {
+    console.error('Error clearing vehicle number history:', error);
     throw error;
   }
 };
