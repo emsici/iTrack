@@ -7,13 +7,11 @@ export const API_CONFIG = {
   // Production environment
   PROD: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/',
   // Test environment  
-  TEST: 'https://www.euscagency.com/etsm3/platforme/transport/apk/',
-  // Development environment (if needed)
-  DEV: 'https://www.euscagency.com/etsm_dev/platforme/transport/apk/'
+  TEST: 'https://www.euscagency.com/etsm3/platforme/transport/apk/'
 };
 
 // Current active environment - Change this single line to switch environments
-export const API_BASE_URL = API_CONFIG.PROD;
+export const API_BASE_URL = API_CONFIG.TEST;
 
 // Single request management to prevent conflicts
 let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null = null;
