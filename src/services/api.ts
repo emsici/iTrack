@@ -1,4 +1,5 @@
 import { logAPI } from "./appLogger";
+import { reportGPSSuccess, reportGPSError } from './networkStatus';
 import { CapacitorHttp } from "@capacitor/core";
 // Consistent static import to resolve Vite warnings
 
@@ -483,16 +484,19 @@ export const logout = async (token: string): Promise<boolean> => {
           "GPS transmis cu succes prin CapacitorHttp pentru cursa",
           gpsData.uit,
         );
+        reportGPSSuccess(); // Raportează succesul Android GPS
         return true;
       }
 
       console.error("Serverul GPS a respins datele:", response.status);
+      reportGPSError(`Server rejected GPS data: ${response.status}`);
       return false;
     } catch (capacitorError: any) {
       console.error(
         "CapacitorHttp failed, trying fallback fetch:",
         capacitorError.message,
       );
+      reportGPSError(capacitorError); // Raportează eroarea CapacitorHttp
 
       const fallbackResponse = await fetch(`${API_BASE_URL}gps.php`, {
         method: "POST",
@@ -576,10 +580,12 @@ export const sendGPSData = async (
 
       if (response.status === 200 || response.status === 204) {
         console.log("✅ GPS data transmitted successfully");
+        reportGPSSuccess(); // Raportează succesul la sistemul de detectare rețea
         return true;
       } else {
         console.error(`❌ GPS failed: ${response.status}`);
         console.error("Response:", response.data);
+        reportGPSError(`HTTP ${response.status}: ${response.data}`); // Raportează eroarea
         return false;
       }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { subscribeToSyncProgress, SyncProgress, hasOfflineGPSData, startOfflineSync } from '../services/offlineSyncStatus';
+import { onNetworkStatusChange, isNetworkOnline, getNetworkStatusInfo } from '../services/networkStatus';
 
 interface OfflineSyncProgressProps {
   className?: string;
@@ -20,10 +21,19 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
   
   const [hasOfflineData, setHasOfflineData] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+  const [networkInfo, setNetworkInfo] = useState<any>(null);
 
   useEffect(() => {
     // Check for offline data on mount
     checkOfflineData();
+
+    // Subscribe to network status changes
+    const unsubscribeNetwork = onNetworkStatusChange((online) => {
+      setIsOnline(online);
+      setNetworkInfo(getNetworkStatusInfo());
+      console.log(`🌐 STATUS REȚEA SCHIMBAT: ${online ? 'ONLINE' : 'OFFLINE'}`);
+    });
 
     // Subscribe to sync progress updates
     const unsubscribe = subscribeToSyncProgress({
@@ -48,6 +58,7 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
 
     return () => {
       unsubscribe();
+      unsubscribeNetwork();
       clearInterval(checkInterval);
     };
   }, []);
@@ -127,19 +138,31 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
           </div>
         </div>
       ) : hasOfflineData ? (
-        // Has offline data, not syncing
+        // Has offline data, not syncing - show real network status
         <div className="sync-pending">
           <div className="offline-indicator">
-            <i className="fas fa-cloud-upload-alt sync-icon-automatic"></i>
+            <i className={`fas ${isOnline ? 'fa-cloud-upload-alt' : 'fa-wifi'} sync-icon-automatic`}></i>
             <div className="offline-info">
-              <div className="offline-title">Sincronizare Automată</div>
+              <div className="offline-title">
+                <span className={`network-status ${isOnline ? 'online' : 'offline'}`}>
+                  {isOnline ? '🟢 ONLINE' : '🔴 OFFLINE'}
+                </span>
+                - Sincronizare Automată
+              </div>
               <div className="offline-count">
-                {syncProgress.remaining || syncProgress.totalToSync} coordonate vor fi trimise automat
+                {syncProgress.remaining || syncProgress.totalToSync} coordonate GPS offline
               </div>
               <div className="auto-sync-note">
                 <i className="fas fa-magic" style={{marginRight: '4px'}}></i>
-                Se sincronizează automat când revine internetul
+                {isOnline 
+                  ? 'Se sincronizează automat acum...' 
+                  : 'Se va sincroniza când revine internetul'}
               </div>
+              {networkInfo && !isOnline && (
+                <div className="network-debug" style={{fontSize: '12px', opacity: 0.7, marginTop: '4px'}}>
+                  {networkInfo.consecutiveFailures} eșecuri GPS • {Math.round(networkInfo.timeSinceLastSuccess / 1000)}s fără succes
+                </div>
+              )}
             </div>
           </div>
         </div>
