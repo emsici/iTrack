@@ -1,58 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Theme, THEME_INFO } from '../services/themeService';
-import AdminPanel from './AdminPanel';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentTheme: Theme;
   onThemeChange: (theme: Theme) => void;
-  token?: string;
-  onLogout?: () => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ 
   isOpen, 
   onClose, 
   currentTheme, 
-  onThemeChange,
-  token,
-  onLogout
+  onThemeChange
 }) => {
-  const [clickCount, setClickCount] = useState(0);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
-
-  const handleTitleClick = () => {
-    setClickCount(prev => {
-      const newCount = prev + 1;
-      
-      if (newCount === 50) {
-        setShowAdminPanel(true);
-        return 0; // Reset counter
-      }
-      
-      return newCount;
-    });
-  };
-
-  // Reset counter după 10 secunde de inactivitate
-  useEffect(() => {
-    if (clickCount > 0 && clickCount < 50) {
-      const resetTimer = setTimeout(() => {
-        setClickCount(0);
-      }, 10000);
-      
-      return () => clearTimeout(resetTimer);
-    }
-  }, [clickCount]);
-
-  // Reset when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setClickCount(0);
-      setShowAdminPanel(false);
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -124,7 +85,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Header */}
         <h2 
-          onClick={handleTitleClick}
           style={{
             color: isDarkVariant 
               ? '#ffffff' 
@@ -134,22 +94,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             fontSize: '24px',
             fontWeight: '700',
             margin: '0 0 8px 0',
-            cursor: 'pointer',
-            textAlign: 'center',
-            position: 'relative'
+            textAlign: 'center'
           }}
         >
           Setări
-          {clickCount >= 30 && (
-            <span style={{
-              fontSize: '12px',
-              color: '#f59e0b',
-              marginLeft: '8px',
-              fontWeight: '500'
-            }}>
-              ({clickCount}/50)
-            </span>
-          )}
         </h2>
 
         <p style={{
@@ -299,8 +247,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Development Info */}
-        {clickCount >= 5 && (
+        {/* Development Info - Always visible */}
+        {true && (
           <div style={{
             marginTop: '30px',
             padding: '16px',
@@ -333,14 +281,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         )}
       </div>
-      
-      {/* Admin Panel Overlay */}
-      {showAdminPanel && token && onLogout && (
-        <AdminPanel 
-          onClose={() => setShowAdminPanel(false)}
-          onLogout={onLogout}
-        />
-      )}
     </div>
   );
 };

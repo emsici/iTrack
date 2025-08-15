@@ -1590,6 +1590,59 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
 
+            {/* Debug Access Icon - Discrete in bottom right */}
+            <div 
+              onClick={handleTimestampClick}
+              style={{
+                position: 'fixed',
+                bottom: '80px',
+                right: '20px',
+                width: '35px',
+                height: '35px',
+                background: 'rgba(100, 116, 139, 0.1)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                zIndex: 999,
+                opacity: '0.3',
+                transition: 'all 0.3s ease',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(100, 116, 139, 0.2)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.8';
+                e.currentTarget.style.transform = 'scale(1.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '0.3';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              <i className="fas fa-cog" style={{
+                fontSize: '14px',
+                color: '#64748b'
+              }}></i>
+              {clickCount >= 30 && (
+                <div style={{
+                  position: 'absolute',
+                  top: '-8px',
+                  right: '-8px',
+                  background: '#f59e0b',
+                  color: '#ffffff',
+                  fontSize: '9px',
+                  padding: '2px 4px',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  minWidth: '18px',
+                  textAlign: 'center'
+                }}>
+                  {clickCount}
+                </div>
+              )}
+            </div>
+
             {/* Version Display Footer - No buttons, just version */}
             <div style={{
               position: 'fixed',
@@ -1657,8 +1710,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               onClose={() => setShowSettings(false)}
               currentTheme={currentTheme}
               onThemeChange={handleThemeChange}
-              token={token}
-              onLogout={onLogout}
             />
 
             {/* About Modal */}
