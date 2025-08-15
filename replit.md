@@ -11,6 +11,7 @@ Performance optimization: Universal optimization for ALL Android phones (not dev
 Code comments: All comments must be in Romanian language.
 Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java removed).
 UI Performance: Remove heavy animations (rainbow flows, floating animations, gradient shifts, pulse effects) that may affect performance on Android devices.
+Offline Coordinates Policy: NEVER clear offline coordinates at logout - preserve route continuity across login sessions to avoid missing road segments.
 
 ## System Architecture
 

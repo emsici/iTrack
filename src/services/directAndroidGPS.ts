@@ -228,7 +228,8 @@ class DirectAndroidGPSService {
 
   async logoutClearAll(): Promise<void> {
     try {
-      logGPS(`🧹 LOGOUT: Clearing all GPS data and stopping all transmissions`);
+      logGPS(`🧹 LOGOUT: Stopping GPS transmissions but KEEPING offline coordinates`);
+      logGPS(`💾 IMPORTANT: Offline coordinates preserved for next login to avoid missing route segments`);
       
       // STEP 1: Stop all active courses individually
       for (const courseId of this.activeCourses.keys()) {
