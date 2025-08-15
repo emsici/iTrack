@@ -475,14 +475,15 @@ public class OptimalGPSService extends Service {
         double lng = Math.round(location.getLongitude() * 10000000.0) / 10000000.0;
         gpsData.put("lat", lat); // Exact 7 decimale - standard GPS
         gpsData.put("lng", lng); // Exact 7 decimale - standard GPS
-        // TIMESTAMP UTC CORECT - ACELAȘI pentru toate cursele din acest ciclu
+        // TIMESTAMP LOCAL +3 ORE - ACELAȘI pentru toate cursele din acest ciclu
         // Folosim un timestamp static pentru întregul ciclu GPS
         if (gpsSharedTimestamp == null) {
             gpsSharedTimestamp = new java.util.Date();
         }
-        java.text.SimpleDateFormat utcFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
-        utcFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
-        String sharedTimestamp = utcFormat.format(gpsSharedTimestamp);
+        // ROMANIA TIME: UTC+3 (EET/EEST) - conform cererii utilizatorului
+        java.text.SimpleDateFormat localFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
+        localFormat.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
+        String sharedTimestamp = localFormat.format(gpsSharedTimestamp);
         gpsData.put("timestamp", sharedTimestamp);
         
         Log.d(TAG, "🕒 SHARED TIMESTAMP Android: " + sharedTimestamp + " for course: " + course.courseId);

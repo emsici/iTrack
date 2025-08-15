@@ -17,9 +17,12 @@ class SharedTimestampService {
     
     // Dacă nu avem timestamp sau a expirat, creează unul nou
     if (!this.currentSharedTimestamp || (now - this.lastResetTime) > this.TIMESTAMP_VALIDITY_MS) {
-      this.currentSharedTimestamp = new Date();
+      // ROMANIA TIME: +3 ore față de UTC (conform cererii utilizatorului)
+      const utcTime = new Date();
+      const romaniaTime = new Date(utcTime.getTime() + (3 * 60 * 60 * 1000)); // +3 ore
+      this.currentSharedTimestamp = romaniaTime;
       this.lastResetTime = now;
-      console.log(`🕒 NEW SHARED TIMESTAMP created: ${this.currentSharedTimestamp.toISOString()}`);
+      console.log(`🕒 NEW SHARED TIMESTAMP created (Romania +3h): ${this.currentSharedTimestamp.toISOString()}`);
     }
     
     return this.currentSharedTimestamp;
@@ -38,6 +41,7 @@ class SharedTimestampService {
    * Obține timestamp-ul ca string ISO
    */
   getSharedTimestampISO(): string {
+    // Returnează timestamp-ul cu +3 ore deja aplicat
     return this.getSharedTimestamp().toISOString();
   }
 
