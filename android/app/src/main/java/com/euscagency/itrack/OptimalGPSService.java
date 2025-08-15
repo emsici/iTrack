@@ -194,7 +194,7 @@ public class OptimalGPSService extends Service {
         }
         
         Log.d(TAG, "🚨 === DIAGNOSTIC END === onStartCommand completed");
-        return START_STICKY; // Restart if killed
+        return START_STICKY; // Restart if killed by system
     }
     
     /**
@@ -986,6 +986,44 @@ public class OptimalGPSService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+    
+    /**
+     * CRITICAL: Ensures service continues when app is removed from recent tasks
+     * This allows GPS to work even after user closes app or switches to other apps
+     */
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        Log.e(TAG, "🚨 APP REMOVED FROM RECENT TASKS - ensuring GPS continues in background");
+        
+        // If we have active courses, restart the service to ensure it continues
+        if (!activeCourses.isEmpty()) {
+            Log.e(TAG, "📱 BACKGROUND PERSISTENCE: " + activeCourses.size() + " active courses - restarting service");
+            
+            // Create restart intent
+            Intent restartIntent = new Intent(getApplicationContext(), OptimalGPSService.class);
+            restartIntent.setAction("RESTART_AFTER_TASK_REMOVED");
+            
+            // Restart service after short delay
+            PendingIntent restartPendingIntent = PendingIntent.getService(
+                getApplicationContext(), 
+                1000, 
+                restartIntent, 
+                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
+            );
+            
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            alarmManager.set(
+                AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + 1000, // 1 second delay
+                restartPendingIntent
+            );
+            
+            Log.e(TAG, "✅ BACKGROUND GPS SERVICE will restart in 1 second - GPS continues when app closed");
+        } else {
+            Log.d(TAG, "📱 No active courses - allowing service to stop normally");
+        }
     }
     
     @Override

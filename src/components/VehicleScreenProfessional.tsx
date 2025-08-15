@@ -66,12 +66,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           setCurrentTheme(savedTheme);
         }
         
-        // Load stored vehicle number only if needed
-        if (!vehicleNumber) {
-          const storedVehicle = await getStoredVehicleNumber();
-          if (storedVehicle && mounted) {
-            setVehicleNumber(storedVehicle);
-            console.log('Numărul de vehicul stocat încărcat:', storedVehicle);
+        // ALWAYS load stored vehicle number și coursele asociate
+        const storedVehicle = await getStoredVehicleNumber();
+        if (storedVehicle && mounted) {
+          setVehicleNumber(storedVehicle);
+          console.log('✅ Numărul de vehicul stocat încărcat:', storedVehicle);
+          
+          // AUTO-LOAD courses pentru vehiculul stocat DOAR dacă avem token
+          if (token) {
+            try {
+              console.log('🔄 Auto-loading courses pentru vehicul stocat:', storedVehicle);
+              const response = await getVehicleCourses(storedVehicle, token);
+              if (response && response.length > 0) {
+                setCourses(response);
+                setCoursesLoaded(true);
+                console.log('✅ Cursele vehiculului încărcate automat după revenire:', response.length);
+              } else {
+                console.log('⚠️ Vehiculul stocat nu are curse disponibile');
+              }
+            } catch (error) {
+              console.log('⚠️ Nu s-au putut încărca cursele automat (probabil token expirat):', error);
+            }
+          } else {
+            console.log('⚠️ Nu pot auto-încărca cursele - lipsește token-ul');
           }
         }
       } catch (error) {
