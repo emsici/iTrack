@@ -690,9 +690,14 @@ public class OptimalGPSService extends Service {
             activeCourses.put(courseId, courseData);
             
             Log.d(TAG, "✅ OPTIMAL course added: " + courseId + " (UIT: " + uit + ")");
+            Log.d(TAG, "📊 ACTIVE COURSES COUNT: " + activeCourses.size());
+            Log.d(TAG, "🔍 ALARM STATUS: isAlarmActive = " + isAlarmActive);
             
             if (!isAlarmActive) {
+                Log.d(TAG, "🚀 STARTING GPS TIMER for new course");
                 startOptimalGPSTimer();
+            } else {
+                Log.d(TAG, "⏰ GPS TIMER already active - continuing with " + activeCourses.size() + " courses");
             }
             
         } else if ("STOP_GPS".equals(action)) {
