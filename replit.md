@@ -19,6 +19,10 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 - **DEBUG PANEL INLINE**: Debug panel-ul apare SUB lista de curse, nu înlocuiește pagina - experiență live debugging 
 - **PAUZĂ/STOP IMMEDIATE FIX**: Când se dă PAUZĂ, se opresc TOATE serviciile GPS simultan fără transmisii suplimentare
 - **REAL-TIME LOG MONITORING**: Log-uri în timp real în debug panel cu actualizare automată la 2 secunde
+- **PRODUCTION SWITCH AUTOMATION**: Created automated scripts for easy environment switching:
+  - `switch_to_prod.bat` / `switch_to_prod.sh` - Switches to PRODUCTION
+  - `switch_to_test.bat` / `switch_to_test.sh` - Switches to TEST
+  - Scripts modify both src/services/api.ts and OptimalGPSService.java simultaneously with backup creation
 
 ## Recent Performance Optimizations (15/08/2025)
 - **DEBUG LOGS CLEANUP**: Removed excessive debugging messages from console
