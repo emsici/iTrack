@@ -971,31 +971,151 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             </div>
 
-            {/* Third Row - Online/Offline Status Centered */}
+            {/* Third Row - Integrated Status & Sync Progress */}
             <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '8px',
               marginTop: '15px',
-              marginBottom: '5px'
+              marginBottom: '5px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '10px'
             }}>
+              {/* Online/Offline Status Card */}
               <div style={{
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                backgroundColor: isOnline ? '#22c55e' : '#ef4444',
-                boxShadow: `0 0 12px ${isOnline ? '#22c55e' : '#ef4444'}`,
-                animation: isOnline ? 'pulse 2s infinite' : 'none'
-              }} />
-              <span style={{
-                color: currentTheme === 'dark' ? '#cbd5e1' : '#64748b',
-                fontSize: '12px',
-                fontWeight: '600'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                background: currentTheme === 'light' || currentTheme === 'business'
+                  ? isOnline 
+                    ? 'rgba(34, 197, 94, 0.1)' // Light green for online
+                    : 'rgba(239, 68, 68, 0.1)'  // Light red for offline
+                  : currentTheme === 'nature'
+                    ? isOnline
+                      ? 'rgba(16, 185, 129, 0.3)' // Nature green for online
+                      : 'rgba(239, 68, 68, 0.3)'   // Red for offline
+                    : currentTheme === 'night'
+                      ? isOnline
+                        ? 'rgba(34, 197, 94, 0.2)' // Night green for online
+                        : 'rgba(239, 68, 68, 0.2)'  // Red for offline
+                      : currentTheme === 'driver'
+                        ? isOnline
+                          ? 'rgba(34, 197, 94, 0.2)' // Driver green for online
+                          : 'rgba(239, 68, 68, 0.2)'  // Red for offline
+                        : isOnline
+                          ? 'rgba(34, 197, 94, 0.2)' // Dark green for online
+                          : 'rgba(239, 68, 68, 0.2)', // Red for offline
+                border: currentTheme === 'light' || currentTheme === 'business'
+                  ? isOnline
+                    ? '1px solid rgba(34, 197, 94, 0.3)'
+                    : '1px solid rgba(239, 68, 68, 0.3)'
+                  : isOnline
+                    ? '1px solid rgba(34, 197, 94, 0.4)'
+                    : '1px solid rgba(239, 68, 68, 0.4)'
               }}>
-                {isOnline ? 'Online' : 'Offline'}
-                {offlineGPSCount > 0 && ` (${offlineGPSCount})`}
-              </span>
+                {/* Status Icon */}
+                <div style={{
+                  width: '14px',
+                  height: '14px',
+                  borderRadius: '50%',
+                  backgroundColor: isOnline ? '#22c55e' : '#ef4444',
+                  boxShadow: `0 0 12px ${isOnline ? '#22c55e' : '#ef4444'}`,
+                  animation: isOnline ? 'pulse 2s infinite' : 'none'
+                }} />
+                
+                {/* Status Text */}
+                <span style={{
+                  color: currentTheme === 'light' || currentTheme === 'business'
+                    ? isOnline ? '#065f46' : '#b91c1c'
+                    : isOnline ? '#4ade80' : '#fca5a5',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  letterSpacing: '0.5px'
+                }}>
+                  {isOnline ? 'ONLINE' : 'OFFLINE'}
+                </span>
+                
+                {/* Offline Count Badge */}
+                {!isOnline && offlineGPSCount > 0 && (
+                  <div style={{
+                    background: currentTheme === 'light' || currentTheme === 'business'
+                      ? 'rgba(239, 68, 68, 0.2)'
+                      : 'rgba(239, 68, 68, 0.3)',
+                    color: currentTheme === 'light' || currentTheme === 'business'
+                      ? '#b91c1c' : '#fca5a5',
+                    fontSize: '10px',
+                    fontWeight: '700',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    border: currentTheme === 'light' || currentTheme === 'business'
+                      ? '1px solid rgba(239, 68, 68, 0.3)'
+                      : '1px solid rgba(239, 68, 68, 0.4)'
+                  }}>
+                    {offlineGPSCount}
+                  </div>
+                )}
+              </div>
+              
+              {/* Sync Progress Bar - Only when offline and syncing */}
+              {!isOnline && offlineGPSCount > 0 && (
+                <div style={{
+                  width: '200px',
+                  background: currentTheme === 'light' || currentTheme === 'business'
+                    ? 'rgba(255, 255, 255, 0.9)'
+                    : currentTheme === 'nature'
+                      ? 'rgba(6, 78, 59, 0.6)'
+                      : currentTheme === 'night'
+                        ? 'rgba(30, 27, 75, 0.6)'
+                        : currentTheme === 'driver'
+                          ? 'rgba(28, 25, 23, 0.6)'
+                          : 'rgba(30, 41, 59, 0.6)',
+                  border: currentTheme === 'light' || currentTheme === 'business'
+                    ? '1px solid rgba(203, 213, 225, 0.4)'
+                    : '1px solid rgba(148, 163, 184, 0.3)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  fontSize: '10px'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '4px',
+                    color: currentTheme === 'light' || currentTheme === 'business'
+                      ? '#64748b' : '#cbd5e1'
+                  }}>
+                    <span>Sincronizare GPS</span>
+                    <span>{offlineGPSCount} coord.</span>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div style={{
+                    width: '100%',
+                    height: '4px',
+                    background: currentTheme === 'light' || currentTheme === 'business'
+                      ? 'rgba(203, 213, 225, 0.5)'
+                      : 'rgba(148, 163, 184, 0.2)',
+                    borderRadius: '2px',
+                    overflow: 'hidden',
+                    position: 'relative'
+                  }}>
+                    <div style={{
+                      height: '100%',
+                      background: currentTheme === 'nature'
+                        ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)'
+                        : currentTheme === 'night'
+                          ? 'linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%)'
+                          : currentTheme === 'driver'
+                            ? 'linear-gradient(90deg, #f97316 0%, #ea580c 100%)'
+                            : 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
+                      width: '60%', // Simulate progress
+                      borderRadius: '2px',
+                      animation: 'pulse 2s infinite'
+                    }} />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1163,11 +1283,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
 
 
-            {/* Offline GPS Monitor - visible when courses are active */}
-            <OfflineGPSMonitor 
-              isOnline={isOnline} 
-              coursesActive={coursesLoaded && courses.some(c => c.status === 2)} 
-            />
+
 
             {/* Courses List */}
             <div className="courses-container" style={{ 

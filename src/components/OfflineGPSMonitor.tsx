@@ -7,9 +7,16 @@ import { subscribeToSyncProgress } from "../services/offlineSyncStatus";
 interface OfflineGPSMonitorProps {
   isOnline: boolean;
   coursesActive: boolean;
+  currentTheme?: string;
+  compactMode?: boolean;
 }
 
-const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ isOnline, coursesActive }) => {
+const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ 
+  isOnline, 
+  coursesActive,
+  currentTheme = 'dark',
+  compactMode = false
+}) => {
   const [offlineCount, setOfflineCount] = useState(0);
   const [syncInProgress, setSyncInProgress] = useState(false);
   const [syncProgress, setSyncProgress] = useState({ synced: 0, failed: 0, total: 0 });
