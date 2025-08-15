@@ -105,11 +105,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       return;
     }
 
-    console.log("=== APK DEBUG: Starting course loading process ===");
-    console.log("=== APK DEBUG: Vehicle number:", vehicleNumber);
-    console.log("=== APK DEBUG: Token available:", !!token);
-    console.log("=== APK DEBUG: Current coursesLoaded state:", coursesLoaded);
-    console.log("=== APK DEBUG: Current courses count:", courses.length);
+    // Silent course loading process
     
     setLoading(true);
     setError("");
@@ -118,7 +114,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Store vehicle number for persistence ONLY if successful
       // Moved after successful course loading
       
-      console.log(`=== DEBUGGING: Loading courses for vehicle: ${vehicleNumber} ===`);
+      // Loading courses for vehicle
       const response = await getVehicleCourses(vehicleNumber, token);
       
       // Handle API response format

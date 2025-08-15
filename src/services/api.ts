@@ -206,14 +206,13 @@ const performVehicleCoursesRequest = async (
     const timestamp = Date.now();
     const urlWithCacheBuster = `${API_BASE_URL}vehicul.php?nr=${vehicleNumber}&t=${timestamp}`;
 
-    console.log(`Loading courses for vehicle: ${vehicleNumber}`);
     logAPI(`Loading courses for vehicle ${vehicleNumber}`);
 
     // PRIMARY: CapacitorHttp pentru încărcare rapidă curse
     let response;
 
     try {
-      console.log("=== TRYING CapacitorHttp for courses ===");
+      // Using CapacitorHttp for courses
 
       const capacitorResponse = await CapacitorHttp.get({
         url: urlWithCacheBuster,
@@ -224,8 +223,7 @@ const performVehicleCoursesRequest = async (
         },
       });
 
-      console.log("=== CapacitorHttp Courses Response ===");
-      console.log("Status:", capacitorResponse.status);
+      // CapacitorHttp courses response received
       console.log("Data length:", capacitorResponse.data?.length || "No data");
 
       if (capacitorResponse.status === 401) {
