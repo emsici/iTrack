@@ -34,8 +34,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class OptimalGPSService extends Service {
     private static final String TAG = "OptimalGPS";
-    private static final long GPS_INTERVAL_LOCKED_MS = 3000; // 3 secunde când telefonul e blocat
-    private static final long GPS_INTERVAL_UNLOCKED_MS = 10000; // 10 secunde când telefonul e deblocat
+    private static final long GPS_INTERVAL_LOCKED_MS = 5000; // 5 secunde când telefonul e blocat - REVERT LA SETAREA CARE MERGEA
+    private static final long GPS_INTERVAL_UNLOCKED_MS = 5000; // 5 secunde când telefonul e deblocat - CONSISTENT
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.GPS_ALARM";
     
     // Configurație API Centralizată
@@ -203,16 +203,10 @@ public class OptimalGPSService extends Service {
         
         Log.d(TAG, "⏰ OPTIMAL GPS CYCLE - getting location for " + activeCourses.size() + " courses");
         
-        // CRITICAL: Asigură-te că WakeLock este activ ÎNTOTDEAUNA
-        if (wakeLock != null) {
-            if (!wakeLock.isHeld()) {
-                wakeLock.acquire(10*60*1000L /*10 minutes*/);
-                Log.e(TAG, "🔋 WakeLock RE-ACQUIRED în GPS cycle pentru background operation");
-            } else {
-                // Prelungește WakeLock-ul activ
-                wakeLock.acquire(10*60*1000L /*10 minutes*/);
-                Log.e(TAG, "🔋 WakeLock EXTENDED pentru continuitate GPS background");
-            }
+        // CRITICAL: WakeLock check în GPS cycle
+        if (wakeLock != null && !wakeLock.isHeld()) {
+            wakeLock.acquire(10*60*1000L /*10 minutes*/);
+            Log.e(TAG, "🔋 WakeLock RE-ACQUIRED în GPS cycle pentru background operation");
         }
         
         try {
@@ -574,14 +568,10 @@ public class OptimalGPSService extends Service {
                 return;
             }
             
-            // CRITICAL: WakeLock OBLIGATORIU pentru următorul ciclu când e blocat
-            if (wakeLock != null) {
-                // Release old and acquire fresh pentru siguranță maximă
-                if (wakeLock.isHeld()) {
-                    wakeLock.release();
-                }
+            // CRITICAL: WakeLock PERSISTENT pentru următorul ciclu când e blocat
+            if (wakeLock != null && !wakeLock.isHeld()) {
                 wakeLock.acquire(10*60*1000L /*10 minutes*/);
-                Log.e(TAG, "🔋 WakeLock FRESH ACQUIRE pentru următorul ciclu GPS - GARANTEZ background operation");
+                Log.e(TAG, "🔋 WakeLock ACQUIRED pentru următorul ciclu GPS - GARANTEZ background operation");
             }
             
             // ADAPTIVE INTERVAL: Mai des când e blocat, mai rar când e deblocat
