@@ -160,8 +160,8 @@ html, body {
   gap: 12px;
   position: relative;
   min-height: 90px;
-  contain: layout style paint;
-  will-change: transform;
+  contain: none;
+  will-change: auto;
 }
 
 /* Enhanced GPS Progress Monitor - Integrated in Header */
@@ -171,8 +171,8 @@ html, body {
   width: 100%;
   max-width: 500px;
   opacity: 1;
-  transition: opacity 0.2s ease;
-  will-change: opacity;
+  transition: none;
+  will-change: auto;
 }
 
 /* Hide during scroll for performance */
@@ -191,7 +191,7 @@ html, body {
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   margin-bottom: 8px;
-  contain: layout style paint;
+  contain: none;
 }
 
 .gps-status-icon-header {
@@ -219,7 +219,7 @@ html, body {
 .gps-status-icon-header.syncing {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
-  animation: pulse 2s infinite;
+  animation: none;
 }
 
 .gps-status-content-header {
@@ -1166,9 +1166,9 @@ html, body {
   position: relative;
   /* GPU acceleration optimizations */
   transform: translateZ(0);
-  will-change: transform;
+  will-change: auto;
   backface-visibility: hidden;
-  contain: layout style paint;
+  contain: none;
   -webkit-transform: translateZ(0);
   -webkit-backface-visibility: hidden;
 }
@@ -1184,7 +1184,7 @@ html, body {
   border-radius: 16px 16px 0 0;
   /* GPU optimization for pseudo elements */
   transform: translateZ(0);
-  will-change: transform;
+  will-change: auto;
   -webkit-transform: translateZ(0);
 }
 
@@ -3157,7 +3157,7 @@ html, body {
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   color: white;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  animation: pulse 2s infinite;
+  animation: none;
 }
 
 .status-text-group {
@@ -3615,7 +3615,7 @@ html, body {
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
-  contain: layout style paint;
+  contain: none;
 }
 
 .progress-header {
@@ -3647,7 +3647,7 @@ html, body {
   background: rgba(226, 232, 240, 0.8);
   border-radius: 6px;
   overflow: hidden;
-  contain: layout style paint;
+  contain: none;
 }
 
 .progress-bar-fill {

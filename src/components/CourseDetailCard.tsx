@@ -193,7 +193,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           right: 0;
           height: 2px;
           background: ${getStatusColor(course.status)};
-          transition: all 0.3s ease;
+          transition: none;
         }
 
         .course-header-compact {
@@ -229,7 +229,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           padding: 8px 16px;
           border-radius: 8px;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: none;
           font-size: 0.85rem;
           margin-bottom: 12px;
           width: 100%;
@@ -370,7 +370,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           padding: 8px 12px;
           border-radius: 8px;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: none;
           font-size: 0.9rem;
         }
 
@@ -484,7 +484,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           font-size: 0.7rem;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: none;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -495,7 +495,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           font-size: 0.9rem;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: none;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -510,7 +510,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .action-btn-enhanced:hover:not(:disabled) {
-          transform: translateY(-1px);
+          transform: none;
         }
 
         .btn-start-compact {

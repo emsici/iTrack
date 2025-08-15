@@ -159,8 +159,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   key={theme}
                   onClick={() => {
                     onThemeChange(theme);
-                    // Închidere imediată fără delay pentru experiență mai fluidă
-                    setTimeout(() => onClose(), 50);
+                    // Închidere imediată pentru zero lag
+                    onClose();
                   }}
                   style={{
                     padding: '14px 10px',
@@ -176,7 +176,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         : '1px solid rgba(0, 0, 0, 0.1)'),
                     borderRadius: '16px',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease',
+                    transition: 'none',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
