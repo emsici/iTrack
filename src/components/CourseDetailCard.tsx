@@ -728,6 +728,47 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   {course.status === 2 ? 'ACTIV - Transmite coordonate' : 'OPRIT - Nu transmite'}
                 </span>
               </div>
+              
+              {/* Route Map Button */}
+              <div className="detail-item-enhanced" style={{
+                borderTop: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+                paddingTop: '12px',
+                marginTop: '12px'
+              }}>
+                <button
+                  onClick={() => {
+                    // Will be implemented by parent component
+                    console.log('Show route map for UIT:', course.uit);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                    color: 'white',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.02)';
+                    e.currentTarget.style.boxShadow = '0 8px 25px rgba(59, 130, 246, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <i className="fas fa-map-marked-alt"></i>
+                  Vezi Traseu pe Hartă
+                </button>
+              </div>
             </div>
 
             <div className="detail-section-enhanced">
