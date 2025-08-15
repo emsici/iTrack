@@ -319,11 +319,12 @@ public class OptimalGPSService extends Service {
                     continue;
                 }
                 
-                // STATUS 3 (PAUSE): Transmit only once, then skip
+                // STATUS 3 (PAUSE): Transmit once, then REMOVE from list (consistent with frontend)
                 if (course.status == 3) {
                     if (course.pauseTransmitted) {
-                        Log.d(TAG, "⏸️ PAUSE already transmitted for: " + course.courseId + " - SKIPPING");
-                        continue; // Skip transmission - pause was already sent
+                        Log.d(TAG, "⏸️ PAUSE already transmitted for: " + course.courseId + " - REMOVING from list");
+                        coursesToRemove.add(course.courseId); // Remove paused course
+                        continue; // Skip transmission - pause was already sent and course will be removed
                     }
                 }
                 
@@ -337,10 +338,11 @@ public class OptimalGPSService extends Service {
                     transmissionCount++;
                     Log.d(TAG, "✅ OPTIMAL GPS SUCCESS for: " + course.courseId + " (status: " + course.status + ")");
                     
-                    // Mark STATUS 3 (PAUSE) as transmitted to prevent future transmissions
+                    // Mark STATUS 3 (PAUSE) as transmitted and schedule for removal (consistent with frontend)
                     if (course.status == 3) {
                         course.pauseTransmitted = true;
-                        Log.d(TAG, "⏸️ PAUSE marked as transmitted for: " + course.courseId + " - no more GPS until RESUME");
+                        coursesToRemove.add(course.courseId);
+                        Log.d(TAG, "⏸️ PAUSE transmitted and marked for removal for: " + course.courseId + " - consistent with frontend");
                     }
                     
                     // Schedule removal for status 4 after successful transmission
@@ -361,10 +363,10 @@ public class OptimalGPSService extends Service {
             }
         }
         
-        // Remove completed courses (status 4) after transmission
+        // Remove completed courses (status 3 PAUSE and status 4 STOP) after transmission
         for (String courseIdToRemove : coursesToRemove) {
             activeCourses.remove(courseIdToRemove);
-            Log.d(TAG, "🗑️ REMOVED completed course: " + courseIdToRemove);
+            Log.d(TAG, "🗑️ REMOVED course: " + courseIdToRemove + " (PAUSE or STOP status)");
         }
         
         Log.d(TAG, "📊 OPTIMAL GPS SUMMARY:");
