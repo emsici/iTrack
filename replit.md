@@ -12,6 +12,7 @@ Code comments: All comments must be in Romanian language.
 Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java removed).
 UI Performance: Remove heavy animations (rainbow flows, floating animations, gradient shifts, pulse effects) that may affect performance on Android devices.
 Offline Coordinates Policy: NEVER clear offline coordinates at logout - preserve route continuity across login sessions to avoid missing road segments.
+Code Cleanup: Removed unused services (capacitorGPS.ts, performanceOptimizer.ts, gpsdiagnostic.ts) - 0% impact on functionality, keeping only active components.
 
 ## System Architecture
 
