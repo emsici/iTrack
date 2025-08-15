@@ -135,10 +135,10 @@ public class OptimalGPSService extends Service {
             startForeground(NOTIFICATION_ID, createNotification());
             android.util.Log.e(TAG, "✅ FOREGROUND SERVICE STARTED - GPS will run with phone locked");
             
-            // CRITICAL: Keep service alive with WakeLock
+            // CRITICAL: Keep service alive with WakeLock pentru telefon blocat
             if (wakeLock != null && !wakeLock.isHeld()) {
-                wakeLock.acquire();
-                android.util.Log.e(TAG, "✅ WAKELOCK ACQUIRED - prevents deep sleep");
+                wakeLock.acquire(10*60*1000L /*10 minutes*/);
+                android.util.Log.e(TAG, "✅ WAKELOCK ACQUIRED pentru 10 min - previne deep sleep când e blocat");
             }
         } catch (Exception e) {
             android.util.Log.e(TAG, "❌ CRITICAL: Foreground service FAILED: " + e.getMessage());
@@ -514,6 +514,12 @@ public class OptimalGPSService extends Service {
                 return;
             }
             
+            // CRITICAL: Reacquire WakeLock pentru următorul ciclu când e blocat
+            if (wakeLock != null && !wakeLock.isHeld()) {
+                wakeLock.acquire(10*60*1000L /*10 minutes*/);
+                Log.d(TAG, "🔋 WakeLock RE-ACQUIRED pentru următorul ciclu GPS");
+            }
+            
             // ADAPTIVE INTERVAL: Mai des când e blocat, mai rar când e deblocat
             boolean isScreenOn = isScreenOn();
             long intervalMs = isScreenOn ? GPS_INTERVAL_UNLOCKED_MS : GPS_INTERVAL_LOCKED_MS;
@@ -528,7 +534,7 @@ public class OptimalGPSService extends Service {
             String screenState = isScreenOn ? "DEBLOCAT" : "BLOCAT";
             Log.d(TAG, "⏰ NEXT GPS ALARM SET: in " + (intervalMs/1000) + "s for " + activeCourses.size() + " courses - TELEFON " + screenState);
             Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
-            Log.d(TAG, "✅ GPS CONTINUITY GUARANTEED - interval adaptat pentru " + screenState);
+            Log.d(TAG, "✅ GPS CONTINUITY GUARANTEED - interval adaptat pentru " + screenState + ", WakeLock: " + wakeLock.isHeld());
         } else {
             Log.w(TAG, "❌ NO ACTIVE COURSES - stopping GPS timer");
             stopOptimalGPSTimer();

@@ -17,7 +17,14 @@ UI Performance: Remove heavy animations (rainbow flows, floating animations, gra
 
 ## Recent Performance Optimizations (15/08/2025)
 
-### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 23:45**
+### **ULTIMELE ACTUALIZĂRI CRITICE - 16/08/2025 00:15**
+- **GPS BACKGROUND CRITICAL FIX**: Rezolvat problema cu transmisia GPS când telefonul e blocat și aplicația minimizată
+- **WAKELOCK ENHANCED**: Implementat WakeLock persistent cu timeout 10 min pentru a preveni deep sleep
+- **ADAPTIVE INTERVALS OPTIMIZED**: 3s când blocat, 10s când deblocat cu reacquire automat WakeLock la fiecare ciclu
+- **FOREGROUND SERVICE PRIORITY**: Serviciul Android rulează ca FOREGROUND cu protecție împotriva task killer
+- **DOZE MODE BYPASS**: setExactAndAllowWhileIdle garantează GPS chiar și în power saving mode
+
+### **ACTUALIZĂRI ANTERIOARE - 15/08/2025 23:45**
 - **ENVIRONMENT SWITCH TO PRODUCTION**: Întreg sistemul trecut pe mediul de producție (etsm_prod) - Frontend + Android sincronizat
 - **PRODUCTION API ACTIVE**: Toate endpoint-urile folosesc acum etsm_prod pentru autentificare, GPS, curse, logout
 - **CENTRALIZED CONFIG UPDATED**: API_BASE_URL actualizat în src/services/api.ts și OptimalGPSService.java pentru consistență maximă
