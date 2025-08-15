@@ -148,7 +148,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       <div className="course-header-enhanced">
         <div className="course-info-section">
           <div className="course-title-enhanced">Transport {course.ikRoTrans || course.id}</div>
-          <div className="course-transport-number">{course.nrTransport || 'N/A'}</div>
+          <div className="course-transport-number">{course.nrVehicul || 'N/A'}</div>
         </div>
 
         <div className="course-metadata-enhanced">
