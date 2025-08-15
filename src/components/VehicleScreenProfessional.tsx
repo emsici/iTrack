@@ -14,7 +14,7 @@ import { logAPI, logAPIError } from "../services/appLogger";
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
-import OfflineGPSMonitor from "./OfflineGPSMonitor";
+// import OfflineGPSMonitor from "./OfflineGPSMonitor"; // Removed - integrated in header for performance
 import ToastNotification from "./ToastNotification";
 
 import { useToast } from "../hooks/useToast";
@@ -471,8 +471,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     // Initial check
     checkConnectivity();
 
-    // Periodic connectivity check every 30 seconds (optimized for performance)
-    const interval = setInterval(checkConnectivity, 30000);
+    // Reduced polling for better performance - every 60 seconds
+    const interval = setInterval(checkConnectivity, 60000);
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
@@ -512,7 +512,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
 
     updateOfflineCount();
-    const interval = setInterval(updateOfflineCount, 15000); // Optimized: every 15 seconds instead of 5
+    const interval = setInterval(updateOfflineCount, 30000); // Further optimized: every 30 seconds for better performance
     return () => clearInterval(interval);
   }, []);
 
@@ -805,33 +805,46 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 content: "#0f172a" !important;
               }
               
-              /* Pulse animation for online indicator */
-              @keyframes pulse {
-                0% { opacity: 1; }
-                50% { opacity: 0.5; }
-                100% { opacity: 1; }
-              }
+              /* Removed pulse animation for better performance */
+              /* @keyframes pulse - disabled for speed optimization */
               
-              /* Essential hardware acceleration only */
+              /* PERFORMANCE OPTIMIZATION - Minimal effects for maximum speed */
               .vehicle-dashboard-main-content {
                 -webkit-overflow-scrolling: touch;
-                transform: translateZ(0);
+                /* Removed transform for better performance */
               }
               
               .courses-list-container {
                 -webkit-overflow-scrolling: touch;
-                transform: translate3d(0, 0, 0);
+                /* Removed transform for better performance */
               }
               
-              /* Minimal hover optimization */
-              .course-card:hover {
-                transform: translateY(-2px);
-                transition: transform 0.2s ease;
+              /* DISABLED hover effects for mobile performance */
+              /* .course-card:hover effects removed for speed */
+              
+              /* OPTIMIZED SCROLLING FOR MAXIMUM PERFORMANCE */
+              .courses-container {
+                contain: layout style paint;
+                will-change: scroll-position;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+              }
+              
+              .courses-container::-webkit-scrollbar {
+                display: none;
               }
               
               /* Remove tap highlights for better touch response */
               * {
                 -webkit-tap-highlight-color: transparent;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+              }
+              
+              /* Disable transitions on course cards for speed */
+              .course-card, .stat-card {
+                transition: none !important;
+                animation: none !important;
               }
             `}
           </style>
@@ -1020,8 +1033,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   height: '14px',
                   borderRadius: '50%',
                   backgroundColor: isOnline ? '#22c55e' : '#ef4444',
-                  boxShadow: `0 0 12px ${isOnline ? '#22c55e' : '#ef4444'}`,
-                  animation: isOnline ? 'pulse 2s infinite' : 'none'
+                  boxShadow: `0 0 8px ${isOnline ? '#22c55e' : '#ef4444'}`, // Reduced shadow for performance
+                  // Removed pulse animation for better performance
                 }} />
                 
                 {/* Status Text */}
@@ -1109,9 +1122,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                           : currentTheme === 'driver'
                             ? 'linear-gradient(90deg, #f97316 0%, #ea580c 100%)'
                             : 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
-                      width: '60%', // Simulate progress
-                      borderRadius: '2px',
-                      animation: 'pulse 2s infinite'
+                      width: '60%', // Simulate progress  
+                      borderRadius: '2px'
+                      // Removed animation for better performance
                     }} />
                   </div>
                 </div>
@@ -1285,12 +1298,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
 
 
-            {/* Courses List */}
+            {/* Courses List - Performance Optimized */}
             <div className="courses-container" style={{ 
               position: 'relative', 
               zIndex: 1,
               marginBottom: '100px', // Extra space for Android navigation
-              paddingBottom: '60px'  // Ensure content is visible above navigation
+              paddingBottom: '60px',  // Ensure content is visible above navigation
+              // Performance optimizations
+              contain: 'layout style paint',
+              willChange: 'scroll-position',
+              overscrollBehavior: 'contain'
             }}>
               {filteredCourses.length === 0 ? (
                 <div className="no-courses-message" style={{
