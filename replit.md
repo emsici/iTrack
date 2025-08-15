@@ -23,6 +23,10 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
   - `switch_to_prod.bat` / `switch_to_prod.sh` - Switches to PRODUCTION
   - `switch_to_test.bat` / `switch_to_test.sh` - Switches to TEST
   - Scripts modify both src/services/api.ts and OptimalGPSService.java simultaneously with backup creation
+- **BUILD AND RUN AUTOMATION**: Created entry point scripts for easy development and deployment:
+  - `build_and_run.bat` / `build_and_run.sh` - Complete build process and Android Studio launch
+  - `dev_server.bat` / `dev_server.sh` - Quick development server launch
+  - Scripts handle full build pipeline: web build → Capacitor sync → Android Studio opening
 
 ## Recent Performance Optimizations (15/08/2025)
 - **DEBUG LOGS CLEANUP**: Removed excessive debugging messages from console
