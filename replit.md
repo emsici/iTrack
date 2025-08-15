@@ -16,7 +16,10 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 
 ## Recent Performance Optimizations (15/08/2025)
 
-### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 22:25**
+### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 22:35**
+- **PRIORITY GPS REMOVED**: Eliminat complet priorityGPS.ts care cauza probleme cu background GPS - sistem simplificat
+- **ARCHITECTURE SIMPLIFIED**: DirectAndroidGPS → GuaranteedGPS → Android Service (fără nivele inutile)
+- **BACKGROUND GPS RESTORED**: Revenire la sistemul original stabil care funcționa în background
 - **PAUSE LOGIC SYNC**: Sincronizat logica PAUSE între Frontend și Android - ambele ELIMINĂ cursa din activeCourses la status 3
 - **GPS CONTINUITY FIX**: Rezolvat problema unde GPS s-a oprit după prima coordonată - scheduleNextOptimalGPSCycle() era omis
 - **FRONTEND-ANDROID CONSISTENCY**: Status 3 (PAUSE) elimină cursa din ambele liste pentru eficiență maximă și consistență
@@ -25,7 +28,6 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 - **SINCRONIZARE FRONTEND-ANDROID**: Ambele medii (React + Java) folosesc acum etsm3 pentru consistență completă
 - **GPS START CRITICAL FIX**: Rezolvat problema unde GPS nu pornea pentru curse noi - updateCourseStatus funcționează perfect pentru toate acțiunile
 - **LOGICĂ GPS SIMPLIFICATĂ**: Revenire la fluxul eficient original - status PAUSE/STOP șterge cursa din activeCourses, status START/RESUME o readaugă
-- **FOOTER CLEANUP**: Eliminat versiunea "v18.0799" din footer pentru interfață mai curată
 - **TRANSMISIE GPS FUNCȚIONALĂ**: Confirmat că toate coordonatele ajung pe etsm3/gps.php la fiecare 5 secunde
 - **FLUXUL CORECT GPS**: STATUS 3/4 → trimite status la server → șterge din activeCourses → oprește transmisia, STATUS 2 → trimite status → adaugă în activeCourses → pornește transmisia
 
