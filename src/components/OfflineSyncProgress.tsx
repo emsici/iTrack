@@ -111,10 +111,10 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
             </div>
             <div>
               <div style={{ fontSize: '13px', fontWeight: '600', color: '#10b981' }}>
-                🟢 SINCRONIZARE OFFLINE
+                🟢 ONLINE - Se sincronizează {syncProgress.synced}/{syncProgress.totalToSync} ({syncProgress.percentage}%)
               </div>
               <div style={{ fontSize: '11px', opacity: 0.8 }}>
-                {syncProgress.synced}/{syncProgress.totalToSync} coordonate ({syncProgress.percentage}%)
+                Coordonate GPS offline în curs de transmisie
               </div>
             </div>
           </div>
@@ -139,20 +139,22 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
             <div>
               <div style={{ fontSize: '13px', fontWeight: '600' }}>
                 {hasOfflineData 
-                  ? '🟡 COORDONATE OFFLINE' 
+                  ? isOnline 
+                    ? '🚀 TRIGGER: Pornesc sincronizarea automată'
+                    : `🔴 OFFLINE - ${syncProgress.totalToSync || 0} coordonate GPS offline`
                   : isOnline 
-                    ? '🟢 GPS ONLINE'
-                    : '🔴 GPS OFFLINE'
+                    ? '🟢 GPS ONLINE - Transmisie activă'
+                    : '🔴 GPS OFFLINE - Se salvează coordonatele'
                 }
               </div>
               <div style={{ fontSize: '11px', opacity: 0.8 }}>
-                {syncProgress.totalToSync > 0 
-                  ? `${syncProgress.totalToSync} coordonate în așteptare`
-                  : hasOfflineData 
-                    ? 'Se vor sincroniza automat'
-                    : isOnline
-                      ? 'Transmisie normală activă'
-                      : 'Se salvează offline'
+                {hasOfflineData 
+                  ? isOnline 
+                    ? 'Sincronizarea va începe în câteva secunde...'
+                    : 'Se vor sincroniza când revine internetul'
+                  : isOnline
+                    ? 'Toate coordonatele se transmit direct'
+                    : 'Coordonatele se salvează offline automat'
                 }
               </div>
             </div>
