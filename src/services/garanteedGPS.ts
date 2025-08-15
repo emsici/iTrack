@@ -82,7 +82,7 @@ class GuaranteedGPSService {
       }
 
       // SIMPLIFICAT: Presupunem că Android GPS funcționează dacă există
-      if (window.AndroidGPS && window.AndroidGPS.startGPS) {
+      if (window.AndroidGPS && typeof window.AndroidGPS.startGPS === 'function') {
         logGPS(`🤖 Android GPS disponibil - sărim backup JavaScript`);
         return;
       }

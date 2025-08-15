@@ -15,7 +15,7 @@ class NetworkStatusService {
   // Configurări pentru detectare precisă - OPTIMIZAT pentru serviciul Android independent
   private readonly OFFLINE_THRESHOLD_MS = 120000; // 120 secunde (2 min) - mai mult timp pentru Android GPS independent
   private readonly MAX_CONSECUTIVE_FAILURES = 5; // 5 eșecuri consecutive = offline (mai tolerant)
-  private readonly ONLINE_CONFIRMATION_DELAY = 1000; // 1 secundă după succes = online
+  // Removed unused ONLINE_CONFIRMATION_DELAY
   private readonly STATUS_CHECK_INTERVAL = 10000; // Verificare la 10 secunde (mai puțin agresiv)
 
   constructor() {

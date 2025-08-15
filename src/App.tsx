@@ -27,7 +27,7 @@ const App: React.FC = () => {
         console.log('✅ GPS Bridge inițializat - serviciul Android pregătit pentru transmisia GPS');
         
         // CRITICAL: Initialize Android GPS callback for network status reporting
-        const { androidGPSCallbackService } = await import('./services/androidGPSCallback');
+        await import('./services/androidGPSCallback');
         console.log('📡 AndroidGPSCallback inițializat pentru raportarea statusului rețea');
         
         // Check for stored authentication token (non-blocking)
