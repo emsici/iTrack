@@ -915,56 +915,119 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(0, 0, 0, 0.1)'
           }}>
-            {/* First Row - Vehicle Number */}
+            {/* Header Top Row - iTrack Brand & Controls */}
             <div style={{
               display: 'flex',
-              justifyContent: 'center',
-              marginBottom: '10px'
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '15px'
             }}>
+              {/* iTrack Brand Logo */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '16px',
+                  color: 'white',
+                  fontWeight: 'bold'
+                }}>
+                  i
+                </div>
+                <span style={{
+                  color: currentTheme === 'light' || currentTheme === 'business' 
+                    ? '#1e293b' 
+                    : '#ffffff',
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  letterSpacing: '-0.5px'
+                }}>
+                  iTrack
+                </span>
+              </div>
+
+              {/* Vehicle Number Badge - Centered */}
               <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul" style={{ 
                 background: currentTheme === 'light' 
-                  ? 'rgba(71, 85, 105, 0.08)' // Light theme background
+                  ? 'rgba(71, 85, 105, 0.08)' 
                   : currentTheme === 'business'
-                    ? 'rgba(71, 85, 105, 0.08)' // Business theme - same as Light
-                    : 'rgba(255, 255, 255, 0.1)', // All other themes get white background
+                    ? 'rgba(71, 85, 105, 0.08)' 
+                    : 'rgba(255, 255, 255, 0.1)', 
                 border: currentTheme === 'light' 
-                  ? '1px solid rgba(71, 85, 105, 0.2)' // Light theme border
+                  ? '1px solid rgba(71, 85, 105, 0.2)' 
                   : currentTheme === 'business'
-                    ? '1px solid rgba(71, 85, 105, 0.2)' // Business theme - same as Light
-                    : '1px solid rgba(255, 255, 255, 0.2)', // All other themes get white border
+                    ? '1px solid rgba(71, 85, 105, 0.2)' 
+                    : '1px solid rgba(255, 255, 255, 0.2)', 
                 borderRadius: '12px', 
-                padding: '10px 20px', 
+                padding: '8px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
-                gap: '12px', 
-                cursor: 'pointer'
+                gap: '8px', 
+                cursor: 'pointer',
+                minWidth: '120px',
+                justifyContent: 'center'
               }}>
-                <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '16px' }}></i>
+                <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '14px' }}></i>
                 <span className="vehicle-number" style={{ 
                   color: currentTheme === 'light' 
-                    ? '#1e293b' // Dark text for Light theme 
-                    : currentTheme === 'business' 
-                      ? '#000000' // BLACK text for Business theme
-                      : 'white', // White text for all other themes (dark, driver, nature, night)
-                  fontWeight: '600', 
-                  fontSize: '16px' 
-                }}>{vehicleNumber}</span>
-                <i className="edit-icon fas fa-edit" style={{ 
-                  color: currentTheme === 'light' 
-                    ? 'rgba(71, 85, 105, 0.7)' // Dark icon for Light theme
-                    : currentTheme === 'business' 
-                      ? 'rgba(0, 0, 0, 0.7)' // BLACK icon for Business theme  
-                      : 'rgba(255, 255, 255, 0.7)', // White icon for all other themes
-                  fontSize: '12px' 
+                    ? '#1e293b' 
+                    : currentTheme === 'business'
+                      ? '#1e293b' 
+                      : '#ffffff', 
+                  fontSize: '14px', 
+                  fontWeight: '600',
+                  letterSpacing: '0.3px'
+                }}>
+                  {vehicleNumber}
+                </span>
+                <i className="fas fa-chevron-down" style={{ 
+                  color: currentTheme === 'light' || currentTheme === 'business' 
+                    ? '#64748b' 
+                    : '#9ca3af', 
+                  fontSize: '10px' 
                 }}></i>
+              </div>
+
+              {/* Status Indicator */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <div style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: isOnline ? '#22c55e' : '#ef4444'
+                }}></div>
+                <span style={{
+                  color: currentTheme === 'light' || currentTheme === 'business' 
+                    ? '#64748b' 
+                    : '#9ca3af',
+                  fontSize: '12px',
+                  fontWeight: '500'
+                }}>
+                  {isOnline ? 'Online' : 'Offline'}
+                </span>
               </div>
             </div>
 
             {/* Second Row - Action Icons */}
             <div style={{
               display: 'flex',
-              justifyContent: 'center',
-              gap: '12px'
+              justifyContent: 'space-evenly',
+              alignItems: 'center',
+              gap: '15px',
+              maxWidth: '300px',
+              margin: '0 auto'
             }}>
               <div className="settings-button" onClick={() => setShowSettings(true)} title="Setări" style={{ 
                 background: currentTheme === 'dark' 
@@ -994,7 +1057,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                             ? '1px solid rgba(139, 92, 246, 0.5)'
                             : '1px solid rgba(148, 163, 184, 0.3)',
                 borderRadius: '12px', 
-                padding: '14px 16px', 
+                padding: '12px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
@@ -1004,16 +1067,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   : currentTheme === 'light'
                     ? '#334155'
                     : currentTheme === 'driver'
-                      ? '#78716c'  // Maro text pentru driver
+                      ? '#78716c'  
                       : currentTheme === 'business'
-                        ? '#475569'  // Gri text pentru business
+                        ? '#475569'  
                         : currentTheme === 'nature'
-                          ? '#78716c'  // Maro text pentru nature
+                          ? '#78716c'  
                           : currentTheme === 'night'
-                            ? '#8b5cf6'  // Violet text pentru night
+                            ? '#8b5cf6'  
                             : '#334155',
-                minWidth: '48px',
-                minHeight: '48px'
+                width: '50px',
+                height: '50px',
+                flex: '0 0 auto'
               }}>
                 <i className="fas fa-cog" style={{ fontSize: '18px' }}></i>
               </div>
@@ -1046,7 +1110,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                             ? '1px solid rgba(168, 85, 247, 0.5)'
                             : '1px solid rgba(16, 185, 129, 0.5)',
                 borderRadius: '12px', 
-                padding: '14px 16px', 
+                padding: '12px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
@@ -1056,16 +1120,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   : currentTheme === 'light'
                     ? '#047857'
                     : currentTheme === 'driver'
-                      ? '#f59e0b'  // Galben text pentru driver
+                      ? '#f59e0b'  
                       : currentTheme === 'business'
-                        ? '#1d4ed8'  // Albastru text pentru business
+                        ? '#1d4ed8'  
                         : currentTheme === 'nature'
-                          ? '#ffffff'  // Alb text pentru contrast maxim pe verde
+                          ? '#ffffff'  
                           : currentTheme === 'night'
-                            ? '#a855f7'  // Violet text pentru night
+                            ? '#a855f7'  
                             : '#047857',
-                minWidth: '48px',
-                minHeight: '48px'
+                width: '50px',
+                height: '50px',
+                flex: '0 0 auto'
               }}>
                 <i className="fas fa-info-circle" style={{ fontSize: '18px' }}></i>
               </div>
@@ -1098,26 +1163,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                             ? '1px solid rgba(239, 68, 68, 0.5)'
                             : '1px solid rgba(239, 68, 68, 0.5)',
                 borderRadius: '12px', 
-                padding: '14px 16px', 
+                padding: '12px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
-                cursor: 'pointer',
+                cursor: loading ? 'default' : 'pointer',
                 color: currentTheme === 'dark' 
                   ? '#fca5a5' 
                   : currentTheme === 'light'
                     ? '#b91c1c'
                     : currentTheme === 'driver'
-                      ? '#dc2626'  // Roșu intens pentru driver
+                      ? '#dc2626'  
                       : currentTheme === 'business'
-                        ? '#b91c1c'  // Roșu standard pentru business
+                        ? '#b91c1c'  
                         : currentTheme === 'nature'
-                          ? '#dc2626'  // Roșu pentru vizibilitate pe verde
+                          ? '#dc2626'  
                           : currentTheme === 'night'
-                            ? '#f87171'  // Roșu mai deschis pentru night
+                            ? '#f87171'  
                             : '#b91c1c',
-                minWidth: '48px',
-                minHeight: '48px'
+                width: '50px',
+                height: '50px',
+                flex: '0 0 auto',
+                opacity: loading ? 0.5 : 1
               }}>
                 <i className="fas fa-sign-out-alt" style={{ fontSize: '18px' }}></i>
               </div>
