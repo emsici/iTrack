@@ -73,12 +73,14 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 ## External Dependencies
 - **Capacitor**: `@capacitor/core`, `@capacitor/android`, `@capacitor/geolocation`, `@capacitor/preferences`
 - **Capacitor Community Plugins**: `@capacitor-community/background-geolocation`
-- **APIs** (PRODUCTION - etsm_prod):
-    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/login.php` (Authentication)
-    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/logout.php` (Logout)
-    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php` (Course Management)
-    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/update_course_status.php` (Course Status Updates)
-    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php` (GPS Data Transmission)
-    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/rezultate.php` (GPS Result Verification)
+- **CENTRALIZED API CONFIGURATION**:
+    - **Current**: PRODUCTION (etsm_prod) environment
+    - **Primary Config**: `src/services/api.ts` - Change `API_BASE_URL = API_CONFIG.PROD/TEST/DEV`
+    - **Auto-sync Script**: `./sync-api-config.sh PROD` to synchronize all environments
+    - **Environments Available**:
+      - **PROD**: `https://www.euscagency.com/etsm_prod/platforme/transport/apk/`
+      - **TEST**: `https://www.euscagency.com/etsm3/platforme/transport/apk/`
+      - **DEV**: `https://www.euscagency.com/etsm_dev/platforme/transport/apk/`
+    - **Endpoints**: login.php, logout.php, vehicul.php, update_course_status.php, gps.php, rezultate.php
 - **UI Libraries**: Bootstrap 5.3.6
 ```

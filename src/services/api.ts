@@ -2,16 +2,22 @@ import { logAPI } from "./appLogger";
 import { CapacitorHttp } from "@capacitor/core";
 // Consistent static import to resolve Vite warnings
 
-// Centralized API Configuration - Change only here to switch environments
+// 🎯 CENTRALIZED API CONFIGURATION - CHANGE ONLY HERE TO SWITCH ENVIRONMENTS
 export const API_CONFIG = {
   // Production environment
   PROD: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/",
-  // Test environment
+  // Test environment  
   TEST: "https://www.euscagency.com/etsm3/platforme/transport/apk/",
+  // Development environment
+  DEV: "https://www.euscagency.com/etsm_dev/platforme/transport/apk/",
 };
 
-// Current active environment - Change this single line to switch environments
-export const API_BASE_URL = API_CONFIG.TEST;
+// 🚀 ACTIVE ENVIRONMENT - Change this single line to switch all APIs (JS + Java)
+// Options: API_CONFIG.PROD | API_CONFIG.TEST | API_CONFIG.DEV
+export const API_BASE_URL = API_CONFIG.PROD;
+
+// Export for Android Java synchronization
+export const CURRENT_ENVIRONMENT = 'PROD'; // Must match: PROD | TEST | DEV
 
 // Single request management to prevent conflicts
 let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null =

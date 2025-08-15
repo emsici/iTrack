@@ -36,12 +36,14 @@ public class OptimalGPSService extends Service {
     private static final long GPS_INTERVAL_MS = 5000; // Exact 5 seconds
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.GPS_ALARM";
     
-    // Centralized API Configuration - Change only here to switch environments
+    // 🎯 CENTRALIZED API CONFIGURATION - Synchronized with src/services/api.ts
     private static final String API_BASE_URL_PROD = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/";
     private static final String API_BASE_URL_TEST = "https://www.euscagency.com/etsm3/platforme/transport/apk/";
+    private static final String API_BASE_URL_DEV = "https://www.euscagency.com/etsm_dev/platforme/transport/apk/";
     
-    // Current active environment - Change this single line to switch environments
-    private static final String API_BASE_URL = API_BASE_URL_TEST;
+    // 🚀 ACTIVE ENVIRONMENT - MUST MATCH src/services/api.ts setting!
+    // Options: API_BASE_URL_PROD | API_BASE_URL_TEST | API_BASE_URL_DEV
+    private static final String API_BASE_URL = API_BASE_URL_PROD;
     
     private AlarmManager alarmManager;
     private PendingIntent gpsPendingIntent;
