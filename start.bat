@@ -1,12 +1,12 @@
 @echo off
 if "%1"=="" (
-    set ENV=DEV
+    set ENV=PROD
     echo ================================
-    echo    iTrack - DEFAULT DEV BUILD
+    echo    iTrack - DEFAULT PROD BUILD
     echo ================================
     echo.
-    echo Folosesc mediul default DEV (etsm3)
-    echo Pentru PRODUCTION foloseste: start.bat PROD
+    echo Folosesc mediul default PROD (etsm_prod)
+    echo Pentru DEVELOPMENT foloseste: start.bat DEV
     echo.
 ) else (
     set ENV=%1
@@ -20,16 +20,16 @@ echo.
 REM Step 1: Switch environment
 echo PASUL 1/2 - Comutare environment la %ENV%...
 
-if /i "%ENV%"=="PROD" (
+if /i "%ENV%"=="DEV" (
+    echo Setez DEVELOPMENT environment...
+    powershell -Command "(Get-Content 'src\services\api.ts') -replace 'API_BASE_URL = API_CONFIG\.PROD;', 'API_BASE_URL = API_CONFIG.DEV;' | Set-Content 'src\services\api.ts'"
+    powershell -Command "(Get-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java') -replace 'API_BASE_URL_PROD', 'API_BASE_URL_DEV' | Set-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java'"
+    echo - Configurat pentru DEV (www.euscagency.com/etsm3/)
+) else (
     echo Setez PRODUCTION environment...
     powershell -Command "(Get-Content 'src\services\api.ts') -replace 'API_BASE_URL = API_CONFIG\.DEV;', 'API_BASE_URL = API_CONFIG.PROD;' | Set-Content 'src\services\api.ts'"
     powershell -Command "(Get-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java') -replace 'API_BASE_URL_DEV', 'API_BASE_URL_PROD' | Set-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java'"
     echo - Configurat pentru PRODUCTION (www.euscagency.com/etsm_prod/)
-) else (
-    echo Setez DEV environment...
-    powershell -Command "(Get-Content 'src\services\api.ts') -replace 'API_BASE_URL = API_CONFIG\.PROD;', 'API_BASE_URL = API_CONFIG.DEV;' | Set-Content 'src\services\api.ts'"
-    powershell -Command "(Get-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java') -replace 'API_BASE_URL_PROD', 'API_BASE_URL_DEV' | Set-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java'"
-    echo - Configurat pentru DEV (www.euscagency.com/etsm3/)
 )
 
 echo.

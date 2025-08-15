@@ -1,13 +1,13 @@
 #!/bin/bash
 
 if [ "$1" = "" ]; then
-    ENV="DEV"
+    ENV="PROD"
     echo "================================"
-    echo "    iTrack - DEFAULT DEV BUILD"
+    echo "    iTrack - DEFAULT PROD BUILD"
     echo "================================"
     echo ""
-    echo "Folosesc mediul default DEV (etsm3)"
-    echo "Pentru PRODUCTION foloseste: ./start.sh PROD"
+    echo "Folosesc mediul default PROD (etsm_prod)"
+    echo "Pentru DEVELOPMENT foloseste: ./start.sh DEV"
     echo ""
 else
     ENV=$1
@@ -21,16 +21,16 @@ echo ""
 # Step 1: Switch environment
 echo "PASUL 1/2 - Comutare environment la $ENV..."
 
-if [ "$ENV" = "PROD" ] || [ "$ENV" = "prod" ]; then
+if [ "$ENV" = "DEV" ] || [ "$ENV" = "dev" ]; then
+    echo "Setez DEVELOPMENT environment..."
+    sed -i 's/API_BASE_URL = API_CONFIG\.PROD;/API_BASE_URL = API_CONFIG.DEV;/g' "src/services/api.ts"
+    sed -i 's/API_BASE_URL_PROD/API_BASE_URL_DEV/g' "android/app/src/main/java/com/euscagency/itrack/OptimalGPSService.java"
+    echo "✓ Configurat pentru DEV (www.euscagency.com/etsm3/)"
+else
     echo "Setez PRODUCTION environment..."
     sed -i 's/API_BASE_URL = API_CONFIG\.DEV;/API_BASE_URL = API_CONFIG.PROD;/g' "src/services/api.ts"
     sed -i 's/API_BASE_URL_DEV/API_BASE_URL_PROD/g' "android/app/src/main/java/com/euscagency/itrack/OptimalGPSService.java"
     echo "✓ Configurat pentru PRODUCTION (www.euscagency.com/etsm_prod/)"
-else
-    echo "Setez DEV environment..."
-    sed -i 's/API_BASE_URL = API_CONFIG\.PROD;/API_BASE_URL = API_CONFIG.DEV;/g' "src/services/api.ts"
-    sed -i 's/API_BASE_URL_PROD/API_BASE_URL_DEV/g' "android/app/src/main/java/com/euscagency/itrack/OptimalGPSService.java"
-    echo "✓ Configurat pentru DEV (www.euscagency.com/etsm3/)"
 fi
 
 echo ""
