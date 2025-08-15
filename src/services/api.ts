@@ -2,16 +2,14 @@ import { logAPI } from "./appLogger";
 import { CapacitorHttp } from "@capacitor/core";
 // Consistent static import to resolve Vite warnings
 
-// Centralized API Configuration - Change only here to switch environments
+// Centralized API Configuration
 export const API_CONFIG = {
-  // Production environment
-  PROD: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/",
-  // Test environment  
-  TEST: "https://www.euscagency.com/etsm_test/platforme/transport/apk/",
+  // Main environment
+  MAIN: "https://www.euscagency.com/etsm3/platforme/transport/apk/",
 };
 
-// Current active environment - Change this single line to switch environments
-export const API_BASE_URL = API_CONFIG.PROD; // Sincronizat cu Android pentru consistență
+// Current active environment
+export const API_BASE_URL = API_CONFIG.MAIN; // Sincronizat cu Android pentru consistență
 
 // Single request management to prevent conflicts
 let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null =
