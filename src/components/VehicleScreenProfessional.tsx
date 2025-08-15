@@ -957,18 +957,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
               <div className="about-button" onClick={() => setShowAbout(true)} title="Despre aplicație" style={{ 
                 background: currentTheme === 'dark' 
-                  ? 'rgba(59, 130, 246, 0.1)' 
-                  : 'rgba(59, 130, 246, 0.2)', 
+                  ? 'rgba(16, 185, 129, 0.1)'  // Verde pentru dark theme
+                  : 'rgba(16, 185, 129, 0.2)',  // Verde pentru light theme
                 border: currentTheme === 'dark' 
-                  ? '1px solid rgba(59, 130, 246, 0.3)' 
-                  : '1px solid rgba(59, 130, 246, 0.5)', 
+                  ? '1px solid rgba(16, 185, 129, 0.3)'  // Bordură verde pentru dark
+                  : '1px solid rgba(16, 185, 129, 0.5)',  // Bordură verde pentru light
                 borderRadius: '12px', 
                 padding: '14px 16px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af',
+                color: currentTheme === 'dark' ? '#34d399' : '#047857',  // Text verde
                 minWidth: '48px',
                 minHeight: '48px'
               }}>
@@ -1368,7 +1368,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 }}>
                   <i className="fas fa-info-circle" style={{ 
                     fontSize: '48px', 
-                    color: '#10b981',  // Verde în loc de albastru
+                    color: '#60a5fa', 
                     marginBottom: '20px',
                     display: 'block'
                   }}></i>
