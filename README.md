@@ -1223,6 +1223,28 @@ android {
 - Android API Level 23+ (Android 6.0+)
 
 ### Setup Rapid
+
+#### Folosind Scripturile de Build (Recomandat)
+
+**Pentru mediul TEST (implicit):**
+```bash
+# Windows
+versiune.bat
+
+# Linux/macOS  
+./versiune.sh
+```
+
+**Pentru mediul PRODUCTION:**
+```bash
+# Windows
+versiune.bat PROD
+
+# Linux/macOS
+./versiune.sh PROD
+```
+
+#### Setup Manual
 ```bash
 # 1. Instalare dependințe
 npm install
@@ -1236,6 +1258,26 @@ npm run dev
 # 4. Build pentru Android
 npx cap build android
 ```
+
+### Scripturi de Build Automate
+
+Proiectul include scripturi automate care gestionează schimbarea mediului și procesul complet de build:
+
+- **`versiune.bat`** / **`versiune.sh`** - Sistem unificat de build
+  - Fără parametri: Build cu mediul TEST (implicit)
+  - Parametrul `PROD`: Build cu mediul PRODUCTION
+  - Schimbă automat endpoint-urile API în codul frontend și Android
+  - Gestionează pipeline-ul complet: web build → Capacitor sync → lansare Android Studio
+
+**Medii Disponibile:**
+- **TEST** (implicit): `www.euscagency.com/etsm_test/`
+- **PROD**: `www.euscagency.com/etsm_prod/`
+
+**Procesul de Build:**
+1. Schimbă configurația API către mediul selectat
+2. Build aplicației web (`npm run build`)
+3. Sincronizare cu Capacitor (`npx cap sync android`)
+4. Deschide Android Studio pentru generarea finală a APK-ului
 
 ### Development Workflow
 ```bash
