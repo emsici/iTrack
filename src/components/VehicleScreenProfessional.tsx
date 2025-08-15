@@ -61,7 +61,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         const count = await getOfflineGPSCount();
         setOfflineGPSCount(count);
         if (count > 0) {
-          console.log(`📍 Update: ${count} coordonate offline în storage`);
+          console.log(`📍 Update UI: ${count} coordonate offline în storage`);
         }
       } catch (error) {
         console.error('Eroare la obținerea contorului offline:', error);
@@ -72,7 +72,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     updateOfflineCount();
     const interval = setInterval(updateOfflineCount, 3000);
 
-    return () => clearInterval(interval);
+    // Listen for immediate updates when GPS is saved offline
+    const handleOfflineCountChange = () => {
+      updateOfflineCount();
+    };
+    window.addEventListener('offlineGPSCountChanged', handleOfflineCountChange);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('offlineGPSCountChanged', handleOfflineCountChange);
+    };
   }, []);
 
   const toast = useToast();

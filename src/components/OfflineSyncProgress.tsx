@@ -178,22 +178,55 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
       ) : hasOfflineData ? (
         // Has offline data, not syncing - show real network status
         <div className="sync-pending">
-          <div className="offline-indicator">
-            <i className={`fas ${isOnline ? 'fa-cloud-upload-alt' : 'fa-wifi'} sync-icon-automatic`}></i>
-            <div className="offline-info">
-              <div className="offline-title">
-                <span className={`network-status ${isOnline ? 'online' : 'offline'}`}>
-                  {isOnline ? '🟢 ONLINE' : '🔴 OFFLINE'}
-                </span>
-                - Sincronizare Automată
+          <div className="offline-indicator" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '15px',
+            padding: '10px 0'
+          }}>
+            <div style={{
+              fontSize: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '50px',
+              height: '50px',
+              borderRadius: '50%',
+              background: isOnline 
+                ? 'rgba(34, 197, 94, 0.2)' 
+                : 'rgba(239, 68, 68, 0.2)',
+              border: `2px solid ${isOnline ? '#22c55e' : '#ef4444'}`
+            }}>
+              <i className={`fas ${isOnline ? 'fa-cloud-upload-alt' : 'fa-wifi'}`} 
+                 style={{ color: isOnline ? '#22c55e' : '#ef4444' }}></i>
+            </div>
+            <div className="offline-info" style={{ flex: 1 }}>
+              <div className="offline-title" style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                marginBottom: '5px',
+                color: isOnline ? '#22c55e' : '#ef4444'
+              }}>
+                {isOnline ? '🟢 ONLINE' : '🔴 OFFLINE'} - Sincronizare Automată
               </div>
-              <div className="offline-count">
-                {syncProgress.remaining || syncProgress.totalToSync} coordonate GPS offline
+              <div className="offline-count" style={{
+                fontSize: '16px',
+                fontWeight: '500',
+                marginBottom: '5px',
+                color: '#64748b'
+              }}>
+                📍 {syncProgress.remaining || syncProgress.totalToSync} coordonate GPS salvate offline
               </div>
-              <div className="auto-sync-note">
-                <i className={`fas ${isOnline ? 'fa-cloud-upload-alt' : 'fa-pause-circle'}`} style={{marginRight: '4px'}}></i>
+              <div className="auto-sync-note" style={{
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                color: '#9ca3af'
+              }}>
+                <i className={`fas ${isOnline ? 'fa-sync-alt' : 'fa-pause-circle'}`}></i>
                 {isOnline 
-                  ? 'Se sincronizează automat acum...' 
+                  ? 'Se pornește sincronizarea automată...' 
                   : 'În așteptare - se va sincroniza când revine internetul'}
               </div>
               {networkInfo && !isOnline && (

@@ -590,11 +590,15 @@ export const sendGPSData = async (
         reportGPSError(`HTTP ${response.status}: ${response.data}`, response.status);
         
         // SALVARE AUTOMATĂ OFFLINE când serverul nu răspunde cu 200
-        console.log(`💾 OFFLINE SAVE #${Date.now()}: ${gpsData.lat}, ${gpsData.lng} - server status ${response.status}`);
+        console.log(`💾 OFFLINE SAVE #${Date.now()}: lat=${gpsData.lat}, lng=${gpsData.lng} - server status ${response.status}`);
+        console.log(`📍 UIT: ${gpsData.uit}, Vehicle: ${gpsData.numar_inmatriculare}, Status: ${gpsData.status}`);
         try {
           const { offlineGPSService } = await import('./offlineGPS');
           await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
-          console.log('✅ Coordonată salvată offline cu succes');
+          console.log('✅ Coordonată salvată offline cu succes - contorul va fi actualizat în 3s');
+          
+          // Trigger immediate UI update for offline count
+          window.dispatchEvent(new CustomEvent('offlineGPSCountChanged'));
         } catch (error) {
           console.error('❌ Eroare salvare offline:', error);
         }
