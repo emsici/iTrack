@@ -25,9 +25,9 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 - **DEBUG PANEL INLINE**: Debug panel-ul apare SUB lista de curse, nu înlocuiește pagina - experiență live debugging 
 - **PAUZĂ/STOP IMMEDIATE FIX**: Când se dă PAUZĂ, se opresc TOATE serviciile GPS simultan fără transmisii suplimentare
 - **REAL-TIME LOG MONITORING**: Log-uri în timp real în debug panel cu actualizare automată la 2 secunde
-- **VERSIUNE SYSTEM AUTOMATION**: Created unified version system with TEST default:
-  - `versiune.bat` (no params) - Builds with TEST environment (default)
-  - `versiune.bat PROD` / `versiune.sh PROD` - Builds with PRODUCTION environment
+- **START SYSTEM AUTOMATION**: Created unified start system with TEST default:
+  - `start.bat` (no params) - Builds with TEST environment (default)
+  - `start.bat PROD` / `start.sh PROD` - Builds with PRODUCTION environment
   - Scripts handle: environment switch → web build → Capacitor sync → Android Studio opening
   - TEST is default environment, only TEST and PROD supported
 

@@ -7,7 +7,7 @@ if [ "$1" = "" ]; then
     echo "================================"
     echo ""
     echo "Folosesc mediul default TEST"
-    echo "Pentru PRODUCTION foloseste: ./versiune.sh PROD"
+    echo "Pentru PRODUCTION foloseste: ./start.sh PROD"
     echo ""
 else
     ENV=$1

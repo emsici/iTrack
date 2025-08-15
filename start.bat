@@ -6,7 +6,7 @@ if "%1"=="" (
     echo ================================
     echo.
     echo Folosesc mediul default TEST
-    echo Pentru PRODUCTION foloseste: versiune.bat PROD
+    echo Pentru PRODUCTION foloseste: start.bat PROD
     echo.
 ) else (
     set ENV=%1
