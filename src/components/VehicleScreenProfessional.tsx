@@ -14,7 +14,7 @@ import { logAPI, logAPIError } from "../services/appLogger";
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
-// import OfflineGPSMonitor from "./OfflineGPSMonitor"; // Removed - integrated in header for performance
+import OfflineSyncProgress from "./OfflineSyncProgress"; // Added for header integration
 import ToastNotification from "./ToastNotification";
 
 import { useToast } from "../hooks/useToast";
@@ -1280,6 +1280,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   </div>
                 </div>
               )}
+            </div>
+            
+            {/* Offline Sync Progress - Integrated in Header */}
+            <div style={{ marginTop: '10px', width: '100%', maxWidth: '500px', margin: '10px auto 0 auto' }}>
+              <OfflineSyncProgress className="offline-monitor-header-style" />
             </div>
           </div>
 
