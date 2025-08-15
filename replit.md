@@ -112,12 +112,19 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 ## External Dependencies
 - **Capacitor**: `@capacitor/core`, `@capacitor/android`, `@capacitor/geolocation`, `@capacitor/preferences`
 - **Capacitor Community Plugins**: `@capacitor-community/background-geolocation`
-- **APIs** (etsm3):
+- **APIs** (DEV - etsm3 by default):
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/login.php` (Authentication)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php` (Logout)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/vehicul.php` (Course Management)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/update_course_status.php` (Course Status Updates)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php` (GPS Data Transmission)
     - `https://www.euscagency.com/etsm3/platforme/transport/apk/rezultate.php` (GPS Result Verification)
+- **APIs** (PROD - etsm_prod):
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/login.php` (Authentication)
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/logout.php` (Logout)
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php` (Course Management)
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/update_course_status.php` (Course Status Updates)
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php` (GPS Data Transmission)
+    - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/rezultate.php` (GPS Result Verification)
 - **UI Libraries**: Bootstrap 5.3.6
 ```

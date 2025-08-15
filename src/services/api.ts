@@ -4,12 +4,14 @@ import { CapacitorHttp } from "@capacitor/core";
 
 // Centralized API Configuration
 export const API_CONFIG = {
-  // Main environment
-  MAIN: "https://www.euscagency.com/etsm3/platforme/transport/apk/",
+  // Development environment (default)
+  DEV: "https://www.euscagency.com/etsm3/platforme/transport/apk/",
+  // Production environment
+  PROD: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/",
 };
 
-// Current active environment
-export const API_BASE_URL = API_CONFIG.MAIN; // Sincronizat cu Android pentru consistență
+// Current active environment - Default: DEV (etsm3)
+export const API_BASE_URL = API_CONFIG.DEV; // Sincronizat cu Android pentru consistență
 
 // Single request management to prevent conflicts
 let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null =

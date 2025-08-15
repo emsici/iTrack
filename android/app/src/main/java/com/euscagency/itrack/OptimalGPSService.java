@@ -38,10 +38,11 @@ public class OptimalGPSService extends Service {
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.GPS_ALARM";
     
     // Configurație API Centralizată
-    private static final String API_BASE_URL_MAIN = "https://www.euscagency.com/etsm3/platforme/transport/apk/";
+    private static final String API_BASE_URL_DEV = "https://www.euscagency.com/etsm3/platforme/transport/apk/";
+    private static final String API_BASE_URL_PROD = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/";
     
-    // Mediul activ curent
-    private static final String API_BASE_URL = API_BASE_URL_MAIN; // Folosim etsm3 ca default
+    // Mediul activ curent - Default: DEV (etsm3)
+    private static final String API_BASE_URL = API_BASE_URL_DEV; // Folosim etsm3 ca default
     
     private AlarmManager alarmManager;
     private PendingIntent gpsPendingIntent;
