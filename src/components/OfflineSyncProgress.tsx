@@ -98,7 +98,33 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
   }
 
   return (
-    <div className={`offline-sync-progress ${className}`}>
+    <div className={`offline-sync-progress ${className}`} style={{
+      width: '100%',
+      maxWidth: '600px',
+      margin: '0 auto',
+      padding: '15px',
+      borderRadius: '16px',
+      background: syncProgress.isActive 
+        ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)'
+        : hasOfflineData && !isOnline
+          ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%)'
+          : hasOfflineData && isOnline
+            ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%)'
+            : 'transparent',
+      border: syncProgress.isActive || hasOfflineData 
+        ? `1px solid ${
+            syncProgress.isActive 
+              ? 'rgba(34, 197, 94, 0.3)'
+              : !isOnline
+                ? 'rgba(239, 68, 68, 0.3)'
+                : 'rgba(59, 130, 246, 0.3)'
+          }`
+        : 'none',
+      backdropFilter: (syncProgress.isActive || hasOfflineData) ? 'blur(10px)' : 'none',
+      boxShadow: (syncProgress.isActive || hasOfflineData) 
+        ? '0 8px 32px rgba(0, 0, 0, 0.1)'
+        : 'none'
+    }}>
       {syncProgress.isActive ? (
         // Active sync progress
         <div className="sync-active">

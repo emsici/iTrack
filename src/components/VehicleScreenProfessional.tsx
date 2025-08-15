@@ -53,6 +53,27 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
+  
+  // Update offline GPS count every 3 seconds for live display
+  useEffect(() => {
+    const updateOfflineCount = async () => {
+      try {
+        const count = await getOfflineGPSCount();
+        setOfflineGPSCount(count);
+        if (count > 0) {
+          console.log(`📍 Update: ${count} coordonate offline în storage`);
+        }
+      } catch (error) {
+        console.error('Eroare la obținerea contorului offline:', error);
+      }
+    };
+
+    // Update immediately and then every 3 seconds
+    updateOfflineCount();
+    const interval = setInterval(updateOfflineCount, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const toast = useToast();
 
@@ -1274,16 +1295,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
             
-            {/* Offline Sync Progress - Performance Optimized */}
+            {/* Contor coordonate offline în header */}
             <div style={{ 
-              marginTop: '10px', 
-              width: '100%', 
-              maxWidth: '500px', 
-              margin: '10px auto 0 auto',
-              contain: 'layout style paint',
-              /* REMOVED willChange pentru ZERO lag la scroll */
+              marginTop: '8px', 
+              textAlign: 'center',
+              fontSize: '14px',
+              color: currentTheme === 'light' || currentTheme === 'business' ? '#64748b' : '#94a3b8'
             }}>
-              <OfflineSyncProgress className="offline-monitor-header-style" />
+              <span>📍 {offlineGPSCount} coordonate offline</span>
             </div>
           </div>
 
@@ -1580,6 +1599,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   ))}
                 </div>
               )}
+              
+              {/* PROGRES SINCRONIZARE SUB LISTA DE CURSE */}
+              <div style={{
+                marginTop: '20px',
+                padding: '15px',
+                background: 'transparent'
+              }}>
+                <OfflineSyncProgress className="offline-sync-under-courses" />
+              </div>
               
               {/* Debug Panel - Inline under courses */}
               {showDebugPage && (
