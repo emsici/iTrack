@@ -678,15 +678,42 @@ public class OptimalGPSService extends Service {
             
             CourseData course = activeCourses.get(courseId);
             if (course != null) {
-                course.status = newStatus;
+                Log.d(TAG, "📊 OPTIMAL status update: " + courseId + " (" + course.status + " -> " + newStatus + ")");
                 
-                // Reset pauseTransmitted flag when resuming (status 2)
-                if (newStatus == 2) {
-                    course.pauseTransmitted = false;
-                    Log.d(TAG, "▶️ RESUME: Reset pause flag for " + courseId + " - GPS will transmit continuously");
+                // CRITICAL FIX: REMOVE course completely for status 3 or 4 to prevent GPS transmission
+                if (newStatus == 3 || newStatus == 4) {
+                    activeCourses.remove(courseId);
+                    Log.d(TAG, "🛑 REMOVING course " + courseId + " from active list - status " + newStatus + " (STOP/PAUSE)");
+                    
+                    // If no more active courses, stop the timer completely
+                    if (activeCourses.isEmpty()) {
+                        stopOptimalGPSTimer();
+                        Log.d(TAG, "⏸️ All courses stopped - OptimalGPS timer stopped completely");
+                    } else {
+                        Log.d(TAG, "📊 " + activeCourses.size() + " courses still active - timer continues");
+                    }
+                    return;
                 }
                 
-                Log.d(TAG, "📊 OPTIMAL status updated: " + courseId + " -> " + newStatus);
+                // For status 2 (ACTIVE), update status and reset flags
+                if (newStatus == 2) {
+                    course.status = newStatus;
+                    course.pauseTransmitted = false;
+                    Log.d(TAG, "▶️ RESUME: Course " + courseId + " reactivated - GPS will transmit continuously");
+                    
+                    // If timer is not active but we have courses, restart it
+                    if (!isAlarmActive && !activeCourses.isEmpty()) {
+                        startOptimalGPSTimer();
+                        Log.d(TAG, "🔄 Restarting OptimalGPS timer for reactivated course");
+                    }
+                } else {
+                    // For other statuses, just update
+                    course.status = newStatus;
+                }
+                
+                Log.d(TAG, "✅ OPTIMAL status updated: " + courseId + " -> " + newStatus + " (Active courses: " + activeCourses.size() + ")");
+            } else {
+                Log.w(TAG, "⚠️ Course " + courseId + " not found for status update");
             }
             
         } else if ("CLEAR_ALL".equals(action)) {

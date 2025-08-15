@@ -278,20 +278,42 @@ class GuaranteedGPSService {
     const course = this.activeCourses.get(courseId);
     if (course) {
       const previousStatus = course.status;
-      course.status = newStatus;
       
       logGPS(`🔄 Status updated for course ${courseId}: ${previousStatus} → ${newStatus}`);
       
-      // Oprește transmisia GPS dacă cursă este oprită sau pauzată
+      // CRITICAL FIX: Elimină complet cursele cu status 3 sau 4 din lista activă
       if (newStatus === 3 || newStatus === 4) {
-        logGPS(`⏸️ Course ${courseId} paused/stopped - GPS transmission will stop for this course`);
+        logGPS(`🛑 REMOVING course ${courseId} from active courses - status ${newStatus} (STOP/PAUSE)`);
+        this.activeCourses.delete(courseId);
+        
+        // Dacă nu mai sunt curse active, oprește intervalul complet
+        if (this.activeCourses.size === 0) {
+          logGPS(`⏸️ No more active courses - stopping backup interval completely`);
+          this.stopBackupInterval();
+        }
+        
+        logGPS(`✅ Course ${courseId} REMOVED - ${this.activeCourses.size} courses remaining active`);
+        return;
       }
       
-      // Pornește transmisia GPS dacă cursă este activată
+      // Pentru status 2, updatează doar status-ul (cursul rămâne în listă)
       if (newStatus === 2) {
-        logGPS(`▶️ Course ${courseId} activated - GPS transmission will resume for this course`);
+        course.status = newStatus;
+        logGPS(`▶️ Course ${courseId} reactivated - GPS transmission will resume`);
+        
+        // Dacă intervalul nu e activ dar avem curse, pornește-l
+        if (!this.isTransmitting && this.activeCourses.size > 0) {
+          logGPS(`🔄 Restarting backup interval for reactivated course`);
+          this.startBackupInterval();
+        }
+      } else {
+        // Pentru alte statusuri, doar updatează
+        course.status = newStatus;
       }
-      logGPS(`🔄 Updated status for ${courseId}: ${newStatus}`);
+      
+      logGPS(`🔄 Final status for ${courseId}: ${newStatus} - Active courses: ${this.activeCourses.size}`);
+    } else {
+      logGPS(`⚠️ Course ${courseId} not found for status update`);
     }
   }
 
