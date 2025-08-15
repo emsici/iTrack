@@ -997,7 +997,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? 'rgba(59, 130, 246, 0.2)'  // Albastru pentru business
                         : currentTheme === 'nature'
-                          ? 'rgba(251, 191, 36, 0.2)'  // Galben pentru contrast pe verde
+                          ? 'rgba(255, 255, 255, 0.2)'  // Alb pentru contrast maxim pe verde
                           : currentTheme === 'night'
                             ? 'rgba(168, 85, 247, 0.2)'  // Violet pentru night
                             : 'rgba(16, 185, 129, 0.2)',
@@ -1010,7 +1010,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? '1px solid rgba(59, 130, 246, 0.5)'
                         : currentTheme === 'nature'
-                          ? '1px solid rgba(251, 191, 36, 0.5)'  // Galben border
+                          ? '1px solid rgba(255, 255, 255, 0.5)'  // Alb border pentru contrast
                           : currentTheme === 'night'
                             ? '1px solid rgba(168, 85, 247, 0.5)'
                             : '1px solid rgba(16, 185, 129, 0.5)',
@@ -1029,7 +1029,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? '#1d4ed8'  // Albastru text pentru business
                         : currentTheme === 'nature'
-                          ? '#f59e0b'  // Galben text pentru vizibilitate pe verde
+                          ? '#ffffff'  // Alb text pentru contrast maxim pe verde
                           : currentTheme === 'night'
                             ? '#a855f7'  // Violet text pentru night
                             : '#047857',
