@@ -275,7 +275,7 @@ graph LR
 // api.ts - Punct unic de schimbare environment
 export const API_CONFIG = {
   PROD: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/",
-  TEST: "https://www.euscagency.com/etsm3/platforme/transport/apk/",
+  TEST: "https://www.euscagency.com/etsm_test/platforme/transport/apk/",
 };
 export const API_BASE_URL = API_CONFIG.TEST; // Schimbare aici
 ```
@@ -283,7 +283,7 @@ export const API_BASE_URL = API_CONFIG.TEST; // Schimbare aici
 ```java
 // OptimalGPSService.java - Sincronizat cu frontend
 private static final String API_BASE_URL_PROD = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/";
-private static final String API_BASE_URL_TEST = "https://www.euscagency.com/etsm3/platforme/transport/apk/";
+private static final String API_BASE_URL_TEST = "https://www.euscagency.com/etsm_test/platforme/transport/apk/";
 private static final String API_BASE_URL = API_BASE_URL_TEST; // Schimbare aici
 ```
 

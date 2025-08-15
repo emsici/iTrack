@@ -42,7 +42,7 @@ Această versiune include o analiză exhaustivă a întregii aplicații, documen
 // Configurare centralizată environment
 export const API_CONFIG = {
   PROD: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/",
-  TEST: "https://www.euscagency.com/etsm3/platforme/transport/apk/",
+  TEST: "https://www.euscagency.com/etsm_test/platforme/transport/apk/",
 };
 export const API_BASE_URL = API_CONFIG.TEST; // Punct unic schimbare
 ```
