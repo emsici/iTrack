@@ -230,8 +230,16 @@ public class OptimalGPSService extends Service {
                 (System.currentTimeMillis() - lastLocation.getTime()) < 3000) { // Less than 3s old
                 
                 long age = System.currentTimeMillis() - lastLocation.getTime();
-                Log.d(TAG, "✅ Using recent GPS location (battery efficient) - Age: " + age + "ms");
-                transmitGPSForAllCourses(lastLocation);
+                float accuracy = lastLocation.getAccuracy();
+                
+                // PRECISION CHECK pentru lastKnownLocation
+                if (accuracy <= 15.0f) { // Acceptă lastKnown sub 15m pentru eficiență
+                    Log.d(TAG, "✅ Using recent HIGH PRECISION GPS - Age: " + age + "ms, Accuracy: " + accuracy + "m");
+                    transmitGPSForAllCourses(lastLocation);
+                } else {
+                    Log.d(TAG, "⚠️ Recent GPS cu precizie scăzută (" + accuracy + "m) - solicită GPS nou pentru precizie înaltă");
+                    requestSingleGPSLocation();
+                }
                 
             } else {
                 if (lastLocation != null) {
@@ -270,36 +278,82 @@ public class OptimalGPSService extends Service {
             
             Log.e(TAG, "🚀 ENHANCED GPS REQUEST pentru telefon blocat - multiple providers");
             
-            // ENHANCED: Try multiple providers pentru telefon blocat
+            // ENHANCED: Try multiple providers pentru telefon blocat cu PRECIZIE MAXIMĂ
             String[] providers = {LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER};
             boolean requestSent = false;
+            
+            // PRECIZIE MAXIMĂ: Creează Criteria pentru GPS cu acuratețe înaltă
+            android.location.Criteria criteria = new android.location.Criteria();
+            criteria.setAccuracy(android.location.Criteria.ACCURACY_FINE); // Precizie maximă (1-2m)
+            criteria.setPowerRequirement(android.location.Criteria.POWER_HIGH); // Putere maximă pentru precizie
+            criteria.setAltitudeRequired(true); // Include altitudinea
+            criteria.setBearingRequired(true); // Include direcția
+            criteria.setSpeedRequired(true); // Include viteza
+            criteria.setCostAllowed(true); // Permite cost pentru precizie maximă
             
             for (String provider : providers) {
                 if (locationManager.isProviderEnabled(provider)) {
                     try {
-                        Log.e(TAG, "📡 Trying provider: " + provider + " pentru background GPS");
-                        locationManager.requestSingleUpdate(
-                            provider,
-                            new android.location.LocationListener() {
-                                @Override
-                                public void onLocationChanged(Location location) {
-                                    Log.e(TAG, "📍 ENHANCED GPS SUCCESS - " + provider + " location received pentru telefon blocat");
-                                    transmitGPSForAllCourses(location);
-                                }
+                        Log.e(TAG, "📡 HIGH PRECISION GPS REQUEST: " + provider + " cu criteria pentru 1-2m precizie");
+                        
+                        // Pentru GPS_PROVIDER, folosește criteria pentru precizie maximă
+                        if (LocationManager.GPS_PROVIDER.equals(provider)) {
+                            locationManager.requestSingleUpdate(
+                                criteria, // Folosește criteria pentru precizie maximă
+                                new android.location.LocationListener() {
+                                    @Override
+                                    public void onLocationChanged(Location location) {
+                                        float accuracy = location.getAccuracy();
+                                        Log.e(TAG, "📍 HIGH PRECISION GPS SUCCESS - " + provider + " precizie: " + accuracy + "m pentru telefon blocat");
+                                        
+                                        // FILTER pentru precizie: Acceptă doar sub 10m pentru calitate înaltă
+                                        if (accuracy <= 10.0f) {
+                                            Log.e(TAG, "✅ PRECIZIE ACCEPTATĂ: " + accuracy + "m - transmite coordonata");
+                                            transmitGPSForAllCourses(location);
+                                        } else {
+                                            Log.w(TAG, "⚠️ PRECIZIE SCĂZUTĂ: " + accuracy + "m - se așteaptă GPS mai precis");
+                                            // Nu transmite coordonate cu precizie scăzută
+                                        }
+                                    }
                                 
-                                @Override
-                                public void onStatusChanged(String provider, int status, android.os.Bundle extras) {}
-                                @Override
-                                public void onProviderEnabled(String provider) {}
-                                @Override
-                                public void onProviderDisabled(String provider) {
-                                    Log.w(TAG, "⚠️ Provider " + provider + " disabled - continuăm cu următorul");
-                                }
-                            },
-                            null
-                        );
+
+                                },
+                                null
+                            );
+                        } else {
+                            // Pentru alte providere, folosește provider direct
+                            locationManager.requestSingleUpdate(
+                                provider,
+                                new android.location.LocationListener() {
+                                    @Override
+                                    public void onLocationChanged(Location location) {
+                                        float accuracy = location.getAccuracy();
+                                        Log.e(TAG, "📍 NETWORK/PASSIVE GPS - " + provider + " precizie: " + accuracy + "m");
+                                        
+                                        // Pentru providere non-GPS, acceptă precizie mai scăzută (sub 50m)
+                                        if (accuracy <= 50.0f) {
+                                            Log.e(TAG, "✅ FALLBACK PRECIZIE OK: " + accuracy + "m - transmite coordonata");
+                                            transmitGPSForAllCourses(location);
+                                        } else {
+                                            Log.w(TAG, "⚠️ FALLBACK PRECIZIE SCĂZUTĂ: " + accuracy + "m - ignoră");
+                                        }
+                                    }
+                                    
+                                    @Override
+                                    public void onStatusChanged(String provider, int status, android.os.Bundle extras) {}
+                                    @Override
+                                    public void onProviderEnabled(String provider) {}
+                                    @Override
+                                    public void onProviderDisabled(String provider) {
+                                        Log.w(TAG, "⚠️ Provider " + provider + " disabled - continuăm cu următorul");
+                                    }
+                                },
+                                null
+                            );
+                        }
+                        
                         requestSent = true;
-                        Log.e(TAG, "✅ GPS request sent via " + provider + " pentru background operation");
+                        Log.e(TAG, "✅ HIGH PRECISION GPS request sent via " + provider + " pentru maximum accuracy");
                         break; // Success, exit loop
                     } catch (Exception providerError) {
                         Log.w(TAG, "⚠️ Provider " + provider + " failed: " + providerError.getMessage());
