@@ -137,6 +137,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
 
       console.log("Curse găsite:", coursesArray.length);
+      
+      // DEBUG: Log actual data structure to identify N/A issue
+      if (coursesArray.length > 0) {
+        console.log("🔍 DEBUG: Actual course data structure:", JSON.stringify(coursesArray[0], null, 2));
+        console.log("🔍 DEBUG: Course fields available:", Object.keys(coursesArray[0]));
+      }
 
       if (coursesArray.length > 0) {
         const mergedCourses = coursesArray.map((newCourse: Course) => {
