@@ -1706,7 +1706,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               {/* Version Display - positioned above Android navigation */}
               <div style={{
                 position: 'absolute',
-                bottom: '15px', // FIXED: Much closer to bottom, reducing large space
+                bottom: '25px', // FIXED: Much closer to bottom, reducing large space
                 left: 'calc(50% - 50px)', /* REPLACED transform cu calc pentru ZERO lag */
                 fontSize: '9px',
                 color: currentTheme === 'dark' || currentTheme === 'light' || currentTheme === 'business' 
@@ -1723,7 +1723,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 borderRadius: '8px',
                 backdropFilter: 'blur(10px)'
               }}>
-                iTrack - interfață {THEME_INFO[currentTheme]?.name || 'standard'}
+                iTrack - v18.0799 - interfața {THEME_INFO[currentTheme]?.name || 'standard'}
               </div>
             </div>
 

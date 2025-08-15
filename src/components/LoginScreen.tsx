@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { login } from "../services/api";
+import { THEME_INFO } from "../services/themeService";
 
 interface LoginScreenProps {
   onLogin: (token: string, isAdmin?: boolean) => void;
@@ -11,6 +12,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const currentTheme = 'dark'; // Default theme for login screen
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -831,7 +833,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         <div className="login-footer">
           <div className="version-info">
             <i className="fas fa-code-branch"></i>
-            <span>iTrack GPS</span>
+            <span>iTrack - v18.0799 - interfața {THEME_INFO[currentTheme]?.name || 'standard'}</span>
           </div>
         </div>
       </div>
