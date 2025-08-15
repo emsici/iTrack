@@ -76,7 +76,7 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 - **CENTRALIZED API CONFIGURATION**:
     - **Current**: PRODUCTION (etsm_prod) environment
     - **Primary Config**: `src/services/api.ts` - Change `API_BASE_URL = API_CONFIG.PROD/TEST/DEV`
-    - **Auto-sync Script**: `./sync-api-config.sh PROD` to synchronize all environments
+    - **Auto-sync Script**: `sync-api-config.bat PROD` to synchronize all environments
     - **Environments Available**:
       - **PROD**: `https://www.euscagency.com/etsm_prod/platforme/transport/apk/`
       - **TEST**: `https://www.euscagency.com/etsm3/platforme/transport/apk/`
