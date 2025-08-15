@@ -73,7 +73,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             right: '20px',
             background: 'transparent',
             border: 'none',
-            color: isDarkVariant ? '#94a3b8' : '#64748b',
+            color: isDarkVariant 
+              ? '#94a3b8' 
+              : currentTheme === 'business'
+                ? '#000000'  // BLACK pentru Business theme
+                : '#64748b',
             fontSize: '24px',
             cursor: 'pointer',
             padding: '5px',
@@ -88,7 +92,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         <h2 
           onClick={handleTitleClick}
           style={{
-            color: isDarkVariant ? '#ffffff' : '#1e293b',
+            color: isDarkVariant 
+              ? '#ffffff' 
+              : currentTheme === 'business'
+                ? '#000000'  // BLACK pentru Business theme
+                : '#1e293b',
             fontSize: '24px',
             fontWeight: '700',
             margin: '0 0 8px 0',
@@ -100,7 +108,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </h2>
 
         <p style={{
-          color: isDarkVariant ? '#cbd5e1' : '#64748b',
+          color: isDarkVariant 
+            ? '#cbd5e1' 
+            : currentTheme === 'business'
+              ? '#64748b'  // Păstrat pentru Business theme - contrast bun
+              : '#64748b',
           fontSize: '14px',
           textAlign: 'center',
           margin: '0 0 30px 0',
@@ -112,7 +124,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Theme Selection */}
         <div style={{ marginTop: '30px' }}>
           <h3 style={{
-            color: isDarkVariant ? '#ffffff' : '#1e293b',
+            color: isDarkVariant 
+            ? '#ffffff' 
+            : currentTheme === 'business'
+              ? '#000000'  // BLACK pentru Business theme
+              : '#1e293b',
             fontSize: '18px',
             fontWeight: '600',
             margin: '0 0 20px 0'

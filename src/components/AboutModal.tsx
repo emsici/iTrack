@@ -3,7 +3,7 @@ import React from 'react';
 interface AboutModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentTheme: 'dark' | 'light';
+  currentTheme: 'dark' | 'light' | 'driver' | 'business' | 'nature' | 'night';
 }
 
 const AboutModal: React.FC<AboutModalProps> = ({ 
@@ -39,9 +39,19 @@ const AboutModal: React.FC<AboutModalProps> = ({
           maxHeight: 'calc(100vh - 80px)',
           background: currentTheme === 'dark' 
             ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)'
-            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+            : currentTheme === 'light'
+              ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)'
+              : currentTheme === 'driver'
+                ? 'linear-gradient(135deg, rgba(28, 25, 23, 0.98) 0%, rgba(41, 37, 36, 0.98) 100%)'
+                : currentTheme === 'business'
+                  ? 'linear-gradient(135deg, rgba(248, 250, 252, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%)'
+                  : currentTheme === 'nature'
+                    ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.98) 0%, rgba(6, 95, 70, 0.98) 100%)'
+                    : currentTheme === 'night'
+                      ? 'linear-gradient(135deg, rgba(30, 27, 75, 0.98) 0%, rgba(49, 46, 129, 0.98) 100%)'
+                      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
           backdropFilter: 'blur(20px)',
-          border: currentTheme === 'dark' 
+          border: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
             ? '1px solid rgba(255, 255, 255, 0.1)'
             : '1px solid rgba(0, 0, 0, 0.1)',
           borderRadius: '24px',
@@ -62,7 +72,17 @@ const AboutModal: React.FC<AboutModalProps> = ({
             right: '20px',
             background: 'transparent',
             border: 'none',
-            color: currentTheme === 'dark' ? '#94a3b8' : '#000000',  // BLACK for light theme
+            color: currentTheme === 'dark' 
+              ? '#94a3b8' 
+              : currentTheme === 'light' || currentTheme === 'business'
+                ? '#000000'  // BLACK pentru Light/Business
+                : currentTheme === 'driver'
+                  ? '#fed7aa'  // Portocaliu deschis pentru Driver
+                  : currentTheme === 'nature'
+                    ? '#a7f3d0'  // Verde deschis pentru Nature
+                    : currentTheme === 'night'
+                      ? '#c7d2fe'  // Violet deschis pentru Night
+                      : '#000000',
             fontSize: '24px',
             cursor: 'pointer',
             padding: '8px',
@@ -110,7 +130,17 @@ const AboutModal: React.FC<AboutModalProps> = ({
             iTrack GPS
           </h2>
           <p style={{
-            color: currentTheme === 'dark' ? '#94a3b8' : '#000000',  // BLACK for light theme
+            color: currentTheme === 'dark' 
+              ? '#94a3b8' 
+              : currentTheme === 'light' || currentTheme === 'business'
+                ? '#000000'  // BLACK pentru Light/Business
+                : currentTheme === 'driver'
+                  ? '#fed7aa'  // Portocaliu deschis pentru Driver
+                  : currentTheme === 'nature'
+                    ? '#a7f3d0'  // Verde deschis pentru Nature
+                    : currentTheme === 'night'
+                      ? '#c7d2fe'  // Violet deschis pentru Night
+                      : '#000000',
             fontSize: '14px',
             margin: 0
           }}>
@@ -120,13 +150,33 @@ const AboutModal: React.FC<AboutModalProps> = ({
 
         {/* Content */}
         <div style={{
-          color: currentTheme === 'dark' ? '#e2e8f0' : '#000000',  // BLACK for light theme
+          color: currentTheme === 'dark' 
+            ? '#e2e8f0' 
+            : currentTheme === 'light' || currentTheme === 'business'
+              ? '#000000'  // BLACK pentru Light/Business
+              : currentTheme === 'driver'
+                ? '#fef3c7'  // Galben deschis pentru Driver
+                : currentTheme === 'nature'
+                  ? '#d1fae5'  // Verde foarte deschis pentru Nature
+                  : currentTheme === 'night'
+                    ? '#e0e7ff'  // Violet foarte deschis pentru Night
+                    : '#000000',
           lineHeight: '1.6'
         }}>
           {/* Description */}
           <div style={{ marginBottom: '24px' }}>
             <h3 style={{
-              color: currentTheme === 'dark' ? '#ffffff' : '#000000',  // BLACK for light theme
+              color: currentTheme === 'dark' 
+                ? '#ffffff' 
+                : currentTheme === 'light' || currentTheme === 'business'
+                  ? '#000000'  // BLACK pentru Light/Business
+                  : currentTheme === 'driver'
+                    ? '#fef3c7'  // Galben deschis pentru Driver
+                    : currentTheme === 'nature'
+                      ? '#d1fae5'  // Verde foarte deschis pentru Nature
+                      : currentTheme === 'night'
+                        ? '#e0e7ff'  // Violet foarte deschis pentru Night
+                        : '#000000',
               fontSize: '18px',
               fontWeight: '600',
               margin: '0 0 12px 0'
