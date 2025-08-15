@@ -1657,6 +1657,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               onClose={() => setShowSettings(false)}
               currentTheme={currentTheme}
               onThemeChange={handleThemeChange}
+              token={token}
+              onLogout={onLogout}
             />
 
             {/* About Modal */}
