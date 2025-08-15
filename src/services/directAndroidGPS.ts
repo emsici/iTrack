@@ -217,39 +217,32 @@ class DirectAndroidGPSService {
   }
 
   /**
-   * HYBRID GPS: Android native GPS + Guaranteed JavaScript backup for reliable transmission
-   * This ensures GPS transmits every 5 seconds regardless of Android service status
+   * PRIORITY GPS: Smart method selection with fallback - no duplicate transmissions
+   * Uses priority system: Android Native → Capacitor → JavaScript backup
    */
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
-    logGPS(`🔥 HYBRID GPS: Starting both Android service + JavaScript backup`);
+    logGPS(`🎯 PRIORITY GPS: Starting intelligent GPS with method prioritization`);
     
     try {
-      // 1. Start Android native GPS service (primary method)
-      if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-        try {
-          const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
-          logGPS(`✅ MainActivity GPS started: ${result}`);
-        } catch (androidError) {
-          logGPSError(`❌ AndroidGPS.startGPS failed: ${androidError}`);
-        }
-      } else {
-        logGPS(`⚠️ AndroidGPS interface not available - using JavaScript backup only`);
-      }
-
-      // 2. ALWAYS start guaranteed JavaScript GPS backup (ensures 5-second transmission) 
-      try {
-        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ Guaranteed GPS backup service started for course: ${courseId}`);
-      } catch (backupError) {
-        logGPSError(`❌ Guaranteed GPS backup failed: ${backupError}`);
-        throw backupError; // Rethrow as this is critical
-      }
+      // Import and use Priority GPS Service
+      const { priorityGPSService } = await import('./priorityGPS');
+      await priorityGPSService.startGPS(courseId, vehicleNumber, uit, token, status);
+      
+      logGPS(`✅ Priority GPS started successfully for course: ${courseId}`);
       
     } catch (error) {
-      logGPSError(`❌ GPS service startup failed: ${error}`);
-      throw error;
+      // Fallback to guaranteed GPS if priority system fails
+      logGPSError(`❌ Priority GPS failed, falling back to guaranteed GPS: ${error}`);
+      
+      try {
+        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+        logGPS(`✅ Fallback to Guaranteed GPS successful for course: ${courseId}`);
+      } catch (fallbackError) {
+        logGPSError(`❌ Both Priority and Guaranteed GPS failed: ${fallbackError}`);
+        throw fallbackError;
+      }
     }
   }
 
@@ -257,23 +250,31 @@ class DirectAndroidGPSService {
 
   async stopTracking(courseId: string): Promise<void> {
     try {
-      logGPS(`🛑 Stopping HYBRID GPS tracking: ${courseId}`);
+      logGPS(`🛑 Stopping PRIORITY GPS tracking: ${courseId}`);
       
-      // 1. Stop Android native GPS service  
-      if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-        const result = window.AndroidGPS.stopGPS(courseId);
-        logGPS(`✅ MainActivity GPS stopped: ${result}`);
-      } else {
-        logGPS(`⚠️ AndroidGPS interface not available - APK only feature`);
+      try {
+        // 1. Stop Priority GPS Service (handles all methods intelligently)
+        const { priorityGPSService } = await import('./priorityGPS');
+        await priorityGPSService.stopGPS(courseId);
+        logGPS(`✅ Priority GPS stopped for course: ${courseId}`);
+      } catch (priorityError) {
+        // Fallback to manual stopping
+        logGPSError(`❌ Priority GPS stop failed, using manual cleanup: ${priorityError}`);
+        
+        // Stop Android native GPS service  
+        if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
+          const result = window.AndroidGPS.stopGPS(courseId);
+          logGPS(`✅ MainActivity GPS stopped: ${result}`);
+        }
+        
+        // Stop guaranteed JavaScript GPS backup
+        await guaranteedGPSService.stopGPS(courseId);
+        logGPS(`✅ Guaranteed GPS backup stopped for course: ${courseId}`);
       }
-      
-      // 2. Stop guaranteed JavaScript GPS backup
-      await guaranteedGPSService.stopGPS(courseId);
-      logGPS(`✅ Guaranteed GPS backup stopped for course: ${courseId}`);
       
       // Remove from local tracking
       this.activeCourses.delete(courseId);
-      logGPS(`✅ HYBRID GPS stopped for course: ${courseId}`);
+      logGPS(`✅ GPS tracking stopped for course: ${courseId}`);
       logGPS(`📊 Active courses after stop: ${this.activeCourses.size}`);
       
     } catch (error) {
