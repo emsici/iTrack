@@ -70,7 +70,7 @@ html, body {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 12px;
+  padding: 0 8px;
 }
 
 .courses-list {
@@ -1085,12 +1085,12 @@ html, body {
 
 /* Courses Grid - Enhanced Organization cu Safe Area */
 .courses-grid {
-  padding: 12px;
-  padding-bottom: calc(env(safe-area-inset-bottom, 12px) + 80px);
+  padding: 8px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 75px);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin: 0 auto 8px auto;
+  gap: 8px;
+  margin: 0 auto 4px auto;
   max-width: 600px;
   width: 100%;
 }
@@ -1967,14 +1967,14 @@ html, body {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 100%);
   backdrop-filter: blur(20px);
   border-top: 1px solid rgba(226, 232, 240, 0.6);
-  padding: 8px 16px;
-  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  padding: 6px 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 100;
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
-  min-height: 70px;
+  min-height: 65px;
 }
 
 .nav-container {
