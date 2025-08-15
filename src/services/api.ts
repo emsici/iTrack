@@ -586,8 +586,17 @@ export const sendGPSData = async (
       } else {
         console.error(`❌ GPS failed: ${response.status}`);
         console.error("Response:", response.data);
-        // EFICIENT: gps.php nu returnează 200 = posibil offline
+        // EFICIENT: gps.php nu returnează 200 = OFFLINE → salvez coordonata offline
         reportGPSError(`HTTP ${response.status}: ${response.data}`, response.status);
+        
+        // SALVARE AUTOMATĂ OFFLINE când serverul nu răspunde cu 200
+        console.log('💾 Salvez coordonată offline - server nu răspunde 200');
+        try {
+          const { offlineGPSService } = await import('./offlineGPS');
+          await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
+        } catch (error) {
+          console.error('❌ Eroare salvare offline:', error);
+        }
         return false;
       }
 
