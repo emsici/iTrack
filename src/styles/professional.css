@@ -3810,3 +3810,45 @@ html, body {
   background: linear-gradient(135deg, #9333ea 0%, #a855f7 100%);
   box-shadow: 0 8px 24px rgba(147, 51, 234, 0.4);
 }
+
+/* LIGHT & BUSINESS THEME - Dark System Status Bar Override */
+.theme-light .corporate-header-professional,
+.theme-business .corporate-header-professional {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%);
+  backdrop-filter: blur(25px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.theme-light .header-brand,
+.theme-business .header-brand {
+  color: white;
+}
+
+.theme-light .header-title,
+.theme-business .header-title {
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.theme-light .header-subtitle,
+.theme-business .header-subtitle {
+  color: #94a3b8;
+}
+
+.theme-light .vehicle-screen-header,
+.theme-business .vehicle-screen-header {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.theme-light .vehicle-screen-header .brand-name,
+.theme-business .vehicle-screen-header .brand-name {
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.theme-light .vehicle-screen-header .brand-subtitle,
+.theme-business .vehicle-screen-header .brand-subtitle {
+  color: #94a3b8;
+}
