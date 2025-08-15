@@ -314,8 +314,8 @@ export const logout = async (token: string): Promise<boolean> => {
     console.log('Starting logout process with Bearer token');
     logAPI('Starting logout process');
     
-    // FIXED: Use explicit URL instead of potentially undefined API_BASE_URL
-    const logoutUrl = 'https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php';
+    // Use centralized API configuration
+    const logoutUrl = `${API_BASE_URL}logout.php`;
     
     // CapacitorHttp pentru logout (unified HTTP method)
     try {
