@@ -7,7 +7,7 @@
 import { logGPS, logGPSError } from './appLogger';
 import { sendGPSData, GPSData } from './api';
 import { Geolocation } from '@capacitor/geolocation';
-import { offlineGPSService } from './offlineGPS';
+// Removed unused import for better performance
 import { sharedTimestampService } from './sharedTimestamp';
 
 interface GPSCourse {
@@ -17,7 +17,7 @@ interface GPSCourse {
   token: string;
   status: number;
   activeMethod: 'android' | 'capacitor' | 'javascript' | 'none';
-  lastSuccessfulTransmission: Date;
+  lastSuccessfulTransmission: string;
 }
 
 interface GPSMethod {
@@ -172,7 +172,7 @@ class PriorityGPSService {
       token,
       status,
       activeMethod: 'none',
-      lastSuccessfulTransmission: new Date()
+      lastSuccessfulTransmission: new Date().toISOString()
     };
 
     // Try methods in priority order
@@ -374,7 +374,7 @@ class PriorityGPSService {
     try {
       const success = await activeMethod.transmit(course);
       if (success) {
-        course.lastSuccessfulTransmission = new Date();
+        course.lastSuccessfulTransmission = new Date().toISOString();
         this.activeCourses.set(course.courseId, course);
       }
     } catch (error) {
