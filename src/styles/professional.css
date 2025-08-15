@@ -1150,13 +1150,13 @@ html, body {
 
 /* Courses Grid - Enhanced Organization cu Safe Area */
 .courses-grid {
-  padding: 8px;
-  padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 75px);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0 auto 4px auto;
-  max-width: 600px;
+  padding: 15px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 15px) + 85px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin: 0 auto;
+  max-width: 1200px;
   width: 100%;
 }
 
@@ -1165,27 +1165,22 @@ html, body {
   background: linear-gradient(135deg, 
     rgba(20, 25, 40, 0.95) 0%,
     rgba(25, 30, 50, 0.95) 100%);
-  /* Reduced backdrop blur for performance */
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  margin: 0 auto 16px auto;
-  max-width: 600px;
-  width: calc(100% - 40px);
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
   overflow: hidden;
-  /* Optimized transitions - only transform for best performance */
-  transition: transform 0.2s ease-out;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
-  /* GPU acceleration optimizations */
   transform: translateZ(0);
   will-change: transform;
   backface-visibility: hidden;
   contain: layout style paint;
-  -webkit-transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
 }
 
 .course-card-enhanced::before {
@@ -1204,18 +1199,20 @@ html, body {
 }
 
 .course-card-enhanced:hover {
-  transform: translateY(-2px) translateZ(0);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  transform: translateY(-3px) translateZ(0);
+  box-shadow: 
+    0 16px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
 .course-header-enhanced {
-  padding: 20px 24px 16px;
+  padding: 18px 20px 14px;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  background: rgba(255, 255, 255, 0.02);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .course-info-section {
@@ -3325,9 +3322,9 @@ html, body {
   
   .courses-grid {
     grid-template-columns: 1fr;
-    padding: 15px;
-    padding-bottom: calc(env(safe-area-inset-bottom, 15px) + 100px);
-    gap: 15px;
+    padding: 12px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 12px) + 85px);
+    gap: 12px;
   }
   
   .course-actions {

@@ -30,7 +30,6 @@ echo.
 echo 🔧 Exemple de utilizare:
 echo   sync-api-config.bat PROD    (trece la productie)
 echo   sync-api-config.bat TEST    (trece la mediul de test)
-echo   sync-api-config.bat DEV     (trece la mediul de dezvoltare)
 echo.
 echo Apasa orice tasta pentru a continua...
 pause
