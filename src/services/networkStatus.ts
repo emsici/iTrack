@@ -12,11 +12,10 @@ class NetworkStatusService {
   private consecutiveFailures: number = 0;
   private statusCallbacks: ((isOnline: boolean) => void)[] = [];
   
-  // Configurări pentru detectare precisă - OPTIMIZAT pentru serviciul Android independent
-  private readonly OFFLINE_THRESHOLD_MS = 120000; // 120 secunde (2 min) - mai mult timp pentru Android GPS independent
-  private readonly MAX_CONSECUTIVE_FAILURES = 5; // 5 eșecuri consecutive = offline (mai tolerant)
-  // Removed unused ONLINE_CONFIRMATION_DELAY
-  private readonly STATUS_CHECK_INTERVAL = 10000; // Verificare la 10 secunde (mai puțin agresiv)
+  // Configurări pentru detectare precisă - REVERT LA PING SIMPLU
+  private readonly OFFLINE_THRESHOLD_MS = 30000; // 30 secunde fără succes = verificare ping
+  private readonly MAX_CONSECUTIVE_FAILURES = 3; // 3 eșecuri consecutive = offline
+  private readonly STATUS_CHECK_INTERVAL = 30000; // Verificare la 30 secunde
 
   constructor() {
     logAPI('🌐 Serviciu status rețea inițializat - detectare bazată pe transmisiile GPS reale');
@@ -99,7 +98,7 @@ class NetworkStatusService {
 
   /**
    * Verificare periodică a status-ului bazată pe timpul ultimei transmisii
-   * FIX: Resetare forțată la offline când nu există internet real
+   * REVERT LA PING SIMPLU - verificare directă connectivity
    */
   private checkNetworkStatus(): void {
     const timeSinceLastSuccess = Date.now() - this.lastSuccessfulTransmission;
@@ -112,19 +111,40 @@ class NetworkStatusService {
     }
     
     if (timeSinceLastSuccess > this.OFFLINE_THRESHOLD_MS && this.isOnline) {
-      logAPI(`⚠️ ${timeSinceLastSuccess}ms fără transmisie GPS reușită - verificăm dacă Android GPS funcționează`);
+      logAPI(`⚠️ ${timeSinceLastSuccess}ms fără transmisie GPS reușită - verificăm conectivitatea`);
       
-      // MODIFICAT: Nu declara offline doar pentru că nu avem transmisii
-      // Serviciul Android poate trimite direct fără să raporteze în frontend
-      if (this.consecutiveFailures >= this.MAX_CONSECUTIVE_FAILURES) {
-        this.setOnlineStatus(false);
-        logAPI('🔴 INTERNET PIERDUT - multiple eșecuri confirmate de transmisie');
-      } else {
-        logAPI('🟡 Timeout transmisie dar fără eșecuri - serviciul Android poate funcționa independent');
-      }
+      // PING TEST SIMPLU pentru verificare reală internet
+      this.performConnectivityTest();
     }
-    
-    // ELIMINAT: Test ping suplimentar - gps.php este suficient pentru verificare
+  }
+
+  /**
+   * Test simplu de conectivitate - verificare directă la server
+   */
+  private async performConnectivityTest(): Promise<void> {
+    try {
+      // Test către endpoint-ul de pe serverul principal
+      await fetch('https://euscagency.com/etsm_prod/js/forms.js', {
+        method: 'HEAD',
+        cache: 'no-cache',
+        mode: 'no-cors' // Pentru a evita CORS issues
+      });
+      
+      // Dacă ajungem aici, avem internet
+      if (this.consecutiveFailures === 0) {
+        // Dacă nu avem eșecuri dar nici GPS success, probabil serviciul Android e oprit
+        logAPI('🟡 Internet OK dar serviciul Android GPS poate fi oprit când telefonul e blocat');
+      } else {
+        // Reset failures dacă internetul merge
+        this.consecutiveFailures = 0;
+        logAPI('🟢 Test conectivitate OK - internet funcționează');
+      }
+      
+    } catch (error) {
+      // Nu avem internet real
+      this.setOnlineStatus(false);
+      logAPI('🔴 INTERNET PIERDUT - test conectivitate eșuat: ' + error);
+    }
   }
   
   /**
