@@ -147,33 +147,37 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     <div className="course-card-enhanced" style={{ marginBottom: '16px' }}>
       <div className="course-header-enhanced">
         <div className="course-info-section">
-          <div className="course-title-enhanced">Transport {course.ikRoTrans || course.id}</div>
-          <div className="course-transport-number">{course.nrVehicul || 'N/A'}</div>
+          <div className="course-title-enhanced">UIT: {course.uit}</div>
         </div>
 
         <div className="course-metadata-enhanced">
-          <div className="course-uit">UIT {course.uit}</div>
           <div className={`course-status-enhanced status-${course.status}`}>
             {getStatusText(course.status)}
           </div>
         </div>
       </div>
 
-      <div className="course-status-row">
-        <span className={`status-badge status-${course.status}`}>
-          {getStatusText(course.status)}
-        </span>
-      </div>
-
       
       <div className="course-preview">
         <div className="preview-row">
-          <span className="preview-label">Plecare:</span>
-          <span className="preview-value">{course.vama || 'N/A'} → {course.vamaStop || 'N/A'}</span>
+          <span className="preview-label">PLECARE:</span>
+          <span className="preview-value">{course.vama || 'ADR'}</span>
         </div>
         <div className="preview-row">
-          <span className="preview-label">Traseu:</span>
-          <span className="preview-value">{course.denumireLocStart || 'N/A'} → {course.denumireLocStop || 'N/A'}</span>
+          <span className="preview-label" style={{ color: '#10b981' }}>SOSIRE:</span>
+          <span className="preview-value" style={{ color: '#10b981' }}>{course.vamaStop || 'ADR'}</span>
+        </div>
+        <div className="preview-row">
+          <span className="preview-label">JUDEȚ PLECARE:</span>
+          <span className="preview-value">{course.Judet || course.judet || 'TM'}</span>
+        </div>
+        <div className="preview-row">
+          <span className="preview-label">JUDEȚ SOSIRE:</span>
+          <span className="preview-value">{course.judetStop || 'TM'}</span>
+        </div>
+        <div className="preview-row">
+          <span className="preview-label">DECLARANT:</span>
+          <span className="preview-value">{course.denumireDeclarant || 'REELE ELECTRICE ROMANIA S.A.'}</span>
         </div>
         
         <button
