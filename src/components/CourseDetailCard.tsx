@@ -656,10 +656,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       <button 
         className="toggle-details-btn"
         onClick={() => {
-          const newState = !showDetails;
-          console.log(`🔍 Toggle details for course ${course.id}: ${newState ? 'EXPAND' : 'COLLAPSE'}`);
-          setShowDetails(newState);
-          console.log(`✅ Course ${course.id} state updated to: ${newState}`);
+          setShowDetails(!showDetails);
         }}
       >
         <i className={`fas ${showDetails ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
