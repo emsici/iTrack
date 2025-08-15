@@ -72,55 +72,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     onStatusUpdate(course.id, newStatus);
   };
 
-
-
-  return (
-    <div className="course-card-enhanced" style={{ marginBottom: '16px' }}>
-      {/* Header with UIT and Status */}
-      <div className="course-header-modern">
-        <div className="uit-display">
-          UIT: {course.uit}
-        </div>
-        <div className={`status-pill status-${course.status}`}>
-          {getStatusText(course.status)}
-        </div>
-      </div>
-
-      {/* Main Info Card */}
-      <div className="course-info-card">
-        <div className="info-row">
-          <span className="info-label">PLECARE:</span>
-          <span className="info-value">{course.vama || 'ADR'}</span>
-        </div>
-        <div className="info-row sosire">
-          <span className="info-label">SOSIRE:</span>
-          <span className="info-value">{course.vamaStop || 'ADR'}</span>
-        </div>
-        <div className="info-row">
-          <span className="info-label">JUDEȚ PLECARE:</span>
-          <span className="info-value">{course.Judet || course.judet || 'TM'}</span>
-        </div>
-        <div className="info-row">
-          <span className="info-label">JUDEȚ SOSIRE:</span>
-          <span className="info-value">HD</span>
-        </div>
-        <div className="info-row declarant">
-          <span className="info-label">DECLARANT:</span>
-          <span className="info-value">{course.denumireDeclarant || 'REELE ELECTRICE ROMANIA S.A.'}</span>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="course-actions-modern">
-        <button 
-          className="details-btn-modern"
-          onClick={() => setShowDetails(!showDetails)}
-        >
-          <i className={`fas ${showDetails ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
-          Detalii complete
-        </button>
-        
-        {course.status === 1 && (
+  const renderActionButtons = () => {
+    switch (course.status) {
+      case 1: // Available
+        return (
           <button 
             className="action-btn-compact btn-start-compact"
             onClick={() => handleAction('start')}
@@ -129,7 +84,135 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
             <i className="fas fa-play"></i>
             Start
           </button>
-        )}
+        );
+      
+      case 2: // In Progress
+        return (
+          <>
+            <button 
+              className="action-btn-compact btn-pause-compact"
+              onClick={() => handleAction('pause')}
+              disabled={isLoading}
+            >
+              <i className="fas fa-pause"></i>
+              Pauză
+            </button>
+            <button 
+              className="action-btn-compact btn-stop-compact"
+              onClick={() => handleAction('stop')}
+              disabled={isLoading}
+            >
+              <i className="fas fa-stop"></i>
+              Stop
+            </button>
+          </>
+        );
+      
+      case 3: // Paused
+        return (
+          <>
+            <button 
+              className="action-btn-compact btn-resume-compact"
+              onClick={() => handleAction('resume')}
+              disabled={isLoading}
+            >
+              <i className="fas fa-play"></i>
+              Resume
+            </button>
+            <button 
+              className="action-btn-compact btn-stop-compact"
+              onClick={() => handleAction('stop')}
+              disabled={isLoading}
+            >
+              <i className="fas fa-stop"></i>
+              Stop
+            </button>
+          </>
+        );
+      
+      case 4: // Completed
+        return (
+          <span className="status-completed-compact">
+            <i className="fas fa-check-circle"></i>
+            Finalizată
+          </span>
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="course-card-enhanced" style={{ marginBottom: '16px' }}>
+      <div className="course-header-enhanced">
+        <div className="course-title-row">
+          <div className="course-left-info">
+            <span className="course-uit">
+              <i className="fas fa-barcode"></i>
+              UIT {course.uit}
+            </span>
+          </div>
+          <h5 className="course-title-enhanced">Cursă #{course.id}</h5>
+        </div>
+        
+        <div className="status-actions-row">
+          <span className={`status-badge status-${course.status}`}>
+            {getStatusText(course.status)}
+          </span>
+          <div className="action-buttons-compact">
+            {renderActionButtons()}
+          </div>
+        </div>
+      </div>
+
+      
+      <div className="course-preview">
+        <div className="preview-row">
+          <span className="preview-label">Plecare:</span>
+          <span className="preview-value">{course.vama || 'N/A'} → {course.vamaStop || 'N/A'}</span>
+        </div>
+        <div className="preview-row">
+          <span className="preview-label">Traseu:</span>
+          <span className="preview-value">{course.denumireLocStart || 'N/A'} → {course.denumireLocStop || 'N/A'}</span>
+        </div>
+        
+        <button
+          className="details-btn"
+          onClick={() => setShowDetails(!showDetails)}
+          style={{
+            marginTop: '12px',
+            width: '100%',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            border: 'none',
+            background: currentTheme === 'dark' 
+              ? 'rgba(255, 255, 255, 0.1)' 
+              : 'rgba(0, 0, 0, 0.05)',
+            color: currentTheme === 'dark' ? '#e2e8f0' : '#374151',
+            fontSize: '12px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = currentTheme === 'dark' 
+              ? 'rgba(255, 255, 255, 0.15)' 
+              : 'rgba(0, 0, 0, 0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = currentTheme === 'dark' 
+              ? 'rgba(255, 255, 255, 0.1)' 
+              : 'rgba(0, 0, 0, 0.05)';
+          }}
+        >
+          <i className={`fas ${showDetails ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
+          {showDetails ? 'Ascunde Detalii Complete' : 'Vezi Detalii Complete'}
+        </button>
       </div>
 
       {showDetails && (
@@ -451,6 +534,19 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           </div>
         </div>
       )}
+
+      <div className="course-actions-enhanced">
+        {isLoading ? (
+          <div className="loading-enhanced">
+            <div className="spinner-enhanced"></div>
+            Se încarcă...
+          </div>
+        ) : (
+          <div className="action-buttons-enhanced">
+            {renderActionButtons()}
+          </div>
+        )}
+      </div>
 
       {/* Route Map Modal */}
       {showRouteMap && courseStats && (
