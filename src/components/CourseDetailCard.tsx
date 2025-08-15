@@ -277,6 +277,29 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
             <div className="detail-section-enhanced">
               <h6 className="section-title-enhanced">
+                <i className="fas fa-flag-checkered"></i>
+                Destinație
+              </h6>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Vamă Stop:</span>
+                <span className="detail-value-enhanced">{course.vamaStop || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Birou Vamal Stop:</span>
+                <span className="detail-value-enhanced">{course.BirouVamalStop || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Județ Stop:</span>
+                <span className="detail-value-enhanced">{course.JudetStop || course.judetStop || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Loc Stop:</span>
+                <span className="detail-value-enhanced">{course.denumireLocStop || 'N/A'}</span>
+              </div>
+            </div>
+
+            <div className="detail-section-enhanced">
+              <h6 className="section-title-enhanced">
                 <i className="fas fa-tachometer-alt"></i>
                 Statistici GPS - UIT {course.uit}
               </h6>
@@ -507,29 +530,6 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                     ? 'Traseu Indisponibil (Min. 2 coordonate)'
                     : `Vezi Traseu pe Hartă (${courseStats.gpsPoints.length} coordonate)`}
                 </button>
-              </div>
-            </div>
-
-            <div className="detail-section-enhanced">
-              <h6 className="section-title-enhanced">
-                <i className="fas fa-flag-checkered"></i>
-                Destinație
-              </h6>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Vamă Stop:</span>
-                <span className="detail-value-enhanced">{course.vamaStop || 'N/A'}</span>
-              </div>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Birou Vamal Stop:</span>
-                <span className="detail-value-enhanced">{course.BirouVamalStop || 'N/A'}</span>
-              </div>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Județ Stop:</span>
-                <span className="detail-value-enhanced">{course.JudetStop || course.judetStop || 'N/A'}</span>
-              </div>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Loc Stop:</span>
-                <span className="detail-value-enhanced">{course.denumireLocStop || 'N/A'}</span>
               </div>
             </div>
           </div>
