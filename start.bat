@@ -33,37 +33,27 @@ if /i "%ENV%"=="PROD" (
 )
 
 echo.
-echo PASUL 2/4 - Building web application...
-call npx vite build
+echo PASUL 2/4 - Rulare build.bat pentru compilare completa...
+call build.bat
 if errorlevel 1 (
-    echo EROARE: Build-ul web a esuat!
+    echo EROARE: Build-ul complet a esuat!
     pause
     exit /b 1
 )
-
-echo PASUL 3/4 - Syncing with Capacitor...
-call npx cap sync android
-if errorlevel 1 (
-    echo EROARE: Capacitor sync a esuat!
-    pause
-    exit /b 1
-)
-
-echo PASUL 4/4 - Opening Android Studio...
-echo.
-call npx cap open android
 
 echo.
 echo ================================
-echo   BUILD %ENV% PROCESS COMPLETED!
+echo   START %ENV% PROCESS COMPLETED!
 echo ================================
 echo.
 echo Environment: %ENV%
-echo Android Studio s-a deschis pentru build-ul final.
+echo Build-ul complet finalizat prin build.bat
+echo Android Studio s-a deschis automat pentru build-ul final.
 echo.
-echo Pentru a finaliza:
-echo 1. In Android Studio, apasa pe "Build" ^> "Build Bundle(s) / APK(s)" ^> "Build APK(s)"
-echo 2. APK-ul va fi generat in: android/app/build/outputs/apk/debug/
-echo 3. Instaleaza APK-ul pe telefon pentru testare
+echo build.bat a facut:
+echo 1. npm install (dependinte)
+echo 2. npx vite build (compilare)
+echo 3. npx cap sync android (sincronizare)
+echo 4. npx cap open android (Android Studio)
 echo.
 pause
