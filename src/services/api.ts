@@ -404,6 +404,10 @@ export const logout = async (token: string): Promise<boolean> => {
         console.error('❌ 403 FORBIDDEN - Server blocking GPS requests');
         console.error('This is a server configuration issue, not authentication');
         console.error('Request URL:', `${API_BASE_URL}gps.php`);
+        console.error('Token preview:', token.substring(0, 50) + '...');
+        console.error('GPS Data:', JSON.stringify(gpsData, null, 2));
+        console.error('Full response:', response);
+        logAPI(`403 FORBIDDEN error for GPS transmission - courseId: ${gpsData.uit}`);
         return false;
       }
       

@@ -214,7 +214,7 @@ class OfflineGPSService {
       // PRIMARY: CapacitorHttp
       try {
         const response = await CapacitorHttp.post({
-          url: `${API_BASE_URL}/gps.php`,
+          url: `${API_BASE_URL}gps.php`,
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${coordinate.token}`,
@@ -230,7 +230,7 @@ class OfflineGPSService {
         console.log('CapacitorHttp failed for offline sync, trying fetch');
         
         // SECONDARY: fetch fallback
-        const response = await fetch(`${API_BASE_URL}/gps.php`, {
+        const response = await fetch(`${API_BASE_URL}gps.php`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
