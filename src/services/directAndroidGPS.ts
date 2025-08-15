@@ -152,11 +152,18 @@ class DirectAndroidGPSService {
         // Already stopped above - this is just for logging consistency
       }
       
-      // Update local tracking
-      const course = this.activeCourses.get(courseId);
-      if (course) {
-        course.status = newStatus;
-        this.activeCourses.set(courseId, course);
+      // Update local tracking - CRITICAL FIX: Remove courses with status 3/4 completely
+      if (newStatus === 3 || newStatus === 4) {
+        logGPS(`🛑 REMOVING course ${courseId} from directAndroidGPS activeCourses - status ${newStatus} (STOP/PAUSE)`);
+        this.activeCourses.delete(courseId);
+        logGPS(`✅ Course ${courseId} REMOVED from directAndroidGPS - ${this.activeCourses.size} courses remaining`);
+      } else {
+        // For other statuses, update the course data
+        const course = this.activeCourses.get(courseId);
+        if (course) {
+          course.status = newStatus;
+          this.activeCourses.set(courseId, course);
+        }
       }
       
       // Direct MainActivity Android GPS interface for status update

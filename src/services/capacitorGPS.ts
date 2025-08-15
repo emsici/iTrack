@@ -81,6 +81,13 @@ class CapacitorGPSService {
     try {
       logGPS(`🔄 Updating Capacitor GPS status: ${courseId} → ${newStatus}`);
       
+      // CRITICAL FIX: Remove from activeCourses for status 3/4 to stop GPS
+      if (newStatus === 3 || newStatus === 4) {
+        logGPS(`🛑 REMOVING course ${courseId} from Capacitor GPS - status ${newStatus} (STOP/PAUSE)`);
+        this.activeCourses.delete(courseId);
+        logGPS(`✅ Course ${courseId} REMOVED from Capacitor GPS - ${this.activeCourses.size} courses remaining`);
+      }
+      
       const result = await AndroidGPS.updateStatus({ courseId, newStatus });
       
       if (result.success) {
