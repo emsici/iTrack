@@ -2,7 +2,18 @@ import { logAPI } from './appLogger';
 import { CapacitorHttp } from '@capacitor/core';
 // Consistent static import to resolve Vite warnings
 
-export const API_BASE_URL = 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/';
+// Centralized API Configuration - Change only here to switch environments
+export const API_CONFIG = {
+  // Production environment
+  PROD: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/',
+  // Test environment  
+  TEST: 'https://www.euscagency.com/etsm3/platforme/transport/apk/',
+  // Development environment (if needed)
+  DEV: 'https://www.euscagency.com/etsm_dev/platforme/transport/apk/'
+};
+
+// Current active environment - Change this single line to switch environments
+export const API_BASE_URL = API_CONFIG.PROD;
 
 // Single request management to prevent conflicts
 let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null = null;
@@ -306,7 +317,7 @@ export const logout = async (token: string): Promise<boolean> => {
     logAPI('Starting logout process');
     
     // FIXED: Use explicit URL instead of potentially undefined API_BASE_URL
-    const logoutUrl = 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/logout.php';
+    const logoutUrl = 'https://www.euscagency.com/etsm3/platforme/transport/apk/logout.php';
     
     // CapacitorHttp pentru logout (unified HTTP method)
     try {

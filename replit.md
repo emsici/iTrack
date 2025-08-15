@@ -21,8 +21,10 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 - **SHARED TIMESTAMP SYSTEM**: Implemented SharedTimestampService for perfect synchronization across all GPS services
 - **TIMESTAMP SYNCHRONIZATION**: All GPS services now use shared timestamp for coordinates within same interval 
 - **CROSS-SERVICE CONSISTENCY**: garanteedGPS, directAndroidGPS, and Android service all use synchronized timestamps
-- **Scroll Performance**: Optimized intervals (connectivity 30s, GPS monitor 20s, offline check 15s)
-- **Hardware Acceleration**: Added CSS GPU rendering with transform3d and will-change  
+- **CENTRALIZED API CONFIG**: Created flexible API_CONFIG system for easy environment switching (PROD/TEST/DEV)
+- **SCROLL PERFORMANCE OPTIMIZED**: Enhanced CSS with GPU acceleration, reduced will-change scope, added contain property
+- **WHITE FLASH ELIMINATION**: Fixed rendering issues during scroll with backface-visibility and translateZ optimization
+- **COURSE CARDS ACCELERATION**: Applied hardware acceleration to course cards and pseudo-elements for smooth scrolling
 - **Individual Course Control**: Fixed bug where starting one course affected all courses
 - **GPS Transmission**: Verified only courses with status 2 (In Progress) transmit GPS data
 

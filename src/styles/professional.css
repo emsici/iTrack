@@ -71,6 +71,13 @@ html, body {
   flex-direction: column;
   gap: 16px;
   width: 100%;
+  /* Performance optimization for smooth scrolling */
+  transform: translateZ(0);
+  -webkit-overflow-scrolling: touch;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* Reduced GPU will-change to prevent white flashes */
+  contain: layout style paint;
 }
 
 .course-card-wrapper {
@@ -1091,6 +1098,12 @@ html, body {
     0 8px 32px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
+  /* GPU acceleration for smooth scrolling */
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
 }
 
 .course-card-enhanced::before {
@@ -1102,6 +1115,10 @@ html, body {
   height: 3px;
   background: linear-gradient(90deg, #3b82f6, #1d4ed8, #60a5fa);
   border-radius: 16px 16px 0 0;
+  /* GPU optimization for pseudo elements */
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-transform: translateZ(0);
 }
 
 .course-card-enhanced:hover {
