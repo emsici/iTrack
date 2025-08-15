@@ -553,10 +553,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     switch (theme) {
       case 'dark': return 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
       case 'light': return 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)';
-      case 'driver': return 'linear-gradient(135deg, #1c1917 0%, #292524 100%)';
-      case 'business': return 'linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%)';
-      case 'nature': return 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)';
-      case 'night': return 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)';
+      case 'driver': return 'linear-gradient(135deg, #1c1917 0%, #292524 50%, #44403c 100%)';
+      case 'business': return 'linear-gradient(135deg, #f8fafc 0%, #ffffff 30%, #e2e8f0 70%, #f1f5f9 100%)';
+      case 'nature': return 'linear-gradient(135deg, #064e3b 0%, #065f46 30%, #047857 70%, #059669 100%)';
+      case 'night': return 'linear-gradient(135deg, #1e1b4b 0%, #312e81 30%, #4338ca 70%, #5b21b6 100%)';
       default: return 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
     }
   };
@@ -565,10 +565,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     switch (theme) {
       case 'dark': return '#f1f5f9';
       case 'light': return '#1e293b';
-      case 'driver': return '#fef3c7';
-      case 'business': return '#1e293b';
-      case 'nature': return '#d1fae5';
-      case 'night': return '#e0e7ff';
+      case 'driver': return '#fff7ed';
+      case 'business': return '#0f172a';
+      case 'nature': return '#ecfdf5';
+      case 'night': return '#f0f4ff';
       default: return '#f1f5f9';
     }
   };
