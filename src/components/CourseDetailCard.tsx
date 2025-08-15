@@ -609,14 +609,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         <div className="preview-row">
           <span className="preview-label">Plecare:</span>
           <span className="preview-value">
-            {course.denumireLocStart || course.vama || course.birouVamal || course.BirouVamal || 'Nespecificat'}
+            {course.denumireLocStart || course.BirouVamal || course.birouVamal || (course.vama !== 'Local' ? course.vama : course.Vama) || 'Nespecificat'}
           </span>
         </div>
         
         <div className="preview-row">
           <span className="preview-label">Sosire:</span>
           <span className="preview-value">
-            {course.birouVamalStop || course.vamaStop || course.denumireLocStop || course.BirouVamalStop || 'Nespecificat'}
+            {course.denumireLocStop || course.BirouVamalStop || course.birouVamalStop || (course.vamaStop !== 'Local' ? course.vamaStop : course.VamaStop) || 'Nespecificat'}
           </span>
         </div>
         
@@ -690,23 +690,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 <span className="detail-label-enhanced">Nr. Vehicul:</span>
                 <span className="detail-value-enhanced">{course.nrVehicul || 'N/A'}</span>
               </div>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">UIT:</span>
-                <span className="detail-value-enhanced">{course.uit}</span>
-              </div>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Data Transport:</span>
-                <span className="detail-value-enhanced">
-                  {course.dataTransport ? 
-                    new Date(course.dataTransport).toLocaleDateString('ro-RO', {
-                      weekday: 'long',
-                      day: '2-digit',
-                      month: '2-digit', 
-                      year: 'numeric'
-                    }) : 'N/A'
-                  }
-                </span>
-              </div>
+
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Vama Plecare:</span>
                 <span className="detail-value-enhanced">{course.vama || course.Vama || 'N/A'}</span>
@@ -739,6 +723,15 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 <span className="detail-label-enhanced">Denumire Loc Stop:</span>
                 <span className="detail-value-enhanced">{course.denumireLocStop || 'N/A'}</span>
               </div>
+
+            </div>
+
+            <div className="detail-section-enhanced">
+              <h6 className="section-title-enhanced">
+                <i className="fas fa-map-marker-alt"></i>
+                Destinație și Transport
+              </h6>
+              
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Data Transport (Sistem):</span>
                 <span className="detail-value-enhanced" style={{
@@ -748,6 +741,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   <i className="fas fa-database" style={{ marginRight: '6px', fontSize: '10px' }}></i>
                   {course.dataTransport ? 
                     new Date(course.dataTransport).toLocaleDateString('ro-RO', {
+                      weekday: 'long',
                       day: '2-digit',
                       month: '2-digit', 
                       year: 'numeric'
@@ -755,32 +749,18 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   }
                 </span>
               </div>
+              
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">UIT:</span>
+                <span className="detail-value-enhanced">{course.uit}</span>
+              </div>
             </div>
 
             <div className="detail-section-enhanced">
               <h6 className="section-title-enhanced">
                 <i className="fas fa-tachometer-alt"></i>
-                Statistici GPS - UIT {course.uit}
+                Statistici GPS Live
               </h6>
-              
-              {/* Data Transport */}
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Data Transport:</span>
-                <span className="detail-value-enhanced" style={{
-                  color: '#8b5cf6',
-                  fontWeight: '700'
-                }}>
-                  <i className="fas fa-calendar-day" style={{ marginRight: '6px', fontSize: '12px' }}></i>
-                  {course.dataTransport ? 
-                    new Date(course.dataTransport).toLocaleDateString('ro-RO', {
-                      weekday: 'long',
-                      day: '2-digit',
-                      month: 'long', 
-                      year: 'numeric'
-                    }) : 'N/A'
-                  }
-                </span>
-              </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Distanță Parcursă:</span>
                 <span className="detail-value-enhanced" style={{
