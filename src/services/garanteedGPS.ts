@@ -312,6 +312,29 @@ class GuaranteedGPSService {
   }
 
   /**
+   * EMERGENCY STOP: Oprește toate cursele și intervalul imediat pentru a preveni race conditions
+   */
+  emergencyStopAll(): void {
+    logGPS(`🚨 EMERGENCY STOP ALL GUARANTEED GPS SERVICES`);
+    
+    this.activeCourses.clear();
+    this.stopBackupInterval();
+    this.isTransmitting = false;
+    
+    // Oprește și AndroidGPS pentru toate cursele dacă există
+    if ((window as any)?.AndroidGPS?.stopAllGPS) {
+      try {
+        const result = (window as any).AndroidGPS.stopAllGPS();
+        logGPS(`🤖 AndroidGPS emergency stop result: ${result}`);
+      } catch (error) {
+        logGPSError(`❌ AndroidGPS emergency stop failed: ${error}`);
+      }
+    }
+    
+    logGPS(`✅ ALL GUARANTEED GPS SERVICES STOPPED - emergency procedure completed`);
+  }
+
+  /**
    * Status info
    */
   getStatus(): { activeCourses: number; isTransmitting: boolean; hasInterval: boolean } {
@@ -324,6 +347,9 @@ class GuaranteedGPSService {
 }
 
 export const guaranteedGPSService = new GuaranteedGPSService();
+
+// Make service globally accessible for cross-service communication
+(window as any).garanteedGPS = guaranteedGPSService;
 
 // Export functions
 export const startGuaranteedGPS = (courseId: string, vehicleNumber: string, uit: string, token: string, status: number) =>

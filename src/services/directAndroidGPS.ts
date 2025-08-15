@@ -118,6 +118,26 @@ class DirectAndroidGPSService {
       
       // CRITICAL: Send status to server FIRST before updating GPS
       console.log(`📡 Sending status ${newStatus} to server for UIT: ${realUIT}`);
+      
+      // IMPORTANT: Stop all other GPS services before status transmission to prevent concurrent transmissions
+      if (newStatus === 3 || newStatus === 4) {
+        console.log(`🛑 PRE-STOPPING all GPS services before ${newStatus === 3 ? 'PAUSE' : 'STOP'} transmission to prevent race conditions`);
+        await this.stopTracking(courseId);
+        
+        // EMERGENCY STOP: Stop all guaranteed GPS services to prevent race conditions
+        if ((window as any).garanteedGPS) {
+          try {
+            (window as any).garanteedGPS.emergencyStopAll();
+            console.log(`🛑 EMERGENCY STOP: All GaranteedGPS services stopped to prevent concurrent transmissions`);
+          } catch (e) {
+            console.log(`⚠️ Could not emergency stop garanteedGPS: ${e}`);
+          }
+        }
+        
+        // Small delay to ensure other services have stopped
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
       await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
       
       // STATUS 2 (START): Setup complete GPS tracking
@@ -126,10 +146,10 @@ class DirectAndroidGPSService {
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
       }
       
-      // STATUS 3 (PAUSE) or STATUS 4 (STOP): Stop GPS transmission
+      // STATUS 3 (PAUSE) or STATUS 4 (STOP): Ensure GPS transmission is completely stopped
       if (newStatus === 3 || newStatus === 4) {
-        console.log(`⏸️ STATUS ${newStatus} (${newStatus === 3 ? 'PAUSE' : 'STOP'}): Stopping GPS for ${courseId}`);
-        await this.stopTracking(courseId);
+        console.log(`⏸️ STATUS ${newStatus} (${newStatus === 3 ? 'PAUSE' : 'STOP'}): Final GPS stop confirmation for ${courseId}`);
+        // Already stopped above - this is just for logging consistency
       }
       
       // Update local tracking
