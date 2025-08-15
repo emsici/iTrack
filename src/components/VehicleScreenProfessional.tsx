@@ -1368,7 +1368,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 }}>
                   <i className="fas fa-info-circle" style={{ 
                     fontSize: '48px', 
-                    color: '#60a5fa', 
+                    color: '#10b981',  // Verde în loc de albastru
                     marginBottom: '20px',
                     display: 'block'
                   }}></i>
