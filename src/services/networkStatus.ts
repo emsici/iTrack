@@ -15,7 +15,6 @@ class NetworkStatusService {
   // Configurări pentru detectare precisă
   private readonly OFFLINE_THRESHOLD_MS = 30000; // 30 secunde fără succes = offline
   private readonly MAX_CONSECUTIVE_FAILURES = 3; // 3 eșecuri consecutive = offline
-  private readonly ONLINE_CONFIRMATION_DELAY = 1000; // 1 secundă după succes = online (mai rapid)
   private readonly STATUS_CHECK_INTERVAL = 3000; // Verificare la 3 secunde pentru răspuns rapid
 
   constructor() {
@@ -197,7 +196,9 @@ export const networkStatusService = new NetworkStatusService();
 // OPTIMIZAT: Export helper functions cu verificare eficientă prin HTTP status
 export const reportGPSSuccess = () => networkStatusService.reportSuccessfulTransmission();
 export const reportGPSError = (error: any, httpStatus?: number) => networkStatusService.reportTransmissionError(error, httpStatus);
-export const onNetworkStatusChange = (callback: (isOnline: boolean) => void) => 
+export const onNetworkStatusChange = (callback: (isOnline: boolean) => void) => {
   networkStatusService.onStatusChange(callback);
+  return () => networkStatusService.removeStatusCallback(callback);
+};
 export const isNetworkOnline = () => networkStatusService.getStatus();
 export const getNetworkStatusInfo = () => networkStatusService.getStatusInfo();

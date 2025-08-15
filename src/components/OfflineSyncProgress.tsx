@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { subscribeToSyncProgress, SyncProgress, hasOfflineGPSData, startOfflineSync } from '../services/offlineSyncStatus';
-import { onNetworkStatusChange, isNetworkOnline, getNetworkStatusInfo } from '../services/networkStatus';
+import { onNetworkStatusChange, getNetworkStatusInfo } from '../services/networkStatus';
 
 interface OfflineSyncProgressProps {
   className?: string;
@@ -70,7 +70,7 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
       unsubscribeNetwork();
       clearInterval(checkInterval);
     };
-  }, []);
+  }, [syncProgress.isActive, isOnline]);
 
   const checkOfflineData = async () => {
     try {
