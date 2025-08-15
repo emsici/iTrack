@@ -10,6 +10,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
 import { offlineGPSService } from './offlineGPS';
 import { sharedTimestampService } from './sharedTimestamp';
+import { getRomanianTimestamp } from './romanianTimestamp';
 
 interface GPSCourse {
   courseId: string;
@@ -176,8 +177,8 @@ class GuaranteedGPSService {
     try {
       logGPS(`🔧 Preparing GPS data for ${course.courseId}...`);
       
-      // Folosește timestamp-ul primit sau generează unul nou (pentru backward compatibility)
-      const uniqueTimestamp = timestamp ? timestamp.toISOString() : new Date().toISOString();
+      // Folosește timestamp-ul primit sau generează unul nou cu ora României
+      const uniqueTimestamp = timestamp ? timestamp.toISOString() : getRomanianTimestamp();
       
       // CRITICAL ANTI-DUPLICATE: Check if PriorityGPS or AndroidGPS already transmitted for this course in this timestamp cycle
       const timestampKey = `guaranteed_gps_${course.courseId}_${uniqueTimestamp}`;

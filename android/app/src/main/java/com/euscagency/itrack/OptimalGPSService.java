@@ -406,17 +406,18 @@ public class OptimalGPSService extends Service {
         double lng = Math.round(location.getLongitude() * 10000000.0) / 10000000.0;
         gpsData.put("lat", lat); // Exact 7 decimale - standard GPS
         gpsData.put("lng", lng); // Exact 7 decimale - standard GPS
-        // TIMESTAMP UTC CORECT - ACELAȘI pentru toate cursele din acest ciclu
+        // TIMESTAMP ORA LOCALĂ ROMÂNIA - ACELAȘI pentru toate cursele din acest ciclu
         // Folosim un timestamp static pentru întregul ciclu GPS
         if (gpsSharedTimestamp == null) {
             gpsSharedTimestamp = new java.util.Date();
         }
-        java.text.SimpleDateFormat utcFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
-        utcFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
-        String sharedTimestamp = utcFormat.format(gpsSharedTimestamp);
+        // CORECTARE CRITICĂ: ORA LOCALĂ ROMÂNIA în loc de UTC
+        java.text.SimpleDateFormat romanianFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault());
+        romanianFormat.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
+        String sharedTimestamp = romanianFormat.format(gpsSharedTimestamp);
         gpsData.put("timestamp", sharedTimestamp);
         
-        Log.d(TAG, "🕒 SHARED TIMESTAMP Android: " + sharedTimestamp + " for course: " + course.courseId);
+        Log.d(TAG, "🕒 TIMESTAMP ROMÂNIA: " + sharedTimestamp + " (Europe/Bucharest) for course: " + course.courseId);
         gpsData.put("viteza", location.getSpeed() * 3.6); // m/s to km/h as float
         gpsData.put("directie", location.getBearing()); // Real bearing as float
         double altitude = location.getAltitude();
