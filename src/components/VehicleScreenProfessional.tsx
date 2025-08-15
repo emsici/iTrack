@@ -320,14 +320,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         keys.forEach(key => {
           if (key.startsWith('course_status_')) {
             localStorage.removeItem(key);
-            console.log(`🧹 Cleared saved status for ${key}`);
+            console.log(`🧹 Status salvat șters pentru ${key}`);
           }
         });
       } catch (error) {
-        console.error('Failed to clear course statuses:', error);
+        console.error('Eșec la ștergerea statusurilor curselor:', error);
       }
       
-      console.log('✅ Complete logout finished - all GPS transmissions stopped');
+      console.log('✅ Logout complet finalizat - toate transmisiile GPS oprite');
       onLogout();
     } catch (error) {
       console.error("Eroare la logout:", error);
@@ -355,12 +355,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   };
 
   const handleCourseStatusUpdate = async (courseId: string, newStatus: number) => {
-    console.log(`Processing course action: ${courseId}`);
+    console.log(`Se procesează acțiunea pentru cursa: ${courseId}`);
 
     try {
       const courseToUpdate = courses.find((c) => c.id === courseId);
       if (!courseToUpdate) {
-        console.error("Course not found:", courseId);
+        console.error("Cursa nu a fost găsită:", courseId);
         return;
       }
 
@@ -377,39 +377,39 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       try {
         const statusKey = `course_status_${courseToUpdate.uit}`;
         localStorage.setItem(statusKey, newStatus.toString());
-        console.log(`💾 Saved status ${newStatus} for UIT ${courseToUpdate.uit}`);
+        console.log(`💾 Status ${newStatus} salvat pentru UIT ${courseToUpdate.uit}`);
       } catch (error) {
-        console.error('Failed to save course status:', error);
+        console.error('Eșec la salvarea statusului cursei:', error);
       }
 
-      console.log(`=== STATUS UPDATE START ===`);
-      console.log(`Course: ${courseId}, Status: ${courseToUpdate.status} → ${newStatus}`);
-      console.log(`UIT REAL: ${courseToUpdate.uit}, Vehicle: ${vehicleNumber}`);
-      console.log(`Token available: ${!!token}, Token length: ${token?.length || 0}`);
+      console.log(`=== ÎNCEPUT ACTUALIZARE STATUS ===`);
+      console.log(`Cursă: ${courseId}, Status: ${courseToUpdate.status} → ${newStatus}`);
+      console.log(`UIT REAL: ${courseToUpdate.uit}, Vehicul: ${vehicleNumber}`);
+      console.log(`Token disponibil: ${!!token}, Lungime token: ${token?.length || 0}`);
 
-      // Request GPS permissions first if starting course
+      // Solicită permisiuni GPS mai întâi dacă se pornește cursa
       if (newStatus === 2) {
-        console.log('🔍 Requesting GPS permissions for course start...');
+        console.log('🔍 Se solicită permisiuni GPS pentru pornirea cursei...');
         toast.info('Pornire cursă', 'Se pornește urmărirea GPS...');
         try {
           await Geolocation.requestPermissions();
-          console.log('✅ GPS permissions granted');
+          console.log('✅ Permisiuni GPS acordate');
         } catch (permError) {
-          console.log('⚠️ GPS permissions not immediately granted:', permError);
-          console.log('📱 APK Environment: Permissions will be requested by Android service');
-          console.log('✅ Continuing course start - GPS service will handle permissions');
+          console.log('⚠️ Permisiuni GPS nu acordate imediat:', permError);
+          console.log('📱 Mediu APK: Permisiunile vor fi solicitate de serviciul Android');
+          console.log('✅ Se continuă pornirea cursei - serviciul GPS va gestiona permisiunile');
         }
       }
 
       // GPS logic handled by directAndroidGPS service
       try {
-        console.log(`🎯 Delegating all GPS logic to directAndroidGPS service`);
-        console.log(`📞 Calling updateCourseStatus with UIT: ${courseToUpdate.uit} (not ID: ${courseId})`);
-        console.log(`📱 Platform info: ${navigator.userAgent.includes('Android') ? 'Android' : 'Browser'}`);
+        console.log(`🎯 Se delegă toată logica GPS la serviciul directAndroidGPS`);
+        console.log(`📞 Se apelează updateCourseStatus cu UIT: ${courseToUpdate.uit} (nu ID: ${courseId})`);
+        console.log(`📱 Info platformă: ${navigator.userAgent.includes('Android') ? 'Android' : 'Browser'}`);
         
-        // CRITICAL FIX: Use UIT instead of courseId for GPS service
+        // CRITICAL FIX: Folosește UIT în loc de courseId pentru serviciul GPS
         await updateCourseStatus(courseToUpdate.uit, newStatus);
-        console.log(`✅ Course ${courseToUpdate.uit} status updated to ${newStatus} successfully`);
+        console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);
         
         const statusNames = { 1: 'Disponibilă', 2: 'În progres', 3: 'Pauzată', 4: 'Finalizată' };
         toast.success('Status actualizat!', `Cursa este acum "${statusNames[newStatus as keyof typeof statusNames]}"`);
@@ -436,9 +436,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Status already updated above - no duplicate update needed
 
       logAPI(`Course ${courseToUpdate.uit} status updated successfully to ${newStatus}`);
-      console.log(`=== STATUS UPDATE COMPLETE ===`);
+      console.log(`=== ACTUALIZARE STATUS COMPLETĂ ===`);
     } catch (error) {
-      console.error("Status update error:", error);
+      console.error("Eroare actualizare status:", error);
       logAPIError(`Status update failed: ${error}`);
       
       // Use setError instead of alert for better UX
@@ -448,7 +448,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Clear error after 5 seconds
       setTimeout(() => setError(''), 5000);
     } finally {
-      console.log(`Course action completed: ${courseId}`);
+      console.log(`Acțiune cursă finalizată: ${courseId}`);
     }
   };
 

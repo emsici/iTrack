@@ -424,12 +424,12 @@ export const logout = async (token: string): Promise<boolean> => {
 ) => {
   try {
     if (!token || token.trim() === "") {
-      console.error("GPS transmission failed: No Bearer token provided");
+      console.error("Transmisia GPS a eșuat: Nu s-a furnizat Bearer token");
       return false;
     }
 
     const gpsData = JSON.parse(jsonString);
-    console.log("GPS from Android service:", {
+    console.log("GPS de la serviciul Android:", {
       courseId: gpsData.uit,
       lat: gpsData.lat,
       lng: gpsData.lng,
@@ -457,9 +457,9 @@ export const logout = async (token: string): Promise<boolean> => {
       console.log("Data:", response.data);
 
       if (response.status === 401) {
-        console.error("❌ 401 UNAUTHORIZED - Android GPS Token rejected");
-        console.error("Full token used:", `Bearer ${token}`);
-        console.error("Request URL:", `${API_BASE_URL}gps.php`);
+        console.error("❌ 401 NEAUTORIZAT - Token GPS Android respins");
+        console.error("Token complet folosit:", `Bearer ${token}`);
+        console.error("URL cerere:", `${API_BASE_URL}gps.php`);
         return false;
       } else if (response.status === 403) {
         console.error(
@@ -480,13 +480,13 @@ export const logout = async (token: string): Promise<boolean> => {
 
       if (response.status >= 200 && response.status < 300) {
         console.log(
-          "GPS successfully sent via CapacitorHttp for course",
+          "GPS transmis cu succes prin CapacitorHttp pentru cursa",
           gpsData.uit,
         );
         return true;
       }
 
-      console.error("GPS server rejected data:", response.status);
+      console.error("Serverul GPS a respins datele:", response.status);
       return false;
     } catch (capacitorError: any) {
       console.error(

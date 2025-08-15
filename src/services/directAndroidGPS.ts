@@ -81,14 +81,14 @@ class DirectAndroidGPSService {
         gsm_signal: navigator.onLine ? ((navigator as any).connection?.effectiveType === '4g' ? 4 : 3) : 1
       };
 
-      console.log(`📡 Sending status ${status} to server for UIT: ${uit}`);
-      console.log(`🕒 DirectAndroidGPS SHARED TIMESTAMP: ${timestamp} (${new Date(timestamp).getTime()})`);
+      console.log(`📡 Se trimite status ${status} la server pentru UIT: ${uit}`);
+      console.log(`🕒 DirectAndroidGPS TIMESTAMP PARTAJAT: ${timestamp} (${new Date(timestamp).getTime()})`);
       const success = await sendGPSData(gpsData, token);
       
       if (success) {
-        console.log(`✅ Status ${status} sent successfully to server`);
+        console.log(`✅ Status ${status} trimis cu succes la server`);
       } else {
-        console.log(`❌ Status ${status} failed - saving offline for later sync`);
+        console.log(`❌ Status ${status} eșuat - se salvează offline pentru sincronizare`);
         
         // SAVE TO OFFLINE STORAGE when transmission fails
         try {

@@ -12,6 +12,15 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 - **Client Presentation**: PREZENTARE_CLIENTI_iTrack.md (ready-to-use document for client meetings and proposals)
 
 ## Recent Performance Optimizations (15/08/2025)
+
+### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 14:30**
+- **LOG-URI COMPLET TRADUSE ÎN ROMÂNĂ**: Toate mesajele de debug și log-urile GPS în limba română pentru experiență mai bună
+- **FIX DUPLICATE GPS TRANSMISSIONS**: Implementat sistem anti-duplicat între Priority GPS, Guaranteed GPS și Android service
+- **DEBUG PANEL INLINE**: Debug panel-ul apare SUB lista de curse, nu înlocuiește pagina - experiență live debugging 
+- **PAUZĂ/STOP IMMEDIATE FIX**: Când se dă PAUZĂ, se opresc TOATE serviciile GPS simultan fără transmisii suplimentare
+- **REAL-TIME LOG MONITORING**: Log-uri în timp real în debug panel cu actualizare automată la 2 secunde
+
+## Recent Performance Optimizations (15/08/2025)
 - **DEBUG LOGS CLEANUP**: Removed excessive debugging messages from console
   - Eliminated "AndroidGPS verification PASSED" messages
   - Cleaned "APK DEBUG: Starting course loading process" logs  
