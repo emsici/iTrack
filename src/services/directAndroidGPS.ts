@@ -303,6 +303,8 @@ class DirectAndroidGPSService {
     return this.activeCourses.size > 0;
   }
 
+
+
   async logoutClearAll(): Promise<void> {
     try {
       logGPS(`🧹 LOGOUT: Clearing all GPS data and stopping all transmissions`);

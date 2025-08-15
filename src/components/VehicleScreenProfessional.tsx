@@ -425,11 +425,27 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // GPS logic handled by directAndroidGPS service
       try {
         console.log(`🎯 Se delegă toată logica GPS la serviciul directAndroidGPS`);
-        console.log(`📞 Se apelează updateCourseStatus cu UIT: ${courseToUpdate.uit} (nu ID: ${courseId})`);
+        console.log(`📞 Se apelează funcția GPS cu UIT: ${courseToUpdate.uit} (nu ID: ${courseId})`);
         console.log(`📱 Info platformă: ${navigator.userAgent.includes('Android') ? 'Android' : 'Browser'}`);
         
-        // CRITICAL FIX: Folosește UIT în loc de courseId pentru serviciul GPS
-        await updateCourseStatus(courseToUpdate.uit, newStatus);
+        if (newStatus === 2) {
+          // For STATUS 2 (START/RESUME), check if course needs to be started or just resumed
+          const { hasActiveCourses, getActiveCourses } = await import('../services/directAndroidGPS');
+          const activeCourses = getActiveCourses();
+          
+          if (activeCourses.includes(courseToUpdate.uit)) {
+            console.log(`▶️ RESUME: Cursa ${courseToUpdate.uit} există deja - se actualizează status la ACTIV`);
+            await updateCourseStatus(courseToUpdate.uit, newStatus);
+          } else {
+            console.log(`🚀 START: Cursă nouă ${courseToUpdate.uit} - se pornește GPS complet cu toate datele`);
+            const { startGPSTracking } = await import('../services/directAndroidGPS');
+            await startGPSTracking(courseToUpdate.uit, vehicleNumber, courseToUpdate.uit, token, newStatus);
+          }
+        } else {
+          // For all other statuses (PAUSE, STOP, etc), use updateCourseStatus
+          await updateCourseStatus(courseToUpdate.uit, newStatus);
+        }
+        
         console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);
         
         // Show success toast after successful API call
