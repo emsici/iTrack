@@ -145,9 +145,28 @@ class DirectAndroidGPSService {
       
       // STEP 3: Handle GPS coordinate transmission for START/RESUME
       if (newStatus === 2) {
-        console.log(`🚀 STEP 3: STARTING GPS coordinates after START/RESUME status transmission`);
-        await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
-        console.log(`✅ GPS coordinates STARTED after START/RESUME status`);
+        console.log(`🚀 STEP 3: FORȚARE START GPS coordinates după transmisie status`);
+        console.log(`📋 PARAMETRI GPS: courseId=${courseId}, vehicleNumber=${vehicleNumber}, UIT=${realUIT}, status=${newStatus}`);
+        
+        try {
+          await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
+          console.log(`✅ GPS coordinates PORNIT CU SUCCES după status START/RESUME`);
+          
+          // FORCE DIAGNOSTIC - verifică dacă serviciul a pornit cu adevărat
+          setTimeout(() => {
+            console.log(`🔍 DIAGNOSTIC DUPĂ 3s: Curse active în directAndroidGPS: ${this.activeCourses.size}`);
+            console.log(`🔍 Cursele active: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
+            
+            if (window.AndroidGPS && typeof window.AndroidGPS.isDiagnosticRunning === 'function') {
+              const diagnostic = window.AndroidGPS.isDiagnosticRunning();
+              console.log(`🔍 Android GPS Service Status: ${diagnostic}`);
+            }
+          }, 3000);
+          
+        } catch (startError) {
+          console.error(`❌ EROARE CRITICĂ la pornirea GPS: ${startError}`);
+          throw startError;
+        }
       }
       
       // Update local tracking - CRITICAL FIX: Remove courses with status 3/4 completely
@@ -187,18 +206,23 @@ class DirectAndroidGPSService {
     status: number
   ): Promise<void> {
     try {
-      logGPS(`🚀 Starting GPS tracking (June 26th method): ${courseId}`);
+      console.log(`🚀 ÎNCEPUT FORȚAT GPS tracking pentru: ${courseId}`);
+      console.log(`📋 PARAMETRI COMPLETI: vehicleNumber=${vehicleNumber}, UIT=${uit}, status=${status}`);
       
       const courseData: ActiveCourse = { courseId, vehicleNumber, uit, token, status };
       this.activeCourses.set(courseId, courseData);
       
-      console.log(`📊 Active courses after start: ${this.activeCourses.size}`);
-      console.log(`🗂️ Courses in map: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
+      console.log(`✅ CURSĂ ADĂUGATĂ în activeCourses: ${this.activeCourses.size} total`);
+      console.log(`🗂️ Cursele în memorie: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
       
-      // HYBRID: June 26th format + Android background service for phone locked
+      // FORCE START - Android background service cu verificare
+      console.log(`🔧 PORNIRE FORȚATĂ Android GPS service...`);
       await this.startHybridGPS_June26thFormat_AndroidBackground(courseData);
       
+      console.log(`✅ startTracking COMPLET - GPS service ar trebui să ruleze acum`);
+      
     } catch (error) {
+      console.error(`❌ EROARE CRITICĂ în startTracking: ${error}`);
       logGPSError(`❌ GPS start error: ${error}`);
       throw error;
     }
@@ -221,12 +245,22 @@ class DirectAndroidGPSService {
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
-    logGPS(`🎯 ANDROID GPS: Starting direct Android GPS service`);
+    console.log(`🎯 ANDROID GPS: ÎNCEPE serviciul Android GPS`);
+    console.log(`📋 DETALII SERVICIU: courseId=${courseId}, vehicleNumber=${vehicleNumber}, UIT=${uit}, status=${status}`);
     
     try {
+      console.log(`🔧 APELARE guaranteedGPSService.startGuaranteedGPS...`);
       await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-      logGPS(`✅ Android GPS started successfully for course: ${courseId}`);
+      console.log(`✅ Android GPS SERVICE PORNIT CU SUCCES pentru: ${courseId}`);
+      
+      // VERIFICARE IMEDIATĂ
+      setTimeout(() => {
+        console.log(`🔍 VERIFICARE DUPĂ 2s - Android GPS service ar trebui să transmită acum coordonate`);
+        logGPS(`🔍 GPS Service verificare - cursa ${courseId} ar trebui să fie activă`);
+      }, 2000);
+      
     } catch (guaranteedError) {
+      console.error(`❌ EROARE GRAVĂ Android GPS: ${guaranteedError}`);
       logGPSError(`❌ Android GPS failed: ${guaranteedError}`);
       throw guaranteedError;
     }

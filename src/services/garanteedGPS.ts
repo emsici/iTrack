@@ -56,7 +56,7 @@ class GuaranteedGPSService {
    */
   private async tryAndroidGPS(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
     // Direct Android GPS service call
-    if (window.AndroidGPS && window.AndroidGPS.startGPS) {
+    if (window.AndroidGPS && typeof window.AndroidGPS.startGPS === 'function') {
       const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
       logGPS(`✅ GPS nativ Android pornit: ${result}`);
     } else {

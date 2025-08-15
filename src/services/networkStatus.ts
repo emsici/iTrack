@@ -111,7 +111,15 @@ class NetworkStatusService {
     }
     
     if (timeSinceLastSuccess > this.OFFLINE_THRESHOLD_MS && this.isOnline) {
-      logAPI(`⚠️ ${timeSinceLastSuccess}ms fără transmisie GPS reușită - posibil offline`);
+      logAPI(`⚠️ DIAGNOSTIC GPS: ${timeSinceLastSuccess}ms fără transmisie GPS reușită - verificând serviciul...`);
+      
+      // Verifică dacă serviciul GPS Android rulează
+      if (window.AndroidGPS && typeof window.AndroidGPS.isDiagnosticRunning === 'function') {
+        const diagnostic = window.AndroidGPS.isDiagnosticRunning();
+        logAPI(`🔍 GPS Android Diagnostic: ${diagnostic}`);
+      } else {
+        logAPI(`🔍 GPS Android nu este disponibil - rulează doar în browser`);
+      }
       
       if (this.consecutiveFailures > 0) {
         this.setOnlineStatus(false);
