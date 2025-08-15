@@ -12,12 +12,12 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 - **Client Presentation**: PREZENTARE_CLIENTI_iTrack.md (ready-to-use document for client meetings and proposals)
 
 ## Modern Card Design Implementation (15/08/2025)
-- **COMPLETE CARD REDESIGN**: Rebuilt CourseDetailCard layout to match user's preferred design
-- **MODERN LAYOUT STRUCTURE**: Header with UIT + Status, organized info card, action buttons at bottom
-- **PERFECT THEME ADAPTATION**: All 6 themes (Dark, Light, Business, Driver, Nature, Night) have specific styling
-- **RESPONSIVE INFO DISPLAY**: PLECARE, SOSIRE, JUDEȚ fields with proper spacing and typography
-- **ENHANCED BUTTON DESIGN**: Modern "Detalii complete" and action buttons with theme-specific colors
-- **CLEAN VISUAL HIERARCHY**: Proper contrast and color coding (green for SOSIRE, themed labels/values)
+- **COMPLETE CARD REDESIGN**: Rebuilt CourseDetailCard layout to EXACTLY match user's reference image
+- **PERFECT LAYOUT STRUCTURE**: UIT + Status header, organized info card middle, action buttons bottom
+- **OPTIMAL THEME ADAPTATION**: All 6 themes (Dark, Light, Business, Driver, Nature, Night) with performance-optimized styling
+- **RESPONSIVE INFO DISPLAY**: PLECARE, SOSIRE (green), JUDEȚ PLECARE, JUDEȚ SOSIRE, DECLARANT fields
+- **PERFORMANCE OPTIMIZED**: Removed heavy GPU effects (backdrop-filter, box-shadow) for smooth performance on older phones
+- **CLEAN VISUAL HIERARCHY**: Proper contrast, simplified transitions, optimized for fast scrolling
 
 ## Recent Performance Optimizations (15/08/2025)
 - **GPS FUNCTIONALITY RESTORED**: Fixed GPS button functionality for Android APK deployment
