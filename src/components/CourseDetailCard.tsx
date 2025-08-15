@@ -678,8 +678,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 <span className="detail-value-enhanced">{course.nrVehicul || 'N/A'}</span>
               </div>
               <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Data Transport:</span>
-                <span className="detail-value-enhanced">
+                <span className="detail-label-enhanced">Data Transport (Sistem):</span>
+                <span className="detail-value-enhanced" style={{
+                  color: currentTheme === 'dark' ? '#9ca3af' : '#64748b',
+                  fontSize: '12px'
+                }}>
+                  <i className="fas fa-database" style={{ marginRight: '6px', fontSize: '10px' }}></i>
                   {course.dataTransport ? 
                     new Date(course.dataTransport).toLocaleDateString('ro-RO', {
                       day: '2-digit',
@@ -696,6 +700,25 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 <i className="fas fa-tachometer-alt"></i>
                 Statistici GPS - UIT {course.uit}
               </h6>
+              
+              {/* Data Transport */}
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Data Transport:</span>
+                <span className="detail-value-enhanced" style={{
+                  color: '#8b5cf6',
+                  fontWeight: '700'
+                }}>
+                  <i className="fas fa-calendar-day" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                  {course.dataTransport ? 
+                    new Date(course.dataTransport).toLocaleDateString('ro-RO', {
+                      weekday: 'long',
+                      day: '2-digit',
+                      month: 'long', 
+                      year: 'numeric'
+                    }) : 'N/A'
+                  }
+                </span>
+              </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Distanță Parcursă:</span>
                 <span className="detail-value-enhanced" style={{
