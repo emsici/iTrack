@@ -1195,95 +1195,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             </div>
 
-            {/* Third Row - Integrated Status & Sync Progress */}
+            {/* ROW 2: Clean Layout - No duplicated indicators */}
             <div style={{
-              marginTop: '15px',
-              marginBottom: '5px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '10px'
+              marginTop: '10px',
+              marginBottom: '5px'
             }}>
-              {/* ELIMINAT - Duplicare cu indicatorul din header */}
-              
-              {/* Sync Progress Bar - Only when offline and syncing */}
-              {!isOnline && offlineGPSCount > 0 && (
-                <div style={{
-                  width: '200px',
-                  background: currentTheme === 'light' || currentTheme === 'business'
-                    ? 'rgba(255, 255, 255, 0.9)'
-                    : currentTheme === 'nature'
-                      ? 'rgba(6, 78, 59, 0.6)'
-                      : currentTheme === 'night'
-                        ? 'rgba(30, 27, 75, 0.6)'
-                        : currentTheme === 'driver'
-                          ? 'rgba(28, 25, 23, 0.6)'
-                          : 'rgba(30, 41, 59, 0.6)',
-                  border: currentTheme === 'light' || currentTheme === 'business'
-                    ? '1px solid rgba(203, 213, 225, 0.4)'
-                    : '1px solid rgba(148, 163, 184, 0.3)',
-                  borderRadius: '12px',
-                  padding: '8px 12px',
-                  fontSize: '10px'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '4px',
-                    color: currentTheme === 'light' || currentTheme === 'business'
-                      ? '#64748b' 
-                      : currentTheme === 'nature'
-                        ? '#d1fae5'  // Verde deschis pentru Nature
-                        : currentTheme === 'driver'
-                          ? '#fef3c7'  // Galben deschis pentru Driver
-                          : currentTheme === 'night'
-                            ? '#e0e7ff'  // Violet deschis pentru Night
-                            : '#cbd5e1'  // Default pentru Dark
-                  }}>
-                    <span>Sincronizare GPS</span>
-                    <span>{offlineGPSCount} coord.</span>
-                  </div>
-                  
-                  {/* Progress Bar */}
-                  <div style={{
-                    width: '100%',
-                    height: '4px',
-                    background: currentTheme === 'light' || currentTheme === 'business'
-                      ? 'rgba(203, 213, 225, 0.5)'
-                      : 'rgba(148, 163, 184, 0.2)',
-                    borderRadius: '2px',
-                    overflow: 'hidden',
-                    position: 'relative'
-                  }}>
-                    <div style={{
-                      height: '100%',
-                      background: currentTheme === 'nature'
-                        ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)'
-                        : currentTheme === 'night'
-                          ? 'linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%)'
-                          : currentTheme === 'driver'
-                            ? 'linear-gradient(90deg, #f97316 0%, #ea580c 100%)'
-                            : 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
-                      width: '60%', // Simulate progress  
-                      borderRadius: '2px'
-                      // Removed animation for better performance
-                    }} />
-                  </div>
-                </div>
-              )}
+              {/* Reserved space for clean layout */}
             </div>
             
-            {/* Offline Sync Progress - Performance Optimized */}
+            {/* ROW 3: Offline Sync Progress - Professional Layout */}
             <div style={{ 
-              marginTop: '10px', 
+              marginTop: '15px',
               width: '100%', 
               maxWidth: '500px', 
-              margin: '10px auto 0 auto',
-              contain: 'layout style paint',
-              /* REMOVED willChange pentru ZERO lag la scroll */
+              margin: '15px auto 0 auto',
+              padding: '0 20px',
+              contain: 'layout style paint'
             }}>
-              <OfflineSyncProgress className="offline-monitor-header-style" />
+              <OfflineSyncProgress className="offline-sync-row-professional" />
             </div>
           </div>
 

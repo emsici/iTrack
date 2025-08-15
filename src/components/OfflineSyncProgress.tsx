@@ -89,92 +89,84 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
 
   // ALWAYS RENDER: Show status whether online, offline, syncing, or idle
   return (
-    <div className={`offline-sync-progress ${className}`}>
+    <div 
+      className={`offline-sync-progress ${className}`}
+      style={{
+        width: '100%',
+        background: 'rgba(0, 0, 0, 0.05)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: '16px',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        padding: '12px 16px',
+        fontSize: '14px',
+        fontWeight: '500'
+      }}
+    >
       {syncProgress.isActive ? (
-        // Active sync progress
-        <div className="sync-active">
-          <div className="sync-header">
-            <div className="sync-icon">
-              <i className="fas fa-sync-alt spinning"></i>
+        // Active sync progress - Professional design
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ color: '#10b981' }}>
+              <i className="fas fa-sync-alt" style={{ animation: 'spin 1s linear infinite' }}></i>
             </div>
-            <div className="sync-info">
-              <div className="sync-title">🟢 ONLINE - Sincronizare GPS Offline</div>
-              <div className="sync-stats">
-                {syncProgress.synced}/{syncProgress.totalToSync} coordonate trimise ({syncProgress.percentage}%)
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#10b981' }}>
+                🟢 SINCRONIZARE OFFLINE
+              </div>
+              <div style={{ fontSize: '11px', opacity: 0.8 }}>
+                {syncProgress.synced}/{syncProgress.totalToSync} coordonate ({syncProgress.percentage}%)
               </div>
             </div>
           </div>
-          
-          <div className="progress-bar-container">
-            <div className="progress-bar">
-              <div 
-                className={`progress-fill ${syncProgress.isActive ? 'syncing' : ''}`}
-                style={{ 
-                  width: `${syncProgress.percentage}%`,
-                  willChange: syncProgress.isActive ? 'width' : 'auto'
-                }}
-              ></div>
-            </div>
-            <div className="progress-text">
-              {syncProgress.percentage}%
-            </div>
+          <div style={{ 
+            minWidth: '60px', 
+            textAlign: 'right', 
+            fontSize: '12px',
+            fontWeight: '600'
+          }}>
+            {syncProgress.estimatedTimeRemaining || `${syncProgress.percentage}%`}
           </div>
-          
-          {syncProgress.estimatedTimeRemaining && (
-            <div className="time-estimate">
-              Timp rămas: {syncProgress.estimatedTimeRemaining}
-            </div>
-          )}
-          
-          {syncProgress.lastError && (
-            <div className="error-message">
-              ⚠️ {syncProgress.lastError}
-            </div>
-          )}
         </div>
       ) : (
-        // Status display - ALWAYS VISIBLE
-        <div className="sync-pending">
-          <div className="sync-header">
-            <div className="sync-icon">
+        // Status display - Professional and clean
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ 
+              color: hasOfflineData ? '#f59e0b' : isOnline ? '#10b981' : '#ef4444' 
+            }}>
               <i className={`fas ${hasOfflineData ? 'fa-cloud-upload-alt' : isOnline ? 'fa-satellite-dish' : 'fa-wifi-slash'}`}></i>
             </div>
-            <div className="sync-info">
-              <div className="sync-title">
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: '600' }}>
                 {hasOfflineData 
-                  ? 'GPS Offline - Sincronizare Automată' 
+                  ? '🟡 COORDONATE OFFLINE' 
                   : isOnline 
-                    ? 'GPS Online - Monitorizare Activă'
-                    : 'GPS Offline - În Așteptare'
+                    ? '🟢 GPS ONLINE'
+                    : '🔴 GPS OFFLINE'
                 }
               </div>
-              <div className="sync-stats">
+              <div style={{ fontSize: '11px', opacity: 0.8 }}>
                 {syncProgress.totalToSync > 0 
-                  ? `${syncProgress.totalToSync} coordonate GPS offline`
+                  ? `${syncProgress.totalToSync} coordonate în așteptare`
                   : hasOfflineData 
-                    ? 'Coordonate offline detectate'
+                    ? 'Se vor sincroniza automat'
                     : isOnline
-                      ? 'Toate coordonatele sunt sincronizate'
-                      : 'Coordonatele se salvează offline'
+                      ? 'Transmisie normală activă'
+                      : 'Se salvează offline'
                 }
               </div>
             </div>
           </div>
-          
-          <div className="offline-status">
-            <span className={`network-status ${isOnline ? 'online' : 'offline'}`}>
-              {isOnline ? '🟢 ONLINE' : '🔴 OFFLINE'}
-            </span>
-            <div className="auto-sync-note">
-              {hasOfflineData 
-                ? isOnline 
-                  ? '🔄 Se va sincroniza automat în câteva secunde...'
-                  : '📡 Se va sincroniza când revine internetul'
-                : isOnline
-                  ? '✅ GPS funcționează normal - coordonatele se transmit direct'
-                  : '⏳ Coordonatele se salvează offline pentru sincronizare ulterioară'
-              }
-            </div>
+          <div style={{ 
+            fontSize: '11px', 
+            opacity: 0.7,
+            textAlign: 'right',
+            maxWidth: '100px'
+          }}>
+            {hasOfflineData 
+              ? isOnline ? 'Pornind sync...' : 'La revenire'
+              : isOnline ? 'În funcțiune' : 'În așteptare'
+            }
           </div>
         </div>
       )}
