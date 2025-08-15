@@ -72,76 +72,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     onStatusUpdate(course.id, newStatus);
   };
 
-  const renderActionButtons = () => {
-    switch (course.status) {
-      case 1: // Available
-        return (
-          <button 
-            className="action-btn-compact btn-start-compact"
-            onClick={() => handleAction('start')}
-            disabled={isLoading}
-          >
-            <i className="fas fa-play"></i>
-            Start
-          </button>
-        );
-      
-      case 2: // In Progress
-        return (
-          <>
-            <button 
-              className="action-btn-compact btn-pause-compact"
-              onClick={() => handleAction('pause')}
-              disabled={isLoading}
-            >
-              <i className="fas fa-pause"></i>
-              Pauză
-            </button>
-            <button 
-              className="action-btn-compact btn-stop-compact"
-              onClick={() => handleAction('stop')}
-              disabled={isLoading}
-            >
-              <i className="fas fa-stop"></i>
-              Stop
-            </button>
-          </>
-        );
-      
-      case 3: // Paused
-        return (
-          <>
-            <button 
-              className="action-btn-compact btn-resume-compact"
-              onClick={() => handleAction('resume')}
-              disabled={isLoading}
-            >
-              <i className="fas fa-play"></i>
-              Resume
-            </button>
-            <button 
-              className="action-btn-compact btn-stop-compact"
-              onClick={() => handleAction('stop')}
-              disabled={isLoading}
-            >
-              <i className="fas fa-stop"></i>
-              Stop
-            </button>
-          </>
-        );
-      
-      case 4: // Completed
-        return (
-          <span className="status-completed-compact">
-            <i className="fas fa-check-circle"></i>
-            Finalizată
-          </span>
-        );
-      
-      default:
-        return null;
-    }
-  };
+
 
   return (
     <div className="course-card-enhanced" style={{ marginBottom: '16px' }}>
