@@ -19,11 +19,10 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 - **DEBUG PANEL INLINE**: Debug panel-ul apare SUB lista de curse, nu înlocuiește pagina - experiență live debugging 
 - **PAUZĂ/STOP IMMEDIATE FIX**: Când se dă PAUZĂ, se opresc TOATE serviciile GPS simultan fără transmisii suplimentare
 - **REAL-TIME LOG MONITORING**: Log-uri în timp real în debug panel cu actualizare automată la 2 secunde
-- **UNIFIED BUILD AUTOMATION**: Created single-command build system with environment switching:
-  - `build_and_run.bat [PROD|TEST]` / `build_and_run.sh [PROD|TEST]` - Complete build with environment auto-switch
-  - `dev_server.bat` / `dev_server.sh` - Quick development server launch
-  - Usage: `build_and_run.bat PROD` switches to production and builds, `build_and_run.bat TEST` switches to test and builds
-  - Scripts handle: environment switch → backup → web build → Capacitor sync → Android Studio opening
+- **VERSIUNE SYSTEM AUTOMATION**: Created unified version system with single entry point:
+  - `versiune.bat [DEV|TEST|PROD]` / `versiune.sh [DEV|TEST|PROD]` - Complete version switching and build system
+  - Usage: `versiune.bat DEV` starts dev server, `versiune.bat TEST` switches to test and builds, `versiune.bat PROD` switches to production and builds
+  - Scripts handle: DEV server OR environment switch → backup → web build → Capacitor sync → Android Studio opening
 
 ## Recent Performance Optimizations (15/08/2025)
 - **DEBUG LOGS CLEANUP**: Removed excessive debugging messages from console

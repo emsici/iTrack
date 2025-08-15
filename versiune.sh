@@ -2,19 +2,35 @@
 
 if [ "$1" = "" ]; then
     echo "================================"
-    echo "    iTrack - BUILD SYSTEM"
+    echo "    iTrack - VERSIUNE SYSTEM"
     echo "================================"
     echo ""
-    echo "FOLOSIRE: ./build_and_run.sh [PROD|TEST]"
+    echo "FOLOSIRE: ./versiune.sh [DEV|TEST|PROD]"
     echo ""
     echo "Exemple:"
-    echo "  ./build_and_run.sh PROD  - Comuta la PRODUCTION si face build"
-    echo "  ./build_and_run.sh TEST  - Comuta la TEST si face build"
+    echo "  ./versiune.sh DEV   - Porneste server pentru dezvoltare"
+    echo "  ./versiune.sh TEST  - Comuta la TEST si face build"
+    echo "  ./versiune.sh PROD  - Comuta la PRODUCTION si face build"
     echo ""
     exit 1
 fi
 
 ENV=$1
+
+if [ "$ENV" = "DEV" ] || [ "$ENV" = "dev" ]; then
+    echo "================================"
+    echo "    iTrack - DEVELOPMENT SERVER"
+    echo "================================"
+    echo ""
+    echo "Pornesc serverul de dezvoltare..."
+    echo "Server web va fi disponibil la: http://localhost:5000"
+    echo ""
+    npm run dev
+    echo ""
+    echo "Server-ul de dezvoltare s-a oprit."
+    exit 0
+fi
+
 echo "================================"
 echo "    iTrack - BUILD $ENV"
 echo "================================"
@@ -40,7 +56,7 @@ elif [ "$ENV" = "TEST" ] || [ "$ENV" = "test" ]; then
     sed -i 's/API_BASE_URL_PROD/API_BASE_URL_TEST/g' "android/app/src/main/java/com/euscagency/itrack/OptimalGPSService.java"
     echo "✓ Configurat pentru TEST (www.euscagency.com/etsm_test/)"
 else
-    echo "EROARE: Environment nevalid! Foloseste PROD sau TEST"
+    echo "EROARE: Environment nevalid! Foloseste DEV, TEST sau PROD"
     exit 1
 fi
 
