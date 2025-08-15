@@ -159,7 +159,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   key={theme}
                   onClick={() => {
                     onThemeChange(theme);
-                    onClose(); // Închide modalul automat după schimbarea temei
+                    // Închidere imediată fără delay pentru experiență mai fluidă
+                    setTimeout(() => onClose(), 50);
                   }}
                   style={{
                     padding: '14px 10px',

@@ -38,7 +38,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
     loadLogs();
     
-    // Refresh logs every 2 seconds to show new entries
+    // Actualizează log-urile la fiecare 2 secunde pentru a afișa intrări noi
     const interval = setInterval(loadLogs, 2000);
     
     return () => clearInterval(interval);
@@ -78,7 +78,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
           setCopySuccess(true);
           console.log('Log-uri copiate folosind metoda de rezervă');
         } else {
-          throw new Error('Fallback copy failed');
+          throw new Error('Copierea de rezervă a eșuat');
         }
       }
       
@@ -87,7 +87,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       
     } catch (error) {
       console.error('Eșec la copierea log-urilor:', error);
-      alert('Failed to copy logs to clipboard. Please try again.');
+      alert('Eșec la copierea log-urilor în clipboard. Încercați din nou.');
     } finally {
       setIsCopyingLogs(false);
     }
@@ -178,7 +178,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     >
       {!isInline && (
         <div style={headerStyle}>
-          <h2 style={{ margin: 0, color: '#1e293b' }}>Admin Panel - Log Console</h2>
+          <h2 style={{ margin: 0, color: '#1e293b' }}>Panou Admin - Consola Debug</h2>
           <div style={{ display: 'flex', gap: '8px' }}>
             {onClose && (
               <button
@@ -232,7 +232,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       }}>
         <input
           type="text"
-          placeholder="Search logs..."
+          placeholder="Caută în log-uri..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{
@@ -253,10 +253,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             borderRadius: '6px'
           }}
         >
-          <option value="">All Levels</option>
-          <option value="ERROR">Error</option>
-          <option value="WARN">Warning</option>
-          <option value="INFO">Info</option>
+          <option value="">Toate Nivelurile</option>
+          <option value="ERROR">Eroare</option>
+          <option value="WARN">Avertizare</option>
+          <option value="INFO">Informare</option>
           <option value="DEBUG">Debug</option>
         </select>
 
@@ -274,7 +274,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             opacity: isCopyingLogs ? 0.6 : 1
           }}
         >
-          {isCopyingLogs ? 'Copying...' : copySuccess ? 'Copied!' : 'Copy Logs'}
+          {isCopyingLogs ? 'Se copiază...' : copySuccess ? 'Copiat!' : 'Copiază Log-uri'}
         </button>
         
         <button
@@ -288,7 +288,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
             cursor: 'pointer'
           }}
         >
-          Clear Logs
+          Șterge Log-uri
         </button>
       </div>
 
@@ -303,12 +303,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         lineHeight: '1.5'
       }}>
         <div style={{ marginBottom: '12px', color: '#64748b' }}>
-          Showing {filteredLogs.length} of {logs.length} logs
+          Se afișează {filteredLogs.length} din {logs.length} log-uri
         </div>
         
         {filteredLogs.length === 0 ? (
           <div style={{ color: '#64748b', textAlign: 'center', marginTop: '40px' }}>
-            No logs available. GPS and app activities will appear here.
+            Nu există log-uri disponibile. Activitățile GPS și aplicație vor apărea aici.
           </div>
         ) : (
           filteredLogs.map((log) => (
