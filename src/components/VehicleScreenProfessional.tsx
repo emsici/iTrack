@@ -891,12 +891,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               marginBottom: '10px'
             }}>
               <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul" style={{ 
-                background: currentTheme === 'dark' 
-                  ? 'rgba(255, 255, 255, 0.1)' 
-                  : 'rgba(71, 85, 105, 0.08)', 
-                border: currentTheme === 'dark' 
-                  ? '1px solid rgba(255, 255, 255, 0.2)' 
-                  : '1px solid rgba(71, 85, 105, 0.2)', 
+                background: currentTheme === 'light' 
+                  ? 'rgba(71, 85, 105, 0.08)' 
+                  : 'rgba(255, 255, 255, 0.1)', // All dark themes (dark, business, driver, nature, night) get white background
+                border: currentTheme === 'light' 
+                  ? '1px solid rgba(71, 85, 105, 0.2)' 
+                  : '1px solid rgba(255, 255, 255, 0.2)', // All dark themes get white border
                 borderRadius: '12px', 
                 padding: '10px 20px', 
                 display: 'flex', 
@@ -906,12 +906,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               }}>
                 <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '16px' }}></i>
                 <span className="vehicle-number" style={{ 
-                  color: currentTheme === 'dark' ? 'white' : '#1e293b', 
+                  color: currentTheme === 'light' ? '#1e293b' : 'white', // Only Light theme gets dark text, all others get white
                   fontWeight: '600', 
                   fontSize: '16px' 
                 }}>{vehicleNumber}</span>
                 <i className="edit-icon fas fa-edit" style={{ 
-                  color: currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(71, 85, 105, 0.7)', 
+                  color: currentTheme === 'light' ? 'rgba(71, 85, 105, 0.7)' : 'rgba(255, 255, 255, 0.7)', // Only Light theme gets dark icon, all others get white
                   fontSize: '12px' 
                 }}></i>
               </div>
