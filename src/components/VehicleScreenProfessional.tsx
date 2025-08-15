@@ -334,13 +334,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       
       console.log('✅ Logout complet finalizat - toate transmisiile GPS oprite');
       
-      // FIX SCREEN BLOCK: Add small delay before logout to prevent UI freeze
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // IMMEDIATE LOGOUT: Call onLogout immediately pentru UI instant
+      console.log('✅ Logout complet finalizat - se afișează login-ul');
       onLogout();
     } catch (error) {
       console.error("Eroare la logout:", error);
-      // Even on error, add delay to prevent screen blocking
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // IMMEDIATE LOGOUT: Chiar și cu eroare, se afișează login-ul
+      console.log('✅ Logout forțat după eroare - se afișează login-ul');
       onLogout();
     }
   };

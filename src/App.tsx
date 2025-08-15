@@ -73,37 +73,39 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    // OPTIMIZARE: Schimbă ecranul IMEDIAT pentru feedback instant
+    console.log('🚪 LOGOUT INITIATED - clearing state immediately');
+    
+    // IMMEDIATE UI RESPONSE: Clear state first to prevent blue screen
     setCurrentScreen('login');
     setToken('');
     setPreviousToken('');
     
-    // API cleanup în background - nu blochează UI-ul
-    Promise.all([
-      clearToken(),
-      // API logout în background - non-blocking
-      (async () => {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
-          
-          await CapacitorHttp.post({
-            url: `${API_BASE_URL}/logout.php`,
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            data: {}
-          });
-          clearTimeout(timeoutId);
-          console.log('Logout API finalizat în background');
-        } catch (error) {
-          console.log('Logout API timeout sau eroare - nu afectează UI-ul');
-        }
-      })()
-    ]).catch(() => {
-      // Erori de cleanup nu afectează logout-ul - user-ul vede deja login-ul
-    });
+    // Background cleanup - non-blocking
+    setTimeout(async () => {
+      try {
+        await clearToken();
+        console.log('✅ Token cleared from storage');
+        
+        // API logout cu timeout rapid pentru a nu bloca
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000); // 2s timeout
+        
+        await CapacitorHttp.post({
+          url: `${API_BASE_URL}logout.php`,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          data: {}
+        });
+        clearTimeout(timeoutId);
+        console.log('✅ Logout API completed');
+      } catch (error) {
+        console.log('Logout cleanup finished (some errors ignored)');
+      }
+    }, 10); // Delay minimal pentru a permite UI să se actualizeze
+    
+    console.log('✅ LOGOUT UI updated - cleanup running in background');
   };
 
   const handleAdminClose = () => {
