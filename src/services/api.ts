@@ -645,7 +645,7 @@ export const sendGPSData = async (
       
       console.log('💾 Salvez coordonată offline - server nu răspunde cu succes');
       try {
-        const { offlineGPSService } = await import('./offlineGPS');
+        // Use static import - offlineGPSService already imported
         await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
       } catch (error) {
         console.error('❌ Eroare salvare offline:', error);
