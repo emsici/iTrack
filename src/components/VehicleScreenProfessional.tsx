@@ -428,23 +428,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`📞 Se apelează funcția GPS cu UIT: ${courseToUpdate.uit} (nu ID: ${courseId})`);
         console.log(`📱 Info platformă: ${navigator.userAgent.includes('Android') ? 'Android' : 'Browser'}`);
         
-        if (newStatus === 2) {
-          // For STATUS 2 (START/RESUME), check if course needs to be started or just resumed
-          const { hasActiveCourses, getActiveCourses } = await import('../services/directAndroidGPS');
-          const activeCourses = getActiveCourses();
-          
-          if (activeCourses.includes(courseToUpdate.uit)) {
-            console.log(`▶️ RESUME: Cursa ${courseToUpdate.uit} există deja - se actualizează status la ACTIV`);
-            await updateCourseStatus(courseToUpdate.uit, newStatus);
-          } else {
-            console.log(`🚀 START: Cursă nouă ${courseToUpdate.uit} - se pornește GPS complet cu toate datele`);
-            const { startGPSTracking } = await import('../services/directAndroidGPS');
-            await startGPSTracking(courseToUpdate.uit, vehicleNumber, courseToUpdate.uit, token, newStatus);
-          }
-        } else {
-          // For all other statuses (PAUSE, STOP, etc), use updateCourseStatus
-          await updateCourseStatus(courseToUpdate.uit, newStatus);
-        }
+        // SIMPLE LOGIC: updateCourseStatus handles everything correctly
+        await updateCourseStatus(courseToUpdate.uit, newStatus);
         
         console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);
         
@@ -1739,7 +1724,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 borderRadius: '8px',
                 backdropFilter: 'blur(10px)'
               }}>
-                iTrack - v18.0799 - interfața {THEME_INFO[currentTheme]?.name || 'standard'}
+                iTrack - interfața {THEME_INFO[currentTheme]?.name || 'standard'}
               </div>
             </div>
 

@@ -16,7 +16,14 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 
 ## Recent Performance Optimizations (15/08/2025)
 
-### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 19:53**
+### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 22:00**
+- **GPS START CRITICAL FIX**: Rezolvat problema unde GPS nu pornea pentru curse noi - updateCourseStatus funcționează perfect pentru toate acțiunile
+- **LOGICĂ GPS SIMPLIFICATĂ**: Revenire la fluxul eficient original - status PAUSE/STOP șterge cursa din activeCourses, status START/RESUME o readaugă
+- **FOOTER CLEANUP**: Eliminat versiunea "v18.0799" din footer pentru interfață mai curată
+- **TRANSMISIE GPS FUNCȚIONALĂ**: Confirmat că toate coordonatele ajung pe etsm_prod/gps.php la fiecare 5 secunde
+- **FLUXUL CORECT GPS**: STATUS 3/4 → trimite status la server → șterge din activeCourses → oprește transmisia, STATUS 2 → trimite status → adaugă în activeCourses → pornește transmisia
+
+### **ACTUALIZĂRI ANTERIOARE - 15/08/2025 19:53**
 - **SINCRONIZARE 100% AUTOMATĂ**: Eliminat complet butonul manual de sync - sistemul pornește automat când detectează coordonate offline
 - **FRECVENȚĂ OPTIMIZATĂ**: Verificare la fiecare 3 secunde pentru pornire imediată a sync-ului automat
 - **INTERFAȚĂ MODERNIZATĂ**: Design nou cu animație pulse, background albastru, mesaje clare "Se sincronizează automat când revine internetul"
