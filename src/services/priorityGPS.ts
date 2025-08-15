@@ -35,6 +35,22 @@ class PriorityGPSService {
   private transmissionInterval: NodeJS.Timeout | null = null;
   private isTransmitting: boolean = false;
 
+  /**
+   * PERFORMANCE: Stop all background intervals to eliminate lag
+   */
+  private stopAllIntervals(): void {
+    if (this.monitoringInterval) {
+      clearInterval(this.monitoringInterval);
+      this.monitoringInterval = null;
+    }
+    if (this.transmissionInterval) {
+      clearInterval(this.transmissionInterval);
+      this.transmissionInterval = null;
+    }
+    this.isTransmitting = false;
+    logGPS(`🛑 ALL GPS intervals stopped for performance`);
+  }
+
   private gpsMethods: GPSMethod[] = [
     {
       name: 'Android Native',
@@ -163,7 +179,10 @@ class PriorityGPSService {
   ];
 
   async startGPS(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
-    logGPS(`🎯 PRIORITY GPS: Starting GPS with intelligent method selection for ${courseId}`);
+    logGPS(`🚀 PERFORMANCE GPS: Starting SINGLE optimal GPS method for ${courseId}`);
+
+    // PERFORMANCE FIX: Stop ALL existing intervals first to prevent conflicts
+    this.stopAllIntervals();
 
     const course: GPSCourse = {
       courseId,
@@ -175,65 +194,52 @@ class PriorityGPSService {
       lastSuccessfulTransmission: new Date().toISOString()
     };
 
-    // Try methods in priority order
+    // PERFORMANCE OPTIMIZATION: Use ONLY Android Native if available (zero JavaScript overhead)
+    const androidMethod = this.gpsMethods.find(m => m.name === 'Android Native');
     let methodStarted = false;
-    for (const method of this.gpsMethods.sort((a, b) => a.priority - b.priority)) {
-      if (method.isAvailable()) {
-        logGPS(`🔄 Trying GPS method: ${method.name} (Priority ${method.priority})`);
-        
-        const success = await method.start(course);
+    
+    if (androidMethod && androidMethod.isAvailable()) {
+      logGPS(`⚡ PERFORMANCE MODE: Using ONLY Android Native GPS (no JS intervals)`);
+      const success = await androidMethod.start(course);
+      if (success) {
+        course.activeMethod = 'android';
+        methodStarted = true;
+        logGPS(`✅ Android Native GPS active - ZERO UI lag expected`);
+      }
+    }
+
+    // MINIMAL FALLBACK: Only if Android completely fails
+    if (!methodStarted) {
+      logGPS(`⚠️ Android GPS failed - using minimal Capacitor fallback`);
+      const capacitorMethod = this.gpsMethods.find(m => m.name.includes('Capacitor'));
+      if (capacitorMethod && capacitorMethod.isAvailable()) {
+        const success = await capacitorMethod.start(course);
         if (success) {
-          course.activeMethod = method.name.toLowerCase().includes('android') ? 'android' :
-                              method.name.toLowerCase().includes('capacitor') ? 'capacitor' : 'javascript';
-          
-          logGPS(`✅ Metodă GPS selectată: ${method.name} pentru cursa ${courseId}`);
+          course.activeMethod = 'capacitor';
           methodStarted = true;
-          break;
-        } else {
-          logGPS(`❌ Metoda GPS ${method.name} eșuată, se încearcă următoarea...`);
+          logGPS(`✅ Capacitor GPS active as fallback`);
         }
-      } else {
-        logGPS(`⏭️ Metoda GPS ${method.name} indisponibilă, se omite...`);
       }
     }
 
     if (!methodStarted) {
-      logGPSError(`❌ No GPS methods available for course ${courseId}, falling back to guaranteed GPS`);
-      
-      // CRITICAL FIX: If no priority method worked, use guaranteed GPS as ultimate fallback
-      try {
-        const { guaranteedGPSService } = await import('./garanteedGPS');
-        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-        
-        course.activeMethod = 'javascript';
-        methodStarted = true;
-        logGPS(`✅ Fallback la GPS Garantat cu succes pentru cursa ${courseId}`);
-      } catch (guaranteedError) {
-        logGPSError(`❌ Chiar și GPS Garantat a eșuat: ${guaranteedError}`);
-        throw new Error(`Toate metodele GPS au eșuat inclusiv backup-ul garantat`);
-      }
+      logGPSError(`❌ ALL GPS methods failed for ${courseId}`);
+      throw new Error(`No GPS method available`);
     }
 
     this.activeCourses.set(courseId, course);
     
-    // CRITICAL FIX: For Android Native GPS, also start GuaranteedGPS as backup
-    // This ensures transmission continues when phone is locked
+    // PERFORMANCE: NO background intervals if Android GPS is active
     if (course.activeMethod === 'android') {
-      try {
-        logGPS(`🔒 PHONE LOCK PROTECTION: Starting GuaranteedGPS backup for Android method`);
-        const { guaranteedGPSService } = await import('./garanteedGPS');
-        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ Backup GPS Garantat pornit pentru metoda Android - protejat la blocare telefon`);
-      } catch (backupError) {
-        logGPSError(`⚠️ Pornire backup GPS Garantat eșuată: ${backupError}`);
-      }
+      logGPS(`🏎️ ANDROID GPS ACTIVE: Skipping JavaScript intervals for maximum performance`);
+    } else {
+      // Only start minimal monitoring for fallback methods
+      this.startMonitoring();
+      this.startTransmissionInterval();
+      logGPS(`📊 Fallback monitoring active for non-Android GPS`);
     }
-    
-    // Start monitoring and transmission intervals
-    this.startMonitoring();
-    this.startTransmissionInterval();
 
-    logGPS(`✅ GPS PRIORITAR pornit pentru ${courseId} folosind metoda ${course.activeMethod} cu protecție backup`);
+    logGPS(`✅ PERFORMANCE GPS started: ${courseId} using ${course.activeMethod} - lag-free operation`);
   }
 
   async stopGPS(courseId: string): Promise<void> {

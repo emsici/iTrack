@@ -56,19 +56,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const toast = useToast();
 
-  // Initialize theme and load stored vehicle number
+  // PERFORMANCE OPTIMIZED: Initialize theme and vehicle number with debouncing
   useEffect(() => {
+    let mounted = true;
     const initializeApp = async () => {
       try {
-        // Initialize theme
+        // Initialize theme with caching
         const savedTheme = await themeService.initialize();
-        setCurrentTheme(savedTheme);
+        if (mounted) {
+          setCurrentTheme(savedTheme);
+        }
         
-        // Load stored vehicle number
-        const storedVehicle = await getStoredVehicleNumber();
-        if (storedVehicle && !vehicleNumber) {
-          setVehicleNumber(storedVehicle);
-          console.log('Numărul de vehicul stocat încărcat:', storedVehicle);
+        // Load stored vehicle number only if needed
+        if (!vehicleNumber) {
+          const storedVehicle = await getStoredVehicleNumber();
+          if (storedVehicle && mounted) {
+            setVehicleNumber(storedVehicle);
+            console.log('Numărul de vehicul stocat încărcat:', storedVehicle);
+          }
         }
       } catch (error) {
         console.error('Eroare la inițializarea aplicației:', error);

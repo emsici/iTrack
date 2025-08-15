@@ -62,8 +62,8 @@ class GuaranteedGPSService {
   }
 
   /**
-   * METODA GARANTATĂ: JavaScript GPS cu Capacitor
-   * Aceasta va transmite ÎNTOTDEAUNA coordonate reale la 5 secunde
+   * PERFORMANCE OPTIMIZED: Minimal GPS backup (only when Android fails)
+   * Increased interval to reduce CPU usage on Samsung A57
    */
   private startBackupInterval(): void {
     // Oprire interval existent
@@ -71,7 +71,7 @@ class GuaranteedGPSService {
       clearInterval(this.gpsInterval);
     }
 
-    // Pornire interval exact 5 secunde
+    // PERFORMANCE: Increase interval to 10 seconds to reduce lag
     this.gpsInterval = setInterval(async () => {
       if (this.activeCourses.size === 0) {
         logGPS(`⏸️ No active courses - stopping guaranteed GPS interval`);
@@ -79,12 +79,12 @@ class GuaranteedGPSService {
         return;
       }
 
-      logGPS(`🔥 CICLU TRANSMISIE GPS GARANTAT: ${this.activeCourses.size} curse totale înregistrate`);
+      // PERFORMANCE: Only log essential information to reduce console overhead
       await this.transmitForAllCourses();
-    }, 5000); // EXACT 5 secunde
+    }, 10000); // PERFORMANCE: 10 seconds instead of 5 for Samsung A57
 
     this.isTransmitting = true;
-    logGPS(`⏰ BACKUP GPS INTERVAL STARTED - Transmisia la exact 5 secunde`);
+    logGPS(`⏰ PERFORMANCE GPS INTERVAL: 10s for optimal performance`);
   }
 
   /**

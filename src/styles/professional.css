@@ -34,10 +34,16 @@ html, body {
   height: 100dvh;
 }
 
-/* Main App Container */
+/* PERFORMANCE OPTIMIZED: Reduced complexity for Samsung A57 */
 .app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  background: #f8fafc; /* Solid color instead of gradient for performance */
+  
+  /* SAMSUNG A57 OPTIMIZATION */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed; /* Performance over quality */
+  image-rendering: optimizeSpeed;
 }
 
 /* Courses List Design - Optimized for smooth scrolling */
