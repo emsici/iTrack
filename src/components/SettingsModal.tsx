@@ -157,7 +157,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               return (
                 <button
                   key={theme}
-                  onClick={() => onThemeChange(theme)}
+                  onClick={() => {
+                    onThemeChange(theme);
+                    onClose(); // Închide modalul automat după schimbarea temei
+                  }}
                   style={{
                     padding: '14px 10px',
                     background: isSelected 
