@@ -123,21 +123,14 @@ public class OptimalGPSService extends Service {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "🚨 === DIAGNOSTIC START === OPTIMAL GPS Service onStartCommand");
-        Log.d(TAG, "📡 Action: " + (intent != null ? intent.getAction() : "NULL_INTENT"));
-        Log.d(TAG, "⚡ Current activeCourses count: " + activeCourses.size());
-        Log.d(TAG, "🔍 Service flags: " + flags + ", startId: " + startId);
-        
         // IMMEDIATE: Start foreground service to prevent termination
         try {
             createNotificationChannel();
             startForeground(NOTIFICATION_ID, createNotification());
-            android.util.Log.e(TAG, "✅ FOREGROUND SERVICE STARTED - GPS will run with phone locked");
             
             // CRITICAL: Keep service alive with WakeLock
             if (wakeLock != null && !wakeLock.isHeld()) {
                 wakeLock.acquire();
-                android.util.Log.e(TAG, "✅ WAKELOCK ACQUIRED - prevents deep sleep");
             }
         } catch (Exception e) {
             android.util.Log.e(TAG, "❌ CRITICAL: Foreground service FAILED: " + e.getMessage());
@@ -145,41 +138,17 @@ public class OptimalGPSService extends Service {
         
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
             // ALARM TRIGGERED: Get GPS location and transmit for all active courses
-            Log.d(TAG, "🔄 DIAGNOSTIC: ALARM TRIGGERED - performing GPS cycle");
             performOptimalGPSCycle();
         } else {
             // Regular service commands (START_GPS, STOP_GPS, etc.)
-            Log.d(TAG, "📥 DIAGNOSTIC: HANDLING SERVICE COMMAND");
-            
-            if (intent != null) {
-                Log.d(TAG, "🔍 DIAGNOSTIC: Intent extras:");
-                Bundle extras = intent.getExtras();
-                if (extras != null) {
-                    for (String key : extras.keySet()) {
-                        Log.d(TAG, "  - " + key + ": " + extras.get(key));
-                    }
-                } else {
-                    Log.w(TAG, "❌ DIAGNOSTIC: Intent has no extras");
-                }
-            }
-            
             handleServiceCommand(intent);
             
             // CRITICAL: After handling command, perform GPS cycle if we have active courses
             if (!activeCourses.isEmpty()) {
-                Log.d(TAG, "🚀 DIAGNOSTIC: EXECUTING INITIAL GPS CYCLE for " + activeCourses.size() + " active courses");
-                Log.d(TAG, "🔍 DIAGNOSTIC: Active courses details:");
-                for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-                    CourseData course = entry.getValue();
-                    Log.d(TAG, "  - CourseId: " + course.courseId + ", UIT: " + course.uit + ", Status: " + course.status);
-                }
                 performOptimalGPSCycle();
-            } else {
-                Log.w(TAG, "⚠️ DIAGNOSTIC: NO ACTIVE COURSES - skipping GPS cycle");
             }
         }
         
-        Log.d(TAG, "🚨 === DIAGNOSTIC END === onStartCommand completed");
         return START_STICKY; // Restart if killed
     }
     
