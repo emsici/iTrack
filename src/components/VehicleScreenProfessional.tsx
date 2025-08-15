@@ -21,7 +21,6 @@ import { useToast } from "../hooks/useToast";
 import { clearAllGuaranteedGPS } from "../services/garanteedGPS";
 import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
-import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
 
 interface VehicleScreenProps {
@@ -955,17 +954,47 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </span>
               </div>
 
-              {/* Vehicle Number Dropdown - Centered */}
-              <VehicleNumberDropdown
-                currentVehicle={vehicleNumber}
-                currentTheme={currentTheme}
-                onSelectVehicle={async (vehicle) => {
-                  setVehicleNumber(vehicle);
-                  await storeVehicleNumber(vehicle);
-                  setCoursesLoaded(false); // Reload courses for new vehicle
-                }}
-                onChangeNumber={() => setCoursesLoaded(false)}
-              />
+              {/* Vehicle Number Badge - Centered */}
+              <div className="vehicle-number-badge" onClick={() => setCoursesLoaded(false)} title="Schimbă vehiculul" style={{ 
+                background: currentTheme === 'light' 
+                  ? 'rgba(71, 85, 105, 0.08)' 
+                  : currentTheme === 'business'
+                    ? 'rgba(71, 85, 105, 0.08)' 
+                    : 'rgba(255, 255, 255, 0.1)', 
+                border: currentTheme === 'light' 
+                  ? '1px solid rgba(71, 85, 105, 0.2)' 
+                  : currentTheme === 'business'
+                    ? '1px solid rgba(71, 85, 105, 0.2)' 
+                    : '1px solid rgba(255, 255, 255, 0.2)', 
+                borderRadius: '12px', 
+                padding: '8px 16px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                cursor: 'pointer',
+                minWidth: '120px',
+                justifyContent: 'center'
+              }}>
+                <i className="fas fa-truck vehicle-icon" style={{ color: '#60a5fa', fontSize: '14px' }}></i>
+                <span className="vehicle-number" style={{ 
+                  color: currentTheme === 'light' 
+                    ? '#1e293b' 
+                    : currentTheme === 'business'
+                      ? '#1e293b' 
+                      : '#ffffff', 
+                  fontSize: '14px', 
+                  fontWeight: '600',
+                  letterSpacing: '0.3px'
+                }}>
+                  {vehicleNumber}
+                </span>
+                <i className="fas fa-chevron-down" style={{ 
+                  color: currentTheme === 'light' || currentTheme === 'business' 
+                    ? '#64748b' 
+                    : '#9ca3af', 
+                  fontSize: '10px' 
+                }}></i>
+              </div>
 
               {/* Status Indicator */}
               <div style={{
@@ -1170,7 +1199,87 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               alignItems: 'center',
               gap: '10px'
             }}>
-              {/* ELIMINAT - Duplicare cu indicatorul din header */}
+              {/* Online/Offline Status Card - SMALLER */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px', // Reduced gap
+                padding: '6px 12px', // Smaller padding
+                borderRadius: '16px', // Smaller radius
+                background: currentTheme === 'light' || currentTheme === 'business'
+                  ? isOnline 
+                    ? 'rgba(34, 197, 94, 0.1)' // Light green for online
+                    : 'rgba(239, 68, 68, 0.1)'  // Light red for offline
+                  : currentTheme === 'nature'
+                    ? isOnline
+                      ? 'rgba(251, 191, 36, 0.2)' // Galben pentru contrast cu verde
+                      : 'rgba(239, 68, 68, 0.3)'   // Red for offline
+                    : currentTheme === 'night'
+                      ? isOnline
+                        ? 'rgba(34, 197, 94, 0.2)' // Verde pentru night
+                        : 'rgba(239, 68, 68, 0.2)'  // Red for offline
+                      : currentTheme === 'driver'
+                        ? isOnline
+                          ? 'rgba(34, 197, 94, 0.2)' // Verde pentru driver
+                          : 'rgba(239, 68, 68, 0.2)'  // Red for offline
+                        : isOnline
+                          ? 'rgba(34, 197, 94, 0.2)' // Dark green for online
+                          : 'rgba(239, 68, 68, 0.2)', // Red for offline
+                border: currentTheme === 'light' || currentTheme === 'business'
+                  ? isOnline
+                    ? '1px solid rgba(34, 197, 94, 0.3)'
+                    : '1px solid rgba(239, 68, 68, 0.3)'
+                  : isOnline
+                    ? '1px solid rgba(34, 197, 94, 0.4)'
+                    : '1px solid rgba(239, 68, 68, 0.4)'
+              }}>
+                {/* Status Icon - SMALLER */}
+                <div style={{
+                  width: '10px', // Reduced from 14px
+                  height: '10px', // Reduced from 14px  
+                  borderRadius: '50%',
+                  backgroundColor: isOnline ? '#22c55e' : '#ef4444',
+                  boxShadow: `0 0 4px ${isOnline ? '#22c55e' : '#ef4444'}`, // Smaller shadow
+                }} />
+                
+                {/* Status Text - SMALLER */}
+                <span style={{
+                  color: currentTheme === 'light' || currentTheme === 'business'
+                    ? isOnline ? '#065f46' : '#b91c1c'
+                    : currentTheme === 'nature'
+                      ? isOnline ? '#f59e0b' : '#fca5a5'  // Galben pentru vizibilitate pe verde
+                      : currentTheme === 'driver'
+                        ? isOnline ? '#22c55e' : '#fca5a5'  // Verde pentru driver
+                        : currentTheme === 'night'
+                          ? isOnline ? '#4ade80' : '#f87171'  // Verde/roșu pentru night
+                          : isOnline ? '#4ade80' : '#fca5a5', // Default dark theme
+                  fontSize: '10px', // Reduced from 12px
+                  fontWeight: '600',
+                  letterSpacing: '0.5px'
+                }}>
+                  {isOnline ? 'ONLINE' : 'OFFLINE'}
+                </span>
+                
+                {/* Offline Count Badge */}
+                {!isOnline && offlineGPSCount > 0 && (
+                  <div style={{
+                    background: currentTheme === 'light' || currentTheme === 'business'
+                      ? 'rgba(239, 68, 68, 0.2)'
+                      : 'rgba(239, 68, 68, 0.3)',
+                    color: currentTheme === 'light' || currentTheme === 'business'
+                      ? '#b91c1c' : '#fca5a5',
+                    fontSize: '10px',
+                    fontWeight: '700',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    border: currentTheme === 'light' || currentTheme === 'business'
+                      ? '1px solid rgba(239, 68, 68, 0.3)'
+                      : '1px solid rgba(239, 68, 68, 0.4)'
+                  }}>
+                    {offlineGPSCount}
+                  </div>
+                )}
+              </div>
               
               {/* Sync Progress Bar - Only when offline and syncing */}
               {!isOnline && offlineGPSCount > 0 && (
