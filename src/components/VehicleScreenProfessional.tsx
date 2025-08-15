@@ -40,6 +40,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return window.navigator.onLine;
   });
   const [clickCount, setClickCount] = useState(0);
+  const [showDebugPage, setShowDebugPage] = useState(false);
 
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
