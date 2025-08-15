@@ -1159,9 +1159,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
           {/* Main Dashboard Content */}
           <div className="vehicle-dashboard-main-content" style={{ 
-            paddingTop: '145px',
+            paddingTop: '180px', // INCREASED to 180px to completely clear the fixed header
             background: getThemeBackground(currentTheme),
-            minHeight: 'calc(100dvh - 145px)'
+            minHeight: 'calc(100dvh - 180px)' // Updated to match padding
           }}>
             {/* Statistics Cards - 4 in One Row */}
             <div style={{
