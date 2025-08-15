@@ -1,0 +1,259 @@
+iTrack Application Logs
+Generated: 15.08.2025, 09:51:20
+Total Logs: 125
+
+[2025-08-15T06:51:18.211Z] INFO (APP): Login successful, storing token...
+[2025-08-15T06:51:18.210Z] INFO (APP): Admin login detected - bypassing server authentication
+[2025-08-15T06:51:11.094Z] INFO (APP): Logged out - cleared local storage
+[2025-08-15T06:51:11.080Z] INFO (APP): Logout completed via AndroidGPS
+[2025-08-15T06:51:11.079Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-08-15T06:51:11.019Z] INFO (APP): ✅ Complete logout finished - all GPS transmissions stopped
+[2025-08-15T06:51:11.018Z] INFO (APP): 🧹 Cleared saved status for course_status_6H9H351973130168
+[2025-08-15T06:51:11.003Z] INFO (API): CapacitorHttp logout successful
+[2025-08-15T06:51:11.002Z] INFO (APP): CapacitorHttp logout successful
+[2025-08-15T06:51:10.860Z] INFO (APP): === CapacitorHttp logout ===
+[2025-08-15T06:51:10.860Z] INFO (API): Starting logout process
+[2025-08-15T06:51:10.860Z] INFO (APP): Starting logout process with Bearer token
+[2025-08-15T06:51:10.860Z] INFO (APP): ✅ Guaranteed GPS service cleared
+[2025-08-15T06:51:10.859Z] INFO (GPS): ✅ All guaranteed GPS cleared
+[2025-08-15T06:51:10.859Z] INFO (GPS): 🧹 Clearing all guaranteed GPS courses
+[2025-08-15T06:51:10.858Z] INFO (GPS): 📊 All local GPS data cleared: 0 courses remaining
+[2025-08-15T06:51:10.857Z] INFO (GPS): ✅ AndroidGPS native service cleared: SUCCESS: All GPS data cleared
+[2025-08-15T06:51:10.852Z] INFO (GPS): ✅ Guaranteed GPS service cleared
+[2025-08-15T06:51:10.850Z] INFO (GPS): ✅ All guaranteed GPS cleared
+[2025-08-15T06:51:10.849Z] INFO (GPS): 🧹 Clearing all guaranteed GPS courses
+[2025-08-15T06:51:10.849Z] INFO (GPS): ✅ Stopped GPS for course: 6H9H351973130168
+[2025-08-15T06:51:10.847Z] INFO (GPS): 📊 Active courses after stop: 0
+[2025-08-15T06:51:10.847Z] INFO (GPS): ✅ HYBRID GPS stopped for course: 6H9H351973130168
+[2025-08-15T06:51:10.846Z] INFO (GPS): ✅ Guaranteed GPS backup stopped for course: 6H9H351973130168
+[2025-08-15T06:51:10.842Z] INFO (GPS): ✅ GPS stopped for 6H9H351973130168. Active courses: 0
+[2025-08-15T06:51:10.842Z] INFO (GPS): ⏸️ Backup GPS interval stopped
+[2025-08-15T06:51:10.833Z] INFO (GPS): 🛑 Stopping guaranteed GPS for: 6H9H351973130168
+[2025-08-15T06:51:10.832Z] INFO (GPS): ✅ MainActivity GPS stopped: SUCCESS: GPS stop requested for 6H9H351973130168
+[2025-08-15T06:51:10.826Z] INFO (GPS): 🛑 Stopping HYBRID GPS tracking: 6H9H351973130168
+[2025-08-15T06:51:10.825Z] INFO (GPS): 🧹 LOGOUT: Clearing all GPS data and stopping all transmissions
+[2025-08-15T06:51:10.824Z] INFO (APP): 🔐 Starting complete logout - stopping ALL GPS transmissions...
+[2025-08-15T06:51:07.113Z] INFO (APP): Course action completed: 132659
+[2025-08-15T06:51:07.112Z] INFO (APP): === STATUS UPDATE COMPLETE ===
+[2025-08-15T06:51:07.112Z] INFO (API): Course 6H9H351973130168 status updated successfully to 2
+[2025-08-15T06:51:07.112Z] INFO (APP): ✅ Course 6H9H351973130168 status updated to 2 successfully
+[2025-08-15T06:51:07.111Z] INFO (GPS): ✅ MainActivity GPS status updated: SUCCESS: Status update requested for 6H9H351973130168
+[2025-08-15T06:51:07.107Z] INFO (GPS): 🔥 ANDROID ONLY GPS - no browser intervals to prevent double transmissions
+[2025-08-15T06:51:07.106Z] INFO (GPS): ✅ Guaranteed GPS backup service started for course: 6H9H351973130168
+[2025-08-15T06:51:07.106Z] INFO (GPS): ✅ GUARANTEED GPS STARTED - Active courses: 1
+[2025-08-15T06:51:07.106Z] INFO (GPS): ⏰ BACKUP GPS INTERVAL STARTED - Transmisia la exact 5 secunde
+[2025-08-15T06:51:07.103Z] INFO (GPS): 📱 AndroidGPS result: SUCCESS: GPS started for 6H9H351973130168
+[2025-08-15T06:51:07.097Z] INFO (GPS): 🤖 Trying AndroidGPS first...
+[2025-08-15T06:51:07.097Z] INFO (GPS): 📍 Course: 6H9H351973130168, Vehicle: TM39ECC, UIT: 6H9H351973130168
+[2025-08-15T06:51:07.097Z] INFO (GPS): 🔥 STARTING GUARANTEED GPS - Transmisia garantata la 5 secunde
+[2025-08-15T06:51:07.097Z] INFO (GPS): ✅ MainActivity GPS started: SUCCESS: GPS started for 6H9H351973130168
+[2025-08-15T06:51:07.092Z] INFO (GPS): 🔥 HYBRID GPS: Starting both Android service + JavaScript backup
+[2025-08-15T06:51:07.092Z] INFO (APP): 🗂️ Courses in map: [6H9H351973130168]
+[2025-08-15T06:51:07.092Z] INFO (APP): 📊 Active courses after start: 1
+[2025-08-15T06:51:07.092Z] INFO (GPS): 🚀 Starting GPS tracking (June 26th method): 6H9H351973130168
+[2025-08-15T06:51:07.092Z] INFO (APP): 🚀 STATUS 2 (START): Setting up complete GPS tracking for 6H9H351973130168
+[2025-08-15T06:51:07.091Z] INFO (APP): ✅ Status 2 sent successfully to server
+[2025-08-15T06:51:07.091Z] INFO (APP): ✅ GPS data transmitted successfully
+[2025-08-15T06:51:07.091Z] INFO (APP): 📡 GPS Response: 200
+[2025-08-15T06:51:06.999Z] INFO (APP): 🚨 COMPLETE GPS DATA BEING SENT: {
+  "lat": 44.2582877,
+  "lng": 28.6173834,
+  "timestamp": "2025-08-15T06:51:06.996Z",
+  "viteza": 0,
+  "directie": 0,
+  "altitudine": 54.599998474121094,
+  "baterie": 5,
+  "numar_inmatriculare": "TM39ECC",
+  "uit": "6H9H351973130168",
+  "status": 2,
+  "hdop": 18.784,
+  "gsm_signal": 4
+}
+[2025-08-15T06:51:06.998Z] INFO (APP): Status: 2
+[2025-08-15T06:51:06.998Z] INFO (APP): UIT: 6H9H351973130168
+[2025-08-15T06:51:06.998Z] INFO (APP): Vehicle: TM39ECC
+[2025-08-15T06:51:06.998Z] INFO (APP): Token preview: Bearer eyJhbGciOiJIUzI1NiIs...
+[2025-08-15T06:51:06.998Z] INFO (APP): 📡 GPS Transmission to gps.php
+[2025-08-15T06:51:06.997Z] INFO (APP): GPS transmission to server...
+[2025-08-15T06:51:06.997Z] INFO (APP): 🕒 DirectAndroidGPS SHARED TIMESTAMP: 2025-08-15T06:51:06.996Z (1755240666996)
+[2025-08-15T06:51:06.997Z] INFO (APP): 📡 Sending status 2 to server for UIT: 6H9H351973130168
+[2025-08-15T06:51:06.996Z] INFO (APP): 🕒 NEW SHARED TIMESTAMP created: 2025-08-15T06:51:06.996Z
+[2025-08-15T06:51:06.985Z] INFO (APP): 📍 DirectAndroidGPS: REAL GPS Position - Lat: 44.2582877, Lng: 28.6173834, Accuracy: 18.784m
+[2025-08-15T06:51:05.652Z] INFO (APP): 🔍 DirectAndroidGPS: Getting REAL position for status 2...
+[2025-08-15T06:51:05.651Z] INFO (APP): 📡 Sending status 2 to server for UIT: 6H9H351973130168
+[2025-08-15T06:51:05.601Z] INFO (APP): 🔄 Updating course status via MainActivity Android: 6H9H351973130168 → 2
+[2025-08-15T06:51:05.601Z] INFO (APP): 📞 Calling updateCourseStatus with UIT: 6H9H351973130168 (not ID: 132659)
+[2025-08-15T06:51:05.600Z] INFO (APP): 🎯 Delegating all GPS logic to capacitorGPS service
+[2025-08-15T06:51:05.600Z] INFO (APP): ✅ GPS permissions granted
+[2025-08-15T06:51:05.514Z] INFO (APP): 🔍 Requesting GPS permissions for course start...
+[2025-08-15T06:51:05.514Z] INFO (APP): Token available: true, Token length: 136
+[2025-08-15T06:51:05.514Z] INFO (APP): UIT REAL: 6H9H351973130168, Vehicle: TM39ECC
+[2025-08-15T06:51:05.514Z] INFO (APP): Course: 132659, Status: 1 → 2
+[2025-08-15T06:51:05.513Z] INFO (APP): === STATUS UPDATE START ===
+[2025-08-15T06:51:05.513Z] INFO (APP): 💾 Saved status 2 for UIT 6H9H351973130168
+[2025-08-15T06:51:05.510Z] INFO (APP): Processing course action: 132659
+[2025-08-15T06:51:02.944Z] INFO (APP): === Loading finished ===
+[2025-08-15T06:51:02.944Z] INFO (APP): 🆕 Found 7 new courses - displayed at top
+[2025-08-15T06:51:02.944Z] INFO (APP): Successfully loaded 7 courses for TM39ECC (sorted: new first)
+[2025-08-15T06:51:02.943Z] INFO (APP): 🔄 Android background auto-refresh activated (5 min intervals)
+[2025-08-15T06:51:02.943Z] INFO (APP): ✅ Courses loaded successfully - switching to main view with 7 courses
+[2025-08-15T06:51:02.895Z] INFO (APP): Courses found: 7
+[2025-08-15T06:51:02.895Z] INFO (API): Request completed for TM39ECC - all locks cleared
+[2025-08-15T06:51:02.894Z] INFO (APP): Request completed - locks cleared
+[2025-08-15T06:51:02.890Z] INFO (API): Processed 7 courses for TM39ECC
+[2025-08-15T06:51:02.890Z] INFO (APP): Processed 7 courses successfully
+[2025-08-15T06:51:02.890Z] INFO (APP): Processing course data
+[2025-08-15T06:51:02.889Z] INFO (APP): Found 7 courses for vehicle TM39ECC
+[2025-08-15T06:51:02.889Z] INFO (API): API response: status=200, data={"status":"success","count":7,"data":[{"ikRoTrans":132659,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"6H9H351973130168","dataTransport":"2025-08-11","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Stadionului nr. 19A nr. -, Sannicolau Mare, Jud. Timi?","JudetStop":"TM","denumireLocStop":"Sannicolau Mare"},{"ikRoTrans":132660,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"1L2U047482130170","dataTransport":"2025-08-11","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Str Decebal nr.28 nr. -, Ineu, Jud. Arad","JudetStop":"AR","denumireLocStop":"INEU"},{"ikRoTrans":132661,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"1N6E504433130154","dataTransport":"2025-08-11","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"IULIU MANIU 65-71 nr. -, Arad, Jud. Arad","JudetStop":"AR","denumireLocStop":"ARAD"},{"ikRoTrans":132662,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"2K8X554433130178","dataTransport":"2025-08-11","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Marasesti nr.1 nr. -, Jimbolia, Jud. Timi?","JudetStop":"TM","denumireLocStop":"JIMBOLIA"},{"ikRoTrans":132663,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"1V3V351973130185","dataTransport":"2025-08-11","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Grivi?ei 30 nr. -, Buzias, Jud. Timi?","JudetStop":"TM","denumireLocStop":"BUZIAS"},{"ikRoTrans":133376,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"0L8N331085130163","dataTransport":"2025-08-13","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Pestalozzi nr. 3-5 nr. -, Timisoara, Jud. Timi?","JudetStop":"TM","denumireLocStop":"TIMISOARA"},{"ikRoTrans":133378,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"6C7V511585130172","dataTransport":"2025-08-13","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Sulina nr. 11 nr. -, Timisoara, Jud. Timi?","JudetStop":"TM","denumireLocStop":"TIMISOARA"}]}
+[2025-08-15T06:51:02.889Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 7,
+  "data": [
+    {
+      "ikRoTrans": 132659,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "6H9H351973130168",
+      "dataTransport": "2025-08-11",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Stadionului nr. 19A nr. -, Sannicolau Mare, Jud. Timi?",
+      "JudetStop": "TM",
+      "denumireLocStop": "Sannicolau Mare"
+    },
+    {
+      "ikRoTrans": 132660,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "1L2U047482130170",
+      "dataTransport": "2025-08-11",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Str Decebal nr.28 nr. -, Ineu, Jud. Arad",
+      "JudetStop": "AR",
+      "denumireLocStop": "INEU"
+    },
+    {
+      "ikRoTrans": 132661,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "1N6E504433130154",
+      "dataTransport": "2025-08-11",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "IULIU MANIU 65-71 nr. -, Arad, Jud. Arad",
+      "JudetStop": "AR",
+      "denumireLocStop": "ARAD"
+    },
+    {
+      "ikRoTrans": 132662,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "2K8X554433130178",
+      "dataTransport": "2025-08-11",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Marasesti nr.1 nr. -, Jimbolia, Jud. Timi?",
+      "JudetStop": "TM",
+      "denumireLocStop": "JIMBOLIA"
+    },
+    {
+      "ikRoTrans": 132663,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "1V3V351973130185",
+      "dataTransport": "2025-08-11",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Grivi?ei 30 nr. -, Buzias, Jud. Timi?",
+      "JudetStop": "TM",
+      "denumireLocStop": "BUZIAS"
+    },
+    {
+      "ikRoTrans": 133376,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "0L8N331085130163",
+      "dataTransport": "2025-08-13",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Pestalozzi nr. 3-5 nr. -, Timisoara, Jud. Timi?",
+      "JudetStop": "TM",
+      "denumireLocStop": "TIMISOARA"
+    },
+    {
+      "ikRoTrans": 133378,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "6C7V511585130172",
+      "dataTransport": "2025-08-13",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Sulina nr. 11 nr. -, Timisoara, Jud. Timi?",
+      "JudetStop": "TM",
+      "denumireLocStop": "TIMISOARA"
+    }
+  ]
+}
+[2025-08-15T06:51:02.889Z] INFO (APP): API Response Status: 200
+[2025-08-15T06:51:02.889Z] INFO (APP): Data length: No data
+[2025-08-15T06:51:02.888Z] INFO (APP): Status: 200
+[2025-08-15T06:51:02.888Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-08-15T06:51:02.531Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-08-15T06:51:02.531Z] INFO (API): Loading courses for vehicle TM39ECC
+[2025-08-15T06:51:02.530Z] INFO (APP): Loading courses for vehicle: TM39ECC
+[2025-08-15T06:51:02.530Z] INFO (APP): === DEBUGGING: Loading courses for vehicle: TM39ECC ===
+[2025-08-15T06:51:02.530Z] INFO (APP): === APK DEBUG: Current courses count: 0
+[2025-08-15T06:51:02.530Z] INFO (APP): === APK DEBUG: Current coursesLoaded state: false
+[2025-08-15T06:51:02.530Z] INFO (APP): === APK DEBUG: Token available: true
+[2025-08-15T06:51:02.530Z] INFO (APP): === APK DEBUG: Vehicle number: TM39ECC
+[2025-08-15T06:51:02.530Z] INFO (APP): === APK DEBUG: Starting course loading process ===
+[2025-08-15T06:50:59.952Z] INFO (APP): Loaded stored vehicle number: TM39ECC
+[2025-08-15T06:50:59.932Z] INFO (APP): Token stored successfully
+[2025-08-15T06:50:59.914Z] INFO (APP): Login successful, storing token...
+[2025-08-15T06:50:59.914Z] INFO (API): CapacitorHttp login successful for +40722222222
+[2025-08-15T06:50:59.914Z] INFO (APP): CapacitorHttp login successful
+[2025-08-15T06:50:59.785Z] INFO (APP): Using CapacitorHttp for fast login
+[2025-08-15T06:50:59.785Z] INFO (API): Direct CapacitorHttp login attempt for +40722222222
+[2025-08-15T06:50:59.785Z] INFO (APP): Direct CapacitorHttp login for: +40722222222
+[2025-08-15T06:50:59.785Z] INFO (APP): Platform info: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/138.0.7204.179 Mobile Safari/537.36
+[2025-08-15T06:50:59.785Z] INFO (APP): CapacitorHttp available: true
+[2025-08-15T06:50:59.785Z] INFO (APP): Test credentials detected - proceeding with server authentication
+[2025-08-15T06:50:53.353Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-08-15T06:50:52.654Z] INFO (APP): Logged out - cleared local storage
+[2025-08-15T06:50:52.645Z] INFO (APP): Logout completed via AndroidGPS
+[2025-08-15T06:50:52.645Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-08-15T06:50:52.367Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-08-15T06:50:52.366Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-08-15T06:50:51.852Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-08-15T06:50:51.410Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-08-15T06:50:49.128Z] INFO (APP): Logs cleared successfully
+[2025-08-15T06:50:49.126Z] INFO (SYSTEM): Logs cleared
