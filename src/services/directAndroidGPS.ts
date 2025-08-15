@@ -109,47 +109,27 @@ class DirectAndroidGPSService {
 
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
     try {
-      console.log(`🔄 DirectAndroidGPS: Updating course status ${courseId} → ${newStatus}`);
+      console.log(`🔄 Updating course status via MainActivity Android: ${courseId} → ${newStatus}`);
       
       // Get course data needed for all status updates
       const vehicleNumber = await getStoredVehicleNumber() || 'UNKNOWN';
       const token = await getStoredToken() || '';
       const realUIT = courseId; // courseId IS the UIT from VehicleScreen fix
       
-      console.log(`📋 Course Data - UIT: ${realUIT}, Vehicle: ${vehicleNumber}, Token: ${token ? 'Available' : 'Missing'}`);
-      
       // CRITICAL: Send status to server FIRST before updating GPS
       console.log(`📡 Sending status ${newStatus} to server for UIT: ${realUIT}`);
-      try {
-        await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
-        console.log(`✅ Status ${newStatus} sent to server successfully for UIT: ${realUIT}`);
-      } catch (statusError) {
-        console.error(`❌ Failed to send status to server: ${statusError}`);
-        throw statusError;
-      }
+      await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
       
       // STATUS 2 (START): Setup complete GPS tracking
       if (newStatus === 2) {
         console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
-        try {
-          await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
-          console.log(`✅ GPS tracking started successfully for course: ${courseId}`);
-        } catch (startError) {
-          console.error(`❌ Failed to start GPS tracking: ${startError}`);
-          throw startError;
-        }
+        await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
       }
       
       // STATUS 3 (PAUSE) or STATUS 4 (STOP): Stop GPS transmission
       if (newStatus === 3 || newStatus === 4) {
         console.log(`⏸️ STATUS ${newStatus} (${newStatus === 3 ? 'PAUSE' : 'STOP'}): Stopping GPS for ${courseId}`);
-        try {
-          await this.stopTracking(courseId);
-          console.log(`✅ GPS tracking stopped successfully for course: ${courseId}`);
-        } catch (stopError) {
-          console.error(`❌ Failed to stop GPS tracking: ${stopError}`);
-          throw stopError;
-        }
+        await this.stopTracking(courseId);
       }
       
       // Update local tracking
@@ -157,26 +137,19 @@ class DirectAndroidGPSService {
       if (course) {
         course.status = newStatus;
         this.activeCourses.set(courseId, course);
-        console.log(`💾 Local course status updated: ${courseId} → ${newStatus}`);
       }
       
       // Direct MainActivity Android GPS interface for status update
       if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-        try {
-          const result = window.AndroidGPS.updateStatus(courseId, newStatus);
-          logGPS(`✅ MainActivity GPS status updated: ${result}`);
-        } catch (androidError) {
-          logGPSError(`❌ AndroidGPS.updateStatus failed: ${androidError}`);
-        }
+        const result = window.AndroidGPS.updateStatus(courseId, newStatus);
+        logGPS(`✅ MainActivity GPS status updated: ${result}`);
       } else {
-        console.log(`ℹ️ AndroidGPS interface not available - this is expected in browser mode`);
+        logGPSError(`❌ AndroidGPS interface not available for status update - this is normal in browser`);
+        console.warn('AndroidGPS status interface not available - this is normal in browser development');
       }
-      
-      console.log(`✅ Course status update completed: ${courseId} → ${newStatus}`);
       
     } catch (error) {
       logGPSError(`❌ GPS status update error: ${error}`);
-      console.error(`❌ DirectAndroidGPS updateCourseStatus failed:`, error);
       throw error;
     }
   }
