@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { login } from "../services/api";
 import { THEME_INFO } from "../services/themeService";
 
@@ -12,7 +12,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const currentTheme = 'dark'; // Default theme for login screen
+  const [currentTheme, setCurrentTheme] = useState<'dark' | 'light' | 'business' | 'nature' | 'night' | 'driver'>('dark');
+  
+  // THEME FIX: Load saved theme on login screen
+  useEffect(() => {
+    const loadTheme = async () => {
+      try {
+        const savedTheme = localStorage.getItem('itrack_theme') || 'dark';
+        setCurrentTheme(savedTheme as any);
+      } catch (error) {
+        console.log('Using default theme on login');
+      }
+    };
+    loadTheme();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,14 +73,24 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   return (
     <div style={{
       minHeight: '100dvh',
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)',
+      background: currentTheme === 'light' 
+        ? 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #e2e8f0 100%)'
+        : currentTheme === 'business'
+          ? 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)'
+          : currentTheme === 'nature'
+            ? 'linear-gradient(135deg, #0f172a 0%, #064e3b 50%, #065f46 100%)'
+            : currentTheme === 'night'
+              ? 'linear-gradient(135deg, #0f0f23 0%, #1e1b4b 50%, #312e81 100%)'
+              : currentTheme === 'driver'
+                ? 'linear-gradient(135deg, #0c0a09 0%, #44403c 50%, #57534e 100%)'
+                : 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)', // dark default
       backgroundAttachment: 'fixed',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '0',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segue UI", Roboto, "Helvetica Neue", Arial, sans-serif',
       position: 'relative',
       overflow: 'hidden'
     }}>

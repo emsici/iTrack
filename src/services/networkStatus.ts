@@ -94,9 +94,17 @@ class NetworkStatusService {
 
   /**
    * Verificare periodică a status-ului bazată pe timpul ultimei transmisii
+   * FIX: Resetare forțată la offline când nu există internet real
    */
   private checkNetworkStatus(): void {
     const timeSinceLastSuccess = Date.now() - this.lastSuccessfulTransmission;
+    
+    // FORȚARE OFFLINE dacă nu există conexiune browser
+    if (!navigator.onLine && this.isOnline) {
+      this.setOnlineStatus(false);
+      logAPI('🔴 INTERNET PIERDUT - navigator.onLine false');
+      return;
+    }
     
     if (timeSinceLastSuccess > this.OFFLINE_THRESHOLD_MS && this.isOnline) {
       logAPI(`⚠️ ${timeSinceLastSuccess}ms fără transmisie GPS reușită - posibil offline`);
@@ -104,6 +112,37 @@ class NetworkStatusService {
       if (this.consecutiveFailures > 0) {
         this.setOnlineStatus(false);
         logAPI('🔴 INTERNET PIERDUT - timeout + eșecuri de transmisie');
+      }
+    }
+    
+    // VERIFICARE SUPLIMENTARĂ: Test ping rapid
+    if (this.isOnline && timeSinceLastSuccess > 15000) {
+      this.quickConnectivityTest();
+    }
+  }
+  
+  /**
+   * Test rapid de conectivitate pentru verificare suplimentară
+   */
+  private async quickConnectivityTest(): Promise<void> {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      await fetch('https://www.google.com/favicon.ico', {
+        method: 'HEAD',
+        signal: controller.signal,
+        cache: 'no-cache'
+      });
+      
+      clearTimeout(timeoutId);
+      // Dacă ajunge aici, internetul funcționează
+      
+    } catch (error) {
+      // Test eșuat - probabil offline
+      if (this.isOnline) {
+        logAPI('🔴 INTERNET PIERDUT - test conectivitate eșuat');
+        this.setOnlineStatus(false);
       }
     }
   }

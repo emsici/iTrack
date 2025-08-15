@@ -42,6 +42,16 @@ class CourseAnalyticsService {
    */
   async startCourseTracking(courseId: string, uit: string, vehicleNumber: string): Promise<void> {
     try {
+      // FIX GPS STATISTICS 0 ISSUE: Don't overwrite existing analytics if they exist
+      const existingAnalytics = await this.getCourseAnalytics(courseId);
+      if (existingAnalytics && existingAnalytics.gpsPoints && existingAnalytics.gpsPoints.length > 0) {
+        console.log(`⚠️ Course ${courseId} already has ${existingAnalytics.gpsPoints.length} GPS points - updating existing analytics`);
+        existingAnalytics.isActive = true; // Ensure it's active
+        existingAnalytics.lastUpdateTime = new Date().toISOString();
+        await this.saveCourseAnalytics(courseId, existingAnalytics);
+        return;
+      }
+
       const analytics: CourseStatistics = {
         courseId,
         uit,
@@ -60,7 +70,7 @@ class CourseAnalyticsService {
       };
 
       await this.saveCourseAnalytics(courseId, analytics);
-      console.log(`📊 Started analytics tracking for course: ${courseId} | UIT: ${uit}`);
+      console.log(`📊 Started NEW analytics tracking for course: ${courseId} | UIT: ${uit}`);
     } catch (error) {
       console.error('❌ Error starting course tracking:', error);
     }

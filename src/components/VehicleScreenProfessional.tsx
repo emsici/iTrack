@@ -333,9 +333,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
       
       console.log('✅ Logout complet finalizat - toate transmisiile GPS oprite');
+      
+      // FIX SCREEN BLOCK: Add small delay before logout to prevent UI freeze
+      await new Promise(resolve => setTimeout(resolve, 500));
       onLogout();
     } catch (error) {
       console.error("Eroare la logout:", error);
+      // Even on error, add delay to prevent screen blocking
+      await new Promise(resolve => setTimeout(resolve, 300));
       onLogout();
     }
   };
