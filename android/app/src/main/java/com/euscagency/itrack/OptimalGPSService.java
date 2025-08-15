@@ -172,14 +172,21 @@ public class OptimalGPSService extends Service {
             
             handleServiceCommand(intent);
             
-            // CRITICAL: After handling command, perform GPS cycle if we have active courses
+            // CRITICAL: After handling command, perform GPS cycle AND ensure timer is running
             if (!activeCourses.isEmpty()) {
-                Log.d(TAG, "🚀 DIAGNOSTIC: EXECUTING INITIAL GPS CYCLE for " + activeCourses.size() + " active courses");
-                Log.d(TAG, "🔍 DIAGNOSTIC: Active courses details:");
+                Log.e(TAG, "🚀 DIAGNOSTIC: EXECUTING INITIAL GPS CYCLE for " + activeCourses.size() + " active courses");
+                Log.e(TAG, "🔍 DIAGNOSTIC: Active courses details:");
                 for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
                     CourseData course = entry.getValue();
-                    Log.d(TAG, "  - CourseId: " + course.courseId + ", UIT: " + course.uit + ", Status: " + course.status);
+                    Log.e(TAG, "  - CourseId: " + course.courseId + ", UIT: " + course.uit + ", Status: " + course.status);
                 }
+                
+                // CRITICAL: Ensure GPS timer is ALWAYS running when we have active courses
+                if (!isAlarmActive) {
+                    Log.e(TAG, "🚨 CRITICAL: Active courses but NO timer - starting GPS timer immediately");
+                    startOptimalGPSTimer();
+                }
+                
                 performOptimalGPSCycle();
             } else {
                 Log.w(TAG, "⚠️ DIAGNOSTIC: NO ACTIVE COURSES - skipping GPS cycle");
@@ -827,7 +834,15 @@ public class OptimalGPSService extends Service {
             if (activeCourses.containsKey(courseId)) {
                 Log.w(TAG, "⚠️ Course " + courseId + " already exists - updating status only");
                 activeCourses.get(courseId).status = status;
-                return; // Don't add duplicate or restart timer
+                
+                // CRITICAL FIX: Ensure timer is running even for existing courses
+                if (!isAlarmActive) {
+                    Log.e(TAG, "🚨 CRITICAL: Course exists but timer NOT active - starting GPS timer NOW");
+                    startOptimalGPSTimer();
+                } else {
+                    Log.e(TAG, "✅ Course exists and timer IS active - GPS continuă");
+                }
+                return;
             }
             
             CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber, authToken);
@@ -837,12 +852,21 @@ public class OptimalGPSService extends Service {
             Log.d(TAG, "📊 ACTIVE COURSES COUNT: " + activeCourses.size());
             Log.d(TAG, "🔍 ALARM STATUS: isAlarmActive = " + isAlarmActive);
             
+            // CRITICAL FIX: ALWAYS ensure GPS timer is running for ANY active course
             if (!isAlarmActive) {
-                Log.d(TAG, "🚀 STARTING GPS TIMER for new course");
+                Log.e(TAG, "🚀 CRITICAL: STARTING GPS TIMER for new course - guaranteed background GPS");
                 startOptimalGPSTimer();
             } else {
-                Log.d(TAG, "⏰ GPS TIMER already active - continuing with " + activeCourses.size() + " courses");
+                Log.e(TAG, "✅ GPS TIMER already active - continuing with " + activeCourses.size() + " courses");
             }
+            
+            // EMERGENCY FIX: Double-check alarm is truly active and force start if not
+            new android.os.Handler().postDelayed(() -> {
+                if (!activeCourses.isEmpty() && !isAlarmActive) {
+                    Log.e(TAG, "🚨 EMERGENCY: Courses active but timer FAILED - force starting GPS timer");
+                    startOptimalGPSTimer();
+                }
+            }, 2000); // Check after 2 seconds
             
         } else if ("STOP_GPS".equals(action)) {
             String courseId = intent.getStringExtra("courseId");
