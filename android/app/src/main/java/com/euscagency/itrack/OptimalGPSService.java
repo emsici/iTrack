@@ -384,6 +384,7 @@ public class OptimalGPSService extends Service {
         // CRITICAL FIX: Always call scheduleNextOptimalGPSCycle for proper continuation
         Log.d(TAG, "🔄 SCHEDULING NEXT GPS CYCLE after transmission complete");
         scheduleNextOptimalGPSCycle();
+        Log.d(TAG, "⏰ NEXT GPS CYCLE SCHEDULED successfully");
     }
     
     /**
