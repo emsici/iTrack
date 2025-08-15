@@ -26,14 +26,11 @@ if [ "$ENV" = "PROD" ] || [ "$ENV" = "prod" ]; then
     sed -i 's/const currentConfig = API_CONFIG\.TEST;/const currentConfig = API_CONFIG.PROD;/g' "src/services/api.ts"
     sed -i 's/API_BASE_URL_TEST/API_BASE_URL_PROD/g' "android/app/src/main/java/com/euscagency/itrack/OptimalGPSService.java"
     echo "✓ Configurat pentru PRODUCTION (www.euscagency.com/etsm_prod/)"
-elif [ "$ENV" = "TEST" ] || [ "$ENV" = "test" ]; then
+else
     echo "Setez TEST environment..."
     sed -i 's/const currentConfig = API_CONFIG\.PROD;/const currentConfig = API_CONFIG.TEST;/g' "src/services/api.ts"
     sed -i 's/API_BASE_URL_PROD/API_BASE_URL_TEST/g' "android/app/src/main/java/com/euscagency/itrack/OptimalGPSService.java"
     echo "✓ Configurat pentru TEST (www.euscagency.com/etsm_test/)"
-else
-    echo "EROARE: Environment nevalid! Foloseste TEST sau PROD"
-    exit 1
 fi
 
 echo ""

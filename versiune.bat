@@ -25,15 +25,11 @@ if /i "%ENV%"=="PROD" (
     powershell -Command "(Get-Content 'src\services\api.ts') -replace 'const currentConfig = API_CONFIG\.TEST;', 'const currentConfig = API_CONFIG.PROD;' | Set-Content 'src\services\api.ts'"
     powershell -Command "(Get-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java') -replace 'API_BASE_URL_TEST', 'API_BASE_URL_PROD' | Set-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java'"
     echo ✓ Configurat pentru PRODUCTION (www.euscagency.com/etsm_prod/)
-) else if /i "%ENV%"=="TEST" (
+) else (
     echo Setez TEST environment...
     powershell -Command "(Get-Content 'src\services\api.ts') -replace 'const currentConfig = API_CONFIG\.PROD;', 'const currentConfig = API_CONFIG.TEST;' | Set-Content 'src\services\api.ts'"
     powershell -Command "(Get-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java') -replace 'API_BASE_URL_PROD', 'API_BASE_URL_TEST' | Set-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java'"
     echo ✓ Configurat pentru TEST (www.euscagency.com/etsm_test/)
-) else (
-    echo EROARE: Environment nevalid! Foloseste TEST sau PROD
-    pause
-    exit /b 1
 )
 
 echo.
