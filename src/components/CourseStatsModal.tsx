@@ -7,13 +7,15 @@ interface CourseStatsModalProps {
   onClose: () => void;
   courses: Course[];
   vehicleNumber: string;
+  currentTheme?: string;
 }
 
 const CourseStatsModal: React.FC<CourseStatsModalProps> = ({ 
   isOpen, 
   onClose, 
   courses, 
-  vehicleNumber 
+  vehicleNumber,
+  currentTheme = 'dark'
 }) => {
   const [courseStats, setCourseStats] = useState<{ [courseId: string]: CourseStatistics }>({});
   const [loading, setLoading] = useState(true);
@@ -221,7 +223,7 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
                   }}>
                     <i className="fas fa-calculator"></i>
                   </div>
-                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#1e293b' }}>Statistici Totale</h3>
+                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : '#1e293b' }}>Statistici Totale</h3>
                 </div>
                 <div style={{
                   display: 'grid',
@@ -249,10 +251,10 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
                     }}>
                       <i className="fas fa-route"></i>
                     </div>
-                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : '#1e293b', marginBottom: '4px' }}>
                       {totalStats.totalDistance.toFixed(1)} km
                     </div>
-                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Distanță Totală</div>
+                    <div style={{ fontSize: '14px', color: currentTheme === 'light' || currentTheme === 'business' ? '#1e293b' : '#64748b', fontWeight: '500' }}>Distanță Totală</div>
                   </div>
                   
                   <div style={{
@@ -276,10 +278,10 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
                     }}>
                       <i className="fas fa-clock"></i>
                     </div>
-                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : '#1e293b', marginBottom: '4px' }}>
                       {formatTime(totalStats.totalTime)}
                     </div>
-                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Timp Conducere</div>
+                    <div style={{ fontSize: '14px', color: currentTheme === 'light' || currentTheme === 'business' ? '#1e293b' : '#64748b', fontWeight: '500' }}>Timp Conducere</div>
                   </div>
                   
                   <div style={{
@@ -303,10 +305,10 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
                     }}>
                       <i className="fas fa-tachometer-alt"></i>
                     </div>
-                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : '#1e293b', marginBottom: '4px' }}>
                       {totalStats.avgSpeed.toFixed(1)} km/h
                     </div>
-                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Viteză Medie</div>
+                    <div style={{ fontSize: '14px', color: currentTheme === 'light' || currentTheme === 'business' ? '#1e293b' : '#64748b', fontWeight: '500' }}>Viteză Medie</div>
                   </div>
                   
                   <div style={{
@@ -330,10 +332,10 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
                     }}>
                       <i className="fas fa-pause-circle"></i>
                     </div>
-                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : '#1e293b', marginBottom: '4px' }}>
                       {totalStats.totalStops}
                     </div>
-                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Opriri Totale</div>
+                    <div style={{ fontSize: '14px', color: currentTheme === 'light' || currentTheme === 'business' ? '#1e293b' : '#64748b', fontWeight: '500' }}>Opriri Totale</div>
                   </div>
                   
                   <div style={{
@@ -357,10 +359,10 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
                     }}>
                       <i className="fas fa-list"></i>
                     </div>
-                    <div style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '24px', fontWeight: '700', color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : '#1e293b', marginBottom: '4px' }}>
                       {totalStats.coursesTracked}
                     </div>
-                    <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>Curse Urmărite</div>
+                    <div style={{ fontSize: '14px', color: currentTheme === 'light' || currentTheme === 'business' ? '#1e293b' : '#64748b', fontWeight: '500' }}>Curse Urmărite</div>
                   </div>
                 </div>
               </div>

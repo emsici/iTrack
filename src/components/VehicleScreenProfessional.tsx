@@ -993,13 +993,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               alignItems: 'center',
               gap: '10px'
             }}>
-              {/* Online/Offline Status Card */}
+              {/* Online/Offline Status Card - SMALLER */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
-                padding: '8px 16px',
-                borderRadius: '20px',
+                gap: '6px', // Reduced gap
+                padding: '6px 12px', // Smaller padding
+                borderRadius: '16px', // Smaller radius
                 background: currentTheme === 'light' || currentTheme === 'business'
                   ? isOnline 
                     ? 'rgba(34, 197, 94, 0.1)' // Light green for online
@@ -1027,22 +1027,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     ? '1px solid rgba(34, 197, 94, 0.4)'
                     : '1px solid rgba(239, 68, 68, 0.4)'
               }}>
-                {/* Status Icon */}
+                {/* Status Icon - SMALLER */}
                 <div style={{
-                  width: '14px',
-                  height: '14px',
+                  width: '10px', // Reduced from 14px
+                  height: '10px', // Reduced from 14px  
                   borderRadius: '50%',
                   backgroundColor: isOnline ? '#22c55e' : '#ef4444',
-                  boxShadow: `0 0 8px ${isOnline ? '#22c55e' : '#ef4444'}`, // Reduced shadow for performance
-                  // Removed pulse animation for better performance
+                  boxShadow: `0 0 4px ${isOnline ? '#22c55e' : '#ef4444'}`, // Smaller shadow
                 }} />
                 
-                {/* Status Text */}
+                {/* Status Text - SMALLER */}
                 <span style={{
                   color: currentTheme === 'light' || currentTheme === 'business'
                     ? isOnline ? '#065f46' : '#b91c1c'
                     : isOnline ? '#4ade80' : '#fca5a5',
-                  fontSize: '12px',
+                  fontSize: '10px', // Reduced from 12px
                   fontWeight: '600',
                   letterSpacing: '0.5px'
                 }}>
@@ -1431,6 +1430,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               onClose={() => setShowStatsModal(false)}
               courses={courses}
               vehicleNumber={vehicleNumber}
+              currentTheme={currentTheme}
             />
 
 

@@ -185,7 +185,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .uit-priority {
-          color: ${currentTheme === 'dark' ? '#ffffff' : '#1e293b'};
+          color: ${currentTheme === 'light' || currentTheme === 'business' 
+            ? '#000000'  /* PURE BLACK text for Light/Business themes */
+            : '#ffffff'  /* White text for other themes */
+          };
           font-size: 1rem;
           font-weight: 600;
           flex: 1;
@@ -194,7 +197,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .toggle-details-btn {
           background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(241, 245, 249, 0.9)'};
           border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(148, 163, 184, 0.25)'};
-          color: ${currentTheme === 'dark' ? '#cbd5e1' : '#374151'};
+          color: ${currentTheme === 'light' || currentTheme === 'business' 
+            ? '#000000'  /* BLACK text for Light/Business themes */
+            : '#cbd5e1'  /* Light text for other themes */
+          };
           padding: 8px 16px;
           border-radius: 8px;
           cursor: pointer;
@@ -211,7 +217,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .toggle-details-btn:hover {
           background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(226, 232, 240, 0.9)'};
-          color: ${currentTheme === 'dark' ? '#ffffff' : '#1e293b'};
+          color: ${currentTheme === 'light' || currentTheme === 'business' 
+            ? '#000000'  /* BLACK text for Light/Business themes */
+            : '#ffffff'  /* White text for other themes */
+          };
           transform: scale(1.02);
         }
 
@@ -251,7 +260,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .preview-label {
-          color: ${currentTheme === 'dark' ? '#94a3b8' : '#475569'};
+          color: ${currentTheme === 'light' || currentTheme === 'business' 
+            ? '#1e293b'  /* BLACK text for Light/Business themes */
+            : '#94a3b8'  /* Gray text for other themes */
+          };
           font-size: 0.75rem;
           font-weight: 600;
           min-width: 90px;
@@ -261,7 +273,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .preview-value {
-          color: ${currentTheme === 'dark' ? '#e2e8f0' : '#1e293b'};
+          color: ${currentTheme === 'light' || currentTheme === 'business' 
+            ? '#000000'  /* PURE BLACK text for Light/Business themes */
+            : '#e2e8f0'  /* Light text for other themes */
+          };
           font-size: 0.9rem;
           font-weight: 600;
           text-align: right;
@@ -284,7 +299,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .course-title-compact {
-          color: ${currentTheme === 'dark' ? '#ffffff' : '#1e293b'};
+          color: ${currentTheme === 'light' || currentTheme === 'business' 
+            ? '#000000'  /* PURE BLACK text for Light/Business themes */
+            : '#ffffff'  /* White text for other themes */
+          };
           font-size: 0.85rem;
           font-weight: 600;
           margin: 0;
@@ -355,7 +373,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .section-title-enhanced {
-          color: ${currentTheme === 'dark' ? '#ffffff' : '#1e293b'};
+          color: ${currentTheme === 'light' || currentTheme === 'business' 
+            ? '#000000'  /* PURE BLACK text for Light/Business themes */
+            : '#ffffff'  /* White text for other themes */
+          };
           font-size: 0.9rem;
           font-weight: 600;
           margin: 0 0 12px 0;
@@ -377,13 +398,19 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .detail-label-enhanced {
-          color: ${currentTheme === 'dark' ? '#94a3b8' : '#64748b'};
+          color: ${currentTheme === 'light' || currentTheme === 'business' 
+            ? '#1e293b'  /* DARK text for Light/Business themes */
+            : '#94a3b8'  /* Gray text for other themes */
+          };
           font-size: 0.8rem;
           font-weight: 500;
         }
 
         .detail-value-enhanced {
-          color: ${currentTheme === 'dark' ? '#e2e8f0' : '#334155'};
+          color: ${currentTheme === 'light' || currentTheme === 'business' 
+            ? '#000000'  /* PURE BLACK text for Light/Business themes */
+            : '#e2e8f0'  /* Light text for other themes */
+          };
           font-size: 0.85rem;
           font-weight: 500;
           text-align: right;
