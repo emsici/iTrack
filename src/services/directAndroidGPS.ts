@@ -116,12 +116,17 @@ class DirectAndroidGPSService {
       const token = await getStoredToken() || '';
       const realUIT = courseId; // courseId IS the UIT from VehicleScreen fix
       
-      // CRITICAL: Send status to server FIRST before updating GPS
-      console.log(`📡 Sending status ${newStatus} to server for UIT: ${realUIT}`);
+      // CRITICAL FLOW:
+      // 1. For PAUSE (3) or STOP (4): Send status FIRST, then stop GPS coordinates
+      // 2. For START (2): Send status FIRST, then start GPS coordinates
       
-      // IMPORTANT: Stop all other GPS services before status transmission to prevent concurrent transmissions
+      console.log(`📡 STEP 1: Sending status ${newStatus} to server for UIT: ${realUIT}`);
+      await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
+      console.log(`✅ Status ${newStatus} sent to server successfully`);
+      
+      // STEP 2: Handle GPS coordinate transmission based on status
       if (newStatus === 3 || newStatus === 4) {
-        console.log(`🛑 PRE-STOPPING all GPS services before ${newStatus === 3 ? 'PAUSE' : 'STOP'} transmission to prevent race conditions`);
+        console.log(`🛑 STEP 2: STOPPING GPS coordinates after ${newStatus === 3 ? 'PAUSE' : 'STOP'} status transmission`);
         await this.stopTracking(courseId);
         
         // EMERGENCY STOP: Stop all guaranteed GPS services to prevent race conditions
@@ -133,23 +138,14 @@ class DirectAndroidGPSService {
             console.log(`⚠️ Could not emergency stop garanteedGPS: ${e}`);
           }
         }
-        
-        // Small delay to ensure other services have stopped
-        await new Promise(resolve => setTimeout(resolve, 100));
+        console.log(`✅ GPS coordinates STOPPED after ${newStatus === 3 ? 'PAUSE' : 'STOP'} status`);
       }
       
-      await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
-      
-      // STATUS 2 (START): Setup complete GPS tracking
+      // STEP 3: Handle GPS coordinate transmission for START/RESUME
       if (newStatus === 2) {
-        console.log(`🚀 STATUS 2 (START): Setting up complete GPS tracking for ${courseId}`);
+        console.log(`🚀 STEP 3: STARTING GPS coordinates after START/RESUME status transmission`);
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
-      }
-      
-      // STATUS 3 (PAUSE) or STATUS 4 (STOP): Ensure GPS transmission is completely stopped
-      if (newStatus === 3 || newStatus === 4) {
-        console.log(`⏸️ STATUS ${newStatus} (${newStatus === 3 ? 'PAUSE' : 'STOP'}): Final GPS stop confirmation for ${courseId}`);
-        // Already stopped above - this is just for logging consistency
+        console.log(`✅ GPS coordinates STARTED after START/RESUME status`);
       }
       
       // Update local tracking - CRITICAL FIX: Remove courses with status 3/4 completely

@@ -276,49 +276,52 @@ class GuaranteedGPSService {
    */
   async updateStatus(courseId: string, newStatus: number): Promise<void> {
     const course = this.activeCourses.get(courseId);
+    
+    logGPS(`🔄 GUARANTEED GPS Status Update: ${courseId} → ${newStatus}`);
+    
     if (course) {
       const previousStatus = course.status;
+      logGPS(`📊 Previous status: ${previousStatus}, New status: ${newStatus}`);
       
-      logGPS(`🔄 Status updated for course ${courseId}: ${previousStatus} → ${newStatus}`);
-      
-      // CRITICAL FIX: Elimină complet cursele cu status 3 sau 4 din lista activă
+      // PAUSE (3) or STOP (4): Remove from active coordinates but keep status tracked
       if (newStatus === 3 || newStatus === 4) {
-        logGPS(`🛑 REMOVING course ${courseId} from active courses - status ${newStatus} (STOP/PAUSE)`);
+        logGPS(`⏸️ PAUSE/STOP (${newStatus}): Stopping GPS coordinates for ${courseId}`);
         this.activeCourses.delete(courseId);
         
-        // Dacă nu mai sunt curse active, oprește intervalul complet
+        // Stop interval if no more active courses
         if (this.activeCourses.size === 0) {
-          logGPS(`⏸️ No more active courses - stopping backup interval completely`);
+          logGPS(`🛑 No active courses remaining - stopping transmission interval`);
           this.stopBackupInterval();
         }
         
-        logGPS(`✅ Course ${courseId} REMOVED - ${this.activeCourses.size} courses remaining active`);
+        logGPS(`✅ Course ${courseId} coordinates STOPPED - ${this.activeCourses.size} courses still transmitting`);
         return;
       }
       
-      // Pentru status 2, updatează doar status-ul (cursul rămâne în listă)
+      // START/RESUME (2): Reactivate GPS coordinates
       if (newStatus === 2) {
         course.status = newStatus;
-        logGPS(`▶️ Course ${courseId} reactivated - GPS transmission will resume`);
+        logGPS(`▶️ START/RESUME (${newStatus}): Reactivating GPS coordinates for ${courseId}`);
         
-        // Dacă intervalul nu e activ dar avem curse, pornește-l
+        // Restart interval if not active
         if (!this.isTransmitting && this.activeCourses.size > 0) {
-          logGPS(`🔄 Restarting backup interval for reactivated course`);
+          logGPS(`🔄 Restarting GPS transmission interval`);
           this.startBackupInterval();
         }
+        
+        logGPS(`✅ Course ${courseId} coordinates RESUMED`);
       } else {
-        // Pentru alte statusuri, doar updatează
+        // Other statuses: just update
         course.status = newStatus;
+        logGPS(`🔄 Status updated to ${newStatus} for ${courseId}`);
       }
       
-      logGPS(`🔄 Final status for ${courseId}: ${newStatus} - Active courses: ${this.activeCourses.size}`);
     } else if (newStatus === 2) {
-      // CRITICAL: Dacă cursul nu există dar status e 2, probabil a fost eliminat la pause/stop
-      // Trebuie să recreez cursul pentru resume
-      logGPS(`🔄 Course ${courseId} not found but status is 2 (RESUME) - course might have been paused/stopped before`);
-      logGPS(`⚠️ Cannot resume course ${courseId} - missing course data. Please restart GPS tracking.`);
+      // RESUME but course not found - was probably paused/stopped
+      logGPS(`⚠️ RESUME requested for ${courseId} but course not in active list`);
+      logGPS(`❗ Course ${courseId} needs to be restarted via startGuaranteedGPS() - cannot resume unknown course`);
     } else {
-      logGPS(`⚠️ Course ${courseId} not found for status update to ${newStatus}`);
+      logGPS(`⚠️ Course ${courseId} not found for status ${newStatus}`);
     }
   }
 
