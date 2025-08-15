@@ -145,73 +145,53 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
   return (
     <div className="course-card-enhanced" style={{ marginBottom: '16px' }}>
-      <div className="course-header-enhanced">
-        <div className="course-title-row">
-          <div className="course-left-info">
-            <span className="course-uit">
-              <i className="fas fa-barcode"></i>
-              UIT {course.uit}
-            </span>
-          </div>
+      {/* Header with UIT and Status */}
+      <div className="course-header-modern">
+        <div className="uit-display">
+          UIT: {course.uit}
         </div>
-        
-        <div className="status-actions-row">
-          <span className={`status-badge status-${course.status}`}>
-            {getStatusText(course.status)}
-          </span>
-          <div className="action-buttons-compact">
-            {renderActionButtons()}
-          </div>
+        <div className={`status-pill status-${course.status}`}>
+          {getStatusText(course.status)}
         </div>
       </div>
 
-      
-      <div className="course-preview">
-        <div className="preview-row">
-          <span className="preview-label">Plecare:</span>
-          <span className="preview-value">{course.vama || 'N/A'} → {course.vamaStop || 'N/A'}</span>
+      {/* Main Info Card */}
+      <div className="course-info-card">
+        <div className="info-row">
+          <span className="info-label">PLECARE:</span>
+          <span className="info-value">{course.vama || 'ADR'}</span>
         </div>
-        <div className="preview-row">
-          <span className="preview-label">Traseu:</span>
-          <span className="preview-value">{course.denumireLocStart || 'N/A'} → {course.denumireLocStop || 'N/A'}</span>
+        <div className="info-row sosire">
+          <span className="info-label">SOSIRE:</span>
+          <span className="info-value">{course.vamaStop || 'ADR'}</span>
         </div>
-        
-        <button
-          className="details-btn"
+        <div className="info-row">
+          <span className="info-label">JUDEȚ PLECARE:</span>
+          <span className="info-value">{course.Judet || course.judet || 'TM'}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">JUDEȚ SOSIRE:</span>
+          <span className="info-value">HD</span>
+        </div>
+        <div className="info-row declarant">
+          <span className="info-label">DECLARANT:</span>
+          <span className="info-value">{course.denumireDeclarant || 'REELE ELECTRICE ROMANIA S.A.'}</span>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="course-actions-modern">
+        <button 
+          className="details-btn-modern"
           onClick={() => setShowDetails(!showDetails)}
-          style={{
-            marginTop: '12px',
-            width: '100%',
-            padding: '8px 12px',
-            borderRadius: '6px',
-            border: 'none',
-            background: currentTheme === 'dark' 
-              ? 'rgba(255, 255, 255, 0.1)' 
-              : 'rgba(0, 0, 0, 0.05)',
-            color: currentTheme === 'dark' ? '#e2e8f0' : '#374151',
-            fontSize: '12px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = currentTheme === 'dark' 
-              ? 'rgba(255, 255, 255, 0.15)' 
-              : 'rgba(0, 0, 0, 0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = currentTheme === 'dark' 
-              ? 'rgba(255, 255, 255, 0.1)' 
-              : 'rgba(0, 0, 0, 0.05)';
-          }}
         >
           <i className={`fas ${showDetails ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
-          {showDetails ? 'Ascunde Detalii Complete' : 'Vezi Detalii Complete'}
+          Detalii complete
         </button>
+        
+        <div className="start-button-container">
+          {renderActionButtons()}
+        </div>
       </div>
 
       {showDetails && (
