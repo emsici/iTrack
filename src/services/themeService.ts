@@ -46,6 +46,9 @@ export class ThemeService {
   private applyTheme(theme: Theme): void {
     const root = document.documentElement;
     
+    // Set status bar style for Android APK based on theme
+    this.setStatusBarStyle(theme);
+    
     const themeConfigs = {
       light: {
         bgPrimary: '#ffffff',
@@ -151,6 +154,57 @@ export class ThemeService {
 
   private notifyListeners(theme: Theme): void {
     this.listeners.forEach(listener => listener(theme));
+  }
+
+  private setStatusBarStyle(theme: Theme): void {
+    // For Android APK - set status bar color based on theme
+    const statusBarColor = this.getStatusBarColor(theme);
+    const isLightContent = this.isLightStatusBarContent(theme);
+    
+    // Set meta theme-color for browser/webview
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.setAttribute('name', 'theme-color');
+      document.getElementsByTagName('head')[0].appendChild(metaThemeColor);
+    }
+    metaThemeColor.setAttribute('content', statusBarColor);
+    
+    // Android Capacitor status bar plugin - dynamic loading for APK only
+    if ((window as any).Capacitor?.isNativePlatform()) {
+      try {
+        // Use dynamic import to avoid build errors in web environment
+        import('@capacitor/status-bar').then(module => {
+          const { StatusBar } = module;
+          StatusBar.setBackgroundColor({ color: statusBarColor });
+          StatusBar.setStyle({ 
+            style: isLightContent ? 'LIGHT' : 'DARK'
+          });
+          console.log(`🎨 Status bar updated: ${statusBarColor}, content: ${isLightContent ? 'LIGHT' : 'DARK'}`);
+        }).catch(err => {
+          console.log('Status bar plugin not available (browser environment):', err);
+        });
+      } catch (error) {
+        console.log('Status bar configuration skipped (not APK environment):', error);
+      }
+    }
+  }
+
+  private getStatusBarColor(theme: Theme): string {
+    const statusBarColors = {
+      'dark': '#0f172a',      // Dark blue-gray for dark theme
+      'light': '#0f172a',     // FIXED: Dark status bar for light theme
+      'business': '#0f172a',  // FIXED: Dark status bar for business theme  
+      'driver': '#1c1917',    // Dark brown
+      'nature': '#064e3b',    // Dark green
+      'night': '#1e1b4b'      // Dark blue
+    };
+    return statusBarColors[theme] || statusBarColors.dark;
+  }
+
+  private isLightStatusBarContent(theme: Theme): boolean {
+    // FIXED: All themes now use light content (white icons/text) on dark status bar
+    return true; // Always use light content for consistent dark status bar across all themes
   }
 
   async initialize(): Promise<Theme> {

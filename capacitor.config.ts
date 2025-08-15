@@ -23,6 +23,12 @@ const config: CapacitorConfig = {
     },
     Device: {
       getInfo: true
+    },
+    StatusBar: {
+      style: 'DARK',
+      backgroundColor: '#0f172a',
+      overlaysWebView: false,
+      androidStatusBarColor: '#0f172a'
     }
   }
 };

@@ -609,7 +609,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         <div className="preview-row">
           <span className="preview-label">Plecare:</span>
           <span className="preview-value">
-            {course.vama || 'N/A'}
+            {course.vama || course.denumireLocStart || 'N/A'}
           </span>
         </div>
         

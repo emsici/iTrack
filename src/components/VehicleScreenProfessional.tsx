@@ -1609,24 +1609,27 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               right: '0',
               background: 'transparent',
               padding: '0',
-              paddingBottom: '45px', // Space for Android navigation bar (3 icons)
+              paddingBottom: '5px', // FIXED: Minimal padding for system bar
               zIndex: 1000,
               pointerEvents: 'none' // Don't block interactions
             }}>
               {/* Version Display - positioned above Android navigation */}
               <div style={{
                 position: 'absolute',
-                bottom: '55px', // 55px from bottom to clear Android nav icons (45px + 10px)
+                bottom: '15px', // FIXED: Much closer to bottom, reducing large space
                 left: '50%',
                 transform: 'translateX(-50%)',
                 fontSize: '9px',
-                color: currentTheme === 'dark' ? '#64748b' : '#94a3b8',
+                color: currentTheme === 'dark' || currentTheme === 'light' || currentTheme === 'business' 
+                  ? '#64748b' : '#94a3b8',
                 fontWeight: '500',
                 textAlign: 'center',
                 whiteSpace: 'nowrap',
                 background: currentTheme === 'dark' 
                   ? 'rgba(15, 23, 42, 0.8)' 
-                  : 'rgba(255, 255, 255, 0.8)',
+                  : currentTheme === 'light' || currentTheme === 'business'
+                    ? 'rgba(15, 23, 42, 0.8)'  // FIXED: Dark background for light/business themes
+                    : 'rgba(15, 23, 42, 0.8)',
                 padding: '4px 8px',
                 borderRadius: '8px',
                 backdropFilter: 'blur(10px)'
