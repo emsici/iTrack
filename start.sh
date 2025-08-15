@@ -14,12 +14,12 @@ else
 fi
 
 echo "================================"
-echo "    iTrack - BUILD $ENV"
+echo "    iTrack - START $ENV"
 echo "================================"
 echo ""
 
 # Step 1: Switch environment
-echo "PASUL 1/4 - Comutare la $ENV..."
+echo "PASUL 1/2 - Comutare environment la $ENV..."
 
 if [ "$ENV" = "PROD" ] || [ "$ENV" = "prod" ]; then
     echo "Setez PRODUCTION environment..."
@@ -34,34 +34,78 @@ else
 fi
 
 echo ""
-echo "PASUL 2/4 - Building web application..."
-npx vite build
-if [ $? -ne 0 ]; then
-    echo "EROARE: Build-ul web a esuat!"
-    exit 1
+echo "PASUL 2/2 - Rulare build.sh pentru compilare completa..."
+
+# Create build.sh if it doesn't exist (equivalent to build.bat)
+if [ ! -f "build.sh" ]; then
+    echo "#!/bin/bash" > build.sh
+    echo "echo ========================================"
+    echo "echo     iTrack - Build si Deschidere Android"
+    echo "echo ========================================"
+    echo "echo"
+    echo ""
+    echo "echo [1/4] Instalare dependinte..."
+    echo "npm install"
+    echo 'if [ $? -ne 0 ]; then'
+    echo '    echo "EROARE: npm install esuat"'
+    echo '    exit 1'
+    echo 'fi'
+    echo "echo - Dependinte instalate"
+    echo ""
+    echo "echo"
+    echo "echo [2/4] Build proiect..."
+    echo "npx vite build"
+    echo 'if [ $? -ne 0 ]; then'
+    echo '    echo "EROARE: vite build esuat"'
+    echo '    exit 1'
+    echo 'fi'
+    echo "echo - Proiect compilat"
+    echo ""
+    echo "echo"
+    echo "echo [3/4] Sincronizare cu Android..."
+    echo "npx cap sync android"
+    echo 'if [ $? -ne 0 ]; then'
+    echo '    echo "EROARE: capacitor sync esuat"'
+    echo '    exit 1'
+    echo 'fi'
+    echo "echo - Android sincronizat"
+    echo ""
+    echo "echo"
+    echo "echo [4/4] Deschidere Android Studio..."
+    echo "npx cap open android"
+    echo 'if [ $? -ne 0 ]; then'
+    echo '    echo "EROARE: deschiderea Android Studio esuata"'
+    echo '    exit 1'
+    echo 'fi'
+    echo "echo - Android Studio deschis"
+    echo ""
+    echo "echo"
+    echo "echo ========================================"
+    echo "echo           Build Finalizat!"
+    echo "echo ========================================"
+    echo "echo Proiect gata pentru testare in Android Studio"
+    chmod +x build.sh
 fi
 
-echo "PASUL 3/4 - Syncing with Capacitor..."
-npx cap sync android
+# Run build.sh
+./build.sh
 if [ $? -ne 0 ]; then
-    echo "EROARE: Capacitor sync a esuat!"
+    echo "EROARE: Build-ul complet a esuat!"
     exit 1
 fi
-
-echo "PASUL 4/4 - Opening Android Studio..."
-echo ""
-npx cap open android
 
 echo ""
 echo "================================"
-echo "   BUILD $ENV PROCESS COMPLETED!"
+echo "   START $ENV PROCESS COMPLETED!"
 echo "================================"
 echo ""
 echo "Environment: $ENV"
-echo "Android Studio s-a deschis pentru build-ul final."
+echo "Build-ul complet finalizat prin build.sh"
+echo "Android Studio s-a deschis automat pentru build-ul final."
 echo ""
-echo "Pentru a finaliza:"
-echo "1. In Android Studio, apasa pe 'Build' > 'Build Bundle(s) / APK(s)' > 'Build APK(s)'"
-echo "2. APK-ul va fi generat in: android/app/build/outputs/apk/debug/"
-echo "3. Instaleaza APK-ul pe telefon pentru testare"
+echo "build.sh a facut:"
+echo "1. npm install (dependinte)"
+echo "2. npx vite build (compilare)"
+echo "3. npx cap sync android (sincronizare)"
+echo "4. npx cap open android (Android Studio)"
 echo ""

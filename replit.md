@@ -25,10 +25,11 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 - **DEBUG PANEL INLINE**: Debug panel-ul apare SUB lista de curse, nu înlocuiește pagina - experiență live debugging 
 - **PAUZĂ/STOP IMMEDIATE FIX**: Când se dă PAUZĂ, se opresc TOATE serviciile GPS simultan fără transmisii suplimentare
 - **REAL-TIME LOG MONITORING**: Log-uri în timp real în debug panel cu actualizare automată la 2 secunde
-- **START SYSTEM AUTOMATION**: Created unified start system with TEST default:
-  - `start.bat` (no params) - Builds with TEST environment (default)
-  - `start.bat PROD` / `start.sh PROD` - Builds with PRODUCTION environment
-  - Scripts handle: environment switch → web build → Capacitor sync → Android Studio opening
+- **START SYSTEM AUTOMATION**: Created unified start system with fluid workflow:
+  - `start.bat` (no params) - Environment switch (TEST) → calls build.bat (4 steps)
+  - `start.bat PROD` - Environment switch (PROD) → calls build.bat (4 steps)  
+  - `start.sh` / `start.sh PROD` - Same logic, creates build.sh if needed
+  - **Fluid 6-step process**: 2 environment steps + 4 build steps = seamless workflow
   - TEST is default environment, only TEST and PROD supported
 
 ## Recent Performance Optimizations (15/08/2025)
