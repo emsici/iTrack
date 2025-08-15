@@ -154,19 +154,6 @@ class DirectAndroidGPSService {
       // STEP 3: Handle GPS coordinate transmission for START/RESUME
       if (newStatus === 2) {
         console.log(`🚀 STEP 3: STARTING GPS coordinates after START/RESUME status transmission`);
-        
-        // CRITICAL: For RESUME, course was deleted from activeCourses at PAUSE
-        // Need to re-add it with full data before starting tracking
-        const courseData: ActiveCourse = { 
-          courseId: courseId, 
-          vehicleNumber: vehicleNumber, 
-          uit: realUIT, 
-          token: token, 
-          status: newStatus 
-        };
-        this.activeCourses.set(courseId, courseData);
-        console.log(`📊 Course ${courseId} re-added to activeCourses for START/RESUME`);
-        
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
         console.log(`✅ GPS coordinates STARTED after START/RESUME status`);
       }
