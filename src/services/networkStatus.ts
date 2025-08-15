@@ -28,7 +28,7 @@ class NetworkStatusService {
   }
 
   /**
-   * Raportează o transmisie GPS reușită
+   * Raportează o transmisie GPS reușită - EFICIENȚĂ MAXIMĂ
    */
   reportSuccessfulTransmission(): void {
     const wasOffline = !this.isOnline;
@@ -36,30 +36,35 @@ class NetworkStatusService {
     this.lastSuccessfulTransmission = Date.now();
     this.consecutiveFailures = 0;
     
+    // EFICIENT: Dacă era offline și acum primim 200 de la GPS, suntem online
     if (wasOffline) {
-      // Delay pentru a confirma că internetul este stabil
-      setTimeout(() => {
-        if (this.consecutiveFailures === 0) {
-          this.setOnlineStatus(true);
-          logAPI('🟢 INTERNET REVENIT - detectat prin transmisia GPS reușită');
-        }
-      }, this.ONLINE_CONFIRMATION_DELAY);
+      this.setOnlineStatus(true);
+      logAPI('🟢 INTERNET REVENIT - confirmat prin gps.php răspuns 200');
     } else if (!this.isOnline) {
       this.setOnlineStatus(true);
-      logAPI('🟢 Internet confirmat ONLINE prin transmisia GPS');
+      logAPI('🟢 Internet confirmat ONLINE prin gps.php răspuns 200');
     }
   }
 
   /**
-   * Raportează o eroare de transmisie GPS
+   * Raportează o eroare de transmisie GPS - EFICIENȚĂ MAXIMĂ
+   * Verifică direct status HTTP de la gps.php
    */
-  reportTransmissionError(error: any): void {
+  reportTransmissionError(error: any, httpStatus?: number): void {
     this.consecutiveFailures++;
     
     console.error(`❌ Eroare transmisie GPS (#${this.consecutiveFailures}): ${error}`);
     
-    // Verifică dacă este o eroare reală de rețea
-    if (this.isNetworkError(error)) {
+    // EFICIENT: Dacă gps.php nu returnează 200, probabil suntem offline
+    if (httpStatus && httpStatus !== 200) {
+      logAPI(`🔴 GPS.PHP STATUS ${httpStatus} - posibil offline (eșecuri: ${this.consecutiveFailures})`);
+      
+      if (this.consecutiveFailures >= this.MAX_CONSECUTIVE_FAILURES) {
+        this.setOnlineStatus(false);
+        logAPI('🔴 INTERNET PIERDUT - confirmat prin gps.php status non-200');
+      }
+    } else if (this.isNetworkError(error)) {
+      // Fallback pentru alte erori de rețea
       logAPI(`🔴 EROARE REȚEA detectată - eșecuri consecutive: ${this.consecutiveFailures}`);
       
       if (this.consecutiveFailures >= this.MAX_CONSECUTIVE_FAILURES) {
@@ -115,37 +120,13 @@ class NetworkStatusService {
       }
     }
     
-    // VERIFICARE SUPLIMENTARĂ: Test ping rapid
-    if (this.isOnline && timeSinceLastSuccess > 15000) {
-      this.quickConnectivityTest();
-    }
+    // ELIMINAT: Test ping suplimentar - gps.php este suficient pentru verificare
   }
   
   /**
-   * Test rapid de conectivitate pentru verificare suplimentară
+   * ELIMINAT: Test suplimentar de conectivitate
+   * MOTIVAȚIE: gps.php răspunsul este cea mai eficientă verificare
    */
-  private async quickConnectivityTest(): Promise<void> {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
-      await fetch('https://www.google.com/favicon.ico', {
-        method: 'HEAD',
-        signal: controller.signal,
-        cache: 'no-cache'
-      });
-      
-      clearTimeout(timeoutId);
-      // Dacă ajunge aici, internetul funcționează
-      
-    } catch (error) {
-      // Test eșuat - probabil offline
-      if (this.isOnline) {
-        logAPI('🔴 INTERNET PIERDUT - test conectivitate eșuat');
-        this.setOnlineStatus(false);
-      }
-    }
-  }
 
   /**
    * Setează status-ul online/offline și notifică callback-urile
@@ -213,9 +194,9 @@ class NetworkStatusService {
 // Instanță singleton
 export const networkStatusService = new NetworkStatusService();
 
-// Export helper functions
+// OPTIMIZAT: Export helper functions cu verificare eficientă prin HTTP status
 export const reportGPSSuccess = () => networkStatusService.reportSuccessfulTransmission();
-export const reportGPSError = (error: any) => networkStatusService.reportTransmissionError(error);
+export const reportGPSError = (error: any, httpStatus?: number) => networkStatusService.reportTransmissionError(error, httpStatus);
 export const onNetworkStatusChange = (callback: (isOnline: boolean) => void) => 
   networkStatusService.onStatusChange(callback);
 export const isNetworkOnline = () => networkStatusService.getStatus();

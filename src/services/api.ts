@@ -489,7 +489,7 @@ export const logout = async (token: string): Promise<boolean> => {
       }
 
       console.error("Serverul GPS a respins datele:", response.status);
-      reportGPSError(`Server rejected GPS data: ${response.status}`);
+      reportGPSError(`Server rejected GPS data: ${response.status}`, response.status);
       return false;
     } catch (capacitorError: any) {
       console.error(
@@ -580,12 +580,14 @@ export const sendGPSData = async (
 
       if (response.status === 200 || response.status === 204) {
         console.log("✅ GPS data transmitted successfully");
-        reportGPSSuccess(); // Raportează succesul la sistemul de detectare rețea
+        // EFICIENT: gps.php returnează 200/204 = suntem online
+        reportGPSSuccess();
         return true;
       } else {
         console.error(`❌ GPS failed: ${response.status}`);
         console.error("Response:", response.data);
-        reportGPSError(`HTTP ${response.status}: ${response.data}`); // Raportează eroarea
+        // EFICIENT: gps.php nu returnează 200 = posibil offline
+        reportGPSError(`HTTP ${response.status}: ${response.data}`, response.status);
         return false;
       }
 
