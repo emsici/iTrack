@@ -212,6 +212,14 @@ public class OptimalGPSService extends Service {
             } else {
                 Log.d(TAG, "🔄 Requesting fresh GPS location (minimal battery impact)");
                 requestSingleGPSLocation();
+                
+                // TIMEOUT SAFETY: In case GPS request hangs, schedule next cycle anyway
+                new android.os.Handler().postDelayed(() -> {
+                    if (!activeCourses.isEmpty()) {
+                        Log.w(TAG, "⏰ GPS TIMEOUT SAFETY: Ensuring next cycle is scheduled");
+                        scheduleNextOptimalGPSCycle();
+                    }
+                }, 8000); // 8 second timeout
             }
             
         } catch (Exception e) {
@@ -232,9 +240,13 @@ public class OptimalGPSService extends Service {
     private void requestSingleGPSLocation() {
         try {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Log.e(TAG, "❌ No location permission for optimal GPS");
+                Log.e(TAG, "❌ No location permission for optimal GPS - SCHEDULING NEXT CYCLE ANYWAY");
+                // CRITICAL FIX: Even without permission, schedule next cycle to maintain continuity
+                scheduleNextOptimalGPSCycle();
                 return;
             }
+            
+            Log.d(TAG, "🚀 Requesting fresh GPS location for " + activeCourses.size() + " courses");
             
             // Single location request - GPS active for minimal time
             locationManager.requestSingleUpdate(
@@ -242,9 +254,10 @@ public class OptimalGPSService extends Service {
                 new android.location.LocationListener() {
                     @Override
                     public void onLocationChanged(Location location) {
-                        Log.d(TAG, "📍 Fresh OPTIMAL GPS location received");
+                        Log.d(TAG, "📍 Fresh OPTIMAL GPS location received - processing transmission");
                         transmitGPSForAllCourses(location);
                         // GPS automatically turns off after this callback
+                        // transmitGPSForAllCourses will call scheduleNextOptimalGPSCycle()
                     }
                     
                     @Override
@@ -252,13 +265,22 @@ public class OptimalGPSService extends Service {
                     @Override
                     public void onProviderEnabled(String provider) {}
                     @Override
-                    public void onProviderDisabled(String provider) {}
+                    public void onProviderDisabled(String provider) {
+                        Log.w(TAG, "⚠️ GPS provider disabled - scheduling next cycle anyway");
+                        scheduleNextOptimalGPSCycle();
+                    }
                 },
                 null // Main thread - minimal overhead
             );
             
+            Log.d(TAG, "✅ GPS location request initiated successfully");
+            
         } catch (Exception e) {
             Log.e(TAG, "❌ Error requesting single GPS location: " + e.getMessage());
+            e.printStackTrace();
+            // CRITICAL FIX: Even on error, schedule next cycle to maintain continuity
+            Log.w(TAG, "🔧 Scheduling next cycle despite GPS request error");
+            scheduleNextOptimalGPSCycle();
         }
     }
     
