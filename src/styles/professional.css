@@ -326,7 +326,7 @@ html, body {
   50% { opacity: 0.7; }
 }
 
-/* Header improved positioning - No overlay issues */
+/* Header improved positioning - All Themes with Safe Area */
 .corporate-header-professional {
   position: fixed;
   top: 0;
@@ -340,6 +340,38 @@ html, body {
   padding: calc(env(safe-area-inset-top, 25px) + 18px) 15px 18px 15px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 100px;
+}
+
+/* Business Theme Header - Light Background with proper status bar visibility */
+.theme-business .corporate-header-professional {
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.98) 0%, rgba(241, 245, 249, 0.95) 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  padding: calc(env(safe-area-inset-top, 30px) + 18px) 15px 18px 15px;
+}
+
+.theme-business .header-brand {
+  color: #1e293b;
+}
+
+.theme-business .header-title {
+  color: #1e293b;
+}
+
+/* Light Theme Header - Clean white with enhanced safe area */
+.theme-light .corporate-header-professional {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(249, 250, 251, 0.95) 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  padding: calc(env(safe-area-inset-top, 30px) + 18px) 15px 18px 15px;
+}
+
+.theme-light .header-brand {
+  color: #111827;
+}
+
+.theme-light .header-title {
+  color: #111827;
 }
 
 .header-brand {
