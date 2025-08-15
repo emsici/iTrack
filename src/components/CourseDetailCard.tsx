@@ -189,9 +189,16 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           Detalii complete
         </button>
         
-        <div className="start-button-container">
-          {renderActionButtons()}
-        </div>
+        {course.status === 1 && (
+          <button 
+            className="action-btn-compact btn-start-compact"
+            onClick={() => handleAction('start')}
+            disabled={isLoading}
+          >
+            <i className="fas fa-play"></i>
+            Start
+          </button>
+        )}
       </div>
 
       {showDetails && (
@@ -513,19 +520,6 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           </div>
         </div>
       )}
-
-      <div className="course-actions-enhanced">
-        {isLoading ? (
-          <div className="loading-enhanced">
-            <div className="spinner-enhanced"></div>
-            Se încarcă...
-          </div>
-        ) : (
-          <div className="action-buttons-enhanced">
-            {renderActionButtons()}
-          </div>
-        )}
-      </div>
 
       {/* Route Map Modal */}
       {showRouteMap && courseStats && (

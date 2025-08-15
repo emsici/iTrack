@@ -1470,6 +1470,8 @@ html, body {
   font-weight: 700;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .status-pill {
@@ -1544,7 +1546,12 @@ html, body {
 .course-actions-modern {
   display: flex;
   gap: 12px;
-  align-items: center;
+  align-items: stretch;
+}
+
+.course-actions-modern .action-btn-compact {
+  flex: 0 0 auto;
+  min-width: 120px;
 }
 
 .details-btn-modern {
