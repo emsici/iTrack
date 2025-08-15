@@ -164,10 +164,10 @@ export const themeService = new ThemeService();
 
 // Theme display names and descriptions
 export const THEME_INFO = {
-  dark: { name: 'Întunecat', description: 'Tema întunecată pentru economia bateriei', icon: 'moon' },
-  light: { name: 'Luminos', description: 'Tema luminoasă pentru vizibilitate maximă', icon: 'sun' },
+  dark: { name: 'Întunecată', description: 'Tema întunecată pentru economia bateriei', icon: 'moon' },
+  light: { name: 'Luminoasă', description: 'Tema luminoasă pentru vizibilitate maximă', icon: 'sun' },
   driver: { name: 'Șofer', description: 'Tema caldă pentru șoferi profesioniști', icon: 'truck' },
   business: { name: 'Business', description: 'Tema corporate pentru manageri', icon: 'briefcase' },
   nature: { name: 'Natură', description: 'Tema verde pentru relaxare', icon: 'leaf' },
-  night: { name: 'Nocturn', description: 'Tema violet pentru condusul nocturn', icon: 'star' }
+  night: { name: 'Nocturnă', description: 'Tema violet pentru condusul nocturn', icon: 'star' }
 };
