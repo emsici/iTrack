@@ -39,10 +39,10 @@ public class OptimalGPSService extends Service {
     
     // Configurație API Centralizată - Schimbați doar aici pentru a comuta mediile
     private static final String API_BASE_URL_PROD = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/";
-
+    private static final String API_BASE_URL_TEST = "https://www.euscagency.com/etsm_test/platforme/transport/apk/";
     
     // Mediul activ curent - Schimbați doar această linie pentru a comuta mediile
-    private static final String API_BASE_URL = API_BASE_URL_TEST;
+    private static final String API_BASE_URL = API_BASE_URL_PROD; // Folosim PROD ca default
     
     private AlarmManager alarmManager;
     private PendingIntent gpsPendingIntent;
