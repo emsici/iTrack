@@ -758,6 +758,53 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
             <div className="detail-section-enhanced">
               <h6 className="section-title-enhanced">
+                <i className="fas fa-map-marker-alt"></i>
+                Plecare
+              </h6>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Vamă:</span>
+                <span className="detail-value-enhanced">{course.vama || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Birou Vamal:</span>
+                <span className="detail-value-enhanced">{course.BirouVamal || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Județ:</span>
+                <span className="detail-value-enhanced">{course.Judet || course.judet || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Loc Start:</span>
+                <span className="detail-value-enhanced">{course.denumireLocStart || 'N/A'}</span>
+              </div>
+            </div>
+
+            <div className="detail-section-enhanced">
+              <h6 className="section-title-enhanced">
+                <i className="fas fa-flag-checkered"></i>
+                Destinație
+              </h6>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Vamă Stop:</span>
+                <span className="detail-value-enhanced">{course.vamaStop || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Birou Vamal Stop:</span>
+                <span className="detail-value-enhanced">{course.BirouVamalStop || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Județ Stop:</span>
+                <span className="detail-value-enhanced">{course.JudetStop || course.judetStop || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Loc Stop:</span>
+                <span className="detail-value-enhanced">{course.denumireLocStop || 'N/A'}</span>
+              </div>
+            </div>
+
+
+            <div className="detail-section-enhanced">
+              <h6 className="section-title-enhanced">
                 <i className="fas fa-tachometer-alt"></i>
                 Statistici GPS Live
               </h6>
@@ -938,7 +985,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                   </span>
                 </div>
               )}
-              
+
               {/* Route Map Button */}
               <div className="detail-item-enhanced" style={{
                 borderTop: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
@@ -985,52 +1032,6 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                     ? 'Traseu Indisponibil (Min. 2 coordonate)'
                     : `Vezi Traseu pe Hartă (${courseStats.gpsPoints.length} coordonate)`}
                 </button>
-              </div>
-            </div>
-
-            <div className="detail-section-enhanced">
-              <h6 className="section-title-enhanced">
-                <i className="fas fa-map-marker-alt"></i>
-                Plecare
-              </h6>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Vamă:</span>
-                <span className="detail-value-enhanced">{course.vama || 'N/A'}</span>
-              </div>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Birou Vamal:</span>
-                <span className="detail-value-enhanced">{course.BirouVamal || 'N/A'}</span>
-              </div>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Județ:</span>
-                <span className="detail-value-enhanced">{course.Judet || course.judet || 'N/A'}</span>
-              </div>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Loc Start:</span>
-                <span className="detail-value-enhanced">{course.denumireLocStart || 'N/A'}</span>
-              </div>
-            </div>
-
-            <div className="detail-section-enhanced">
-              <h6 className="section-title-enhanced">
-                <i className="fas fa-flag-checkered"></i>
-                Destinație
-              </h6>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Vamă Stop:</span>
-                <span className="detail-value-enhanced">{course.vamaStop || 'N/A'}</span>
-              </div>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Birou Vamal Stop:</span>
-                <span className="detail-value-enhanced">{course.BirouVamalStop || 'N/A'}</span>
-              </div>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Județ Stop:</span>
-                <span className="detail-value-enhanced">{course.JudetStop || course.judetStop || 'N/A'}</span>
-              </div>
-              <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Loc Stop:</span>
-                <span className="detail-value-enhanced">{course.denumireLocStop || 'N/A'}</span>
               </div>
             </div>
           </div>
