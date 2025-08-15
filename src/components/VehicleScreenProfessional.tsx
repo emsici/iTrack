@@ -150,8 +150,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
 
       if (coursesArray.length > 0) {
-        const mergedCourses = coursesArray.map((newCourse: Course) => {
-          const existingCourse = courses.find((c) => c.id === newCourse.id);
+        const mergedCourses = coursesArray.map((newCourse: any) => {
+          const courseId = newCourse.UIT || newCourse.uit || String(newCourse.ikRoTrans);
+          const existingCourse = courses.find((c) => c.id === courseId);
           
           // Restore saved status from localStorage
           let savedStatus = newCourse.status || 1; // Default to available
@@ -166,9 +167,31 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             console.error('Eșec la restaurarea statusului cursei:', error);
           }
           
-          return existingCourse
-            ? { ...newCourse, status: savedStatus }
-            : { ...newCourse, status: savedStatus, isNew: true }; // Mark new courses
+          // Map API response to interface - FIXED MAPPING using real API field names
+          const mappedCourse: Course = {
+            id: courseId,
+            name: `Transport ${newCourse.ikRoTrans}`,
+            uit: newCourse.UIT || newCourse.uit,
+            status: savedStatus,
+            // Map real API fields from TM20RTA response
+            ikRoTrans: newCourse.ikRoTrans,
+            codDeclarant: newCourse.codDeclarant,
+            denumireDeclarant: newCourse.denumireDeclarant,
+            nrVehicul: newCourse.nrVehicul,
+            dataTransport: newCourse.dataTransport,
+            // API uses capital letters as seen in response
+            Vama: newCourse.Vama,
+            VamaStop: newCourse.VamaStop,
+            BirouVamal: newCourse.BirouVamal,
+            BirouVamalStop: newCourse.BirouVamalStop,
+            Judet: newCourse.Judet,
+            JudetStop: newCourse.JudetStop,
+            denumireLocStart: newCourse.denumireLocStart,
+            denumireLocStop: newCourse.denumireLocStop,
+            isNew: !existingCourse
+          };
+          
+          return mappedCourse;
         });
 
         // Sort: new courses first, then existing ones
