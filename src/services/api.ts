@@ -637,11 +637,20 @@ export const sendGPSData = async (
         return false;
       }
 
-      return (
-        response.status === 200 ||
-        response.status === 201 ||
-        response.status === 204
-      );
+      // SALVARE AUTOMATĂ OFFLINE pentru orice status care nu e 200/204
+      console.error(`❌ GPS failed: ${response.status}`);
+      console.error("Response:", response.data);
+      reportGPSError(`HTTP ${response.status}: ${response.data}`, response.status);
+      
+      console.log('💾 Salvez coordonată offline - server nu răspunde cu succes');
+      try {
+        const { offlineGPSService } = await import('./offlineGPS');
+        await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
+      } catch (error) {
+        console.error('❌ Eroare salvare offline:', error);
+      }
+      
+      return false;
     } catch (capacitorError) {
       console.log("=== CapacitorHttp failed, trying fetch ===");
       console.log("CapacitorHttp error:", capacitorError);
@@ -669,11 +678,24 @@ export const sendGPSData = async (
         return false;
       }
 
-      return (
-        response.status === 200 ||
-        response.status === 201 ||
-        response.status === 204
-      );
+      if (response.status === 200 || response.status === 201 || response.status === 204) {
+        console.log("✅ Fetch GPS sent successfully");
+        reportGPSSuccess();
+        return true;
+      } else {
+        // SALVARE AUTOMATĂ OFFLINE pentru fetch fallback cu status != 200
+        console.error(`❌ Fetch GPS failed: ${response.status}`);
+        reportGPSError(`Fetch HTTP ${response.status}: ${responseText}`, response.status);
+        
+        console.log('💾 Salvez coordonată offline - fetch fallback eșuat');
+        try {
+          const { offlineGPSService } = await import('./offlineGPS');
+          await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
+        } catch (error) {
+          console.error('❌ Eroare salvare offline (fetch):', error);
+        }
+        return false;
+      }
     }
   } catch (error) {
     if (error instanceof Error && error.message === "TOKEN_EXPIRED") {
@@ -683,6 +705,16 @@ export const sendGPSData = async (
 
     console.error("GPS transmission error:", error);
     logAPI(`GPS error: ${error}`);
+    reportGPSError(error);
+    
+    // SALVARE AUTOMATĂ OFFLINE pentru eroare completă de transmisie  
+    console.log('💾 Salvez coordonată offline - eroare completă de transmisie');
+    try {
+      const { offlineGPSService } = await import('./offlineGPS');
+      await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
+    } catch (offlineError) {
+      console.error('❌ Eroare salvare offline (error catch):', offlineError);
+    }
     return false;
   }
 };
