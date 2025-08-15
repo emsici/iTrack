@@ -146,23 +146,24 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
   return (
     <div className="course-card-enhanced" style={{ marginBottom: '16px' }}>
       <div className="course-header-enhanced">
-        <div className="course-info-section">
-          <div className="course-title-enhanced">Transport {course.ikRoTrans || course.id}</div>
-          <div className="course-transport-number">{course.nrTransport || 'N/A'}</div>
-        </div>
-
-        <div className="course-metadata-enhanced">
-          <div className="course-uit">UIT {course.uit}</div>
-          <div className={`course-status-enhanced status-${course.status}`}>
-            {getStatusText(course.status)}
+        <div className="course-title-row">
+          <h5 className="course-title-enhanced">Cursă #{course.id}</h5>
+          <div className="course-identifiers">
+            <span className="course-uit">
+              <i className="fas fa-barcode"></i>
+              UIT {course.uit}
+            </span>
           </div>
         </div>
-      </div>
-
-      <div className="course-status-row">
-        <span className={`status-badge status-${course.status}`}>
-          {getStatusText(course.status)}
-        </span>
+        
+        <div className="status-actions-row">
+          <span className={`status-badge status-${course.status}`}>
+            {getStatusText(course.status)}
+          </span>
+          <div className="action-buttons-compact">
+            {renderActionButtons()}
+          </div>
+        </div>
       </div>
 
       

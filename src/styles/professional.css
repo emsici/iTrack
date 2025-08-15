@@ -1457,19 +1457,56 @@ html, body {
   100% { transform: rotate(360deg); }
 }
 
+/* Enhanced Course Card Layout */
+.course-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.course-title-enhanced {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.course-identifiers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .course-uit {
-  font-size: 12px;
+  font-size: 11px;
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
   background: linear-gradient(135deg, #1d4ed8, #1e40af);
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
   border: 1px solid rgba(29, 78, 216, 0.3);
   box-shadow: 0 2px 8px rgba(29, 78, 216, 0.2);
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  max-width: 120px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.status-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.action-buttons-compact {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .status-badge-enhanced {
