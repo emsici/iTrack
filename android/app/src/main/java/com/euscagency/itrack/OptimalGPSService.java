@@ -197,21 +197,36 @@ public class OptimalGPSService extends Service {
         
         Log.d(TAG, "⏰ OPTIMAL GPS CYCLE - getting location for " + activeCourses.size() + " courses");
         
+        // CRITICAL: Reacquire WakeLock pentru acest ciclu
+        if (wakeLock != null && !wakeLock.isHeld()) {
+            wakeLock.acquire(10*60*1000L /*10 minutes*/);
+            Log.e(TAG, "🔋 WakeLock RE-ACQUIRED în GPS cycle pentru background operation");
+        }
+        
         try {
             // CRITICAL: Get LAST KNOWN location first (instant, no battery)
             Location lastLocation = null;
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Log.d(TAG, "🔍 LastKnownLocation check: " + (lastLocation != null ? "FOUND" : "NULL"));
+            } else {
+                Log.e(TAG, "❌ CRITICAL: NO GPS PERMISSION - service cannot function!");
             }
             
             if (lastLocation != null && 
                 (System.currentTimeMillis() - lastLocation.getTime()) < 3000) { // Less than 3s old
                 
-                Log.d(TAG, "✅ Using recent GPS location (battery efficient) - NO fresh request needed");
+                long age = System.currentTimeMillis() - lastLocation.getTime();
+                Log.d(TAG, "✅ Using recent GPS location (battery efficient) - Age: " + age + "ms");
                 transmitGPSForAllCourses(lastLocation);
                 
             } else {
-                Log.d(TAG, "🔄 Requesting fresh GPS location (minimal battery impact)");
+                if (lastLocation != null) {
+                    long age = System.currentTimeMillis() - lastLocation.getTime();
+                    Log.d(TAG, "🔄 LastKnown GPS too old (" + age + "ms) - requesting fresh location");
+                } else {
+                    Log.d(TAG, "🔄 No lastKnown GPS - requesting fresh location");
+                }
                 requestSingleGPSLocation();
                 
                 // TIMEOUT SAFETY: In case GPS request hangs, schedule next cycle anyway
@@ -293,7 +308,8 @@ public class OptimalGPSService extends Service {
         int activeCoursesCount = 0;
         java.util.Set<String> transmittedUITs = new java.util.HashSet<>();
         
-        Log.d(TAG, "🚀 STARTING GPS transmission for " + activeCourses.size() + " total courses");
+        Log.e(TAG, "🚀 CRITICAL: STARTING GPS transmission for " + activeCourses.size() + " total courses");
+        Log.e(TAG, "📍 GPS Location: " + location.getLatitude() + ", " + location.getLongitude() + " (accuracy: " + location.getAccuracy() + "m)");
         
         java.util.List<String> coursesToRemove = new java.util.ArrayList<>();
         
@@ -810,9 +826,18 @@ public class OptimalGPSService extends Service {
     
     @Override
     public void onDestroy() {
+        Log.d(TAG, "🛑 OPTIMAL GPS Service destroyed");
+        
+        // Release WakeLock
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+            Log.d(TAG, "🔋 WakeLock released");
+        }
+        
+        // Stop GPS timer
         stopOptimalGPSTimer();
         
-        // CLEANUP: Shutdown HTTP thread pool
+        // Shutdown HTTP thread pool
         if (httpThreadPool != null && !httpThreadPool.isShutdown()) {
             httpThreadPool.shutdown();
             try {
@@ -822,9 +847,10 @@ public class OptimalGPSService extends Service {
             } catch (InterruptedException e) {
                 httpThreadPool.shutdownNow();
             }
+            Log.d(TAG, "🔌 HTTP thread pool shutdown");
         }
         
         super.onDestroy();
-        Log.d(TAG, "✅ Optimal GPS Service destroyed with proper cleanup");
+        Log.d(TAG, "✅ Optimal GPS Service cleanup complete");
     }
 }
