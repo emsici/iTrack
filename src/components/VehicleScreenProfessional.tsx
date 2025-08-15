@@ -24,7 +24,9 @@ import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
 import OfflineIndicator from "./OfflineIndicator";
+import OfflineSyncMonitor from "./OfflineSyncMonitor";
 import { simpleNetworkCheck } from "../services/simpleNetworkCheck";
+import { offlineGPSService } from "../services/offlineGPS";
 
 interface VehicleScreenProps {
   token: string;
@@ -49,6 +51,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loadingCourses] = useState(new Set<string>());
 
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
+  const [offlineSyncProgress, setOfflineSyncProgress] = useState({
+    totalOffline: 0,
+    totalSynced: 0,
+    syncInProgress: false,
+    lastSyncAttempt: null as Date | null,
+    syncErrors: 0
+  });
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
@@ -112,12 +121,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     simpleNetworkCheck.onStatusChange((online) => {
       setIsOnline(online);
       console.log(`📡 Network status: ${online ? 'ONLINE' : 'OFFLINE'}`);
+      
+      // Auto-sync când revii online
+      if (online && offlineGPSCount > 0) {
+        console.log('🌐 Internet restored - auto-syncing offline coordinates...');
+        offlineGPSService.syncOfflineCoordinates();
+      }
     });
+
+    // Monitor offline GPS count
+    const updateOfflineCount = async () => {
+      const count = await offlineGPSService.getOfflineCount();
+      setOfflineGPSCount(count);
+    };
+    
+    updateOfflineCount();
+    const countInterval = setInterval(updateOfflineCount, 10000); // Check every 10 seconds
     
     window.addEventListener('backgroundRefresh', handleBackgroundRefresh);
     
     return () => {
       window.removeEventListener('backgroundRefresh', handleBackgroundRefresh);
+      clearInterval(countInterval);
     };
   }, [vehicleNumber, token, coursesLoaded]);
 
@@ -676,6 +701,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }}>
           {/* Offline Indicator pentru input screen */}
           <OfflineIndicator className="mb-3" />
+          
+          {/* Offline Sync Monitor */}
+          <OfflineSyncMonitor 
+            isOnline={isOnline}
+            className="mb-3 shadow-lg"
+          />
           
           {/* Logo Row - Top */}
           <div style={{

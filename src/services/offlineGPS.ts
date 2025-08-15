@@ -28,11 +28,31 @@ export interface OfflineGPSCoordinate {
   savedAt: string;  // When saved to offline storage
 }
 
+interface OfflineSyncStats {
+  totalOffline: number;
+  totalSynced: number;
+  syncInProgress: boolean;
+  lastSyncAttempt: Date | null;
+  syncErrors: number;
+  currentBatch: number;
+  totalBatches: number;
+}
+
 class OfflineGPSService {
   private readonly STORAGE_KEY = 'offline_gps_coordinates';
   private readonly MAX_COORDINATES = 10000; // Maximum coordinates to store offline
   private readonly MAX_RETRY_COUNT = 3;
   private syncInProgress = false;
+  private syncStats: OfflineSyncStats = {
+    totalOffline: 0,
+    totalSynced: 0,
+    syncInProgress: false,
+    lastSyncAttempt: null,
+    syncErrors: 0,
+    currentBatch: 0,
+    totalBatches: 0
+  };
+  private syncCallbacks: ((stats: OfflineSyncStats) => void)[] = [];
 
   /**
    * Save GPS coordinate to offline storage
@@ -73,9 +93,52 @@ class OfflineGPSService {
       });
 
       console.log(`💾 OFFLINE GPS SAVED: ${coordinate.lat}, ${coordinate.lng} (UIT: ${coordinate.uit}, Total: ${updatedCoordinates.length})`);
+      
+      // Update sync stats
+      this.syncStats.totalOffline = updatedCoordinates.length;
+      this.notifyStatsChange();
     } catch (error) {
       console.error('❌ Error saving coordinate offline:', error);
     }
+  }
+
+  /**
+   * Subscribe to sync statistics updates
+   */
+  onSyncStatsChange(callback: (stats: OfflineSyncStats) => void): () => void {
+    this.syncCallbacks.push(callback);
+    
+    // Immediately call with current stats
+    callback({...this.syncStats});
+    
+    // Return unsubscribe function
+    return () => {
+      const index = this.syncCallbacks.indexOf(callback);
+      if (index > -1) {
+        this.syncCallbacks.splice(index, 1);
+      }
+    };
+  }
+
+  /**
+   * Notify all callbacks of stats change
+   */
+  private notifyStatsChange(): void {
+    const statsCopy = {...this.syncStats};
+    this.syncCallbacks.forEach(callback => {
+      try {
+        callback(statsCopy);
+      } catch (error) {
+        console.error('Error in sync stats callback:', error);
+      }
+    });
+  }
+
+  /**
+   * Get current sync statistics
+   */
+  getSyncStats(): OfflineSyncStats {
+    return {...this.syncStats};
   }
 
   /**
@@ -109,6 +172,10 @@ class OfflineGPSService {
     }
 
     this.syncInProgress = true;
+    this.syncStats.syncInProgress = true;
+    this.syncStats.lastSyncAttempt = new Date();
+    this.syncStats.syncErrors = 0;
+    this.notifyStatsChange();
     console.log('🚀 Starting offline GPS coordinate sync...');
 
     try {
@@ -132,14 +199,23 @@ class OfflineGPSService {
       
       // Process coordinates in batches of 50 for better efficiency
       const batchSize = 50;
+      const totalBatches = Math.ceil(coordinates.length / batchSize);
+      this.syncStats.totalBatches = totalBatches;
+      this.syncStats.currentBatch = 0;
+      
       for (let i = 0; i < coordinates.length; i += batchSize) {
+        this.syncStats.currentBatch = Math.floor(i / batchSize) + 1;
+        this.notifyStatsChange();
+        
         const batch = coordinates.slice(i, i + batchSize);
+        console.log(`📦 Processing batch ${this.syncStats.currentBatch}/${totalBatches} (${batch.length} coordinates)`);
         
         for (const coordinate of batch) {
           try {
             const success = await this.transmitCoordinate(coordinate);
             if (success) {
               successCount++;
+              this.syncStats.totalSynced++;
               console.log(`✅ Synced coordinate: ${coordinate.id}`);
             } else {
               // Increment retry count and keep for later if under max retries
@@ -151,6 +227,7 @@ class OfflineGPSService {
                 console.log(`❌ Max retries exceeded for: ${coordinate.id}`);
               }
               failedCount++;
+              this.syncStats.syncErrors++;
             }
           } catch (error) {
             console.error(`❌ Error syncing coordinate ${coordinate.id}:`, error);
@@ -183,8 +260,24 @@ class OfflineGPSService {
         total: totalProcessed 
       };
 
+      // Update final stats
+      this.syncStats.totalOffline = remainingCoordinates.length;
+      this.syncStats.syncInProgress = false;
+      this.syncStats.currentBatch = 0;
+      this.syncStats.totalBatches = 0;
+      this.notifyStatsChange();
+      
+      return { 
+        success: successCount, 
+        failed: failedCount, 
+        total: coordinates.length 
+      };
+
     } catch (error) {
       console.error('❌ Error during offline sync:', error);
+      this.syncStats.syncInProgress = false;
+      this.syncStats.syncErrors++;
+      this.notifyStatsChange();
       return { success: 0, failed: 0, total: 0 };
     } finally {
       this.syncInProgress = false;
