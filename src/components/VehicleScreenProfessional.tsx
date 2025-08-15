@@ -485,7 +485,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     checkConnectivity();
 
     // Reduced polling for better performance - every 2 minutes
-    const interval = setInterval(checkConnectivity, 120000);
+    const interval = setInterval(checkConnectivity, 180000); // OPTIMIZAT: 3 minute pentru mai puțin lag
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
@@ -525,30 +525,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
 
     updateOfflineCount();
-    const interval = setInterval(updateOfflineCount, 45000); // Further optimized: every 45 seconds for better performance
+    const interval = setInterval(updateOfflineCount, 120000); // ULTRA OPTIMIZAT pentru șoferi: every 2 minute pentru zero lag
     return () => clearInterval(interval);
   }, []);
 
-  // Scroll performance optimization
-  useEffect(() => {
-    let rafId: number;
-    const handleScroll = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = 0;
-        // Minimal scroll handling to avoid performance issues
-      });
-    };
-
-    const container = document.querySelector('.vehicle-screen.courses-loaded');
-    if (container) {
-      container.addEventListener('scroll', handleScroll, { passive: true });
-      return () => {
-        container.removeEventListener('scroll', handleScroll);
-        if (rafId) cancelAnimationFrame(rafId);
-      };
-    }
-  }, [coursesLoaded]);
+  // SCROLL PERFORMANCE optimizat special pentru șoferi - REMOVED complet pentru zero overhead
 
   // Theme helper functions
   const isDarkTheme = (theme: Theme) => theme === 'dark' || theme === 'driver' || theme === 'nature' || theme === 'night';

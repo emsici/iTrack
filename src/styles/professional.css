@@ -34,16 +34,38 @@ html, body {
   height: 100dvh;
 }
 
-/* PERFORMANCE OPTIMIZED: Reduced complexity for Samsung A57 */
+/* PERFORMANCE OPTIMIZED: Reduced complexity pentru toate telefoanele Android */
 .app {
   min-height: 100vh;
-  background: #f8fafc; /* Solid color instead of gradient for performance */
+  background: #f8fafc; /* Culoare solidă în loc de gradient pentru performanță */
   
-  /* SAMSUNG A57 OPTIMIZATION */
+  /* OPTIMIZARE UNIVERSALĂ ANDROID */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeSpeed; /* Performance over quality */
+  text-rendering: optimizeSpeed; /* Performanță peste calitate */
   image-rendering: optimizeSpeed;
+}
+
+/* SCROLL PERFORMANCE SPECIAL pentru șoferii care se plângeau de lag */
+* {
+  /* Reduce recalculările layout la minimum */
+  box-sizing: border-box;
+}
+
+/* ZERO LAG la scroll pentru toate dispozitivele */
+.courses-list *, .course-card-compact * {
+  will-change: auto !important; /* Override will-change pentru a evita repainting constant */
+}
+
+.course-card-compact:not(:hover) {
+  transform: none !important; /* Elimină transform când nu e hover pentru mai puțin GPU usage */
+}
+
+/* MOMENTUM scrolling pe toate dispozitivele */
+.vehicle-screen.courses-loaded {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: auto; /* Nu smooth pentru performanță */
+  touch-action: pan-y; /* Numai scroll vertical */
 }
 
 /* Courses List Design - Optimized for smooth scrolling */
@@ -63,20 +85,20 @@ html, body {
   align-items: center;
   position: relative;
   
-  /* ULTRA SMOOTH SCROLL optimizations */
+  /* ULTRA SMOOTH SCROLL optimizations - REDUCE GPU USAGE */
   overflow: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   
-  /* GPU ACCELERATION pentru performanță maximă */
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
+  /* MINIMAL GPU usage pentru scroll optim */
+  transform: translateZ(0); /* Simplificat de la translate3d */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   
-  /* Advanced containment pentru izolare layout */
-  contain: layout style paint size;
-  isolation: isolate;
+  /* REDUCED containment pentru mai puține calcule */
+  contain: layout style;
+  
+  /* REMOVED will-change pentru a evita constant GPU repainting */
 }
 
 /* Improved Course Container Structure */
@@ -93,31 +115,23 @@ html, body {
   gap: 16px;
   width: 100%;
   
-  /* EXTREME SCROLL OPTIMIZATION pentru telefoane performante */
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
+  /* SCROLL OPTIMIZATION pentru toate telefoanele - REDUCED GPU load */
   
-  /* Hardware acceleration layer */
+  /* MINIMAL transform pentru hardware acceleration */
+  transform: translateZ(0);
+  
+  /* Essential backface pentru smooth scroll */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  -moz-backface-visibility: hidden;
   
-  /* Advanced GPU layer isolation */
-  contain: layout style paint size;
-  isolation: isolate;
+  /* LIGHTWEIGHT containment */
+  contain: layout;
   
-  /* Prevent scroll jank */
+  /* Scroll performance essentials */
   overflow-anchor: none;
   -webkit-overflow-scrolling: touch;
   
-  /* Chrome/Edge optimizations */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  
-  /* Force GPU composite layer */
-  position: relative;
-  z-index: 1;
+  /* REMOVED will-change, isolation, z-index pentru mai puțin GPU overhead */
 }
 
 .course-card-wrapper {

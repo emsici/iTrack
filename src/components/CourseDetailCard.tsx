@@ -174,12 +174,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           z-index: ${showDetails ? '999' : '1'};
           isolation: isolate;
           
-          /* PERFORMANCE pentru scroll smooth */
-          will-change: transform;
-          transform: translate3d(0, 0, 0);
+          /* PERFORMANCE scroll optimizat pentru șoferi - reduced GPU usage */
+          transform: translateZ(0); /* Simplificat pentru mai puțin GPU load */
           backface-visibility: hidden;
           -webkit-backface-visibility: hidden;
-          contain: layout style paint;
+          contain: layout; /* Simplified containment */
         }
 
         .course-card-enhanced:hover {
