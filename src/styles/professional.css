@@ -40,14 +40,15 @@ html, body {
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
 }
 
-/* Courses List Design - Same as Header (Dark Theme) */
+/* Courses List Design - Optimized for smooth scrolling */
 .vehicle-screen.courses-loaded {
   min-height: 100vh;
   background: linear-gradient(135deg, 
     rgba(15, 23, 42, 0.95) 0%, 
     rgba(30, 41, 59, 0.95) 50%,
     rgba(15, 23, 42, 0.95) 100%);
-  backdrop-filter: blur(20px);
+  /* Reduced backdrop blur for performance */
+  backdrop-filter: blur(10px);
   animation: none;
   padding: 0;
   padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 90px);
@@ -55,7 +56,13 @@ html, body {
   flex-direction: column;
   align-items: center;
   position: relative;
+  /* Optimize overflow handling */
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Performance optimizations */
+  transform: translateZ(0);
+  will-change: scroll-position;
+  contain: layout style paint;
 }
 
 /* Improved Course Container Structure */
@@ -71,8 +78,15 @@ html, body {
   flex-direction: column;
   gap: 16px;
   width: 100%;
-  /* Performance optimization for smooth scrolling */
+  /* Advanced scroll performance optimization */
+  will-change: scroll-position;
   transform: translateZ(0);
+  contain: layout style paint;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow-anchor: none;
+  /* Additional iOS optimization */
+  -webkit-overflow-scrolling: touch;
   -webkit-overflow-scrolling: touch;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -1081,27 +1095,30 @@ html, body {
   width: 100%;
 }
 
-/* Course Cards Enhanced - Matching Header Design */
+/* Course Cards Enhanced - Optimized for smooth scrolling */
 .course-card-enhanced {
   background: linear-gradient(135deg, 
     rgba(20, 25, 40, 0.95) 0%,
     rgba(25, 30, 50, 0.95) 100%);
-  backdrop-filter: blur(20px);
+  /* Reduced backdrop blur for performance */
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   margin: 0 auto 16px auto;
   max-width: 600px;
   width: calc(100% - 40px);
   overflow: hidden;
-  transition: all 0.3s ease;
+  /* Optimized transitions - only transform for best performance */
+  transition: transform 0.2s ease-out;
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
-  /* GPU acceleration for smooth scrolling */
+  /* GPU acceleration optimizations */
   transform: translateZ(0);
   will-change: transform;
   backface-visibility: hidden;
+  contain: layout style paint;
   -webkit-transform: translateZ(0);
   -webkit-backface-visibility: hidden;
 }
@@ -1122,7 +1139,7 @@ html, body {
 }
 
 .course-card-enhanced:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) translateZ(0);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   border-color: rgba(255, 255, 255, 0.2);
 }

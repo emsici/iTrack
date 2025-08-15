@@ -481,8 +481,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     // Initial check
     checkConnectivity();
 
-    // Reduced polling for better performance - every 60 seconds
-    const interval = setInterval(checkConnectivity, 60000);
+    // Reduced polling for better performance - every 2 minutes
+    const interval = setInterval(checkConnectivity, 120000);
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
@@ -522,9 +522,30 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
 
     updateOfflineCount();
-    const interval = setInterval(updateOfflineCount, 30000); // Further optimized: every 30 seconds for better performance
+    const interval = setInterval(updateOfflineCount, 45000); // Further optimized: every 45 seconds for better performance
     return () => clearInterval(interval);
   }, []);
+
+  // Scroll performance optimization
+  useEffect(() => {
+    let rafId: number;
+    const handleScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        // Minimal scroll handling to avoid performance issues
+      });
+    };
+
+    const container = document.querySelector('.vehicle-screen.courses-loaded');
+    if (container) {
+      container.addEventListener('scroll', handleScroll, { passive: true });
+      return () => {
+        container.removeEventListener('scroll', handleScroll);
+        if (rafId) cancelAnimationFrame(rafId);
+      };
+    }
+  }, [coursesLoaded]);
 
   // Theme helper functions
   const isDarkTheme = (theme: Theme) => theme === 'dark' || theme === 'driver' || theme === 'nature' || theme === 'night';
