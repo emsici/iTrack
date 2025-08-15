@@ -795,6 +795,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 overflow-x: hidden;
               }
               
+              /* FORCE DARK SYSTEM BAR FOR ALL THEMES */
+              .vehicle-screen {
+                padding-top: 40px !important; /* Always 40px for dark status bar */
+              }
+              
+              /* Status bar must be dark regardless of theme */
+              meta[name="theme-color"] {
+                content: "#0f172a" !important;
+              }
+              
               /* Pulse animation for online indicator */
               @keyframes pulse {
                 0% { opacity: 1; }
@@ -845,8 +855,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <div className="corporate-header-professional loaded" style={{
             background: currentTheme === 'dark' 
               ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-              : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
-            padding: '40px 20px 15px 20px', // Dark system bar always - 40px padding
+              : currentTheme === 'light'
+                ? 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)'
+                : currentTheme === 'business'
+                  ? 'linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%)'
+                  : currentTheme === 'nature'
+                    ? 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)'
+                    : currentTheme === 'night'
+                      ? 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)'
+                      : currentTheme === 'driver'
+                        ? 'linear-gradient(135deg, #1c1917 0%, #292524 100%)'
+                        : 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            padding: '40px 20px 15px 20px', // DARK SYSTEM BAR ALWAYS - 40px padding for all themes
             borderBottom: currentTheme === 'dark' 
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(0, 0, 0, 0.1)'
@@ -882,34 +902,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   fontSize: '12px' 
                 }}></i>
               </div>
-            </div>
-
-            {/* Online/Offline Status - Top Right */}
-            <div style={{
-              position: 'absolute',
-              top: '50px',
-              right: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              zIndex: 1001
-            }}>
-              <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: isOnline ? '#22c55e' : '#ef4444',
-                boxShadow: `0 0 8px ${isOnline ? '#22c55e' : '#ef4444'}`,
-                animation: isOnline ? 'pulse 2s infinite' : 'none'
-              }} />
-              <span style={{
-                color: currentTheme === 'dark' ? '#cbd5e1' : '#64748b',
-                fontSize: '11px',
-                fontWeight: '500'
-              }}>
-                {isOnline ? 'Online' : 'Offline'}
-                {offlineGPSCount > 0 && ` (${offlineGPSCount})`}
-              </span>
             </div>
 
             {/* Second Row - Action Icons */}
@@ -978,6 +970,33 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <i className="fas fa-sign-out-alt" style={{ fontSize: '18px' }}></i>
               </div>
             </div>
+
+            {/* Third Row - Online/Offline Status Centered */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '8px',
+              marginTop: '15px',
+              marginBottom: '5px'
+            }}>
+              <div style={{
+                width: '10px',
+                height: '10px',
+                borderRadius: '50%',
+                backgroundColor: isOnline ? '#22c55e' : '#ef4444',
+                boxShadow: `0 0 12px ${isOnline ? '#22c55e' : '#ef4444'}`,
+                animation: isOnline ? 'pulse 2s infinite' : 'none'
+              }} />
+              <span style={{
+                color: currentTheme === 'dark' ? '#cbd5e1' : '#64748b',
+                fontSize: '12px',
+                fontWeight: '600'
+              }}>
+                {isOnline ? 'Online' : 'Offline'}
+                {offlineGPSCount > 0 && ` (${offlineGPSCount})`}
+              </span>
+            </div>
           </div>
 
           {/* Debug Trigger - Hidden Timestamp Area */}
@@ -1021,13 +1040,23 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
               <div className="analytics-grid-centered">
                 <div className="stat-card total" onClick={() => setSelectedStatusFilter('all')} style={{
-                  background: isDarkTheme(currentTheme) 
-                    ? 'rgba(148, 163, 184, 0.1)' 
-                    : 'rgba(248, 250, 252, 0.9)',
-                  border: isDarkTheme(currentTheme) 
-                    ? '1px solid rgba(148, 163, 184, 0.2)' 
-                    : '1px solid rgba(203, 213, 225, 0.4)',
-                  color: getThemeTextColor(currentTheme)
+                  background: currentTheme === 'light' 
+                    ? 'rgba(255, 255, 255, 0.9)' // Light theme - light background 
+                    : currentTheme === 'business'
+                      ? 'rgba(255, 255, 255, 0.9)' // Business theme - light background
+                      : currentTheme === 'nature'
+                        ? 'rgba(6, 78, 59, 0.9)' // Nature theme - dark green background
+                        : currentTheme === 'night'
+                          ? 'rgba(30, 27, 75, 0.9)' // Night theme - dark purple background
+                          : currentTheme === 'driver'
+                            ? 'rgba(28, 25, 23, 0.9)' // Driver theme - dark brown background
+                            : 'rgba(30, 41, 59, 0.9)', // Dark theme - dark background
+                  border: currentTheme === 'light' || currentTheme === 'business'
+                    ? '1px solid rgba(203, 213, 225, 0.4)'
+                    : '1px solid rgba(148, 163, 184, 0.2)',
+                  color: currentTheme === 'light' || currentTheme === 'business'
+                    ? '#1e293b' // Dark text for light themes
+                    : '#f1f5f9'  // Light text for dark themes
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper total">
@@ -1041,13 +1070,23 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
 
                 <div className="stat-card active" onClick={() => setSelectedStatusFilter(2)} style={{
-                  background: isDarkTheme(currentTheme) 
-                    ? 'rgba(34, 197, 94, 0.1)' 
-                    : 'rgba(240, 253, 244, 0.9)',
-                  border: isDarkTheme(currentTheme) 
-                    ? '1px solid rgba(34, 197, 94, 0.2)' 
-                    : '1px solid rgba(34, 197, 94, 0.3)',
-                  color: isDarkTheme(currentTheme) ? '#4ade80' : '#000000'
+                  background: currentTheme === 'light' 
+                    ? 'rgba(240, 253, 244, 0.9)' // Light theme - light green background
+                    : currentTheme === 'business'
+                      ? 'rgba(240, 253, 244, 0.9)' // Business theme - light green background
+                      : currentTheme === 'nature'
+                        ? 'rgba(4, 120, 87, 0.9)' // Nature theme - medium green background
+                        : currentTheme === 'night'
+                          ? 'rgba(34, 197, 94, 0.2)' // Night theme - green accent on dark
+                          : currentTheme === 'driver'
+                            ? 'rgba(34, 197, 94, 0.2)' // Driver theme - green accent on dark
+                            : 'rgba(34, 197, 94, 0.2)', // Dark theme - green accent on dark
+                  border: currentTheme === 'light' || currentTheme === 'business'
+                    ? '1px solid rgba(34, 197, 94, 0.3)'
+                    : '1px solid rgba(34, 197, 94, 0.4)',
+                  color: currentTheme === 'light' || currentTheme === 'business'
+                    ? '#065f46' // Dark green text for light themes
+                    : '#4ade80'  // Light green text for dark themes
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper active">
@@ -1061,13 +1100,23 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
 
                 <div className="stat-card paused" onClick={() => setSelectedStatusFilter(3)} style={{
-                  background: currentTheme === 'dark' 
-                    ? 'rgba(251, 191, 36, 0.1)' 
-                    : 'rgba(254, 252, 232, 0.9)',
-                  border: currentTheme === 'dark' 
-                    ? '1px solid rgba(251, 191, 36, 0.2)' 
-                    : '1px solid rgba(251, 191, 36, 0.3)',
-                  color: currentTheme === 'dark' ? '#fbbf24' : '#000000'
+                  background: currentTheme === 'light' 
+                    ? 'rgba(254, 252, 232, 0.9)' // Light theme - light yellow background
+                    : currentTheme === 'business'
+                      ? 'rgba(254, 252, 232, 0.9)' // Business theme - light yellow background
+                      : currentTheme === 'nature'
+                        ? 'rgba(251, 191, 36, 0.2)' // Nature theme - yellow accent on dark green
+                        : currentTheme === 'night'
+                          ? 'rgba(251, 191, 36, 0.2)' // Night theme - yellow accent on dark purple
+                          : currentTheme === 'driver'
+                            ? 'rgba(251, 146, 60, 0.3)' // Driver theme - orange accent on dark brown  
+                            : 'rgba(251, 191, 36, 0.2)', // Dark theme - yellow accent on dark
+                  border: currentTheme === 'light' || currentTheme === 'business'
+                    ? '1px solid rgba(251, 191, 36, 0.3)'
+                    : '1px solid rgba(251, 191, 36, 0.4)',
+                  color: currentTheme === 'light' || currentTheme === 'business'
+                    ? '#a16207' // Dark orange text for light themes
+                    : '#fbbf24'  // Light yellow text for dark themes
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper paused">
@@ -1081,13 +1130,23 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
 
                 <div className="stat-card available" onClick={() => setSelectedStatusFilter(1)} style={{
-                  background: currentTheme === 'dark' 
-                    ? 'rgba(59, 130, 246, 0.1)' 
-                    : 'rgba(239, 246, 255, 0.9)',
-                  border: currentTheme === 'dark' 
-                    ? '1px solid rgba(59, 130, 246, 0.2)' 
-                    : '1px solid rgba(59, 130, 246, 0.3)',
-                  color: currentTheme === 'dark' ? '#60a5fa' : '#000000'
+                  background: currentTheme === 'light' 
+                    ? 'rgba(239, 246, 255, 0.9)' // Light theme - light blue background
+                    : currentTheme === 'business'
+                      ? 'rgba(239, 246, 255, 0.9)' // Business theme - light blue background
+                      : currentTheme === 'nature'
+                        ? 'rgba(59, 130, 246, 0.2)' // Nature theme - blue accent on dark green
+                        : currentTheme === 'night'
+                          ? 'rgba(99, 102, 241, 0.3)' // Night theme - purple accent on dark purple
+                          : currentTheme === 'driver'
+                            ? 'rgba(59, 130, 246, 0.2)' // Driver theme - blue accent on dark brown
+                            : 'rgba(59, 130, 246, 0.2)', // Dark theme - blue accent on dark
+                  border: currentTheme === 'light' || currentTheme === 'business'
+                    ? '1px solid rgba(59, 130, 246, 0.3)'
+                    : '1px solid rgba(59, 130, 246, 0.4)',
+                  color: currentTheme === 'light' || currentTheme === 'business'
+                    ? '#1d4ed8' // Dark blue text for light themes
+                    : '#60a5fa'  // Light blue text for dark themes
                 }}>
                   <div className="stat-card-content">
                     <div className="stat-icon-wrapper available">
@@ -1102,67 +1161,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             </div>
 
-            {/* GPS Status Display - Beautiful Card Design with Perfect Contrast */}
-            {isOnline && (
-              <div style={{
-                margin: '15px 20px 20px 20px',
-                padding: '16px 20px',
-                background: currentTheme === 'light' 
-                  ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' // Dark green for light theme
-                  : currentTheme === 'business'
-                    ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' // Dark green for business theme  
-                    : currentTheme === 'nature'
-                      ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' // Medium green for nature theme
-                      : currentTheme === 'driver'
-                        ? 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)' // Strong green for driver theme
-                        : currentTheme === 'night'
-                          ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)' // Bright green for night theme
-                          : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', // Default dark theme
-                borderRadius: '16px',
-                textAlign: 'center',
-                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  marginBottom: '6px'
-                }}>
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: 'rgba(255, 255, 255, 0.2)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '14px'
-                  }}>
-                    📡
-                  </div>
-                  <div>
-                    <div style={{
-                      color: 'white',
-                      fontWeight: '700',
-                      fontSize: '16px',
-                      lineHeight: '1.2'
-                    }}>
-                      GPS Activ
-                    </div>
-                  </div>
-                </div>
-                <div style={{ 
-                  fontSize: '13px', 
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  fontWeight: '500',
-                  letterSpacing: '0.3px'
-                }}>
-                  ✅ Toate datele sincronizate
-                </div>
-              </div>
-            )}
+
 
             {/* Offline GPS Monitor - visible when courses are active */}
             <OfflineGPSMonitor 
