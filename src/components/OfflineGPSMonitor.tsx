@@ -66,7 +66,7 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({
             }
           }
         } catch (error) {
-          console.error("Error monitoring offline GPS:", error);
+          console.error("Eroare monitorizare GPS offline:", error);
         }
       };
 

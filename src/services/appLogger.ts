@@ -30,9 +30,9 @@ class AppLoggerService {
       this.interceptConsole();
 
       this.initialized = true;
-      this.log("INFO", "AppLogger initialized", "SYSTEM");
+      this.log("INFO", "Logger aplicație inițializat", "SYSTEM");
     } catch (error) {
-      console.error("Failed to initialize AppLogger:", error);
+      console.error("Eroare inițializare Logger aplicație:", error);
     }
   }
 
@@ -43,7 +43,7 @@ class AppLoggerService {
         this.logs = JSON.parse(value);
       }
     } catch (error) {
-      console.error("Failed to load logs from storage:", error);
+      console.error("Eroare încărcare log-uri din stocare:", error);
       this.logs = [];
     }
   }
@@ -60,7 +60,7 @@ class AppLoggerService {
         value: JSON.stringify(this.logs),
       });
     } catch (error) {
-      console.error("Failed to save logs to storage:", error);
+      console.error("Eroare salvare log-uri în stocare:", error);
     }
   }
 

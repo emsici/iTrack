@@ -49,10 +49,10 @@ class PriorityGPSService {
             course.token, 
             course.status
           );
-          logGPS(`✅ Android Native GPS started: ${result}`);
+          logGPS(`✅ GPS nativ Android pornit: ${result}`);
           return true;
         } catch (error) {
-          logGPSError(`❌ Android Native GPS failed: ${error}`);
+          logGPSError(`❌ GPS nativ Android eșuat: ${error}`);
           return false;
         }
       },
@@ -62,7 +62,7 @@ class PriorityGPSService {
             (window as any).AndroidGPS.stopGPS(courseId);
           }
         } catch (error) {
-          logGPSError(`❌ Android Native GPS stop failed: ${error}`);
+          logGPSError(`❌ Oprire GPS nativ Android eșuată: ${error}`);
         }
       },
       transmit: async (course: GPSCourse) => {
@@ -91,10 +91,10 @@ class PriorityGPSService {
             authToken: course.token,
             status: course.status
           });
-          logGPS(`✅ Capacitor GPS started: ${result}`);
+          logGPS(`✅ GPS Capacitor pornit: ${result}`);
           return result.success || false;
         } catch (error) {
-          logGPSError(`❌ Capacitor GPS failed: ${error}`);
+          logGPSError(`❌ GPS Capacitor eșuat: ${error}`);
           return false;
         }
       },
@@ -104,7 +104,7 @@ class PriorityGPSService {
             await (window as any).CapacitorGPS.stopGPS({ courseId });
           }
         } catch (error) {
-          logGPSError(`❌ Capacitor GPS stop failed: ${error}`);
+          logGPSError(`❌ Oprire GPS Capacitor eșuată: ${error}`);
         }
       },
       transmit: async (course: GPSCourse) => {
@@ -117,11 +117,11 @@ class PriorityGPSService {
       priority: 3,
       isAvailable: () => true, // Always available as fallback
       start: async (course: GPSCourse) => {
-        logGPS(`🔥 JavaScript Backup GPS started for: ${course.courseId}`);
+        logGPS(`🔥 GPS Backup JavaScript pornit pentru: ${course.courseId}`);
         return true; // JavaScript method is always available
       },
       stop: async (courseId: string) => {
-        logGPS(`🛑 JavaScript Backup GPS stopped for: ${courseId}`);
+        logGPS(`🛑 GPS Backup JavaScript oprit pentru: ${courseId}`);
       },
       transmit: async (course: GPSCourse) => {
         try {
@@ -148,14 +148,14 @@ class PriorityGPSService {
           const response = await sendGPSData(gpsData, course.token);
           
           if (response.success) {
-            logGPS(`✅ JavaScript GPS transmitted successfully for ${course.courseId}`);
+            logGPS(`✅ GPS JavaScript transmis cu succes pentru ${course.courseId}`);
             return true;
           } else {
-            logGPSError(`❌ JavaScript GPS transmission failed: ${response.error}`);
+            logGPSError(`❌ Transmisia GPS JavaScript eșuată: ${response.error}`);
             return false;
           }
         } catch (error) {
-          logGPSError(`❌ JavaScript GPS error: ${error}`);
+          logGPSError(`❌ Eroare GPS JavaScript: ${error}`);
           return false;
         }
       }
@@ -186,14 +186,14 @@ class PriorityGPSService {
           course.activeMethod = method.name.toLowerCase().includes('android') ? 'android' :
                               method.name.toLowerCase().includes('capacitor') ? 'capacitor' : 'javascript';
           
-          logGPS(`✅ GPS method selected: ${method.name} for course ${courseId}`);
+          logGPS(`✅ Metodă GPS selectată: ${method.name} pentru cursa ${courseId}`);
           methodStarted = true;
           break;
         } else {
-          logGPS(`❌ GPS method ${method.name} failed, trying next...`);
+          logGPS(`❌ Metoda GPS ${method.name} eșuată, se încearcă următoarea...`);
         }
       } else {
-        logGPS(`⏭️ GPS method ${method.name} not available, skipping...`);
+        logGPS(`⏭️ Metoda GPS ${method.name} indisponibilă, se omite...`);
       }
     }
 
@@ -207,10 +207,10 @@ class PriorityGPSService {
         
         course.activeMethod = 'javascript';
         methodStarted = true;
-        logGPS(`✅ Fallback to GuaranteedGPS successful for course ${courseId}`);
+        logGPS(`✅ Fallback la GPS Garantat cu succes pentru cursa ${courseId}`);
       } catch (guaranteedError) {
-        logGPSError(`❌ Even GuaranteedGPS failed: ${guaranteedError}`);
-        throw new Error(`All GPS methods failed including guaranteed backup`);
+        logGPSError(`❌ Chiar și GPS Garantat a eșuat: ${guaranteedError}`);
+        throw new Error(`Toate metodele GPS au eșuat inclusiv backup-ul garantat`);
       }
     }
 
@@ -223,9 +223,9 @@ class PriorityGPSService {
         logGPS(`🔒 PHONE LOCK PROTECTION: Starting GuaranteedGPS backup for Android method`);
         const { guaranteedGPSService } = await import('./garanteedGPS');
         await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ GuaranteedGPS backup started for Android method - phone lock protected`);
+        logGPS(`✅ Backup GPS Garantat pornit pentru metoda Android - protejat la blocare telefon`);
       } catch (backupError) {
-        logGPSError(`⚠️ Failed to start GuaranteedGPS backup: ${backupError}`);
+        logGPSError(`⚠️ Pornire backup GPS Garantat eșuată: ${backupError}`);
       }
     }
     
@@ -233,17 +233,17 @@ class PriorityGPSService {
     this.startMonitoring();
     this.startTransmissionInterval();
 
-    logGPS(`✅ PRIORITY GPS started for ${courseId} using ${course.activeMethod} method with backup protection`);
+    logGPS(`✅ GPS PRIORITAR pornit pentru ${courseId} folosind metoda ${course.activeMethod} cu protecție backup`);
   }
 
   async stopGPS(courseId: string): Promise<void> {
     const course = this.activeCourses.get(courseId);
     if (!course) {
-      logGPS(`⚠️ Course ${courseId} not found for stop`);
+      logGPS(`⚠️ Cursa ${courseId} nu a fost găsită pentru oprire`);
       return;
     }
 
-    logGPS(`🛑 Stopping GPS for ${courseId} (method: ${course.activeMethod})`);
+    logGPS(`🛑 Oprire GPS pentru ${courseId} (metodă: ${course.activeMethod})`);
 
     // Stop the active method
     const activeMethod = this.gpsMethods.find(m => 
@@ -258,9 +258,9 @@ class PriorityGPSService {
     try {
       const { guaranteedGPSService } = await import('./garanteedGPS');
       await guaranteedGPSService.stopGPS(courseId);
-      logGPS(`✅ GuaranteedGPS backup stopped for course ${courseId}`);
+      logGPS(`✅ Backup GPS Garantat oprit pentru cursa ${courseId}`);
     } catch (backupStopError) {
-      logGPS(`⚠️ GuaranteedGPS backup stop failed (maybe not running): ${backupStopError}`);
+      logGPS(`⚠️ Oprire backup GPS Garantat eșuată (poate nu rulează): ${backupStopError}`);
     }
 
     this.activeCourses.delete(courseId);
@@ -271,7 +271,7 @@ class PriorityGPSService {
       this.stopTransmissionInterval();
     }
 
-    logGPS(`✅ GPS stopped for ${courseId}. Active courses: ${this.activeCourses.size}`);
+    logGPS(`✅ GPS oprit pentru ${courseId}. Curse active: ${this.activeCourses.size}`);
   }
 
   async updateStatus(courseId: string, newStatus: number): Promise<void> {
@@ -306,14 +306,14 @@ class PriorityGPSService {
       }
     }, 15000); // Check every 15 seconds
 
-    logGPS(`🔍 GPS monitoring started - checking methods every 15 seconds`);
+    logGPS(`🔍 Monitorizare GPS pornită - verificare metode la fiecare 15 secunde`);
   }
 
   private stopMonitoring(): void {
     if (this.monitoringInterval) {
       clearInterval(this.monitoringInterval);
       this.monitoringInterval = null;
-      logGPS(`⏹️ GPS monitoring stopped`);
+      logGPS(`⏹️ Monitorizare GPS oprită`);
     }
   }
 
@@ -343,7 +343,7 @@ class PriorityGPSService {
       }
     }, 5000); // Transmit every 5 seconds
 
-    logGPS(`📡 GPS transmission interval started - every 5 seconds`);
+    logGPS(`📡 Interval transmisie GPS pornit - la fiecare 5 secunde`);
   }
 
   private stopTransmissionInterval(): void {
@@ -351,7 +351,7 @@ class PriorityGPSService {
       clearInterval(this.transmissionInterval);
       this.transmissionInterval = null;
       this.isTransmitting = false;
-      logGPS(`📡 GPS transmission interval stopped`);
+      logGPS(`📡 Interval transmisie GPS oprit`);
     }
   }
 
@@ -366,7 +366,7 @@ class PriorityGPSService {
     const isWorking = await activeMethod.transmit(course);
     
     if (!isWorking) {
-      logGPS(`❌ GPS method ${activeMethod.name} failed for ${course.courseId}, trying fallback...`);
+      logGPS(`❌ Metoda GPS ${activeMethod.name} eșuată pentru ${course.courseId}, se încearcă fallback...`);
       
       // Try to switch to next available method
       await this.switchToFallbackMethod(course);
@@ -404,7 +404,7 @@ class PriorityGPSService {
       }
     }
 
-    logGPSError(`❌ All fallback methods failed for ${course.courseId}`);
+    logGPSError(`❌ Toate metodele fallback au eșuat pentru ${course.courseId}`);
   }
 
   private async transmitForCourse(course: GPSCourse): Promise<void> {
@@ -434,7 +434,7 @@ class PriorityGPSService {
         logGPS(`✅ GPS Prioritar transmis cu succes pentru ${course.courseId}`);
       }
     } catch (error) {
-      logGPSError(`❌ Priority GPS transmission failed for ${course.courseId}: ${error}`);
+      logGPSError(`❌ Transmisia GPS Prioritar eșuată pentru ${course.courseId}: ${error}`);
     }
   }
 
@@ -447,7 +447,7 @@ class PriorityGPSService {
   }
 
   async logoutClearAll(): Promise<void> {
-    logGPS(`🧹 PRIORITY GPS: Clearing all GPS data and stopping all transmissions`);
+    logGPS(`🧹 GPS PRIORITAR: Șterge toate datele GPS și oprește toate transmisiile`);
     
     // Stop all active courses
     const courseIds = Array.from(this.activeCourses.keys());
@@ -459,7 +459,7 @@ class PriorityGPSService {
     this.stopTransmissionInterval();
     this.activeCourses.clear();
     
-    logGPS(`✅ PRIORITY GPS: All GPS services stopped and cleared`);
+    logGPS(`✅ GPS PRIORITAR: Toate serviciile GPS oprite și curățate`);
   }
 }
 

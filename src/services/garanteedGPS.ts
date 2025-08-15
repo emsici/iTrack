@@ -118,7 +118,7 @@ class GuaranteedGPSService {
 
     try {
       // Obținem locația curentă REALĂ cu settings aggressive pentru debugging
-      logGPS(`🔍 Getting REAL GPS position with aggressive settings for GUARANTEED transmission...`);
+      logGPS(`🔍 Obține poziția GPS REALĂ cu setări agresive pentru transmisia GARANTATĂ...`);
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 15000,  // Mărit timeout pentru GPS real
@@ -126,7 +126,7 @@ class GuaranteedGPSService {
       });
 
       const { coords } = position;
-      logGPS(`📍 REAL GPS Position obtained: ${coords.latitude}, ${coords.longitude} (accuracy: ${coords.accuracy}m)`);
+      logGPS(`📍 Poziție GPS REALĂ obținută: ${coords.latitude}, ${coords.longitude} (precizie: ${coords.accuracy}m)`);
       
       // VERIFICARE: Este GPS real cu variație în coordonate?
       logGPS(`✅ GPS REAL OBȚINUT - Lat: ${coords.latitude}, Lng: ${coords.longitude}, Accuracy: ${coords.accuracy}m`);
@@ -183,7 +183,7 @@ class GuaranteedGPSService {
       (window as any)[timestampKey] = true;
       
       const batteryLevel = await this.getBatteryLevel();
-      logGPS(`🔋 Battery level: ${batteryLevel}%`);
+      logGPS(`🔋 Nivel baterie: ${batteryLevel}%`);
       
       const gpsData: GPSData = {
         lat: Math.round(coords.latitude * 10000000) / 10000000,  // Exact 7 decimale - standard GPS

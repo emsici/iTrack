@@ -60,7 +60,7 @@ class DirectAndroidGPSService {
       if (position.coords.accuracy && position.coords.accuracy > 100) {
         console.warn(`⚠️ GPS accuracy poor: ${position.coords.accuracy}m - dar transmitem oricum (GPS real)`);
       }
-      console.log(`📍 DirectAndroidGPS: REAL GPS Position - Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}, Accuracy: ${position.coords.accuracy}m`);
+      console.log(`📍 DirectAndroidGPS: Poziție GPS REALĂ - Lat: ${position.coords.latitude}, Lng: ${position.coords.longitude}, Precizie: ${position.coords.accuracy}m`);
 
       const batteryInfo = await Device.getBatteryInfo();
       
