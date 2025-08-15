@@ -13,7 +13,9 @@ interface OfflineGPSMonitorProps {
 
 const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ 
   isOnline, 
-  coursesActive
+  coursesActive,
+  currentTheme = 'dark',
+  compactMode = false
 }) => {
   const [offlineCount, setOfflineCount] = useState(0);
   const [syncInProgress, setSyncInProgress] = useState(false);
@@ -126,17 +128,17 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({
 
   const getMainStatusText = () => {
     if (syncInProgress) {
-      return `🔄 Sincronizare GPS în curs...`;
+      return `Sincronizare GPS în curs...`;
     }
     // Verificare dublă detecție offline
     const actuallyOffline = !navigator.onLine || !isOnline;
     if (actuallyOffline) {
-      return '📴 MODUL OFFLINE ACTIV';
+      return 'MODUL OFFLINE ACTIV';
     }
     if (offlineCount > 0) {
-      return '📊 Date GPS în așteptare';
+      return 'Date GPS în așteptare';
     }
-    return '✅ GPS Activ & Online';
+    return 'GPS Activ';
   };
 
   const getSubStatusText = () => {
@@ -164,28 +166,7 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({
   return (
     <div className="offline-monitor-header-style">
       <div className="gps-status-header-style">
-        <div className={`gps-status-icon-header ${getStatusClass()}`} style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          transition: 'all 0.3s ease',
-          boxShadow: getStatusClass() === 'online' 
-            ? '0 0 12px rgba(34, 197, 94, 0.4)' 
-            : getStatusClass() === 'offline'
-              ? '0 0 12px rgba(239, 68, 68, 0.4)'
-              : '0 0 12px rgba(59, 130, 246, 0.4)',
-          background: getStatusClass() === 'online' 
-            ? 'linear-gradient(135deg, #22c55e, #16a34a)' 
-            : getStatusClass() === 'offline'
-              ? 'linear-gradient(135deg, #ef4444, #dc2626)'
-              : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-          color: 'white'
-        }}>
+        <div className={`gps-status-icon-header ${getStatusClass()}`}>
           <i className={getStatusIcon()}></i>
         </div>
         
@@ -199,19 +180,7 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({
         </div>
 
         {offlineCount > 0 && !syncInProgress && (
-          <div className="gps-offline-badge-header" style={{
-            background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-            color: 'white',
-            padding: '6px 12px',
-            borderRadius: '20px',
-            fontSize: '12px',
-            fontWeight: '600',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
-            animation: 'pulse 2s infinite'
-          }}>
+          <div className="gps-offline-badge-header">
             <i className="fas fa-database"></i>
             <span>{offlineCount}</span>
           </div>
@@ -219,69 +188,21 @@ const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({
       </div>
 
       {syncInProgress && syncProgress.total > 0 && (
-        <div className="gps-sync-progress-header" style={{
-          marginTop: '12px',
-          padding: '12px',
-          background: 'rgba(59, 130, 246, 0.1)',
-          borderRadius: '8px',
-          border: '1px solid rgba(59, 130, 246, 0.2)'
-        }}>
-          <div className="sync-progress-info-header" style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '8px'
-          }}>
-            <span className="sync-progress-label-header" style={{
-              fontSize: '12px',
-              fontWeight: '600',
-              color: '#3b82f6'
-            }}>🔄 Sincronizare GPS</span>
-            <span className="sync-progress-count-header" style={{
-              fontSize: '12px',
-              fontWeight: '700',
-              color: '#1e40af'
-            }}>{syncProgress.synced}/{syncProgress.total}</span>
+        <div className="gps-sync-progress-header">
+          <div className="sync-progress-info-header">
+            <span className="sync-progress-label-header">Sincronizare GPS</span>
+            <span className="sync-progress-count-header">{syncProgress.synced}/{syncProgress.total}</span>
           </div>
-          <div className="sync-progress-bar-header" style={{
-            height: '6px',
-            background: 'rgba(59, 130, 246, 0.2)',
-            borderRadius: '3px',
-            overflow: 'hidden',
-            position: 'relative'
-          }}>
+          <div className="sync-progress-bar-header">
             <div 
               className="sync-progress-fill-header" 
               style={{ 
-                width: `${Math.round((syncProgress.synced / syncProgress.total) * 100)}%`,
-                height: '100%',
-                background: 'linear-gradient(90deg, #3b82f6, #2563eb)',
-                transition: 'width 0.3s ease',
-                borderRadius: '3px',
-                position: 'relative',
-                overflow: 'hidden'
+                width: `${Math.round((syncProgress.synced / syncProgress.total) * 100)}%` 
               }}
             >
-              <div className="sync-progress-shimmer-header" style={{
-                position: 'absolute',
-                top: 0,
-                left: '-100%',
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent)',
-                animation: 'shimmer 2s infinite'
-              }}></div>
+              <div className="sync-progress-shimmer-header"></div>
             </div>
-            <div className="sync-progress-percentage-header" style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              fontSize: '10px',
-              fontWeight: '700',
-              color: '#1e40af',
-              textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
-            }}>
+            <div className="sync-progress-percentage-header">
               {Math.round((syncProgress.synced / syncProgress.total) * 100)}%
             </div>
           </div>

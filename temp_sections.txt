@@ -1,5 +1,0 @@
-ORDINEA NOUĂ:
-1. Informații Transport
-2. Plecare  
-3. Sosire (schimbat din Destinație)
-4. Statistici GPS (ultimul)

@@ -146,24 +146,23 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
   return (
     <div className="course-card-enhanced" style={{ marginBottom: '16px' }}>
       <div className="course-header-enhanced">
-        <div className="course-title-row">
-          <div className="course-left-info">
-            <span className="course-uit">
-              <i className="fas fa-barcode"></i>
-              UIT {course.uit}
-            </span>
-          </div>
-          <h5 className="course-title-enhanced">Cursă #{course.id}</h5>
+        <div className="course-info-section">
+          <div className="course-title-enhanced">Transport {course.ikRoTrans || course.id}</div>
+          <div className="course-transport-number">{course.nrTransport || 'N/A'}</div>
         </div>
-        
-        <div className="status-actions-row">
-          <span className={`status-badge status-${course.status}`}>
+
+        <div className="course-metadata-enhanced">
+          <div className="course-uit">UIT {course.uit}</div>
+          <div className={`course-status-enhanced status-${course.status}`}>
             {getStatusText(course.status)}
-          </span>
-          <div className="action-buttons-compact">
-            {renderActionButtons()}
           </div>
         </div>
+      </div>
+
+      <div className="course-status-row">
+        <span className={`status-badge status-${course.status}`}>
+          {getStatusText(course.status)}
+        </span>
       </div>
 
       
@@ -284,7 +283,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Distanță Parcursă:</span>
                 <span className="detail-value-enhanced" style={{
-                  color: '#3b82f6',
+                  color: currentTheme === 'business' || currentTheme === 'light' ? '#1d4ed8' : '#3b82f6',
                   fontWeight: '700'
                 }}>
                   <i className="fas fa-route" style={{ marginRight: '6px', fontSize: '12px' }}></i>
@@ -294,7 +293,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Viteză Curentă:</span>
                 <span className="detail-value-enhanced" style={{
-                  color: course.status === 2 ? '#10b981' : '#6b7280',
+                  color: course.status === 2 
+                    ? (currentTheme === 'business' || currentTheme === 'light' ? '#059669' : '#10b981')
+                    : (currentTheme === 'business' || currentTheme === 'light' ? '#4b5563' : '#6b7280'),
                   fontWeight: '700'
                 }}>
                   <i className="fas fa-tachometer-alt" style={{ marginRight: '6px', fontSize: '12px' }}></i>
@@ -306,21 +307,21 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Viteză Maximă:</span>
                 <span className="detail-value-enhanced" style={{
-                  color: '#f59e0b',
+                  color: currentTheme === 'business' || currentTheme === 'light' ? '#d97706' : '#f59e0b',
                   fontWeight: '700'
                 }}>
-                  <i className="fas fa-gauge-high" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                  <i className="fas fa-rocket" style={{ marginRight: '6px', fontSize: '12px' }}></i>
                   {courseStats ? `${courseStats.maxSpeed.toFixed(0)} km/h` : '0 km/h'}
                 </span>
               </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Viteză Medie:</span>
                 <span className="detail-value-enhanced" style={{
-                  color: '#06b6d4',
+                  color: currentTheme === 'business' || currentTheme === 'light' ? '#7c2d12' : '#8b5cf6',
                   fontWeight: '700'
                 }}>
                   <i className="fas fa-chart-line" style={{ marginRight: '6px', fontSize: '12px' }}></i>
-                  {courseStats ? `${courseStats.averageSpeed.toFixed(1)} km/h` : '0.0 km/h'}
+                  {courseStats ? `${courseStats.averageSpeed.toFixed(0)} km/h` : '0 km/h'}
                 </span>
               </div>
               <div className="detail-item-enhanced">
@@ -512,7 +513,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
             <div className="detail-section-enhanced">
               <h6 className="section-title-enhanced">
                 <i className="fas fa-flag-checkered"></i>
-                Sosire
+                Destinație
               </h6>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Vamă Stop:</span>
