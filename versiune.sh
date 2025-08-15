@@ -1,33 +1,16 @@
 #!/bin/bash
 
 if [ "$1" = "" ]; then
+    ENV="TEST"
     echo "================================"
-    echo "    iTrack - VERSIUNE SYSTEM"
-    echo "================================"
-    echo ""
-    echo "FOLOSIRE: ./versiune.sh [DEV|TEST|PROD]"
-    echo ""
-    echo "Exemple:"
-    echo "  ./versiune.sh TEST  - Comuta la TEST si face build"
-    echo "  ./versiune.sh PROD  - Comuta la PRODUCTION si face build"
-    echo ""
-    exit 1
-fi
-
-ENV=$1
-
-if [ "$ENV" = "DEV" ] || [ "$ENV" = "dev" ]; then
-    echo "================================"
-    echo "    iTrack - DEVELOPMENT SERVER"
+    echo "    iTrack - DEFAULT TEST BUILD"
     echo "================================"
     echo ""
-    echo "Pornesc serverul de dezvoltare..."
-    echo "Server web va fi disponibil la: http://localhost:5000"
+    echo "Folosesc mediul default TEST"
+    echo "Pentru PRODUCTION foloseste: ./versiune.sh PROD"
     echo ""
-    npm run dev
-    echo ""
-    echo "Server-ul de dezvoltare s-a oprit."
-    exit 0
+else
+    ENV=$1
 fi
 
 echo "================================"
@@ -49,7 +32,7 @@ elif [ "$ENV" = "TEST" ] || [ "$ENV" = "test" ]; then
     sed -i 's/API_BASE_URL_PROD/API_BASE_URL_TEST/g' "android/app/src/main/java/com/euscagency/itrack/OptimalGPSService.java"
     echo "✓ Configurat pentru TEST (www.euscagency.com/etsm_test/)"
 else
-    echo "EROARE: Environment nevalid! Foloseste DEV, TEST sau PROD"
+    echo "EROARE: Environment nevalid! Foloseste TEST sau PROD"
     exit 1
 fi
 

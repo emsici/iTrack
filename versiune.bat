@@ -1,34 +1,15 @@
 @echo off
 if "%1"=="" (
+    set ENV=TEST
     echo ================================
-    echo    iTrack - VERSIUNE SYSTEM
-    echo ================================
-    echo.
-    echo FOLOSIRE: versiune.bat [DEV^|TEST^|PROD]
-    echo.
-    echo Exemple:
-    echo   versiune.bat TEST  - Comuta la TEST si face build
-    echo   versiune.bat PROD  - Comuta la PRODUCTION si face build
-    echo.
-    pause
-    exit /b 1
-)
-
-set ENV=%1
-
-if /i "%ENV%"=="DEV" (
-    echo ================================
-    echo    iTrack - DEVELOPMENT SERVER
+    echo    iTrack - DEFAULT TEST BUILD
     echo ================================
     echo.
-    echo Pornesc serverul de dezvoltare...
-    echo Server web va fi disponibil la: http://localhost:5000
+    echo Folosesc mediul default TEST
+    echo Pentru PRODUCTION foloseste: versiune.bat PROD
     echo.
-    call npm run dev
-    echo.
-    echo Server-ul de dezvoltare s-a oprit.
-    pause
-    exit /b 0
+) else (
+    set ENV=%1
 )
 
 echo ================================
@@ -50,7 +31,7 @@ if /i "%ENV%"=="PROD" (
     powershell -Command "(Get-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java') -replace 'API_BASE_URL_PROD', 'API_BASE_URL_TEST' | Set-Content 'android\app\src\main\java\com\euscagency\itrack\OptimalGPSService.java'"
     echo ✓ Configurat pentru TEST (www.euscagency.com/etsm_test/)
 ) else (
-    echo EROARE: Environment nevalid! Foloseste DEV, TEST sau PROD
+    echo EROARE: Environment nevalid! Foloseste TEST sau PROD
     pause
     exit /b 1
 )
