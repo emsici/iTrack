@@ -218,8 +218,12 @@ public class OptimalGPSService extends Service {
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error in optimal GPS cycle: " + e.getMessage());
+            e.printStackTrace();
             // Still schedule next cycle even on error to maintain background operation
-            scheduleNextOptimalGPSCycle();
+            if (!activeCourses.isEmpty()) {
+                Log.w(TAG, "🔧 Scheduling next cycle despite error to maintain continuity");
+                scheduleNextOptimalGPSCycle();
+            }
         }
     }
     
@@ -357,8 +361,28 @@ public class OptimalGPSService extends Service {
         gpsSharedTimestamp = null;
         
         Log.d(TAG, "🔄 SCHEDULING NEXT GPS CYCLE - activeCourses size: " + activeCourses.size());
-        scheduleNextOptimalGPSCycle();
-        Log.d(TAG, "⏰ NEXT GPS CYCLE SCHEDULED successfully");
+        
+        // CRITICAL FIX: Ensure continuous GPS transmission
+        if (!activeCourses.isEmpty()) {
+            // Reset shared timestamp for next cycle
+            gpsSharedTimestamp = null;
+            
+            // CRITICAL: Always ensure alarm is active for continuous transmission
+            if (!isAlarmActive || gpsPendingIntent == null) {
+                Log.w(TAG, "🔧 GPS alarm not active - restarting timer for continuity");
+                startOptimalGPSTimer();
+            } else {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + GPS_INTERVAL_MS,
+                    gpsPendingIntent
+                );
+                Log.d(TAG, "⏰ NEXT GPS CYCLE SCHEDULED successfully for " + activeCourses.size() + " courses");
+            }
+        } else {
+            Log.d(TAG, "⏸️ No active courses - stopping GPS timer");
+            stopOptimalGPSTimer();
+        }
     }
     
     /**
@@ -471,6 +495,13 @@ public class OptimalGPSService extends Service {
      */
     private void scheduleNextOptimalGPSCycle() {
         if (!activeCourses.isEmpty()) {
+            // CRITICAL: Ensure alarm and PendingIntent are valid
+            if (!isAlarmActive || gpsPendingIntent == null) {
+                Log.w(TAG, "🔧 Alarm state invalid - reinitializing GPS timer");
+                startOptimalGPSTimer();
+                return;
+            }
+            
             long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.ELAPSED_REALTIME_WAKEUP,
@@ -480,7 +511,8 @@ public class OptimalGPSService extends Service {
             Log.d(TAG, "⏰ NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
             Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
         } else {
-            Log.w(TAG, "❌ NO ACTIVE COURSES - GPS cycle NOT scheduled");
+            Log.w(TAG, "❌ NO ACTIVE COURSES - stopping GPS timer");
+            stopOptimalGPSTimer();
         }
     }
     
