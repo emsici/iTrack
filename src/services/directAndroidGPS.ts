@@ -131,15 +131,7 @@ class DirectAndroidGPSService {
         // IMMEDIATE STOP: Stop tracking BEFORE any more transmissions can happen
         await this.stopTracking(courseId);
         
-        // CRITICAL FIX: Also update Priority GPS status to prevent further transmissions
-        try {
-          const { priorityGPSService } = await import('./priorityGPS');
-          await priorityGPSService.updateStatus(courseId, newStatus);
-          console.log(`✅ Status GPS Prioritar actualizat la ${newStatus} - nicio transmisie`);
-        } catch (priorityError) {
-          console.error(`⚠️ Nu s-a putut actualiza status GPS Prioritar: ${priorityError}`);
-        }
-        
+
         // CRITICAL FIX: Actualizează și status GPS Garantat pentru a preveni transmisii suplimentare
         try {
           await guaranteedGPSService.updateStatus(courseId, newStatus);
@@ -229,26 +221,14 @@ class DirectAndroidGPSService {
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
-    logGPS(`🎯 PRIORITY GPS: Starting intelligent GPS with method prioritization`);
+    logGPS(`🎯 ANDROID GPS: Starting direct Android GPS service`);
     
     try {
-      // Import and use Priority GPS Service
-      const { priorityGPSService } = await import('./priorityGPS');
-      await priorityGPSService.startGPS(courseId, vehicleNumber, uit, token, status);
-      
-      logGPS(`✅ Priority GPS started successfully for course: ${courseId}`);
-      
-    } catch (error) {
-      // Fallback to guaranteed GPS if priority system fails
-      logGPSError(`❌ Priority GPS failed, falling back to guaranteed GPS: ${error}`);
-      
-      try {
-        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ Fallback to Guaranteed GPS successful for course: ${courseId}`);
-      } catch (fallbackError) {
-        logGPSError(`❌ Both Priority and Guaranteed GPS failed: ${fallbackError}`);
-        throw fallbackError;
-      }
+      await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+      logGPS(`✅ Android GPS started successfully for course: ${courseId}`);
+    } catch (guaranteedError) {
+      logGPSError(`❌ Android GPS failed: ${guaranteedError}`);
+      throw guaranteedError;
     }
   }
 
@@ -256,27 +236,17 @@ class DirectAndroidGPSService {
 
   async stopTracking(courseId: string): Promise<void> {
     try {
-      logGPS(`🛑 Stopping PRIORITY GPS tracking: ${courseId}`);
+      logGPS(`🛑 Stopping Android GPS tracking: ${courseId}`);
       
-      try {
-        // 1. Stop Priority GPS Service (handles all methods intelligently)
-        const { priorityGPSService } = await import('./priorityGPS');
-        await priorityGPSService.stopGPS(courseId);
-        logGPS(`✅ Priority GPS stopped for course: ${courseId}`);
-      } catch (priorityError) {
-        // Fallback to manual stopping
-        logGPSError(`❌ Priority GPS stop failed, using manual cleanup: ${priorityError}`);
-        
-        // Stop Android native GPS service  
-        if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-          const result = window.AndroidGPS.stopGPS(courseId);
-          logGPS(`✅ MainActivity GPS stopped: ${result}`);
-        }
-        
-        // Stop guaranteed JavaScript GPS backup
-        await guaranteedGPSService.stopGPS(courseId);
-        logGPS(`✅ Guaranteed GPS backup stopped for course: ${courseId}`);
+      // Stop Android native GPS service  
+      if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
+        const result = window.AndroidGPS.stopGPS(courseId);
+        logGPS(`✅ MainActivity GPS stopped: ${result}`);
       }
+      
+      // Stop guaranteed JavaScript GPS backup
+      await guaranteedGPSService.stopGPS(courseId);
+      logGPS(`✅ Guaranteed GPS backup stopped for course: ${courseId}`);
       
       // Remove from local tracking
       this.activeCourses.delete(courseId);

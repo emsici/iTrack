@@ -51,14 +51,16 @@ class GuaranteedGPSService {
   }
 
   /**
-   * NO ANDROID GPS: Guaranteed GPS is JAVASCRIPT ONLY to avoid duplicates
-   * When called as backup, Android GPS is already running via priorityGPS
+   * Direct Android GPS call - primary GPS method
    */
   private async tryAndroidGPS(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
-    // CRITICAL FIX: Skip AndroidGPS when used as backup to prevent duplicate transmissions
-    // priorityGPS already handles Android GPS, this is pure JavaScript backup
-    logGPS(`⚠️ GUARANTEED GPS: Skipping AndroidGPS - using pure JavaScript backup to prevent duplicates`);
-    logGPS(`🔒 This ensures transmission continues when Android GPS fails (phone locked, etc.)`);
+    // Direct Android GPS service call
+    if (window.AndroidGPS && window.AndroidGPS.startGPS) {
+      const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
+      logGPS(`✅ GPS nativ Android pornit: ${result}`);
+    } else {
+      logGPS(`⚠️ AndroidGPS nu este disponibil - folosesc backup JavaScript`);
+    }
   }
 
   /**
