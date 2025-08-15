@@ -64,8 +64,8 @@ class GuaranteedGPSService {
   }
 
   /**
-   * PERFORMANCE OPTIMIZED: Minimal GPS backup (only when Android fails)
-   * Increased interval to reduce CPU usage on Samsung A57
+   * OPTIMIZAT: Backup GPS DOAR când Android GPS nu funcționează
+   * Interval mare pentru a nu se suprapune cu OptimalGPSService
    */
   private startBackupInterval(): void {
     // Oprire interval existent
@@ -73,7 +73,7 @@ class GuaranteedGPSService {
       clearInterval(this.gpsInterval);
     }
 
-    // PERFORMANȚĂ: Mărește intervalul la 8 secunde pentru a reduce lag-ul pe toate telefoanele
+    // OPTIMIZAT: Interval mare (30s) pentru backup - OptimalGPSService e principalul
     this.gpsInterval = setInterval(async () => {
       if (this.activeCourses.size === 0) {
         logGPS(`⏸️ Nicio cursă activă - opresc intervalul GPS garantat`);
@@ -81,12 +81,25 @@ class GuaranteedGPSService {
         return;
       }
 
-      // PERFORMANȚĂ: Înregistrează doar informații esențiale pentru a reduce overhead-ul consolei
+      // VERIFICARE: Doar dacă Android GPS nu funcționează  
+      if (window.AndroidGPS && window.AndroidGPS.isGPSActive) {
+        try {
+          const isAndroidActive = window.AndroidGPS.isGPSActive();
+          if (isAndroidActive) {
+            logGPS(`🤖 Android GPS activ - sărim backup JavaScript`);
+            return;
+          }
+        } catch (error) {
+          logGPS(`⚠️ Eroare verificare Android GPS: ${error}`);
+        }
+      }
+
+      logGPS(`🔄 BACKUP GPS: Android GPS inactiv - folosesc JavaScript backup`);
       await this.transmitForAllCourses();
-    }, 8000); // PERFORMANȚĂ: 8 secunde în loc de 5 pentru toate telefoanele Android
+    }, 30000); // 30 secunde - doar backup când Android GPS nu merge
 
     this.isTransmitting = true;
-    logGPS(`⏰ INTERVAL GPS PERFORMANȚĂ: 8s pentru performanță optimă pe toate telefoanele`);
+    logGPS(`⏰ BACKUP GPS: 30s interval - DOAR când Android GPS nu funcționează`);
   }
 
   /**
