@@ -2,11 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { getAppLogs, clearAppLogs, AppLog } from '../services/appLogger';
 
 interface AdminPanelProps {
-  onLogout: () => void;
+  onLogout?: () => void;
   onClose?: () => void;
+  vehicleNumber?: string;
+  courses?: any[];
+  currentTheme?: string;
+  isInline?: boolean;
 }
 
-const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
+const AdminPanel: React.FC<AdminPanelProps> = ({ 
+  onLogout, 
+  onClose, 
+  vehicleNumber, 
+  courses = [], 
+  currentTheme = 'dark', 
+  isInline = false 
+}) => {
   const [logs, setLogs] = useState<AppLog[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<AppLog[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -124,74 +135,94 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onLogout, onClose }) => {
 
 
 
+  // Inline styles for embedded debug panel
+  const containerStyle = isInline ? {
+    backgroundColor: 'transparent',
+    fontFamily: 'monospace',
+    fontSize: '12px',
+    maxHeight: '400px',
+    overflowY: 'auto' as const,
+    padding: '0'
+  } : {
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#f8fafc',
+    zIndex: 999999,
+    fontFamily: 'monospace',
+    overflow: 'hidden',
+    padding: '20px',
+    boxSizing: 'border-box' as const
+  };
+
+  const headerStyle = isInline ? {
+    marginBottom: '15px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  } : {
+    marginBottom: '20px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  };
+
   return (
     <div 
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#f8fafc',
-        zIndex: 999999,
-        fontFamily: 'monospace',
-        overflow: 'hidden',
-        padding: '20px',
-        boxSizing: 'border-box'
-      }}
-      onClick={(e) => {
-        // Prevent accidental close when clicking background
+      style={containerStyle}
+      onClick={isInline ? undefined : (e) => {
         e.stopPropagation();
       }}
     >
-      <div style={{
-        marginBottom: '20px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <h2 style={{ margin: 0, color: '#1e293b' }}>Admin Panel - Log Console</h2>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          {onClose && (
-            <button
-              onClick={onClose}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '600'
-              }}
-              title="Înapoi la aplicație - NU se deloghează"
-            >
-              ← Înapoi la App
-            </button>
-          )}
-          <button
-            onClick={() => {
-              if (confirm('Sigur vrei să te deloghezi complet din aplicație?')) {
-                onLogout();
-              }
-            }}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#dc2626',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '600'
-            }}
-            title="Deloghează complet din aplicație"
-          >
-            Logout Complet
-          </button>
+      {!isInline && (
+        <div style={headerStyle}>
+          <h2 style={{ margin: 0, color: '#1e293b' }}>Admin Panel - Log Console</h2>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {onClose && (
+              <button
+                onClick={onClose}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+                title="Înapoi la aplicație - NU se deloghează"
+              >
+                ← Înapoi la App
+              </button>
+            )}
+            {onLogout && (
+              <button
+                onClick={() => {
+                  if (confirm('Sigur vrei să te deloghezi complet din aplicație?')) {
+                    onLogout();
+                  }
+                }}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600'
+                }}
+                title="Deloghează complet din aplicație"
+              >
+                Logout Complet
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <div style={{
         marginBottom: '20px',

@@ -343,12 +343,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     if (newCount >= 50) {
       try {
-        console.log("Opening admin panel after 50 clicks...");
-        setShowAdminPanel(true);
+        console.log("Opening debug page after 50 clicks...");
+        setShowDebugPage(true);
         setClickCount(0);
       } catch (error) {
-        console.error("Error opening admin panel:", error);
-        setShowAdminPanel(true);
+        console.error("Error opening debug page:", error);
+        setShowDebugPage(true);
         setClickCount(0);
       }
     }
@@ -590,6 +590,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   // ELIMINAT: Fallback timer care forța coursesLoaded
   // Utilizatorul trebuie să introducă un număr valid de vehicul
+
+  // Remove the debug page component - we'll show inline instead
 
   return (
     <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""} theme-${currentTheme}`} style={{
@@ -1541,6 +1543,65 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       />
                     </div>
                   ))}
+                </div>
+              )}
+              
+              {/* Debug Panel - Inline under courses */}
+              {showDebugPage && (
+                <div style={{
+                  marginTop: '20px',
+                  padding: '15px',
+                  background: currentTheme === 'dark' 
+                    ? 'rgba(15, 23, 42, 0.8)' 
+                    : 'rgba(255, 255, 255, 0.9)',
+                  borderRadius: '12px',
+                  border: currentTheme === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : '1px solid rgba(0, 0, 0, 0.1)',
+                  backdropFilter: 'blur(10px)'
+                }}>
+                  {/* Debug header with close button */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '15px',
+                    paddingBottom: '10px',
+                    borderBottom: currentTheme === 'dark' 
+                      ? '1px solid rgba(255,255,255,0.1)' 
+                      : '1px solid rgba(0,0,0,0.1)'
+                  }}>
+                    <h3 style={{ 
+                      margin: 0, 
+                      fontSize: '16px',
+                      color: currentTheme === 'dark' ? '#ffffff' : '#1e293b'
+                    }}>
+                      🔧 Debug Panel - GPS Logs în Timp Real
+                    </h3>
+                    <button
+                      onClick={() => setShowDebugPage(false)}
+                      style={{
+                        background: currentTheme === 'dark' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.1)',
+                        border: currentTheme === 'dark' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(239, 68, 68, 0.2)',
+                        color: currentTheme === 'dark' ? '#fca5a5' : '#dc2626',
+                        padding: '6px 10px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '12px'
+                      }}
+                    >
+                      ✕ Închide
+                    </button>
+                  </div>
+
+                  {/* Inline AdminPanel content */}
+                  <AdminPanel 
+                    onClose={() => setShowDebugPage(false)}
+                    vehicleNumber={vehicleNumber}
+                    courses={courses}
+                    currentTheme={currentTheme}
+                    isInline={true}
+                  />
                 </div>
               )}
             </div>
