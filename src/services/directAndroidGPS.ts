@@ -126,7 +126,7 @@ class DirectAndroidGPSService {
       
       // STEP 2: Handle GPS coordinate transmission based on status
       if (newStatus === 3 || newStatus === 4) {
-        console.log(`🛑 STEP 2: IMMEDIATELY STOPPING all GPS coordinates - NO MORE TRANSMISSIONS for ${courseId}`);
+        console.log(`🛑 PAS 2: Se OPRESC IMEDIAT toate coordonatele GPS - NICIO TRANSMISIE pentru ${courseId}`);
         
         // IMMEDIATE STOP: Stop tracking BEFORE any more transmissions can happen
         await this.stopTracking(courseId);
@@ -135,20 +135,20 @@ class DirectAndroidGPSService {
         try {
           const { priorityGPSService } = await import('./priorityGPS');
           await priorityGPSService.updateStatus(courseId, newStatus);
-          console.log(`✅ Priority GPS status updated to ${newStatus} - no more transmissions`);
+          console.log(`✅ Status GPS Prioritar actualizat la ${newStatus} - nicio transmisie`);
         } catch (priorityError) {
-          console.error(`⚠️ Could not update Priority GPS status: ${priorityError}`);
+          console.error(`⚠️ Nu s-a putut actualiza status GPS Prioritar: ${priorityError}`);
         }
         
-        // CRITICAL FIX: Also update Guaranteed GPS status to prevent further transmissions
+        // CRITICAL FIX: Actualizează și status GPS Garantat pentru a preveni transmisii suplimentare
         try {
           await guaranteedGPSService.updateStatus(courseId, newStatus);
-          console.log(`✅ Guaranteed GPS status updated to ${newStatus} - no more transmissions`);
+          console.log(`✅ Status GPS Garantat actualizat la ${newStatus} - nicio transmisie`);
         } catch (guaranteedError) {
-          console.error(`⚠️ Could not update Guaranteed GPS status: ${guaranteedError}`);
+          console.error(`⚠️ Nu s-a putut actualiza status GPS Garantat: ${guaranteedError}`);
         }
         
-        console.log(`✅ ALL GPS services stopped for course ${courseId} - status ${newStatus === 3 ? 'PAUSE' : 'STOP'}`);
+        console.log(`✅ TOATE serviciile GPS oprite pentru cursa ${courseId} - status ${newStatus === 3 ? 'PAUZĂ' : 'STOP'}`);
       }
       
       // STEP 3: Handle GPS coordinate transmission for START/RESUME

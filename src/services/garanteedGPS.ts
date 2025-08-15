@@ -79,7 +79,7 @@ class GuaranteedGPSService {
         return;
       }
 
-      logGPS(`🔥 GUARANTEED GPS TRANSMISSION CYCLE: ${this.activeCourses.size} total courses registered`);
+      logGPS(`🔥 CICLU TRANSMISIE GPS GARANTAT: ${this.activeCourses.size} curse totale înregistrate`);
       await this.transmitForAllCourses();
     }, 5000); // EXACT 5 secunde
 
@@ -104,16 +104,16 @@ class GuaranteedGPSService {
       return;
     }
 
-    logGPS(`📡 GUARANTEED GPS BACKUP: Transmitting for ${activeInProgressCourses.length} courses IN PROGRESS...`);
+    logGPS(`📡 GPS GARANTAT BACKUP: Se transmite pentru ${activeInProgressCourses.length} curse ÎN PROGRES...`);
       
-    // PHONE LOCK DETECTION: Check if screen is locked or app is in background  
+    // DETECȚIE TELEFON BLOCAT: Verifică dacă ecranul este blocat sau aplicația în fundal  
     const isPhoneLocked = document.hidden || document.visibilityState === 'hidden';
     const isBackgroundApp = (window as any).Capacitor?.isNativePlatform() && document.hidden;
     
     if (isPhoneLocked || isBackgroundApp) {
-      logGPS(`🔒 PHONE LOCKED/BACKGROUND DETECTED - Guaranteed GPS taking over transmission`);
+      logGPS(`🔒 TELEFON BLOCAT/FUNDAL DETECTAT - GPS Garantat preia transmisia`);
     } else {
-      logGPS(`📱 Phone unlocked - Guaranteed GPS running as backup protection`);
+      logGPS(`📱 Telefon deblocat - GPS Garantat rulează ca protecție backup`);
     }
 
     try {
@@ -175,11 +175,11 @@ class GuaranteedGPSService {
       const timestampKey = `guaranteed_gps_${course.courseId}_${uniqueTimestamp}`;
       
       if ((window as any)[timestampKey]) {
-        logGPS(`⏭️ ANTI-DUPLICATE: Guaranteed GPS skipping ${course.courseId} - already transmitted by PriorityGPS in this cycle`);
+        logGPS(`⏭️ ANTI-DUPLICAT: GPS Garantat sare ${course.courseId} - deja transmis de GPS Prioritar în acest ciclu`);
         return;
       }
       
-      // Mark this transmission to prevent other services from duplicating
+      // Marchează această transmisie pentru a preveni duplicarea de către alte servicii
       (window as any)[timestampKey] = true;
       
       const batteryLevel = await this.getBatteryLevel();
@@ -200,8 +200,8 @@ class GuaranteedGPSService {
         gsm_signal: navigator.onLine ? ((navigator as any).connection?.effectiveType === '4g' ? 4 : 3) : 1
       };
       
-      logGPS(`🚨 GUARANTEED GPS BACKUP TRANSMISSION: ${course.uit} for course ${course.courseId}`);
-      logGPS(`🕒 BACKUP TIMESTAMP: ${uniqueTimestamp}`);
+      logGPS(`🚨 TRANSMISIE GPS GARANTAT BACKUP: ${course.uit} pentru cursa ${course.courseId}`);
+      logGPS(`🕒 TIMESTAMP BACKUP: ${uniqueTimestamp}`);
 
       logGPS(`📊 GPS Data prepared: lat=${gpsData.lat}, lng=${gpsData.lng}, uit=${gpsData.uit}, vehicle=${gpsData.numar_inmatriculare}`);
       logGPS(`🔑 Using token: ${course.token.substring(0, 20)}...`);
@@ -209,9 +209,9 @@ class GuaranteedGPSService {
       const success = await sendGPSData(gpsData, course.token);
       
       if (success) {
-        logGPS(`✅ Guaranteed GPS BACKUP transmitted successfully: ${coords.latitude}, ${coords.longitude} for course ${course.courseId}`);
+        logGPS(`✅ GPS Garantat BACKUP transmis cu succes: ${coords.latitude}, ${coords.longitude} pentru cursa ${course.courseId}`);
       } else {
-        logGPSError(`❌ Guaranteed GPS BACKUP transmission failed for course ${course.courseId} - saving offline for later sync`);
+        logGPSError(`❌ Transmisia GPS Garantat BACKUP a eșuat pentru cursa ${course.courseId} - se salvează offline pentru sincronizare`);
         
         // SAVE TO OFFLINE STORAGE when transmission fails
         try {
@@ -301,7 +301,7 @@ class GuaranteedGPSService {
       
       // PAUSE (3) or STOP (4): Remove from active coordinates but keep status tracked
       if (newStatus === 3 || newStatus === 4) {
-        logGPS(`⏸️ PAUSE/STOP (${newStatus}): Stopping GPS coordinates for ${courseId}`);
+        logGPS(`⏸️ PAUZĂ/STOP (${newStatus}): Se opresc coordonatele GPS pentru ${courseId}`);
         this.activeCourses.delete(courseId);
         
         // Stop interval if no more active courses

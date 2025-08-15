@@ -285,7 +285,7 @@ class PriorityGPSService {
 
     // Handle pause/stop - remove from active courses
     if (newStatus === 3 || newStatus === 4) {
-      logGPS(`🛑 PRIORITY GPS: PAUSE/STOP (${newStatus}) - Removing course ${courseId} from active GPS transmission`);
+      logGPS(`🛑 GPS PRIORITAR: PAUZĂ/STOP (${newStatus}) - Se elimină cursa ${courseId} din transmisia GPS activă`);
       await this.stopGPS(courseId);
       return;
     }
@@ -329,14 +329,14 @@ class PriorityGPSService {
         const activeCourses = Array.from(this.activeCourses.values()).filter(course => course.status === 2);
         
         if (activeCourses.length > 0) {
-          logGPS(`🔥 PRIORITY GPS TRANSMISSION CYCLE: ${activeCourses.length} active courses (status 2)`);
+          logGPS(`🔥 CICLU TRANSMISIE GPS PRIORITAR: ${activeCourses.length} curse active (status 2)`);
           
           for (const course of activeCourses) {
-            logGPS(`📡 Transmitting Priority GPS for course: ${course.courseId} (UIT: ${course.uit})`);
+            logGPS(`📡 Transmitere GPS Prioritar pentru cursa: ${course.courseId} (UIT: ${course.uit})`);
             await this.transmitForCourse(course);
           }
         } else {
-          logGPS(`⏸️ No active courses with status 2 - skipping Priority GPS transmission`);
+          logGPS(`⏸️ Nicio cursă activă cu status 2 - se sare transmisia GPS Prioritar`);
         }
       } finally {
         this.isTransmitting = false;
@@ -420,18 +420,18 @@ class PriorityGPSService {
       const timestampKey = `priority_gps_${course.courseId}_${currentTimestamp}`;
       
       if ((window as any)[timestampKey]) {
-        logGPS(`⏭️ ANTI-DUPLICATE: Priority GPS skipping ${course.courseId} - already transmitted by another service in this cycle`);
+        logGPS(`⏭️ ANTI-DUPLICAT: GPS Prioritar sare ${course.courseId} - deja transmis de alt serviciu în acest ciclu`);
         return;
       }
       
-      // Mark this transmission to prevent duplicates
+      // Marchează această transmisie pentru a preveni duplicatele
       (window as any)[timestampKey] = true;
       
       const success = await activeMethod.transmit(course);
       if (success) {
         course.lastSuccessfulTransmission = new Date().toISOString();
         this.activeCourses.set(course.courseId, course);
-        logGPS(`✅ Priority GPS transmitted successfully for ${course.courseId}`);
+        logGPS(`✅ GPS Prioritar transmis cu succes pentru ${course.courseId}`);
       }
     } catch (error) {
       logGPSError(`❌ Priority GPS transmission failed for ${course.courseId}: ${error}`);
