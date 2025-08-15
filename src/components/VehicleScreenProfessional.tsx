@@ -23,6 +23,8 @@ import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
+import OfflineIndicator from "./OfflineIndicator";
+import { simpleNetworkCheck } from "../services/simpleNetworkCheck";
 
 interface VehicleScreenProps {
   token: string;
@@ -35,10 +37,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [coursesLoaded, setCoursesLoaded] = useState(false);
-  const [isOnline, setIsOnline] = useState(() => {
-    // Force check real connectivity, not just navigator.onLine
-    return window.navigator.onLine;
-  });
+  const [isOnline, setIsOnline] = useState(true);
   const [clickCount, setClickCount] = useState(0);
   const [showDebugPage, setShowDebugPage] = useState(false);
 
@@ -83,7 +82,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     initializeApp();
   }, []); // Empty dependency array - runs only once on mount
 
-  // Separate useEffect for background refresh events
+  // Separate useEffect for background refresh events + network status
   useEffect(() => {
     const handleBackgroundRefresh = () => {
       console.log('Background refresh event received from Android');
@@ -91,6 +90,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         // Background refresh handled by Android service
       }
     };
+    
+    // Setup network status listener
+    simpleNetworkCheck.onStatusChange((online) => {
+      setIsOnline(online);
+      console.log(`📡 Network status: ${online ? 'ONLINE' : 'OFFLINE'}`);
+    });
     
     window.addEventListener('backgroundRefresh', handleBackgroundRefresh);
     
@@ -650,6 +655,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           position: 'relative',
           overflow: 'hidden'
         }}>
+          {/* Offline Indicator pentru input screen */}
+          <OfflineIndicator className="mb-3" />
+          
           {/* Logo Row - Top */}
           <div style={{
             textAlign: 'center',
@@ -1028,6 +1036,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </span>
               </div>
             </div>
+
+            {/* Offline Indicator in header */}
+            <OfflineIndicator />
 
             {/* Second Row - Action Icons */}
             <div style={{

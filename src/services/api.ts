@@ -1,5 +1,5 @@
 import { logAPI } from "./appLogger";
-import { reportGPSSuccess, reportGPSError } from './networkStatus';
+import { simpleNetworkCheck } from './simpleNetworkCheck';
 import { CapacitorHttp } from "@capacitor/core";
 import { offlineGPSService } from './offlineGPS';
 // Static import to resolve Vite dynamic/static import warning
@@ -581,14 +581,11 @@ export const sendGPSData = async (
 
       if (response.status === 200 || response.status === 204) {
         console.log("✅ GPS data transmitted successfully");
-        // EFICIENT: gps.php returnează 200/204 = suntem online
-        reportGPSSuccess();
+        // SUCCESS: Server răspunde, suntem online
         return true;
       } else {
         console.error(`❌ GPS failed: ${response.status}`);
         console.error("Response:", response.data);
-        // EFICIENT: gps.php nu returnează 200 = OFFLINE → salvez coordonata offline
-        reportGPSError(`HTTP ${response.status}: ${response.data}`, response.status);
         
         // SALVARE AUTOMATĂ OFFLINE când serverul nu răspunde cu 200
         console.log('💾 Salvez coordonată offline - server nu răspunde 200');
@@ -681,12 +678,10 @@ export const sendGPSData = async (
 
       if (response.status === 200 || response.status === 201 || response.status === 204) {
         console.log("✅ Fetch GPS sent successfully");
-        reportGPSSuccess();
         return true;
       } else {
         // SALVARE AUTOMATĂ OFFLINE pentru fetch fallback cu status != 200
         console.error(`❌ Fetch GPS failed: ${response.status}`);
-        reportGPSError(`Fetch HTTP ${response.status}: ${responseText}`, response.status);
         
         console.log('💾 Salvez coordonată offline - fetch fallback eșuat');
         try {
@@ -706,7 +701,6 @@ export const sendGPSData = async (
 
     console.error("GPS transmission error:", error);
     logAPI(`GPS error: ${error}`);
-    reportGPSError(error);
     
     // SALVARE AUTOMATĂ OFFLINE pentru eroare completă de transmisie  
     console.log('💾 Salvez coordonată offline - eroare completă de transmisie');
