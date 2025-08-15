@@ -659,11 +659,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
             <div className="detail-section-enhanced">
               <h6 className="section-title-enhanced">
                 <i className="fas fa-info-circle"></i>
-                Informații Transport
+                Informații Complete Transport
               </h6>
               <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">ID Transport:</span>
-                <span className="detail-value-enhanced">{course.ikRoTrans || course.id}</span>
+                <span className="detail-label-enhanced">ID Transport (ikRoTrans):</span>
+                <span className="detail-value-enhanced">{course.ikRoTrans || 'N/A'}</span>
               </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Cod Declarant:</span>
@@ -676,6 +676,46 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Nr. Vehicul:</span>
                 <span className="detail-value-enhanced">{course.nrVehicul || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">UIT:</span>
+                <span className="detail-value-enhanced">{course.uit}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Data Transport:</span>
+                <span className="detail-value-enhanced">{course.dataTransport || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Vama Plecare:</span>
+                <span className="detail-value-enhanced">{course.vama || course.Vama || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Birou Vamal Plecare:</span>
+                <span className="detail-value-enhanced">{course.birouVamal || course.BirouVamal || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Județ Plecare:</span>
+                <span className="detail-value-enhanced">{course.judet || course.Judet || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Denumire Loc Start:</span>
+                <span className="detail-value-enhanced">{course.denumireLocStart || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Vama Stop:</span>
+                <span className="detail-value-enhanced">{course.vamaStop || course.VamaStop || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Birou Vamal Stop:</span>
+                <span className="detail-value-enhanced">{course.birouVamalStop || course.BirouVamalStop || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Județ Stop:</span>
+                <span className="detail-value-enhanced">{course.judetStop || course.JudetStop || 'N/A'}</span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Denumire Loc Stop:</span>
+                <span className="detail-value-enhanced">{course.denumireLocStop || 'N/A'}</span>
               </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Data Transport (Sistem):</span>

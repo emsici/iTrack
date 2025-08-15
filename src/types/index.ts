@@ -28,11 +28,14 @@ export interface Course {
   BirouVamalStop?: string;
   Judet?: string;
   JudetStop?: string;
-  // Additional API fields
+  // Additional API fields (lowercase variants)
   vama?: string;
   birouVamal?: string;
   vamaStop?: string;
   birouVamalStop?: string;
+  // API field variants (uppercase)
+  Vama?: string;
+  VamaStop?: string;
 }
 
 export interface GPSPosition {
