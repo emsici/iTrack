@@ -51,20 +51,14 @@ class GuaranteedGPSService {
   }
 
   /**
-   * Încercăm AndroidGPS primul (poate să funcționeze sau nu)
+   * NO ANDROID GPS: Guaranteed GPS is JAVASCRIPT ONLY to avoid duplicates
+   * When called as backup, Android GPS is already running via priorityGPS
    */
   private async tryAndroidGPS(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
-    if ((window as any)?.AndroidGPS?.startGPS) {
-      try {
-        logGPS(`🤖 Trying AndroidGPS first...`);
-        const result = (window as any).AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`📱 AndroidGPS result: ${result}`);
-      } catch (error) {
-        logGPSError(`❌ AndroidGPS failed: ${error}`);
-      }
-    } else {
-      logGPS(`⚠️ AndroidGPS not available - using JavaScript backup`);
-    }
+    // CRITICAL FIX: Skip AndroidGPS when used as backup to prevent duplicate transmissions
+    // priorityGPS already handles Android GPS, this is pure JavaScript backup
+    logGPS(`⚠️ GUARANTEED GPS: Skipping AndroidGPS - using pure JavaScript backup to prevent duplicates`);
+    logGPS(`🔒 This ensures transmission continues when Android GPS fails (phone locked, etc.)`);
   }
 
   /**
@@ -109,11 +103,21 @@ class GuaranteedGPSService {
       return;
     }
 
-    logGPS(`📡 TRANSMITTING GPS for ${activeInProgressCourses.length} courses IN PROGRESS...`);
+    logGPS(`📡 GUARANTEED GPS BACKUP: Transmitting for ${activeInProgressCourses.length} courses IN PROGRESS...`);
+      
+    // PHONE LOCK DETECTION: Check if screen is locked or app is in background  
+    const isPhoneLocked = document.hidden || document.visibilityState === 'hidden';
+    const isBackgroundApp = (window as any).Capacitor?.isNativePlatform() && document.hidden;
+    
+    if (isPhoneLocked || isBackgroundApp) {
+      logGPS(`🔒 PHONE LOCKED/BACKGROUND DETECTED - Guaranteed GPS taking over transmission`);
+    } else {
+      logGPS(`📱 Phone unlocked - Guaranteed GPS running as backup protection`);
+    }
 
     try {
       // Obținem locația curentă REALĂ cu settings aggressive pentru debugging
-      logGPS(`🔍 Getting REAL GPS position with aggressive settings...`);
+      logGPS(`🔍 Getting REAL GPS position with aggressive settings for GUARANTEED transmission...`);
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 15000,  // Mărit timeout pentru GPS real

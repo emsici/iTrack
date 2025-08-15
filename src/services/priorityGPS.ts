@@ -198,16 +198,42 @@ class PriorityGPSService {
     }
 
     if (!methodStarted) {
-      throw new Error('All GPS methods failed to start');
+      logGPSError(`❌ No GPS methods available for course ${courseId}, falling back to guaranteed GPS`);
+      
+      // CRITICAL FIX: If no priority method worked, use guaranteed GPS as ultimate fallback
+      try {
+        const { guaranteedGPSService } = await import('./garanteedGPS');
+        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+        
+        course.activeMethod = 'javascript';
+        methodStarted = true;
+        logGPS(`✅ Fallback to GuaranteedGPS successful for course ${courseId}`);
+      } catch (guaranteedError) {
+        logGPSError(`❌ Even GuaranteedGPS failed: ${guaranteedError}`);
+        throw new Error(`All GPS methods failed including guaranteed backup`);
+      }
     }
 
     this.activeCourses.set(courseId, course);
+    
+    // CRITICAL FIX: For Android Native GPS, also start GuaranteedGPS as backup
+    // This ensures transmission continues when phone is locked
+    if (course.activeMethod === 'android') {
+      try {
+        logGPS(`🔒 PHONE LOCK PROTECTION: Starting GuaranteedGPS backup for Android method`);
+        const { guaranteedGPSService } = await import('./garanteedGPS');
+        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+        logGPS(`✅ GuaranteedGPS backup started for Android method - phone lock protected`);
+      } catch (backupError) {
+        logGPSError(`⚠️ Failed to start GuaranteedGPS backup: ${backupError}`);
+      }
+    }
     
     // Start monitoring and transmission intervals
     this.startMonitoring();
     this.startTransmissionInterval();
 
-    logGPS(`✅ PRIORITY GPS started for ${courseId} using ${course.activeMethod} method`);
+    logGPS(`✅ PRIORITY GPS started for ${courseId} using ${course.activeMethod} method with backup protection`);
   }
 
   async stopGPS(courseId: string): Promise<void> {
@@ -226,6 +252,15 @@ class PriorityGPSService {
     
     if (activeMethod) {
       await activeMethod.stop(courseId);
+    }
+    
+    // CRITICAL FIX: Also stop GuaranteedGPS backup if it was running
+    try {
+      const { guaranteedGPSService } = await import('./garanteedGPS');
+      await guaranteedGPSService.stopGPS(courseId);
+      logGPS(`✅ GuaranteedGPS backup stopped for course ${courseId}`);
+    } catch (backupStopError) {
+      logGPS(`⚠️ GuaranteedGPS backup stop failed (maybe not running): ${backupStopError}`);
     }
 
     this.activeCourses.delete(courseId);
