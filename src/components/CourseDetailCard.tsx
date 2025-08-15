@@ -641,7 +641,15 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         
         <div className="preview-row">
           <span className="preview-label">Data Transport:</span>
-          <span className="preview-value">{course.dataTransport || 'N/A'}</span>
+          <span className="preview-value">
+            {course.dataTransport ? 
+              new Date(course.dataTransport).toLocaleDateString('ro-RO', {
+                day: '2-digit',
+                month: '2-digit', 
+                year: 'numeric'
+              }) : 'N/A'
+            }
+          </span>
         </div>
       </div>
       
@@ -688,7 +696,16 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
               </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Data Transport:</span>
-                <span className="detail-value-enhanced">{course.dataTransport || 'N/A'}</span>
+                <span className="detail-value-enhanced">
+                  {course.dataTransport ? 
+                    new Date(course.dataTransport).toLocaleDateString('ro-RO', {
+                      weekday: 'long',
+                      day: '2-digit',
+                      month: '2-digit', 
+                      year: 'numeric'
+                    }) : 'N/A'
+                  }
+                </span>
               </div>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Vama Plecare:</span>
