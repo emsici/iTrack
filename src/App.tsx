@@ -26,6 +26,10 @@ const App: React.FC = () => {
         // GPS operations handled by Capacitor Plugin
         console.log('✅ GPS Bridge inițializat - serviciul Android pregătit pentru transmisia GPS');
         
+        // CRITICAL: Initialize Android GPS callback for network status reporting
+        const { androidGPSCallbackService } = await import('./services/androidGPSCallback');
+        console.log('📡 AndroidGPSCallback inițializat pentru raportarea statusului rețea');
+        
         // Check for stored authentication token (non-blocking)
         const storedToken = await getStoredToken();
         if (storedToken) {

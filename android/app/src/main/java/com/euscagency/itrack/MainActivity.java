@@ -208,4 +208,27 @@ public class MainActivity extends BridgeActivity {
             return "ERROR: " + e.getMessage();
         }
     }
+
+    // NETWORK STATUS REPORTING pentru frontend - CRITICAL pentru online/offline detection
+    @JavascriptInterface
+    public void onGPSTransmissionSuccess() {
+        Log.d(TAG, "📡 GPS transmission SUCCESS - notifying WebView about network status");
+        
+        // Call JavaScript function to report success
+        runOnUiThread(() -> {
+            String jsCode = "if(window.AndroidGPSCallback && window.AndroidGPSCallback.onTransmissionSuccess) { window.AndroidGPSCallback.onTransmissionSuccess(); }";
+            getBridge().getWebView().evaluateJavascript(jsCode, null);
+        });
+    }
+
+    @JavascriptInterface  
+    public void onGPSTransmissionError(int httpStatus) {
+        Log.d(TAG, "📡 GPS transmission ERROR " + httpStatus + " - notifying WebView about network status");
+        
+        // Call JavaScript function to report error
+        runOnUiThread(() -> {
+            String jsCode = "if(window.AndroidGPSCallback && window.AndroidGPSCallback.onTransmissionError) { window.AndroidGPSCallback.onTransmissionError(" + httpStatus + "); }";
+            getBridge().getWebView().evaluateJavascript(jsCode, null);
+        });
+    }
 }

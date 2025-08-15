@@ -12,11 +12,11 @@ class NetworkStatusService {
   private consecutiveFailures: number = 0;
   private statusCallbacks: ((isOnline: boolean) => void)[] = [];
   
-  // Configurări pentru detectare precisă
-  private readonly OFFLINE_THRESHOLD_MS = 30000; // 30 secunde fără succes = offline
-  private readonly MAX_CONSECUTIVE_FAILURES = 3; // 3 eșecuri consecutive = offline
-  private readonly ONLINE_CONFIRMATION_DELAY = 1000; // 1 secundă după succes = online (mai rapid)
-  private readonly STATUS_CHECK_INTERVAL = 3000; // Verificare la 3 secunde pentru răspuns rapid
+  // Configurări pentru detectare precisă - OPTIMIZAT pentru serviciul Android independent
+  private readonly OFFLINE_THRESHOLD_MS = 120000; // 120 secunde (2 min) - mai mult timp pentru Android GPS independent
+  private readonly MAX_CONSECUTIVE_FAILURES = 5; // 5 eșecuri consecutive = offline (mai tolerant)
+  private readonly ONLINE_CONFIRMATION_DELAY = 1000; // 1 secundă după succes = online
+  private readonly STATUS_CHECK_INTERVAL = 10000; // Verificare la 10 secunde (mai puțin agresiv)
 
   constructor() {
     logAPI('🌐 Serviciu status rețea inițializat - detectare bazată pe transmisiile GPS reale');
@@ -112,11 +112,15 @@ class NetworkStatusService {
     }
     
     if (timeSinceLastSuccess > this.OFFLINE_THRESHOLD_MS && this.isOnline) {
-      logAPI(`⚠️ ${timeSinceLastSuccess}ms fără transmisie GPS reușită - posibil offline`);
+      logAPI(`⚠️ ${timeSinceLastSuccess}ms fără transmisie GPS reușită - verificăm dacă Android GPS funcționează`);
       
-      if (this.consecutiveFailures > 0) {
+      // MODIFICAT: Nu declara offline doar pentru că nu avem transmisii
+      // Serviciul Android poate trimite direct fără să raporteze în frontend
+      if (this.consecutiveFailures >= this.MAX_CONSECUTIVE_FAILURES) {
         this.setOnlineStatus(false);
-        logAPI('🔴 INTERNET PIERDUT - timeout + eșecuri de transmisie');
+        logAPI('🔴 INTERNET PIERDUT - multiple eșecuri confirmate de transmisie');
+      } else {
+        logAPI('🟡 Timeout transmisie dar fără eșecuri - serviciul Android poate funcționa independent');
       }
     }
     

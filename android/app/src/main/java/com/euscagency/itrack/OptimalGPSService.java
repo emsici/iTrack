@@ -60,6 +60,9 @@ public class OptimalGPSService extends Service {
     // TRANSMISIE HTTP OPTIMIZATĂ PENTRU FUNDAL
     private ExecutorService httpThreadPool; // Pool de thread-uri simplu pentru a evita blocarea serviciului principal
     
+    // WebView interface pentru raportarea status-ului network către frontend
+    private MainActivity webInterface;
+    
     public static class CourseData {
         public String courseId;
         public String uit;
@@ -93,10 +96,13 @@ public class OptimalGPSService extends Service {
         // FOREGROUND OPTIMIZED: Simple thread pool to avoid blocking AlarmManager
         httpThreadPool = Executors.newFixedThreadPool(1); // Single background thread for HTTP
         
+        // Get MainActivity reference for network status reporting
+        webInterface = MainActivity.getInstance();
+        
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
         
-        Log.d(TAG, "✅ OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching + WakeLock");
+        Log.d(TAG, "✅ OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching + WakeLock + WebInterface");
     }
     
     private void createNotificationChannel() {
@@ -502,13 +508,45 @@ public class OptimalGPSService extends Service {
             
             if (responseCode == 200) {
                 Log.d(TAG, "✅ GPS SUCCESS " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
+                
+                // CRITICAL: Raportează succesul către frontend pentru network status
+                try {
+                    // Notifică WebView-ul despre transmisia reușită
+                    if (webInterface != null) {
+                        webInterface.onGPSTransmissionSuccess();
+                        Log.d(TAG, "📡 SUCCESS raported to WebView for network status");
+                    }
+                } catch (Exception e) {
+                    Log.w(TAG, "⚠️ Could not report success to WebView: " + e.getMessage());
+                }
             } else {
                 Log.w(TAG, "⚠️ GPS FAILED " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
                 Log.w(TAG, "🔍 Request was: " + jsonData);
+                
+                // CRITICAL: Raportează eșecul către frontend pentru network status
+                try {
+                    if (webInterface != null) {
+                        webInterface.onGPSTransmissionError(responseCode);
+                        Log.d(TAG, "📡 ERROR raported to WebView for network status");
+                    }
+                } catch (Exception e) {
+                    Log.w(TAG, "⚠️ Could not report error to WebView: " + e.getMessage());
+                }
             }
             
         } catch (Exception e) {
             Log.e(TAG, "❌ FOREGROUND GPS FAILED for " + courseId + ": " + e.getMessage());
+            
+            // CRITICAL: Raportează eșecul către frontend pentru network status
+            try {
+                if (webInterface != null) {
+                    webInterface.onGPSTransmissionError(0); // 0 = network error
+                    Log.d(TAG, "📡 NETWORK ERROR raported to WebView");
+                }
+            } catch (Exception webError) {
+                Log.w(TAG, "⚠️ Could not report network error to WebView: " + webError.getMessage());
+            }
+            
             // No retry for foreground - next transmission comes in 5 seconds anyway
         } finally {
             if (connection != null) {
