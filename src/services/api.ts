@@ -1,7 +1,8 @@
 import { logAPI } from "./appLogger";
 import { reportGPSSuccess, reportGPSError } from './networkStatus';
 import { CapacitorHttp } from "@capacitor/core";
-// Consistent static import to resolve Vite warnings
+import { offlineGPSService } from './offlineGPS';
+// Static import to resolve Vite dynamic/static import warning
 
 // Centralized API Configuration
 export const API_CONFIG = {
@@ -592,7 +593,7 @@ export const sendGPSData = async (
         // SALVARE AUTOMATĂ OFFLINE când serverul nu răspunde cu 200
         console.log('💾 Salvez coordonată offline - server nu răspunde 200');
         try {
-          const { offlineGPSService } = await import('./offlineGPS');
+          // offlineGPSService already imported statically
           await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
         } catch (error) {
           console.error('❌ Eroare salvare offline:', error);
@@ -689,7 +690,7 @@ export const sendGPSData = async (
         
         console.log('💾 Salvez coordonată offline - fetch fallback eșuat');
         try {
-          const { offlineGPSService } = await import('./offlineGPS');
+          // offlineGPSService already imported statically
           await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
         } catch (error) {
           console.error('❌ Eroare salvare offline (fetch):', error);
@@ -710,7 +711,7 @@ export const sendGPSData = async (
     // SALVARE AUTOMATĂ OFFLINE pentru eroare completă de transmisie  
     console.log('💾 Salvez coordonată offline - eroare completă de transmisie');
     try {
-      const { offlineGPSService } = await import('./offlineGPS');
+      // offlineGPSService already imported statically
       await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
     } catch (offlineError) {
       console.error('❌ Eroare salvare offline (error catch):', offlineError);
