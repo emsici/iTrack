@@ -53,36 +53,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
-  
-  // Update offline GPS count every 3 seconds for live display
-  useEffect(() => {
-    const updateOfflineCount = async () => {
-      try {
-        const count = await getOfflineGPSCount();
-        setOfflineGPSCount(count);
-        if (count > 0) {
-          console.log(`📍 Update UI: ${count} coordonate offline în storage`);
-        }
-      } catch (error) {
-        console.error('Eroare la obținerea contorului offline:', error);
-      }
-    };
-
-    // Update immediately and then every 3 seconds
-    updateOfflineCount();
-    const interval = setInterval(updateOfflineCount, 3000);
-
-    // Listen for immediate updates when GPS is saved offline
-    const handleOfflineCountChange = () => {
-      updateOfflineCount();
-    };
-    window.addEventListener('offlineGPSCountChanged', handleOfflineCountChange);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('offlineGPSCountChanged', handleOfflineCountChange);
-    };
-  }, []);
 
   const toast = useToast();
 
@@ -435,11 +405,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         const actionInfo = actionMessages[action as keyof typeof actionMessages];
         if (actionInfo) {
-          toast.addToast(
-            'info',
-            actionInfo.title,
-            actionInfo.message
-          );
+          toast.addToast({
+            type: 'info',
+            title: actionInfo.title,
+            message: actionInfo.message,
+            duration: 3000
+          });
         }
       }
 
@@ -478,11 +449,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           
           const successInfo = successMessages[action as keyof typeof successMessages];
           if (successInfo) {
-            toast.addToast(
-              'success',
-              successInfo.title,
-              successInfo.message
-            );
+            toast.addToast({
+              type: 'success',
+              title: successInfo.title,
+              message: successInfo.message,
+              duration: 4000
+            });
           }
         }
         
@@ -631,20 +603,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       setCurrentTheme(theme);
       
       // Show success toast with theme name
-      toast.addToast(
-        'success',
-        'Tema schimbată!',
-        `Tema "${THEME_INFO[theme].name}" a fost aplicată cu succes.`
-      );
+      toast.addToast({
+        type: 'success',
+        title: 'Tema schimbată!',
+        message: `Tema "${THEME_INFO[theme].name}" a fost aplicată cu succes.`,
+        duration: 3000
+      });
     } catch (error) {
       console.error('Error changing theme:', error);
       
       // Show error toast
-      toast.addToast(
-        'error',
-        'Eroare temă',
-        'Nu s-a putut schimba tema. Încercați din nou.'
-      );
+      toast.addToast({
+        type: 'error',
+        title: 'Eroare temă',
+        message: 'Nu s-a putut schimba tema. Încercați din nou.',
+        duration: 4000
+      });
     }
   };
 
@@ -1304,14 +1278,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
             
-            {/* Contor coordonate offline în header */}
+            {/* Offline Sync Progress - Performance Optimized */}
             <div style={{ 
-              marginTop: '8px', 
-              textAlign: 'center',
-              fontSize: '14px',
-              color: currentTheme === 'light' || currentTheme === 'business' ? '#64748b' : '#94a3b8'
+              marginTop: '10px', 
+              width: '100%', 
+              maxWidth: '500px', 
+              margin: '10px auto 0 auto',
+              contain: 'layout style paint',
+              /* REMOVED willChange pentru ZERO lag la scroll */
             }}>
-              <span>📍 {offlineGPSCount} coordonate offline</span>
+              <OfflineSyncProgress className="offline-monitor-header-style" />
             </div>
           </div>
 
@@ -1608,15 +1584,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   ))}
                 </div>
               )}
-              
-              {/* PROGRES SINCRONIZARE SUB LISTA DE CURSE */}
-              <div style={{
-                marginTop: '20px',
-                padding: '15px',
-                background: 'transparent'
-              }}>
-                <OfflineSyncProgress className="offline-sync-under-courses" />
-              </div>
               
               {/* Debug Panel - Inline under courses */}
               {showDebugPage && (

@@ -15,6 +15,7 @@ class NetworkStatusService {
   // Configurări pentru detectare precisă
   private readonly OFFLINE_THRESHOLD_MS = 30000; // 30 secunde fără succes = offline
   private readonly MAX_CONSECUTIVE_FAILURES = 3; // 3 eșecuri consecutive = offline
+  private readonly ONLINE_CONFIRMATION_DELAY = 1000; // 1 secundă după succes = online (mai rapid)
   private readonly STATUS_CHECK_INTERVAL = 3000; // Verificare la 3 secunde pentru răspuns rapid
 
   constructor() {
@@ -111,15 +112,7 @@ class NetworkStatusService {
     }
     
     if (timeSinceLastSuccess > this.OFFLINE_THRESHOLD_MS && this.isOnline) {
-      logAPI(`⚠️ DIAGNOSTIC GPS: ${timeSinceLastSuccess}ms fără transmisie GPS reușită - verificând serviciul...`);
-      
-      // Verifică dacă serviciul GPS Android rulează
-      if (window.AndroidGPS && typeof window.AndroidGPS.isDiagnosticRunning === 'function') {
-        const diagnostic = window.AndroidGPS.isDiagnosticRunning();
-        logAPI(`🔍 GPS Android Diagnostic: ${diagnostic}`);
-      } else {
-        logAPI(`🔍 GPS Android nu este disponibil - rulează doar în browser`);
-      }
+      logAPI(`⚠️ ${timeSinceLastSuccess}ms fără transmisie GPS reușită - posibil offline`);
       
       if (this.consecutiveFailures > 0) {
         this.setOnlineStatus(false);
@@ -204,9 +197,7 @@ export const networkStatusService = new NetworkStatusService();
 // OPTIMIZAT: Export helper functions cu verificare eficientă prin HTTP status
 export const reportGPSSuccess = () => networkStatusService.reportSuccessfulTransmission();
 export const reportGPSError = (error: any, httpStatus?: number) => networkStatusService.reportTransmissionError(error, httpStatus);
-export const onNetworkStatusChange = (callback: (isOnline: boolean) => void) => {
+export const onNetworkStatusChange = (callback: (isOnline: boolean) => void) => 
   networkStatusService.onStatusChange(callback);
-  return () => networkStatusService.removeStatusCallback(callback);
-};
 export const isNetworkOnline = () => networkStatusService.getStatus();
 export const getNetworkStatusInfo = () => networkStatusService.getStatusInfo();
