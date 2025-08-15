@@ -405,12 +405,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         const actionInfo = actionMessages[action as keyof typeof actionMessages];
         if (actionInfo) {
-          toast.addToast({
-            type: 'info',
-            title: actionInfo.title,
-            message: actionInfo.message,
-            duration: 3000
-          });
+          toast.addToast(
+            'info',
+            actionInfo.title,
+            actionInfo.message
+          );
         }
       }
 
@@ -449,12 +448,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           
           const successInfo = successMessages[action as keyof typeof successMessages];
           if (successInfo) {
-            toast.addToast({
-              type: 'success',
-              title: successInfo.title,
-              message: successInfo.message,
-              duration: 4000
-            });
+            toast.addToast(
+              'success',
+              successInfo.title,
+              successInfo.message
+            );
           }
         }
         
@@ -603,22 +601,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       setCurrentTheme(theme);
       
       // Show success toast with theme name
-      toast.addToast({
-        type: 'success',
-        title: 'Tema schimbată!',
-        message: `Tema "${THEME_INFO[theme].name}" a fost aplicată cu succes.`,
-        duration: 3000
-      });
+      toast.addToast(
+        'success',
+        'Tema schimbată!',
+        `Tema "${THEME_INFO[theme].name}" a fost aplicată cu succes.`
+      );
     } catch (error) {
       console.error('Error changing theme:', error);
       
       // Show error toast
-      toast.addToast({
-        type: 'error',
-        title: 'Eroare temă',
-        message: 'Nu s-a putut schimba tema. Încercați din nou.',
-        duration: 4000
-      });
+      toast.addToast(
+        'error',
+        'Eroare temă',
+        'Nu s-a putut schimba tema. Încercați din nou.'
+      );
     }
   };
 
