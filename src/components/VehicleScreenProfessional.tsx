@@ -1692,42 +1692,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
 
-            {/* Version Display Footer - No buttons, just version */}
-            <div style={{
-              position: 'fixed',
-              bottom: '0',
-              left: '0',
-              right: '0',
-              background: 'transparent',
-              padding: '0',
-              paddingBottom: '5px', // FIXED: Minimal padding for system bar
-              zIndex: 1000,
-              pointerEvents: 'none' // Don't block interactions
-            }}>
-              {/* Version Display - positioned above Android navigation */}
-              <div style={{
-                position: 'absolute',
-                bottom: '25px', // FIXED: Much closer to bottom, reducing large space
-                left: 'calc(50% - 50px)', /* REPLACED transform cu calc pentru ZERO lag */
-                fontSize: '9px',
-                color: currentTheme === 'dark' || currentTheme === 'light' || currentTheme === 'business' 
-                  ? '#64748b' : '#94a3b8',
-                fontWeight: '500',
-                textAlign: 'center',
-                whiteSpace: 'nowrap',
-                background: currentTheme === 'dark' 
-                  ? 'rgba(15, 23, 42, 0.8)' 
-                  : currentTheme === 'light' || currentTheme === 'business'
-                    ? 'rgba(15, 23, 42, 0.8)'  // FIXED: Dark background for light/business themes
-                    : 'rgba(15, 23, 42, 0.8)',
-                padding: '4px 8px',
-                borderRadius: '8px',
-                backdropFilter: 'blur(10px)'
-              }}>
-                iTrack - interfața {THEME_INFO[currentTheme]?.name || 'standard'}
-              </div>
-            </div>
-
             {/* Course Stats Modal */}
             <CourseStatsModal
               isOpen={showStatsModal}
