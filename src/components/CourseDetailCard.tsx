@@ -159,13 +159,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       <style>{`
         .course-card-compact {
           background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.95)'};
-          backdrop-filter: blur(20px);
+          backdrop-filter: blur(12px);
           border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(148, 163, 184, 0.2)'};
           border-radius: 12px;
           padding: 16px 20px;
           margin: 0 auto 16px auto;
           overflow: visible;
-          transition: all 0.3s ease;
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
           position: relative;
           width: 96%;
@@ -173,6 +173,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           box-sizing: border-box;
           z-index: ${showDetails ? '999' : '1'};
           isolation: isolate;
+          
+          /* PERFORMANCE pentru scroll smooth */
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          contain: layout style paint;
         }
 
         .course-card-enhanced:hover {

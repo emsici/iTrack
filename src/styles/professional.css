@@ -47,8 +47,8 @@ html, body {
     rgba(15, 23, 42, 0.95) 0%, 
     rgba(30, 41, 59, 0.95) 50%,
     rgba(15, 23, 42, 0.95) 100%);
-  /* Reduced backdrop blur for performance */
-  backdrop-filter: blur(10px);
+  /* REDUCED blur for PERFORMANCE on powerful phones */
+  backdrop-filter: blur(8px);
   animation: none;
   padding: 0;
   padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 90px);
@@ -56,13 +56,21 @@ html, body {
   flex-direction: column;
   align-items: center;
   position: relative;
-  /* Optimize overflow handling */
+  
+  /* ULTRA SMOOTH SCROLL optimizations */
   overflow: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  /* Performance optimizations */
-  transform: translateZ(0);
-  will-change: scroll-position;
-  contain: layout style paint;
+  
+  /* GPU ACCELERATION pentru performanță maximă */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  
+  /* Advanced containment pentru izolare layout */
+  contain: layout style paint size;
+  isolation: isolate;
 }
 
 /* Improved Course Container Structure */
@@ -78,20 +86,32 @@ html, body {
   flex-direction: column;
   gap: 16px;
   width: 100%;
-  /* Advanced scroll performance optimization */
-  will-change: scroll-position;
-  transform: translateZ(0);
-  contain: layout style paint;
+  
+  /* EXTREME SCROLL OPTIMIZATION pentru telefoane performante */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  
+  /* Hardware acceleration layer */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  
+  /* Advanced GPU layer isolation */
+  contain: layout style paint size;
+  isolation: isolate;
+  
+  /* Prevent scroll jank */
   overflow-anchor: none;
-  /* Additional iOS optimization */
   -webkit-overflow-scrolling: touch;
-  -webkit-overflow-scrolling: touch;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  /* Reduced GPU will-change to prevent white flashes */
-  contain: layout style paint;
+  
+  /* Chrome/Edge optimizations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Force GPU composite layer */
+  position: relative;
+  z-index: 1;
 }
 
 .course-card-wrapper {

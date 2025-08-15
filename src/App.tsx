@@ -69,41 +69,37 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    try {
-      // Send logout request to login.php with iesire: 1
-      // Logout cu CapacitorHttp
-      try {
-        await CapacitorHttp.post({
-          url: `${API_BASE_URL}/logout.php`,
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          data: {}
-        });
-        console.log('Logout completed via CapacitorHttp');
-      } catch (error) {
-        console.log('Logout CapacitorHttp failed, using fetch fallback');
-        await fetch(`${API_BASE_URL}/logout.php`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-      }
-      
-      console.log('Logout completed via AndroidGPS');
-    } catch (error) {
-      console.error('Error calling logout API:', error);
-    } finally {
-      // Clear local storage and reset state regardless of API response
-      await clearToken();
-      setToken('');
-      setPreviousToken('');
-      setCurrentScreen('login');
-      console.log('Logged out - cleared local storage');
-    }
+    // OPTIMIZARE: Schimbă ecranul IMEDIAT pentru feedback instant
+    setCurrentScreen('login');
+    setToken('');
+    setPreviousToken('');
+    
+    // API cleanup în background - nu blochează UI-ul
+    Promise.all([
+      clearToken(),
+      // API logout în background - non-blocking
+      (async () => {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+          
+          await CapacitorHttp.post({
+            url: `${API_BASE_URL}/logout.php`,
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            data: {}
+          });
+          clearTimeout(timeoutId);
+          console.log('Logout API finalizat în background');
+        } catch (error) {
+          console.log('Logout API timeout sau eroare - nu afectează UI-ul');
+        }
+      })()
+    ]).catch(() => {
+      // Erori de cleanup nu afectează logout-ul - user-ul vede deja login-ul
+    });
   };
 
   const handleAdminClose = () => {
