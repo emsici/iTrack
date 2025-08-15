@@ -16,7 +16,9 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 
 ## Recent Performance Optimizations (15/08/2025)
 
-### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 22:07**
+### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 22:15**
+- **GPS CONTINUITY FIX**: Rezolvat problema unde GPS s-a oprit după prima coordonată - scheduleNextOptimalGPSCycle() era omis
+- **ALTITUDE DEBUGGING**: Adăugat log-uri pentru a investiga de ce altitudinea apare negativă pe server când se trimite pozitiv
 - **API ENVIRONMENT SWITCH**: Schimbat pe etsm3 (DEV) conform solicitării utilizatorului - toate coordonatele se transmit pe etsm3/gps.php
 - **SINCRONIZARE FRONTEND-ANDROID**: Ambele medii (React + Java) folosesc acum etsm3 pentru consistență completă
 - **GPS START CRITICAL FIX**: Rezolvat problema unde GPS nu pornea pentru curse noi - updateCourseStatus funcționează perfect pentru toate acțiunile

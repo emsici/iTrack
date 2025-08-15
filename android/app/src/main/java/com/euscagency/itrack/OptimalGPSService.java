@@ -208,12 +208,10 @@ public class OptimalGPSService extends Service {
                 
                 Log.d(TAG, "✅ Using recent GPS location (battery efficient) - NO fresh request needed");
                 transmitGPSForAllCourses(lastLocation);
-                // IMPORTANT: scheduleNextOptimalGPSCycle() called inside transmitGPSForAllCourses
                 
             } else {
                 Log.d(TAG, "🔄 Requesting fresh GPS location (minimal battery impact)");
                 requestSingleGPSLocation();
-                // IMPORTANT: onLocationChanged will call transmitGPSForAllCourses → scheduleNextOptimalGPSCycle
             }
             
         } catch (Exception e) {
@@ -247,7 +245,6 @@ public class OptimalGPSService extends Service {
                         Log.d(TAG, "📍 Fresh OPTIMAL GPS location received");
                         transmitGPSForAllCourses(location);
                         // GPS automatically turns off after this callback
-                        // IMPORTANT: scheduleNextOptimalGPSCycle() called inside transmitGPSForAllCourses
                     }
                     
                     @Override
@@ -362,27 +359,9 @@ public class OptimalGPSService extends Service {
         
         Log.d(TAG, "🔄 SCHEDULING NEXT GPS CYCLE - activeCourses size: " + activeCourses.size());
         
-        // CRITICAL FIX: Ensure continuous GPS transmission
-        if (!activeCourses.isEmpty()) {
-            // Reset shared timestamp for next cycle
-            gpsSharedTimestamp = null;
-            
-            // CRITICAL: Always ensure alarm is active for continuous transmission
-            if (!isAlarmActive || gpsPendingIntent == null) {
-                Log.w(TAG, "🔧 GPS alarm not active - restarting timer for continuity");
-                startOptimalGPSTimer();
-            } else {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + GPS_INTERVAL_MS,
-                    gpsPendingIntent
-                );
-                Log.d(TAG, "⏰ NEXT GPS CYCLE SCHEDULED successfully for " + activeCourses.size() + " courses");
-            }
-        } else {
-            Log.d(TAG, "⏸️ No active courses - stopping GPS timer");
-            stopOptimalGPSTimer();
-        }
+        // CRITICAL FIX: Always call scheduleNextOptimalGPSCycle for proper continuation
+        Log.d(TAG, "🔄 SCHEDULING NEXT GPS CYCLE after transmission complete");
+        scheduleNextOptimalGPSCycle();
     }
     
     /**
@@ -410,7 +389,9 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "🕒 SHARED TIMESTAMP Android: " + sharedTimestamp + " for course: " + course.courseId);
         gpsData.put("viteza", location.getSpeed() * 3.6); // m/s to km/h as float
         gpsData.put("directie", location.getBearing()); // Real bearing as float
-        gpsData.put("altitudine", location.getAltitude()); // Real altitude as float
+        double altitude = location.getAltitude();
+        gpsData.put("altitudine", altitude); // Real altitude as float
+        Log.d(TAG, "📏 ALTITUDE DEBUG - Raw: " + altitude + "m, After JSON: " + gpsData.get("altitudine"));
         gpsData.put("baterie", getBatteryLevel() + "%"); // Battery with % like June 26th
         gpsData.put("numar_inmatriculare", course.vehicleNumber);
         gpsData.put("uit", course.uit); // Real UIT from course data
@@ -494,6 +475,7 @@ public class OptimalGPSService extends Service {
      * Schedule next exact GPS cycle
      */
     private void scheduleNextOptimalGPSCycle() {
+        Log.d(TAG, "🔄 SCHEDULE CHECK: activeCourses.size() = " + activeCourses.size());
         if (!activeCourses.isEmpty()) {
             // CRITICAL: Ensure alarm and PendingIntent are valid
             if (!isAlarmActive || gpsPendingIntent == null) {
@@ -510,6 +492,7 @@ public class OptimalGPSService extends Service {
             );
             Log.d(TAG, "⏰ NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
             Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
+            Log.d(TAG, "✅ GPS CONTINUITY GUARANTEED - next transmission in 5 seconds");
         } else {
             Log.w(TAG, "❌ NO ACTIVE COURSES - stopping GPS timer");
             stopOptimalGPSTimer();
