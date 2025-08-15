@@ -13,9 +13,7 @@ interface OfflineGPSMonitorProps {
 
 const OfflineGPSMonitor: React.FC<OfflineGPSMonitorProps> = ({ 
   isOnline, 
-  coursesActive,
-  currentTheme = 'dark',
-  compactMode = false
+  coursesActive
 }) => {
   const [offlineCount, setOfflineCount] = useState(0);
   const [syncInProgress, setSyncInProgress] = useState(false);
