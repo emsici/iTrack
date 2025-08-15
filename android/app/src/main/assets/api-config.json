@@ -6,5 +6,5 @@
     "DEV": "https://www.euscagency.com/etsm_dev/platforme/transport/apk/"
   },
   "lastUpdated": "2025-08-15",
-  "description": "Centralized API configuration for iTrack GPS application. Modify via sync-api-config.bat script."
+  "description": "Configuratie API centralizata pentru aplicatia iTrack GPS. Modifica prin scriptul sync-api-config.bat."
 }
