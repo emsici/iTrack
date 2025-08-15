@@ -749,15 +749,99 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 </span>
               </div>
               <div className="detail-item-enhanced">
-                <span className="detail-label-enhanced">Puncte GPS Salvate:</span>
+                <span className="detail-label-enhanced">Coordonate GPS Colectate:</span>
                 <span className="detail-value-enhanced" style={{
                   color: '#10b981',
                   fontWeight: '700'
                 }}>
                   <i className="fas fa-map-pin" style={{ marginRight: '6px', fontSize: '12px' }}></i>
-                  {courseStats ? `${courseStats.gpsPoints.length} puncte` : '0 puncte'}
+                  {courseStats ? (
+                    <>
+                      {courseStats.gpsPoints.length} coordonate
+                      {courseStats.isActive && courseStats.gpsPoints.length > 0 && (
+                        <span style={{ 
+                          fontSize: '10px', 
+                          color: '#22c55e',
+                          marginLeft: '8px',
+                          display: 'inline-block'
+                        }}>
+                          • ACTIV (la fiecare 5 sec)
+                        </span>
+                      )}
+                    </>
+                  ) : '0 coordonate'}
                 </span>
               </div>
+
+              {/* Explicație rapidă pentru utilizatori */}
+              {courseStats && courseStats.gpsPoints.length > 0 && (
+                <div style={{
+                  background: currentTheme === 'dark' 
+                    ? 'rgba(16, 185, 129, 0.05)' 
+                    : 'rgba(16, 185, 129, 0.03)',
+                  border: currentTheme === 'dark' 
+                    ? '1px solid rgba(16, 185, 129, 0.2)' 
+                    : '1px solid rgba(16, 185, 129, 0.1)',
+                  borderRadius: '6px',
+                  padding: '8px 12px',
+                  marginTop: '8px'
+                }}>
+                  <div style={{
+                    fontSize: '11px',
+                    color: currentTheme === 'dark' ? '#10b981' : '#059669',
+                    fontWeight: '500',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <i className="fas fa-info-circle" style={{ fontSize: '10px' }}></i>
+                    Fiecare coordonată = locația camionului la un moment dat (lat, lng, viteză, timp)
+                  </div>
+                  <div style={{
+                    fontSize: '10px',
+                    color: currentTheme === 'dark' ? '#6ee7b7' : '#047857',
+                    marginTop: '2px'
+                  }}>
+                    {courseStats.isActive 
+                      ? 'GPS activ: Se salvează automat o coordonată la fiecare 5 secunde'
+                      : `Cursă finalizată: ${courseStats.gpsPoints.length} coordonate colectate în total`
+                    }
+                  </div>
+                </div>
+              )}
+
+              {courseStats && courseStats.gpsPoints.length === 0 && (
+                <div style={{
+                  background: currentTheme === 'dark' 
+                    ? 'rgba(251, 146, 60, 0.05)' 
+                    : 'rgba(251, 146, 60, 0.03)',
+                  border: currentTheme === 'dark' 
+                    ? '1px solid rgba(251, 146, 60, 0.2)' 
+                    : '1px solid rgba(251, 146, 60, 0.1)',
+                  borderRadius: '6px',
+                  padding: '8px 12px',
+                  marginTop: '8px'
+                }}>
+                  <div style={{
+                    fontSize: '11px',
+                    color: currentTheme === 'dark' ? '#fb923c' : '#ea580c',
+                    fontWeight: '500',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <i className="fas fa-exclamation-triangle" style={{ fontSize: '10px' }}></i>
+                    Nicio coordonată GPS colectată încă
+                  </div>
+                  <div style={{
+                    fontSize: '10px',
+                    color: currentTheme === 'dark' ? '#fdba74' : '#c2410c',
+                    marginTop: '2px'
+                  }}>
+                    Pentru traseu pe hartă sunt necesare minimum 2 coordonate GPS
+                  </div>
+                </div>
+              )}
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Status GPS:</span>
                 <span className="detail-value-enhanced" style={{
@@ -833,8 +917,8 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 >
                   <i className="fas fa-map-marked-alt"></i>
                   {(!courseStats || courseStats.gpsPoints.length < 2)
-                    ? 'Traseu Indisponibil (Min. 2 puncte GPS)'
-                    : `Vezi Traseu pe Hartă (${courseStats.gpsPoints.length} puncte)`}
+                    ? 'Traseu Indisponibil (Min. 2 coordonate)'
+                    : `Vezi Traseu pe Hartă (${courseStats.gpsPoints.length} coordonate)`}
                 </button>
               </div>
             </div>
