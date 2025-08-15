@@ -17,7 +17,14 @@ UI Performance: Remove heavy animations (rainbow flows, floating animations, gra
 
 ## Recent Performance Optimizations (15/08/2025)
 
-### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 22:35**
+### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 23:15**
+- **ADAPTIVE GPS INTERVALS CRITICAL FIX**: Rezolvat problema coordonate multiple (15 coordonate în 15s)
+- **SMART INTERVAL SYSTEM**: Telefon blocat = 3s, telefon deblocat = 10s pentru optimizare baterie
+- **BACKUP GPS OPTIMIZED**: JavaScript backup la 30s doar când Android GPS nu funcționează
+- **SCREEN STATE DETECTION**: Detectare automată stare ecran pentru intervale adaptive
+- **MULTIPLE GPS OVERLAP ELIMINATED**: Un singur sistem GPS activ pentru consistență
+
+### **ACTUALIZĂRI ANTERIOARE - 15/08/2025 22:35**
 - **PRIORITY GPS REMOVED**: Eliminat complet priorityGPS.ts care cauza probleme cu background GPS - sistem simplificat
 - **ARCHITECTURE SIMPLIFIED**: DirectAndroidGPS → GuaranteedGPS → Android Service (fără nivele inutile)
 - **BACKGROUND GPS RESTORED**: Revenire la sistemul original stabil care funcționa în background

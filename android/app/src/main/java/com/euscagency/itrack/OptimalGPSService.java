@@ -376,7 +376,11 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "  - UITs transmitted: " + transmittedUITs.size());
         Log.d(TAG, "  - Completed courses removed: " + coursesToRemove.size());
         Log.d(TAG, "  - Remaining active courses: " + activeCourses.size());
-        Log.d(TAG, "✅ Optimal GPS cycle completed - next in exactly " + (GPS_INTERVAL_MS/1000) + "s");
+        // Log completion with adaptive interval info
+        boolean isScreenOn = isScreenOn();
+        long nextInterval = isScreenOn ? GPS_INTERVAL_UNLOCKED_MS : GPS_INTERVAL_LOCKED_MS;
+        String screenState = isScreenOn ? "DEBLOCAT" : "BLOCAT";
+        Log.d(TAG, "✅ Optimal GPS cycle completed - next in " + (nextInterval/1000) + "s for TELEFON " + screenState);
         
         // CRITICAL: Schedule next GPS cycle to continue background operation
         // Reset shared timestamp pentru următorul ciclu

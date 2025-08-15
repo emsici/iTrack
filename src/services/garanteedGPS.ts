@@ -81,17 +81,10 @@ class GuaranteedGPSService {
         return;
       }
 
-      // VERIFICARE: Doar dacă Android GPS nu funcționează  
-      if (window.AndroidGPS && window.AndroidGPS.isGPSActive) {
-        try {
-          const isAndroidActive = window.AndroidGPS.isGPSActive();
-          if (isAndroidActive) {
-            logGPS(`🤖 Android GPS activ - sărim backup JavaScript`);
-            return;
-          }
-        } catch (error) {
-          logGPS(`⚠️ Eroare verificare Android GPS: ${error}`);
-        }
+      // SIMPLIFICAT: Presupunem că Android GPS funcționează dacă există
+      if (window.AndroidGPS && window.AndroidGPS.startGPS) {
+        logGPS(`🤖 Android GPS disponibil - sărim backup JavaScript`);
+        return;
       }
 
       logGPS(`🔄 BACKUP GPS: Android GPS inactiv - folosesc JavaScript backup`);
