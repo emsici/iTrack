@@ -179,6 +179,18 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           <span className="preview-label">DECLARANT:</span>
           <span className="preview-value">{course.denumireDeclarant || 'REELE ELECTRICE ROMANIA S.A.'}</span>
         </div>
+        <div className="preview-row">
+          <span className="preview-label">DATA TRANSPORT:</span>
+          <span className="preview-value">
+            {course.dataTransport ? 
+              new Date(course.dataTransport).toLocaleDateString('ro-RO', {
+                day: '2-digit',
+                month: '2-digit', 
+                year: 'numeric'
+              }) : 'N/A'
+            }
+          </span>
+        </div>
         
         <button
           className="details-btn"
