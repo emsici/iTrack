@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
-import { getVehicleCourses, logout } from "../services/api";
+import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
 import {
   updateCourseStatus,
   logoutClearAllGPS,
@@ -139,9 +139,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log("Curse găsite:", coursesArray.length);
       
       // DEBUG: Log actual data structure to identify N/A issue
+      console.log("🔍 DEBUG API ENVIRONMENT:", API_BASE_URL);
+      console.log("🔍 DEBUG: Vehicle number used:", vehicleNumber);
       if (coursesArray.length > 0) {
         console.log("🔍 DEBUG: Actual course data structure:", JSON.stringify(coursesArray[0], null, 2));
         console.log("🔍 DEBUG: Course fields available:", Object.keys(coursesArray[0]));
+      } else {
+        console.log("🔍 DEBUG: No courses returned from API");
+        console.log("🔍 DEBUG: Raw API response:", JSON.stringify(response, null, 2));
       }
 
       if (coursesArray.length > 0) {
