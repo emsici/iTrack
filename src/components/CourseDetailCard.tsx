@@ -585,79 +585,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         </span>
       </div>
 
-      {/* GPS Stats Row - Distance and Speed for each UIT */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '12px',
-        padding: '8px 12px',
-        background: currentTheme === 'dark' 
-          ? 'rgba(255, 255, 255, 0.05)' 
-          : 'rgba(0, 0, 0, 0.03)',
-        borderRadius: '8px',
-        border: currentTheme === 'dark' 
-          ? '1px solid rgba(255, 255, 255, 0.1)' 
-          : '1px solid rgba(0, 0, 0, 0.05)'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px'
-        }}>
-          <i className="fas fa-route" style={{
-            color: '#3b82f6',
-            fontSize: '12px'
-          }}></i>
-          <span style={{
-            color: currentTheme === 'light' || currentTheme === 'business' 
-              ? '#475569' 
-              : '#9ca3af',
-            fontSize: '12px',
-            fontWeight: '500'
-          }}>
-            Distanță:
-          </span>
-          <span style={{
-            color: currentTheme === 'light' || currentTheme === 'business' 
-              ? '#1e293b' 
-              : '#ffffff',
-            fontSize: '12px',
-            fontWeight: '600'
-          }}>
-            {course.distance || '0.0'} km
-          </span>
-        </div>
 
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px'
-        }}>
-          <i className="fas fa-tachometer-alt" style={{
-            color: course.status === 2 ? '#10b981' : '#6b7280',
-            fontSize: '12px'
-          }}></i>
-          <span style={{
-            color: currentTheme === 'light' || currentTheme === 'business' 
-              ? '#475569' 
-              : '#9ca3af',
-            fontSize: '12px',
-            fontWeight: '500'
-          }}>
-            Viteză:
-          </span>
-          <span style={{
-            color: currentTheme === 'light' || currentTheme === 'business' 
-              ? '#1e293b' 
-              : '#ffffff',
-            fontSize: '12px',
-            fontWeight: '600'
-          }}>
-            {course.status === 2 ? `${course.currentSpeed || 0} km/h` : '0 km/h'}
-          </span>
-        </div>
-      </div>
       
       <div className="course-preview">
         <div className="preview-row">
@@ -741,6 +669,63 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                       year: 'numeric'
                     }) : 'N/A'
                   }
+                </span>
+              </div>
+            </div>
+
+            <div className="detail-section-enhanced">
+              <h6 className="section-title-enhanced">
+                <i className="fas fa-tachometer-alt"></i>
+                Statistici GPS - UIT {course.uit}
+              </h6>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Distanță Parcursă:</span>
+                <span className="detail-value-enhanced" style={{
+                  color: '#3b82f6',
+                  fontWeight: '700'
+                }}>
+                  <i className="fas fa-route" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                  {course.distance || '0.0'} km
+                </span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Viteză Curentă:</span>
+                <span className="detail-value-enhanced" style={{
+                  color: course.status === 2 ? '#10b981' : '#6b7280',
+                  fontWeight: '700'
+                }}>
+                  <i className="fas fa-tachometer-alt" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                  {course.status === 2 ? `${course.currentSpeed || 0} km/h` : '0 km/h (Oprit)'}
+                </span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Viteză Maximă:</span>
+                <span className="detail-value-enhanced" style={{
+                  color: '#f59e0b',
+                  fontWeight: '700'
+                }}>
+                  <i className="fas fa-gauge-high" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                  {course.maxSpeed || '0'} km/h
+                </span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Timp în Mișcare:</span>
+                <span className="detail-value-enhanced" style={{
+                  color: '#8b5cf6',
+                  fontWeight: '700'
+                }}>
+                  <i className="fas fa-clock" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                  {course.drivingTime || '0'} min
+                </span>
+              </div>
+              <div className="detail-item-enhanced">
+                <span className="detail-label-enhanced">Status GPS:</span>
+                <span className="detail-value-enhanced" style={{
+                  color: course.status === 2 ? '#22c55e' : '#ef4444',
+                  fontWeight: '700'
+                }}>
+                  <i className={`fas ${course.status === 2 ? 'fa-satellite-dish' : 'fa-pause-circle'}`} style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                  {course.status === 2 ? 'ACTIV - Transmite coordonate' : 'OPRIT - Nu transmite'}
                 </span>
               </div>
             </div>
