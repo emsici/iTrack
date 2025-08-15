@@ -150,10 +150,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           <div className="course-left-info">
             <span className="course-uit">
               <i className="fas fa-barcode"></i>
-              {course.uit}
+              UIT {course.uit}
             </span>
           </div>
-          <h5 className="course-title-enhanced">Cursă #{course.id}</h5>
         </div>
         
         <div className="status-actions-row">
@@ -279,7 +278,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
             <div className="detail-section-enhanced">
               <h6 className="section-title-enhanced">
                 <i className="fas fa-tachometer-alt"></i>
-                Statistici GPS
+                Statistici GPS - UIT {course.uit}
               </h6>
               <div className="detail-item-enhanced">
                 <span className="detail-label-enhanced">Distanță Parcursă:</span>
