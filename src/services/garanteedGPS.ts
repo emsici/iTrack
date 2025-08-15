@@ -312,8 +312,13 @@ class GuaranteedGPSService {
       }
       
       logGPS(`🔄 Final status for ${courseId}: ${newStatus} - Active courses: ${this.activeCourses.size}`);
+    } else if (newStatus === 2) {
+      // CRITICAL: Dacă cursul nu există dar status e 2, probabil a fost eliminat la pause/stop
+      // Trebuie să recreez cursul pentru resume
+      logGPS(`🔄 Course ${courseId} not found but status is 2 (RESUME) - course might have been paused/stopped before`);
+      logGPS(`⚠️ Cannot resume course ${courseId} - missing course data. Please restart GPS tracking.`);
     } else {
-      logGPS(`⚠️ Course ${courseId} not found for status update`);
+      logGPS(`⚠️ Course ${courseId} not found for status update to ${newStatus}`);
     }
   }
 
