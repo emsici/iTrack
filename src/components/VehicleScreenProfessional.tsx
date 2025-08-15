@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
-import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
+import { getVehicleCourses, logout } from "../services/api";
 import {
   updateCourseStatus,
   logoutClearAllGPS,
@@ -49,7 +49,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
 
-  // Remove unused offlineGPSCount - now handled by OfflineSyncProgress component
+  const [offlineGPSCount, setOfflineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
@@ -137,23 +137,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
 
       console.log("Curse găsite:", coursesArray.length);
-      
-      // DEBUG: Log actual data structure to identify N/A issue
-      console.log("🔍 DEBUG API ENVIRONMENT:", API_BASE_URL);
-      console.log("🔍 DEBUG: Vehicle number used:", vehicleNumber);
-      console.log("🔍 DEBUG: Raw courses array length:", coursesArray.length);
-      if (coursesArray.length > 0) {
-        console.log("🔍 DEBUG: First course structure:", JSON.stringify(coursesArray[0], null, 2));
-        console.log("🔍 DEBUG: All course UIT values:", coursesArray.map(c => c.UIT || c.uit));
-      } else {
-        console.log("🔍 DEBUG: No courses returned from API");
-        console.log("🔍 DEBUG: Raw API response:", JSON.stringify(response, null, 2));
-      }
 
       if (coursesArray.length > 0) {
-        const mergedCourses = coursesArray.map((newCourse: any) => {
-          const courseId = newCourse.UIT || newCourse.uit || String(newCourse.ikRoTrans);
-          const existingCourse = courses.find((c) => c.id === courseId);
+        const mergedCourses = coursesArray.map((newCourse: Course) => {
+          const existingCourse = courses.find((c) => c.id === newCourse.id);
           
           // Restore saved status from localStorage
           let savedStatus = newCourse.status || 1; // Default to available
@@ -168,31 +155,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             console.error('Eșec la restaurarea statusului cursei:', error);
           }
           
-          // Map API response to interface - FIXED MAPPING using real API field names
-          const mappedCourse: Course = {
-            id: courseId,
-            name: `Transport ${newCourse.ikRoTrans}`,
-            uit: newCourse.UIT || newCourse.uit,
-            status: savedStatus,
-            // Map real API fields from TM20RTA response
-            ikRoTrans: newCourse.ikRoTrans,
-            codDeclarant: newCourse.codDeclarant,
-            denumireDeclarant: newCourse.denumireDeclarant,
-            nrVehicul: newCourse.nrVehicul,
-            dataTransport: newCourse.dataTransport,
-            // API uses capital letters as seen in response
-            Vama: newCourse.Vama,
-            VamaStop: newCourse.VamaStop,
-            BirouVamal: newCourse.BirouVamal,
-            BirouVamalStop: newCourse.BirouVamalStop,
-            Judet: newCourse.Judet,
-            JudetStop: newCourse.JudetStop,
-            denumireLocStart: newCourse.denumireLocStart,
-            denumireLocStop: newCourse.denumireLocStop,
-            isNew: !existingCourse
-          };
-          
-          return mappedCourse;
+          return existingCourse
+            ? { ...newCourse, status: savedStatus }
+            : { ...newCourse, status: savedStatus, isNew: true }; // Mark new courses
         });
 
         // Sort: new courses first, then existing ones
@@ -219,13 +184,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         // Store vehicle number ONLY after successful course loading
         await storeVehicleNumber(vehicleNumber.trim());
-        console.log(`✅ ${finalCourses.length} curse finale încărcate pentru vehiculul ${vehicleNumber}`);
-        console.log("🔍 DEBUG: Final mapped courses:", finalCourses.map(c => ({ 
-          id: c.id, 
-          uit: c.uit, 
-          name: c.name,
-          ikRoTrans: c.ikRoTrans
-        })));
+        console.log(`✅ Curse încărcate cu succes - se comută la vizualizarea principală cu ${finalCourses.length} curse`);
         
         // Update last refresh timestamp
         setLastRefreshTime(new Date());
@@ -595,8 +554,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   useEffect(() => {
     const updateOfflineCount = async () => {
       try {
-        // Offline GPS count now handled by OfflineSyncProgress component
-        await getOfflineGPSCount(); // Keep import usage to avoid warnings
+        const count = await getOfflineGPSCount();
+        setOfflineGPSCount(count);
       } catch (error) {
         console.error("Error getting offline count:", error);
       }
@@ -1236,24 +1195,95 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             </div>
 
-            {/* ROW 2: Clean Layout - No duplicated indicators */}
+            {/* Third Row - Integrated Status & Sync Progress */}
             <div style={{
-              marginTop: '10px',
-              marginBottom: '5px'
+              marginTop: '15px',
+              marginBottom: '5px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '10px'
             }}>
-              {/* Reserved space for clean layout */}
+              {/* ELIMINAT - Duplicare cu indicatorul din header */}
+              
+              {/* Sync Progress Bar - Only when offline and syncing */}
+              {!isOnline && offlineGPSCount > 0 && (
+                <div style={{
+                  width: '200px',
+                  background: currentTheme === 'light' || currentTheme === 'business'
+                    ? 'rgba(255, 255, 255, 0.9)'
+                    : currentTheme === 'nature'
+                      ? 'rgba(6, 78, 59, 0.6)'
+                      : currentTheme === 'night'
+                        ? 'rgba(30, 27, 75, 0.6)'
+                        : currentTheme === 'driver'
+                          ? 'rgba(28, 25, 23, 0.6)'
+                          : 'rgba(30, 41, 59, 0.6)',
+                  border: currentTheme === 'light' || currentTheme === 'business'
+                    ? '1px solid rgba(203, 213, 225, 0.4)'
+                    : '1px solid rgba(148, 163, 184, 0.3)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  fontSize: '10px'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '4px',
+                    color: currentTheme === 'light' || currentTheme === 'business'
+                      ? '#64748b' 
+                      : currentTheme === 'nature'
+                        ? '#d1fae5'  // Verde deschis pentru Nature
+                        : currentTheme === 'driver'
+                          ? '#fef3c7'  // Galben deschis pentru Driver
+                          : currentTheme === 'night'
+                            ? '#e0e7ff'  // Violet deschis pentru Night
+                            : '#cbd5e1'  // Default pentru Dark
+                  }}>
+                    <span>Sincronizare GPS</span>
+                    <span>{offlineGPSCount} coord.</span>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div style={{
+                    width: '100%',
+                    height: '4px',
+                    background: currentTheme === 'light' || currentTheme === 'business'
+                      ? 'rgba(203, 213, 225, 0.5)'
+                      : 'rgba(148, 163, 184, 0.2)',
+                    borderRadius: '2px',
+                    overflow: 'hidden',
+                    position: 'relative'
+                  }}>
+                    <div style={{
+                      height: '100%',
+                      background: currentTheme === 'nature'
+                        ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)'
+                        : currentTheme === 'night'
+                          ? 'linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%)'
+                          : currentTheme === 'driver'
+                            ? 'linear-gradient(90deg, #f97316 0%, #ea580c 100%)'
+                            : 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
+                      width: '60%', // Simulate progress  
+                      borderRadius: '2px'
+                      // Removed animation for better performance
+                    }} />
+                  </div>
+                </div>
+              )}
             </div>
             
-            {/* ROW 3: Offline Sync Progress - Professional Layout */}
+            {/* Offline Sync Progress - Performance Optimized */}
             <div style={{ 
-              marginTop: '15px',
+              marginTop: '10px', 
               width: '100%', 
               maxWidth: '500px', 
-              margin: '15px auto 0 auto',
-              padding: '0 20px',
-              contain: 'layout style paint'
+              margin: '10px auto 0 auto',
+              contain: 'layout style paint',
+              /* REMOVED willChange pentru ZERO lag la scroll */
             }}>
-              <OfflineSyncProgress className="offline-sync-row-professional" />
+              <OfflineSyncProgress className="offline-monitor-header-style" />
             </div>
           </div>
 

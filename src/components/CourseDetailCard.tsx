@@ -612,34 +612,34 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         <div className="preview-row">
           <span className="preview-label">Plecare:</span>
           <span className="preview-value">
-            {course.denumireLocStart || 'Nespecificat'}
+            {course.denumireLocStart || course.BirouVamal || course.birouVamal || (course.vama !== 'Local' ? course.vama : course.Vama) || 'Nespecificat'}
           </span>
         </div>
         
         <div className="preview-row">
           <span className="preview-label">Sosire:</span>
           <span className="preview-value">
-            {course.denumireLocStop || 'Nespecificat'}
+            {course.denumireLocStop || course.BirouVamalStop || course.birouVamalStop || (course.vamaStop !== 'Local' ? course.vamaStop : course.VamaStop) || 'Nespecificat'}
           </span>
         </div>
         
         <div className="preview-row">
           <span className="preview-label">Județ plecare:</span>
           <span className="preview-value">
-            {course.Judet || 'N/A'}
+            {course.Judet || course.judet || 'N/A'}
           </span>
         </div>
         
         <div className="preview-row">
           <span className="preview-label">Județ sosire:</span>
           <span className="preview-value">
-            {course.JudetStop || 'N/A'}
+            {course.JudetStop || course.judetStop || 'N/A'}
           </span>
         </div>
         
         <div className="preview-row">
           <span className="preview-label">Declarant:</span>
-          <span className="preview-value">{course.denumireDeclarant || 'Nespecificat'}</span>
+          <span className="preview-value">{course.denumireDeclarant || 'N/A'}</span>
         </div>
         
         <div className="preview-row">
