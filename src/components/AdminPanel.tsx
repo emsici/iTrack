@@ -32,7 +32,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         const appLogs = await getAppLogs();
         setLogs(appLogs);
       } catch (error) {
-        console.error('Failed to load logs:', error);
+        console.error('Eșec la încărcarea log-urilor:', error);
       }
     };
 
@@ -60,7 +60,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(fullText);
         setCopySuccess(true);
-        console.log('Logs copied to clipboard successfully');
+        console.log('Log-uri copiate cu succes în clipboard');
       } else {
         // Fallback for older browsers
         const textArea = document.createElement('textarea');
@@ -76,7 +76,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
         
         if (successful) {
           setCopySuccess(true);
-          console.log('Logs copied using fallback method');
+          console.log('Log-uri copiate folosind metoda de rezervă');
         } else {
           throw new Error('Fallback copy failed');
         }
@@ -86,7 +86,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       setTimeout(() => setCopySuccess(false), 3000);
       
     } catch (error) {
-      console.error('Failed to copy logs:', error);
+      console.error('Eșec la copierea log-urilor:', error);
       alert('Failed to copy logs to clipboard. Please try again.');
     } finally {
       setIsCopyingLogs(false);
@@ -98,9 +98,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     try {
       await clearAppLogs();
       setLogs([]);
-      console.log('Logs cleared successfully');
+      console.log('Log-uri șterse cu succes');
     } catch (error) {
-      console.error('Error clearing logs:', error);
+      console.error('Eroare la ștergerea log-urilor:', error);
     }
   };
 

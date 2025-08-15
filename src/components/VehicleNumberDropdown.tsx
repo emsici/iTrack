@@ -60,7 +60,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
       const updatedHistory = await getVehicleNumberHistory();
       setVehicleHistory(updatedHistory);
     } catch (error) {
-      console.error('Error removing vehicle from history:', error);
+      console.error('Eroare la eliminarea vehiculului din istoric:', error);
     }
   };
 

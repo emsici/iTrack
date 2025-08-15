@@ -68,10 +68,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         const storedVehicle = await getStoredVehicleNumber();
         if (storedVehicle && !vehicleNumber) {
           setVehicleNumber(storedVehicle);
-          console.log('Loaded stored vehicle number:', storedVehicle);
+          console.log('Numărul de vehicul stocat încărcat:', storedVehicle);
         }
       } catch (error) {
-        console.error('Error initializing app:', error);
+        console.error('Eroare la inițializarea aplicației:', error);
       }
     };
     
@@ -131,7 +131,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         coursesArray = [response];
       }
 
-      console.log("Courses found:", coursesArray.length);
+      console.log("Curse găsite:", coursesArray.length);
 
       if (coursesArray.length > 0) {
         const mergedCourses = coursesArray.map((newCourse: Course) => {
@@ -147,7 +147,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               console.log(`📋 Restored status ${savedStatus} for UIT ${newCourse.uit}`);
             }
           } catch (error) {
-            console.error('Failed to restore course status:', error);
+            console.error('Eșec la restaurarea statusului cursei:', error);
           }
           
           return existingCourse
@@ -179,7 +179,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         // Store vehicle number ONLY after successful course loading
         await storeVehicleNumber(vehicleNumber.trim());
-        console.log(`✅ Courses loaded successfully - switching to main view with ${finalCourses.length} courses`);
+        console.log(`✅ Curse încărcate cu succes - se comută la vizualizarea principală cu ${finalCourses.length} curse`);
         
         // Update last refresh timestamp
         setLastRefreshTime(new Date());
@@ -255,7 +255,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 setLastRefreshTime(new Date());
               }
             } catch (error) {
-              console.log('Auto-refresh failed (will retry in 5 minutes):', error);
+              console.log('Auto-refresh eșuat (se va reîncerca în 5 minute):', error);
             }
           }, 5 * 60 * 1000); // 5 minutes
         };
@@ -263,39 +263,39 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         const interval = createRobustInterval();
         setAutoRefreshInterval(interval);
         
-        console.log('🔄 Android background auto-refresh activated (5 min intervals)');
+        console.log('🔄 Auto-refresh Android în fundal activat (intervale de 5 min)');
         
-        console.log(`Successfully loaded ${finalCourses.length} courses for ${vehicleNumber} (sorted: new first)`);
+        console.log(`Încărcare cu succes ${finalCourses.length} curse pentru ${vehicleNumber} (sortate: noi primul)`);
         
         // Log new courses found
         const newCoursesCount = mergedCourses.filter((c: Course) => c.isNew).length;
         if (newCoursesCount > 0) {
-          console.log(`🆕 Found ${newCoursesCount} new courses - displayed at top`);
+          console.log(`🆕 Găsite ${newCoursesCount} curse noi - afișate în partea de sus`);
         }
       } else {
-        console.log("No courses found - staying on vehicle input screen");
+        console.log("Nu au fost găsite curse - se rămâne pe ecranul de introducere vehicul");
         setCourses([]);
         setCoursesLoaded(false); // Stay on input screen
         setError("Nu au fost găsite curse pentru acest vehicul");
         // Don't save failed vehicle number to storage
-        console.log("✅ Staying on input screen - no courses found");
+        console.log("✅ Se rămâne pe ecranul de introducere - nu s-au găsit curse");
       }
     } catch (error: any) {
-      console.error("Error loading courses:", error);
+      console.error("Eroare la încărcarea curselor:", error);
       setCourses([]);
       setCoursesLoaded(false); // Stay on input screen on error
       setError(error.message || "Eroare la încărcarea curselor");
-      console.log("✅ Staying on input screen - error occurred");
+      console.log("✅ Se rămâne pe ecranul de introducere - a apărut o eroare");
     } finally {
       setLoading(false);
-      console.log("=== Loading finished ===");
+      console.log("=== Încărcare finalizată ===");
       // Clear any lingering loading states that might disable input
     }
   };
 
   const handleLogout = async () => {
     try {
-      console.log('🔐 Starting complete logout - stopping ALL GPS transmissions...');
+      console.log('🔐 Se pornește logout complet - se opresc TOATE transmisiile GPS...');
       
       // STEP 1: Stop all GPS services completely
       await logoutClearAllGPS(); // Direct Android GPS service
@@ -303,9 +303,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // STEP 2: Clear any remaining guaranteed GPS services 
       try {
         await clearAllGuaranteedGPS();
-        console.log('✅ Guaranteed GPS service cleared');
+        console.log('✅ Serviciul GPS Garantat șters');
       } catch (error) {
-        console.warn('GuaranteedGPS clear failed (service may not be active):', error);
+        console.warn('Ștergerea GuaranteedGPS a eșuat (serviciul poate să nu fie activ):', error);
       }
       
       // STEP 3: Server logout 

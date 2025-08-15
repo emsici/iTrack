@@ -38,7 +38,7 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
         }, 3000); // Hide after 3 seconds
       },
       onSyncError: (error: string) => {
-        console.error('Sync error:', error);
+        console.error('Eroare sincronizare:', error);
         setSyncProgress(prev => ({ ...prev, lastError: error }));
       }
     });
@@ -61,7 +61,7 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
         setShowProgress(true);
       }
     } catch (error) {
-      console.error('Error checking offline data:', error);
+      console.error('Eroare la verificarea datelor offline:', error);
     }
   };
 
@@ -69,7 +69,7 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
     try {
       await startOfflineSync();
     } catch (error) {
-      console.error('Error starting sync:', error);
+      console.error('Eroare la pornirea sincronizării:', error);
     }
   };
 

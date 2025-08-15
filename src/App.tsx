@@ -24,12 +24,12 @@ const App: React.FC = () => {
       try {
         // CRITICAL: Initialize GPS bridge for Android service communication
         // GPS operations handled by Capacitor Plugin
-        console.log('✅ GPS Bridge initialized - Android service ready for GPS transmission');
+        console.log('✅ GPS Bridge inițializat - serviciul Android pregătit pentru transmisia GPS');
         
         // Check for stored authentication token (non-blocking)
         const storedToken = await getStoredToken();
         if (storedToken) {
-          console.log('Found stored token - auto login');
+          console.log('Token stocat găsit - login automat');
           setToken(storedToken);
           if (storedToken.startsWith('ADMIN_DEBUG_TOKEN')) {
             setCurrentScreen('admin');
@@ -37,10 +37,10 @@ const App: React.FC = () => {
             setCurrentScreen('vehicle');
           }
         } else {
-          console.log('No stored token - showing login');
+          console.log('Nu există token stocat - se afișează login-ul');
         }
       } catch (error) {
-        console.error('Error initializing app:', error);
+        console.error('Eroare la inițializarea aplicației:', error);
       }
     };
 
@@ -61,7 +61,7 @@ const App: React.FC = () => {
         setCurrentScreen('vehicle');
       }
     } catch (error) {
-      console.error("Failed to store token:", error);
+      console.error("Eșec la stocarea token-ului:", error);
       // Continue anyway
       setToken(authToken);
       setCurrentScreen(isAdmin || authToken.startsWith('ADMIN_DEBUG_TOKEN') ? 'admin' : 'vehicle');

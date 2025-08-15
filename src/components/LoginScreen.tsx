@@ -26,20 +26,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
     try {
       // Check for admin credentials for debugging access
       if (email === "admin@itrack.app" && (password === "parola123" || password === "admin123")) {
-        console.log("Admin login detected - bypassing server authentication");
+        console.log("Login admin detectat - se ocolește autentificarea la server");
         onLogin("ADMIN_TOKEN", true); // Set isAdmin flag
         return;
       }
       
       // Check for test credentials
       if (email === "+40722222222" && password === "parola123") {
-        console.log("Test credentials detected - proceeding with server authentication");
+        console.log("Credențiale test detectate - se continuă cu autentificarea la server");
         // Continue to server authentication below
       }
 
       // Debug CapacitorHttp availability
-      console.log('CapacitorHttp available:', typeof window !== 'undefined');
-      console.log('Platform info:', navigator.userAgent);
+      console.log('CapacitorHttp disponibil:', typeof window !== 'undefined');
+      console.log('Info platformă:', navigator.userAgent);
       
       const response = await login(email, password);
 

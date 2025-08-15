@@ -31,7 +31,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       const stats = await courseAnalyticsService.getCourseAnalytics(course.id);
       setCourseStats(stats);
     } catch (error) {
-      console.error('Error loading course statistics:', error);
+      console.error('Eroare la încărcarea statisticilor cursei:', error);
     }
   };
 

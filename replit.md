@@ -13,8 +13,8 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 
 ## Recent Performance Optimizations (15/08/2025)
 
-### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 14:30**
-- **LOG-URI COMPLET TRADUSE ÎN ROMÂNĂ**: Toate mesajele de debug și log-urile GPS în limba română pentru experiență mai bună
+### **ULTIMELE ACTUALIZĂRI CRITICE - 15/08/2025 16:45**
+- **LOG-URI COMPLET TRADUSE ÎN ROMÂNĂ**: Toate mesajele de debug și log-urile din întreaga aplicație traduse în română pentru experiență mai bună
 - **FIX DUPLICATE GPS TRANSMISSIONS**: Implementat sistem anti-duplicat între Priority GPS, Guaranteed GPS și Android service
 - **DEBUG PANEL INLINE**: Debug panel-ul apare SUB lista de curse, nu înlocuiește pagina - experiență live debugging 
 - **PAUZĂ/STOP IMMEDIATE FIX**: Când se dă PAUZĂ, se opresc TOATE serviciile GPS simultan fără transmisii suplimentare

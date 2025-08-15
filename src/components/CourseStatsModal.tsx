@@ -41,7 +41,7 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
       
       setCourseStats(statsMap);
     } catch (error) {
-      console.error('Error loading course statistics:', error);
+      console.error('Eroare la încărcarea statisticilor cursei:', error);
     } finally {
       setLoading(false);
     }
