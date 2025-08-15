@@ -180,8 +180,8 @@ class GuaranteedGPSService {
         numar_inmatriculare: course.vehicleNumber,
         uit: course.uit,
         status: course.status,
-        hdop: 1,
-        gsm_signal: 4
+        hdop: coords.accuracy || 1,
+        gsm_signal: navigator.onLine ? ((navigator as any).connection?.effectiveType === '4g' ? 4 : 3) : 1
       };
       
       logGPS(`🚨 TRANSMITTING GPS DATA WITH UIT: ${course.uit} for course ${course.courseId}`);

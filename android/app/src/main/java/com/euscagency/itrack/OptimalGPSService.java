@@ -36,6 +36,13 @@ public class OptimalGPSService extends Service {
     private static final long GPS_INTERVAL_MS = 5000; // Exact 5 seconds
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.GPS_ALARM";
     
+    // Centralized API Configuration - Change only here to switch environments
+    private static final String API_BASE_URL_PROD = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/";
+    private static final String API_BASE_URL_TEST = "https://www.euscagency.com/etsm3/platforme/transport/apk/";
+    
+    // Current active environment - Change this single line to switch environments
+    private static final String API_BASE_URL = API_BASE_URL_TEST;
+    
     private AlarmManager alarmManager;
     private PendingIntent gpsPendingIntent;
     private LocationManager locationManager;
@@ -383,12 +390,12 @@ public class OptimalGPSService extends Service {
         gpsData.put("numar_inmatriculare", course.vehicleNumber);
         gpsData.put("uit", course.uit); // Real UIT from course data
         gpsData.put("status", course.status);
-        gpsData.put("hdop", 1); // Simple numeric value like June 26th
-        gpsData.put("gsm_signal", 4); // Simple numeric value like June 26th
+        gpsData.put("hdop", location.getAccuracy()); // Real GPS accuracy from Android Location
+        gpsData.put("gsm_signal", getNetworkSignalStrength()); // Real network signal strength
         
         Log.d(TAG, "📡 OPTIMAL GPS data for course " + course.courseId + ": " + gpsData.toString());
         Log.d(TAG, "🔑 Auth token length: " + course.authToken.length() + " chars (starts with: " + course.authToken.substring(0, Math.min(20, course.authToken.length())) + "...)");
-        Log.d(TAG, "🌐 Transmitting to: https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
+        Log.d(TAG, "🌐 Transmitting to: " + API_BASE_URL + "gps.php");
         
         // FOREGROUND OPTIMIZED: Instant transmission with single optimized thread
         // No batching - GPS must be sent immediately for real-time tracking
@@ -404,7 +411,7 @@ public class OptimalGPSService extends Service {
     private void sendOptimizedForegroundGPS(String jsonData, String authToken, String courseId) {
         java.net.HttpURLConnection connection = null;
         try {
-            java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm3/platforme/transport/apk/gps.php");
+            java.net.URL url = new java.net.URL(API_BASE_URL + "gps.php");
             connection = (java.net.HttpURLConnection) url.openConnection();
             
             // FOREGROUND OPTIMIZED SETTINGS - Simple and fast
@@ -547,6 +554,26 @@ public class OptimalGPSService extends Service {
             Log.w(TAG, "Error getting signal strength: " + e.getMessage());
         }
         return "4G"; // Fallback
+    }
+    
+    /**
+     * Get real network signal strength (1-4 scale)
+     */
+    private int getNetworkSignalStrength() {
+        try {
+            android.telephony.TelephonyManager tm = (android.telephony.TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+            if (tm != null) {
+                // Get signal strength from telephony manager
+                android.telephony.SignalStrength signalStrength = tm.getSignalStrength();
+                if (signalStrength != null) {
+                    int level = signalStrength.getLevel(); // Returns 0-4 (4 being strongest)
+                    return Math.max(1, level); // Ensure minimum value is 1
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Error getting signal strength: " + e.getMessage());
+        }
+        return 4; // Default to good signal if unable to determine
     }
     
     /**

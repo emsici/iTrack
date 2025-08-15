@@ -78,7 +78,7 @@ class DirectAndroidGPSService {
         uit: uit,
         status: status,
         hdop: position.coords.accuracy || 1,
-        gsm_signal: 4
+        gsm_signal: navigator.onLine ? ((navigator as any).connection?.effectiveType === '4g' ? 4 : 3) : 1
       };
 
       console.log(`📡 Sending status ${status} to server for UIT: ${uit}`);
