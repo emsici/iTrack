@@ -344,11 +344,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     const newCount = clickCount + 1;
     setClickCount(newCount);
     
-    console.log(`Debug click: ${newCount}/50`);
-    
     if (newCount >= 50) {
       try {
-        console.log("Opening debug page after 50 clicks...");
         setShowDebugPage(true);
         setClickCount(0);
       } catch (error) {

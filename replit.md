@@ -24,6 +24,7 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 - **FIX COMPILARE ANDROID**: Adăugat API_BASE_URL_TEST lipsă pentru compilare fără erori
 - **CENTRALIZARE API CRITICĂ**: Sincronizat configurația API între frontend și Android - ambele folosesc PROD pentru consistență
 - **URL-URI UNIFICATE**: Frontend și Android folosesc aceleași URL-uri (etsm_test pentru TEST, etsm_prod pentru PROD)
+- **CLEANUP DEBUG LOGS**: Eliminat log-urile de debug pentru click-uri pentru consolă mai curată
 
 ### **ACTUALIZĂRI ANTERIOARE - 15/08/2025 17:55**
 - **ZERO LAG SCROLL GARANTAT**: Eliminat complet backdrop-filter, blur effects, transform properties, will-change pentru scroll perfect
