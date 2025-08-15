@@ -460,7 +460,8 @@ export const sendGPSData = async (gpsData: GPSData, token: string): Promise<bool
 
     try {
       console.log('📡 GPS Transmission to gps.php');
-      console.log('Token preview:', `Bearer ${token.substring(0, 20)}...`);
+      console.log('🔐 FULL TOKEN BEING SENT:', `Bearer ${token}`);
+      console.log('🎯 Request URL:', `${API_BASE_URL}gps.php`);
       console.log('Vehicle:', gpsData.numar_inmatriculare);
       console.log('UIT:', gpsData.uit);
       console.log('Status:', gpsData.status);
