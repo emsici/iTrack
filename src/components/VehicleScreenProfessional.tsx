@@ -1601,7 +1601,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 right: '20px',
                 width: '35px',
                 height: '35px',
-                background: 'rgba(100, 116, 139, 0.1)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
@@ -1609,8 +1608,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 cursor: 'pointer',
                 zIndex: 999,
                 opacity: '0.3',
-                transition: 'opacity 0.2s ease', /* SIMPLIFIED transition pentru ZERO lag */
-                background: 'rgba(100, 116, 139, 0.1)', /* Simplu background în loc de blur */
+                transition: 'opacity 0.2s ease',
+                background: 'rgba(100, 116, 139, 0.1)',
                 border: '1px solid rgba(100, 116, 139, 0.2)'
               }}
               onMouseEnter={(e) => {

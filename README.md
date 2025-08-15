@@ -20,34 +20,47 @@
 **Pentru mediul TEST (implicit):**
 ```bash
 # Windows
-versiune.bat
+start.bat
 
 # Linux/macOS  
-./versiune.sh
+./start.sh
 ```
 
 **Pentru mediul PRODUCTION:**
 ```bash
 # Windows
-versiune.bat PROD
+start.bat PROD
 
 # Linux/macOS
-./versiune.sh PROD
+./start.sh PROD
 ```
 
-### **Setup Manual pentru Dezvoltatori**
+### **Schimbarea Automată Environment**
+Scripturile `start.bat` și `start.sh` schimbă automat environment-ul:
+- **Modifică API_CONFIG în `src/services/api.ts`** (TEST ↔ PROD)
+- **Actualizează Android service în `OptimalGPSService.java`** (API_BASE_URL)
+- **Rulează build.bat** pentru compilare completă
+- **Deschide Android Studio** pentru APK final
+
+**Nu mai trebuie schimbat manual environment-ul!**
+
+### **Build Manual (Dacă nu folosești start.bat)**
 ```bash
+# 1. Build complet cu dependințe
+build.bat
+
+# SAU pas cu pas:
 # 1. Instalare dependințe
 npm install
 
-# 2. Sincronizare Capacitor
+# 2. Build aplicație  
+npx vite build
+
+# 3. Sincronizare Capacitor
 npx cap sync android
 
-# 3. Pornire dev server
-npm run dev
-
-# 4. Build pentru Android
-vite build && npx cap sync android
+# 4. Deschide Android Studio
+npx cap open android
 ```
 
 ---
