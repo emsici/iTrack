@@ -18,23 +18,17 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
     estimatedTimeRemaining: null,
     lastError: null
   });
-  
+
   const [hasOfflineData, setHasOfflineData] = useState(false);
-  const [showProgress, setShowProgress] = useState(false);
+  const [showProgress] = useState(true); // ALWAYS SHOW!
   const [isOnline, setIsOnline] = useState(true);
-  const [networkInfo, setNetworkInfo] = useState<any>(null);
 
   useEffect(() => {
-    // Check for offline data on mount
-    checkOfflineData();
-
     // Subscribe to network status changes
     const unsubscribeNetwork = onNetworkStatusChange(async (online) => {
       setIsOnline(online);
-      setNetworkInfo(getNetworkStatusInfo());
-      console.log(`🌐 STATUS REȚEA SCHIMBAT: ${online ? 'ONLINE' : 'OFFLINE'}`);
+      console.log(`🌐 Network status schimbat la: ${online ? 'ONLINE' : 'OFFLINE'}`);
       
-      // EFICIENT: Când revine internetul, verifică și pornește sync automat
       if (online && !syncProgress.isActive) {
         const hasData = await hasOfflineGPSData();
         if (hasData) {
@@ -48,22 +42,43 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
     const unsubscribe = subscribeToSyncProgress({
       onProgressUpdate: (progress: SyncProgress) => {
         setSyncProgress(progress);
-        setShowProgress(progress.isActive || progress.totalToSync > 0);
+        // Always show when there's progress
       },
       onSyncComplete: () => {
+        console.log('✅ Sincronizare offline completată cu succes');
         setTimeout(() => {
-          setShowProgress(false);
           setHasOfflineData(false);
-        }, 3000); // Hide after 3 seconds
+          // Keep showing for a moment to display success
+        }, 3000); // Show success for 3 seconds
       },
       onSyncError: (error: string) => {
-        console.error('Eroare sincronizare:', error);
+        console.error('❌ Eroare sincronizare offline:', error);
         setSyncProgress(prev => ({ ...prev, lastError: error }));
       }
     });
 
-    // Check more frequently for offline data for automatic sync
-    const checkInterval = setInterval(checkOfflineData, 3000); // Every 3 seconds for immediate auto-sync
+    // Check for offline data frequently for immediate display
+    const checkOfflineData = async () => {
+      try {
+        const hasData = await hasOfflineGPSData();
+        setHasOfflineData(hasData);
+        
+        if (hasData && !syncProgress.isActive && isOnline) {
+          console.log('🔄 Date GPS offline detectate + ONLINE - se pornește sincronizarea automată');
+          await startOfflineSync();
+        } else if (hasData) {
+          console.log(`💾 Date GPS offline detectate - Status: ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
+        }
+      } catch (error) {
+        console.error('❌ Eroare la verificarea datelor offline:', error);
+      }
+    };
+
+    // Initial check
+    checkOfflineData();
+
+    // Check every 3 seconds for immediate offline detection
+    const checkInterval = setInterval(checkOfflineData, 3000);
 
     return () => {
       unsubscribe();
@@ -72,31 +87,7 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
     };
   }, [syncProgress.isActive, isOnline]);
 
-  const checkOfflineData = async () => {
-    try {
-      const hasData = await hasOfflineGPSData();
-      setHasOfflineData(hasData);
-      
-      if (hasData && !syncProgress.isActive && isOnline) {
-        setShowProgress(true);
-        // EFICIENT: Start sync DOAR când suntem online și avem date offline
-        console.log('🔄 Date GPS offline detectate + ONLINE - se pornește sincronizarea automată');
-        await startOfflineSync();
-      } else if (hasData && !isOnline) {
-        setShowProgress(true);
-        console.log('💾 Date GPS offline detectate + OFFLINE - se afișează progress și așteaptă internetul');
-      }
-    } catch (error) {
-      console.error('Eroare la verificarea datelor offline:', error);
-    }
-  };
-
-
-  // Don't render if no offline data and no active sync
-  if (!hasOfflineData && !showProgress) {
-    return null;
-  }
-
+  // ALWAYS RENDER: Show status whether online, offline, syncing, or idle
   return (
     <div className={`offline-sync-progress ${className}`}>
       {syncProgress.isActive ? (
@@ -107,7 +98,7 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
               <i className="fas fa-sync-alt spinning"></i>
             </div>
             <div className="sync-info">
-              <div className="sync-title">Sincronizare GPS Offline</div>
+              <div className="sync-title">🟢 ONLINE - Sincronizare GPS Offline</div>
               <div className="sync-stats">
                 {syncProgress.synced}/{syncProgress.totalToSync} coordonate trimise ({syncProgress.percentage}%)
               </div>
@@ -135,55 +126,56 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
             </div>
           )}
           
-          {syncProgress.failed > 0 && (
-            <div className="sync-failed">
-              {syncProgress.failed} coordonate eșuate
+          {syncProgress.lastError && (
+            <div className="error-message">
+              ⚠️ {syncProgress.lastError}
             </div>
           )}
         </div>
-      ) : syncProgress.totalToSync > 0 && syncProgress.synced === syncProgress.totalToSync ? (
-        // Sync completed successfully
-        <div className="sync-completed">
-          <div className="sync-success">
-            <i className="fas fa-check-circle"></i>
-            <span>Sincronizare completă! {syncProgress.synced} coordonate trimise</span>
-          </div>
-        </div>
-      ) : hasOfflineData ? (
-        // Has offline data, not syncing - show real network status
+      ) : (
+        // Status display - ALWAYS VISIBLE
         <div className="sync-pending">
-          <div className="offline-indicator">
-            <i className={`fas ${isOnline ? 'fa-cloud-upload-alt' : 'fa-wifi'} sync-icon-automatic`}></i>
-            <div className="offline-info">
-              <div className="offline-title">
-                <span className={`network-status ${isOnline ? 'online' : 'offline'}`}>
-                  {isOnline ? '🟢 ONLINE' : '🔴 OFFLINE'}
-                </span>
-                - Sincronizare Automată
+          <div className="sync-header">
+            <div className="sync-icon">
+              <i className={`fas ${hasOfflineData ? 'fa-cloud-upload-alt' : isOnline ? 'fa-satellite-dish' : 'fa-wifi-slash'}`}></i>
+            </div>
+            <div className="sync-info">
+              <div className="sync-title">
+                {hasOfflineData 
+                  ? 'GPS Offline - Sincronizare Automată' 
+                  : isOnline 
+                    ? 'GPS Online - Monitorizare Activă'
+                    : 'GPS Offline - În Așteptare'
+                }
               </div>
-              <div className="offline-count">
-                {syncProgress.remaining || syncProgress.totalToSync} coordonate GPS offline
+              <div className="sync-stats">
+                {syncProgress.totalToSync > 0 
+                  ? `${syncProgress.totalToSync} coordonate GPS offline`
+                  : hasOfflineData 
+                    ? 'Coordonate offline detectate'
+                    : isOnline
+                      ? 'Toate coordonatele sunt sincronizate'
+                      : 'Coordonatele se salvează offline'
+                }
               </div>
-              <div className="auto-sync-note">
-                <i className={`fas ${isOnline ? 'fa-cloud-upload-alt' : 'fa-pause-circle'}`} style={{marginRight: '4px'}}></i>
-                {isOnline 
-                  ? 'Se sincronizează automat acum...' 
-                  : 'În așteptare - se va sincroniza când revine internetul'}
-              </div>
-              {networkInfo && !isOnline && (
-                <div className="network-debug" style={{fontSize: '12px', opacity: 0.7, marginTop: '4px'}}>
-                  {networkInfo.consecutiveFailures} eșecuri GPS • {Math.round(networkInfo.timeSinceLastSuccess / 1000)}s fără succes
-                </div>
-              )}
             </div>
           </div>
-        </div>
-      ) : null}
-
-      {syncProgress.lastError && (
-        <div className="sync-error">
-          <i className="fas fa-exclamation-triangle"></i>
-          <span>{syncProgress.lastError}</span>
+          
+          <div className="offline-status">
+            <span className={`network-status ${isOnline ? 'online' : 'offline'}`}>
+              {isOnline ? '🟢 ONLINE' : '🔴 OFFLINE'}
+            </span>
+            <div className="auto-sync-note">
+              {hasOfflineData 
+                ? isOnline 
+                  ? '🔄 Se va sincroniza automat în câteva secunde...'
+                  : '📡 Se va sincroniza când revine internetul'
+                : isOnline
+                  ? '✅ GPS funcționează normal - coordonatele se transmit direct'
+                  : '⏳ Coordonatele se salvează offline pentru sincronizare ulterioară'
+              }
+            </div>
+          </div>
         </div>
       )}
     </div>
