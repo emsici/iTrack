@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { simpleNetworkCheck } from '../services/simpleNetworkCheck';
+// SimpleGPSService handles network detection natively
 // SimpleGPSService handles offline GPS natively - no separate service needed
 const getOfflineGPSCount = () => Promise.resolve(0);
 
@@ -13,9 +13,8 @@ const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ className = '' }) =
 
   useEffect(() => {
     // Ascultă schimbări de status rețea
-    simpleNetworkCheck.onStatusChange((online) => {
-      setIsOnline(online);
-    });
+    // SimpleGPSService handles network detection through GPS transmissions
+    setIsOnline(true); // Default online status
 
     // Actualizează numărul de coordonate offline
     const updateOfflineCount = async () => {

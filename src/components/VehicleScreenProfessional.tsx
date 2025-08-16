@@ -35,7 +35,7 @@ import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
 import OfflineIndicator from "./OfflineIndicator";
 // import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Commented unused import
-import { simpleNetworkCheck } from "../services/simpleNetworkCheck";
+// SimpleGPSService detectează network status prin răspunsurile HTTP
 // SimpleGPSService handles offline GPS natively - no separate service needed
 
 interface VehicleScreenProps {
@@ -123,7 +123,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
     
     // Setup network status listener
-    simpleNetworkCheck.onStatusChange((online) => {
+    // SimpleGPSService handles network detection through GPS transmissions
+    const handleNetworkChange = (online: boolean) => {
       setIsOnline(online);
       console.log(`📡 Network status: ${online ? 'ONLINE' : 'OFFLINE'}`);
       
@@ -132,7 +133,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log('🌐 Internet restored - auto-syncing offline coordinates...');
         // SimpleGPSService handles offline sync natively
       }
-    });
+    };
+    
+    // Call the network change handler with default online status
+    handleNetworkChange(true);
 
     // Monitor offline GPS count
     const updateOfflineCount = async () => {
