@@ -20,12 +20,12 @@ declare global {
 }
 
 import { logGPS, logGPSError } from './appLogger';
-import { sendGPSData } from './api';
-import { Geolocation } from '@capacitor/geolocation';
+// import { sendGPSData } from './api'; // DEZACTIVAT - folosim doar Android GPS direct
+// import { Geolocation } from '@capacitor/geolocation'; // DEZACTIVAT - folosim doar Android GPS direct
 import { getStoredToken, getStoredVehicleNumber } from './storage';
-import { guaranteedGPSService } from './garanteedGPS';
-import { sharedTimestampService } from './sharedTimestamp';
-import { simpleNetworkCheck } from './simpleNetworkCheck';
+// import { guaranteedGPSService } from './garanteedGPS'; // DEZACTIVAT - folosim doar Android GPS direct
+// import { sharedTimestampService } from './sharedTimestamp'; // DEZACTIVAT - folosim doar Android GPS direct  
+// import { simpleNetworkCheck } from './simpleNetworkCheck'; // DEZACTIVAT - folosim doar Android GPS direct
 // Direct AndroidGPS service handles native interface operations
 
 interface ActiveCourse {
@@ -68,13 +68,7 @@ class DirectAndroidGPSService {
         // IMMEDIATE STOP: Stop tracking BEFORE any more transmissions can happen
         await this.stopTracking(courseId);
         
-        // Update GPS Garantat status
-        try {
-          await guaranteedGPSService.updateStatus(courseId, newStatus);
-          console.log(`✅ Status GPS Garantat actualizat la ${newStatus}`);
-        } catch (guaranteedError) {
-          console.error(`⚠️ Nu s-a putut actualiza status GPS Garantat: ${guaranteedError}`);
-        }
+        // GPS OPRIT pentru status PAUSE/STOP - doar Android GPS direct
         
         console.log(`✅ GPS oprit pentru cursa ${courseId} - status ${newStatus === 3 ? 'PAUZĂ' : 'STOP'}`);
       }
@@ -85,14 +79,6 @@ class DirectAndroidGPSService {
         
         // DIRECT Android GPS - pentru START și RESUME (revenire din pauză)
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
-        
-        // TESTARE: Pornește ȘI GPS GARANTAT ca backup/verificare
-        try {
-          await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, realUIT, token, newStatus);
-          console.log(`✅ GPS GARANTAT BACKUP pornit pentru verificare/testare`);
-        } catch (guaranteedError) {
-          console.warn(`⚠️ GPS Garantat backup nu s-a putut porni: ${guaranteedError}`);
-        }
         
         console.log(`✅ GPS ANDROID PORNIT pentru START/RESUME - varianta care mergea`);
       }
@@ -161,10 +147,7 @@ class DirectAndroidGPSService {
     
     logGPS(`🎯 ANDROID GPS: Starting direct service - commit 656f7610 care mergea`);
     
-    // GPS se pornește ÎNTOTDEAUNA - offline storage se activează automat când nu există net
-    if (!simpleNetworkCheck.getIsOnline()) {
-      logGPS('🟡 INTERNET OFFLINE - GPS pornește cu OFFLINE STORAGE activat');
-    }
+    // SIMPLIFICAT: GPS Android pornește direct fără verificări de conectivitate
     
     // EXACT ca în commit-ul care mergea - DOAR Android GPS direct
     if (window.AndroidGPS && window.AndroidGPS.startGPS) {
@@ -187,9 +170,7 @@ class DirectAndroidGPSService {
         logGPS(`✅ MainActivity GPS stopped: ${result}`);
       }
       
-      // Stop guaranteed JavaScript GPS backup
-      await guaranteedGPSService.stopGPS(courseId);
-      logGPS(`✅ Guaranteed GPS backup stopped for course: ${courseId}`);
+      // SIMPLIFICAT: Fără GPS garantat - doar Android GPS direct
       
       // Remove from local tracking
       this.activeCourses.delete(courseId);
@@ -233,9 +214,7 @@ class DirectAndroidGPSService {
         }
       }
       
-      // STEP 2: Stop guaranteed GPS service 
-      await guaranteedGPSService.clearAll();
-      logGPS(`✅ Guaranteed GPS service cleared`);
+      // SIMPLIFICAT: Fără GPS garantat - doar Android GPS direct
       
       // STEP 3: Call AndroidGPS clearAllOnLogout to stop native service completely
       if (window.AndroidGPS && typeof window.AndroidGPS.clearAllOnLogout === 'function') {
