@@ -152,6 +152,13 @@ public class SimpleGPSService extends Service {
             // AlarmManager triggered - get GPS and transmit
             Log.e(TAG, "🔥 === GPS ALARM TRIGGERED === AlarmManager working!");
             Log.e(TAG, "📍 Starting GPS cycle for " + activeCourses.size() + " active courses");
+            
+            // Log each active course before GPS cycle
+            for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+                CourseData course = entry.getValue();
+                Log.e(TAG, "🎯 Active Course: " + course.courseId + " (UIT: " + course.uit + ") Status: " + course.status);
+            }
+            
             performGPSCycle();
             
         } else if (intent != null && "START_SIMPLE_GPS".equals(intent.getAction())) {
@@ -325,6 +332,7 @@ public class SimpleGPSService extends Service {
     }
     
     private void performGPSCycle() {
+        Log.e(TAG, "🚀 === STARTING GPS CYCLE === for " + activeCourses.size() + " courses");
         Log.e(TAG, "🔥 === PERFORM GPS CYCLE CALLED ===");
         Log.e(TAG, "📊 Active courses: " + activeCourses.size());
         
