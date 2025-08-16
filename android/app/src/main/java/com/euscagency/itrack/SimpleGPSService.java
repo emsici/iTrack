@@ -130,7 +130,8 @@ public class SimpleGPSService extends Service {
         
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
             // AlarmManager triggered - get GPS and transmit
-            Log.e(TAG, "⏰ GPS ALARM TRIGGERED - getting location");
+            Log.e(TAG, "🔥 === GPS ALARM TRIGGERED === AlarmManager working!");
+            Log.e(TAG, "📍 Starting GPS cycle for " + activeCourses.size() + " active courses");
             performGPSCycle();
             
         } else if (intent != null && "START_SIMPLE_GPS".equals(intent.getAction())) {
@@ -255,18 +256,31 @@ public class SimpleGPSService extends Service {
             this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
         
-        // Set exact alarm every 10 seconds
+        // Set exact alarm every 5 seconds with detailed logging
         long triggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            triggerTime,
-            gpsPendingIntent
-        );
+        
+        Log.e(TAG, "⏰ Setting AlarmManager:");
+        Log.e(TAG, "  - Trigger time: " + triggerTime + " (in " + GPS_INTERVAL_MS + "ms)");
+        Log.e(TAG, "  - PendingIntent: " + (gpsPendingIntent != null ? "CREATED" : "NULL"));
+        Log.e(TAG, "  - AlarmManager: " + (alarmManager != null ? "AVAILABLE" : "NULL"));
+        
+        try {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                triggerTime,
+                gpsPendingIntent
+            );
+            Log.e(TAG, "✅ AlarmManager configured successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "❌ AlarmManager setup failed: " + e.getMessage());
+            e.printStackTrace();
+        }
         
         isGPSActive = true;
         Log.e(TAG, "✅ GPS Timer Started - 5 second intervals (identic cu OptimalGPSService)");
         
         // Immediate first GPS reading
+        Log.e(TAG, "📍 Triggering immediate first GPS reading...");
         performGPSCycle();
     }
     
@@ -740,12 +754,27 @@ public class SimpleGPSService extends Service {
     private void scheduleNextGPSCycle() {
         if (isGPSActive && !activeCourses.isEmpty()) {
             long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                nextTriggerTime,
-                gpsPendingIntent
-            );
-            Log.e(TAG, "⏰ Next GPS cycle scheduled in 5 seconds for " + activeCourses.size() + " courses");
+            
+            Log.e(TAG, "⏰ Scheduling next GPS cycle:");
+            Log.e(TAG, "  - Active courses: " + activeCourses.size());
+            Log.e(TAG, "  - Next trigger: " + nextTriggerTime + " (in " + GPS_INTERVAL_MS + "ms)");
+            Log.e(TAG, "  - GPS Active: " + isGPSActive);
+            
+            try {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    nextTriggerTime,
+                    gpsPendingIntent
+                );
+                Log.e(TAG, "✅ Next GPS cycle scheduled successfully for " + activeCourses.size() + " courses");
+            } catch (Exception e) {
+                Log.e(TAG, "❌ Failed to schedule next GPS cycle: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            Log.e(TAG, "❌ Cannot schedule GPS cycle - GPS not active or no courses");
+            Log.e(TAG, "  - GPS Active: " + isGPSActive);
+            Log.e(TAG, "  - Active courses: " + activeCourses.size());
         }
     }
     
