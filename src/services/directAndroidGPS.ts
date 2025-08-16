@@ -45,17 +45,43 @@ class DirectAndroidGPSService {
 
   /**
    * Send status update to server via gps.php
-   * OPRIT: Nu mai trimite coordonate din browser - OptimalGPSService gestionează tot
+   * HIBRID: Trimite status + coordonată pentru a asigura conectivitatea
    */
   private async sendStatusToServer(uit: string, vehicleNumber: string, token: string, status: number): Promise<void> {
-    console.log(`🚫 DirectAndroidGPS: STATUS-only transmission pentru ${status} - NU mai trimite coordonate din browser`);
-    console.log(`✅ OptimalGPSService va gestiona TOATE coordonatele GPS cu precizie înaltă`);
-    
-    // IMPORTANT: NU mai apelează Geolocation.getCurrentPosition()
-    // NU mai trimite coordonate prin sendGPSData()
-    // OptimalGPSService gestionează totul acum
-    
-    console.log(`📋 Status ${status} va fi gestionat de OptimalGPSService pentru UIT: ${uit}`);
+    try {
+      logGPS(`📡 Trimitere status ${status} + coordonată hibridă pentru UIT: ${uit}`);
+      
+      // HIBRID APPROACH: Trimite o coordonată cu status pentru a menține conexiunea
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000
+      });
+
+      // Create GPS data for status transmission
+      const currentTime = sharedTimestampService.getCurrentSharedTimestamp();
+      const gpsData = {
+        uit: uit,
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        timestamp: currentTime,
+        viteza: Math.max(0, position.coords.speed || 0),
+        directie: position.coords.heading || 0,
+        altitudine: position.coords.altitude || 0,
+        baterie: 85, // Default battery
+        hdop: position.coords.accuracy.toString(),
+        gsm_signal: "4G"
+      };
+
+      // Send to server with status
+      await sendGPSData(gpsData, vehicleNumber, token, status);
+      logGPS(`✅ Status ${status} + coordonată trimisă pentru ${uit} - hibrid approach`);
+      
+    } catch (error) {
+      logGPSError(`❌ Hibrid GPS status transmission failed pentru ${uit}: ${error}`);
+      // Fall back to Android only if browser fails
+      logGPS(`🤖 Fallback la OptimalGPSService pentru ${uit}`);
+    }
   }
 
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
@@ -77,28 +103,33 @@ class DirectAndroidGPSService {
       
       // STEP 2: Handle GPS coordinate transmission based on status
       if (newStatus === 3 || newStatus === 4) {
-        console.log(`🛑 PAS 2: Se OPRESC IMEDIAT toate coordonatele GPS - NICIO TRANSMISIE pentru ${courseId}`);
+        console.log(`🛑 STEP 2: Oprire GPS pentru ${courseId} - status ${newStatus === 3 ? 'PAUZĂ' : 'STOP'}`);
         
         // IMMEDIATE STOP: Stop tracking BEFORE any more transmissions can happen
         await this.stopTracking(courseId);
         
-
-        // CRITICAL FIX: Actualizează și status GPS Garantat pentru a preveni transmisii suplimentare
+        // Update GPS Garantat status
         try {
           await guaranteedGPSService.updateStatus(courseId, newStatus);
-          console.log(`✅ Status GPS Garantat actualizat la ${newStatus} - nicio transmisie`);
+          console.log(`✅ Status GPS Garantat actualizat la ${newStatus}`);
         } catch (guaranteedError) {
           console.error(`⚠️ Nu s-a putut actualiza status GPS Garantat: ${guaranteedError}`);
         }
         
-        console.log(`✅ TOATE serviciile GPS oprite pentru cursa ${courseId} - status ${newStatus === 3 ? 'PAUZĂ' : 'STOP'}`);
+        console.log(`✅ GPS oprit pentru cursa ${courseId} - status ${newStatus === 3 ? 'PAUZĂ' : 'STOP'}`);
       }
       
       // STEP 3: Handle GPS coordinate transmission for START/RESUME
       if (newStatus === 2) {
-        console.log(`🚀 STEP 3: STARTING GPS coordinates after START/RESUME status transmission`);
+        console.log(`🚀 STEP 3: STARTING GPS tracking + hibrid browser backup`);
+        
+        // Start Android GPS
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
-        console.log(`✅ GPS coordinates STARTED after START/RESUME status`);
+        
+        // Start hibrid browser backup la 30s pentru siguranță
+        await this.startHibridBrowserBackup(courseId, vehicleNumber, realUIT, token, newStatus);
+        
+        console.log(`✅ GPS HIBRID PORNIT - Android principal + browser backup`);
       }
       
       // Update local tracking - CRITICAL FIX: Remove courses with status 3/4 completely
@@ -127,6 +158,44 @@ class DirectAndroidGPSService {
     } catch (error) {
       logGPSError(`❌ GPS status update error: ${error}`);
       throw error;
+    }
+  }
+
+  /**
+   * BACKUP HIBRID BROWSER GPS pentru siguranță în caz că Android GPS nu funcționează
+   */
+  private async startHibridBrowserBackup(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
+    // Stop any existing backup for this course
+    const existingCourse = this.activeCourses.get(courseId);
+    if (existingCourse?.intervalId) {
+      clearInterval(existingCourse.intervalId);
+    }
+
+    logGPS(`🔄 HIBRID BACKUP: Browser GPS backup la 30s pentru ${courseId}`);
+    
+    // Browser GPS backup la 30 secunde (mai rar ca să nu interfere cu Android)
+    const intervalId = setInterval(async () => {
+      try {
+        const course = this.activeCourses.get(courseId);
+        if (!course || course.status !== 2) {
+          logGPS(`⏹️ HIBRID BACKUP: Course ${courseId} nu mai e activ - opresc backup`);
+          clearInterval(intervalId);
+          return;
+        }
+
+        logGPS(`🔄 HIBRID BACKUP: Transmisie browser GPS pentru ${courseId}`);
+        await this.sendStatusToServer(uit, vehicleNumber, token, status);
+        
+      } catch (error) {
+        logGPSError(`❌ HIBRID BACKUP: Eroare transmisie pentru ${courseId}: ${error}`);
+      }
+    }, 30000); // 30 secunde
+
+    // Update course with interval ID
+    const course = this.activeCourses.get(courseId);
+    if (course) {
+      course.intervalId = intervalId;
+      this.activeCourses.set(courseId, course);
     }
   }
 
@@ -188,6 +257,13 @@ class DirectAndroidGPSService {
   async stopTracking(courseId: string): Promise<void> {
     try {
       logGPS(`🛑 Stopping Android GPS tracking: ${courseId}`);
+      
+      // Stop hibrid browser backup
+      const course = this.activeCourses.get(courseId);
+      if (course?.intervalId) {
+        clearInterval(course.intervalId);
+        logGPS(`✅ Hibrid browser backup stopped for ${courseId}`);
+      }
       
       // Stop Android native GPS service  
       if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
