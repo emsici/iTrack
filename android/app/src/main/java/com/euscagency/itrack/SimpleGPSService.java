@@ -131,22 +131,48 @@ public class SimpleGPSService extends Service {
     
     private Notification createNotification() {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("iTrack GPS Active")
-            .setContentText("Background tracking active")
+            .setContentTitle("🛰️ iTrack GPS Activ")
+            .setContentText("Urmărire GPS activă în background - " + activeCourses.size() + " curse")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_HIGH) // High priority pentru background garantat
+            .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setAutoCancel(false) // Nu poate fi închisă accidental
             .build();
+    }
+    
+    private void updateNotification() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            Notification updatedNotification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("🛰️ iTrack GPS Activ")
+                .setContentText("Urmărire GPS activă - " + activeCourses.size() + " curse active")
+                .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+                .setOngoing(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setAutoCancel(false)
+                .build();
+            
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.notify(NOTIFICATION_ID, updatedNotification);
+            Log.e(TAG, "📱 Notification updated - " + activeCourses.size() + " active courses");
+        }
     }
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e(TAG, "📥 SimpleGPS Command: " + (intent != null ? intent.getAction() : "NULL"));
         
+        // CRITICAL: Start as foreground service immediately for background operation
+        startForeground(NOTIFICATION_ID, createNotification());
+        Log.e(TAG, "🚀 FOREGROUND SERVICE STARTED - guaranteed background operation");
+        
         // Acquire WakeLock
         if (wakeLock != null && !wakeLock.isHeld()) {
             wakeLock.acquire();
-            Log.e(TAG, "✅ WakeLock acquired - background operation guaranteed");
+            Log.e(TAG, "✅ WakeLock acquired - phone lock bypass enabled");
         }
         
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
@@ -180,6 +206,9 @@ public class SimpleGPSService extends Service {
             
             Log.e(TAG, "📊 ACTIVE COURSES COUNT: " + activeCourses.size());
             Log.e(TAG, "🗂️ Active courses: " + activeCourses.keySet());
+            
+            // Update notification with course count
+            updateNotification();
             
             // Start GPS timer if not already active
             if (!isGPSActive) {
@@ -269,6 +298,10 @@ public class SimpleGPSService extends Service {
                 }
                 
                 Log.e(TAG, "📊 Updated course status - Active courses: " + activeCourses.size());
+            
+            // Update notification to reflect current course count
+            updateNotification();
+            
             } else if (newStatus == 2) {
                 // RESUME: Check if course is in paused storage
                 Log.e(TAG, "🔄 RESUME: Checking for paused course " + courseId);
@@ -389,9 +422,10 @@ public class SimpleGPSService extends Service {
                     Log.e(TAG, "🔄 === CONTINUOUS GPS CYCLE ===");
                     Log.e(TAG, "📊 Active courses: " + activeCourses.size());
                     
-                    // Run GPS cycle in background thread
+                    // Run GPS cycle in background thread with foreground safety
                     new Thread(() -> {
                         try {
+                            Log.e(TAG, "🔥 BACKGROUND GPS CYCLE - foreground service active");
                             performGPSCycle();
                         } catch (Exception e) {
                             Log.e(TAG, "❌ Error in continuous GPS cycle: " + e.getMessage());
@@ -426,6 +460,12 @@ public class SimpleGPSService extends Service {
         if (continuousGPSHandler != null && continuousGPSRunnable != null) {
             continuousGPSHandler.removeCallbacks(continuousGPSRunnable);
             Log.e(TAG, "🛑 Continuous GPS Handler stopped");
+        }
+        
+        // Stop foreground service when GPS stops
+        if (activeCourses.isEmpty()) {
+            stopForeground(true);
+            Log.e(TAG, "🛑 Foreground service stopped - no active courses");
         }
         
         isGPSActive = false;
