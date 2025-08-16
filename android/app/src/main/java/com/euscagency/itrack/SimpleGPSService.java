@@ -31,6 +31,14 @@ import androidx.core.app.NotificationCompat;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
+// OkHttp imports pentru HTTP modern și eficient
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.MediaType;
+import okhttp3.logging.HttpLoggingInterceptor;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,6 +85,10 @@ public class SimpleGPSService extends Service {
     private static final int NOTIFICATION_ID = 2001;
     private static final String CHANNEL_ID = "SimpleGPSChannel";
     
+    // OkHttp client modern pentru performanță maximă
+    private static OkHttpClient okHttpClient;
+    private static final MediaType JSON_MEDIA_TYPE = MediaType.get("application/json; charset=utf-8");
+    
     @Override
     public void onCreate() {
         super.onCreate();
@@ -84,6 +96,9 @@ public class SimpleGPSService extends Service {
         
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        
+        // Initialize OkHttp client cu optimizări pentru performanță
+        initializeOkHttpClient();
         
         // WakeLock pentru background
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -494,49 +509,15 @@ public class SimpleGPSService extends Service {
                     Log.e(TAG, "  JSON: " + jsonString);
                     Log.e(TAG, "  Token: Bearer [HIDDEN]");
                     
-                    // MODERN HTTP CLIENT: OkHttp sau Volley pentru Android
-                    // Pentru simplicitate și performanță, folosim CapacitorHttp prin WebView bridge
+                    // MODERN HTTP: Prioritate OkHttp -> Fallback HttpURLConnection
+                    Log.e(TAG, "🚀 MODERN HTTP: Încercare transmisie GPS cu OkHttp");
                     
-                    Log.e(TAG, "🚀 MODERN HTTP: Folosind CapacitorHttp prin WebView pentru performanță");
+                    // Prima încercare: OkHttp (cel mai rapid și eficient)
+                    transmissionSuccess = sendGPSViaOkHttp(jsonString, course.authToken);
                     
-                    // Call WebView bridge pentru CapacitorHttp transmission
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build_VERSION_CODES.KITKAT) {
-                        // Modern WebView evaluateJavascript pentru Android 4.4+
-                        try {
-                            String jsCode = String.format(
-                                "if (window.sendGPSViaCapacitor) { " +
-                                "  window.sendGPSViaCapacitor('%s', '%s').then(success => " +
-                                "    console.log('GPS via CapacitorHttp:', success ? 'SUCCESS' : 'FAILED')" +
-                                "  ); " +
-                                "} else { " +
-                                "  console.error('sendGPSViaCapacitor not available'); " +
-                                "}",
-                                jsonString.replace("'", "\\'"), 
-                                course.authToken.replace("'", "\\'")
-                            );
-                            
-                            // Find WebView and execute
-                            android.app.Activity activity = (android.app.Activity) getApplicationContext();
-                            if (activity instanceof com.getcapacitor.BridgeActivity) {
-                                android.webkit.WebView webView = ((com.getcapacitor.BridgeActivity) activity).getBridge().getWebView();
-                                if (webView != null) {
-                                    webView.post(() -> webView.evaluateJavascript(jsCode, null));
-                                    transmissionSuccess = true; // Assume success via CapacitorHttp
-                                    Log.e(TAG, "✅ GPS transmitted via CapacitorHttp WebView bridge");
-                                } else {
-                                    Log.e(TAG, "⚠️ WebView not available - falling back to HttpURLConnection");
-                                    transmissionSuccess = fallbackHttpURLConnection(jsonString, course.authToken);
-                                }
-                            } else {
-                                Log.e(TAG, "⚠️ Not BridgeActivity - using fallback HTTP");
-                                transmissionSuccess = fallbackHttpURLConnection(jsonString, course.authToken);
-                            }
-                        } catch (Exception webViewError) {
-                            Log.e(TAG, "❌ WebView bridge failed: " + webViewError.getMessage());
-                            transmissionSuccess = fallbackHttpURLConnection(jsonString, course.authToken);
-                        }
-                    } else {
-                        // Fallback pentru Android vechi
+                    // Fallback dacă OkHttp eșuează
+                    if (!transmissionSuccess) {
+                        Log.e(TAG, "🔄 OkHttp failed - trying HttpURLConnection fallback");
                         transmissionSuccess = fallbackHttpURLConnection(jsonString, course.authToken);
                     }
                     
@@ -749,8 +730,13 @@ public class SimpleGPSService extends Service {
                         
                         String jsonString = jsonData.toString();
                         
-                        // MODERN SYNC: Folosește fallback HTTP pentru sincronizarea offline
-                        boolean syncSuccess = fallbackHttpURLConnection(jsonString, coord.getString("authToken"));
+                        // MODERN SYNC: Prioritate OkHttp pentru sincronizarea offline
+                        boolean syncSuccess = sendGPSViaOkHttp(jsonString, coord.getString("authToken"));
+                        
+                        // Fallback dacă OkHttp eșuează
+                        if (!syncSuccess) {
+                            syncSuccess = fallbackHttpURLConnection(jsonString, coord.getString("authToken"));
+                        }
                         
                         if (syncSuccess) {
                             syncedCount++;
@@ -812,7 +798,68 @@ public class SimpleGPSService extends Service {
     }
     
     /**
-     * FALLBACK HTTP METHOD: HttpURLConnection pentru când CapacitorHttp nu e disponibil
+     * INITIALIZE OKHTTP CLIENT: Configurare optimă pentru performanță GPS
+     */
+    private void initializeOkHttpClient() {
+        if (okHttpClient == null) {
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            logging.setLevel(HttpLoggingInterceptor.Level.BASIC); // Log pentru debugging
+            
+            okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .writeTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .addInterceptor(logging)
+                .retryOnConnectionFailure(true) // Auto-retry pentru network instabil
+                .build();
+                
+            Log.e(TAG, "✅ OkHttp client inițializat cu optimizări pentru GPS");
+        }
+    }
+
+    /**
+     * MODERN OKHTTP TRANSMISSION: Cel mai eficient HTTP client pentru Android
+     */
+    private boolean sendGPSViaOkHttp(String jsonString, String authToken) {
+        try {
+            Log.e(TAG, "🚀 MODERN HTTP: Folosind OkHttp pentru transmisia GPS");
+            
+            RequestBody requestBody = RequestBody.create(jsonString, JSON_MEDIA_TYPE);
+            
+            Request request = new Request.Builder()
+                .url(GPS_ENDPOINT)
+                .post(requestBody)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + authToken)
+                .addHeader("Accept", "application/json")
+                .addHeader("User-Agent", "iTrack-Android-OkHttp/1.0")
+                .build();
+                
+            try (Response response = okHttpClient.newCall(request).execute()) {
+                int responseCode = response.code();
+                String responseBody = response.body() != null ? response.body().string() : "";
+                
+                Log.e(TAG, "📡 OkHttp Response: " + responseCode);
+                if (!responseBody.isEmpty()) {
+                    Log.e(TAG, "📥 Response body: " + responseBody);
+                }
+                
+                if (responseCode == 200) {
+                    Log.e(TAG, "✅ OkHttp GPS SUCCESS - cel mai rapid HTTP client");
+                    return true;
+                } else {
+                    Log.e(TAG, "⚠️ OkHttp: Server returned " + responseCode);
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "❌ OkHttp transmission failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * FALLBACK HTTP METHOD: HttpURLConnection pentru când OkHttp nu e disponibil
      */
     private boolean fallbackHttpURLConnection(String jsonString, String authToken) {
         try {
