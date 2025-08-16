@@ -561,7 +561,7 @@ public class OptimalGPSService extends Service {
         double altitude = location.getAltitude();
         gpsData.put("altitudine", altitude); // Real altitude as float
         Log.d(TAG, "📏 ALTITUDE DEBUG - Raw: " + altitude + "m, After JSON: " + gpsData.get("altitudine"));
-        gpsData.put("token", course.authToken); // CRITICAL: Include auth token for authentication
+        // Token-ul se trimite prin Authorization header, nu în JSON body
         gpsData.put("baterie", getBatteryLevel() + "%"); // Battery with % like June 26th
         gpsData.put("numar_inmatriculare", course.vehicleNumber);
         gpsData.put("uit", course.uit); // Real UIT from course data
@@ -593,7 +593,7 @@ public class OptimalGPSService extends Service {
             // FOREGROUND OPTIMIZED SETTINGS - Simple and fast
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            // Token is included in JSON body, no Authorization header needed
+            connection.setRequestProperty("Authorization", "Bearer " + authToken);
             connection.setRequestProperty("User-Agent", "iTrack-Foreground-GPS/1.0");
             connection.setDoOutput(true);
             connection.setConnectTimeout(5000); // Quick timeout for foreground
