@@ -514,22 +514,22 @@ public class SimpleGPSService extends Service {
                     Log.e(TAG, "  JSON: " + jsonString);
                     Log.e(TAG, "  Token: Bearer [HIDDEN]");
                     
-                    // COMPLETE HTTP CHAIN: CapacitorHttp (via JS bridge) -> OkHttp -> Volley 
+                    // COMPLETE HTTP CHAIN: Volley -> OkHttp -> CapacitorHttp 
                     Log.e(TAG, "🚀 COMPLETE HTTP CHAIN: Încercare transmisie GPS");
                     
-                    // Prima încercare: CapacitorHttp prin JavaScript bridge
-                    transmissionSuccess = sendGPSViaCapacitorBridge(jsonString, course.authToken);
+                    // Prima încercare: Volley (biblioteca oficială Google)
+                    transmissionSuccess = sendGPSViaVolley(jsonString, course.authToken);
                     
                     // A doua încercare: OkHttp (nativ Android)
                     if (!transmissionSuccess) {
-                        Log.e(TAG, "🔄 CapacitorHttp failed - trying OkHttp (nativ)");
+                        Log.e(TAG, "🔄 Volley failed - trying OkHttp (nativ)");
                         transmissionSuccess = sendGPSViaOkHttp(jsonString, course.authToken);
                     }
                     
-                    // A treia încercare: Volley (biblioteca oficială Google)
+                    // A treia încercare: CapacitorHttp prin JavaScript bridge
                     if (!transmissionSuccess) {
-                        Log.e(TAG, "🔄 OkHttp failed - trying Volley (Google oficial)");
-                        transmissionSuccess = sendGPSViaVolley(jsonString, course.authToken);
+                        Log.e(TAG, "🔄 OkHttp failed - trying CapacitorHttp bridge");
+                        transmissionSuccess = sendGPSViaCapacitorBridge(jsonString, course.authToken);
                     }
                     
                     if (!transmissionSuccess) {
