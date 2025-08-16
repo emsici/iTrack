@@ -138,9 +138,14 @@ public class MainActivity extends BridgeActivity {
             intent.putExtra("authToken", authToken);
             intent.putExtra("status", status);
             
-            Log.d(TAG, "🚀 DIAGNOSTIC: Calling startForegroundService...");
+            Log.e(TAG, "🚀 === CRITICAL === Calling startForegroundService...");
             startForegroundService(intent);
-            Log.d(TAG, "✅ DIAGNOSTIC: OptimalGPSService startForegroundService completed for " + courseId);
+            Log.e(TAG, "✅ === CRITICAL === OptimalGPSService startForegroundService completed for " + courseId);
+            
+            // DEBUGGING: Verify service actually started
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                Log.e(TAG, "🔍 === VERIFICATION === Checking if service is running after 2 seconds...");
+            }, 2000);
             
             String result = "SUCCESS: GPS started for " + courseId;
             Log.d(TAG, "📤 DIAGNOSTIC: Returning result to JavaScript: " + result);

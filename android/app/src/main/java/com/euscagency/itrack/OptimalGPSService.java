@@ -884,12 +884,12 @@ public class OptimalGPSService extends Service {
             String authToken = intent.getStringExtra("authToken");
             int status = intent.getIntExtra("status", 2);
             
-            Log.d(TAG, "📋 RECEIVED GPS PARAMETERS:");
-            Log.d(TAG, "  courseId: " + courseId);
-            Log.d(TAG, "  uit: " + uit);
-            Log.d(TAG, "  vehicleNumber: " + vehicleNumber);
-            Log.d(TAG, "  authToken: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
-            Log.d(TAG, "  status: " + status);
+            Log.e(TAG, "📋 === CRITICAL === RECEIVED GPS PARAMETERS:");
+            Log.e(TAG, "  courseId: " + courseId);
+            Log.e(TAG, "  uit: " + uit);
+            Log.e(TAG, "  vehicleNumber: " + vehicleNumber);
+            Log.e(TAG, "  authToken: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
+            Log.e(TAG, "  status: " + status);
             
             // Validate critical parameters
             if (courseId == null || uit == null || authToken == null || vehicleNumber == null) {
@@ -920,9 +920,16 @@ public class OptimalGPSService extends Service {
             CourseData courseData = new CourseData(courseId, uit, status, vehicleNumber, authToken);
             activeCourses.put(courseId, courseData);
             
-            Log.d(TAG, "✅ OPTIMAL course added: " + courseId + " (UIT: " + uit + ")");
-            Log.d(TAG, "📊 ACTIVE COURSES COUNT: " + activeCourses.size());
-            Log.d(TAG, "🔍 ALARM STATUS: isAlarmActive = " + isAlarmActive);
+            Log.e(TAG, "✅ === CRITICAL === OPTIMAL course added: " + courseId + " (UIT: " + uit + ")");
+            Log.e(TAG, "📊 ACTIVE COURSES COUNT: " + activeCourses.size());
+            Log.e(TAG, "🔍 ALARM STATUS: isAlarmActive = " + isAlarmActive);
+            
+            // DEBUGGING: Force immediate GPS cycle to test
+            Log.e(TAG, "🚀 === TESTING === Forcing immediate GPS cycle for debugging...");
+            new android.os.Handler().postDelayed(() -> {
+                Log.e(TAG, "🔥 === FORCED TEST === Starting immediate GPS cycle...");
+                performOptimalGPSCycle();
+            }, 1000); // 1 second delay
             
             // CRITICAL FIX: ALWAYS ensure GPS timer is running for ANY active course
             if (!isAlarmActive) {
