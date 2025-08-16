@@ -517,13 +517,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`📞 Se apelează direct Android GPS cu UIT: ${courseToUpdate.uit}`);
         console.log(`📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat`);
         
-        // CRITICAL: Start Android GPS service for ACTIVE status
+        // CRITICAL: Handle all GPS status changes properly
         if (newStatus === 2) {
           console.log("🚀 PORNIRE GPS: Status 2 (ACTIVE) - pornesc SimpleGPSService");
           const gpsResult = startAndroidGPS(courseToUpdate, vehicleNumber, token);
           console.log("📱 GPS Service Result:", gpsResult);
+        } else {
+          console.log(`🔄 STATUS CHANGE: Status ${newStatus} - apelează updateStatus direct`);
+          console.log("📋 Status meanings: 2=ACTIVE, 3=PAUSE, 4=STOP");
         }
         
+        // Always call updateCourseStatus for status synchronization with server AND Android service
         await updateCourseStatus(courseToUpdate.uit, newStatus);
         
         console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);
