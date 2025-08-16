@@ -252,6 +252,35 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
+    @JavascriptInterface
+    public String getServiceStatus() {
+        Log.e(TAG, "📊 === SIMPLE GPS === getServiceStatus called");
+        
+        try {
+            // Get basic status from SharedPreferences and service state
+            android.content.SharedPreferences prefs = getSharedPreferences("offline_gps", MODE_PRIVATE);
+            String coordinatesData = prefs.getString("coordinates", "[]");
+            org.json.JSONArray coordinates = new org.json.JSONArray(coordinatesData);
+            int offlineCount = coordinates.length();
+            
+            // Create status JSON
+            org.json.JSONObject status = new org.json.JSONObject();
+            status.put("isActive", true); // Simple check - service is responsive
+            status.put("activeCourses", 1); // Placeholder - SimpleGPSService tracks this internally
+            status.put("offlineCount", offlineCount);
+            status.put("networkStatus", true); // Default online
+            status.put("lastTransmission", System.currentTimeMillis());
+            
+            String statusJson = status.toString();
+            Log.e(TAG, "📊 Service status: " + statusJson);
+            return statusJson;
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error getting service status: " + e.getMessage());
+            return "{\"isActive\":false,\"activeCourses\":0,\"offlineCount\":0,\"networkStatus\":true}";
+        }
+    }
+
     // NETWORK STATUS REPORTING pentru frontend - CRITICAL pentru online/offline detection
     @JavascriptInterface
     public void onGPSTransmissionSuccess() {

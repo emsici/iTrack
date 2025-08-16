@@ -33,7 +33,7 @@ import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
-import OfflineIndicator from "./OfflineIndicator";
+import SimpleGPSIndicator from "./SimpleGPSIndicator";
 // import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Commented unused import
 // SimpleGPSService detectează network status prin răspunsurile HTTP
 // SimpleGPSService handles offline GPS natively - no separate service needed
@@ -696,7 +696,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           overflow: 'hidden'
         }}>
           {/* Offline Indicator pentru input screen */}
-          <OfflineIndicator className="mb-3" />
+          <SimpleGPSIndicator className="mb-3" />
           
           {/* Logo Row - Top */}
           <div style={{
@@ -1078,7 +1078,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
 
             {/* Offline Indicator in header */}
-            <OfflineIndicator />
+            <SimpleGPSIndicator />
 
             {/* Second Row - Action Icons */}
             <div style={{
