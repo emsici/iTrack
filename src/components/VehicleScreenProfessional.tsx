@@ -702,12 +702,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           {/* Offline Indicator pentru input screen */}
           <OfflineIndicator className="mb-3" />
           
-          {/* Offline Sync Monitor */}
-          <OfflineSyncMonitor 
-            isOnline={isOnline}
-            className="mb-3 shadow-lg"
-          />
-          
           {/* Logo Row - Top */}
           <div style={{
             textAlign: 'center',

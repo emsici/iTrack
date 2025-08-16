@@ -154,7 +154,9 @@ public class OptimalGPSService extends Service {
         
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
             // ALARM TRIGGERED: Get GPS location and transmit for all active courses
-            Log.d(TAG, "🔄 DIAGNOSTIC: ALARM TRIGGERED - performing GPS cycle");
+            Log.e(TAG, "🔄 === CRITICAL === ALARM TRIGGERED - performing GPS cycle");
+            Log.e(TAG, "⏰ AlarmManager SUCCESS - timer working correctly");
+            Log.e(TAG, "📊 Current activeCourses.size(): " + activeCourses.size());
             performOptimalGPSCycle();
         } else {
             // Regular service commands (START_GPS, STOP_GPS, etc.)
@@ -204,13 +206,21 @@ public class OptimalGPSService extends Service {
      * GPS hardware is activated ONLY when needed, then immediately turned off
      */
     private void performOptimalGPSCycle() {
+        Log.e(TAG, "🚀 === PERFORMING GPS CYCLE === Entry point reached");
+        Log.e(TAG, "📊 Current activeCourses.size(): " + activeCourses.size());
+        
         if (activeCourses.isEmpty()) {
-            Log.d(TAG, "⏸️ No active courses - stopping optimal GPS cycle");
+            Log.e(TAG, "⏸️ === CRITICAL === No active courses - stopping optimal GPS cycle");
             stopOptimalGPSTimer();
             return;
         }
         
-        Log.d(TAG, "⏰ OPTIMAL GPS CYCLE - getting location for " + activeCourses.size() + " courses");
+        Log.e(TAG, "⏰ === OPTIMAL GPS CYCLE === Getting location for " + activeCourses.size() + " courses");
+        Log.e(TAG, "🔍 Active courses details:");
+        for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+            CourseData course = entry.getValue();
+            Log.e(TAG, "  - CourseId: " + course.courseId + ", UIT: " + course.uit + ", Status: " + course.status);
+        }
         
         // CRITICAL: WakeLock check în GPS cycle
         if (wakeLock != null && !wakeLock.isHeld()) {
@@ -843,8 +853,10 @@ public class OptimalGPSService extends Service {
         );
         
         isAlarmActive = true;
-        Log.e(TAG, "✅ OPTIMAL GPS timer started - FORȚAT la " + (forcedInterval/1000) + "s intervals pentru CONTINUITATE");
+        Log.e(TAG, "✅ === CRITICAL === OPTIMAL GPS timer started - FORȚAT la " + (forcedInterval/1000) + "s intervals pentru CONTINUITATE");
         Log.e(TAG, "🔥 AlarmManager setExactAndAllowWhileIdle - BYPASS complet Doze mode și battery optimization");
+        Log.e(TAG, "⏰ Next alarm scheduled at: " + (SystemClock.elapsedRealtime() + forcedInterval) + " (current: " + SystemClock.elapsedRealtime() + ")");
+        Log.e(TAG, "📡 PendingIntent created: " + (gpsPendingIntent != null ? "SUCCESS" : "FAILED"));
     }
     
     /**
