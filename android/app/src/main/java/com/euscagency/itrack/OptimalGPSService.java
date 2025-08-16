@@ -190,8 +190,13 @@ public class OptimalGPSService extends Service {
             
             handleServiceCommand(intent);
             
-            // ELIMINAT duplicated GPS cycle - handleServiceCommand() already handles everything
-            // GPS timer starts automatically in handleServiceCommand(), no need to duplicate here
+            // CRITICAL FIX: Restore immediate GPS cycle after handling command like in functional commit 63d83ed
+            if (!activeCourses.isEmpty()) {
+                Log.e(TAG, "🔄 === CRITICAL === Starting immediate GPS cycle - functional commit behavior");
+                performOptimalGPSCycle();
+            } else {
+                Log.w(TAG, "⚠️ DIAGNOSTIC: NO ACTIVE COURSES - skipping GPS cycle");
+            }
         }
         
         Log.d(TAG, "🚨 === DIAGNOSTIC END === onStartCommand completed");
@@ -767,14 +772,6 @@ public class OptimalGPSService extends Service {
             } else {
                 Log.e(TAG, "✅ GPS TIMER already active - continuing with " + activeCourses.size() + " courses");
             }
-            
-            // EMERGENCY FIX: Double-check alarm is truly active and force start if not
-            new android.os.Handler().postDelayed(() -> {
-                if (!activeCourses.isEmpty() && !isAlarmActive) {
-                    Log.e(TAG, "🚨 EMERGENCY: Courses active but timer FAILED - force starting GPS timer");
-                    startOptimalGPSTimer();
-                }
-            }, 2000); // Check after 2 seconds
             
         } else if ("STOP_GPS".equals(action)) {
             String courseId = intent.getStringExtra("courseId");
