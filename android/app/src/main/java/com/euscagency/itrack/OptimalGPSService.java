@@ -508,7 +508,7 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "  - Completed courses removed: " + coursesToRemove.size());
         Log.d(TAG, "  - Remaining active courses: " + activeCourses.size());
         // FORCE CONSISTENT 5-SECOND INTERVALS
-        long nextInterval = GPS_INTERVAL_LOCKED_MS; // ALWAYS 5 seconds
+        long nextInterval = GPS_INTERVAL_MS; // ALWAYS 5 seconds - simplificat
         Log.e(TAG, "✅ Optimal GPS cycle completed - NEXT FORCED în " + (nextInterval/1000) + "s (CONSISTENCY)");
         Log.e(TAG, "🔄 BACKGROUND CONTINUITY GUARANTEED - no adaptive intervals");
         
@@ -536,38 +536,29 @@ public class OptimalGPSService extends Service {
      * Most efficient GPS data transmission
      */
     private void transmitOptimalGPSData(CourseData course, Location location) throws Exception {
-        // Create GPS data JSON
+        // Create GPS data JSON - EXACT format ca în logurile funcționale
         org.json.JSONObject gpsData = new org.json.JSONObject();
-        // JUNE 26TH FORMAT: Real coordinates + JWT token in UIT field
-        // STANDARDIZARE FINALĂ: Exact 7 decimale pentru consistență
-        double lat = Math.round(location.getLatitude() * 10000000.0) / 10000000.0;
-        double lng = Math.round(location.getLongitude() * 10000000.0) / 10000000.0;
-        gpsData.put("lat", lat); // Exact 7 decimale - standard GPS
-        gpsData.put("lng", lng); // Exact 7 decimale - standard GPS
-        // TIMESTAMP LOCAL +3 ORE - ACELAȘI pentru toate cursele din acest ciclu
-        // Folosim un timestamp static pentru întregul ciclu GPS
-        if (gpsSharedTimestamp == null) {
-            gpsSharedTimestamp = new java.util.Date();
-        }
-        // ROMANIA TIME: UTC+3 (EET/EEST) - conform cererii utilizatorului
-        java.text.SimpleDateFormat localFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
-        localFormat.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
-        String sharedTimestamp = localFormat.format(gpsSharedTimestamp);
-        gpsData.put("timestamp", sharedTimestamp);
         
-        Log.d(TAG, "🕒 SHARED TIMESTAMP Android: " + sharedTimestamp + " for course: " + course.courseId);
-        gpsData.put("viteza", location.getSpeed() * 3.6); // m/s to km/h as float
-        gpsData.put("directie", location.getBearing()); // Real bearing as float
-        double altitude = location.getAltitude();
-        gpsData.put("altitudine", altitude); // Real altitude as float
-        Log.d(TAG, "📏 ALTITUDE DEBUG - Raw: " + altitude + "m, After JSON: " + gpsData.get("altitudine"));
-        // Token-ul se trimite prin Authorization header, nu în JSON body
-        gpsData.put("baterie", getBatteryLevel() + "%"); // Battery with % like June 26th
+        // EXACT ca în logurile funcționale - coordonate simple
+        gpsData.put("lat", location.getLatitude());
+        gpsData.put("lng", location.getLongitude());
+        
+        // TIMESTAMP - format simplu UTC ca în logurile funcționale
+        java.text.SimpleDateFormat utcFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
+        utcFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+        String timestamp = utcFormat.format(new java.util.Date());
+        gpsData.put("timestamp", timestamp);
+        
+        // EXACT ca în logurile funcționale - format original
+        gpsData.put("viteza", location.getSpeed() * 3.6); // m/s to km/h as float (ca în log)
+        gpsData.put("directie", location.getBearing()); // Real bearing as float (ca în log)
+        gpsData.put("altitudine", location.getAltitude()); // Real altitude as double (ca în log)
+        gpsData.put("baterie", getBatteryLevel()); // Battery as int without % (ca în log)
         gpsData.put("numar_inmatriculare", course.vehicleNumber);
-        gpsData.put("uit", course.uit); // Real UIT from course data
+        gpsData.put("uit", course.uit);
         gpsData.put("status", course.status);
-        gpsData.put("hdop", location.getAccuracy()); // Real GPS accuracy from Android Location
-        gpsData.put("gsm_signal", getNetworkSignalStrength()); // Real network signal strength
+        gpsData.put("hdop", location.getAccuracy());
+        gpsData.put("gsm_signal", getNetworkSignalStrength());
         
         Log.d(TAG, "📡 OPTIMAL GPS data for course " + course.courseId + ": " + gpsData.toString());
         Log.d(TAG, "🔑 Auth token length: " + course.authToken.length() + " chars (starts with: " + course.authToken.substring(0, Math.min(20, course.authToken.length())) + "...)");
