@@ -98,9 +98,25 @@ class DirectAndroidGPSService {
       }
       
       // Direct MainActivity Android GPS interface for status update
+      // Update GPS status - HYBRID APPROACH  
+      try {
+        const { registerPlugin } = await import('@capacitor/core');
+        const AndroidGPSPlugin = registerPlugin('AndroidGPSPlugin');
+        
+        const result = await AndroidGPSPlugin.updateStatus({
+          courseId,
+          newStatus
+        });
+        logGPS(`✅ GPS status updated via Capacitor Plugin: ${JSON.stringify(result)}`);
+        return;
+      } catch (error) {
+        logGPS(`⚠️ Capacitor plugin updateStatus failed, falling back to WebView: ${error}`);
+      }
+      
+      // Fallback to WebView bridge
       if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
         const result = window.AndroidGPS.updateStatus(courseId, newStatus);
-        logGPS(`✅ MainActivity GPS status updated: ${result}`);
+        logGPS(`✅ MainActivity GPS status updated via WebView: ${result}`);
       } else {
         logGPSError(`❌ AndroidGPS interface not available for status update - this is normal in browser`);
         console.warn('AndroidGPS status interface not available - this is normal in browser development');
@@ -149,10 +165,29 @@ class DirectAndroidGPSService {
     
     // SIMPLIFICAT: GPS Android pornește direct fără verificări de conectivitate
     
-    // EXACT ca în commit-ul care mergea - DOAR Android GPS direct
+    // HYBRID APPROACH: Try Capacitor plugin first, then WebView bridge
+    try {
+      // Try Capacitor AndroidGPSPlugin (works in APK)
+      const { registerPlugin } = await import('@capacitor/core');
+      const AndroidGPSPlugin = registerPlugin('AndroidGPSPlugin');
+      
+      const result = await AndroidGPSPlugin.startGPS({
+        courseId,
+        vehicleNumber,
+        uit,
+        authToken: token,
+        status
+      });
+      logGPS(`✅ Android GPS PORNIT via Capacitor Plugin: ${JSON.stringify(result)} - varianta funcțională`);
+      return;
+    } catch (error) {
+      logGPS(`⚠️ Capacitor plugin failed, falling back to WebView: ${error}`);
+    }
+    
+    // Fallback to WebView bridge (compatibility)
     if (window.AndroidGPS && window.AndroidGPS.startGPS) {
       const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
-      logGPS(`✅ Android GPS PORNIT: ${result} - varianta funcțională`);
+      logGPS(`✅ Android GPS PORNIT via WebView: ${result} - varianta funcțională`);
     } else {
       logGPS(`⚠️ AndroidGPS interface not available - normal în browser development`);
     }
@@ -164,10 +199,24 @@ class DirectAndroidGPSService {
     try {
       logGPS(`🛑 Stopping Android GPS tracking: ${courseId}`);
       
-      // Stop Android native GPS service  
+      // Stop Android native GPS service - HYBRID APPROACH
+      try {
+        const { registerPlugin } = await import('@capacitor/core');
+        const AndroidGPSPlugin = registerPlugin('AndroidGPSPlugin');
+        
+        const result = await AndroidGPSPlugin.stopGPS({
+          courseId
+        });
+        logGPS(`✅ Android GPS STOPPED via Capacitor Plugin: ${JSON.stringify(result)}`);
+        return;
+      } catch (error) {
+        logGPS(`⚠️ Capacitor plugin stop failed, falling back to WebView: ${error}`);
+      }
+      
+      // Fallback to WebView bridge
       if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
         const result = window.AndroidGPS.stopGPS(courseId);
-        logGPS(`✅ MainActivity GPS stopped: ${result}`);
+        logGPS(`✅ MainActivity GPS stopped via WebView: ${result}`);
       }
       
       // SIMPLIFICAT: Fără GPS garantat - doar Android GPS direct
