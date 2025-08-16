@@ -738,30 +738,59 @@ export function initializeGPSBridge() {
     console.log("📱 Android Bridge called with data:", gpsData);
     logAPI(`SimpleGPSService GPS via CapacitorHttp: ${gpsData.uit}`);
 
-    const response = await CapacitorHttp.post({
-      url: `${API_BASE_URL}gps.php`,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        "User-Agent": "iTrack-Optimal-GPS/1.0",
-      },
-      data: gpsData,
-    });
+    // CRITICAL: Server returns 415 for both JSON and form-urlencoded from curl
+    // But Postman shows 200 OK - must be different in auth or format
+    console.log("📤 CRITICAL: Troubleshooting GPS transmission");
+    console.log("🔍 Token validity check:", token ? "exists" : "missing");
+    console.log("📋 GPS data structure:", gpsData);
+    
+    // Try both JSON and fallback to form-data
+    let response;
+    try {
+      console.log("🎯 Attempt 1: JSON format (like login/vehicul.php success)");
+      response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}gps.php`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "User-Agent": "iTrack-Native/1.0",
+        },
+        data: gpsData,
+      });
+    } catch (jsonError: any) {
+      console.log("⚠️ JSON failed, trying form-urlencoded fallback");
+      
+      // Convert to form data as fallback
+      const formData = new URLSearchParams();
+      Object.keys(gpsData).forEach(key => {
+        formData.append(key, String(gpsData[key]));
+      });
+      
+      response = await CapacitorHttp.post({
+        url: `${API_BASE_URL}gps.php`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Bearer ${token}`,
+          "User-Agent": "iTrack-Native/1.0",
+        },
+        data: formData.toString(),
+      });
+    }
+
+    console.log("📥 GPS Response:", response.status, response.data);
 
     if (response.status >= 200 && response.status < 300) {
-      console.log(
-        "✅ OptimalGPSService GPS sent successfully via CapacitorHttp",
-      );
-      logAPI(`OptimalGPSService GPS success: ${response.status}`);
+      console.log("✅ SimpleGPSService GPS sent successfully via CapacitorHttp");
+      logAPI(`SimpleGPSService GPS success: ${response.status}`);
       return true;
     } else {
-      console.error("❌ OptimalGPSService GPS failed:", response.status);
-      logAPI(`OptimalGPSService GPS failed: ${response.status}`);
+      console.error("❌ SimpleGPSService GPS failed:", response.status);
+      logAPI(`SimpleGPSService GPS failed: ${response.status}`);
       return false;
     }
   } catch (error: any) {
-    console.error("❌ OptimalGPSService GPS error:", error.message);
-    logAPI(`OptimalGPSService GPS error: ${error.message}`);
+    console.error("❌ SimpleGPSService GPS error:", error.message);
+    logAPI(`SimpleGPSService GPS error: ${error.message}`);
     return false;
   }
 };
