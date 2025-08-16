@@ -320,38 +320,10 @@ public class SimpleGPSService extends Service {
             return;
         }
         
-        Intent alarmIntent = new Intent(this, SimpleGPSService.class);
-        alarmIntent.setAction(ACTION_GPS_ALARM);
-        
-        gpsPendingIntent = PendingIntent.getService(
-            this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-        
-        // Set exact alarm every 5 seconds with detailed logging
-        long triggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
-        
-        Log.e(TAG, "⏰ Setting AlarmManager:");
-        Log.e(TAG, "  - Trigger time: " + triggerTime + " (in " + GPS_INTERVAL_MS + "ms)");
-        Log.e(TAG, "  - PendingIntent: " + (gpsPendingIntent != null ? "CREATED" : "NULL"));
-        Log.e(TAG, "  - AlarmManager: " + (alarmManager != null ? "AVAILABLE" : "NULL"));
-        Log.e(TAG, "  - Current time: " + SystemClock.elapsedRealtime());
-        Log.e(TAG, "  - GPS_INTERVAL_MS: " + GPS_INTERVAL_MS);
-        
-        try {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                triggerTime,
-                gpsPendingIntent
-            );
-            Log.e(TAG, "✅ AlarmManager configured successfully");
-            Log.e(TAG, "🔥 CRITICAL: AlarmManager should trigger in " + GPS_INTERVAL_MS + "ms (10 secunde) with ACTION: " + ACTION_GPS_ALARM);
-        } catch (Exception e) {
-            Log.e(TAG, "❌ AlarmManager setup failed: " + e.getMessage());
-            e.printStackTrace();
-        }
+        Log.e(TAG, "🚀 === STARTING SIMPLIFIED GPS TIMER (HANDLER ONLY) ===");
         
         isGPSActive = true;
-        Log.e(TAG, "✅ GPS Timer Started - 10 second intervals pentru performance optimă");
+        Log.e(TAG, "✅ GPS Timer Started - using Handler system only (10 second intervals)");
         
         // Immediate first GPS reading with debug
         Log.e(TAG, "📍 === TRIGGERING IMMEDIATE GPS READING ===");
@@ -362,10 +334,6 @@ public class SimpleGPSService extends Service {
             CourseData course = entry.getValue();
             Log.e(TAG, "🎯 IMMEDIATE READ - Course: " + course.courseId + " (UIT: " + course.uit + ") Status: " + course.status);
         }
-        
-        // IMMEDIATE GPS reading with error checking
-        Log.e(TAG, "🔥 === IMMEDIATE GPS CYCLE STARTING ===");
-        Log.e(TAG, "📊 Active courses count: " + activeCourses.size());
         
         // Check permissions immediately
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -379,8 +347,8 @@ public class SimpleGPSService extends Service {
         Log.e(TAG, "🚀 CALLING performGPSCycle() DIRECTLY NOW");
         performGPSCycle();
         
-        // Start continuous timer
-        Log.e(TAG, "⏰ Starting continuous GPS timer");
+        // Start ONLY continuous Handler timer (no AlarmManager conflicts)
+        Log.e(TAG, "⏰ Starting HANDLER-ONLY continuous GPS timer");
         startContinuousGPSTimer();
         
     }
@@ -402,7 +370,11 @@ public class SimpleGPSService extends Service {
         continuousGPSRunnable = new Runnable() {
             @Override
             public void run() {
+                Log.e(TAG, "🎯 === HANDLER RUNNABLE TRIGGERED ===");
+                Log.e(TAG, "🔍 DIAGNOSTIC: isGPSActive=" + isGPSActive + ", activeCourses=" + activeCourses.size());
+                
                 if (isGPSActive && !activeCourses.isEmpty()) {
+                    Log.e(TAG, "✅ CONDITIONS MET - Proceeding with GPS cycle");
                     Log.e(TAG, "🔄 === CONTINUOUS GPS CYCLE ===");
                     Log.e(TAG, "📊 Active courses: " + activeCourses.size());
                     
@@ -411,25 +383,55 @@ public class SimpleGPSService extends Service {
                         try {
                             Log.e(TAG, "🔥 BACKGROUND GPS CYCLE - foreground service active");
                             performGPSCycle();
+                            Log.e(TAG, "✅ GPS cycle completed successfully");
                         } catch (Exception e) {
                             Log.e(TAG, "❌ Error in continuous GPS cycle: " + e.getMessage());
                             e.printStackTrace();
                         }
                     }).start();
                     
-                    // Schedule next cycle with same handler
-                    continuousGPSHandler.postDelayed(this, GPS_INTERVAL_MS);
-                    Log.e(TAG, "⏰ Next GPS cycle scheduled in " + GPS_INTERVAL_MS + "ms");
+                    // Schedule next cycle with same handler - CRITICAL LOGGING
+                    Log.e(TAG, "📅 SCHEDULING NEXT CYCLE - Current time: " + System.currentTimeMillis());
+                    Log.e(TAG, "⏰ Next trigger in: " + GPS_INTERVAL_MS + "ms (" + (GPS_INTERVAL_MS/1000) + " seconds)");
+                    
+                    try {
+                        continuousGPSHandler.postDelayed(this, GPS_INTERVAL_MS);
+                        Log.e(TAG, "✅ NEXT GPS CYCLE SCHEDULED SUCCESSFULLY");
+                    } catch (Exception e) {
+                        Log.e(TAG, "❌ FAILED TO SCHEDULE NEXT CYCLE: " + e.getMessage());
+                        e.printStackTrace();
+                    }
                 } else {
-                    Log.e(TAG, "❌ Stopping continuous GPS - no active courses or GPS inactive");
-                    Log.e(TAG, "📊 isGPSActive: " + isGPSActive + ", activeCourses: " + activeCourses.size());
+                    Log.e(TAG, "❌ Stopping continuous GPS - CONDITIONS NOT MET");
+                    Log.e(TAG, "🔍 FAILURE DETAILS:");
+                    Log.e(TAG, "   - isGPSActive: " + isGPSActive + " (should be true)");
+                    Log.e(TAG, "   - activeCourses.size(): " + activeCourses.size() + " (should be > 0)");
+                    Log.e(TAG, "   - activeCourses keys: " + activeCourses.keySet());
+                    
+                    // Log each course status
+                    for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+                        CourseData course = entry.getValue();
+                        Log.e(TAG, "   - Course " + entry.getKey() + ": status=" + course.status + ", uit=" + course.uit);
+                    }
                 }
             }
         };
         
-        // Start first continuous cycle
-        continuousGPSHandler.postDelayed(continuousGPSRunnable, GPS_INTERVAL_MS);
-        Log.e(TAG, "✅ Continuous GPS timer started - next cycle in " + GPS_INTERVAL_MS + "ms (10 secunde)");
+        // Start first continuous cycle with detailed logging
+        Log.e(TAG, "🚀 STARTING FIRST GPS CYCLE:");
+        Log.e(TAG, "   - Handler: " + (continuousGPSHandler != null ? "READY" : "NULL"));
+        Log.e(TAG, "   - Runnable: " + (continuousGPSRunnable != null ? "READY" : "NULL"));
+        Log.e(TAG, "   - Delay: " + GPS_INTERVAL_MS + "ms");
+        Log.e(TAG, "   - Current time: " + System.currentTimeMillis());
+        
+        try {
+            continuousGPSHandler.postDelayed(continuousGPSRunnable, GPS_INTERVAL_MS);
+            Log.e(TAG, "✅ FIRST GPS CYCLE SCHEDULED SUCCESSFULLY");
+            Log.e(TAG, "⏰ First cycle will trigger in " + GPS_INTERVAL_MS + "ms (10 secunde)");
+        } catch (Exception e) {
+            Log.e(TAG, "❌ FAILED TO SCHEDULE FIRST CYCLE: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     private void stopGPSTimer() {
