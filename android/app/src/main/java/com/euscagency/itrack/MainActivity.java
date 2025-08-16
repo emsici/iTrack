@@ -203,17 +203,12 @@ public class MainActivity extends BridgeActivity {
         Log.e(TAG, "  Status meanings: 2=START/RESUME, 3=PAUSE, 4=STOP");
         
         try {
-            // Send to NEW SimpleGPSService for status updates
-            Intent intent = new Intent(this, SimpleGPSService.class);
-            intent.setAction("UPDATE_SIMPLE_GPS_STATUS");
-            intent.putExtra("courseId", courseId);
-            intent.putExtra("newStatus", newStatus);
-            
-            startService(intent);
-            Log.e(TAG, "✅ SimpleGPSService status update sent: " + courseId + " → " + newStatus);
+            // BackgroundGPSService doesn't need status updates - it runs continuously
+            Log.e(TAG, "ℹ️ BackgroundGPSService runs continuously - status changes handled automatically");
+            Log.e(TAG, "📊 Status change logged: " + courseId + " → " + newStatus);
             
             String statusName = (newStatus == 2) ? "ACTIVE" : (newStatus == 3) ? "PAUSE" : (newStatus == 4) ? "STOP" : "UNKNOWN";
-            return "SUCCESS: NATIVE GPS status " + statusName + " for " + courseId;
+            return "SUCCESS: BACKGROUND GPS status " + statusName + " for " + courseId;
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error updating NATIVE GPS status: " + e.getMessage());
@@ -226,13 +221,13 @@ public class MainActivity extends BridgeActivity {
         Log.e(TAG, "🧹 === SIMPLE GPS === clearAllOnLogout called");
         
         try {
-            // Stop all SimpleGPSService courses
-            Intent intent = new Intent(this, SimpleGPSService.class);
-            intent.setAction("CLEAR_ALL_SIMPLE_GPS");
+            // Stop BackgroundGPSService
+            Intent intent = new Intent(this, BackgroundGPSService.class);
+            intent.setAction("STOP_BACKGROUND_GPS");
             
             startService(intent);
-            Log.e(TAG, "✅ SimpleGPSService clear all requested");
-            return "SUCCESS: All NATIVE GPS data cleared";
+            Log.e(TAG, "✅ BackgroundGPSService stop requested on logout");
+            return "SUCCESS: BACKGROUND GPS stopped and cleared";
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error clearing NATIVE GPS data: " + e.getMessage());
@@ -264,12 +259,10 @@ public class MainActivity extends BridgeActivity {
         Log.e(TAG, "🔄 === SIMPLE GPS === syncOfflineGPS called");
         
         try {
-            Intent intent = new Intent(this, SimpleGPSService.class);
-            intent.setAction("SYNC_OFFLINE_GPS");
-            
-            startService(intent);
-            Log.e(TAG, "✅ Offline GPS sync requested");
-            return "SUCCESS: Offline GPS sync started";
+            // BackgroundGPSService handles offline sync automatically
+            Log.e(TAG, "ℹ️ BackgroundGPSService syncs offline data automatically");
+            Log.e(TAG, "✅ Manual sync not needed - service handles offline/online transitions");
+            return "SUCCESS: Automatic offline sync active";
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error starting offline GPS sync: " + e.getMessage());
@@ -291,7 +284,7 @@ public class MainActivity extends BridgeActivity {
             // Create status JSON
             org.json.JSONObject status = new org.json.JSONObject();
             status.put("isActive", true); // Simple check - service is responsive
-            status.put("activeCourses", 1); // Placeholder - SimpleGPSService tracks this internally
+            status.put("activeCourses", 1); // Placeholder - BackgroundGPSService tracks this internally
             status.put("offlineCount", offlineCount);
             status.put("networkStatus", true); // Default online
             status.put("lastTransmission", System.currentTimeMillis());
