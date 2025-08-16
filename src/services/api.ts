@@ -747,11 +747,12 @@ export function initializeGPSBridge() {
     // Try both JSON and fallback to form-data
     let response;
     try {
-      console.log("🎯 Attempt 1: JSON format (like login/vehicul.php success)");
+      console.log("🎯 Attempt 1: JSON format with EXACT login headers (confirmed working)");
       response = await CapacitorHttp.post({
         url: `${API_BASE_URL}gps.php`,
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json; charset=utf-8",
+          Accept: "application/json",
           Authorization: `Bearer ${token}`,
           "User-Agent": "iTrack-Native/1.0",
         },
