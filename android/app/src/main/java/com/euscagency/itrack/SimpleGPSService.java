@@ -490,7 +490,7 @@ public class SimpleGPSService extends Service {
                 nextTriggerTime,
                 gpsPendingIntent
             );
-            Log.e(TAG, "⏰ Next GPS cycle scheduled in 10 seconds");
+            Log.e(TAG, "⏰ Next GPS cycle scheduled in 5 seconds");
         }
     }
     
