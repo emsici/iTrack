@@ -50,12 +50,12 @@ import java.util.Map;
 /**
  * SISTEM GPS SIMPLU ȘI EFICIENT - De la zero pentru funcționare garantată
  * - Funcționează în background cu telefon blocat
- * - Trimite coordonate la fiecare 5 secunde
+ * - Trimite coordonate la fiecare 10 secunde pentru performance optimă
  * - Transmite la gps.php cu datele exacte
  */
 public class SimpleGPSService extends Service {
     private static final String TAG = "SimpleGPS";
-    private static final long GPS_INTERVAL_MS = 5000; // 5 secunde - identic cu OptimalGPSService
+    private static final long GPS_INTERVAL_MS = 10000; // 10 secunde pentru performance optimă
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.SIMPLE_GPS_ALARM";
     
     // API Configuration
@@ -327,14 +327,14 @@ public class SimpleGPSService extends Service {
                 gpsPendingIntent
             );
             Log.e(TAG, "✅ AlarmManager configured successfully");
-            Log.e(TAG, "🔥 CRITICAL: AlarmManager should trigger in " + GPS_INTERVAL_MS + "ms with ACTION: " + ACTION_GPS_ALARM);
+            Log.e(TAG, "🔥 CRITICAL: AlarmManager should trigger in " + GPS_INTERVAL_MS + "ms (10 secunde) with ACTION: " + ACTION_GPS_ALARM);
         } catch (Exception e) {
             Log.e(TAG, "❌ AlarmManager setup failed: " + e.getMessage());
             e.printStackTrace();
         }
         
         isGPSActive = true;
-        Log.e(TAG, "✅ GPS Timer Started - 5 second intervals (identic cu OptimalGPSService)");
+        Log.e(TAG, "✅ GPS Timer Started - 10 second intervals pentru performance optimă");
         
         // Immediate first GPS reading with debug
         Log.e(TAG, "📍 === TRIGGERING IMMEDIATE GPS READING ===");
@@ -398,7 +398,7 @@ public class SimpleGPSService extends Service {
         
         // Start first continuous cycle
         gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS);
-        Log.e(TAG, "✅ Continuous GPS timer started - next cycle in " + GPS_INTERVAL_MS + "ms");
+        Log.e(TAG, "✅ Continuous GPS timer started - next cycle in " + GPS_INTERVAL_MS + "ms (10 secunde)");
     }
     
     private void stopGPSTimer() {
