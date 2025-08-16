@@ -535,27 +535,45 @@ public class OptimalGPSService extends Service {
                 return;
             }
             
-            // INTERVAL FIX: 5 secunde exact ca în commit-ul funcțional 9c5b19b
+            // CRITICAL FIX: Use setAlarmClock() for EXACT next GPS cycles (bypasses Doze Mode)
             long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
+            
+            // FIRST CHOICE: setAlarmClock() - EXACT timing, bypasses Doze Mode completely
             try {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    nextTriggerTime,
-                    gpsPendingIntent
-                );
-                Log.e(TAG, "✅ === CRITICAL === NEXT ALARM SCHEDULED SUCCESSFULLY");
+                // Convert to real time for AlarmClock
+                long realNextTriggerTime = System.currentTimeMillis() + GPS_INTERVAL_MS;
+                AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(realNextTriggerTime, gpsPendingIntent);
+                
+                alarmManager.setAlarmClock(alarmClockInfo, gpsPendingIntent);
+                Log.e(TAG, "✅ === CRITICAL === NEXT setAlarmClock() SUCCESS - EXACT 5s GPS guaranteed");
+                
             } catch (Exception e) {
-                Log.e(TAG, "❌ FATAL: Schedule next alarm FAILED: " + e.getMessage());
-                Log.e(TAG, "🔍 Trying fallback schedule method...");
+                Log.e(TAG, "❌ Next setAlarmClock() FAILED: " + e.getMessage() + " - trying setExact()");
+                
+                // SECOND CHOICE: setExact() for older devices
                 try {
-                    alarmManager.setAndAllowWhileIdle(
+                    alarmManager.setExact(
                         AlarmManager.ELAPSED_REALTIME_WAKEUP,
                         nextTriggerTime,
                         gpsPendingIntent
                     );
-                    Log.e(TAG, "✅ FALLBACK: Next alarm scheduled successfully");
+                    Log.e(TAG, "✅ FALLBACK: Next setExact() SUCCESS");
+                    
                 } catch (Exception fallbackError) {
-                    Log.e(TAG, "❌ FATAL: All schedule methods FAILED: " + fallbackError.getMessage());
+                    Log.e(TAG, "❌ Next setExact() FAILED: " + fallbackError.getMessage() + " - trying setExactAndAllowWhileIdle()");
+                    
+                    // THIRD CHOICE: setExactAndAllowWhileIdle() (limited by Doze Mode)
+                    try {
+                        alarmManager.setExactAndAllowWhileIdle(
+                            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                            nextTriggerTime,
+                            gpsPendingIntent
+                        );
+                        Log.e(TAG, "⚠️ WARNING: Next alarm using setExactAndAllowWhileIdle() - may be delayed in Doze Mode");
+                        
+                    } catch (Exception finalError) {
+                        Log.e(TAG, "❌ FATAL: ALL next alarm methods FAILED: " + finalError.getMessage());
+                    }
                 }
             }
             
@@ -688,27 +706,45 @@ public class OptimalGPSService extends Service {
             return;
         }
         
-        // INTERVAL FIX: 5 secunde exact ca în commit-ul funcțional 9c5b19b
+        // CRITICAL FIX: Use setAlarmClock() for EXACT 5-second GPS intervals (bypasses Doze Mode)
         long triggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
+        
+        // FIRST CHOICE: setAlarmClock() - EXACT timing, bypasses Doze Mode completely
         try {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                triggerTime,
-                gpsPendingIntent
-            );
-            Log.e(TAG, "✅ === CRITICAL === AlarmManager.setExactAndAllowWhileIdle() SUCCESS");
+            // Convert to real time for AlarmClock
+            long realTriggerTime = System.currentTimeMillis() + GPS_INTERVAL_MS;
+            AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(realTriggerTime, gpsPendingIntent);
+            
+            alarmManager.setAlarmClock(alarmClockInfo, gpsPendingIntent);
+            Log.e(TAG, "✅ === CRITICAL === setAlarmClock() SUCCESS - EXACT 5s GPS guaranteed even in Doze Mode");
+            
         } catch (Exception e) {
-            Log.e(TAG, "❌ FATAL: AlarmManager.setExactAndAllowWhileIdle() FAILED: " + e.getMessage());
-            Log.e(TAG, "🔍 Trying fallback alarm method...");
+            Log.e(TAG, "❌ setAlarmClock() FAILED: " + e.getMessage() + " - trying setExact()");
+            
+            // SECOND CHOICE: setExact() for older devices  
             try {
-                alarmManager.setAndAllowWhileIdle(
+                alarmManager.setExact(
                     AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     triggerTime,
                     gpsPendingIntent
                 );
-                Log.e(TAG, "✅ FALLBACK: AlarmManager.setAndAllowWhileIdle() SUCCESS");
+                Log.e(TAG, "✅ FALLBACK: setExact() SUCCESS - 5s GPS intervals");
+                
             } catch (Exception fallbackError) {
-                Log.e(TAG, "❌ FATAL: All AlarmManager methods FAILED: " + fallbackError.getMessage());
+                Log.e(TAG, "❌ setExact() FAILED: " + fallbackError.getMessage() + " - trying setExactAndAllowWhileIdle()");
+                
+                // THIRD CHOICE: setExactAndAllowWhileIdle() (limited by Doze Mode to 9+ minutes)
+                try {
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        triggerTime,
+                        gpsPendingIntent
+                    );
+                    Log.e(TAG, "⚠️ WARNING: setExactAndAllowWhileIdle() - may be delayed to 9+ minutes in Doze Mode");
+                    
+                } catch (Exception finalError) {
+                    Log.e(TAG, "❌ FATAL: ALL AlarmManager methods FAILED: " + finalError.getMessage());
+                }
             }
         }
         
