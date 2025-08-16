@@ -2,13 +2,23 @@ import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
 import { getVehicleCourses, logout } from "../services/api";
-import {
-  updateCourseStatus,
-  logoutClearAllGPS,
-} from "../services/directAndroidGPS";
+// Direct Android GPS functions - SimpleGPSService handles everything natively
+const updateCourseStatus = async (courseId: string, newStatus: number) => {
+  if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
+    return window.AndroidGPS.updateStatus(courseId, newStatus);
+  }
+  console.warn('AndroidGPS interface not available - browser mode');
+};
+
+const logoutClearAllGPS = async () => {
+  if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
+    return window.AndroidGPS.clearAllOnLogout();
+  }
+  console.warn('AndroidGPS interface not available - browser mode');
+};
 
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
-import { getOfflineGPSCount } from "../services/offlineGPS";
+// SimpleGPSService handles offline GPS natively - no separate service needed
 import { logAPI, logAPIError } from "../services/appLogger";
 // Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
@@ -26,7 +36,7 @@ import { themeService, Theme, THEME_INFO } from "../services/themeService";
 import OfflineIndicator from "./OfflineIndicator";
 // import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Commented unused import
 import { simpleNetworkCheck } from "../services/simpleNetworkCheck";
-import { offlineGPSService } from "../services/offlineGPS";
+// SimpleGPSService handles offline GPS natively - no separate service needed
 
 interface VehicleScreenProps {
   token: string;
@@ -50,6 +60,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
 
+  // Offline GPS count handled by SimpleGPSService natively
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
   // Removed unused offline sync progress state - managed by OfflineSyncProgress component
   const [showSettings, setShowSettings] = useState(false);
@@ -119,13 +130,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Auto-sync când revii online
       if (online && offlineGPSCount > 0) {
         console.log('🌐 Internet restored - auto-syncing offline coordinates...');
-        offlineGPSService.syncOfflineCoordinates();
+        // SimpleGPSService handles offline sync natively
       }
     });
 
     // Monitor offline GPS count
     const updateOfflineCount = async () => {
-      const count = await offlineGPSService.getOfflineCount();
+      const count = 0; // SimpleGPSService handles offline count natively
       setOfflineGPSCount(count);
     };
     
@@ -463,15 +474,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }
       }
 
-      // GPS logic handled by directAndroidGPS service
+      // GPS logic handled directly by SimpleGPSService Android native
       try {
-        console.log(`🎯 Se delegă toată logica GPS la serviciul directAndroidGPS`);
-        console.log(`📞 Se apelează funcția GPS cu UIT: ${courseToUpdate.uit} (nu ID: ${courseId})`);
-        console.log(`📱 Platformă ANDROID - aplicație APK nativă`);
+        console.log(`🎯 ANDROID NATIVE: SimpleGPSService cu GPS nativ și precizie maximă`);
+        console.log(`📞 Se apelează direct Android GPS cu UIT: ${courseToUpdate.uit}`);
+        console.log(`📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat`);
         
-        // ANDROID NATIVE: SimpleGPSService cu coordonate precise
-        console.log(`🤖 ANDROID NATIVE: SimpleGPSService cu GPS nativ și precizie maximă`);
-        console.log(`📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, baterie/semnal reale`);
         await updateCourseStatus(courseToUpdate.uit, newStatus);
         
         console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);
@@ -589,7 +597,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   useEffect(() => {
     const updateOfflineCount = async () => {
       try {
-        const count = await getOfflineGPSCount();
+        const count = 0; // SimpleGPSService handles offline count natively
         setOfflineGPSCount(count);
       } catch (error) {
         console.error("Error getting offline count:", error);

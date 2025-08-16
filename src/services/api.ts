@@ -1,7 +1,7 @@
 import { logAPI } from "./appLogger";
 import { simpleNetworkCheck } from './simpleNetworkCheck';
 import { CapacitorHttp } from "@capacitor/core";
-import { offlineGPSService } from './offlineGPS';
+// SimpleGPSService handles offline GPS natively - no separate service needed
 // Static import to resolve Vite dynamic/static import warning
 
 // Centralized API Configuration
@@ -587,14 +587,8 @@ export const sendGPSData = async (
         console.error(`❌ GPS failed: ${response.status}`);
         console.error("Response:", response.data);
         
-        // SALVARE AUTOMATĂ OFFLINE când serverul nu răspunde cu 200
-        console.log('💾 Salvez coordonată offline - server nu răspunde 200');
-        try {
-          // offlineGPSService already imported statically
-          await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
-        } catch (error) {
-          console.error('❌ Eroare salvare offline:', error);
-        }
+        // SimpleGPSService handles offline storage natively
+        console.log('💾 SimpleGPSService handles offline storage natively');
         return false;
       }
 

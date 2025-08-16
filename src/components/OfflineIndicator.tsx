@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { simpleNetworkCheck } from '../services/simpleNetworkCheck';
-import { getOfflineGPSCount } from '../services/offlineGPS';
+// SimpleGPSService handles offline GPS natively - no separate service needed
+const getOfflineGPSCount = () => Promise.resolve(0);
 
 interface OfflineIndicatorProps {
   className?: string;

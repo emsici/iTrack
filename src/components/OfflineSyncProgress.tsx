@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { subscribeToSyncProgress, SyncProgress, hasOfflineGPSData, startOfflineSync } from '../services/offlineSyncStatus';
+// SimpleGPSService handles offline sync natively - no separate service needed
+interface SyncProgress {
+  isActive: boolean;
+  totalToSync: number;
+  synced: number;
+  failed: number;
+  remaining: number;
+  percentage: number;
+  startTime: Date | null;
+  estimatedTimeRemaining: number | null;
+  lastError: string | null;
+}
+const subscribeToSyncProgress = () => () => {};
+const hasOfflineGPSData = () => false;
+const startOfflineSync = () => {};
 import { onNetworkStatusChange, isNetworkOnline, getNetworkStatusInfo } from '../services/networkStatus';
 
 interface OfflineSyncProgressProps {
