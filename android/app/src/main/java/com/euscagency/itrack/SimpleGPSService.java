@@ -51,7 +51,7 @@ import java.util.Map;
 /**
  * SISTEM GPS SIMPLU ȘI EFICIENT - De la zero pentru funcționare garantată
  * - Funcționează în background cu telefon blocat
- * - Trimite coordonate la fiecare 10 secunde
+ * - Trimite coordonate la fiecare 5 secunde
  * - Transmite la gps.php cu datele exacte
  */
 public class SimpleGPSService extends Service {
@@ -124,7 +124,7 @@ public class SimpleGPSService extends Service {
                 "Simple GPS Tracking",
                 NotificationManager.IMPORTANCE_LOW
             );
-            channel.setDescription("Background GPS tracking every 10 seconds");
+            channel.setDescription("Background GPS tracking every 5 seconds");
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
