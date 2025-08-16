@@ -849,16 +849,15 @@ public class SimpleGPSService extends Service {
         try {
             Log.e(TAG, "🚀 MODERN HTTP: Folosind OkHttp pentru transmisia GPS");
             
-            // Convert JSON to form-urlencoded for server compatibility
-            String formData = convertJsonToFormData(jsonString);
-            Log.e(TAG, "📤 Sending form data: " + formData);
+            // Send original JSON data (metoda care mergea)
+            Log.e(TAG, "📤 Sending JSON data: " + jsonString);
             
-            RequestBody requestBody = RequestBody.create(formData, MediaType.get("application/x-www-form-urlencoded"));
+            RequestBody requestBody = RequestBody.create(jsonString, JSON_MEDIA_TYPE);
             
             Request request = new Request.Builder()
                 .url(GPS_ENDPOINT)
                 .post(requestBody)
-                .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                .addHeader("Content-Type", "application/json")
                 .addHeader("Authorization", "Bearer " + authToken)
                 .addHeader("Accept", "application/json")
                 .addHeader("User-Agent", "iTrack-Android-OkHttp/1.0")
@@ -900,13 +899,12 @@ public class SimpleGPSService extends Service {
             final boolean[] requestSuccess = {false};
             final Object lock = new Object();
             
-            // Use StringRequest for form-urlencoded data
-            String formData = convertJsonToFormData(jsonString);
-            Log.e(TAG, "📤 Volley form data: " + formData);
+            Log.e(TAG, "📤 Volley JSON data: " + jsonString);
             
-            com.android.volley.toolbox.StringRequest request = new com.android.volley.toolbox.StringRequest(
+            JsonObjectRequest request = new JsonObjectRequest(
                 Method.POST,
                 GPS_ENDPOINT,
+                jsonObject,
                 response -> {
                     synchronized (lock) {
                         Log.e(TAG, "✅ Volley GPS SUCCESS - biblioteca oficială Google");
@@ -930,31 +928,14 @@ public class SimpleGPSService extends Service {
                 @Override
                 public java.util.Map<String, String> getHeaders() {
                     java.util.Map<String, String> headers = new java.util.HashMap<>();
-                    headers.put("Content-Type", "application/x-www-form-urlencoded");
+                    headers.put("Content-Type", "application/json");
                     headers.put("Authorization", "Bearer " + authToken);
                     headers.put("Accept", "application/json");
                     headers.put("User-Agent", "iTrack-Android-Volley/1.0");
                     return headers;
                 }
                 
-                @Override
-                protected java.util.Map<String, String> getParams() {
-                    try {
-                        java.util.Map<String, String> params = new java.util.HashMap<>();
-                        org.json.JSONObject jsonObject = new org.json.JSONObject(jsonString);
-                        java.util.Iterator<String> keys = jsonObject.keys();
-                        
-                        while (keys.hasNext()) {
-                            String key = keys.next();
-                            params.put(key, jsonObject.optString(key, ""));
-                        }
-                        
-                        return params;
-                    } catch (Exception e) {
-                        Log.e(TAG, "❌ Error creating Volley params: " + e.getMessage());
-                        return new java.util.HashMap<>();
-                    }
-                }
+
             };
             
             // Set timeout
@@ -1023,7 +1004,7 @@ public class SimpleGPSService extends Service {
             URL url = new URL(GPS_ENDPOINT);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Authorization", "Bearer " + authToken);
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("User-Agent", "iTrack-Android-Service/1.0");
@@ -1031,12 +1012,11 @@ public class SimpleGPSService extends Service {
             connection.setConnectTimeout(10000);
             connection.setReadTimeout(10000);
             
-            // Convert JSON to form-urlencoded for legacy compatibility
-            String formData = convertJsonToFormData(jsonString);
-            Log.e(TAG, "📤 Form data: " + formData);
+            // Send original JSON data (metoda care mergea)
+            Log.e(TAG, "📤 JSON data: " + jsonString);
             
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-            writer.write(formData);
+            writer.write(jsonString);
             writer.flush();
             writer.close();
             

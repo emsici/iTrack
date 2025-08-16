@@ -41,14 +41,7 @@ export interface GPSData {
   gsm_signal: number;
 }
 
-// Convert GPSData to form-urlencoded format
-const convertToFormData = (data: GPSData): string => {
-  const params = new URLSearchParams();
-  Object.entries(data).forEach(([key, value]) => {
-    params.append(key, String(value));
-  });
-  return params.toString();
-};
+
 
 export const login = async (
   email: string,
@@ -455,7 +448,7 @@ export const logout = async (token: string): Promise<boolean> => {
       const response = await CapacitorHttp.post({
         url: `${API_BASE_URL}gps.php`,
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
           "User-Agent": "iTrack-Android-Service/1.0",
@@ -511,11 +504,11 @@ export const logout = async (token: string): Promise<boolean> => {
       const fallbackResponse = await fetch(`${API_BASE_URL}gps.php`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
         },
-        body: convertToFormData(gpsData),
+        body: JSON.stringify(gpsData),
         signal: AbortSignal.timeout(8000),
       });
 
@@ -660,12 +653,12 @@ export const sendGPSData = async (
       const response = await fetch(`${API_BASE_URL}gps.php`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
           "User-Agent": "iTrack-Android-Service/1.0",
         },
-        body: convertToFormData(gpsData),
+        body: JSON.stringify(gpsData),
       });
 
       console.log("=== Fetch GPS Response ===");
