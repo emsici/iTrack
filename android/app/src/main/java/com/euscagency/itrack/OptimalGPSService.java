@@ -35,8 +35,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class OptimalGPSService extends Service {
     private static final String TAG = "OptimalGPS";
-    private static final long GPS_INTERVAL_LOCKED_MS = 3000; // 3 secunde când telefonul e blocat
-    private static final long GPS_INTERVAL_UNLOCKED_MS = 10000; // 10 secunde când telefonul e deblocat
+    private static final long GPS_INTERVAL_MS = 5000; // Exact 5 seconds - ca în commit-ul funcțional 9c5b19b
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.GPS_ALARM";
     
     // Configurație API Centralizată
@@ -521,41 +520,24 @@ public class OptimalGPSService extends Service {
                 Log.d(TAG, "🔋 WakeLock ACQUIRED pentru următorul ciclu GPS - GARANTEZ background operation");
             }
             
-            // ADAPTIVE INTERVALS - ca în commit funcțional  
-            boolean isLocked = !isScreenOn();
-            long intervalMs = isLocked ? GPS_INTERVAL_LOCKED_MS : GPS_INTERVAL_UNLOCKED_MS;
-            
-
-            
-            long nextTriggerTime = SystemClock.elapsedRealtime() + intervalMs;
+            // INTERVAL FIX: 5 secunde exact ca în commit-ul funcțional 9c5b19b
+            long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 nextTriggerTime,
                 gpsPendingIntent
             );
             
-            String screenState = isLocked ? "BLOCAT" : "DEBLOCAT";
-            Log.d(TAG, "⏰ NEXT GPS ALARM SET: in " + (intervalMs/1000) + "s for " + activeCourses.size() + " courses - TELEFON " + screenState);
+            Log.d(TAG, "⏰ NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
             Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
-            Log.d(TAG, "✅ GPS CONTINUITY GUARANTEED - interval adaptat pentru " + screenState);
+            Log.d(TAG, "✅ GPS CONTINUITY GUARANTEED - exact 5s intervals");
         } else {
             Log.w(TAG, "❌ NO ACTIVE COURSES - stopping GPS timer");
             stopOptimalGPSTimer();
         }
     }
     
-    /**
-     * Check if screen is on/off for adaptive intervals
-     */
-    private boolean isScreenOn() {
-        try {
-            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            return pm.isInteractive(); // true = screen on, false = screen off/locked
-        } catch (Exception e) {
-            Log.w(TAG, "Cannot check screen state: " + e.getMessage());
-            return false; // Default to locked (more frequent GPS)
-        }
-    }
+    // Screen state check removed - using fixed 5s intervals like functional commit 9c5b19b
     
     /**
      * Get real battery level efficiently
@@ -666,21 +648,15 @@ public class OptimalGPSService extends Service {
             this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
         
-        // ADAPTIVE INTERVALS: Ca în commit funcțional
-        boolean isLocked = !isScreenOn();
-        long forcedInterval = isLocked ? GPS_INTERVAL_LOCKED_MS : GPS_INTERVAL_UNLOCKED_MS;
-        
-
-        
+        // INTERVAL FIX: 5 secunde exact ca în commit-ul funcțional 9c5b19b
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + forcedInterval,
+            SystemClock.elapsedRealtime() + GPS_INTERVAL_MS,
             gpsPendingIntent
         );
         
         isAlarmActive = true;
-        String screenState = isLocked ? "BLOCAT" : "DEBLOCAT";
-        Log.d(TAG, "✅ OPTIMAL GPS timer started - " + (forcedInterval/1000) + "s intervals for TELEFON " + screenState);
+        Log.d(TAG, "✅ OPTIMAL GPS timer started - EXACT " + (GPS_INTERVAL_MS/1000) + "s intervals");
     }
     
     /**
