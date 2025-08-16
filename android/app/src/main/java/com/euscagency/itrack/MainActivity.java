@@ -198,18 +198,56 @@ public class MainActivity extends BridgeActivity {
 
     @JavascriptInterface
     public String clearAllOnLogout() {
-        Log.d(TAG, "🧹 AndroidGPS.clearAllOnLogout called");
+        Log.e(TAG, "🧹 === SIMPLE GPS === clearAllOnLogout called");
         
         try {
-            Intent intent = new Intent(this, OptimalGPSService.class);
-            intent.setAction("CLEAR_ALL");
+            // Stop all SimpleGPSService courses
+            Intent intent = new Intent(this, SimpleGPSService.class);
+            intent.setAction("CLEAR_ALL_SIMPLE_GPS");
             
             startService(intent);
-            Log.d(TAG, "✅ OptimalGPSService clear all requested");
-            return "SUCCESS: All GPS data cleared";
+            Log.e(TAG, "✅ SimpleGPSService clear all requested");
+            return "SUCCESS: All NATIVE GPS data cleared";
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error clearing GPS data: " + e.getMessage());
+            Log.e(TAG, "❌ Error clearing NATIVE GPS data: " + e.getMessage());
+            return "ERROR: " + e.getMessage();
+        }
+    }
+    
+    @JavascriptInterface
+    public String getOfflineGPSCount() {
+        Log.e(TAG, "📊 === SIMPLE GPS === getOfflineGPSCount called");
+        
+        try {
+            android.content.SharedPreferences prefs = getSharedPreferences("offline_gps", MODE_PRIVATE);
+            String coordinatesData = prefs.getString("coordinates", "[]");
+            org.json.JSONArray coordinates = new org.json.JSONArray(coordinatesData);
+            
+            int count = coordinates.length();
+            Log.e(TAG, "📊 Offline GPS coordinates count: " + count);
+            return String.valueOf(count);
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error getting offline GPS count: " + e.getMessage());
+            return "0";
+        }
+    }
+    
+    @JavascriptInterface
+    public String syncOfflineGPS() {
+        Log.e(TAG, "🔄 === SIMPLE GPS === syncOfflineGPS called");
+        
+        try {
+            Intent intent = new Intent(this, SimpleGPSService.class);
+            intent.setAction("SYNC_OFFLINE_GPS");
+            
+            startService(intent);
+            Log.e(TAG, "✅ Offline GPS sync requested");
+            return "SUCCESS: Offline GPS sync started";
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error starting offline GPS sync: " + e.getMessage());
             return "ERROR: " + e.getMessage();
         }
     }

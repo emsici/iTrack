@@ -184,6 +184,17 @@ public class SimpleGPSService extends Service {
                 Log.e(TAG, "▶️ GPS timer continues for remaining courses");
             }
             
+        } else if (intent != null && "CLEAR_ALL_SIMPLE_GPS".equals(intent.getAction())) {
+            // Clear all courses and stop GPS
+            Log.e(TAG, "🧹 CLEAR ALL - Stopping all courses and GPS timer");
+            activeCourses.clear();
+            stopGPSTimer();
+            
+        } else if (intent != null && "SYNC_OFFLINE_GPS".equals(intent.getAction())) {
+            // Sync offline GPS coordinates
+            Log.e(TAG, "🔄 SYNC OFFLINE GPS - Starting sync process");
+            syncOfflineCoordinates();
+            
         } else if (intent != null && "UPDATE_SIMPLE_GPS_STATUS".equals(intent.getAction())) {
             // Update course status (START/PAUSE/RESUME/STOP)
             String courseId = intent.getStringExtra("courseId");
@@ -395,7 +406,7 @@ public class SimpleGPSService extends Service {
     }
     
     /**
-     * Transmit GPS data for specific course
+     * Transmit GPS data for specific course with OFFLINE SUPPORT
      */
     private void transmitGPSDataForCourse(Location location, CourseData course, String timestamp) {
         Log.e(TAG, "📡 Transmitting GPS for course: " + course.courseId);
@@ -417,17 +428,6 @@ public class SimpleGPSService extends Service {
                 float speed = location.getSpeed() * 3.6f; // Convert m/s to km/h
                 float bearing = location.getBearing();
                 
-                // Prepare POST data with NATIVE values exactly like original system
-                String postData = "uit=" + course.uit +
-                                "&lat=" + lat +
-                                "&lng=" + lng +
-                                "&data=" + timestamp +
-                                "&numar_masina=" + course.vehicleNumber +
-                                "&level_baterie=" + batteryLevel +
-                                "&putere_semnal=" + signalStrength +
-                                "&status=" + course.status + // Include current status
-                                "&jwt_token=" + course.authToken;
-                
                 Log.e(TAG, "📊 NATIVE GPS Data for course " + course.courseId + ":");
                 Log.e(TAG, "  Course: " + course.courseId + " (UIT: " + course.uit + ")");
                 Log.e(TAG, "  Coordinates: " + lat + ", " + lng + " (accuracy: " + accuracy + "m)");
@@ -435,40 +435,84 @@ public class SimpleGPSService extends Service {
                 Log.e(TAG, "  Battery: " + batteryLevel + "%, Signal: " + signalStrength + "/4, Status: " + course.status);
                 Log.e(TAG, "  Timestamp: " + timestamp + " (Romania timezone)");
                 
-                // Send HTTP POST to gps.php
-                URL url = new URL(GPS_ENDPOINT);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                connection.setRequestProperty("User-Agent", "iTrack-Android-Native");
-                connection.setDoOutput(true);
-                connection.setConnectTimeout(10000);
-                connection.setReadTimeout(10000);
+                // OFFLINE SUPPORT: Try transmission, save offline if fails
+                boolean transmissionSuccess = false;
                 
-                // Write POST data
-                OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-                writer.write(postData);
-                writer.flush();
-                writer.close();
-                
-                // Get response
-                int responseCode = connection.getResponseCode();
-                Log.e(TAG, "✅ NATIVE GPS transmission SUCCESS for " + course.courseId + " - Response: " + responseCode);
-                
-                // Read response for debugging
-                if (responseCode == 200) {
-                    java.io.BufferedReader reader = new java.io.BufferedReader(
-                        new java.io.InputStreamReader(connection.getInputStream()));
-                    String response = reader.readLine();
-                    Log.e(TAG, "📥 Server response for " + course.courseId + ": " + response);
-                    reader.close();
+                try {
+                    // Prepare POST data with NATIVE values exactly like original system
+                    String postData = "uit=" + course.uit +
+                                    "&lat=" + lat +
+                                    "&lng=" + lng +
+                                    "&data=" + timestamp +
+                                    "&numar_masina=" + course.vehicleNumber +
+                                    "&level_baterie=" + batteryLevel +
+                                    "&putere_semnal=" + signalStrength +
+                                    "&status=" + course.status + // Include current status
+                                    "&jwt_token=" + course.authToken;
+                    
+                    // Send HTTP POST to gps.php
+                    URL url = new URL(GPS_ENDPOINT);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                    connection.setRequestProperty("User-Agent", "iTrack-Android-Native");
+                    connection.setDoOutput(true);
+                    connection.setConnectTimeout(10000);
+                    connection.setReadTimeout(10000);
+                    
+                    // Write POST data
+                    OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                    writer.write(postData);
+                    writer.flush();
+                    writer.close();
+                    
+                    // Get response
+                    int responseCode = connection.getResponseCode();
+                    if (responseCode == 200) {
+                        transmissionSuccess = true;
+                        Log.e(TAG, "✅ NATIVE GPS transmission SUCCESS for " + course.courseId + " - Response: " + responseCode);
+                        
+                        // Read response for debugging
+                        java.io.BufferedReader reader = new java.io.BufferedReader(
+                            new java.io.InputStreamReader(connection.getInputStream()));
+                        String response = reader.readLine();
+                        Log.e(TAG, "📥 Server response for " + course.courseId + ": " + response);
+                        reader.close();
+                    } else {
+                        Log.e(TAG, "⚠️ Server returned non-200 response: " + responseCode);
+                    }
+                    
+                    connection.disconnect();
+                    
+                } catch (Exception networkError) {
+                    Log.e(TAG, "🔴 NETWORK ERROR for " + course.courseId + ": " + networkError.getMessage());
+                    transmissionSuccess = false;
                 }
                 
-                connection.disconnect();
+                // OFFLINE STORAGE: Save coordinate if transmission failed
+                if (!transmissionSuccess) {
+                    Log.e(TAG, "💾 SAVING OFFLINE - Network transmission failed for " + course.courseId);
+                    saveCoordinateOffline(course, lat, lng, timestamp, batteryLevel, signalStrength, 
+                                        altitude, speed, bearing, accuracy);
+                } else {
+                    Log.e(TAG, "🌐 ONLINE SUCCESS - GPS coordinate transmitted for " + course.courseId);
+                }
                 
             } catch (Exception e) {
-                Log.e(TAG, "❌ NATIVE GPS transmission FAILED for " + course.courseId + ": " + e.getMessage());
+                Log.e(TAG, "❌ CRITICAL ERROR in GPS transmission for " + course.courseId + ": " + e.getMessage());
                 e.printStackTrace();
+                
+                // Emergency offline save
+                try {
+                    double lat = Math.round(location.getLatitude() * 10000000.0) / 10000000.0;
+                    double lng = Math.round(location.getLongitude() * 10000000.0) / 10000000.0;
+                    saveCoordinateOffline(course, lat, lng, timestamp, getRealBatteryLevel(), 
+                                        getRealSignalStrength(), location.getAltitude(), 
+                                        location.getSpeed() * 3.6f, location.getBearing(), 
+                                        location.getAccuracy());
+                } catch (Exception saveError) {
+                    Log.e(TAG, "❌ EMERGENCY: Cannot save offline coordinate: " + saveError.getMessage());
+                }
             }
         }).start();
     }
@@ -555,6 +599,142 @@ public class SimpleGPSService extends Service {
         } catch (Exception e) {
             Log.e(TAG, "❌ Final GPS transmission error for " + course.courseId + ": " + e.getMessage());
         }
+    }
+    
+    /**
+     * OFFLINE STORAGE: Save GPS coordinate when network fails
+     */
+    private void saveCoordinateOffline(CourseData course, double lat, double lng, String timestamp,
+                                     int battery, int signal, double altitude, float speed, 
+                                     float bearing, float accuracy) {
+        try {
+            // Create JSON object with GPS data
+            org.json.JSONObject coordData = new org.json.JSONObject();
+            coordData.put("courseId", course.courseId);
+            coordData.put("uit", course.uit);
+            coordData.put("vehicleNumber", course.vehicleNumber);
+            coordData.put("authToken", course.authToken);
+            coordData.put("status", course.status);
+            coordData.put("lat", lat);
+            coordData.put("lng", lng);
+            coordData.put("timestamp", timestamp);
+            coordData.put("battery", battery);
+            coordData.put("signal", signal);
+            coordData.put("altitude", altitude);
+            coordData.put("speed", speed);
+            coordData.put("bearing", bearing);
+            coordData.put("accuracy", accuracy);
+            coordData.put("savedAt", System.currentTimeMillis());
+            
+            // Save to SharedPreferences
+            android.content.SharedPreferences prefs = getSharedPreferences("offline_gps", MODE_PRIVATE);
+            String existingData = prefs.getString("coordinates", "[]");
+            
+            org.json.JSONArray coordinates = new org.json.JSONArray(existingData);
+            coordinates.put(coordData);
+            
+            // Limit to maximum 1000 offline coordinates to prevent memory issues
+            if (coordinates.length() > 1000) {
+                org.json.JSONArray limitedCoordinates = new org.json.JSONArray();
+                for (int i = coordinates.length() - 1000; i < coordinates.length(); i++) {
+                    limitedCoordinates.put(coordinates.get(i));
+                }
+                coordinates = limitedCoordinates;
+            }
+            
+            prefs.edit().putString("coordinates", coordinates.toString()).apply();
+            
+            Log.e(TAG, "💾 OFFLINE SAVE SUCCESS for " + course.courseId + " - Total offline: " + coordinates.length());
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ OFFLINE SAVE FAILED for " + course.courseId + ": " + e.getMessage());
+        }
+    }
+    
+    /**
+     * SYNC OFFLINE COORDINATES: Send saved coordinates when online
+     */
+    private void syncOfflineCoordinates() {
+        new Thread(() -> {
+            try {
+                android.content.SharedPreferences prefs = getSharedPreferences("offline_gps", MODE_PRIVATE);
+                String coordinatesData = prefs.getString("coordinates", "[]");
+                org.json.JSONArray coordinates = new org.json.JSONArray(coordinatesData);
+                
+                if (coordinates.length() == 0) {
+                    Log.e(TAG, "📭 No offline coordinates to sync");
+                    return;
+                }
+                
+                Log.e(TAG, "🔄 Starting offline sync for " + coordinates.length() + " coordinates");
+                
+                int syncedCount = 0;
+                int failedCount = 0;
+                org.json.JSONArray remainingCoordinates = new org.json.JSONArray();
+                
+                for (int i = 0; i < coordinates.length(); i++) {
+                    try {
+                        org.json.JSONObject coord = coordinates.getJSONObject(i);
+                        
+                        // Prepare POST data from saved coordinate
+                        String postData = "uit=" + coord.getString("uit") +
+                                        "&lat=" + coord.getDouble("lat") +
+                                        "&lng=" + coord.getDouble("lng") +
+                                        "&data=" + coord.getString("timestamp") +
+                                        "&numar_masina=" + coord.getString("vehicleNumber") +
+                                        "&level_baterie=" + coord.getInt("battery") +
+                                        "&putere_semnal=" + coord.getInt("signal") +
+                                        "&status=" + coord.getInt("status") +
+                                        "&jwt_token=" + coord.getString("authToken");
+                        
+                        // Send to server
+                        URL url = new URL(GPS_ENDPOINT);
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                        connection.setRequestMethod("POST");
+                        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                        connection.setRequestProperty("User-Agent", "iTrack-Android-Sync");
+                        connection.setDoOutput(true);
+                        connection.setConnectTimeout(10000);
+                        connection.setReadTimeout(10000);
+                        
+                        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                        writer.write(postData);
+                        writer.flush();
+                        writer.close();
+                        
+                        int responseCode = connection.getResponseCode();
+                        if (responseCode == 200) {
+                            syncedCount++;
+                            Log.e(TAG, "✅ Synced offline coordinate " + (i+1) + "/" + coordinates.length());
+                        } else {
+                            failedCount++;
+                            remainingCoordinates.put(coord);
+                            Log.e(TAG, "❌ Failed to sync coordinate " + (i+1) + " - Response: " + responseCode);
+                        }
+                        
+                        connection.disconnect();
+                        
+                        // Small delay between requests to avoid overwhelming server
+                        Thread.sleep(200);
+                        
+                    } catch (Exception syncError) {
+                        failedCount++;
+                        try {
+                            remainingCoordinates.put(coordinates.getJSONObject(i));
+                        } catch (Exception e) {}
+                        Log.e(TAG, "❌ Sync error for coordinate " + (i+1) + ": " + syncError.getMessage());
+                    }
+                }
+                
+                // Update stored coordinates (keep only failed ones)
+                prefs.edit().putString("coordinates", remainingCoordinates.toString()).apply();
+                
+                Log.e(TAG, "🔄 SYNC COMPLETE - Synced: " + syncedCount + ", Failed: " + failedCount + ", Remaining: " + remainingCoordinates.length());
+                
+            } catch (Exception e) {
+                Log.e(TAG, "❌ SYNC ERROR: " + e.getMessage());
+            }
+        }).start();
     }
     
     private void scheduleNextGPSCycle() {
