@@ -120,7 +120,7 @@ public class MainActivity extends BridgeActivity {
     
     @JavascriptInterface
     public String startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
-        Log.d(TAG, "🚨 === DIAGNOSTIC === AndroidGPS.startGPS CALLED FROM JAVASCRIPT");
+        Log.e(TAG, "🚨 === CRITICAL === AndroidGPS.startGPS CALLED FROM JAVASCRIPT");
         Log.d(TAG, "📍 Parameters received:");
         Log.d(TAG, "  - courseId: " + courseId);
         Log.d(TAG, "  - vehicleNumber: " + vehicleNumber);

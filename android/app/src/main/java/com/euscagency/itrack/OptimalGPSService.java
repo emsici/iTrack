@@ -85,6 +85,9 @@ public class OptimalGPSService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.e(TAG, "🔧 === CRITICAL === OptimalGPSService onCreate() - SERVICE STARTING!");
+        Log.e(TAG, "🚀 === SERVICE ALIVE === OptimalGPSService is being created");
+        
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
@@ -100,7 +103,7 @@ public class OptimalGPSService extends Service {
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
         
-        Log.d(TAG, "✅ OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching + WakeLock");
+        Log.e(TAG, "✅ === CRITICAL === OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching + WakeLock");
     }
     
     private void createNotificationChannel() {

@@ -103,7 +103,7 @@ class DirectAndroidGPSService {
         const { registerPlugin } = await import('@capacitor/core');
         const AndroidGPSPlugin = registerPlugin('AndroidGPSPlugin');
         
-        const result = await AndroidGPSPlugin.updateStatus({
+        const result = await (AndroidGPSPlugin as any).updateStatus({
           courseId,
           newStatus
         });
@@ -171,7 +171,7 @@ class DirectAndroidGPSService {
       const { registerPlugin } = await import('@capacitor/core');
       const AndroidGPSPlugin = registerPlugin('AndroidGPSPlugin');
       
-      const result = await AndroidGPSPlugin.startGPS({
+      const result = await (AndroidGPSPlugin as any).startGPS({
         courseId,
         vehicleNumber,
         uit,
@@ -204,7 +204,7 @@ class DirectAndroidGPSService {
         const { registerPlugin } = await import('@capacitor/core');
         const AndroidGPSPlugin = registerPlugin('AndroidGPSPlugin');
         
-        const result = await AndroidGPSPlugin.stopGPS({
+        const result = await (AndroidGPSPlugin as any).stopGPS({
           courseId
         });
         logGPS(`✅ Android GPS STOPPED via Capacitor Plugin: ${JSON.stringify(result)}`);

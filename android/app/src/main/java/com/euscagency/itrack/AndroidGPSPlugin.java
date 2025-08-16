@@ -24,7 +24,8 @@ public class AndroidGPSPlugin extends Plugin {
         String authToken = call.getString("authToken");
         Integer status = call.getInt("status");
         
-        Log.d(TAG, "🚀 Plugin startGPS called: " + courseId);
+        Log.e(TAG, "🚀 === CRITICAL === Plugin startGPS called: " + courseId);
+        Log.e(TAG, "📱 Plugin received params - vehicleNumber: " + vehicleNumber + ", uit: " + uit + ", status: " + status);
         
         try {
             Intent intent = new Intent(getContext(), OptimalGPSService.class);
@@ -35,7 +36,9 @@ public class AndroidGPSPlugin extends Plugin {
             intent.putExtra("authToken", authToken);
             intent.putExtra("status", status);
             
+            Log.e(TAG, "🔥 === CRITICAL === Starting OptimalGPSService via Plugin...");
             getContext().startForegroundService(intent);
+            Log.e(TAG, "✅ === SUCCESS === OptimalGPSService startForegroundService() called");
             
             JSObject result = new JSObject();
             result.put("success", true);
