@@ -115,7 +115,7 @@ public class BackgroundGPSService extends Service {
                     }
                 });
             }
-        }, 0, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
+        }, 2, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
         
         isGPSRunning = true;
         Log.e(TAG, "✅ ScheduledExecutorService started - GPS every " + GPS_INTERVAL_SECONDS + " seconds");
@@ -136,14 +136,10 @@ public class BackgroundGPSService extends Service {
     }
     
     private void performGPSCycle() {
-        long cycleStart = System.currentTimeMillis();
-        Log.e(TAG, "📍 === GPS CYCLE START " + cycleStart + " ===");
-        Log.e(TAG, "🔍 Checking data: UIT=" + activeUIT + ", Vehicle=" + activeVehicle);
+        Log.e(TAG, "📍 GPS CYCLE START");
         
         if (activeUIT == null || activeToken == null) {
-            Log.e(TAG, "❌ Missing UIT or Token - cannot proceed");
-            Log.e(TAG, "   UIT: " + (activeUIT != null ? "✅" : "❌"));
-            Log.e(TAG, "   Token: " + (activeToken != null ? "✅" : "❌"));
+            Log.e(TAG, "❌ Missing data");
             return;
         }
         
@@ -158,17 +154,8 @@ public class BackgroundGPSService extends Service {
             LocationListener listener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    long locationTime = System.currentTimeMillis();
-                    Log.e(TAG, "🎉 === GPS LOCATION RECEIVED " + locationTime + " ===");
-                    Log.e(TAG, "📍 Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
-                    Log.e(TAG, "🎯 Accuracy: " + location.getAccuracy() + "m");
-                    Log.e(TAG, "⏱️ Age: " + (System.currentTimeMillis() - location.getTime()) + "ms");
-                    
-                    // Remove listener after first location
+                    Log.e(TAG, "✅ GPS: " + location.getLatitude() + ", " + location.getLongitude());
                     locationManager.removeUpdates(this);
-                    Log.e(TAG, "🛑 Location listener removed - preparing transmission");
-                    
-                    // Transmit GPS data via direct HTTP
                     transmitGPSData(location);
                 }
                 
@@ -182,34 +169,21 @@ public class BackgroundGPSService extends Service {
                 public void onStatusChanged(String provider, int status, android.os.Bundle extras) {}
             };
             
-            // Request location from best provider
-            String bestProvider = locationManager.getBestProvider(new android.location.Criteria(), true);
-            Log.e(TAG, "🔍 Available providers: " + locationManager.getAllProviders().toString());
-            Log.e(TAG, "🎯 Best provider selected: " + bestProvider);
-            
-            if (bestProvider != null) {
-                // Check if provider is enabled
-                boolean isEnabled = locationManager.isProviderEnabled(bestProvider);
-                Log.e(TAG, "📡 Provider " + bestProvider + " enabled: " + isEnabled);
+            // Direct GPS request - simplified
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
+                Log.e(TAG, "🛰️ GPS request sent");
                 
-                if (isEnabled) {
-                    locationManager.requestLocationUpdates(bestProvider, 0, 0, listener);
-                    Log.e(TAG, "🛰️ GPS request sent to: " + bestProvider);
-                    Log.e(TAG, "⏳ Waiting for location callback...");
-                    
-                    // Timeout after 15 seconds for better GPS lock
-                    backgroundHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            locationManager.removeUpdates(listener);
-                            Log.e(TAG, "⏰ GPS timeout after 15s - removing listener");
-                        }
-                    }, 15000);
-                } else {
-                    Log.e(TAG, "❌ GPS provider disabled - cannot get location");
-                }
+                // Timeout
+                backgroundHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        locationManager.removeUpdates(listener);
+                        Log.e(TAG, "⏰ GPS timeout");
+                    }
+                }, 10000);
             } else {
-                Log.e(TAG, "❌ No GPS provider available");
+                Log.e(TAG, "❌ GPS disabled");
             }
             
         } catch (Exception e) {
@@ -241,9 +215,7 @@ public class BackgroundGPSService extends Service {
             String timestamp = sdf.format(new java.util.Date());
             gpsData.put("timestamp", timestamp);
             
-            Log.e(TAG, "📤 === TRANSMITTING GPS DATA ===");
-            Log.e(TAG, "🌐 GPS JSON: " + gpsData.toString());
-            Log.e(TAG, "🚀 Starting HTTP transmission...");
+            Log.e(TAG, "📤 Transmitting: " + gpsData.toString());
             
             // Call direct HTTP transmission
             callJavaScriptBridge(gpsData.toString());
@@ -256,11 +228,7 @@ public class BackgroundGPSService extends Service {
     
     private void callJavaScriptBridge(String gpsDataJson) {
         try {
-            // Use Capacitor HTTP directly through native Android
-            Log.e(TAG, "🌐 Sending GPS via native HTTP request");
-            
-            // Format data for direct HTTP transmission
-            org.json.JSONObject requestData = new org.json.JSONObject(gpsDataJson);
+            Log.e(TAG, "🌐 HTTP Request start");
             
             // Make HTTP request on background thread
             new Thread(new Runnable() {
@@ -281,16 +249,12 @@ public class BackgroundGPSService extends Service {
                         }
                         
                         int responseCode = conn.getResponseCode();
-                        Log.e(TAG, "🌉 GPS HTTP response: " + responseCode);
+                        Log.e(TAG, "📡 Response: " + responseCode);
                         
                         if (responseCode == 200) {
-                            java.io.BufferedReader reader = new java.io.BufferedReader(
-                                new java.io.InputStreamReader(conn.getInputStream())
-                            );
-                            String response = reader.readLine();
-                            Log.e(TAG, "✅ GPS transmitted successfully: " + response);
+                            Log.e(TAG, "✅ GPS OK");
                         } else {
-                            Log.e(TAG, "❌ GPS transmission failed with code: " + responseCode);
+                            Log.e(TAG, "❌ GPS Failed: " + responseCode);
                         }
                         
                     } catch (Exception e) {
