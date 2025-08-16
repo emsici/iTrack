@@ -127,25 +127,23 @@ public class MainActivity extends BridgeActivity {
         Log.e(TAG, "  - status: " + status);
         
         try {
-            // Start NEW SimpleGPSService instead of OptimalGPSService
-            Intent intent = new Intent(this, SimpleGPSService.class);
-            intent.setAction("START_SIMPLE_GPS");
-            intent.putExtra("courseId", courseId);
-            intent.putExtra("vehicleNumber", vehicleNumber);
+            // Start BackgroundGPSService for better reliability
+            Intent intent = new Intent(this, BackgroundGPSService.class);
+            intent.setAction("START_BACKGROUND_GPS");
             intent.putExtra("uit", uit);
-            intent.putExtra("authToken", authToken);
-            intent.putExtra("status", status);
+            intent.putExtra("token", authToken);
+            intent.putExtra("vehicle", vehicleNumber);
             
-            Log.e(TAG, "🚀 === STARTING === SimpleGPSService with NATIVE precision...");
-            Log.e(TAG, "📦 Intent created with action: START_SIMPLE_GPS");
-            Log.e(TAG, "📋 Intent extras: courseId=" + courseId + ", vehicleNumber=" + vehicleNumber + ", uit=" + uit);
-            Log.e(TAG, "🔗 IMPORTANT: SimpleGPSService acceptă MULTIPLE curse - această cursă se ADAUGĂ la lista activă");
-            Log.e(TAG, "⚡ GPS service va transmite aceleași coordonate pentru TOATE cursele active simultan");
+            Log.e(TAG, "🚀 === STARTING === BackgroundGPSService with ScheduledExecutorService...");
+            Log.e(TAG, "📦 Intent created with action: START_BACKGROUND_GPS");
+            Log.e(TAG, "📋 Intent extras: uit=" + uit + ", vehicle=" + vehicleNumber);
+            Log.e(TAG, "⚡ BackgroundGPSService uses ScheduledExecutorService for more stable background GPS");
+            Log.e(TAG, "🔄 GPS will transmit every 10 seconds with phone locked/minimized");
             
             // Try to start foreground service
             android.content.ComponentName result = startForegroundService(intent);
             if (result != null) {
-                Log.e(TAG, "✅ === SUCCESS === SimpleGPSService started successfully");
+                Log.e(TAG, "✅ === SUCCESS === BackgroundGPSService started successfully");
                 Log.e(TAG, "🔗 Service component: " + result.toString());
             } else {
                 Log.e(TAG, "❌ === WARNING === startForegroundService returned null");
@@ -155,21 +153,21 @@ public class MainActivity extends BridgeActivity {
             android.app.ActivityManager activityManager = (android.app.ActivityManager) getSystemService(ACTIVITY_SERVICE);
             boolean serviceRunning = false;
             for (android.app.ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
-                if (SimpleGPSService.class.getName().equals(service.service.getClassName())) {
+                if (BackgroundGPSService.class.getName().equals(service.service.getClassName())) {
                     serviceRunning = true;
-                    Log.e(TAG, "✅ === VERIFIED === SimpleGPSService is RUNNING");
+                    Log.e(TAG, "✅ === VERIFIED === BackgroundGPSService is RUNNING");
                     break;
                 }
             }
             
             if (!serviceRunning) {
-                Log.e(TAG, "❌ === CRITICAL === SimpleGPSService NOT FOUND in running services!");
+                Log.e(TAG, "❌ === CRITICAL === BackgroundGPSService NOT FOUND in running services!");
                 // Try alternative start method
                 Log.e(TAG, "🔄 Trying alternative startService method...");
                 startService(intent);
             }
             
-            String resultMessage = "SUCCESS: NATIVE GPS started for " + courseId;
+            String resultMessage = "SUCCESS: BACKGROUND GPS started for " + courseId;
             Log.e(TAG, "📤 Returning to JavaScript: " + resultMessage);
             return resultMessage;
             
@@ -185,14 +183,13 @@ public class MainActivity extends BridgeActivity {
         Log.e(TAG, "🛑 === SIMPLE GPS === AndroidGPS.stopGPS called: courseId=" + courseId);
         
         try {
-            // Stop NEW SimpleGPSService
-            Intent intent = new Intent(this, SimpleGPSService.class);
-            intent.setAction("STOP_SIMPLE_GPS");
-            intent.putExtra("courseId", courseId);
+            // Stop BackgroundGPSService
+            Intent intent = new Intent(this, BackgroundGPSService.class);
+            intent.setAction("STOP_BACKGROUND_GPS");
             
             startService(intent);
-            Log.e(TAG, "✅ SimpleGPSService stop requested for courseId: " + courseId);
-            return "SUCCESS: NATIVE GPS stop requested for " + courseId;
+            Log.e(TAG, "✅ BackgroundGPSService stop requested");
+            return "SUCCESS: BACKGROUND GPS stopped";
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error stopping NATIVE GPS: " + e.getMessage());
