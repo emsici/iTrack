@@ -498,11 +498,16 @@ public class OptimalGPSService extends Service {
     private void scheduleNextOptimalGPSCycle() {
         Log.d(TAG, "🔄 SCHEDULE CHECK: activeCourses.size() = " + activeCourses.size());
         if (!activeCourses.isEmpty()) {
-            // CRITICAL: Ensure alarm and PendingIntent are valid
-            if (!isAlarmActive || gpsPendingIntent == null) {
-                Log.w(TAG, "🔧 Alarm state invalid - reinitializing GPS timer");
-                startOptimalGPSTimer();
-                return;
+            // CRITICAL FIX: Ensure PendingIntent exists - recreate if missing
+            if (gpsPendingIntent == null) {
+                Log.e(TAG, "🚨 CRITICAL: gpsPendingIntent is NULL - recreating AlarmManager setup");
+                Intent alarmIntent = new Intent(this, OptimalGPSService.class);
+                alarmIntent.setAction(ACTION_GPS_ALARM);
+                gpsPendingIntent = PendingIntent.getService(
+                    this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                );
+                isAlarmActive = true; // Mark as active since we're about to schedule
+                Log.e(TAG, "✅ CRITICAL: PendingIntent recreated - AlarmManager ready");
             }
             
             // CRITICAL: WakeLock PERSISTENT pentru următorul ciclu când e blocat
@@ -519,9 +524,9 @@ public class OptimalGPSService extends Service {
                 gpsPendingIntent
             );
             
-            Log.d(TAG, "⏰ NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
-            Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
-            Log.d(TAG, "✅ GPS CONTINUITY GUARANTEED - exact 5s intervals");
+            Log.e(TAG, "⏰ === CRITICAL === NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
+            Log.e(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
+            Log.e(TAG, "✅ === CRITICAL === GPS CONTINUITY GUARANTEED - exact 5s intervals");
         } else {
             Log.w(TAG, "❌ NO ACTIVE COURSES - stopping GPS timer");
             stopOptimalGPSTimer();
@@ -627,10 +632,13 @@ public class OptimalGPSService extends Service {
      * Start EXACT 5-second AlarmManager timer (most accurate)
      */
     private void startOptimalGPSTimer() {
-        if (isAlarmActive) {
-            Log.d(TAG, "⚠️ Optimal GPS timer already active");
-            return;
+        // CRITICAL FIX: Force reset timer-ul chiar dacă pare activ - garantează pornirea
+        if (isAlarmActive && gpsPendingIntent != null) {
+            Log.d(TAG, "🔄 GPS timer appears active - forcing restart to ensure reliability");
+            stopOptimalGPSTimer(); // Clean stop before restart
         }
+        
+        Log.e(TAG, "🚀 === CRITICAL === STARTING OPTIMAL GPS TIMER");
         
         Intent alarmIntent = new Intent(this, OptimalGPSService.class);
         alarmIntent.setAction(ACTION_GPS_ALARM);
@@ -640,14 +648,16 @@ public class OptimalGPSService extends Service {
         );
         
         // INTERVAL FIX: 5 secunde exact ca în commit-ul funcțional 9c5b19b
+        long triggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + GPS_INTERVAL_MS,
+            triggerTime,
             gpsPendingIntent
         );
         
         isAlarmActive = true;
-        Log.d(TAG, "✅ OPTIMAL GPS timer started - EXACT " + (GPS_INTERVAL_MS/1000) + "s intervals");
+        Log.e(TAG, "✅ === CRITICAL === OPTIMAL GPS timer STARTED - EXACT " + (GPS_INTERVAL_MS/1000) + "s intervals");
+        Log.e(TAG, "📡 First trigger scheduled at: " + triggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
     }
     
     /**
