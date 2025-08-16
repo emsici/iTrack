@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Build;
@@ -279,13 +280,22 @@ public class OptimalGPSService extends Service {
             Log.d(TAG, "📡 Requesting GPS location...");
             
             // Simple GPS request with callback
-            LocationManager.OnLocationChangedListener listener = new LocationManager.OnLocationChangedListener() {
+            LocationListener listener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
                     Log.d(TAG, "✅ GPS received: " + location.getLatitude() + ", " + location.getLongitude());
                     locationManager.removeUpdates(this);
                     transmitGPSForAllCourses(location);
                 }
+                
+                @Override
+                public void onProviderEnabled(String provider) {}
+                
+                @Override
+                public void onProviderDisabled(String provider) {}
+                
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {}
             };
             
             // Primary GPS provider
