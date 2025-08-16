@@ -349,7 +349,15 @@ public class SimpleGPSService extends Service {
         
         // Start ONLY continuous Handler timer (no AlarmManager conflicts)
         Log.e(TAG, "⏰ Starting HANDLER-ONLY continuous GPS timer");
-        startContinuousGPSTimer();
+        Log.e(TAG, "🔍 DEBUG: About to call startContinuousGPSTimer()");
+        
+        try {
+            startContinuousGPSTimer();
+            Log.e(TAG, "✅ startContinuousGPSTimer() called successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Exception in startContinuousGPSTimer(): " + e.getMessage());
+            e.printStackTrace();
+        }
         
     }
     
@@ -361,11 +369,17 @@ public class SimpleGPSService extends Service {
      * Start continuous GPS timer with Handler instead of AlarmManager for reliability
      */
     private void startContinuousGPSTimer() {
+        Log.e(TAG, "🎯 === startContinuousGPSTimer CALLED ===");
         Log.e(TAG, "⏰ Starting CONTINUOUS GPS timer with Handler");
         
-        if (continuousGPSHandler == null) {
-            continuousGPSHandler = new android.os.Handler(Looper.getMainLooper());
-        }
+        try {
+            if (continuousGPSHandler == null) {
+                Log.e(TAG, "🔧 Creating new Handler with MainLooper");
+                continuousGPSHandler = new android.os.Handler(Looper.getMainLooper());
+                Log.e(TAG, "✅ Handler created: " + (continuousGPSHandler != null ? "SUCCESS" : "FAILED"));
+            } else {
+                Log.e(TAG, "♻️ Reusing existing Handler");
+            }
         
         continuousGPSRunnable = new Runnable() {
             @Override
@@ -430,6 +444,10 @@ public class SimpleGPSService extends Service {
             Log.e(TAG, "⏰ First cycle will trigger in " + GPS_INTERVAL_MS + "ms (10 secunde)");
         } catch (Exception e) {
             Log.e(TAG, "❌ FAILED TO SCHEDULE FIRST CYCLE: " + e.getMessage());
+            e.printStackTrace();
+        }
+        } catch (Exception e) {
+            Log.e(TAG, "❌ EXCEPTION IN startContinuousGPSTimer(): " + e.getMessage());
             e.printStackTrace();
         }
     }
