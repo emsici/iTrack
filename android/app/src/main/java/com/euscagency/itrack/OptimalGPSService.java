@@ -377,7 +377,6 @@ public class OptimalGPSService extends Service {
         // Always schedule next cycle to maintain background operation
         scheduleNextOptimalGPSCycle();
     }
-    }
     
     /**
      * Most efficient GPS data transmission
