@@ -535,47 +535,14 @@ public class OptimalGPSService extends Service {
                 return;
             }
             
-            // CRITICAL FIX: Use setAlarmClock() for EXACT next GPS cycles (bypasses Doze Mode)
+            // REVERT TO FUNCTIONAL COMMIT 9c5b19b: Simple setExactAndAllowWhileIdle() like it worked  
             long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
-            
-            // FIRST CHOICE: setAlarmClock() - EXACT timing, bypasses Doze Mode completely
-            try {
-                // Convert to real time for AlarmClock
-                long realNextTriggerTime = System.currentTimeMillis() + GPS_INTERVAL_MS;
-                AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(realNextTriggerTime, gpsPendingIntent);
-                
-                alarmManager.setAlarmClock(alarmClockInfo, gpsPendingIntent);
-                Log.e(TAG, "✅ === CRITICAL === NEXT setAlarmClock() SUCCESS - EXACT 5s GPS guaranteed");
-                
-            } catch (Exception e) {
-                Log.e(TAG, "❌ Next setAlarmClock() FAILED: " + e.getMessage() + " - trying setExact()");
-                
-                // SECOND CHOICE: setExact() for older devices
-                try {
-                    alarmManager.setExact(
-                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        nextTriggerTime,
-                        gpsPendingIntent
-                    );
-                    Log.e(TAG, "✅ FALLBACK: Next setExact() SUCCESS");
-                    
-                } catch (Exception fallbackError) {
-                    Log.e(TAG, "❌ Next setExact() FAILED: " + fallbackError.getMessage() + " - trying setExactAndAllowWhileIdle()");
-                    
-                    // THIRD CHOICE: setExactAndAllowWhileIdle() (limited by Doze Mode)
-                    try {
-                        alarmManager.setExactAndAllowWhileIdle(
-                            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                            nextTriggerTime,
-                            gpsPendingIntent
-                        );
-                        Log.e(TAG, "⚠️ WARNING: Next alarm using setExactAndAllowWhileIdle() - may be delayed in Doze Mode");
-                        
-                    } catch (Exception finalError) {
-                        Log.e(TAG, "❌ FATAL: ALL next alarm methods FAILED: " + finalError.getMessage());
-                    }
-                }
-            }
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                nextTriggerTime,
+                gpsPendingIntent
+            );
+            Log.e(TAG, "✅ === CRITICAL === NEXT ALARM SCHEDULED - exact as functional commit");
             
             Log.e(TAG, "⏰ === CRITICAL === NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
             Log.e(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
@@ -706,47 +673,14 @@ public class OptimalGPSService extends Service {
             return;
         }
         
-        // CRITICAL FIX: Use setAlarmClock() for EXACT 5-second GPS intervals (bypasses Doze Mode)
-        long triggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
+        // REVERT TO FUNCTIONAL COMMIT 9c5b19b: Simple setExactAndAllowWhileIdle() like it worked
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            SystemClock.elapsedRealtime() + GPS_INTERVAL_MS,
+            gpsPendingIntent
+        );
         
-        // FIRST CHOICE: setAlarmClock() - EXACT timing, bypasses Doze Mode completely
-        try {
-            // Convert to real time for AlarmClock
-            long realTriggerTime = System.currentTimeMillis() + GPS_INTERVAL_MS;
-            AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(realTriggerTime, gpsPendingIntent);
-            
-            alarmManager.setAlarmClock(alarmClockInfo, gpsPendingIntent);
-            Log.e(TAG, "✅ === CRITICAL === setAlarmClock() SUCCESS - EXACT 5s GPS guaranteed even in Doze Mode");
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ setAlarmClock() FAILED: " + e.getMessage() + " - trying setExact()");
-            
-            // SECOND CHOICE: setExact() for older devices  
-            try {
-                alarmManager.setExact(
-                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    triggerTime,
-                    gpsPendingIntent
-                );
-                Log.e(TAG, "✅ FALLBACK: setExact() SUCCESS - 5s GPS intervals");
-                
-            } catch (Exception fallbackError) {
-                Log.e(TAG, "❌ setExact() FAILED: " + fallbackError.getMessage() + " - trying setExactAndAllowWhileIdle()");
-                
-                // THIRD CHOICE: setExactAndAllowWhileIdle() (limited by Doze Mode to 9+ minutes)
-                try {
-                    alarmManager.setExactAndAllowWhileIdle(
-                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        triggerTime,
-                        gpsPendingIntent
-                    );
-                    Log.e(TAG, "⚠️ WARNING: setExactAndAllowWhileIdle() - may be delayed to 9+ minutes in Doze Mode");
-                    
-                } catch (Exception finalError) {
-                    Log.e(TAG, "❌ FATAL: ALL AlarmManager methods FAILED: " + finalError.getMessage());
-                }
-            }
-        }
+        Log.e(TAG, "✅ === CRITICAL === setExactAndAllowWhileIdle() SUCCESS - exact as functional commit");
         
         isAlarmActive = true;
         Log.e(TAG, "✅ === CRITICAL === OPTIMAL GPS timer STARTED - EXACT " + (GPS_INTERVAL_MS/1000) + "s intervals");
