@@ -56,6 +56,10 @@ class DirectAndroidGPSService {
         maximumAge: 30000
       });
 
+      // Get real device data
+      const batteryLevel = await this.getRealBatteryLevel();
+      const networkType = await this.getRealNetworkType();
+      
       // Create GPS data for status transmission
       const currentTime = sharedTimestampService.getSharedTimestampISO();
       const gpsData = {
@@ -66,9 +70,9 @@ class DirectAndroidGPSService {
         viteza: Math.max(0, position.coords.speed || 0),
         directie: position.coords.heading || 0,
         altitudine: position.coords.altitude || 0,
-        baterie: 85, // Default battery
+        baterie: batteryLevel,
         hdop: position.coords.accuracy.toString(),
-        gsm_signal: "4G",
+        gsm_signal: networkType,
         numar_inmatriculare: vehicleNumber,
         status: status
       };
@@ -158,6 +162,111 @@ class DirectAndroidGPSService {
     } catch (error) {
       logGPSError(`❌ GPS status update error: ${error}`);
       throw error;
+    }
+  }
+
+  /**
+   * Obține nivelul real al bateriei dispozitivului
+   */
+  private async getRealBatteryLevel(): Promise<number> {
+    try {
+      // Try Android native battery level first
+      if (window.AndroidGPS && window.AndroidGPS.getBatteryLevel) {
+        const batteryLevel = window.AndroidGPS.getBatteryLevel();
+        if (batteryLevel >= 0 && batteryLevel <= 100) {
+          return batteryLevel;
+        }
+      }
+
+      // Try Capacitor Device info (doar dacă e disponibil)
+      if ((window as any).Capacitor?.isNativePlatform()) {
+        try {
+          // Import dinamic pentru a evita errori la build
+          const Device = await import('@capacitor/device').then(module => module.Device).catch(() => null);
+          if (Device) {
+            const info = await Device.getBatteryInfo();
+            if (info.batteryLevel !== undefined) {
+              return Math.round(info.batteryLevel * 100);
+            }
+          }
+        } catch (deviceError) {
+          // Capacitor Device not available - silent fallback
+          logGPS('ℹ️ Capacitor Device plugin nu e disponibil');
+        }
+      }
+
+      // Try Navigator Battery API (deprecated but some browsers still support)
+      if ('getBattery' in navigator) {
+        const battery = await (navigator as any).getBattery();
+        if (battery && battery.level !== undefined) {
+          return Math.round(battery.level * 100);
+        }
+      }
+
+      logGPS('⚠️ Nu s-a putut obține nivelul real al bateriei - folosesc estimare 85%');
+      return 85; // Fallback realistic
+    } catch (error) {
+      logGPSError(`❌ Eroare obținere baterie: ${error}`);
+      return 85; // Safe fallback
+    }
+  }
+
+  /**
+   * Obține tipul real de rețea/semnal GSM
+   */
+  private async getRealNetworkType(): Promise<string> {
+    try {
+      // Try Android native network info first
+      if (window.AndroidGPS && window.AndroidGPS.getNetworkType) {
+        const networkType = window.AndroidGPS.getNetworkType();
+        if (networkType && networkType.trim() !== '') {
+          return networkType;
+        }
+      }
+
+      // Try Navigator connection API
+      if ('connection' in navigator) {
+        const connection = (navigator as any).connection;
+        if (connection && connection.effectiveType) {
+          // Map browser connection types to mobile network types
+          const typeMap: { [key: string]: string } = {
+            'slow-2g': '2G',
+            '2g': '2G',
+            '3g': '3G',
+            '4g': '4G'
+          };
+          return typeMap[connection.effectiveType] || '4G';
+        }
+      }
+
+      // Try Capacitor Network plugin (doar dacă e disponibil)
+      if ((window as any).Capacitor?.isNativePlatform()) {
+        try {
+          // Import dinamic pentru a evita errori la build
+          const Network = await import('@capacitor/network').then(module => module.Network).catch(() => null);
+          if (Network) {
+            const status = await Network.getStatus();
+            if (status.connectionType) {
+              // Map Capacitor types to GSM types
+              const typeMap: { [key: string]: string } = {
+                'wifi': 'WiFi',
+                'cellular': '4G',
+                'none': 'No Signal'
+              };
+              return typeMap[status.connectionType] || '4G';
+            }
+          }
+        } catch (capacitorError) {
+          // Capacitor Network not available - silent fallback
+          logGPS('ℹ️ Capacitor Network plugin nu e disponibil');
+        }
+      }
+
+      logGPS('⚠️ Nu s-a putut obține tipul real de rețea - folosesc 4G default');
+      return '4G'; // Most common fallback
+    } catch (error) {
+      logGPSError(`❌ Eroare obținere tip rețea: ${error}`);
+      return '4G'; // Safe fallback
     }
   }
 
