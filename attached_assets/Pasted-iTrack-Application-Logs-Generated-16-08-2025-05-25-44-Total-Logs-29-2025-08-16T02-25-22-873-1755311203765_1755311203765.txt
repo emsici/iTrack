@@ -1,0 +1,33 @@
+iTrack Application Logs
+Generated: 16.08.2025, 05:25:44
+Total Logs: 29
+
+[2025-08-16T02:25:22.873Z] INFO (APP): 🔍 Verificare conectivitate la server-ul utilizatorului...
+[2025-08-16T02:25:15.828Z] INFO (APP): Acțiune cursă finalizată: 133378
+[2025-08-16T02:25:15.827Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-16T02:25:15.827Z] INFO (API): Course 6C7V511585130172 status updated successfully to 2
+[2025-08-16T02:25:15.827Z] INFO (APP): ✅ Cursa 6C7V511585130172 status actualizat la 2 cu succes
+[2025-08-16T02:25:15.826Z] INFO (GPS): ✅ MainActivity GPS status updated: SUCCESS: Status update requested for 6C7V511585130172
+[2025-08-16T02:25:15.824Z] INFO (APP): ✅ GPS ANDROID PORNIT pentru START/RESUME - varianta care mergea
+[2025-08-16T02:25:15.823Z] INFO (GPS): ✅ Android GPS PORNIT: SUCCESS: GPS started for 6C7V511585130172 - varianta funcțională
+[2025-08-16T02:25:15.817Z] INFO (GPS): 🎯 ANDROID GPS: Starting direct service - commit 656f7610 care mergea
+[2025-08-16T02:25:15.817Z] INFO (APP): 🗂️ Courses in map: [6C7V511585130172]
+[2025-08-16T02:25:15.816Z] INFO (APP): 📊 Active courses after start: 1
+[2025-08-16T02:25:15.816Z] INFO (GPS): 🚀 Starting GPS tracking (June 26th method): 6C7V511585130172
+[2025-08-16T02:25:15.816Z] INFO (APP): 🚀 START/RESUME GPS DIRECT Android - varianta originală
+[2025-08-16T02:25:15.795Z] INFO (APP): 🔄 Updating course status via MainActivity Android: 6C7V511585130172 → 2
+[2025-08-16T02:25:15.794Z] INFO (APP): 📱 Browser GPS OPRIT - OptimalGPSService gestionează coordonatele cu HDOP <10m
+[2025-08-16T02:25:15.794Z] INFO (APP): 🤖 ANDROID GPS: Se delegă totul la OptimalGPSService pentru precizie maximă
+[2025-08-16T02:25:15.794Z] INFO (APP): 📱 Info platformă: Android
+[2025-08-16T02:25:15.794Z] INFO (APP): 📞 Se apelează funcția GPS cu UIT: 6C7V511585130172 (nu ID: 133378)
+[2025-08-16T02:25:15.793Z] INFO (APP): 🎯 Se delegă toată logica GPS la serviciul directAndroidGPS
+[2025-08-16T02:25:15.793Z] INFO (APP): ✅ Permisiuni GPS acordate
+[2025-08-16T02:25:13.514Z] INFO (APP): 🔍 Se solicită permisiuni GPS pentru pornirea cursei...
+[2025-08-16T02:25:13.513Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-16T02:25:13.513Z] INFO (APP): UIT REAL: 6C7V511585130172, Vehicul: TM39ECC
+[2025-08-16T02:25:13.513Z] INFO (APP): Cursă: 133378, Status: 1 → 2
+[2025-08-16T02:25:13.513Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-16T02:25:13.513Z] INFO (APP): 💾 Status 2 salvat pentru UIT 6C7V511585130172
+[2025-08-16T02:25:13.512Z] INFO (APP): Se procesează acțiunea pentru cursa: 133378
+[2025-08-16T02:25:10.063Z] INFO (APP): Log-uri șterse cu succes
+[2025-08-16T02:25:10.063Z] INFO (SYSTEM): Logs cleared

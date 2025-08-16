@@ -266,83 +266,90 @@ public class OptimalGPSService extends Service {
     }
     
     /**
-     * Request single GPS location update (most battery efficient)
-     * ENHANCED: Multiple providers + guaranteed scheduling pentru telefon blocat
+     * Request single GPS location - SIMPLIFIED like functional version
      */
     private void requestSingleGPSLocation() {
         try {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Log.e(TAG, "❌ No location permission for optimal GPS - SCHEDULING NEXT CYCLE ANYWAY");
+                Log.e(TAG, "❌ No GPS permission - scheduling next cycle");
                 scheduleNextOptimalGPSCycle();
                 return;
             }
             
-            Log.e(TAG, "🚀 ENHANCED GPS REQUEST pentru telefon blocat - multiple providers");
+            Log.d(TAG, "📡 Requesting GPS location...");
             
-            // ENHANCED: Try multiple providers pentru telefon blocat cu PRECIZIE MAXIMĂ
-            String[] providers = {LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER};
-            boolean requestSent = false;
+            // Simple GPS request with callback
+            LocationManager.OnLocationChangedListener listener = new LocationManager.OnLocationChangedListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    Log.d(TAG, "✅ GPS received: " + location.getLatitude() + ", " + location.getLongitude());
+                    locationManager.removeUpdates(this);
+                    transmitGPSForAllCourses(location);
+                }
+            };
             
-            // PRECIZIE MAXIMĂ: Creează Criteria pentru GPS cu acuratețe înaltă
-            android.location.Criteria criteria = new android.location.Criteria();
-            criteria.setAccuracy(android.location.Criteria.ACCURACY_FINE); // Precizie maximă (1-2m)
-            criteria.setPowerRequirement(android.location.Criteria.POWER_HIGH); // Putere maximă pentru precizie
-            criteria.setAltitudeRequired(true); // Include altitudinea
-            criteria.setBearingRequired(true); // Include direcția
-            criteria.setSpeedRequired(true); // Include viteza
-            criteria.setCostAllowed(true); // Permite cost pentru precizie maximă
+            // Primary GPS provider
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, listener, null);
+                Log.d(TAG, "📡 GPS request sent");
+            } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, listener, null);
+                Log.d(TAG, "📡 Network GPS request sent");
+            } else {
+                Log.w(TAG, "⚠️ No GPS providers - scheduling next cycle");
+                scheduleNextOptimalGPSCycle();
+                return;
+            }
             
-            for (String provider : providers) {
-                if (locationManager.isProviderEnabled(provider)) {
-                    try {
-                        Log.e(TAG, "📡 HIGH PRECISION GPS REQUEST: " + provider + " cu criteria pentru 1-2m precizie");
-                        
-                        // Pentru GPS_PROVIDER, folosește criteria pentru precizie maximă
-                        if (LocationManager.GPS_PROVIDER.equals(provider)) {
-                            locationManager.requestSingleUpdate(
-                                criteria, // Folosește criteria pentru precizie maximă
-                                new android.location.LocationListener() {
-                                    @Override
-                                    public void onLocationChanged(Location location) {
-                                        float accuracy = location.getAccuracy();
-                                        Log.e(TAG, "📍 HIGH PRECISION GPS SUCCESS - " + provider + " precizie: " + accuracy + "m pentru telefon blocat");
-                                        
-                                        // FILTER pentru precizie: Acceptă doar sub 10m pentru calitate înaltă
-                                        if (accuracy <= 10.0f) {
-                                            Log.e(TAG, "✅ PRECIZIE ACCEPTATĂ: " + accuracy + "m - transmite coordonata");
-                                            transmitGPSForAllCourses(location);
-                                        } else {
-                                            Log.w(TAG, "⚠️ PRECIZIE SCĂZUTĂ: " + accuracy + "m - se așteaptă GPS mai precis");
-                                            // Nu transmite coordonate cu precizie scăzută
-                                        }
-                                    }
-                                
-
-                                },
-                                null
-                            );
-                        } else {
-                            // Pentru alte providere, folosește provider direct
-                            locationManager.requestSingleUpdate(
-                                provider,
-                                new android.location.LocationListener() {
-                                    @Override
-                                    public void onLocationChanged(Location location) {
-                                        float accuracy = location.getAccuracy();
-                                        Log.e(TAG, "📍 NETWORK/PASSIVE GPS - " + provider + " precizie: " + accuracy + "m");
-                                        
-                                        // Pentru providere non-GPS, acceptă precizie mai scăzută (sub 50m)
-                                        if (accuracy <= 50.0f) {
-                                            Log.e(TAG, "✅ FALLBACK PRECIZIE OK: " + accuracy + "m - transmite coordonata");
-                                            transmitGPSForAllCourses(location);
-                                        } else {
-                                            Log.w(TAG, "⚠️ FALLBACK PRECIZIE SCĂZUTĂ: " + accuracy + "m - ignoră");
-                                        }
-                                    }
-                                    
-                                    @Override
-                                    public void onStatusChanged(String provider, int status, android.os.Bundle extras) {}
-                                    @Override
+            // Timeout after 2 seconds
+            new android.os.Handler().postDelayed(() -> {
+                Log.w(TAG, "⏰ GPS timeout - scheduling next cycle");
+                locationManager.removeUpdates(listener);
+                scheduleNextOptimalGPSCycle();
+            }, 2000);
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ GPS request error: " + e.getMessage());
+            scheduleNextOptimalGPSCycle();
+        }
+    }
+    
+    /**
+     * Transmit GPS data for all active courses - SIMPLIFIED like functional version
+     */
+    private void transmitGPSForAllCourses(Location location) {
+        if (location == null) {
+            Log.w(TAG, "⚠️ NULL location - cannot transmit GPS data");
+            scheduleNextOptimalGPSCycle();
+            return;
+        }
+        
+        Log.d(TAG, "📡 TRANSMITTING GPS for " + activeCourses.size() + " active courses");
+        Log.d(TAG, "📍 GPS Location: lat=" + location.getLatitude() + ", lng=" + location.getLongitude() + ", accuracy=" + location.getAccuracy() + "m");
+        
+        int transmissionCount = 0;
+        for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+            CourseData course = entry.getValue();
+            try {
+                Log.d(TAG, "📤 Transmitting GPS for course: " + course.courseId + " (UIT: " + course.uit + ", Status: " + course.status + ")");
+                transmitOptimalGPSData(course, location);
+                transmissionCount++;
+                Log.d(TAG, "✅ GPS transmission SUCCESS for course: " + course.courseId);
+            } catch (Exception e) {
+                Log.e(TAG, "❌ GPS transmission FAILED for course " + course.courseId + ": " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        
+        Log.d(TAG, "📊 GPS TRANSMISSION SUMMARY: " + transmissionCount + "/" + activeCourses.size() + " courses transmitted successfully");
+        
+        // Reset shared timestamp for next cycle
+        gpsSharedTimestamp = null;
+        Log.d(TAG, "🔄 SHARED TIMESTAMP reset for next cycle");
+        
+        // Always schedule next cycle to maintain background operation
+        scheduleNextOptimalGPSCycle();
+    }
                                     public void onProviderEnabled(String provider) {}
                                     @Override
                                     public void onProviderDisabled(String provider) {
@@ -673,8 +680,8 @@ public class OptimalGPSService extends Service {
                 Log.e(TAG, "🔋 WakeLock ACQUIRED pentru următorul ciclu GPS - GARANTEZ background operation");
             }
             
-            // FORCE CONSISTENT 5-SECOND INTERVALS - no adaptive logic
-            long intervalMs = GPS_INTERVAL_MS; // ALWAYS 5 seconds - simplificat
+            // CONSISTENT 5-SECOND INTERVALS - like functional version
+            long intervalMs = GPS_INTERVAL_MS; // Always 5 seconds for consistency
             
             long nextTriggerTime = SystemClock.elapsedRealtime() + intervalMs;
             alarmManager.setExactAndAllowWhileIdle(
