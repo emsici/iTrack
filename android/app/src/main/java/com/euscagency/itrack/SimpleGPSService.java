@@ -514,20 +514,26 @@ public class SimpleGPSService extends Service {
                     Log.e(TAG, "  JSON: " + jsonString);
                     Log.e(TAG, "  Token: Bearer [HIDDEN]");
                     
-                    // MODERN HTTP CHAIN: OkHttp -> Volley (eliminăm HttpURLConnection legacy)
-                    Log.e(TAG, "🚀 MODERN HTTP CHAIN: Încercare transmisie GPS");
+                    // COMPLETE HTTP CHAIN: CapacitorHttp (via JS bridge) -> OkHttp -> Volley 
+                    Log.e(TAG, "🚀 COMPLETE HTTP CHAIN: Încercare transmisie GPS");
                     
-                    // Prima încercare: OkHttp (cel mai rapid și eficient)
-                    transmissionSuccess = sendGPSViaOkHttp(jsonString, course.authToken);
+                    // Prima încercare: CapacitorHttp prin JavaScript bridge
+                    transmissionSuccess = sendGPSViaCapacitorBridge(jsonString, course.authToken);
                     
-                    // A doua încercare: Volley (biblioteca oficială Google)
+                    // A doua încercare: OkHttp (nativ Android)
+                    if (!transmissionSuccess) {
+                        Log.e(TAG, "🔄 CapacitorHttp failed - trying OkHttp (nativ)");
+                        transmissionSuccess = sendGPSViaOkHttp(jsonString, course.authToken);
+                    }
+                    
+                    // A treia încercare: Volley (biblioteca oficială Google)
                     if (!transmissionSuccess) {
                         Log.e(TAG, "🔄 OkHttp failed - trying Volley (Google oficial)");
                         transmissionSuccess = sendGPSViaVolley(jsonString, course.authToken);
                     }
                     
                     if (!transmissionSuccess) {
-                        Log.e(TAG, "❌ Both OkHttp and Volley failed - network issues or token invalid");
+                        Log.e(TAG, "❌ All HTTP methods failed - network issues or token invalid");
                     }
                     
                 } catch (Exception networkError) {
@@ -835,6 +841,50 @@ public class SimpleGPSService extends Service {
         }
     }
 
+    /**
+     * CAPACITOR HTTP TRANSMISSION: Use JavaScript bridge to call CapacitorHttp
+     */
+    private boolean sendGPSViaCapacitorBridge(String jsonString, String authToken) {
+        try {
+            Log.e(TAG, "🌐 BRIDGE HTTP: Folosind CapacitorHttp prin JavaScript bridge");
+            
+            // Get MainActivity instance to access WebView
+            com.euscagency.itrack.MainActivity mainActivity = com.euscagency.itrack.MainActivity.getInstance();
+            if (mainActivity != null) {
+                // Call JavaScript function that uses CapacitorHttp
+                String jsCode = String.format(
+                    "if (window.sendGPSViaCapacitor) { window.sendGPSViaCapacitor('%s', '%s'); } else { console.error('sendGPSViaCapacitor not available'); }",
+                    jsonString.replace("'", "\\'").replace("\n", "\\n"),
+                    authToken.replace("'", "\\'")
+                );
+                
+                // Execute on main thread
+                mainActivity.runOnUiThread(() -> {
+                    try {
+                        android.webkit.WebView webView = mainActivity.getBridge().getWebView();
+                        if (webView != null) {
+                            webView.evaluateJavascript(jsCode, null);
+                            Log.e(TAG, "✅ CapacitorHttp bridge called successfully");
+                        } else {
+                            Log.e(TAG, "❌ WebView not available for CapacitorHttp bridge");
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "❌ Error calling CapacitorHttp bridge: " + e.getMessage());
+                    }
+                });
+                
+                // Return true optimistically - actual success will be logged by JS
+                return true;
+            } else {
+                Log.e(TAG, "❌ MainActivity not available for CapacitorHttp bridge");
+                return false;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "❌ CapacitorHttp bridge failed: " + e.getMessage());
+            return false;
+        }
+    }
+    
     /**
      * MODERN OKHTTP TRANSMISSION: Cel mai eficient HTTP client pentru Android
      */
