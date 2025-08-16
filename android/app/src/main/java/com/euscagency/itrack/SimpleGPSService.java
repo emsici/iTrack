@@ -39,6 +39,12 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.MediaType;
 import okhttp3.logging.HttpLoggingInterceptor;
+
+// Volley imports pentru HTTP - biblioteca oficială Google
+import com.android.volley.Request.Method;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,9 +91,10 @@ public class SimpleGPSService extends Service {
     private static final int NOTIFICATION_ID = 2001;
     private static final String CHANNEL_ID = "SimpleGPSChannel";
     
-    // OkHttp client modern pentru performanță maximă
+    // HTTP clients moderni pentru performanță maximă
     private static OkHttpClient okHttpClient;
     private static final MediaType JSON_MEDIA_TYPE = MediaType.get("application/json; charset=utf-8");
+    private static RequestQueue volleyQueue;
     
     @Override
     public void onCreate() {
@@ -97,8 +104,8 @@ public class SimpleGPSService extends Service {
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
-        // Initialize OkHttp client cu optimizări pentru performanță
-        initializeOkHttpClient();
+        // Initialize HTTP clients cu optimizări pentru performanță
+        initializeHttpClients();
         
         // WakeLock pentru background
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -509,16 +516,22 @@ public class SimpleGPSService extends Service {
                     Log.e(TAG, "  JSON: " + jsonString);
                     Log.e(TAG, "  Token: Bearer [HIDDEN]");
                     
-                    // MODERN HTTP: Prioritate OkHttp -> Fallback HttpURLConnection
-                    Log.e(TAG, "🚀 MODERN HTTP: Încercare transmisie GPS cu OkHttp");
+                    // MODERN HTTP CHAIN: OkHttp -> Volley -> Legacy HttpURLConnection
+                    Log.e(TAG, "🚀 MODERN HTTP CHAIN: Încercare transmisie GPS");
                     
                     // Prima încercare: OkHttp (cel mai rapid și eficient)
                     transmissionSuccess = sendGPSViaOkHttp(jsonString, course.authToken);
                     
-                    // Fallback dacă OkHttp eșuează
+                    // A doua încercare: Volley (biblioteca oficială Google)
                     if (!transmissionSuccess) {
-                        Log.e(TAG, "🔄 OkHttp failed - trying HttpURLConnection fallback");
-                        transmissionSuccess = fallbackHttpURLConnection(jsonString, course.authToken);
+                        Log.e(TAG, "🔄 OkHttp failed - trying Volley (Google oficial)");
+                        transmissionSuccess = sendGPSViaVolley(jsonString, course.authToken);
+                    }
+                    
+                    // Ultima încercare: HttpURLConnection (doar pentru Android foarte vechi)
+                    if (!transmissionSuccess) {
+                        Log.e(TAG, "🔄 Volley failed - trying legacy HttpURLConnection");
+                        transmissionSuccess = legacyHttpURLConnection(jsonString, course.authToken);
                     }
                     
                 } catch (Exception networkError) {
@@ -730,12 +743,17 @@ public class SimpleGPSService extends Service {
                         
                         String jsonString = jsonData.toString();
                         
-                        // MODERN SYNC: Prioritate OkHttp pentru sincronizarea offline
+                        // MODERN SYNC CHAIN: OkHttp -> Volley -> Legacy pentru sincronizarea offline
                         boolean syncSuccess = sendGPSViaOkHttp(jsonString, coord.getString("authToken"));
                         
-                        // Fallback dacă OkHttp eșuează
+                        // Încercare Volley dacă OkHttp eșuează
                         if (!syncSuccess) {
-                            syncSuccess = fallbackHttpURLConnection(jsonString, coord.getString("authToken"));
+                            syncSuccess = sendGPSViaVolley(jsonString, coord.getString("authToken"));
+                        }
+                        
+                        // Fallback legacy dacă și Volley eșuează
+                        if (!syncSuccess) {
+                            syncSuccess = legacyHttpURLConnection(jsonString, coord.getString("authToken"));
                         }
                         
                         if (syncSuccess) {
@@ -798,22 +816,29 @@ public class SimpleGPSService extends Service {
     }
     
     /**
-     * INITIALIZE OKHTTP CLIENT: Configurare optimă pentru performanță GPS
+     * INITIALIZE HTTP CLIENTS: Configurare optimă pentru performanță GPS
      */
-    private void initializeOkHttpClient() {
+    private void initializeHttpClients() {
+        // Initialize OkHttp (PRIMARY)
         if (okHttpClient == null) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-            logging.setLevel(HttpLoggingInterceptor.Level.BASIC); // Log pentru debugging
+            logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
             
             okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
                 .writeTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
                 .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
                 .addInterceptor(logging)
-                .retryOnConnectionFailure(true) // Auto-retry pentru network instabil
+                .retryOnConnectionFailure(true)
                 .build();
                 
             Log.e(TAG, "✅ OkHttp client inițializat cu optimizări pentru GPS");
+        }
+        
+        // Initialize Volley (SECONDARY)
+        if (volleyQueue == null) {
+            volleyQueue = Volley.newRequestQueue(getApplicationContext());
+            Log.e(TAG, "✅ Volley queue inițializat - biblioteca oficială Google");
         }
     }
 
@@ -859,11 +884,85 @@ public class SimpleGPSService extends Service {
     }
 
     /**
-     * FALLBACK HTTP METHOD: HttpURLConnection pentru când OkHttp nu e disponibil
+     * VOLLEY HTTP TRANSMISSION: Biblioteca oficială Google pentru Android
      */
-    private boolean fallbackHttpURLConnection(String jsonString, String authToken) {
+    private boolean sendGPSViaVolley(String jsonString, String authToken) {
         try {
-            Log.e(TAG, "🔄 FALLBACK: Using HttpURLConnection");
+            Log.e(TAG, "🔄 SECONDARY HTTP: Folosind Volley (Google oficial)");
+            
+            org.json.JSONObject jsonObject = new org.json.JSONObject(jsonString);
+            
+            final boolean[] requestCompleted = {false};
+            final boolean[] requestSuccess = {false};
+            final Object lock = new Object();
+            
+            JsonObjectRequest request = new JsonObjectRequest(
+                Method.POST,
+                GPS_ENDPOINT,
+                jsonObject,
+                response -> {
+                    synchronized (lock) {
+                        Log.e(TAG, "✅ Volley GPS SUCCESS - biblioteca oficială Google");
+                        Log.e(TAG, "📥 Volley response: " + response.toString());
+                        requestSuccess[0] = true;
+                        requestCompleted[0] = true;
+                        lock.notify();
+                    }
+                },
+                error -> {
+                    synchronized (lock) {
+                        Log.e(TAG, "❌ Volley failed: " + error.getMessage());
+                        if (error.networkResponse != null) {
+                            Log.e(TAG, "⚠️ Volley response code: " + error.networkResponse.statusCode);
+                        }
+                        requestCompleted[0] = true;
+                        lock.notify();
+                    }
+                }
+            ) {
+                @Override
+                public java.util.Map<String, String> getHeaders() {
+                    java.util.Map<String, String> headers = new java.util.HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    headers.put("Authorization", "Bearer " + authToken);
+                    headers.put("Accept", "application/json");
+                    headers.put("User-Agent", "iTrack-Android-Volley/1.0");
+                    return headers;
+                }
+            };
+            
+            // Set timeout
+            request.setRetryPolicy(new com.android.volley.DefaultRetryPolicy(
+                15000, // 15 second timeout
+                1, // no retries
+                com.android.volley.DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            
+            volleyQueue.add(request);
+            
+            // Wait for completion (with timeout)
+            synchronized (lock) {
+                try {
+                    lock.wait(20000); // 20 second max wait
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "❌ Volley request interrupted");
+                    return false;
+                }
+            }
+            
+            return requestCompleted[0] && requestSuccess[0];
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Volley transmission failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * LEGACY FALLBACK: HttpURLConnection doar pentru Android foarte vechi
+     */
+    private boolean legacyHttpURLConnection(String jsonString, String authToken) {
+        try {
+            Log.e(TAG, "🔄 LEGACY FALLBACK: Using HttpURLConnection (doar pentru Android vechi)");
             
             URL url = new URL(GPS_ENDPOINT);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -885,23 +984,23 @@ public class SimpleGPSService extends Service {
             // Get response
             int responseCode = connection.getResponseCode();
             if (responseCode == 200) {
-                Log.e(TAG, "✅ FALLBACK HTTP SUCCESS - Response: " + responseCode);
+                Log.e(TAG, "✅ LEGACY HTTP SUCCESS - Response: " + responseCode);
                 
                 // Read response for debugging
                 java.io.BufferedReader reader = new java.io.BufferedReader(
                     new java.io.InputStreamReader(connection.getInputStream()));
                 String response = reader.readLine();
-                Log.e(TAG, "📥 Fallback response: " + response);
+                Log.e(TAG, "📥 Legacy response: " + response);
                 reader.close();
                 connection.disconnect();
                 return true;
             } else {
-                Log.e(TAG, "⚠️ Fallback returned non-200 response: " + responseCode);
+                Log.e(TAG, "⚠️ Legacy returned non-200 response: " + responseCode);
                 connection.disconnect();
                 return false;
             }
         } catch (Exception e) {
-            Log.e(TAG, "❌ Fallback HTTP failed: " + e.getMessage());
+            Log.e(TAG, "❌ Legacy HTTP failed: " + e.getMessage());
             return false;
         }
     }
