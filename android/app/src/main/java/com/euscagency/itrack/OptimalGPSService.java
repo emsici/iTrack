@@ -35,7 +35,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class OptimalGPSService extends Service {
     private static final String TAG = "OptimalGPS";
-    private static final long GPS_INTERVAL_MS = 5000; // Exact 5 secunde - simplificat ca în commit funcțional
+    private static final long GPS_INTERVAL_LOCKED_MS = 3000; // 3 secunde când telefonul e blocat
+    private static final long GPS_INTERVAL_UNLOCKED_MS = 10000; // 10 secunde când telefonul e deblocat
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.GPS_ALARM";
     
     // Configurație API Centralizată
@@ -533,8 +534,11 @@ public class OptimalGPSService extends Service {
                 Log.e(TAG, "🔋 WakeLock ACQUIRED pentru următorul ciclu GPS - GARANTEZ background operation");
             }
             
-            // CONSISTENT 5-SECOND INTERVALS - like functional version
-            long intervalMs = GPS_INTERVAL_MS; // Always 5 seconds for consistency
+            // ADAPTIVE INTERVALS - ca în commit funcțional  
+            boolean isLocked = !isScreenOn();
+            long intervalMs = isLocked ? GPS_INTERVAL_LOCKED_MS : GPS_INTERVAL_UNLOCKED_MS;
+            
+            Log.e(TAG, "📱 SCREEN STATE: " + (isLocked ? "LOCKED (3s)" : "UNLOCKED (10s)"));
             
             long nextTriggerTime = SystemClock.elapsedRealtime() + intervalMs;
             alarmManager.setExactAndAllowWhileIdle(
@@ -674,8 +678,11 @@ public class OptimalGPSService extends Service {
             this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
         
-        // FORCE 5-SECOND INTERVALS: Simple consistent interval
-        long forcedInterval = GPS_INTERVAL_MS; // ALWAYS 5 seconds - simplificat
+        // ADAPTIVE INTERVALS: Ca în commit funcțional
+        boolean isLocked = !isScreenOn();
+        long forcedInterval = isLocked ? GPS_INTERVAL_LOCKED_MS : GPS_INTERVAL_UNLOCKED_MS;
+        
+        Log.e(TAG, "📱 INITIAL SCREEN STATE: " + (isLocked ? "LOCKED (3s)" : "UNLOCKED (10s)"));
         
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
