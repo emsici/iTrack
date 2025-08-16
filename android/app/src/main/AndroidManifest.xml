@@ -39,15 +39,7 @@
             android:foregroundServiceType="location"
             android:stopWithTask="false" />
             
-        <!-- OptimalGPSService for maximum battery efficiency -->
-
-        <!-- GPS handled via MainActivity AndroidGPS WebView interface
-        <service
-            android:name="com.euscagency.itrack.OptimalGPSService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="location"
-            android:stopWithTask="false" /> -->
+        <!-- OptimalGPSService eliminat - folosim doar SimpleGPSService -->
             
         
             

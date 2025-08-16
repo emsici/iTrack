@@ -18,7 +18,7 @@ import OfflineSyncProgress from "./OfflineSyncProgress"; // Added for header int
 import ToastNotification from "./ToastNotification";
 
 import { useToast } from "../hooks/useToast";
-// import { clearAllGuaranteedGPS } from "../services/garanteedGPS"; // DEZACTIVAT - folosim doar directAndroidGPS
+// garanteedGPS eliminat complet - folosim doar SimpleGPSService
 import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
@@ -348,10 +348,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       
       // STEP 2: Clear any remaining guaranteed GPS services 
       try {
-        // await clearAllGuaranteedGPS(); // DEZACTIVAT - folosim doar directAndroidGPS
-        console.log('✅ Serviciul GPS Garantat șters');
+        // garanteedGPS eliminat complet - folosim doar SimpleGPSService
+        console.log('✅ Servicii GPS auxiliare eliminate');
       } catch (error) {
-        console.warn('Ștergerea GuaranteedGPS a eșuat (serviciul poate să nu fie activ):', error);
+        console.warn('Curățarea serviciilor GPS auxiliare eșuată:', error);
       }
       
       // STEP 3: Server logout 
