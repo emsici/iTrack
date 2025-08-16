@@ -377,8 +377,10 @@ export const logout = async (token: string): Promise<boolean> => {
       const response = await CapacitorHttp.post({
         url: logoutUrl,
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json; charset=utf-8",
+          Accept: "application/json",
           Authorization: `Bearer ${token}`,
+          "User-Agent": "iTrack-Native/1.0",
         },
         data: {},
       });
@@ -395,8 +397,10 @@ export const logout = async (token: string): Promise<boolean> => {
         const fetchResponse = await fetch(logoutUrl, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json; charset=utf-8",
+            Accept: "application/json",
             Authorization: `Bearer ${token}`,
+            "User-Agent": "iTrack-Native/1.0",
           },
           body: JSON.stringify({}),
         });
