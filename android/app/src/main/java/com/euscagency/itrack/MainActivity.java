@@ -139,6 +139,8 @@ public class MainActivity extends BridgeActivity {
             Log.e(TAG, "🚀 === STARTING === SimpleGPSService with NATIVE precision...");
             Log.e(TAG, "📦 Intent created with action: START_SIMPLE_GPS");
             Log.e(TAG, "📋 Intent extras: courseId=" + courseId + ", vehicleNumber=" + vehicleNumber + ", uit=" + uit);
+            Log.e(TAG, "🔗 IMPORTANT: SimpleGPSService acceptă MULTIPLE curse - această cursă se ADAUGĂ la lista activă");
+            Log.e(TAG, "⚡ GPS service va transmite aceleași coordonate pentru TOATE cursele active simultan");
             
             // Try to start foreground service
             android.content.ComponentName result = startForegroundService(intent);

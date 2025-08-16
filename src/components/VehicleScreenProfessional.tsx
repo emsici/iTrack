@@ -22,6 +22,8 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
   
   if (window.AndroidGPS && window.AndroidGPS.startGPS) {
     console.log("✅ AndroidGPS.startGPS disponibil - pornesc SimpleGPSService");
+    console.log("📋 IMPORTANT: SimpleGPSService acceptă MULTIPLE curse - se adaugă la lista activă");
+    console.log("🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS");
     
     const result = window.AndroidGPS.startGPS(
       String(course.ikRoTrans),
@@ -32,6 +34,7 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
     );
     
     console.log("🔥 SimpleGPSService Result:", result);
+    console.log("📊 GPS service va urmări toate cursele active cu același set de coordonate");
     return result;
   } else {
     console.error("❌ AndroidGPS.startGPS nu este disponibil!");
