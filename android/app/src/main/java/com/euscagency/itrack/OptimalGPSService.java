@@ -143,19 +143,17 @@ public class OptimalGPSService extends Service {
             // CRITICAL: Keep service alive with WakeLock pentru telefon blocat
             if (wakeLock != null && !wakeLock.isHeld()) {
                 wakeLock.acquire(); // INDEFINITE WakeLock pentru GPS continuu
-                android.util.Log.e(TAG, "✅ WAKELOCK ACQUIRED INDEFINIT - previne deep sleep când e blocat");
+                Log.d(TAG, "✅ WAKELOCK ACQUIRED INDEFINIT - previne deep sleep când e blocat");
             } else if (wakeLock != null && wakeLock.isHeld()) {
-                android.util.Log.e(TAG, "✅ WAKELOCK ALREADY HELD - GPS continuu garantat");
+                Log.d(TAG, "✅ WAKELOCK ALREADY HELD - GPS continuu garantat");
             }
         } catch (Exception e) {
-            android.util.Log.e(TAG, "❌ CRITICAL: Foreground service FAILED: " + e.getMessage());
+            Log.e(TAG, "❌ CRITICAL: Foreground service FAILED: " + e.getMessage());
         }
         
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
             // ALARM TRIGGERED: Get GPS location and transmit for all active courses
-            Log.e(TAG, "🔄 === CRITICAL === ALARM TRIGGERED - performing GPS cycle");
-            Log.e(TAG, "⏰ AlarmManager SUCCESS - timer working correctly");
-            Log.e(TAG, "📊 Current activeCourses.size(): " + activeCourses.size());
+            Log.d(TAG, "🔄 DIAGNOSTIC: ALARM TRIGGERED - performing GPS cycle");
             performOptimalGPSCycle();
         } else {
             // Regular service commands (START_GPS, STOP_GPS, etc.)
@@ -177,22 +175,14 @@ public class OptimalGPSService extends Service {
             
             // CRITICAL: After handling command, perform GPS cycle AND ensure timer is running
             if (!activeCourses.isEmpty()) {
-                Log.e(TAG, "🚀 DIAGNOSTIC: EXECUTING INITIAL GPS CYCLE for " + activeCourses.size() + " active courses");
-                Log.e(TAG, "🔍 DIAGNOSTIC: Active courses details:");
-                for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-                    CourseData course = entry.getValue();
-                    Log.e(TAG, "  - CourseId: " + course.courseId + ", UIT: " + course.uit + ", Status: " + course.status);
-                }
-                
                 // CRITICAL: Ensure GPS timer is ALWAYS running when we have active courses
                 if (!isAlarmActive) {
-                    Log.e(TAG, "🚨 CRITICAL: Active courses but NO timer - starting GPS timer immediately");
+                    Log.d(TAG, "🚀 STARTING GPS TIMER for new course");
                     startOptimalGPSTimer();
                 } else {
-                    Log.e(TAG, "✅ GPS TIMER ALREADY ACTIVE - continuă ciclul GPS");
+                    Log.d(TAG, "⏰ GPS TIMER already active - continuing with " + activeCourses.size() + " courses");
                 }
                 
-                Log.e(TAG, "🚀 FORȚEZ EXECUȚIA IMMEDIATE A CICLULUI GPS - DEBUGGING");
                 performOptimalGPSCycle();
             } else {
                 Log.w(TAG, "⚠️ DIAGNOSTIC: NO ACTIVE COURSES - skipping GPS cycle");
@@ -214,14 +204,9 @@ public class OptimalGPSService extends Service {
             return;
         }
         
-        Log.e(TAG, "⏰ === DEBUGGING === OPTIMAL GPS CYCLE STARTED - getting location for " + activeCourses.size() + " courses");
-        Log.e(TAG, "📊 GPS CYCLE DEBUG: courses=" + activeCourses.size() + ", timer=" + isAlarmActive);
+        Log.d(TAG, "⏰ OPTIMAL GPS CYCLE - getting location for " + activeCourses.size() + " courses");
         
-        // CRITICAL: WakeLock check în GPS cycle
-        if (wakeLock != null && !wakeLock.isHeld()) {
-            wakeLock.acquire(10*60*1000L /*10 minutes*/);
-            Log.e(TAG, "🔋 WakeLock RE-ACQUIRED în GPS cycle pentru background operation");
-        }
+
         
         try {
             // CRITICAL: Get LAST KNOWN location first (instant, no battery)
@@ -531,14 +516,14 @@ public class OptimalGPSService extends Service {
             // CRITICAL: WakeLock PERSISTENT pentru următorul ciclu când e blocat
             if (wakeLock != null && !wakeLock.isHeld()) {
                 wakeLock.acquire(10*60*1000L /*10 minutes*/);
-                Log.e(TAG, "🔋 WakeLock ACQUIRED pentru următorul ciclu GPS - GARANTEZ background operation");
+                Log.d(TAG, "🔋 WakeLock ACQUIRED pentru următorul ciclu GPS - GARANTEZ background operation");
             }
             
             // ADAPTIVE INTERVALS - ca în commit funcțional  
             boolean isLocked = !isScreenOn();
             long intervalMs = isLocked ? GPS_INTERVAL_LOCKED_MS : GPS_INTERVAL_UNLOCKED_MS;
             
-            Log.e(TAG, "📱 SCREEN STATE: " + (isLocked ? "LOCKED (3s)" : "UNLOCKED (10s)"));
+
             
             long nextTriggerTime = SystemClock.elapsedRealtime() + intervalMs;
             alarmManager.setExactAndAllowWhileIdle(
@@ -547,9 +532,10 @@ public class OptimalGPSService extends Service {
                 gpsPendingIntent
             );
             
-            Log.e(TAG, "⏰ NEXT GPS ALARM SET: FORȚAT în " + (intervalMs/1000) + "s for " + activeCourses.size() + " courses");
-            Log.e(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
-            Log.e(TAG, "✅ GPS CONTINUITY GUARANTEED - FORCED 5s intervals, WakeLock: " + (wakeLock != null && wakeLock.isHeld()));
+            String screenState = isLocked ? "BLOCAT" : "DEBLOCAT";
+            Log.d(TAG, "⏰ NEXT GPS ALARM SET: in " + (intervalMs/1000) + "s for " + activeCourses.size() + " courses - TELEFON " + screenState);
+            Log.d(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
+            Log.d(TAG, "✅ GPS CONTINUITY GUARANTEED - interval adaptat pentru " + screenState);
         } else {
             Log.w(TAG, "❌ NO ACTIVE COURSES - stopping GPS timer");
             stopOptimalGPSTimer();
@@ -682,7 +668,7 @@ public class OptimalGPSService extends Service {
         boolean isLocked = !isScreenOn();
         long forcedInterval = isLocked ? GPS_INTERVAL_LOCKED_MS : GPS_INTERVAL_UNLOCKED_MS;
         
-        Log.e(TAG, "📱 INITIAL SCREEN STATE: " + (isLocked ? "LOCKED (3s)" : "UNLOCKED (10s)"));
+
         
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
@@ -691,9 +677,8 @@ public class OptimalGPSService extends Service {
         );
         
         isAlarmActive = true;
-        Log.e(TAG, "✅ === CRITICAL === OPTIMAL GPS TIMER STARTED - " + (forcedInterval/1000) + "s intervals");
-        Log.e(TAG, "🔥 AlarmManager setExactAndAllowWhileIdle - BYPASS Doze mode ACTIVAT");
-        Log.e(TAG, "⏰ Next trigger in: " + (forcedInterval/1000) + " seconds from now");
+        String screenState = isLocked ? "BLOCAT" : "DEBLOCAT";
+        Log.d(TAG, "✅ OPTIMAL GPS timer started - " + (forcedInterval/1000) + "s intervals for TELEFON " + screenState);
     }
     
     /**
