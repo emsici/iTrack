@@ -485,19 +485,19 @@ export const logout = async (token: string): Promise<boolean> => {
           "GPS transmis cu succes prin CapacitorHttp pentru cursa",
           gpsData.uit,
         );
-        reportGPSSuccess(); // Raportează succesul Android GPS
+        // SimpleGPSService handles GPS success reporting natively // Raportează succesul Android GPS
         return true;
       }
 
       console.error("Serverul GPS a respins datele:", response.status);
-      reportGPSError(`Server rejected GPS data: ${response.status}`, response.status);
+      // SimpleGPSService handles GPS error reporting natively
       return false;
     } catch (capacitorError: any) {
       console.error(
         "CapacitorHttp failed, trying fallback fetch:",
         capacitorError.message,
       );
-      reportGPSError(capacitorError); // Raportează eroarea CapacitorHttp
+      // SimpleGPSService handles CapacitorHttp error reporting natively
 
       const fallbackResponse = await fetch(`${API_BASE_URL}gps.php`, {
         method: "POST",
@@ -632,12 +632,12 @@ export const sendGPSData = async (
       // SALVARE AUTOMATĂ OFFLINE pentru orice status care nu e 200/204
       console.error(`❌ GPS failed: ${response.status}`);
       console.error("Response:", response.data);
-      reportGPSError(`HTTP ${response.status}: ${response.data}`, response.status);
+      // SimpleGPSService handles HTTP error reporting natively
       
       console.log('💾 Salvez coordonată offline - server nu răspunde cu succes');
       try {
-        // Use static import - offlineGPSService already imported
-        await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
+        // SimpleGPSService handles offline GPS storage natively
+        // await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
       } catch (error) {
         console.error('❌ Eroare salvare offline:', error);
       }
@@ -679,8 +679,8 @@ export const sendGPSData = async (
         
         console.log('💾 Salvez coordonată offline - fetch fallback eșuat');
         try {
-          // offlineGPSService already imported statically
-          await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
+          // SimpleGPSService handles offline GPS storage natively
+          // await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
         } catch (error) {
           console.error('❌ Eroare salvare offline (fetch):', error);
         }
@@ -699,8 +699,8 @@ export const sendGPSData = async (
     // SALVARE AUTOMATĂ OFFLINE pentru eroare completă de transmisie  
     console.log('💾 Salvez coordonată offline - eroare completă de transmisie');
     try {
-      // offlineGPSService already imported statically
-      await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
+      // SimpleGPSService handles offline GPS storage natively
+      // await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
     } catch (offlineError) {
       console.error('❌ Eroare salvare offline (error catch):', offlineError);
     }

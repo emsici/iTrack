@@ -5,6 +5,12 @@ declare global {
   interface Window {
     AndroidGPS?: {
       getServiceStatus?: () => Promise<string>;
+      updateStatus?: (courseId: string, newStatus: number) => string;
+      clearAllOnLogout?: () => string;
+      startGPS?: (courseId: string, vehicleNumber: string, uit: string, authToken: string, status: number) => string;
+      stopGPS?: (courseId: string) => string;
+      getOfflineGPSCount?: () => string;
+      syncOfflineGPS?: () => string;
     };
   }
 }
