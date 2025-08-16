@@ -42,8 +42,8 @@ public class OptimalGPSService extends Service {
     private static final String API_BASE_URL_DEV = "https://www.euscagency.com/etsm3/platforme/transport/apk/";
     private static final String API_BASE_URL_PROD = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/";
     
-    // Mediul activ curent - REVERT la etsm3 care mergea în commit 5e64eec
-    private static final String API_BASE_URL = API_BASE_URL_DEV; // REVERT la etsm3 (varianta funcțională)
+    // Mediul activ curent - PROD fără WebView (ca în commit funcțional)
+    private static final String API_BASE_URL = API_BASE_URL_PROD; // PROD cu arhitectura simplă
     
     private AlarmManager alarmManager;
     private PendingIntent gpsPendingIntent;
@@ -60,8 +60,7 @@ public class OptimalGPSService extends Service {
     // TRANSMISIE HTTP OPTIMIZATĂ PENTRU FUNDAL
     private ExecutorService httpThreadPool; // Pool de thread-uri simplu pentru a evita blocarea serviciului principal
     
-    // WebView interface pentru raportarea status-ului network către frontend
-    private MainActivity webInterface;
+    // Eliminat WebView interface - revert la simplitatea commit-ului funcțional
     
     public static class CourseData {
         public String courseId;
@@ -96,13 +95,12 @@ public class OptimalGPSService extends Service {
         // FOREGROUND OPTIMIZED: Simple thread pool to avoid blocking AlarmManager
         httpThreadPool = Executors.newFixedThreadPool(1); // Single background thread for HTTP
         
-        // Get MainActivity reference for network status reporting
-        webInterface = MainActivity.getInstance();
+        // Eliminat MainActivity interface - simplificare ca în commit funcțional
         
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
         
-        Log.d(TAG, "✅ OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching + WakeLock + WebInterface");
+        Log.d(TAG, "✅ OPTIMAL GPS Service created - AlarmManager + Optimized HTTP + Batching + WakeLock");
     }
     
     private void createNotificationChannel() {
@@ -206,21 +204,13 @@ public class OptimalGPSService extends Service {
      * GPS hardware is activated ONLY when needed, then immediately turned off
      */
     private void performOptimalGPSCycle() {
-        Log.e(TAG, "🚀 === PERFORMING GPS CYCLE === Entry point reached");
-        Log.e(TAG, "📊 Current activeCourses.size(): " + activeCourses.size());
-        
         if (activeCourses.isEmpty()) {
-            Log.e(TAG, "⏸️ === CRITICAL === No active courses - stopping optimal GPS cycle");
+            Log.d(TAG, "⏸️ No active courses - stopping optimal GPS cycle");
             stopOptimalGPSTimer();
             return;
         }
         
-        Log.e(TAG, "⏰ === OPTIMAL GPS CYCLE === Getting location for " + activeCourses.size() + " courses");
-        Log.e(TAG, "🔍 Active courses details:");
-        for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-            CourseData course = entry.getValue();
-            Log.e(TAG, "  - CourseId: " + course.courseId + ", UIT: " + course.uit + ", Status: " + course.status);
-        }
+        Log.d(TAG, "⏰ OPTIMAL GPS CYCLE - getting location for " + activeCourses.size() + " courses");
         
         // CRITICAL: WakeLock check în GPS cycle
         if (wakeLock != null && !wakeLock.isHeld()) {
@@ -637,43 +627,21 @@ public class OptimalGPSService extends Service {
             if (responseCode == 200) {
                 Log.d(TAG, "✅ GPS SUCCESS " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
                 
-                // CRITICAL: Raportează succesul către frontend pentru network status
-                try {
-                    // Notifică WebView-ul despre transmisia reușită
-                    if (webInterface != null) {
-                        webInterface.onGPSTransmissionSuccess();
-                        Log.d(TAG, "📡 SUCCESS raported to WebView for network status");
-                    }
-                } catch (Exception e) {
-                    Log.w(TAG, "⚠️ Could not report success to WebView: " + e.getMessage());
-                }
+                // SUCCESS - simplificat fără WebView (ca în commit funcțional)
+                Log.d(TAG, "📡 GPS SUCCESS - coordinate transmitted successfully");
             } else {
                 Log.w(TAG, "⚠️ GPS FAILED " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
                 Log.w(TAG, "🔍 Request was: " + jsonData);
                 
-                // CRITICAL: Raportează eșecul către frontend pentru network status
-                try {
-                    if (webInterface != null) {
-                        webInterface.onGPSTransmissionError(responseCode);
-                        Log.d(TAG, "📡 ERROR raported to WebView for network status");
-                    }
-                } catch (Exception e) {
-                    Log.w(TAG, "⚠️ Could not report error to WebView: " + e.getMessage());
-                }
+                // ERROR - simplificat fără WebView (ca în commit funcțional)
+                Log.w(TAG, "📡 GPS ERROR - transmission failed");
             }
             
         } catch (Exception e) {
             Log.e(TAG, "❌ FOREGROUND GPS FAILED for " + courseId + ": " + e.getMessage());
             
-            // CRITICAL: Raportează eșecul către frontend pentru network status
-            try {
-                if (webInterface != null) {
-                    webInterface.onGPSTransmissionError(0); // 0 = network error
-                    Log.d(TAG, "📡 NETWORK ERROR raported to WebView");
-                }
-            } catch (Exception webError) {
-                Log.w(TAG, "⚠️ Could not report network error to WebView: " + webError.getMessage());
-            }
+            // NETWORK ERROR - simplificat fără WebView (ca în commit funcțional)
+            Log.e(TAG, "📡 NETWORK ERROR - connection failed");
             
             // No retry for foreground - next transmission comes in 5 seconds anyway
         } finally {
@@ -853,10 +821,8 @@ public class OptimalGPSService extends Service {
         );
         
         isAlarmActive = true;
-        Log.e(TAG, "✅ === CRITICAL === OPTIMAL GPS timer started - FORȚAT la " + (forcedInterval/1000) + "s intervals pentru CONTINUITATE");
-        Log.e(TAG, "🔥 AlarmManager setExactAndAllowWhileIdle - BYPASS complet Doze mode și battery optimization");
-        Log.e(TAG, "⏰ Next alarm scheduled at: " + (SystemClock.elapsedRealtime() + forcedInterval) + " (current: " + SystemClock.elapsedRealtime() + ")");
-        Log.e(TAG, "📡 PendingIntent created: " + (gpsPendingIntent != null ? "SUCCESS" : "FAILED"));
+        Log.d(TAG, "✅ OPTIMAL GPS timer started - " + (forcedInterval/1000) + "s intervals");
+        Log.d(TAG, "🔥 AlarmManager setExactAndAllowWhileIdle - BYPASS Doze mode");
     }
     
     /**
@@ -924,12 +890,7 @@ public class OptimalGPSService extends Service {
             Log.e(TAG, "📊 ACTIVE COURSES COUNT: " + activeCourses.size());
             Log.e(TAG, "🔍 ALARM STATUS: isAlarmActive = " + isAlarmActive);
             
-            // DEBUGGING: Force immediate GPS cycle to test
-            Log.e(TAG, "🚀 === TESTING === Forcing immediate GPS cycle for debugging...");
-            new android.os.Handler().postDelayed(() -> {
-                Log.e(TAG, "🔥 === FORCED TEST === Starting immediate GPS cycle...");
-                performOptimalGPSCycle();
-            }, 1000); // 1 second delay
+            // Eliminat forced testing - simplificare ca în commit funcțional
             
             // CRITICAL FIX: ALWAYS ensure GPS timer is running for ANY active course
             if (!isAlarmActive) {
