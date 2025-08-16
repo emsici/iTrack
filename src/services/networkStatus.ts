@@ -111,9 +111,7 @@ class NetworkStatusService {
     }
     
     if (timeSinceLastSuccess > this.OFFLINE_THRESHOLD_MS && this.isOnline) {
-      logAPI(`⚠️ ${timeSinceLastSuccess}ms fără transmisie GPS reușită - verificăm conectivitatea`);
-      
-      // PING TEST SIMPLU pentru verificare reală internet
+      // ELIMINAT log-ul care interfera - verificare silențioasă
       this.performConnectivityTest();
     }
   }
@@ -130,15 +128,8 @@ class NetworkStatusService {
         mode: 'no-cors' // Pentru a evita CORS issues
       });
       
-      // Dacă ajungem aici, avem internet
-      if (this.consecutiveFailures === 0) {
-        // Dacă nu avem eșecuri dar nici GPS success, probabil serviciul Android e oprit
-        logAPI('🟡 Internet OK dar serviciul Android GPS poate fi oprit când telefonul e blocat');
-      } else {
-        // Reset failures dacă internetul merge
-        this.consecutiveFailures = 0;
-        logAPI('🟢 Test conectivitate OK - internet funcționează');
-      }
+      // Reset failures silențios - fără log-uri
+      this.consecutiveFailures = 0;
       
     } catch (error) {
       // Nu avem internet real

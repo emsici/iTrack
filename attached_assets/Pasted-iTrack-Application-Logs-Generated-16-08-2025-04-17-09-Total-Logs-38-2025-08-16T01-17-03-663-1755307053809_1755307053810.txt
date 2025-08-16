@@ -1,0 +1,42 @@
+iTrack Application Logs
+Generated: 16.08.2025, 04:17:09
+Total Logs: 38
+
+[2025-08-16T01:17:03.663Z] INFO (API): 🟡 Internet OK dar serviciul Android GPS poate fi oprit când telefonul e blocat
+[2025-08-16T01:17:03.540Z] INFO (APP): 🔍 Verificare conectivitate la server-ul utilizatorului...
+[2025-08-16T01:17:03.536Z] INFO (API): ⚠️ 90003ms fără transmisie GPS reușită - verificăm conectivitatea
+[2025-08-16T01:16:33.654Z] INFO (API): 🟡 Internet OK dar serviciul Android GPS poate fi oprit când telefonul e blocat
+[2025-08-16T01:16:33.548Z] INFO (APP): 🔍 Verificare conectivitate la server-ul utilizatorului...
+[2025-08-16T01:16:33.546Z] INFO (API): ⚠️ 60013ms fără transmisie GPS reușită - verificăm conectivitatea
+[2025-08-16T01:16:30.853Z] INFO (APP): Acțiune cursă finalizată: 133944
+[2025-08-16T01:16:30.853Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-16T01:16:30.853Z] INFO (API): Course 8K6N433546130173 status updated successfully to 2
+[2025-08-16T01:16:30.852Z] INFO (APP): ✅ Cursa 8K6N433546130173 status actualizat la 2 cu succes
+[2025-08-16T01:16:30.852Z] INFO (GPS): ✅ MainActivity GPS status updated: SUCCESS: Status update requested for 8K6N433546130173
+[2025-08-16T01:16:30.846Z] INFO (APP): ✅ GPS ANDROID PORNIT pentru START/RESUME - varianta care mergea
+[2025-08-16T01:16:30.844Z] INFO (GPS): ✅ Android GPS PORNIT: SUCCESS: GPS started for 8K6N433546130173 - varianta funcțională
+[2025-08-16T01:16:30.840Z] INFO (GPS): 🎯 ANDROID GPS: Starting direct service - commit 656f7610 care mergea
+[2025-08-16T01:16:30.840Z] INFO (APP): 🗂️ Courses in map: [8K6N433546130173]
+[2025-08-16T01:16:30.840Z] INFO (APP): 📊 Active courses after start: 1
+[2025-08-16T01:16:30.840Z] INFO (GPS): 🚀 Starting GPS tracking (June 26th method): 8K6N433546130173
+[2025-08-16T01:16:30.840Z] INFO (APP): 🚀 START/RESUME GPS DIRECT Android - varianta originală
+[2025-08-16T01:16:30.820Z] INFO (APP): 🔄 Updating course status via MainActivity Android: 8K6N433546130173 → 2
+[2025-08-16T01:16:30.820Z] INFO (APP): 📱 Browser GPS OPRIT - OptimalGPSService gestionează coordonatele cu HDOP <10m
+[2025-08-16T01:16:30.820Z] INFO (APP): 🤖 ANDROID GPS: Se delegă totul la OptimalGPSService pentru precizie maximă
+[2025-08-16T01:16:30.820Z] INFO (APP): 📱 Info platformă: Android
+[2025-08-16T01:16:30.820Z] INFO (APP): 📞 Se apelează funcția GPS cu UIT: 8K6N433546130173 (nu ID: 133944)
+[2025-08-16T01:16:30.819Z] INFO (APP): 🎯 Se delegă toată logica GPS la serviciul directAndroidGPS
+[2025-08-16T01:16:30.819Z] INFO (APP): ✅ Permisiuni GPS acordate
+[2025-08-16T01:16:29.558Z] INFO (APP): 🔍 Se solicită permisiuni GPS pentru pornirea cursei...
+[2025-08-16T01:16:29.557Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-16T01:16:29.557Z] INFO (APP): UIT REAL: 8K6N433546130173, Vehicul: TM20RTA
+[2025-08-16T01:16:29.557Z] INFO (APP): Cursă: 133944, Status: 1 → 2
+[2025-08-16T01:16:29.557Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-16T01:16:29.557Z] INFO (APP): 💾 Status 2 salvat pentru UIT 8K6N433546130173
+[2025-08-16T01:16:29.556Z] INFO (APP): Se procesează acțiunea pentru cursa: 133944
+[2025-08-16T01:16:26.803Z] INFO (APP): Log-uri copiate cu succes în clipboard
+[2025-08-16T01:16:03.638Z] INFO (API): 🟡 Internet OK dar serviciul Android GPS poate fi oprit când telefonul e blocat
+[2025-08-16T01:16:03.539Z] INFO (APP): 🔍 Verificare conectivitate la server-ul utilizatorului...
+[2025-08-16T01:16:03.536Z] INFO (API): ⚠️ 30003ms fără transmisie GPS reușită - verificăm conectivitatea
+[2025-08-16T01:16:03.095Z] INFO (APP): Log-uri șterse cu succes
+[2025-08-16T01:16:03.094Z] INFO (SYSTEM): Logs cleared
