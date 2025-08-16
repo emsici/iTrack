@@ -103,17 +103,12 @@ public class BackgroundGPSService extends Service {
         gpsExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                long timestamp = System.currentTimeMillis();
-                Log.e(TAG, "🔄 === SCHEDULED GPS CYCLE " + timestamp + " ===");
-                Log.e(TAG, "⏱️ Next cycle in " + GPS_INTERVAL_SECONDS + " seconds");
-                
-                // Run GPS cycle on background thread
-                backgroundHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        performGPSCycle();
-                    }
-                });
+                try {
+                    Log.e(TAG, "🔄 GPS Cycle");
+                    performGPSCycle();
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ Cycle error: " + e.getMessage());
+                }
             }
         }, 2, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
         
@@ -154,9 +149,13 @@ public class BackgroundGPSService extends Service {
             LocationListener listener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    Log.e(TAG, "✅ GPS: " + location.getLatitude() + ", " + location.getLongitude());
-                    locationManager.removeUpdates(this);
-                    transmitGPSData(location);
+                    try {
+                        Log.e(TAG, "✅ GPS: " + location.getLatitude() + ", " + location.getLongitude());
+                        locationManager.removeUpdates(this);
+                        transmitGPSData(location);
+                    } catch (Exception e) {
+                        Log.e(TAG, "❌ Location error: " + e.getMessage());
+                    }
                 }
                 
                 @Override
@@ -174,14 +173,17 @@ public class BackgroundGPSService extends Service {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
                 Log.e(TAG, "🛰️ GPS request sent");
                 
-                // Timeout
-                backgroundHandler.postDelayed(new Runnable() {
+                // Simple timeout without handler complications
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        locationManager.removeUpdates(listener);
-                        Log.e(TAG, "⏰ GPS timeout");
+                        try {
+                            Thread.sleep(8000);
+                            locationManager.removeUpdates(listener);
+                            Log.e(TAG, "⏰ GPS timeout");
+                        } catch (Exception e) {}
                     }
-                }, 10000);
+                }).start();
             } else {
                 Log.e(TAG, "❌ GPS disabled");
             }
