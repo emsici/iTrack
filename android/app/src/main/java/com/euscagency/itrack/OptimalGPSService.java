@@ -91,6 +91,19 @@ public class OptimalGPSService extends Service {
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
+        // CRITICAL VALIDATION: Verify essential services are available
+        if (alarmManager == null) {
+            Log.e(TAG, "❌ FATAL: AlarmManager is NULL - GPS timer cannot function!");
+        } else {
+            Log.e(TAG, "✅ CRITICAL: AlarmManager initialized successfully");
+        }
+        
+        if (locationManager == null) {
+            Log.e(TAG, "❌ FATAL: LocationManager is NULL - GPS cannot function!");
+        } else {
+            Log.e(TAG, "✅ CRITICAL: LocationManager initialized successfully");
+        }
+        
         // Initialize WakeLock for background operation
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "iTrack:OptimalGPS");
@@ -516,13 +529,35 @@ public class OptimalGPSService extends Service {
                 Log.d(TAG, "🔋 WakeLock ACQUIRED pentru următorul ciclu GPS - GARANTEZ background operation");
             }
             
+            // CRITICAL VALIDATION: Verify AlarmManager in scheduleNext as well
+            if (alarmManager == null) {
+                Log.e(TAG, "❌ FATAL: AlarmManager is NULL in scheduleNextOptimalGPSCycle - recreating service");
+                return;
+            }
+            
             // INTERVAL FIX: 5 secunde exact ca în commit-ul funcțional 9c5b19b
             long nextTriggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                nextTriggerTime,
-                gpsPendingIntent
-            );
+            try {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    nextTriggerTime,
+                    gpsPendingIntent
+                );
+                Log.e(TAG, "✅ === CRITICAL === NEXT ALARM SCHEDULED SUCCESSFULLY");
+            } catch (Exception e) {
+                Log.e(TAG, "❌ FATAL: Schedule next alarm FAILED: " + e.getMessage());
+                Log.e(TAG, "🔍 Trying fallback schedule method...");
+                try {
+                    alarmManager.setAndAllowWhileIdle(
+                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        nextTriggerTime,
+                        gpsPendingIntent
+                    );
+                    Log.e(TAG, "✅ FALLBACK: Next alarm scheduled successfully");
+                } catch (Exception fallbackError) {
+                    Log.e(TAG, "❌ FATAL: All schedule methods FAILED: " + fallbackError.getMessage());
+                }
+            }
             
             Log.e(TAG, "⏰ === CRITICAL === NEXT GPS ALARM SET: in exactly " + (GPS_INTERVAL_MS/1000) + "s for " + activeCourses.size() + " active courses");
             Log.e(TAG, "📡 Trigger time: " + nextTriggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
@@ -647,13 +682,35 @@ public class OptimalGPSService extends Service {
             this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
         
+        // CRITICAL VALIDATION: Verify AlarmManager is available before setting alarm
+        if (alarmManager == null) {
+            Log.e(TAG, "❌ FATAL: AlarmManager is NULL in startOptimalGPSTimer - cannot set GPS alarm!");
+            return;
+        }
+        
         // INTERVAL FIX: 5 secunde exact ca în commit-ul funcțional 9c5b19b
         long triggerTime = SystemClock.elapsedRealtime() + GPS_INTERVAL_MS;
-        alarmManager.setExactAndAllowWhileIdle(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            triggerTime,
-            gpsPendingIntent
-        );
+        try {
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                triggerTime,
+                gpsPendingIntent
+            );
+            Log.e(TAG, "✅ === CRITICAL === AlarmManager.setExactAndAllowWhileIdle() SUCCESS");
+        } catch (Exception e) {
+            Log.e(TAG, "❌ FATAL: AlarmManager.setExactAndAllowWhileIdle() FAILED: " + e.getMessage());
+            Log.e(TAG, "🔍 Trying fallback alarm method...");
+            try {
+                alarmManager.setAndAllowWhileIdle(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    triggerTime,
+                    gpsPendingIntent
+                );
+                Log.e(TAG, "✅ FALLBACK: AlarmManager.setAndAllowWhileIdle() SUCCESS");
+            } catch (Exception fallbackError) {
+                Log.e(TAG, "❌ FATAL: All AlarmManager methods FAILED: " + fallbackError.getMessage());
+            }
+        }
         
         isAlarmActive = true;
         Log.e(TAG, "✅ === CRITICAL === OPTIMAL GPS timer STARTED - EXACT " + (GPS_INTERVAL_MS/1000) + "s intervals");
@@ -692,14 +749,20 @@ public class OptimalGPSService extends Service {
             Log.e(TAG, "  authToken: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
             Log.e(TAG, "  status: " + status);
             
-            // Validate critical parameters
+            // CRITICAL FIX: Validate parameters but STILL try to start timer if possible
             if (courseId == null || uit == null || authToken == null || vehicleNumber == null) {
-                Log.e(TAG, "❌ CRITICAL: Missing required GPS parameters - cannot start GPS");
+                Log.e(TAG, "❌ CRITICAL: Missing required GPS parameters - cannot add course BUT will still ensure timer runs");
                 Log.e(TAG, "Missing: " + 
                       (courseId == null ? "courseId " : "") +
                       (uit == null ? "uit " : "") +
                       (authToken == null ? "authToken " : "") +
                       (vehicleNumber == null ? "vehicleNumber " : ""));
+                
+                // CRITICAL FIX: Still ensure AlarmManager runs even with bad parameters
+                if (!isAlarmActive && !activeCourses.isEmpty()) {
+                    Log.e(TAG, "🚀 EMERGENCY: Starting GPS timer despite parameter errors - existing courses need GPS");
+                    startOptimalGPSTimer();
+                }
                 return;
             }
             
