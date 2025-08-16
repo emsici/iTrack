@@ -24,7 +24,7 @@ import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
 import OfflineIndicator from "./OfflineIndicator";
-import OfflineSyncMonitor from "./OfflineSyncMonitor";
+// import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Commented unused import
 import { simpleNetworkCheck } from "../services/simpleNetworkCheck";
 import { offlineGPSService } from "../services/offlineGPS";
 
@@ -51,13 +51,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loadingCourses] = useState(new Set<string>());
 
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
-  const [offlineSyncProgress, setOfflineSyncProgress] = useState({
-    totalOffline: 0,
-    totalSynced: 0,
-    syncInProgress: false,
-    lastSyncAttempt: null as Date | null,
-    syncErrors: 0
-  });
+  // Removed unused offline sync progress state - managed by OfflineSyncProgress component
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
@@ -452,12 +446,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         const actionInfo = actionMessages[action as keyof typeof actionMessages];
         if (actionInfo) {
-          toast.addToast({
-            type: 'info',
-            title: actionInfo.title,
-            message: actionInfo.message,
-            duration: 3000
-          });
+          toast.info(actionInfo.title, actionInfo.message, 3000);
         }
       }
 
@@ -498,12 +487,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           
           const successInfo = successMessages[action as keyof typeof successMessages];
           if (successInfo) {
-            toast.addToast({
-              type: 'success',
-              title: successInfo.title,
-              message: successInfo.message,
-              duration: 4000
-            });
+            toast.success(successInfo.title, successInfo.message, 4000);
           }
         }
         
