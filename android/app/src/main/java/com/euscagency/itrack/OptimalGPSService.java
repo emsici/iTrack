@@ -165,10 +165,8 @@ public class OptimalGPSService extends Service {
         }
         
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
-            // ALARM TRIGGERED: Get GPS location and transmit for all active courses
-            Log.e(TAG, "🔄 === CRITICAL === ALARM TRIGGERED - performing GPS cycle");
-            Log.e(TAG, "⏰ AlarmManager SUCCESS - timer working correctly");
-            Log.e(TAG, "📊 Current activeCourses.size(): " + activeCourses.size());
+            // ALARM TRIGGERED: Get GPS location and transmit for all active courses - exact ca în commit 3be6ade
+            Log.d(TAG, "🔄 DIAGNOSTIC: ALARM TRIGGERED - performing GPS cycle");
             performOptimalGPSCycle();
         } else {
             // Regular service commands (START_GPS, STOP_GPS, etc.)
@@ -188,9 +186,14 @@ public class OptimalGPSService extends Service {
             
             handleServiceCommand(intent);
             
-            // CRITICAL FIX: Restore immediate GPS cycle after handling command like in functional commit 63d83ed
+            // CRITICAL: After handling command, perform GPS cycle if we have active courses - exact ca în commit 3be6ade
             if (!activeCourses.isEmpty()) {
-                Log.e(TAG, "🔄 === CRITICAL === Starting immediate GPS cycle - functional commit behavior");
+                Log.d(TAG, "🚀 DIAGNOSTIC: EXECUTING INITIAL GPS CYCLE for " + activeCourses.size() + " active courses");
+                Log.d(TAG, "🔍 DIAGNOSTIC: Active courses details:");
+                for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+                    CourseData course = entry.getValue();
+                    Log.d(TAG, "  - CourseId: " + course.courseId + ", UIT: " + course.uit + ", Status: " + course.status);
+                }
                 performOptimalGPSCycle();
             } else {
                 Log.w(TAG, "⚠️ DIAGNOSTIC: NO ACTIVE COURSES - skipping GPS cycle");
@@ -212,7 +215,7 @@ public class OptimalGPSService extends Service {
             return;
         }
         
-        Log.e(TAG, "⏰ === CRITICAL === OPTIMAL GPS CYCLE STARTED - getting location for " + activeCourses.size() + " courses");
+        Log.d(TAG, "⏰ OPTIMAL GPS CYCLE - getting location for " + activeCourses.size() + " courses");
         
 
         
@@ -701,12 +704,12 @@ public class OptimalGPSService extends Service {
             String authToken = intent.getStringExtra("authToken");
             int status = intent.getIntExtra("status", 2);
             
-            Log.e(TAG, "📋 === CRITICAL === RECEIVED GPS PARAMETERS:");
-            Log.e(TAG, "  courseId: " + courseId);
-            Log.e(TAG, "  uit: " + uit);
-            Log.e(TAG, "  vehicleNumber: " + vehicleNumber);
-            Log.e(TAG, "  authToken: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
-            Log.e(TAG, "  status: " + status);
+            Log.d(TAG, "📋 RECEIVED GPS PARAMETERS:");
+            Log.d(TAG, "  courseId: " + courseId);
+            Log.d(TAG, "  uit: " + uit);
+            Log.d(TAG, "  vehicleNumber: " + vehicleNumber);
+            Log.d(TAG, "  authToken: " + (authToken != null ? authToken.substring(0, Math.min(30, authToken.length())) + "..." : "null"));
+            Log.d(TAG, "  status: " + status);
             
             // CRITICAL FIX: Validate parameters but STILL try to start timer if possible
             if (courseId == null || uit == null || authToken == null || vehicleNumber == null) {
