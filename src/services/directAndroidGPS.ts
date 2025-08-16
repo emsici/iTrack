@@ -127,13 +127,13 @@ class DirectAndroidGPSService {
       if (newStatus === 2) {
         console.log(`🚀 STEP 3: STARTING GPS tracking + hibrid browser backup`);
         
-        // Start Android GPS
+        // Start Android GPS - METODA PRINCIPALA CARE MERGEA
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
         
-        // Start hibrid browser backup la 30s pentru siguranță
-        await this.startHibridBrowserBackup(courseId, vehicleNumber, realUIT, token, newStatus);
+        // NU MAI PORNIM browser backup simultan - era cauza triplei transmisii
+        // OptimalGPSService.java e suficient pentru background
         
-        console.log(`✅ GPS HIBRID PORNIT - Android principal + browser backup`);
+        console.log(`✅ GPS PRINCIPAL PORNIT - DOAR Android OptimalGPSService`);
       }
       
       // Update local tracking - CRITICAL FIX: Remove courses with status 3/4 completely
@@ -351,25 +351,27 @@ class DirectAndroidGPSService {
     
     logGPS(`🎯 ANDROID GPS: Starting direct Android background service`);
     
-    // DIRECT ANDROID GPS CALL pentru background service
+    // METODA PRINCIPALA CARE MERGEA: DOAR Android GPS nativ, fără backup simultan
     if (window.AndroidGPS && window.AndroidGPS.startGPS) {
       try {
         const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ DIRECT Android GPS started: ${result}`);
+        logGPS(`✅ METODA PRINCIPALA: Direct Android GPS started: ${result}`);
+        logGPS(`🎯 DOAR OptimalGPSService.java va transmite - NU MAI PORNIM backup simultan`);
         
-        // Backup garantat service pentru siguranță
-        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ Backup GPS service started for course: ${courseId}`);
+        // NU MAI PORNIM garanteedGPSService simultan - era cauza duplicatelor
+        // OptimalGPSService.java se ocupă de tot background GPS-ul
         
       } catch (error) {
-        logGPSError(`❌ Direct Android GPS failed: ${error} - using backup`);
-        // Fallback la garanteed GPS
+        logGPSError(`❌ Direct Android GPS failed: ${error} - usando backup`);
+        // DOAR la eșec pornesc backup
         await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+        logGPS(`🔄 BACKUP ACTIVAT doar pentru că Android GPS a eșuat`);
       }
     } else {
-      logGPS(`⚠️ AndroidGPS interface not available - using garanteed GPS backup`);
-      // Direct backup când nu avem Android GPS
+      logGPS(`⚠️ AndroidGPS interface not available - usando backup`);
+      // DOAR când Android GPS nu e disponibil
       await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+      logGPS(`🔄 BACKUP ACTIVAT doar pentru că Android GPS nu e disponibil`);
     }
   }
 
