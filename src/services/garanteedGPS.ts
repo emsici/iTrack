@@ -82,10 +82,10 @@ class GuaranteedGPSService {
         return;
       }
 
-      // Verifică conectivitatea înainte de orice transmisie
+      // Când nu există internet, coordonatele se salvează offline
       if (!simpleNetworkCheck.getIsOnline()) {
-        logGPS(`🔴 INTERNET OFFLINE - oprire temporară GPS până revine conexiunea`);
-        return;
+        logGPS(`🟡 INTERNET OFFLINE - coordonatele se salvează offline pentru transmisie ulterioară`);
+        // GPS continuă să colecteze coordonate offline
       }
 
       // SIMPLIFICAT: Presupunem că Android GPS funcționează dacă există
@@ -111,10 +111,10 @@ class GuaranteedGPSService {
       return;
     }
 
-    // Verifică conectivitatea înainte de transmisie
+    // Când nu există internet, coordonatele se salvează offline pentru transmisie ulterioară
     if (!simpleNetworkCheck.getIsOnline()) {
-      logGPS(`🔴 INTERNET OFFLINE - oprire temporară GPS până revine conexiunea`);
-      return;
+      logGPS(`🟡 INTERNET OFFLINE - coordonatele se salvează offline pentru transmisie ulterioară`);
+      // GPS continuă să colecteze coordonate offline
     }
 
     // Filtrare cursele care sunt efectiv în progres (status 2)

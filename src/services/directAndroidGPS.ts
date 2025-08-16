@@ -86,6 +86,14 @@ class DirectAndroidGPSService {
         // DIRECT Android GPS - pentru START și RESUME (revenire din pauză)
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
         
+        // TESTARE: Pornește ȘI GPS GARANTAT ca backup/verificare
+        try {
+          await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, realUIT, token, newStatus);
+          console.log(`✅ GPS GARANTAT BACKUP pornit pentru verificare/testare`);
+        } catch (guaranteedError) {
+          console.warn(`⚠️ GPS Garantat backup nu s-a putut porni: ${guaranteedError}`);
+        }
+        
         console.log(`✅ GPS ANDROID PORNIT pentru START/RESUME - varianta care mergea`);
       }
       
@@ -153,10 +161,9 @@ class DirectAndroidGPSService {
     
     logGPS(`🎯 ANDROID GPS: Starting direct service - commit 656f7610 care mergea`);
     
-    // Verifică conectivitatea înainte de a porni GPS-ul
+    // GPS se pornește ÎNTOTDEAUNA - offline storage se activează automat când nu există net
     if (!simpleNetworkCheck.getIsOnline()) {
-      logGPSError('🔴 INTERNET OFFLINE - GPS nu se pornește fără conexiune');
-      throw new Error('Nu există conexiune la internet - GPS nu poate fi pornit');
+      logGPS('🟡 INTERNET OFFLINE - GPS pornește cu OFFLINE STORAGE activat');
     }
     
     // EXACT ca în commit-ul care mergea - DOAR Android GPS direct
