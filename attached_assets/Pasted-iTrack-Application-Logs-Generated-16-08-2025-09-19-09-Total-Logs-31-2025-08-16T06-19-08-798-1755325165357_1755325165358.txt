@@ -1,0 +1,35 @@
+iTrack Application Logs
+Generated: 16.08.2025, 09:19:09
+Total Logs: 31
+
+[2025-08-16T06:19:08.798Z] INFO (APP): Log-uri copiate cu succes în clipboard
+[2025-08-16T06:18:51.956Z] INFO (APP): Acțiune cursă finalizată: 133944
+[2025-08-16T06:18:51.956Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-16T06:18:51.956Z] INFO (API): Course 8K6N433546130173 status updated successfully to 2
+[2025-08-16T06:18:51.956Z] INFO (APP): ✅ Cursa 8K6N433546130173 status actualizat la 2 cu succes
+[2025-08-16T06:18:51.955Z] INFO (GPS): ✅ MainActivity GPS status updated via WebView: SUCCESS: NATIVE GPS status ACTIVE for 8K6N433546130173
+[2025-08-16T06:18:51.953Z] INFO (GPS): 🚨 AndroidGPSPlugin nu există - folosim direct WebView bridge
+[2025-08-16T06:18:51.952Z] INFO (APP): ✅ GPS ANDROID PORNIT pentru START/RESUME - varianta care mergea
+[2025-08-16T06:18:51.951Z] INFO (GPS): ✅ NATIVE SimpleGPS PORNIT via WebView: SUCCESS: NATIVE GPS started for 8K6N433546130173 - sistem GPS nativ cu precizie maximă
+[2025-08-16T06:18:51.945Z] INFO (GPS): 🚨 Direct WebView bridge la SimpleGPSService - GPS nativ cu precizie maximă
+[2025-08-16T06:18:51.945Z] INFO (GPS): 🎯 ANDROID GPS: Starting direct service - commit 656f7610 care mergea
+[2025-08-16T06:18:51.945Z] INFO (APP): 🗂️ Courses in map: [8K6N433546130173]
+[2025-08-16T06:18:51.944Z] INFO (APP): 📊 Active courses after start: 1
+[2025-08-16T06:18:51.944Z] INFO (GPS): 🚀 Starting GPS tracking (June 26th method): 8K6N433546130173
+[2025-08-16T06:18:51.944Z] INFO (APP): 🚀 START/RESUME GPS DIRECT Android - varianta originală
+[2025-08-16T06:18:51.925Z] INFO (APP): 🔄 Updating course status via MainActivity Android: 8K6N433546130173 → 2
+[2025-08-16T06:18:51.924Z] INFO (APP): 📱 Browser GPS OPRIT - SimpleGPSService gestionează coordonatele cu GPS nativ
+[2025-08-16T06:18:51.924Z] INFO (APP): 🤖 ANDROID GPS: Se delegă totul la SimpleGPSService pentru precizie maximă
+[2025-08-16T06:18:51.924Z] INFO (APP): 📱 Info platformă: Android
+[2025-08-16T06:18:51.924Z] INFO (APP): 📞 Se apelează funcția GPS cu UIT: 8K6N433546130173 (nu ID: 133944)
+[2025-08-16T06:18:51.924Z] INFO (APP): 🎯 Se delegă toată logica GPS la serviciul directAndroidGPS
+[2025-08-16T06:18:51.923Z] INFO (APP): ✅ Permisiuni GPS acordate
+[2025-08-16T06:18:50.726Z] INFO (APP): 🔍 Se solicită permisiuni GPS pentru pornirea cursei...
+[2025-08-16T06:18:50.726Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-16T06:18:50.726Z] INFO (APP): UIT REAL: 8K6N433546130173, Vehicul: TM20RTA
+[2025-08-16T06:18:50.726Z] INFO (APP): Cursă: 133944, Status: 1 → 2
+[2025-08-16T06:18:50.725Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-16T06:18:50.725Z] INFO (APP): 💾 Status 2 salvat pentru UIT 8K6N433546130173
+[2025-08-16T06:18:50.725Z] INFO (APP): Se procesează acțiunea pentru cursa: 133944
+[2025-08-16T06:18:48.954Z] INFO (APP): Log-uri șterse cu succes
+[2025-08-16T06:18:48.954Z] INFO (SYSTEM): Logs cleared

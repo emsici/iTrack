@@ -467,11 +467,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       try {
         console.log(`🎯 Se delegă toată logica GPS la serviciul directAndroidGPS`);
         console.log(`📞 Se apelează funcția GPS cu UIT: ${courseToUpdate.uit} (nu ID: ${courseId})`);
-        console.log(`📱 Info platformă: ${navigator.userAgent.includes('Android') ? 'Android' : 'Browser'}`);
+        console.log(`📱 Platformă ANDROID - aplicație APK nativă`);
         
-        // ANDROID ONLY: Delegate totul la SimpleGPSService pentru coordonate precise
-        console.log(`🤖 ANDROID GPS: Se delegă totul la SimpleGPSService pentru precizie maximă`);
-        console.log(`📱 Browser GPS OPRIT - SimpleGPSService gestionează coordonatele cu GPS nativ`);
+        // ANDROID NATIVE: SimpleGPSService cu coordonate precise
+        console.log(`🤖 ANDROID NATIVE: SimpleGPSService cu GPS nativ și precizie maximă`);
+        console.log(`📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, baterie/semnal reale`);
         await updateCourseStatus(courseToUpdate.uit, newStatus);
         
         console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);

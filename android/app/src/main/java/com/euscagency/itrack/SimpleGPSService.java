@@ -279,9 +279,20 @@ public class SimpleGPSService extends Service {
         isGPSActive = true;
         Log.e(TAG, "✅ GPS Timer Started - 5 second intervals (identic cu OptimalGPSService)");
         
-        // Immediate first GPS reading
-        Log.e(TAG, "📍 Triggering immediate first GPS reading...");
-        performGPSCycle();
+        // Immediate first GPS reading with debug
+        Log.e(TAG, "📍 === TRIGGERING IMMEDIATE GPS READING ===");
+        Log.e(TAG, "📊 Active courses before first reading: " + activeCourses.size());
+        
+        // Add debug delay to verify the method is called
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000); // 1 second delay for clarity
+                Log.e(TAG, "🔥 === IMMEDIATE GPS CYCLE STARTING ===");
+                performGPSCycle();
+            } catch (Exception e) {
+                Log.e(TAG, "❌ Error in immediate GPS cycle: " + e.getMessage());
+            }
+        }).start();
     }
     
     private void stopGPSTimer() {
@@ -294,21 +305,30 @@ public class SimpleGPSService extends Service {
     }
     
     private void performGPSCycle() {
+        Log.e(TAG, "🔥 === PERFORM GPS CYCLE CALLED ===");
+        Log.e(TAG, "📊 Active courses: " + activeCourses.size());
+        
         if (activeCourses.isEmpty()) {
             Log.e(TAG, "❌ No active courses - skipping GPS cycle");
+            scheduleNextGPSCycle(); // Still schedule next cycle
             return;
         }
         
-        Log.e(TAG, "📡 GPS Cycle for " + activeCourses.size() + " active courses");
+        Log.e(TAG, "📡 === GPS CYCLE STARTING === for " + activeCourses.size() + " active courses");
+        for (String courseId : activeCourses.keySet()) {
+            Log.e(TAG, "  - Course: " + courseId + " (status: " + activeCourses.get(courseId).status + ")");
+        }
         
         Log.e(TAG, "📍 Getting HIGH PRECISION GPS location...");
         
         try {
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Log.e(TAG, "❌ No GPS permission");
+                Log.e(TAG, "❌ === CRITICAL === No GPS permission - aborting GPS cycle");
                 scheduleNextGPSCycle();
                 return;
             }
+            
+            Log.e(TAG, "✅ GPS permission verified - proceeding with location request");
             
             // NATIVE GPS: Configure criteria for highest precision
             Criteria criteria = new Criteria();
@@ -453,7 +473,7 @@ public class SimpleGPSService extends Service {
                 boolean transmissionSuccess = false;
                 
                 try {
-                    // Prepare POST data with NATIVE values exactly like original system
+                    // EXACT GPS DATA FORMAT: Identic cu OptimalGPSService original
                     String postData = "uit=" + course.uit +
                                     "&lat=" + lat +
                                     "&lng=" + lng +
@@ -461,8 +481,15 @@ public class SimpleGPSService extends Service {
                                     "&numar_masina=" + course.vehicleNumber +
                                     "&level_baterie=" + batteryLevel +
                                     "&putere_semnal=" + signalStrength +
-                                    "&status=" + course.status + // Include current status
+                                    "&status=" + course.status +
                                     "&jwt_token=" + course.authToken;
+                    
+                    Log.e(TAG, "📤 POST DATA EXACT pentru gps.php:");
+                    Log.e(TAG, "  uit=" + course.uit);
+                    Log.e(TAG, "  lat=" + lat + " lng=" + lng);
+                    Log.e(TAG, "  numar_masina=" + course.vehicleNumber);
+                    Log.e(TAG, "  level_baterie=" + batteryLevel + " putere_semnal=" + signalStrength);
+                    Log.e(TAG, "  status=" + course.status + " jwt_token=[HIDDEN]");
                     
                     // Send HTTP POST to gps.php
                     URL url = new URL(GPS_ENDPOINT);
