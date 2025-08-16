@@ -28,9 +28,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
 
 // OkHttp imports pentru HTTP modern și eficient
 import okhttp3.OkHttpClient;
@@ -516,7 +514,7 @@ public class SimpleGPSService extends Service {
                     Log.e(TAG, "  JSON: " + jsonString);
                     Log.e(TAG, "  Token: Bearer [HIDDEN]");
                     
-                    // MODERN HTTP CHAIN: OkHttp -> Volley -> Legacy HttpURLConnection
+                    // MODERN HTTP CHAIN: OkHttp -> Volley (eliminăm HttpURLConnection legacy)
                     Log.e(TAG, "🚀 MODERN HTTP CHAIN: Încercare transmisie GPS");
                     
                     // Prima încercare: OkHttp (cel mai rapid și eficient)
@@ -528,10 +526,8 @@ public class SimpleGPSService extends Service {
                         transmissionSuccess = sendGPSViaVolley(jsonString, course.authToken);
                     }
                     
-                    // Ultima încercare: HttpURLConnection (doar pentru Android foarte vechi)
                     if (!transmissionSuccess) {
-                        Log.e(TAG, "🔄 Volley failed - trying legacy HttpURLConnection");
-                        transmissionSuccess = legacyHttpURLConnection(jsonString, course.authToken);
+                        Log.e(TAG, "❌ Both OkHttp and Volley failed - network issues or token invalid");
                     }
                     
                 } catch (Exception networkError) {
@@ -872,9 +868,12 @@ public class SimpleGPSService extends Service {
                     Log.e(TAG, "📥 Response body: " + responseBody);
                 }
                 
-                if (responseCode == 200) {
-                    Log.e(TAG, "✅ OkHttp GPS SUCCESS - cel mai rapid HTTP client");
+                if (responseCode == 200 || responseCode == 204) {
+                    Log.e(TAG, "✅ OkHttp GPS SUCCESS - Server response: " + responseCode);
                     return true;
+                } else if (responseCode == 401) {
+                    Log.e(TAG, "❌ OkHttp: 401 UNAUTHORIZED - Token invalid");
+                    return false;
                 } else {
                     Log.e(TAG, "⚠️ OkHttp: Server returned " + responseCode);
                     return false;
@@ -907,8 +906,8 @@ public class SimpleGPSService extends Service {
                 jsonObject,
                 response -> {
                     synchronized (lock) {
-                        Log.e(TAG, "✅ Volley GPS SUCCESS - biblioteca oficială Google");
-                        Log.e(TAG, "📥 Volley response: " + response);
+                        Log.e(TAG, "✅ Volley GPS SUCCESS - Server accepted JSON data");
+                        Log.e(TAG, "📥 Volley response: " + response.toString());
                         requestSuccess[0] = true;
                         requestCompleted[0] = true;
                         lock.notify();
@@ -994,55 +993,7 @@ public class SimpleGPSService extends Service {
         }
     }
 
-    /**
-     * LEGACY FALLBACK: HttpURLConnection doar pentru Android foarte vechi
-     */
-    private boolean legacyHttpURLConnection(String jsonString, String authToken) {
-        try {
-            Log.e(TAG, "🔄 LEGACY FALLBACK: Using HttpURLConnection (doar pentru Android vechi)");
-            
-            URL url = new URL(GPS_ENDPOINT);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Authorization", "Bearer " + authToken);
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("User-Agent", "iTrack-Android-Service/1.0");
-            connection.setDoOutput(true);
-            connection.setConnectTimeout(10000);
-            connection.setReadTimeout(10000);
-            
-            // Send original JSON data (metoda care mergea)
-            Log.e(TAG, "📤 JSON data: " + jsonString);
-            
-            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-            writer.write(jsonString);
-            writer.flush();
-            writer.close();
-            
-            // Get response
-            int responseCode = connection.getResponseCode();
-            if (responseCode == 200) {
-                Log.e(TAG, "✅ LEGACY HTTP SUCCESS - Response: " + responseCode);
-                
-                // Read response for debugging
-                java.io.BufferedReader reader = new java.io.BufferedReader(
-                    new java.io.InputStreamReader(connection.getInputStream()));
-                String response = reader.readLine();
-                Log.e(TAG, "📥 Legacy response: " + response);
-                reader.close();
-                connection.disconnect();
-                return true;
-            } else {
-                Log.e(TAG, "⚠️ Legacy returned non-200 response: " + responseCode);
-                connection.disconnect();
-                return false;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Legacy HTTP failed: " + e.getMessage());
-            return false;
-        }
-    }
+
 
     @Override
     public IBinder onBind(Intent intent) {
