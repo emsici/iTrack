@@ -158,12 +158,17 @@ public class BackgroundGPSService extends Service {
             LocationListener listener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    Log.e(TAG, "📍 GPS Location: " + location.getLatitude() + ", " + location.getLongitude());
+                    long locationTime = System.currentTimeMillis();
+                    Log.e(TAG, "🎉 === GPS LOCATION RECEIVED " + locationTime + " ===");
+                    Log.e(TAG, "📍 Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
+                    Log.e(TAG, "🎯 Accuracy: " + location.getAccuracy() + "m");
+                    Log.e(TAG, "⏱️ Age: " + (System.currentTimeMillis() - location.getTime()) + "ms");
                     
                     // Remove listener after first location
                     locationManager.removeUpdates(this);
+                    Log.e(TAG, "🛑 Location listener removed - preparing transmission");
                     
-                    // Transmit GPS data via Capacitor bridge
+                    // Transmit GPS data via direct HTTP
                     transmitGPSData(location);
                 }
                 
@@ -179,18 +184,32 @@ public class BackgroundGPSService extends Service {
             
             // Request location from best provider
             String bestProvider = locationManager.getBestProvider(new android.location.Criteria(), true);
+            Log.e(TAG, "🔍 Available providers: " + locationManager.getAllProviders().toString());
+            Log.e(TAG, "🎯 Best provider selected: " + bestProvider);
+            
             if (bestProvider != null) {
-                locationManager.requestLocationUpdates(bestProvider, 0, 0, listener);
-                Log.e(TAG, "🛰️ GPS request sent to: " + bestProvider);
+                // Check if provider is enabled
+                boolean isEnabled = locationManager.isProviderEnabled(bestProvider);
+                Log.e(TAG, "📡 Provider " + bestProvider + " enabled: " + isEnabled);
                 
-                // Timeout after 10 seconds
-                backgroundHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        locationManager.removeUpdates(listener);
-                        Log.e(TAG, "⏰ GPS timeout - removing listener");
-                    }
-                }, 10000);
+                if (isEnabled) {
+                    locationManager.requestLocationUpdates(bestProvider, 0, 0, listener);
+                    Log.e(TAG, "🛰️ GPS request sent to: " + bestProvider);
+                    Log.e(TAG, "⏳ Waiting for location callback...");
+                    
+                    // Timeout after 15 seconds for better GPS lock
+                    backgroundHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            locationManager.removeUpdates(listener);
+                            Log.e(TAG, "⏰ GPS timeout after 15s - removing listener");
+                        }
+                    }, 15000);
+                } else {
+                    Log.e(TAG, "❌ GPS provider disabled - cannot get location");
+                }
+            } else {
+                Log.e(TAG, "❌ No GPS provider available");
             }
             
         } catch (Exception e) {
@@ -222,9 +241,11 @@ public class BackgroundGPSService extends Service {
             String timestamp = sdf.format(new java.util.Date());
             gpsData.put("timestamp", timestamp);
             
-            Log.e(TAG, "📤 Transmitting GPS: " + gpsData.toString());
+            Log.e(TAG, "📤 === TRANSMITTING GPS DATA ===");
+            Log.e(TAG, "🌐 GPS JSON: " + gpsData.toString());
+            Log.e(TAG, "🚀 Starting HTTP transmission...");
             
-            // Call JavaScript bridge directly
+            // Call direct HTTP transmission
             callJavaScriptBridge(gpsData.toString());
             
         } catch (Exception e) {
