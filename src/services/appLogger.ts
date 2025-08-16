@@ -127,9 +127,7 @@ class AppLoggerService {
     this.log("ERROR", message, "GPS");
   }
 
-  logOfflineSync(message: string): void {
-    this.log("INFO", message, "OFFLINE_SYNC");
-  }
+
 
   logAPI(message: string): void {
     this.log("INFO", message, "API");
@@ -148,8 +146,7 @@ appLogger.init();
 // Export helper functions
 export const logGPS = (message: string) => appLogger.logGPS(message);
 export const logGPSError = (message: string) => appLogger.logGPSError(message);
-export const logOfflineSync = (message: string) =>
-  appLogger.logOfflineSync(message);
+
 export const logAPI = (message: string) => appLogger.logAPI(message);
 export const logAPIError = (message: string) => appLogger.logAPIError(message);
 export const getAppLogs = () => appLogger.getLogs();

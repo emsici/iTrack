@@ -64,14 +64,7 @@ export const getStoredVehicleNumber = async (): Promise<string | null> => {
   }
 };
 
-export const clearVehicleNumber = async (): Promise<void> => {
-  try {
-    await Preferences.remove({ key: VEHICLE_NUMBER_KEY });
-  } catch (error) {
-    console.error('Error clearing vehicle number:', error);
-    throw error;
-  }
-};
+
 
 // Vehicle number history functions for dropdown
 export const getVehicleNumberHistory = async (): Promise<string[]> => {
@@ -87,14 +80,7 @@ export const getVehicleNumberHistory = async (): Promise<string[]> => {
   }
 };
 
-export const clearVehicleNumberHistory = async (): Promise<void> => {
-  try {
-    await Preferences.remove({ key: VEHICLE_HISTORY_KEY });
-  } catch (error) {
-    console.error('Error clearing vehicle number history:', error);
-    throw error;
-  }
-};
+
 
 export const removeVehicleNumberFromHistory = async (vehicleNumber: string): Promise<void> => {
   try {

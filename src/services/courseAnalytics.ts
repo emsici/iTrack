@@ -378,14 +378,7 @@ export const courseAnalyticsService = new CourseAnalyticsService();
 export default courseAnalyticsService;
 
 // Convenience functions
-export const startCourseAnalytics = (courseId: string, uit: string, vehicleNumber: string) =>
-  courseAnalyticsService.startCourseTracking(courseId, uit, vehicleNumber);
 
-export const updateCourseGPS = (courseId: string, lat: number, lng: number, speed: number, accuracy: number) =>
-  courseAnalyticsService.updateCourseStatistics(courseId, lat, lng, speed, accuracy);
-
-export const stopCourseAnalytics = (courseId: string) =>
-  courseAnalyticsService.stopCourseTracking(courseId);
 
 export const getCourseStats = (courseId: string) =>
   courseAnalyticsService.getCourseAnalytics(courseId);
