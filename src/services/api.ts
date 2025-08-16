@@ -456,7 +456,7 @@ export const logout = async (token: string): Promise<boolean> => {
       const response = await CapacitorHttp.post({
         url: `${API_BASE_URL}gps.php`,
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json; charset=utf-8",
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
           "User-Agent": "iTrack-Android-Service/1.0",
@@ -464,10 +464,18 @@ export const logout = async (token: string): Promise<boolean> => {
         data: gpsData,
       });
 
-      console.log("📡 === ANDROID CapacitorHttp GPS Response ===");
-      console.log("📊 Status:", response.status);
-      console.log("📥 Data:", response.data);
-      console.log("📦 Headers:", response.headers);
+      console.log("📡 === ANDROID CapacitorHttp GPS Response DETAILED ===");
+      console.log("📊 Status Code:", response.status);
+      console.log("📥 Response Data:", response.data);
+      console.log("📦 Response Headers:", response.headers || {});
+      console.log("📏 Response Size:", response.data ? JSON.stringify(response.data).length : 0);
+      
+      // Detailed response analysis
+      if (response.data && typeof response.data === 'string') {
+        console.log("📄 Response Preview:", response.data.substring(0, 300));
+      } else if (response.data && typeof response.data === 'object') {
+        console.log("📋 Response Object:", JSON.stringify(response.data, null, 2));
+      }
 
       if (response.status === 401) {
         console.error("❌ 401 NEAUTORIZAT - Token GPS Android respins");
