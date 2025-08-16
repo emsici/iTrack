@@ -345,33 +345,62 @@ public class SimpleGPSService extends Service {
             Log.e(TAG, "🎯 IMMEDIATE READ - Course: " + course.courseId + " (UIT: " + course.uit + ") Status: " + course.status);
         }
         
-        // Add debug delay to verify the method is called
+        // IMMEDIATE GPS reading - NO DELAY
+        Log.e(TAG, "🔥 === IMMEDIATE GPS CYCLE STARTING ===");
+        Log.e(TAG, "📊 Active courses count: " + activeCourses.size());
+        
+        // Start immediate GPS cycle in background thread
         new Thread(() -> {
             try {
-                Thread.sleep(1000); // 1 second delay for clarity
-                Log.e(TAG, "🔥 === IMMEDIATE GPS CYCLE STARTING ===");
+                Log.e(TAG, "🚀 IMMEDIATE performGPSCycle() called directly");
                 performGPSCycle();
+                
+                // Start continuous timer for subsequent readings
+                Log.e(TAG, "⏰ Starting continuous GPS timer after immediate reading");
+                android.os.Handler mainHandler = new android.os.Handler(Looper.getMainLooper());
+                mainHandler.post(() -> {
+                    startContinuousGPSTimer();
+                });
+                
             } catch (Exception e) {
                 Log.e(TAG, "❌ Error in immediate GPS cycle: " + e.getMessage());
                 e.printStackTrace();
             }
         }).start();
         
-        // DEBUG: Set a backup timer to check if AlarmManager failed
-        new Thread(() -> {
-            try {
-                Thread.sleep(10000); // Wait 10 seconds
-                Log.e(TAG, "🔍 === ALARMMANAGER DEBUG CHECK ===");
-                Log.e(TAG, "📊 After 10 seconds - Active courses: " + activeCourses.size());
-                Log.e(TAG, "⏰ GPS Active flag: " + isGPSActive);
-                if (activeCourses.size() > 0) {
-                    Log.e(TAG, "🚨 BACKUP TRIGGERED: AlarmManager might have failed, manually triggering GPS");
-                    performGPSCycle();
+    }
+    
+    /**
+     * Start continuous GPS timer with Handler instead of AlarmManager for reliability
+     */
+    private void startContinuousGPSTimer() {
+        Log.e(TAG, "⏰ Starting CONTINUOUS GPS timer with Handler");
+        
+        android.os.Handler gpsHandler = new android.os.Handler(Looper.getMainLooper());
+        
+        Runnable gpsRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (isGPSActive && !activeCourses.isEmpty()) {
+                    Log.e(TAG, "🔄 === CONTINUOUS GPS CYCLE ===");
+                    Log.e(TAG, "📊 Active courses: " + activeCourses.size());
+                    
+                    // Run GPS cycle in background thread
+                    new Thread(() -> {
+                        performGPSCycle();
+                    }).start();
+                    
+                    // Schedule next cycle
+                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                } else {
+                    Log.e(TAG, "❌ Stopping continuous GPS - no active courses or GPS inactive");
                 }
-            } catch (Exception e) {
-                Log.e(TAG, "❌ Error in backup timer: " + e.getMessage());
             }
-        }).start();
+        };
+        
+        // Start first continuous cycle
+        gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS);
+        Log.e(TAG, "✅ Continuous GPS timer started - next cycle in " + GPS_INTERVAL_MS + "ms");
     }
     
     private void stopGPSTimer() {
@@ -390,8 +419,13 @@ public class SimpleGPSService extends Service {
         
         if (activeCourses.isEmpty()) {
             Log.e(TAG, "❌ No active courses - skipping GPS cycle");
-            scheduleNextGPSCycle(); // Still schedule next cycle
             return;
+        }
+        
+        // Log all active courses
+        for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+            CourseData course = entry.getValue();
+            Log.e(TAG, "🎯 GPS CYCLE for Course: " + course.courseId + " (UIT: " + course.uit + ") Status: " + course.status);
         }
         
         Log.e(TAG, "📡 === GPS CYCLE STARTING === for " + activeCourses.size() + " active courses");
