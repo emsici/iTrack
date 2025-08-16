@@ -34,16 +34,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class OptimalGPSService extends Service {
     private static final String TAG = "OptimalGPS";
-    private static final long GPS_INTERVAL_LOCKED_MS = 5000; // 5 secunde când telefonul e blocat - REVERT LA SETAREA CARE MERGEA
-    private static final long GPS_INTERVAL_UNLOCKED_MS = 5000; // 5 secunde când telefonul e deblocat - CONSISTENT
+    private static final long GPS_INTERVAL_MS = 5000; // Exact 5 secunde - simplificat ca în commit funcțional
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.GPS_ALARM";
     
     // Configurație API Centralizată
     private static final String API_BASE_URL_DEV = "https://www.euscagency.com/etsm3/platforme/transport/apk/";
     private static final String API_BASE_URL_PROD = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/";
     
-    // Mediul activ curent - REVERT la etsm3 care mergea în commit 5e64eec
-    private static final String API_BASE_URL = API_BASE_URL_DEV; // etsm3 - VARIANTA FUNCȚIONALĂ
+    // Mediul activ curent - PROD cu simplitate din commit funcțional
+    private static final String API_BASE_URL = API_BASE_URL_PROD; // PROD - simplificat
     
     private AlarmManager alarmManager;
     private PendingIntent gpsPendingIntent;
@@ -811,8 +810,8 @@ public class OptimalGPSService extends Service {
             this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
         
-        // FORCE 5-SECOND INTERVALS: Always use locked interval pentru consistency
-        long forcedInterval = GPS_INTERVAL_LOCKED_MS; // ALWAYS 5 seconds
+        // FORCE 5-SECOND INTERVALS: Simple consistent interval
+        long forcedInterval = GPS_INTERVAL_MS; // ALWAYS 5 seconds - simplificat
         
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
