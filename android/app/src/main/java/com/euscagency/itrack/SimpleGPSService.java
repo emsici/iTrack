@@ -471,13 +471,6 @@ public class SimpleGPSService extends Service {
         isGPSActive = false;
         Log.e(TAG, "🛑 GPS Timer Stopped");
     }
-        if (gpsPendingIntent != null) {
-            alarmManager.cancel(gpsPendingIntent);
-            gpsPendingIntent = null;
-        }
-        isGPSActive = false;
-        Log.e(TAG, "🛑 GPS Timer Stopped");
-    }
     
     private void performGPSCycle() {
         Log.e(TAG, "🚀 === STARTING GPS CYCLE === for " + activeCourses.size() + " courses");
