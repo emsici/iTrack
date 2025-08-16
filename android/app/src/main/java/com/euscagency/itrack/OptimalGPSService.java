@@ -677,6 +677,16 @@ public class OptimalGPSService extends Service {
         isAlarmActive = true;
         Log.e(TAG, "✅ === CRITICAL === OPTIMAL GPS timer STARTED - EXACT " + (GPS_INTERVAL_MS/1000) + "s intervals");
         Log.e(TAG, "📡 First trigger scheduled at: " + (SystemClock.elapsedRealtime() + GPS_INTERVAL_MS) + " (current: " + SystemClock.elapsedRealtime() + ")");
+        
+        // CRITICAL DEBUG: Force immediate test GPS cycle to verify alarm works
+        new android.os.Handler().postDelayed(() -> {
+            Log.e(TAG, "🧪 === TEST === Manual GPS cycle trigger after 10 seconds to verify alarm is working");
+            if (!activeCourses.isEmpty()) {
+                performOptimalGPSCycle();
+            } else {
+                Log.e(TAG, "❌ TEST: No active courses for manual test cycle");
+            }
+        }, 10000); // Test after 10 seconds
     }
     
     /**
@@ -749,6 +759,13 @@ public class OptimalGPSService extends Service {
             Log.e(TAG, "✅ === CRITICAL === OPTIMAL course added: " + courseId + " (UIT: " + uit + ")");
             Log.e(TAG, "📊 ACTIVE COURSES COUNT: " + activeCourses.size());
             Log.e(TAG, "🔍 ALARM STATUS: isAlarmActive = " + isAlarmActive);
+            
+            // CRITICAL TEST: Immediate GPS cycle to verify service works
+            Log.e(TAG, "🧪 === IMMEDIATE TEST === Running GPS cycle right after adding course");
+            new android.os.Handler().postDelayed(() -> {
+                Log.e(TAG, "🔍 === VERIFICATION === Immediate GPS test cycle starting...");
+                performOptimalGPSCycle();
+            }, 2000); // Test after 2 seconds
             
             // Eliminat forced testing - simplificare ca în commit funcțional
             

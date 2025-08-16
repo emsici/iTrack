@@ -165,24 +165,8 @@ class DirectAndroidGPSService {
     
     // SIMPLIFICAT: GPS Android pornește direct fără verificări de conectivitate
     
-    // HYBRID APPROACH: Try Capacitor plugin first, then WebView bridge
-    try {
-      // Try Capacitor AndroidGPSPlugin (works in APK)
-      const { registerPlugin } = await import('@capacitor/core');
-      const AndroidGPSPlugin = registerPlugin('AndroidGPSPlugin');
-      
-      const result = await (AndroidGPSPlugin as any).startGPS({
-        courseId,
-        vehicleNumber,
-        uit,
-        authToken: token,
-        status
-      });
-      logGPS(`✅ Android GPS PORNIT via Capacitor Plugin: ${JSON.stringify(result)} - varianta funcțională`);
-      return;
-    } catch (error) {
-      logGPS(`⚠️ Capacitor plugin failed, falling back to WebView: ${error}`);
-    }
+    // FORCE WebView ONLY: Capacitor plugin nu funcționează din log-uri
+    logGPS(`🚨 FORCING WebView bridge ONLY - Capacitor plugin disabled pentru debugging`);
     
     // Fallback to WebView bridge (compatibility)
     if (window.AndroidGPS && window.AndroidGPS.startGPS) {
