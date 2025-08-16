@@ -80,12 +80,12 @@ class DirectAndroidGPSService {
       
       // STEP 3: Handle GPS coordinate transmission for START/RESUME - VARIANTA ORIGINALĂ
       if (newStatus === 2) {
-        console.log(`🚀 PORNIRE GPS DIRECT Android - varianta originală`);
+        console.log(`🚀 START/RESUME GPS DIRECT Android - varianta originală`);
         
-        // DIRECT Android GPS - ca înainte să pun alertele
+        // DIRECT Android GPS - pentru START și RESUME (revenire din pauză)
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
         
-        console.log(`✅ GPS ANDROID PORNIT - varianta care mergea înainte`);
+        console.log(`✅ GPS ANDROID PORNIT pentru START/RESUME - varianta care mergea`);
       }
       
       // Update local tracking - CRITICAL FIX: Remove courses with status 3/4 completely
