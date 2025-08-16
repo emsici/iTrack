@@ -468,9 +468,11 @@ public class SimpleGPSService extends Service {
     }
     
     /**
-     * Transmit GPS data for specific course with OFFLINE SUPPORT
+     * Transmit GPS data for specific course - SIMPLIFIED LIKE LOGIN/VEHICUL.PHP
      */
     private void transmitGPSDataForCourse(Location location, CourseData course, String timestamp) {
+        Log.e(TAG, "📡 === SIMPLIFIED GPS TRANSMISSION ===");
+        Log.e(TAG, "🎯 Using SAME method as login/vehicul.php - only CapacitorHttp");
         Log.e(TAG, "📡 Transmitting GPS for course: " + course.courseId);
         
         // Run in background thread for each course transmission
@@ -522,26 +524,17 @@ public class SimpleGPSService extends Service {
                     Log.e(TAG, "  JSON: " + jsonString);
                     Log.e(TAG, "  Token: Bearer [HIDDEN]");
                     
-                    // COMPLETE HTTP CHAIN: Volley -> OkHttp -> CapacitorHttp 
-                    Log.e(TAG, "🚀 COMPLETE HTTP CHAIN: Încercare transmisie GPS");
+                    // SIMPLIFIED: Only CapacitorHttp like login/vehicul.php
+                    Log.e(TAG, "🚀 SIMPLIFIED TRANSMISSION: Same method as login/vehicul.php");
+                    Log.e(TAG, "📱 Using ONLY CapacitorHttp bridge - no complex chains");
                     
-                    // Prima încercare: Volley (biblioteca oficială Google)
-                    transmissionSuccess = sendGPSViaVolley(jsonString, course.authToken);
-                    
-                    // A doua încercare: OkHttp (nativ Android)
-                    if (!transmissionSuccess) {
-                        Log.e(TAG, "🔄 Volley failed - trying OkHttp (nativ)");
-                        transmissionSuccess = sendGPSViaOkHttp(jsonString, course.authToken);
-                    }
-                    
-                    // A treia încercare: CapacitorHttp prin JavaScript bridge
-                    if (!transmissionSuccess) {
-                        Log.e(TAG, "🔄 OkHttp failed - trying CapacitorHttp bridge");
-                        transmissionSuccess = sendGPSViaCapacitorBridge(jsonString, course.authToken);
-                    }
+                    // Single method: CapacitorHttp bridge (same as login success)
+                    transmissionSuccess = sendGPSViaCapacitorBridge(jsonString, course.authToken);
                     
                     if (!transmissionSuccess) {
-                        Log.e(TAG, "❌ All HTTP methods failed - network issues or token invalid");
+                        Log.e(TAG, "❌ CapacitorHttp failed - check network or token validity");
+                    } else {
+                        Log.e(TAG, "✅ CapacitorHttp SUCCESS - GPS sent like login/vehicul.php");
                     }
                     
                 } catch (Exception networkError) {
@@ -850,11 +843,11 @@ public class SimpleGPSService extends Service {
     }
 
     /**
-     * CAPACITOR HTTP TRANSMISSION: Use JavaScript bridge to call CapacitorHttp
+     * SIMPLIFIED GPS VIA JAVASCRIPT BRIDGE: Same method as login/vehicul.php
      */
     private boolean sendGPSViaCapacitorBridge(String jsonString, String authToken) {
         try {
-            Log.e(TAG, "🌐 BRIDGE HTTP: Folosind CapacitorHttp prin JavaScript bridge");
+            Log.e(TAG, "🌐 SIMPLIFIED BRIDGE: Using SAME method as login/vehicul.php success");
             
             // Get MainActivity instance to access WebView
             com.euscagency.itrack.MainActivity mainActivity = com.euscagency.itrack.MainActivity.getInstance();
