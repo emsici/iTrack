@@ -137,15 +137,43 @@ public class MainActivity extends BridgeActivity {
             intent.putExtra("status", status);
             
             Log.e(TAG, "🚀 === STARTING === SimpleGPSService with NATIVE precision...");
-            startForegroundService(intent);
-            Log.e(TAG, "✅ === SUCCESS === SimpleGPSService started for " + courseId);
+            Log.e(TAG, "📦 Intent created with action: START_SIMPLE_GPS");
+            Log.e(TAG, "📋 Intent extras: courseId=" + courseId + ", vehicleNumber=" + vehicleNumber + ", uit=" + uit);
             
-            String result = "SUCCESS: NATIVE GPS started for " + courseId;
-            Log.e(TAG, "📤 Returning to JavaScript: " + result);
-            return result;
+            // Try to start foreground service
+            android.content.ComponentName result = startForegroundService(intent);
+            if (result != null) {
+                Log.e(TAG, "✅ === SUCCESS === SimpleGPSService started successfully");
+                Log.e(TAG, "🔗 Service component: " + result.toString());
+            } else {
+                Log.e(TAG, "❌ === WARNING === startForegroundService returned null");
+            }
+            
+            // Verify service is running
+            android.app.ActivityManager activityManager = (android.app.ActivityManager) getSystemService(ACTIVITY_SERVICE);
+            boolean serviceRunning = false;
+            for (android.app.ActivityManager.RunningServiceInfo service : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+                if (SimpleGPSService.class.getName().equals(service.service.getClassName())) {
+                    serviceRunning = true;
+                    Log.e(TAG, "✅ === VERIFIED === SimpleGPSService is RUNNING");
+                    break;
+                }
+            }
+            
+            if (!serviceRunning) {
+                Log.e(TAG, "❌ === CRITICAL === SimpleGPSService NOT FOUND in running services!");
+                // Try alternative start method
+                Log.e(TAG, "🔄 Trying alternative startService method...");
+                startService(intent);
+            }
+            
+            String resultMessage = "SUCCESS: NATIVE GPS started for " + courseId;
+            Log.e(TAG, "📤 Returning to JavaScript: " + resultMessage);
+            return resultMessage;
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error starting NATIVE GPS: " + e.getMessage());
+            Log.e(TAG, "❌ === CRITICAL ERROR === starting NATIVE GPS: " + e.getMessage());
+            e.printStackTrace();
             return "ERROR: " + e.getMessage();
         }
     }

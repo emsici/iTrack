@@ -10,6 +10,36 @@ const updateCourseStatus = async (courseId: string, newStatus: number) => {
   console.warn('AndroidGPS interface not available - browser mode');
 };
 
+const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) => {
+  console.log("🚀 === CALLING ANDROID GPS SERVICE ===");
+  console.log("📱 AndroidGPS interface check:", {
+    available: !!(window.AndroidGPS),
+    startGPS: !!(window.AndroidGPS?.startGPS),
+    courseId: course.ikRoTrans,
+    vehicleNumber: vehicleNumber,
+    uit: course.uit
+  });
+  
+  if (window.AndroidGPS && window.AndroidGPS.startGPS) {
+    console.log("✅ AndroidGPS.startGPS disponibil - pornesc SimpleGPSService");
+    
+    const result = window.AndroidGPS.startGPS(
+      String(course.ikRoTrans),
+      vehicleNumber,
+      course.uit,
+      token,
+      2
+    );
+    
+    console.log("🔥 SimpleGPSService Result:", result);
+    return result;
+  } else {
+    console.error("❌ AndroidGPS.startGPS nu este disponibil!");
+    console.error("🔍 window.AndroidGPS:", window.AndroidGPS);
+    return "ERROR: AndroidGPS not available";
+  }
+};
+
 const logoutClearAllGPS = async () => {
   if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
     return window.AndroidGPS.clearAllOnLogout();
@@ -483,6 +513,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`🎯 ANDROID NATIVE: SimpleGPSService cu GPS nativ și precizie maximă`);
         console.log(`📞 Se apelează direct Android GPS cu UIT: ${courseToUpdate.uit}`);
         console.log(`📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat`);
+        
+        // CRITICAL: Start Android GPS service for ACTIVE status
+        if (newStatus === 2) {
+          console.log("🚀 PORNIRE GPS: Status 2 (ACTIVE) - pornesc SimpleGPSService");
+          const gpsResult = startAndroidGPS(courseToUpdate, vehicleNumber, token);
+          console.log("📱 GPS Service Result:", gpsResult);
+        }
         
         await updateCourseStatus(courseToUpdate.uit, newStatus);
         
