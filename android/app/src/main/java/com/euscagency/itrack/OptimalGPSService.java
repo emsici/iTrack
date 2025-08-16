@@ -684,7 +684,7 @@ public class OptimalGPSService extends Service {
         
         isAlarmActive = true;
         Log.e(TAG, "✅ === CRITICAL === OPTIMAL GPS timer STARTED - EXACT " + (GPS_INTERVAL_MS/1000) + "s intervals");
-        Log.e(TAG, "📡 First trigger scheduled at: " + triggerTime + " (current: " + SystemClock.elapsedRealtime() + ")");
+        Log.e(TAG, "📡 First trigger scheduled at: " + (SystemClock.elapsedRealtime() + GPS_INTERVAL_MS) + " (current: " + SystemClock.elapsedRealtime() + ")");
     }
     
     /**
