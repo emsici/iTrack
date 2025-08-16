@@ -10,6 +10,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
 import { offlineGPSService } from './offlineGPS';
 import { sharedTimestampService } from './sharedTimestamp';
+import { simpleNetworkCheck } from './simpleNetworkCheck';
 
 interface GPSCourse {
   courseId: string;
@@ -81,6 +82,12 @@ class GuaranteedGPSService {
         return;
       }
 
+      // Verifică conectivitatea înainte de orice transmisie
+      if (!simpleNetworkCheck.getIsOnline()) {
+        logGPS(`🔴 INTERNET OFFLINE - oprire temporară GPS până revine conexiunea`);
+        return;
+      }
+
       // SIMPLIFICAT: Presupunem că Android GPS funcționează dacă există
       if (window.AndroidGPS && typeof window.AndroidGPS.startGPS === 'function') {
         logGPS(`🤖 Android GPS disponibil - sărim backup JavaScript`);
@@ -101,6 +108,12 @@ class GuaranteedGPSService {
   private async transmitForAllCourses(): Promise<void> {
     if (this.activeCourses.size === 0) {
       logGPS(`⚠️ No active courses for transmission`);
+      return;
+    }
+
+    // Verifică conectivitatea înainte de transmisie
+    if (!simpleNetworkCheck.getIsOnline()) {
+      logGPS(`🔴 INTERNET OFFLINE - oprire temporară GPS până revine conexiunea`);
       return;
     }
 

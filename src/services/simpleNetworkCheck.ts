@@ -7,33 +7,35 @@ class SimpleNetworkCheck {
   private isOnline: boolean = true;
   private callbacks: ((isOnline: boolean) => void)[] = [];
   private checkInterval: any = null;
-  private readonly CHECK_INTERVAL_MS = 30000; // 30 secunde
+  private readonly CHECK_INTERVAL_MS = 45000; // 45 secunde - evită conflictul cu GPS la 30s
   private readonly PING_URL = 'https://euscagency.com/etsm_prod/js/forms.js';
 
   constructor() {
-    console.log('🌐 Simple Network Check inițializat - ping la server-ul utilizatorului');
+    console.log('🌐 Simple Network Check inițializat - optimizat pentru GPS');
     this.startChecking();
   }
 
   /**
-   * Pornește verificarea periodică de internet
+   * Pornește verificarea periodică de internet - OPTIMIZAT pentru GPS
    */
   private startChecking(): void {
-    // Verificare inițială
-    this.checkConnection();
+    // OPTIMIZAT - verificare inițială după 10 secunde
+    setTimeout(() => {
+      this.checkConnection();
+    }, 10000);
     
-    // Verificare periodică la 30 secunde
+    // Verificare periodică la 45 secunde (evită conflictul cu GPS la 30s)
     this.checkInterval = setInterval(() => {
       this.checkConnection();
     }, this.CHECK_INTERVAL_MS);
   }
 
   /**
-   * Verificare simplă de conectivitate prin ping
+   * Verificare simplă de conectivitate prin ping - SILENȚIOASĂ
    */
   private async checkConnection(): Promise<void> {
     try {
-      console.log('🔍 Verificare conectivitate la server-ul utilizatorului...');
+      // Log silențios pentru a nu interfera cu GPS logs
       
       // Ping simplu la server cu timeout
       const timeoutPromise = new Promise((_, reject) => {

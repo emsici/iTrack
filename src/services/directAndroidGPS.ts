@@ -25,6 +25,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { getStoredToken, getStoredVehicleNumber } from './storage';
 import { guaranteedGPSService } from './garanteedGPS';
 import { sharedTimestampService } from './sharedTimestamp';
+import { simpleNetworkCheck } from './simpleNetworkCheck';
 // Direct AndroidGPS service handles native interface operations
 
 interface ActiveCourse {
@@ -151,6 +152,12 @@ class DirectAndroidGPSService {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
     logGPS(`🎯 ANDROID GPS: Starting direct service - commit 656f7610 care mergea`);
+    
+    // Verifică conectivitatea înainte de a porni GPS-ul
+    if (!simpleNetworkCheck.getIsOnline()) {
+      logGPSError('🔴 INTERNET OFFLINE - GPS nu se pornește fără conexiune');
+      throw new Error('Nu există conexiune la internet - GPS nu poate fi pornit');
+    }
     
     // EXACT ca în commit-ul care mergea - DOAR Android GPS direct
     if (window.AndroidGPS && window.AndroidGPS.startGPS) {

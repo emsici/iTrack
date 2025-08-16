@@ -20,10 +20,10 @@ class NetworkStatusService {
   constructor() {
     logAPI('🌐 Serviciu status rețea inițializat - detectare bazată pe transmisiile GPS reale');
     
-    // Verificare periodică rapidă pentru detectare imediată
-    setInterval(() => {
-      this.checkNetworkStatus();
-    }, this.STATUS_CHECK_INTERVAL); // La 3 secunde pentru răspuns rapid
+    // DEZACTIVAT temporar pentru a nu interfera cu GPS-ul
+    // setInterval(() => {
+    //   this.checkNetworkStatus();
+    // }, this.STATUS_CHECK_INTERVAL);
   }
 
   /**
