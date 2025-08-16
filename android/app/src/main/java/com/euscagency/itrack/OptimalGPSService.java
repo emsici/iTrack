@@ -153,7 +153,9 @@ public class OptimalGPSService extends Service {
         
         if (intent != null && ACTION_GPS_ALARM.equals(intent.getAction())) {
             // ALARM TRIGGERED: Get GPS location and transmit for all active courses
-            Log.d(TAG, "🔄 DIAGNOSTIC: ALARM TRIGGERED - performing GPS cycle");
+            Log.e(TAG, "🔄 === CRITICAL === ALARM TRIGGERED - performing GPS cycle");
+            Log.e(TAG, "⏰ AlarmManager SUCCESS - timer working correctly");
+            Log.e(TAG, "📊 Current activeCourses.size(): " + activeCourses.size());
             performOptimalGPSCycle();
         } else {
             // Regular service commands (START_GPS, STOP_GPS, etc.)
@@ -177,7 +179,7 @@ public class OptimalGPSService extends Service {
             if (!activeCourses.isEmpty()) {
                 // CRITICAL: Ensure GPS timer is ALWAYS running when we have active courses
                 if (!isAlarmActive) {
-                    Log.d(TAG, "🚀 STARTING GPS TIMER for new course");
+                    Log.e(TAG, "🚀 === CRITICAL === STARTING GPS TIMER for new course");
                     startOptimalGPSTimer();
                 } else {
                     Log.d(TAG, "⏰ GPS TIMER already active - continuing with " + activeCourses.size() + " courses");
@@ -204,7 +206,7 @@ public class OptimalGPSService extends Service {
             return;
         }
         
-        Log.d(TAG, "⏰ OPTIMAL GPS CYCLE - getting location for " + activeCourses.size() + " courses");
+        Log.e(TAG, "⏰ === CRITICAL === OPTIMAL GPS CYCLE STARTED - getting location for " + activeCourses.size() + " courses");
         
 
         
@@ -226,7 +228,7 @@ public class OptimalGPSService extends Service {
                 
                 // PRECISION CHECK pentru lastKnownLocation
                 if (accuracy <= 15.0f) { // Acceptă lastKnown sub 15m pentru eficiență
-                    Log.d(TAG, "✅ Using recent HIGH PRECISION GPS - Age: " + age + "ms, Accuracy: " + accuracy + "m");
+                    Log.e(TAG, "✅ Using recent HIGH PRECISION GPS - Age: " + age + "ms, Accuracy: " + accuracy + "m");
                     transmitGPSForAllCourses(lastLocation);
                 } else {
                     Log.d(TAG, "⚠️ Recent GPS cu precizie scăzută (" + accuracy + "m) - solicită GPS nou pentru precizie înaltă");
@@ -324,8 +326,8 @@ public class OptimalGPSService extends Service {
             return;
         }
         
-        Log.d(TAG, "📡 TRANSMITTING GPS for " + activeCourses.size() + " active courses");
-        Log.d(TAG, "📍 GPS Location: lat=" + location.getLatitude() + ", lng=" + location.getLongitude() + ", accuracy=" + location.getAccuracy() + "m");
+        Log.e(TAG, "📡 === CRITICAL === TRANSMITTING GPS for " + activeCourses.size() + " active courses");
+        Log.e(TAG, "📍 GPS Location: lat=" + location.getLatitude() + ", lng=" + location.getLongitude() + ", accuracy=" + location.getAccuracy() + "m");
         
         int transmissionCount = 0;
         java.util.Set<String> coursesToRemove = new java.util.HashSet<>();
@@ -333,10 +335,10 @@ public class OptimalGPSService extends Service {
         for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
             CourseData course = entry.getValue();
             try {
-                Log.d(TAG, "📤 Transmitting GPS for course: " + course.courseId + " (UIT: " + course.uit + ", Status: " + course.status + ")");
+                Log.e(TAG, "📤 === CRITICAL === Transmitting GPS for course: " + course.courseId + " (UIT: " + course.uit + ", Status: " + course.status + ")");
                 transmitOptimalGPSData(course, location);
                 transmissionCount++;
-                Log.d(TAG, "✅ GPS transmission SUCCESS for course: " + course.courseId);
+                Log.e(TAG, "✅ === SUCCESS === GPS transmission SUCCESS for course: " + course.courseId);
                 
                 // STATUS 3 (PAUSE): Mark as transmitted and schedule for removal
                 if (course.status == 3) {
@@ -413,14 +415,14 @@ public class OptimalGPSService extends Service {
         gpsData.put("hdop", location.getAccuracy());
         gpsData.put("gsm_signal", getNetworkSignalStrength());
         
-        Log.d(TAG, "📡 OPTIMAL GPS data for course " + course.courseId + ": " + gpsData.toString());
-        Log.d(TAG, "🔑 Auth token length: " + course.authToken.length() + " chars (starts with: " + course.authToken.substring(0, Math.min(20, course.authToken.length())) + "...)");
-        Log.d(TAG, "🌐 Transmitting to: " + API_BASE_URL + "gps.php");
+        Log.e(TAG, "📡 === CRITICAL === OPTIMAL GPS data for course " + course.courseId + ": " + gpsData.toString());
+        Log.e(TAG, "🔑 Auth token length: " + course.authToken.length() + " chars (starts with: " + course.authToken.substring(0, Math.min(20, course.authToken.length())) + "...)");
+        Log.e(TAG, "🌐 Transmitting to: " + API_BASE_URL + "gps.php");
         
         // DEBUGGING: Log exact data being sent ca în logurile funcționale
-        Log.d(TAG, "🚨 COMPLETE GPS DATA BEING SENT: " + gpsData.toString());
-        Log.d(TAG, "📡 GPS Transmission to gps.php");
-        Log.d(TAG, "🔐 FULL TOKEN BEING SENT: Bearer " + course.authToken.substring(0, Math.min(50, course.authToken.length())) + "...");
+        Log.e(TAG, "🚨 === DEBUGGING === COMPLETE GPS DATA BEING SENT: " + gpsData.toString());
+        Log.e(TAG, "📡 GPS Transmission to gps.php");
+        Log.e(TAG, "🔐 FULL TOKEN BEING SENT: Bearer " + course.authToken.substring(0, Math.min(50, course.authToken.length())) + "...");
         
         // FOREGROUND OPTIMIZED: Instant transmission with single optimized thread
         // No batching - GPS must be sent immediately for real-time tracking
@@ -474,7 +476,7 @@ public class OptimalGPSService extends Service {
             }
             
             if (responseCode == 200) {
-                Log.d(TAG, "✅ GPS SUCCESS " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
+                Log.e(TAG, "✅ === SUCCESS === GPS SUCCESS " + responseCode + " for course: " + courseId + " | Response: " + responseBody);
                 
                 // SUCCESS - simplificat fără WebView (ca în commit funcțional)
                 Log.d(TAG, "📡 GPS SUCCESS - coordinate transmitted successfully");
