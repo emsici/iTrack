@@ -316,6 +316,8 @@ public class SimpleGPSService extends Service {
         Log.e(TAG, "  - Trigger time: " + triggerTime + " (in " + GPS_INTERVAL_MS + "ms)");
         Log.e(TAG, "  - PendingIntent: " + (gpsPendingIntent != null ? "CREATED" : "NULL"));
         Log.e(TAG, "  - AlarmManager: " + (alarmManager != null ? "AVAILABLE" : "NULL"));
+        Log.e(TAG, "  - Current time: " + SystemClock.elapsedRealtime());
+        Log.e(TAG, "  - GPS_INTERVAL_MS: " + GPS_INTERVAL_MS);
         
         try {
             alarmManager.setExactAndAllowWhileIdle(
@@ -324,6 +326,7 @@ public class SimpleGPSService extends Service {
                 gpsPendingIntent
             );
             Log.e(TAG, "✅ AlarmManager configured successfully");
+            Log.e(TAG, "🔥 CRITICAL: AlarmManager should trigger in " + GPS_INTERVAL_MS + "ms with ACTION: " + ACTION_GPS_ALARM);
         } catch (Exception e) {
             Log.e(TAG, "❌ AlarmManager setup failed: " + e.getMessage());
             e.printStackTrace();
@@ -336,6 +339,12 @@ public class SimpleGPSService extends Service {
         Log.e(TAG, "📍 === TRIGGERING IMMEDIATE GPS READING ===");
         Log.e(TAG, "📊 Active courses before first reading: " + activeCourses.size());
         
+        // Log active courses for debugging
+        for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+            CourseData course = entry.getValue();
+            Log.e(TAG, "🎯 IMMEDIATE READ - Course: " + course.courseId + " (UIT: " + course.uit + ") Status: " + course.status);
+        }
+        
         // Add debug delay to verify the method is called
         new Thread(() -> {
             try {
@@ -344,6 +353,23 @@ public class SimpleGPSService extends Service {
                 performGPSCycle();
             } catch (Exception e) {
                 Log.e(TAG, "❌ Error in immediate GPS cycle: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
+        
+        // DEBUG: Set a backup timer to check if AlarmManager failed
+        new Thread(() -> {
+            try {
+                Thread.sleep(10000); // Wait 10 seconds
+                Log.e(TAG, "🔍 === ALARMMANAGER DEBUG CHECK ===");
+                Log.e(TAG, "📊 After 10 seconds - Active courses: " + activeCourses.size());
+                Log.e(TAG, "⏰ GPS Active flag: " + isGPSActive);
+                if (activeCourses.size() > 0) {
+                    Log.e(TAG, "🚨 BACKUP TRIGGERED: AlarmManager might have failed, manually triggering GPS");
+                    performGPSCycle();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "❌ Error in backup timer: " + e.getMessage());
             }
         }).start();
     }
@@ -819,6 +845,7 @@ public class SimpleGPSService extends Service {
             Log.e(TAG, "  - Active courses: " + activeCourses.size());
             Log.e(TAG, "  - Next trigger: " + nextTriggerTime + " (in " + GPS_INTERVAL_MS + "ms)");
             Log.e(TAG, "  - GPS Active: " + isGPSActive);
+            Log.e(TAG, "  - Current time: " + SystemClock.elapsedRealtime());
             
             try {
                 alarmManager.setExactAndAllowWhileIdle(
@@ -827,10 +854,26 @@ public class SimpleGPSService extends Service {
                     gpsPendingIntent
                 );
                 Log.e(TAG, "✅ Next GPS cycle scheduled successfully for " + activeCourses.size() + " courses");
+                Log.e(TAG, "🔥 ALARMMANAGER SHOULD FIRE ACTION: " + ACTION_GPS_ALARM + " in " + GPS_INTERVAL_MS + "ms");
             } catch (Exception e) {
                 Log.e(TAG, "❌ Failed to schedule next GPS cycle: " + e.getMessage());
                 e.printStackTrace();
             }
+            
+            // BACKUP MANUAL TIMER in case AlarmManager fails
+            new Thread(() -> {
+                try {
+                    Thread.sleep(GPS_INTERVAL_MS + 2000); // Wait GPS_INTERVAL + 2 seconds extra
+                    if (isGPSActive && !activeCourses.isEmpty()) {
+                        Log.e(TAG, "🚨 BACKUP TIMER TRIGGERED - AlarmManager might have failed!");
+                        Log.e(TAG, "📊 Current active courses: " + activeCourses.size());
+                        performGPSCycle();
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ Backup timer error: " + e.getMessage());
+                }
+            }).start();
+            
         } else {
             Log.e(TAG, "❌ Cannot schedule GPS cycle - GPS not active or no courses");
             Log.e(TAG, "  - GPS Active: " + isGPSActive);
