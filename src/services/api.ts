@@ -433,16 +433,24 @@ export const logout = async (token: string): Promise<boolean> => {
     }
 
     const gpsData = JSON.parse(jsonString);
-    console.log("GPS de la serviciul Android:", {
+    console.log("🚀 === GPS TRANSMISSION STARTED ===");
+    console.log("📍 GPS de la serviciul Android:", {
       courseId: gpsData.uit,
       lat: gpsData.lat,
       lng: gpsData.lng,
       vehicle: gpsData.numar_inmatriculare,
       status: gpsData.status,
+      timestamp: gpsData.timestamp,
+      viteza: gpsData.viteza,
+      directie: gpsData.directie,
+      altitudine: gpsData.altitudine,
+      baterie: gpsData.baterie,
+      hdop: gpsData.hdop,
+      gsm_signal: gpsData.gsm_signal
     });
 
-    console.log("Using Bearer token:", token.substring(0, 20) + "...");
-    console.log("Sending to URL:", `${API_BASE_URL}gps.php`);
+    console.log("🔑 Using Bearer token:", token.substring(0, 20) + "...");
+    console.log("🌐 Sending to URL:", `${API_BASE_URL}gps.php`);
 
     try {
       const response = await CapacitorHttp.post({
@@ -456,9 +464,10 @@ export const logout = async (token: string): Promise<boolean> => {
         data: gpsData,
       });
 
-      console.log("=== ANDROID CapacitorHttp GPS Response ===");
-      console.log("Status:", response.status);
-      console.log("Data:", response.data);
+      console.log("📡 === ANDROID CapacitorHttp GPS Response ===");
+      console.log("📊 Status:", response.status);
+      console.log("📥 Data:", response.data);
+      console.log("📦 Headers:", response.headers);
 
       if (response.status === 401) {
         console.error("❌ 401 NEAUTORIZAT - Token GPS Android respins");
@@ -484,10 +493,10 @@ export const logout = async (token: string): Promise<boolean> => {
 
       if (response.status >= 200 && response.status < 300) {
         console.log(
-          "GPS transmis cu succes prin CapacitorHttp pentru cursa",
+          "✅ GPS transmis cu succes prin CapacitorHttp pentru cursa:",
           gpsData.uit,
+          "- Status:", response.status
         );
-        // SimpleGPSService handles GPS success reporting natively // Raportează succesul Android GPS
         return true;
       }
 
