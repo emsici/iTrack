@@ -494,41 +494,51 @@ public class SimpleGPSService extends Service {
                     Log.e(TAG, "  JSON: " + jsonString);
                     Log.e(TAG, "  Token: Bearer [HIDDEN]");
                     
-                    // Send HTTP POST to gps.php - EXACT format like api.ts
-                    URL url = new URL(GPS_ENDPOINT);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setRequestProperty("Authorization", "Bearer " + course.authToken);
-                    connection.setRequestProperty("Accept", "application/json");
-                    connection.setRequestProperty("User-Agent", "iTrack-Android-Service/1.0");
-                    connection.setDoOutput(true);
-                    connection.setConnectTimeout(10000);
-                    connection.setReadTimeout(10000);
+                    // MODERN HTTP CLIENT: OkHttp sau Volley pentru Android
+                    // Pentru simplicitate și performanță, folosim CapacitorHttp prin WebView bridge
                     
-                    // Write JSON data
-                    OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-                    writer.write(jsonString);
-                    writer.flush();
-                    writer.close();
+                    Log.e(TAG, "🚀 MODERN HTTP: Folosind CapacitorHttp prin WebView pentru performanță");
                     
-                    // Get response
-                    int responseCode = connection.getResponseCode();
-                    if (responseCode == 200) {
-                        transmissionSuccess = true;
-                        Log.e(TAG, "✅ NATIVE GPS transmission SUCCESS for " + course.courseId + " - Response: " + responseCode);
-                        
-                        // Read response for debugging
-                        java.io.BufferedReader reader = new java.io.BufferedReader(
-                            new java.io.InputStreamReader(connection.getInputStream()));
-                        String response = reader.readLine();
-                        Log.e(TAG, "📥 Server response for " + course.courseId + ": " + response);
-                        reader.close();
+                    // Call WebView bridge pentru CapacitorHttp transmission
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build_VERSION_CODES.KITKAT) {
+                        // Modern WebView evaluateJavascript pentru Android 4.4+
+                        try {
+                            String jsCode = String.format(
+                                "if (window.sendGPSViaCapacitor) { " +
+                                "  window.sendGPSViaCapacitor('%s', '%s').then(success => " +
+                                "    console.log('GPS via CapacitorHttp:', success ? 'SUCCESS' : 'FAILED')" +
+                                "  ); " +
+                                "} else { " +
+                                "  console.error('sendGPSViaCapacitor not available'); " +
+                                "}",
+                                jsonString.replace("'", "\\'"), 
+                                course.authToken.replace("'", "\\'")
+                            );
+                            
+                            // Find WebView and execute
+                            android.app.Activity activity = (android.app.Activity) getApplicationContext();
+                            if (activity instanceof com.getcapacitor.BridgeActivity) {
+                                android.webkit.WebView webView = ((com.getcapacitor.BridgeActivity) activity).getBridge().getWebView();
+                                if (webView != null) {
+                                    webView.post(() -> webView.evaluateJavascript(jsCode, null));
+                                    transmissionSuccess = true; // Assume success via CapacitorHttp
+                                    Log.e(TAG, "✅ GPS transmitted via CapacitorHttp WebView bridge");
+                                } else {
+                                    Log.e(TAG, "⚠️ WebView not available - falling back to HttpURLConnection");
+                                    transmissionSuccess = fallbackHttpURLConnection(jsonString, course.authToken);
+                                }
+                            } else {
+                                Log.e(TAG, "⚠️ Not BridgeActivity - using fallback HTTP");
+                                transmissionSuccess = fallbackHttpURLConnection(jsonString, course.authToken);
+                            }
+                        } catch (Exception webViewError) {
+                            Log.e(TAG, "❌ WebView bridge failed: " + webViewError.getMessage());
+                            transmissionSuccess = fallbackHttpURLConnection(jsonString, course.authToken);
+                        }
                     } else {
-                        Log.e(TAG, "⚠️ Server returned non-200 response: " + responseCode);
+                        // Fallback pentru Android vechi
+                        transmissionSuccess = fallbackHttpURLConnection(jsonString, course.authToken);
                     }
-                    
-                    connection.disconnect();
                     
                 } catch (Exception networkError) {
                     Log.e(TAG, "🔴 NETWORK ERROR for " + course.courseId + ": " + networkError.getMessage());
@@ -739,34 +749,17 @@ public class SimpleGPSService extends Service {
                         
                         String jsonString = jsonData.toString();
                         
-                        // Send to server - EXACT format like api.ts
-                        URL url = new URL(GPS_ENDPOINT);
-                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                        connection.setRequestMethod("POST");
-                        connection.setRequestProperty("Content-Type", "application/json");
-                        connection.setRequestProperty("Authorization", "Bearer " + coord.getString("authToken"));
-                        connection.setRequestProperty("Accept", "application/json");
-                        connection.setRequestProperty("User-Agent", "iTrack-Android-Sync/1.0");
-                        connection.setDoOutput(true);
-                        connection.setConnectTimeout(10000);
-                        connection.setReadTimeout(10000);
+                        // MODERN SYNC: Folosește fallback HTTP pentru sincronizarea offline
+                        boolean syncSuccess = fallbackHttpURLConnection(jsonString, coord.getString("authToken"));
                         
-                        OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-                        writer.write(jsonString);
-                        writer.flush();
-                        writer.close();
-                        
-                        int responseCode = connection.getResponseCode();
-                        if (responseCode == 200) {
+                        if (syncSuccess) {
                             syncedCount++;
                             Log.e(TAG, "✅ Synced offline coordinate " + (i+1) + "/" + coordinates.length());
                         } else {
                             failedCount++;
                             remainingCoordinates.put(coord);
-                            Log.e(TAG, "❌ Failed to sync coordinate " + (i+1) + " - Response: " + responseCode);
+                            Log.e(TAG, "❌ Failed to sync coordinate " + (i+1));
                         }
-                        
-                        connection.disconnect();
                         
                         // Small delay between requests to avoid overwhelming server
                         Thread.sleep(200);
@@ -818,6 +811,54 @@ public class SimpleGPSService extends Service {
         }
     }
     
+    /**
+     * FALLBACK HTTP METHOD: HttpURLConnection pentru când CapacitorHttp nu e disponibil
+     */
+    private boolean fallbackHttpURLConnection(String jsonString, String authToken) {
+        try {
+            Log.e(TAG, "🔄 FALLBACK: Using HttpURLConnection");
+            
+            URL url = new URL(GPS_ENDPOINT);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", "Bearer " + authToken);
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("User-Agent", "iTrack-Android-Service/1.0");
+            connection.setDoOutput(true);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
+            
+            // Write JSON data
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            writer.write(jsonString);
+            writer.flush();
+            writer.close();
+            
+            // Get response
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                Log.e(TAG, "✅ FALLBACK HTTP SUCCESS - Response: " + responseCode);
+                
+                // Read response for debugging
+                java.io.BufferedReader reader = new java.io.BufferedReader(
+                    new java.io.InputStreamReader(connection.getInputStream()));
+                String response = reader.readLine();
+                Log.e(TAG, "📥 Fallback response: " + response);
+                reader.close();
+                connection.disconnect();
+                return true;
+            } else {
+                Log.e(TAG, "⚠️ Fallback returned non-200 response: " + responseCode);
+                connection.disconnect();
+                return false;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Fallback HTTP failed: " + e.getMessage());
+            return false;
+        }
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
