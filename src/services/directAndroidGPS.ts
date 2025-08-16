@@ -98,20 +98,8 @@ class DirectAndroidGPSService {
       }
       
       // Direct MainActivity Android GPS interface for status update
-      // Update GPS status - HYBRID APPROACH  
-      try {
-        const { registerPlugin } = await import('@capacitor/core');
-        const AndroidGPSPlugin = registerPlugin('AndroidGPSPlugin');
-        
-        const result = await (AndroidGPSPlugin as any).updateStatus({
-          courseId,
-          newStatus
-        });
-        logGPS(`✅ GPS status updated via Capacitor Plugin: ${JSON.stringify(result)}`);
-        return;
-      } catch (error) {
-        logGPS(`⚠️ Capacitor plugin updateStatus failed, falling back to WebView: ${error}`);
-      }
+      // CAPACITOR PLUGIN NU EXISTĂ - fallback direct la WebView bridge
+      logGPS(`🚨 AndroidGPSPlugin nu există - folosim direct WebView bridge`);
       
       // Fallback to WebView bridge
       if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
@@ -165,8 +153,8 @@ class DirectAndroidGPSService {
     
     // SIMPLIFICAT: GPS Android pornește direct fără verificări de conectivitate
     
-    // FORCE WebView ONLY: Capacitor plugin nu funcționează din log-uri
-    logGPS(`🚨 FORCING WebView bridge ONLY - Capacitor plugin disabled pentru debugging`);
+    // DIRECT WebView: SimpleGPSService prin MainActivity bridge
+    logGPS(`🚨 Direct WebView bridge la SimpleGPSService - GPS nativ cu precizie maximă`);
     
     // IMPORTANT: Call SimpleGPSService directly instead of OptimalGPSService
     if (window.AndroidGPS && window.AndroidGPS.startGPS) {

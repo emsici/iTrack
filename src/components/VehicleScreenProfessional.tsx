@@ -469,9 +469,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`📞 Se apelează funcția GPS cu UIT: ${courseToUpdate.uit} (nu ID: ${courseId})`);
         console.log(`📱 Info platformă: ${navigator.userAgent.includes('Android') ? 'Android' : 'Browser'}`);
         
-        // ANDROID ONLY: Delegate totul la OptimalGPSService pentru coordonate precise
-        console.log(`🤖 ANDROID GPS: Se delegă totul la OptimalGPSService pentru precizie maximă`);
-        console.log(`📱 Browser GPS OPRIT - OptimalGPSService gestionează coordonatele cu HDOP <10m`);
+        // ANDROID ONLY: Delegate totul la SimpleGPSService pentru coordonate precise
+        console.log(`🤖 ANDROID GPS: Se delegă totul la SimpleGPSService pentru precizie maximă`);
+        console.log(`📱 Browser GPS OPRIT - SimpleGPSService gestionează coordonatele cu GPS nativ`);
         await updateCourseStatus(courseToUpdate.uit, newStatus);
         
         console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);
