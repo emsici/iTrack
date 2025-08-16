@@ -41,52 +41,8 @@ class DirectAndroidGPSService {
 
 
 
-  /**
-   * Send status update to server via gps.php
-   * HIBRID: Trimite status + coordonată pentru a asigura conectivitatea
-   */
-  private async sendStatusToServer(uit: string, vehicleNumber: string, token: string, status: number): Promise<void> {
-    try {
-      logGPS(`📡 Trimitere status ${status} + coordonată hibridă pentru UIT: ${uit}`);
-      
-      // HIBRID APPROACH: Trimite o coordonată cu status pentru a menține conexiunea
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 30000
-      });
-
-      // Get real device data
-      const batteryLevel = await this.getRealBatteryLevel();
-      const networkType = await this.getRealNetworkType();
-      
-      // Create GPS data for status transmission
-      const currentTime = sharedTimestampService.getSharedTimestampISO();
-      const gpsData = {
-        uit: uit,
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        timestamp: currentTime,
-        viteza: Math.max(0, position.coords.speed || 0),
-        directie: position.coords.heading || 0,
-        altitudine: position.coords.altitude || 0,
-        baterie: batteryLevel,
-        hdop: position.coords.accuracy.toString(),
-        gsm_signal: networkType,
-        numar_inmatriculare: vehicleNumber,
-        status: status
-      };
-
-      // Send to server with status - FIXED: sendGPSData primește doar 2 argumente
-      await sendGPSData(gpsData, token);
-      logGPS(`✅ Status ${status} + coordonată trimisă pentru ${uit} - hibrid approach`);
-      
-    } catch (error) {
-      logGPSError(`❌ Hibrid GPS status transmission failed pentru ${uit}: ${error}`);
-      // Fall back to Android only if browser fails
-      logGPS(`🤖 Fallback la OptimalGPSService pentru ${uit}`);
-    }
-  }
+  // ELIMINAT sendStatusToServer - era adăugat recent și a stricat transmisia
+  // Revenim la varianta originală: DOAR Android GPS direct
 
   async updateCourseStatus(courseId: string, newStatus: number): Promise<void> {
     try {
@@ -101,9 +57,8 @@ class DirectAndroidGPSService {
       // 1. For PAUSE (3) or STOP (4): Send status FIRST, then stop GPS coordinates
       // 2. For START (2): Send status FIRST, then start GPS coordinates
       
-      console.log(`📡 STEP 1: Sending status ${newStatus} to server for UIT: ${realUIT}`);
-      await this.sendStatusToServer(realUIT, vehicleNumber, token, newStatus);
-      console.log(`✅ Status ${newStatus} sent to server successfully`);
+      // REVERT LA VARIANTA CARE MERGEA - fără sendStatusToServer hibrid
+      // Trimitem DOAR Android GPS direct, fără coordonate de la browser
       
       // STEP 2: Handle GPS coordinate transmission based on status
       if (newStatus === 3 || newStatus === 4) {
@@ -123,17 +78,14 @@ class DirectAndroidGPSService {
         console.log(`✅ GPS oprit pentru cursa ${courseId} - status ${newStatus === 3 ? 'PAUZĂ' : 'STOP'}`);
       }
       
-      // STEP 3: Handle GPS coordinate transmission for START/RESUME
+      // STEP 3: Handle GPS coordinate transmission for START/RESUME - VARIANTA ORIGINALĂ
       if (newStatus === 2) {
-        console.log(`🚀 STEP 3: STARTING GPS tracking + hibrid browser backup`);
+        console.log(`🚀 PORNIRE GPS DIRECT Android - varianta originală`);
         
-        // Start Android GPS - METODA PRINCIPALA CARE MERGEA
+        // DIRECT Android GPS - ca înainte să pun alertele
         await this.startTracking(courseId, vehicleNumber, realUIT, token, newStatus);
         
-        // NU MAI PORNIM browser backup simultan - era cauza triplei transmisii
-        // OptimalGPSService.java e suficient pentru background
-        
-        console.log(`✅ GPS PRINCIPAL PORNIT - DOAR Android OptimalGPSService`);
+        console.log(`✅ GPS ANDROID PORNIT - varianta care mergea înainte`);
       }
       
       // Update local tracking - CRITICAL FIX: Remove courses with status 3/4 completely
@@ -165,148 +117,7 @@ class DirectAndroidGPSService {
     }
   }
 
-  /**
-   * Obține nivelul real al bateriei dispozitivului
-   */
-  private async getRealBatteryLevel(): Promise<number> {
-    try {
-      // Try Android native battery level first
-      if (window.AndroidGPS && window.AndroidGPS.getBatteryLevel) {
-        const batteryLevel = window.AndroidGPS.getBatteryLevel();
-        if (batteryLevel >= 0 && batteryLevel <= 100) {
-          return batteryLevel;
-        }
-      }
-
-      // Try Capacitor Device info (doar dacă e disponibil)
-      if ((window as any).Capacitor?.isNativePlatform()) {
-        try {
-          // Import dinamic pentru a evita errori la build
-          const Device = await import('@capacitor/device').then(module => module.Device).catch(() => null);
-          if (Device) {
-            const info = await Device.getBatteryInfo();
-            if (info.batteryLevel !== undefined) {
-              return Math.round(info.batteryLevel * 100);
-            }
-          }
-        } catch (deviceError) {
-          // Capacitor Device not available - silent fallback
-          logGPS('ℹ️ Capacitor Device plugin nu e disponibil');
-        }
-      }
-
-      // Try Navigator Battery API (deprecated but some browsers still support)
-      if ('getBattery' in navigator) {
-        const battery = await (navigator as any).getBattery();
-        if (battery && battery.level !== undefined) {
-          return Math.round(battery.level * 100);
-        }
-      }
-
-      logGPS('⚠️ Nu s-a putut obține nivelul real al bateriei - folosesc estimare 85%');
-      return 85; // Fallback realistic
-    } catch (error) {
-      logGPSError(`❌ Eroare obținere baterie: ${error}`);
-      return 85; // Safe fallback
-    }
-  }
-
-  /**
-   * Obține tipul real de rețea/semnal GSM
-   */
-  private async getRealNetworkType(): Promise<string> {
-    try {
-      // Try Android native network info first
-      if (window.AndroidGPS && window.AndroidGPS.getNetworkType) {
-        const networkType = window.AndroidGPS.getNetworkType();
-        if (networkType && networkType.trim() !== '') {
-          return networkType;
-        }
-      }
-
-      // Try Navigator connection API
-      if ('connection' in navigator) {
-        const connection = (navigator as any).connection;
-        if (connection && connection.effectiveType) {
-          // Map browser connection types to mobile network types
-          const typeMap: { [key: string]: string } = {
-            'slow-2g': '2G',
-            '2g': '2G',
-            '3g': '3G',
-            '4g': '4G'
-          };
-          return typeMap[connection.effectiveType] || '4G';
-        }
-      }
-
-      // Try Capacitor Network plugin (doar dacă e disponibil)
-      if ((window as any).Capacitor?.isNativePlatform()) {
-        try {
-          // Import dinamic pentru a evita errori la build
-          const Network = await import('@capacitor/network').then(module => module.Network).catch(() => null);
-          if (Network) {
-            const status = await Network.getStatus();
-            if (status.connectionType) {
-              // Map Capacitor types to GSM types
-              const typeMap: { [key: string]: string } = {
-                'wifi': 'WiFi',
-                'cellular': '4G',
-                'none': 'No Signal'
-              };
-              return typeMap[status.connectionType] || '4G';
-            }
-          }
-        } catch (capacitorError) {
-          // Capacitor Network not available - silent fallback
-          logGPS('ℹ️ Capacitor Network plugin nu e disponibil');
-        }
-      }
-
-      logGPS('⚠️ Nu s-a putut obține tipul real de rețea - folosesc 4G default');
-      return '4G'; // Most common fallback
-    } catch (error) {
-      logGPSError(`❌ Eroare obținere tip rețea: ${error}`);
-      return '4G'; // Safe fallback
-    }
-  }
-
-  /**
-   * BACKUP HIBRID BROWSER GPS pentru siguranță în caz că Android GPS nu funcționează
-   */
-  private async startHibridBrowserBackup(courseId: string, vehicleNumber: string, uit: string, token: string, status: number): Promise<void> {
-    // Stop any existing backup for this course
-    const existingCourse = this.activeCourses.get(courseId);
-    if (existingCourse?.intervalId) {
-      clearInterval(existingCourse.intervalId);
-    }
-
-    logGPS(`🔄 HIBRID BACKUP: Browser GPS backup la 30s pentru ${courseId}`);
-    
-    // Browser GPS backup la 30 secunde (mai rar ca să nu interfere cu Android)
-    const intervalId = setInterval(async () => {
-      try {
-        const course = this.activeCourses.get(courseId);
-        if (!course || course.status !== 2) {
-          logGPS(`⏹️ HIBRID BACKUP: Course ${courseId} nu mai e activ - opresc backup`);
-          clearInterval(intervalId);
-          return;
-        }
-
-        logGPS(`🔄 HIBRID BACKUP: Transmisie browser GPS pentru ${courseId}`);
-        await this.sendStatusToServer(uit, vehicleNumber, token, 2); // Status 2 pentru transmisie în progres
-        
-      } catch (error) {
-        logGPSError(`❌ HIBRID BACKUP: Eroare transmisie pentru ${courseId}: ${error}`);
-      }
-    }, 30000); // 30 secunde
-
-    // Update course with interval ID
-    const course = this.activeCourses.get(courseId);
-    if (course) {
-      course.intervalId = intervalId;
-      this.activeCourses.set(courseId, course);
-    }
-  }
+  // ELIMINAT toate funcțiile hibride - revenim la varianta simplă care mergea
 
   async startTracking(
     courseId: string,
@@ -380,13 +191,6 @@ class DirectAndroidGPSService {
   async stopTracking(courseId: string): Promise<void> {
     try {
       logGPS(`🛑 Stopping Android GPS tracking: ${courseId}`);
-      
-      // Stop hibrid browser backup
-      const course = this.activeCourses.get(courseId);
-      if (course?.intervalId) {
-        clearInterval(course.intervalId);
-        logGPS(`✅ Hibrid browser backup stopped for ${courseId}`);
-      }
       
       // Stop Android native GPS service  
       if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
