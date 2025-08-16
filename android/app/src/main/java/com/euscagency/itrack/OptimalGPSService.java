@@ -177,20 +177,8 @@ public class OptimalGPSService extends Service {
             
             handleServiceCommand(intent);
             
-            // CRITICAL: After handling command, perform GPS cycle AND ensure timer is running
-            if (!activeCourses.isEmpty()) {
-                // CRITICAL: Ensure GPS timer is ALWAYS running when we have active courses
-                if (!isAlarmActive) {
-                    Log.e(TAG, "🚀 === CRITICAL === STARTING GPS TIMER for new course");
-                    startOptimalGPSTimer();
-                } else {
-                    Log.d(TAG, "⏰ GPS TIMER already active - continuing with " + activeCourses.size() + " courses");
-                }
-                
-                performOptimalGPSCycle();
-            } else {
-                Log.w(TAG, "⚠️ DIAGNOSTIC: NO ACTIVE COURSES - skipping GPS cycle");
-            }
+            // ELIMINAT duplicated GPS cycle - handleServiceCommand() already handles everything
+            // GPS timer starts automatically in handleServiceCommand(), no need to duplicate here
         }
         
         Log.d(TAG, "🚨 === DIAGNOSTIC END === onStartCommand completed");
