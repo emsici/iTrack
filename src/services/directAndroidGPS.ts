@@ -168,10 +168,10 @@ class DirectAndroidGPSService {
     // FORCE WebView ONLY: Capacitor plugin nu funcționează din log-uri
     logGPS(`🚨 FORCING WebView bridge ONLY - Capacitor plugin disabled pentru debugging`);
     
-    // Fallback to WebView bridge (compatibility)
+    // IMPORTANT: Call SimpleGPSService directly instead of OptimalGPSService
     if (window.AndroidGPS && window.AndroidGPS.startGPS) {
       const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
-      logGPS(`✅ Android GPS PORNIT via WebView: ${result} - varianta funcțională`);
+      logGPS(`✅ NATIVE SimpleGPS PORNIT via WebView: ${result} - sistem GPS nativ cu precizie maximă`);
     } else {
       logGPS(`⚠️ AndroidGPS interface not available - normal în browser development`);
     }

@@ -40,8 +40,16 @@
             android:stopWithTask="false" />
             
         <!-- OptimalGPSService for maximum battery efficiency -->
+
+        <!-- GPS handled via MainActivity AndroidGPS WebView interface
         <service
-        <!-- GPS handled via MainActivity AndroidGPS WebView interface -->
+            android:name="com.euscagency.itrack.OptimalGPSService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location"
+            android:stopWithTask="false" /> -->
+            
+        
             
         <!-- Background Auto-Refresh Service -->
         <service

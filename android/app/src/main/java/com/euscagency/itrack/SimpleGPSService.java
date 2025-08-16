@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class SimpleGPSService extends Service {
     private static final String TAG = "SimpleGPS";
-    private static final long GPS_INTERVAL_MS = 10000; // 10 secunde
+    private static final long GPS_INTERVAL_MS = 5000; // 5 secunde - identic cu OptimalGPSService
     private static final String ACTION_GPS_ALARM = "com.euscagency.itrack.SIMPLE_GPS_ALARM";
     
     // API Configuration
@@ -197,7 +197,7 @@ public class SimpleGPSService extends Service {
         );
         
         isGPSActive = true;
-        Log.e(TAG, "✅ GPS Timer Started - 10 second intervals");
+        Log.e(TAG, "✅ GPS Timer Started - 5 second intervals (identic cu OptimalGPSService)");
         
         // Immediate first GPS reading
         performGPSCycle();
