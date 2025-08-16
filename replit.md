@@ -9,11 +9,11 @@ Date format preference: DD-MM-YYYY (zi-luna-an) for Romanian locale.
 Timestamp preference: Romania local time (+3 hours from UTC) for all GPS data and system timestamps.
 Performance optimization: Universal optimization for ALL Android phones (not device-specific).
 Code comments: All comments must be in Romanian language.
-Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java removed).
-UI Performance: Remove heavy animations (rainbow flows, floating animations, gradient shifts, pulse effects) that may affect performance on Android devices.
+Backup files: Remove unnecessary backup files.
+UI Performance: Remove heavy animations that may affect performance on Android devices.
 Offline Coordinates Policy: NEVER clear offline coordinates at logout - preserve route continuity across login sessions to avoid missing road segments.
-Code Cleanup: Comprehensive cleanup completed - removed 7 unused files/services (capacitorGPS.ts, performanceOptimizer.ts, gpsdiagnostic.ts, CourseModal.tsx, CourseQuickView.tsx, OfflineGPSMonitor.tsx, OfflineStatusIndicator.tsx) and 9 unused functions from active services. Application now runs 90%+ active code with zero functionality impact.
-GPS Background Fix: Restored direct Android GPS calls (window.AndroidGPS.startGPS) for background service with hybrid browser backup system to ensure GPS continues working when phone is locked/app minimized.
+Code Cleanup: Comprehensive cleanup completed - removed unused files/services and functions.
+GPS Background Fix: Restored direct Android GPS calls for background service with hybrid browser backup system to ensure GPS continues working when phone is locked/app minimized.
 Real Device Data: Implemented dynamic battery level detection and real network type detection instead of static values, using Android native APIs, Capacitor Device/Network plugins, and browser APIs with intelligent fallbacks.
 
 ## System Architecture
@@ -21,7 +21,7 @@ Real Device Data: Implemented dynamic battery level detection and real network t
 ### Frontend
 - **Framework**: React 19.1.0 with TypeScript
 - **Build Tool**: Vite 6.3.5
-- **UI Framework**: Bootstrap 5.3.6 with custom CSS featuring glassmorphism and modern animations
+- **UI Framework**: Bootstrap 5.3.6 with custom CSS featuring glassmorphism
 - **Mobile Framework**: Capacitor 7.3.0 for native cross-platform deployment (primarily Android)
 
 ### Backend Integration
@@ -37,17 +37,18 @@ Real Device Data: Implemented dynamic battery level detection and real network t
 
 ### Core Features
 - **Enterprise Authentication**: Secure email/password login, JWT token management, and secure logout.
-- **Advanced GPS Tracking**: Native Android service for continuous background tracking (5-second interval), offline caching of coordinates with batch synchronization, and high-precision data. Includes adaptive intervals (3s when locked, 10s when unlocked), foreground service priority, and Doze mode bypass.
+- **Advanced GPS Tracking**: Native Android service for continuous background tracking (10-second interval), offline caching of coordinates with batch synchronization, and high-precision data. Includes adaptive intervals, foreground service priority, and Doze mode bypass. GPS continues for both active and paused courses.
 - **Professional Trip Management**: Vehicle number input, loading of vehicle-specific trips, real-time status management (Available, Active, Pause, Stopped), and an optimized driver interface.
 - **Enterprise Analytics**: Dedicated modals for detailed trip statistics (distance, time, speed) using the Haversine formula, and cumulative reports.
 - **Advanced Debug Panel**: Accessible via 50 clicks on the timestamp, providing persistent logging (GPS, API, OFFLINE_SYNC, APP, ERROR categories) and export functions.
 - **Robust Offline Management**: Automatic online/offline status detection, intelligent GPS coordinate caching, visual synchronization progress, automatic recovery, and retry logic for data transmission. Syncs in batches of 50 coordinates with chronological sorting.
 
 ### Technical Implementations
-- **GPS Logic**: OptimalGPSService runs persistently in the background, acquiring WakeLock for deep sleep prevention. Redundant GPS services ensure transmission even if native Android GPS is unavailable. SharedTimestampService for cross-service consistency.
-- **UI/UX Decisions**: Corporate design with glassmorphism effects, gradient backgrounds, and intuitive iconography. Responsive layouts with safe area padding. Optimized for zero-lag scrolling by eliminating `backdrop-filter`, `blur` effects, and `transform` properties.
+- **GPS Logic**: SimpleGPSService runs persistently in the background, acquiring WakeLock for deep sleep prevention. Utilizes a reliable Handler system for GPS cycles, guaranteed through foreground service protection and deep sleep prevention.
+- **UI/UX Decisions**: Corporate design with glassmorphism effects, gradient backgrounds, and intuitive iconography. Responsive layouts with safe area padding. Optimized for zero-lag scrolling by eliminating `backdrop-filter`, `blur` effects, and `transform` properties. Cleaner interface without redundant GPS status indicators.
 - **Error Handling**: Comprehensive error logging, non-blocking GPS operations, graceful degradation for network issues, and clear user guidance for permissions.
-- **Environment Management**: Centralized API_CONFIG system for easy environment switching (PROD/TEST/DEV) with automated build scripts (`start.bat`/`start.sh`).
+- **Environment Management**: Centralized API_CONFIG system for easy environment switching (PROD/TEST/DEV) with automated build scripts.
+- **HTTP Modernization**: Uses OkHttp + Volley dual-chain for reliable GPS transmission, now exclusively using CapacitorHttp native methods for all API calls in Android-only environment.
 
 ## External Dependencies
 - **Capacitor**: `@capacitor/core`, `@capacitor/android`, `@capacitor/geolocation`, `@capacitor/preferences`
@@ -59,36 +60,3 @@ Real Device Data: Implemented dynamic battery level detection and real network t
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php` (GPS Data Transmission)
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/rezultate.php` (GPS Result Verification)
 - **UI Libraries**: Bootstrap 5.3.6
-
-## Recent Major Updates
-
-### 2025-08-16: SimpleGPSService Complete Implementation & Format Correction
-- **ARCHITECTURE CHANGE**: Replaced OptimalGPSService (912 lines) with SimpleGPSService (585 lines) for 36% better efficiency
-- **CRITICAL GPS FORMAT FIX**: Corrected data transmission to match exactly GPSData interface from api.ts:
-  - Changed from form-urlencoded to JSON with Authorization Bearer headers
-  - Removed extra fields (level_baterie, putere_semnal), corrected data types (hdop, gsm_signal as numbers)
-  - Now sends exact 12-field JSON matching frontend expectations
-- **NATIVE OFFLINE INTEGRATION**: Complete offline storage with SharedPreferences JSON + automatic synchronization
-- **BACKGROUND GUARANTEE**: WakeLock + Foreground Service + AlarmManager with setExactAndAllowWhileIdle() for phone-locked operation
-- **DEBUGGING ENHANCED**: Comprehensive logging throughout GPS cycle for precise troubleshooting
-- **SERVICES ELIMINATED**: Removed androidGPSCallback.ts, garanteedGPS.ts, OptimalGPSService.java, directAndroidGPS.ts, offlineGPS.ts, offlineSyncStatus.ts, sharedTimestamp.ts, networkStatus.ts, simpleNetworkCheck.ts for maximum efficiency (1413+ lines eliminated)
-- **ARCHITECTURE SIMPLIFIED**: All GPS logic now native in SimpleGPSService.java - no JavaScript intermediaries needed. Timestamp generation moved to native Android. Network detection through actual GPS HTTP responses (no ping services)
-- **✅ PRODUCTION VALIDATION**: Application logs from 16.08.2025 confirm complete system functionality - GPS native Android operational, API integration successful, course management working perfectly. System validated for enterprise deployment.
-- **🔧 GPS SERVER FIX**: Identified and resolved GPS transmission issues - server returns HTTP 401 for invalid tokens but accepts both JSON and form-urlencoded with valid JWT. Implemented comprehensive HTTP fallback chain with proper authentication for guaranteed GPS data delivery.
-- **📱 HTTP MODERNIZATION**: Eliminated legacy HttpURLConnection, simplified to modern OkHttp + Volley dual-chain for reliable GPS transmission. Reverted to original JSON format (not form-urlencoded) which was the working method. Enhanced response code handling (200/204 success, 401 unauthorized detection).
-- **🎨 UI CLEANUP**: Removed GPS Active status indicator with green background that appeared on login page (vehicle number input) and course list page per user request. Application now shows cleaner interface without redundant GPS status indicators.
-- **🐛 COMPILATION FIX**: Fixed legacyHttpURLConnection reference in syncOfflineCoordinates function that was causing Android compilation errors. Modernized offline sync to use only OkHttp + Volley chain consistent with live GPS transmission.
-- **🔍 DEBUG ENHANCED**: Added comprehensive logging to CapacitorHttp GPS transmission for better debugging of GPS data flow. Enhanced visibility into all GPS data fields, server responses, and transmission status.
-- **🚨 CRITICAL GPS FIX**: Identified and resolved major issue where Android SimpleGPSService was bypassing JavaScript bridge completely. Added CapacitorHttp bridge call as PRIMARY transmission method, calling window.sendGPSViaCapacitor from native Android service. Complete chain now: Volley → OkHttp → CapacitorHttp Bridge for guaranteed GPS transmission compatibility.
-- **🔧 ENHANCED BRIDGE**: Improved JavaScript bridge call from Android with comprehensive error handling, detailed logging, and proper data passing. Android now passes GPS data as JavaScript object instead of string for better compatibility.
-- **🔍 COMPREHENSIVE DEBUGGING**: Added detailed logging throughout entire GPS cycle - from AlarmManager trigger through performGPSCycle execution to GPS coordinate transmission. Enhanced visibility into active courses, GPS provider selection, location accuracy, and transmission attempts for complete debugging visibility.
-- **🚨 CRITICAL FIX IDENTIFIED**: Found missing AndroidGPS.startGPS call in frontend! updateCourseStatus only called AndroidGPS.updateStatus but never started the GPS service. Added startAndroidGPS function to properly call SimpleGPSService when status becomes ACTIVE (2). This was the root cause why SimpleGPSService never received coordinates.
-- **🎯 GPS TRANSMISSION SIMPLIFIED**: Replaced complex HTTP chain (Volley → OkHttp → CapacitorHttp) with single CapacitorHttp bridge method, identical to successful login/vehicul.php transmission. Eliminates intermediary steps that could fail and ensures same reliable method across all API calls.
-- **🔍 GPS FORMAT ISSUE SOLVED**: Through curl testing discovered server accepts JSON with exact login headers ("Content-Type: application/json; charset=utf-8" + "Accept: application/json"). Server returns 415 without charset but 200 with proper headers. Updated GPS transmission to use identical headers as successful login/vehicul.php calls.
-- **⚡ GPS LOOP OPTIMIZATION**: Implemented efficient pause/resume system by removing paused courses from activeCourses map and storing in SharedPreferences. Eliminates unnecessary status checks in GPS transmission loop, improving performance for fleet management scenarios with multiple paused courses. Only ACTIVE courses remain in memory during GPS cycles.
-- **🔧 GPS FUNCTION UNIFICATION**: Consolidated two duplicate sendGPSViaCapacitor functions into single unified version that handles both Android (JSON string) and JavaScript (object) input formats. Enhanced with comprehensive logging for detailed debugging of GPS transmission process, server responses, and error detection (401/403/415 status codes).
-- **📱 ANDROID-ONLY OPTIMIZATION**: Eliminated all fetch fallbacks from API calls (login, vehicul, logout, GPS) since application is exclusively for Android. Now uses only CapacitorHttp native methods for cleaner, faster, and more reliable API communication without unnecessary browser compatibility code.
-- **🔍 ALARMMANAGER DEBUG ENHANCEMENT (16.08.2025)**: Added extensive debugging to SimpleGPSService for AlarmManager functionality verification. Enhanced startGPSTimer() and scheduleNextGPSCycle() with detailed logging of trigger times, PendingIntent creation, and backup manual timers to ensure GPS cycles continue even if AlarmManager fails. Critical issue identified: GPS coordinates not transmitting despite successful service start - debugging AlarmManager trigger mechanism.
-- **🚀 GPS HANDLER SOLUTION (16.08.2025)**: CRITICAL FIX - Replaced faulty AlarmManager with reliable Handler system for GPS cycles. AlarmManager was not triggering ACTION_GPS_ALARM properly. New implementation: immediate GPS reading on service start + continuous Handler.postDelayed() cycles every 10 seconds (optimized for production). Background threads ensure non-blocking operation. This guarantees GPS coordinate transmission even when AlarmManager fails in Android deep sleep modes.
-- **⚡ GPS INTERVAL OPTIMIZATION (16.08.2025)**: Updated GPS transmission interval from 5 seconds to 10 seconds for optimal battery performance and reduced server load. System successfully validated with test coordinates (Bucharest: 44.4268, 26.1025) confirming complete GPS transmission chain functionality. Production-ready performance optimization.
-- **🛡️ FOREGROUND SERVICE + BACKGROUND GUARANTEE (16.08.2025)**: CRITICAL FIX for phone locked scenarios - implemented foreground service with HIGH priority notification, persistent WakeLock, and CATEGORY_NAVIGATION for maximum Android priority. Handler system enhanced with background thread safety. GPS now guaranteed to work with phone locked/minimized through foreground service protection and deep sleep prevention. Notification shows active course count and cannot be dismissed accidentally.

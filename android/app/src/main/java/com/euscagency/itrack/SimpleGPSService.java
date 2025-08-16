@@ -270,21 +270,13 @@ public class SimpleGPSService extends Service {
                     if (!isGPSActive) {
                         startGPSTimer();
                     }
-                } else if (newStatus == 3) { // PAUSE - OPTIMIZED: Remove from map
+                } else if (newStatus == 3) { // PAUSE - KEEP GPS RUNNING
                     Log.e(TAG, "⏸️ PAUSE: Course " + courseId + " GPS tracking PAUSED");
-                    Log.e(TAG, "🚀 OPTIMIZATION: Removing paused course from activeCourses for efficiency");
+                    Log.e(TAG, "🔄 IMPORTANT: GPS continues running for PAUSED courses to maintain route continuity");
                     
-                    // Store paused course data for quick resume
-                    saveToSharedPreferences("paused_course_" + courseId, course);
-                    
-                    // Remove from active map to optimize GPS loop
-                    activeCourses.remove(courseId);
-                    
-                    // Stop GPS timer if no more active courses
-                    if (activeCourses.isEmpty()) {
-                        Log.e(TAG, "⏸️ No active courses - stopping GPS timer");
-                        stopGPSTimer();
-                    }
+                    // Keep course in activeCourses with PAUSE status for continuous GPS transmission
+                    // This ensures route continuity and avoids missing road segments
+                    Log.e(TAG, "📍 GPS will continue transmitting coordinates with status=3 (PAUSE)");
                 } else if (newStatus == 4) { // STOP
                     Log.e(TAG, "🏁 STOP: Course " + courseId + " GPS tracking STOPPED");
                     // Send final GPS position and remove course
@@ -303,24 +295,16 @@ public class SimpleGPSService extends Service {
             updateNotification();
             
             } else if (newStatus == 2) {
-                // RESUME: Check if course is in paused storage
-                Log.e(TAG, "🔄 RESUME: Checking for paused course " + courseId);
-                CourseData pausedCourse = loadFromSharedPreferences("paused_course_" + courseId);
+                // RESUME: Course should already be in activeCourses with status 3
+                Log.e(TAG, "🔄 RESUME: Course " + courseId + " should already be active with GPS running");
+                CourseData existingCourse = activeCourses.get(courseId);
                 
-                if (pausedCourse != null) {
-                    Log.e(TAG, "✅ RESUME: Restoring paused course " + courseId + " to active map");
-                    pausedCourse.status = 2; // Set to ACTIVE
-                    activeCourses.put(courseId, pausedCourse);
-                    
-                    // Remove from paused storage
-                    removeFromSharedPreferences("paused_course_" + courseId);
-                    
-                    // Start GPS timer if not active
-                    if (!isGPSActive) {
-                        startGPSTimer();
-                    }
+                if (existingCourse != null) {
+                    Log.e(TAG, "✅ RESUME: Course " + courseId + " found in activeCourses - updating status to ACTIVE");
+                    existingCourse.status = 2; // Update to ACTIVE
+                    Log.e(TAG, "🎯 GPS continues seamlessly - no interruption in coordinate transmission");
                 } else {
-                    Log.e(TAG, "⚠️ RESUME: No paused course found for " + courseId);
+                    Log.e(TAG, "⚠️ RESUME: Course " + courseId + " not found - this should not happen with continuous GPS");
                 }
             } else {
                 Log.e(TAG, "⚠️ Status update for unknown course: " + courseId);

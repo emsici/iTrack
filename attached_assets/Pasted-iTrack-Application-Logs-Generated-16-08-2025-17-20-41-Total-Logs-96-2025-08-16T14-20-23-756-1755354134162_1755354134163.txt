@@ -1,0 +1,100 @@
+iTrack Application Logs
+Generated: 16.08.2025, 17:20:41
+Total Logs: 96
+
+[2025-08-16T14:20:23.756Z] INFO (APP): Acțiune cursă finalizată: 133944
+[2025-08-16T14:20:23.756Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-16T14:20:23.755Z] INFO (API): Course 8K6N433546130173 status updated successfully to 2
+[2025-08-16T14:20:23.755Z] INFO (APP): ✅ Cursa 8K6N433546130173 status actualizat la 2 cu succes
+[2025-08-16T14:20:23.745Z] INFO (APP): 📱 GPS Service Result: SUCCESS: NATIVE GPS started for 133944
+[2025-08-16T14:20:23.745Z] INFO (APP): 📊 GPS service va urmări toate cursele active cu același set de coordonate
+[2025-08-16T14:20:23.745Z] INFO (APP): 🔥 SimpleGPSService Result: SUCCESS: NATIVE GPS started for 133944
+[2025-08-16T14:20:23.738Z] INFO (APP): 🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS
+[2025-08-16T14:20:23.738Z] INFO (APP): 📋 IMPORTANT: SimpleGPSService acceptă MULTIPLE curse - se adaugă la lista activă
+[2025-08-16T14:20:23.738Z] INFO (APP): ✅ AndroidGPS.startGPS disponibil - pornesc SimpleGPSService
+[2025-08-16T14:20:23.738Z] INFO (APP): 📱 AndroidGPS interface check: [object Object]
+[2025-08-16T14:20:23.738Z] INFO (APP): 🚀 === CALLING ANDROID GPS SERVICE ===
+[2025-08-16T14:20:23.738Z] INFO (APP): 🚀 PORNIRE GPS: Status 2 (ACTIVE) - pornesc SimpleGPSService
+[2025-08-16T14:20:23.737Z] INFO (APP): 📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat
+[2025-08-16T14:20:23.737Z] INFO (APP): 📞 Se apelează direct Android GPS cu UIT: 8K6N433546130173
+[2025-08-16T14:20:23.737Z] INFO (APP): 🎯 ANDROID NATIVE: SimpleGPSService cu GPS nativ și precizie maximă
+[2025-08-16T14:20:23.737Z] INFO (APP): ✅ Permisiuni GPS acordate
+[2025-08-16T14:20:23.700Z] INFO (APP): 🔍 Se solicită permisiuni GPS pentru pornirea cursei...
+[2025-08-16T14:20:23.700Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-16T14:20:23.700Z] INFO (APP): UIT REAL: 8K6N433546130173, Vehicul: TM20RTA
+[2025-08-16T14:20:23.700Z] INFO (APP): Cursă: 133944, Status: 3 → 2
+[2025-08-16T14:20:23.699Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-16T14:20:23.699Z] INFO (APP): 💾 Status 2 salvat pentru UIT 8K6N433546130173
+[2025-08-16T14:20:23.698Z] INFO (APP): Se procesează acțiunea pentru cursa: 133944
+[2025-08-16T14:20:12.890Z] INFO (APP): Acțiune cursă finalizată: 133944
+[2025-08-16T14:20:12.890Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-16T14:20:12.890Z] INFO (API): Course 8K6N433546130173 status updated successfully to 3
+[2025-08-16T14:20:12.890Z] INFO (APP): ✅ Cursa 8K6N433546130173 status actualizat la 3 cu succes
+[2025-08-16T14:20:12.866Z] INFO (APP): 📋 Status meanings: 2=ACTIVE, 3=PAUSE, 4=STOP
+[2025-08-16T14:20:12.866Z] INFO (APP): 🔄 STATUS CHANGE: Status 3 - apelează updateStatus direct
+[2025-08-16T14:20:12.866Z] INFO (APP): 📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat
+[2025-08-16T14:20:12.865Z] INFO (APP): 📞 Se apelează direct Android GPS cu UIT: 8K6N433546130173
+[2025-08-16T14:20:12.865Z] INFO (APP): 🎯 ANDROID NATIVE: SimpleGPSService cu GPS nativ și precizie maximă
+[2025-08-16T14:20:12.865Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-16T14:20:12.865Z] INFO (APP): UIT REAL: 8K6N433546130173, Vehicul: TM20RTA
+[2025-08-16T14:20:12.864Z] INFO (APP): Cursă: 133944, Status: 2 → 3
+[2025-08-16T14:20:12.864Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-16T14:20:12.864Z] INFO (APP): 💾 Status 3 salvat pentru UIT 8K6N433546130173
+[2025-08-16T14:20:12.863Z] INFO (APP): Se procesează acțiunea pentru cursa: 133944
+[2025-08-16T14:19:31.185Z] INFO (APP): Log-uri copiate cu succes în clipboard
+[2025-08-16T14:18:53.530Z] INFO (APP): ✅ BRIDGE GPS Result: true
+[2025-08-16T14:18:53.527Z] INFO (API): GPS transmission successful - Course: 8K6N433546130173 - Status: 200
+[2025-08-16T14:18:53.527Z] INFO (APP): ✅ GPS transmitted successfully for course: 8K6N433546130173 - Status: 200
+[2025-08-16T14:18:53.527Z] INFO (APP): 📦 Response Headers: [object Object]
+[2025-08-16T14:18:53.527Z] INFO (APP): 📥 Response Data: 
+[2025-08-16T14:18:53.526Z] INFO (APP): 📊 Status Code: 200
+[2025-08-16T14:18:53.526Z] INFO (APP): 📡 === GPS RESPONSE DETAILED ===
+[2025-08-16T14:18:53.221Z] INFO (APP): 📤 Headers: Content-Type: application/json; charset=utf-8
+[2025-08-16T14:18:53.221Z] INFO (APP): 🌐 Sending to URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php
+[2025-08-16T14:18:53.221Z] INFO (APP): 🔑 Using Bearer token: eyJhbGciOiJIUzI1NiIs...
+[2025-08-16T14:18:53.221Z] INFO (APP): 📍 GPS Data Details: [object Object]
+[2025-08-16T14:18:53.220Z] INFO (APP): 🚀 === UNIFIED GPS TRANSMISSION ===
+[2025-08-16T14:18:53.220Z] INFO (APP): 🌐 JAVASCRIPT → GPS data received as object
+[2025-08-16T14:18:53.220Z] INFO (APP): 📍 BRIDGE GPS DATA: [object Object]
+[2025-08-16T14:18:53.219Z] INFO (APP): 🚀 ANDROID BRIDGE: Calling sendGPSViaCapacitor
+[2025-08-16T14:18:39.658Z] INFO (APP): ✅ BRIDGE GPS Result: true
+[2025-08-16T14:18:39.657Z] INFO (API): GPS transmission successful - Course: 8K6N433546130173 - Status: 200
+[2025-08-16T14:18:39.656Z] INFO (APP): ✅ GPS transmitted successfully for course: 8K6N433546130173 - Status: 200
+[2025-08-16T14:18:39.656Z] INFO (APP): 📦 Response Headers: [object Object]
+[2025-08-16T14:18:39.656Z] INFO (APP): 📥 Response Data: 
+[2025-08-16T14:18:39.656Z] INFO (APP): 📊 Status Code: 200
+[2025-08-16T14:18:39.656Z] INFO (APP): 📡 === GPS RESPONSE DETAILED ===
+[2025-08-16T14:18:39.526Z] INFO (APP): 📤 Headers: Content-Type: application/json; charset=utf-8
+[2025-08-16T14:18:39.526Z] INFO (APP): 🌐 Sending to URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php
+[2025-08-16T14:18:39.526Z] INFO (APP): 🔑 Using Bearer token: eyJhbGciOiJIUzI1NiIs...
+[2025-08-16T14:18:39.526Z] INFO (APP): 📍 GPS Data Details: [object Object]
+[2025-08-16T14:18:39.525Z] INFO (APP): 🚀 === UNIFIED GPS TRANSMISSION ===
+[2025-08-16T14:18:39.525Z] INFO (APP): 🌐 JAVASCRIPT → GPS data received as object
+[2025-08-16T14:18:39.525Z] INFO (APP): 📍 BRIDGE GPS DATA: [object Object]
+[2025-08-16T14:18:39.525Z] INFO (APP): 🚀 ANDROID BRIDGE: Calling sendGPSViaCapacitor
+[2025-08-16T14:18:38.063Z] INFO (APP): Acțiune cursă finalizată: 133944
+[2025-08-16T14:18:38.063Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-16T14:18:38.062Z] INFO (API): Course 8K6N433546130173 status updated successfully to 2
+[2025-08-16T14:18:38.060Z] INFO (APP): ✅ Cursa 8K6N433546130173 status actualizat la 2 cu succes
+[2025-08-16T14:18:38.054Z] INFO (APP): 📱 GPS Service Result: SUCCESS: NATIVE GPS started for 133944
+[2025-08-16T14:18:38.054Z] INFO (APP): 📊 GPS service va urmări toate cursele active cu același set de coordonate
+[2025-08-16T14:18:38.054Z] INFO (APP): 🔥 SimpleGPSService Result: SUCCESS: NATIVE GPS started for 133944
+[2025-08-16T14:18:38.048Z] INFO (APP): 🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS
+[2025-08-16T14:18:38.048Z] INFO (APP): 📋 IMPORTANT: SimpleGPSService acceptă MULTIPLE curse - se adaugă la lista activă
+[2025-08-16T14:18:38.048Z] INFO (APP): ✅ AndroidGPS.startGPS disponibil - pornesc SimpleGPSService
+[2025-08-16T14:18:38.048Z] INFO (APP): 📱 AndroidGPS interface check: [object Object]
+[2025-08-16T14:18:38.048Z] INFO (APP): 🚀 === CALLING ANDROID GPS SERVICE ===
+[2025-08-16T14:18:38.048Z] INFO (APP): 🚀 PORNIRE GPS: Status 2 (ACTIVE) - pornesc SimpleGPSService
+[2025-08-16T14:18:38.048Z] INFO (APP): 📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat
+[2025-08-16T14:18:38.048Z] INFO (APP): 📞 Se apelează direct Android GPS cu UIT: 8K6N433546130173
+[2025-08-16T14:18:38.048Z] INFO (APP): 🎯 ANDROID NATIVE: SimpleGPSService cu GPS nativ și precizie maximă
+[2025-08-16T14:18:38.048Z] INFO (APP): ✅ Permisiuni GPS acordate
+[2025-08-16T14:18:36.952Z] INFO (APP): 🔍 Se solicită permisiuni GPS pentru pornirea cursei...
+[2025-08-16T14:18:36.951Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-16T14:18:36.951Z] INFO (APP): UIT REAL: 8K6N433546130173, Vehicul: TM20RTA
+[2025-08-16T14:18:36.951Z] INFO (APP): Cursă: 133944, Status: 1 → 2
+[2025-08-16T14:18:36.951Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-16T14:18:36.951Z] INFO (APP): 💾 Status 2 salvat pentru UIT 8K6N433546130173
+[2025-08-16T14:18:36.951Z] INFO (APP): Se procesează acțiunea pentru cursa: 133944
+[2025-08-16T14:18:33.600Z] INFO (APP): Log-uri șterse cu succes
+[2025-08-16T14:18:33.599Z] INFO (SYSTEM): Logs cleared
