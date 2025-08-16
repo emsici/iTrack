@@ -368,15 +368,21 @@ public class SimpleGPSService extends Service {
         
     }
     
+    // Global Handler și Runnable pentru continuous GPS
+    private android.os.Handler continuousGPSHandler;
+    private Runnable continuousGPSRunnable;
+
     /**
      * Start continuous GPS timer with Handler instead of AlarmManager for reliability
      */
     private void startContinuousGPSTimer() {
         Log.e(TAG, "⏰ Starting CONTINUOUS GPS timer with Handler");
         
-        android.os.Handler gpsHandler = new android.os.Handler(Looper.getMainLooper());
+        if (continuousGPSHandler == null) {
+            continuousGPSHandler = new android.os.Handler(Looper.getMainLooper());
+        }
         
-        Runnable gpsRunnable = new Runnable() {
+        continuousGPSRunnable = new Runnable() {
             @Override
             public void run() {
                 if (isGPSActive && !activeCourses.isEmpty()) {
@@ -385,23 +391,46 @@ public class SimpleGPSService extends Service {
                     
                     // Run GPS cycle in background thread
                     new Thread(() -> {
-                        performGPSCycle();
+                        try {
+                            performGPSCycle();
+                        } catch (Exception e) {
+                            Log.e(TAG, "❌ Error in continuous GPS cycle: " + e.getMessage());
+                            e.printStackTrace();
+                        }
                     }).start();
                     
-                    // Schedule next cycle
-                    gpsHandler.postDelayed(this, GPS_INTERVAL_MS);
+                    // Schedule next cycle with same handler
+                    continuousGPSHandler.postDelayed(this, GPS_INTERVAL_MS);
+                    Log.e(TAG, "⏰ Next GPS cycle scheduled in " + GPS_INTERVAL_MS + "ms");
                 } else {
                     Log.e(TAG, "❌ Stopping continuous GPS - no active courses or GPS inactive");
+                    Log.e(TAG, "📊 isGPSActive: " + isGPSActive + ", activeCourses: " + activeCourses.size());
                 }
             }
         };
         
         // Start first continuous cycle
-        gpsHandler.postDelayed(gpsRunnable, GPS_INTERVAL_MS);
+        continuousGPSHandler.postDelayed(continuousGPSRunnable, GPS_INTERVAL_MS);
         Log.e(TAG, "✅ Continuous GPS timer started - next cycle in " + GPS_INTERVAL_MS + "ms (10 secunde)");
     }
     
     private void stopGPSTimer() {
+        // Stop AlarmManager if exists
+        if (gpsPendingIntent != null) {
+            alarmManager.cancel(gpsPendingIntent);
+            gpsPendingIntent.cancel();
+            gpsPendingIntent = null;
+        }
+        
+        // Stop continuous Handler
+        if (continuousGPSHandler != null && continuousGPSRunnable != null) {
+            continuousGPSHandler.removeCallbacks(continuousGPSRunnable);
+            Log.e(TAG, "🛑 Continuous GPS Handler stopped");
+        }
+        
+        isGPSActive = false;
+        Log.e(TAG, "🛑 GPS Timer Stopped");
+    }
         if (gpsPendingIntent != null) {
             alarmManager.cancel(gpsPendingIntent);
             gpsPendingIntent = null;
