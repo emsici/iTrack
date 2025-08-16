@@ -473,22 +473,20 @@ public class SimpleGPSService extends Service {
                 boolean transmissionSuccess = false;
                 
                 try {
-                    // EXACT JSON FORMAT: Identic cu api.ts sendGPSData()
+                    // EXACT JSON FORMAT: Identic 100% cu GPSData interface din api.ts
                     org.json.JSONObject jsonData = new org.json.JSONObject();
                     jsonData.put("uit", course.uit);
                     jsonData.put("lat", lat);
                     jsonData.put("lng", lng);
                     jsonData.put("timestamp", timestamp);
                     jsonData.put("numar_inmatriculare", course.vehicleNumber);
-                    jsonData.put("level_baterie", batteryLevel);
-                    jsonData.put("putere_semnal", signalStrength);
                     jsonData.put("status", course.status);
                     jsonData.put("viteza", speed);
                     jsonData.put("directie", bearing);
                     jsonData.put("altitudine", altitude);
-                    jsonData.put("baterie", batteryLevel); // alias
-                    jsonData.put("hdop", String.valueOf(accuracy));
-                    jsonData.put("gsm_signal", String.valueOf(signalStrength));
+                    jsonData.put("baterie", batteryLevel);          // DOAR baterie (nu level_baterie)
+                    jsonData.put("hdop", accuracy);                 // number (nu string)
+                    jsonData.put("gsm_signal", signalStrength);     // number (nu string)
                     
                     String jsonString = jsonData.toString();
                     
@@ -724,22 +722,20 @@ public class SimpleGPSService extends Service {
                     try {
                         org.json.JSONObject coord = coordinates.getJSONObject(i);
                         
-                        // Prepare JSON data from saved coordinate - EXACT format
+                        // Prepare JSON data from saved coordinate - EXACT GPSData interface
                         org.json.JSONObject jsonData = new org.json.JSONObject();
                         jsonData.put("uit", coord.getString("uit"));
                         jsonData.put("lat", coord.getDouble("lat"));
                         jsonData.put("lng", coord.getDouble("lng"));
                         jsonData.put("timestamp", coord.getString("timestamp"));
                         jsonData.put("numar_inmatriculare", coord.getString("vehicleNumber"));
-                        jsonData.put("level_baterie", coord.getInt("battery"));
-                        jsonData.put("putere_semnal", coord.getInt("signal"));
                         jsonData.put("status", coord.getInt("status"));
                         jsonData.put("viteza", coord.getDouble("speed"));
                         jsonData.put("directie", coord.getDouble("bearing"));
                         jsonData.put("altitudine", coord.getDouble("altitude"));
-                        jsonData.put("baterie", coord.getInt("battery"));
-                        jsonData.put("hdop", String.valueOf(coord.getDouble("accuracy")));
-                        jsonData.put("gsm_signal", String.valueOf(coord.getInt("signal")));
+                        jsonData.put("baterie", coord.getInt("battery"));        // DOAR baterie
+                        jsonData.put("hdop", coord.getDouble("accuracy"));       // number
+                        jsonData.put("gsm_signal", coord.getInt("signal"));      // number
                         
                         String jsonString = jsonData.toString();
                         
