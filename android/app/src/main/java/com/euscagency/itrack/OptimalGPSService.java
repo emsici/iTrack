@@ -561,6 +561,7 @@ public class OptimalGPSService extends Service {
         double altitude = location.getAltitude();
         gpsData.put("altitudine", altitude); // Real altitude as float
         Log.d(TAG, "📏 ALTITUDE DEBUG - Raw: " + altitude + "m, After JSON: " + gpsData.get("altitudine"));
+        gpsData.put("token", course.authToken); // CRITICAL: Include auth token for authentication
         gpsData.put("baterie", getBatteryLevel() + "%"); // Battery with % like June 26th
         gpsData.put("numar_inmatriculare", course.vehicleNumber);
         gpsData.put("uit", course.uit); // Real UIT from course data
@@ -592,7 +593,7 @@ public class OptimalGPSService extends Service {
             // FOREGROUND OPTIMIZED SETTINGS - Simple and fast
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            connection.setRequestProperty("Authorization", "Bearer " + authToken);
+            // Token is included in JSON body, no Authorization header needed
             connection.setRequestProperty("User-Agent", "iTrack-Foreground-GPS/1.0");
             connection.setDoOutput(true);
             connection.setConnectTimeout(5000); // Quick timeout for foreground
@@ -670,7 +671,7 @@ public class OptimalGPSService extends Service {
             }
             
             // FORCE CONSISTENT 5-SECOND INTERVALS - no adaptive logic
-            long intervalMs = GPS_INTERVAL_LOCKED_MS; // ALWAYS 5 seconds
+            long intervalMs = GPS_INTERVAL_MS; // ALWAYS 5 seconds - simplificat
             
             long nextTriggerTime = SystemClock.elapsedRealtime() + intervalMs;
             alarmManager.setExactAndAllowWhileIdle(
