@@ -54,9 +54,11 @@ public class SimpleGPSService extends Service {
     private PowerManager.WakeLock wakeLock;
     
     // Active course data
+    private String activeCourseId = null;
     private String activeUit = null;
     private String activeToken = null;
     private String activeVehicleNumber = null;
+    private int activeStatus = 2; // Default ACTIVE status
     private boolean isGPSActive = false;
     
     private static final int NOTIFICATION_ID = 2001;
@@ -120,19 +122,54 @@ public class SimpleGPSService extends Service {
             
         } else if (intent != null && "START_SIMPLE_GPS".equals(intent.getAction())) {
             // Start GPS tracking
+            activeCourseId = intent.getStringExtra("courseId");
             activeUit = intent.getStringExtra("uit");
             activeToken = intent.getStringExtra("authToken");
             activeVehicleNumber = intent.getStringExtra("vehicleNumber");
+            activeStatus = intent.getIntExtra("status", 2);
             
-            Log.e(TAG, "🚀 Starting GPS for UIT: " + activeUit);
-            Log.e(TAG, "🚗 Vehicle: " + activeVehicleNumber);
+            Log.e(TAG, "🚀 Starting NATIVE GPS for:");
+            Log.e(TAG, "  Course: " + activeCourseId + " (UIT: " + activeUit + ")");
+            Log.e(TAG, "  Vehicle: " + activeVehicleNumber + ", Status: " + activeStatus);
             
             startGPSTimer();
             
         } else if (intent != null && "STOP_SIMPLE_GPS".equals(intent.getAction())) {
             // Stop GPS tracking
-            Log.e(TAG, "🛑 Stopping GPS tracking");
+            String courseId = intent.getStringExtra("courseId");
+            Log.e(TAG, "🛑 Stopping NATIVE GPS tracking for course: " + courseId);
             stopGPSTimer();
+            
+        } else if (intent != null && "UPDATE_SIMPLE_GPS_STATUS".equals(intent.getAction())) {
+            // Update course status (START/PAUSE/RESUME/STOP)
+            String courseId = intent.getStringExtra("courseId");
+            int newStatus = intent.getIntExtra("newStatus", 2);
+            
+            Log.e(TAG, "🔄 NATIVE GPS Status Update: " + courseId + " → " + newStatus);
+            Log.e(TAG, "  Status meanings: 2=ACTIVE, 3=PAUSE, 4=STOP");
+            
+            if (courseId != null && courseId.equals(activeCourseId)) {
+                activeStatus = newStatus;
+                
+                if (newStatus == 2) { // ACTIVE/RESUME
+                    Log.e(TAG, "▶️ RESUME/START: GPS tracking ACTIVE");
+                    if (!isGPSActive) {
+                        startGPSTimer();
+                    }
+                } else if (newStatus == 3) { // PAUSE
+                    Log.e(TAG, "⏸️ PAUSE: GPS tracking PAUSED - stopping timer");
+                    stopGPSTimer();
+                } else if (newStatus == 4) { // STOP
+                    Log.e(TAG, "🏁 STOP: GPS tracking STOPPED - final transmission and cleanup");
+                    // Send final GPS position before stopping
+                    if (isGPSActive) {
+                        performFinalGPSTransmission();
+                    }
+                    stopGPSTimer();
+                }
+            } else {
+                Log.e(TAG, "⚠️ Status update for different course - ignoring");
+            }
         }
         
         return START_STICKY; // Restart if killed
@@ -172,11 +209,18 @@ public class SimpleGPSService extends Service {
             gpsPendingIntent = null;
         }
         isGPSActive = false;
-        activeUit = null;
-        activeToken = null;
-        activeVehicleNumber = null;
         
-        Log.e(TAG, "🛑 GPS Timer Stopped");
+        // Only clear data for STOP (status 4), keep for PAUSE (status 3)
+        if (activeStatus == 4) {
+            Log.e(TAG, "🛑 GPS Timer Stopped - FINAL STOP, clearing all data");
+            activeCourseId = null;
+            activeUit = null;
+            activeToken = null;
+            activeVehicleNumber = null;
+            activeStatus = 2;
+        } else {
+            Log.e(TAG, "⏸️ GPS Timer Paused - keeping course data for resume");
+        }
     }
     
     private void performGPSCycle() {
@@ -315,12 +359,14 @@ public class SimpleGPSService extends Service {
                                 "&numar_masina=" + activeVehicleNumber +
                                 "&level_baterie=" + batteryLevel +
                                 "&putere_semnal=" + signalStrength +
+                                "&status=" + activeStatus + // Include current status
                                 "&jwt_token=" + activeToken;
                 
                 Log.e(TAG, "📊 NATIVE GPS Data:");
+                Log.e(TAG, "  Course: " + activeCourseId + " (UIT: " + activeUit + ")");
                 Log.e(TAG, "  Coordinates: " + lat + ", " + lng + " (accuracy: " + accuracy + "m)");
                 Log.e(TAG, "  Altitude: " + altitude + "m, Speed: " + speed + "km/h, Bearing: " + bearing + "°");
-                Log.e(TAG, "  Battery: " + batteryLevel + "%, Signal: " + signalStrength + "/4");
+                Log.e(TAG, "  Battery: " + batteryLevel + "%, Signal: " + signalStrength + "/4, Status: " + activeStatus);
                 Log.e(TAG, "  Timestamp: " + timestamp + " (Romania timezone)");
                 
                 // Send HTTP POST to gps.php
@@ -404,6 +450,36 @@ public class SimpleGPSService extends Service {
             Log.e(TAG, "Error getting signal strength: " + e.getMessage());
         }
         return 4; // Default strong signal
+    }
+    
+    /**
+     * Perform final GPS transmission for STOP status
+     */
+    private void performFinalGPSTransmission() {
+        Log.e(TAG, "🏁 Final GPS transmission for STOP status...");
+        
+        try {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "❌ No GPS permission for final transmission");
+                return;
+            }
+            
+            // Get last known location for final transmission
+            Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (lastLocation == null) {
+                lastLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+            
+            if (lastLocation != null) {
+                Log.e(TAG, "✅ Sending final GPS position with STOP status");
+                transmitGPSData(lastLocation);
+            } else {
+                Log.e(TAG, "⚠️ No location available for final transmission");
+            }
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Final GPS transmission error: " + e.getMessage());
+        }
     }
     
     private void scheduleNextGPSCycle() {

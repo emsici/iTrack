@@ -174,20 +174,24 @@ public class MainActivity extends BridgeActivity {
 
     @JavascriptInterface
     public String updateStatus(String courseId, int newStatus) {
-        Log.d(TAG, "🔄 AndroidGPS.updateStatus called: courseId=" + courseId + ", newStatus=" + newStatus);
+        Log.e(TAG, "🔄 === SIMPLE GPS === Status update: courseId=" + courseId + ", newStatus=" + newStatus);
+        Log.e(TAG, "  Status meanings: 2=START/RESUME, 3=PAUSE, 4=STOP");
         
         try {
-            Intent intent = new Intent(this, OptimalGPSService.class);
-            intent.setAction("UPDATE_STATUS");
+            // Send to NEW SimpleGPSService for status updates
+            Intent intent = new Intent(this, SimpleGPSService.class);
+            intent.setAction("UPDATE_SIMPLE_GPS_STATUS");
             intent.putExtra("courseId", courseId);
             intent.putExtra("newStatus", newStatus);
             
             startService(intent);
-            Log.d(TAG, "✅ OptimalGPSService status update requested: " + courseId + " → " + newStatus);
-            return "SUCCESS: Status update requested for " + courseId;
+            Log.e(TAG, "✅ SimpleGPSService status update sent: " + courseId + " → " + newStatus);
+            
+            String statusName = (newStatus == 2) ? "ACTIVE" : (newStatus == 3) ? "PAUSE" : (newStatus == 4) ? "STOP" : "UNKNOWN";
+            return "SUCCESS: NATIVE GPS status " + statusName + " for " + courseId;
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error updating status: " + e.getMessage());
+            Log.e(TAG, "❌ Error updating NATIVE GPS status: " + e.getMessage());
             return "ERROR: " + e.getMessage();
         }
     }
