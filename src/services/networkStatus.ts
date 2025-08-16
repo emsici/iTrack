@@ -137,11 +137,6 @@ class NetworkStatusService {
       logAPI('🔴 INTERNET PIERDUT - test conectivitate eșuat: ' + error);
     }
   }
-  
-  /**
-   * ELIMINAT: Test suplimentar de conectivitate
-   * MOTIVAȚIE: gps.php răspunsul este cea mai eficientă verificare
-   */
 
   /**
    * Setează status-ul online/offline și notifică callback-urile
