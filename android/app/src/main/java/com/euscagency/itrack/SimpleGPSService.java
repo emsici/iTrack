@@ -739,7 +739,7 @@ public class SimpleGPSService extends Service {
                         
                         String jsonString = jsonData.toString();
                         
-                        // MODERN SYNC CHAIN: OkHttp -> Volley -> Legacy pentru sincronizarea offline
+                        // MODERN SYNC CHAIN: OkHttp -> Volley (eliminat HttpURLConnection legacy)
                         boolean syncSuccess = sendGPSViaOkHttp(jsonString, coord.getString("authToken"));
                         
                         // Încercare Volley dacă OkHttp eșuează
@@ -747,10 +747,7 @@ public class SimpleGPSService extends Service {
                             syncSuccess = sendGPSViaVolley(jsonString, coord.getString("authToken"));
                         }
                         
-                        // Fallback legacy dacă și Volley eșuează
-                        if (!syncSuccess) {
-                            syncSuccess = legacyHttpURLConnection(jsonString, coord.getString("authToken"));
-                        }
+                        // Nu mai folosim HttpURLConnection legacy - doar OkHttp + Volley modern
                         
                         if (syncSuccess) {
                             syncedCount++;
