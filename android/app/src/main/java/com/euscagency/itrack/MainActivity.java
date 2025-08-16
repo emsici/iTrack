@@ -120,58 +120,54 @@ public class MainActivity extends BridgeActivity {
     
     @JavascriptInterface
     public String startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
-        Log.e(TAG, "🚨 === CRITICAL === AndroidGPS.startGPS CALLED FROM JAVASCRIPT");
-        Log.d(TAG, "📍 Parameters received:");
-        Log.d(TAG, "  - courseId: " + courseId);
-        Log.d(TAG, "  - vehicleNumber: " + vehicleNumber);
-        Log.d(TAG, "  - uit: " + uit);
-        Log.d(TAG, "  - authToken length: " + (authToken != null ? authToken.length() : "NULL"));
-        Log.d(TAG, "  - status: " + status);
+        Log.e(TAG, "🚀 === SIMPLE GPS === AndroidGPS.startGPS CALLED FROM JAVASCRIPT");
+        Log.e(TAG, "📍 Starting NATIVE GPS system:");
+        Log.e(TAG, "  - courseId: " + courseId);
+        Log.e(TAG, "  - vehicleNumber: " + vehicleNumber);
+        Log.e(TAG, "  - uit: " + uit);
+        Log.e(TAG, "  - authToken length: " + (authToken != null ? authToken.length() : "NULL"));
+        Log.e(TAG, "  - status: " + status);
         
         try {
-            Log.d(TAG, "🔧 DIAGNOSTIC: Creating Intent for OptimalGPSService");
-            Intent intent = new Intent(this, OptimalGPSService.class);
-            intent.setAction("START_GPS");
+            // Start NEW SimpleGPSService instead of OptimalGPSService
+            Intent intent = new Intent(this, SimpleGPSService.class);
+            intent.setAction("START_SIMPLE_GPS");
             intent.putExtra("courseId", courseId);
             intent.putExtra("vehicleNumber", vehicleNumber);
             intent.putExtra("uit", uit);
             intent.putExtra("authToken", authToken);
             intent.putExtra("status", status);
             
-            Log.e(TAG, "🚀 === CRITICAL === Calling startForegroundService...");
+            Log.e(TAG, "🚀 === STARTING === SimpleGPSService with NATIVE precision...");
             startForegroundService(intent);
-            Log.e(TAG, "✅ === CRITICAL === OptimalGPSService startForegroundService completed for " + courseId);
+            Log.e(TAG, "✅ === SUCCESS === SimpleGPSService started for " + courseId);
             
-            // DEBUGGING: Verify service actually started
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                Log.e(TAG, "🔍 === VERIFICATION === Checking if service is running after 2 seconds...");
-            }, 2000);
-            
-            String result = "SUCCESS: GPS started for " + courseId;
-            Log.d(TAG, "📤 DIAGNOSTIC: Returning result to JavaScript: " + result);
+            String result = "SUCCESS: NATIVE GPS started for " + courseId;
+            Log.e(TAG, "📤 Returning to JavaScript: " + result);
             return result;
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error starting GPS: " + e.getMessage());
+            Log.e(TAG, "❌ Error starting NATIVE GPS: " + e.getMessage());
             return "ERROR: " + e.getMessage();
         }
     }
 
     @JavascriptInterface
     public String stopGPS(String courseId) {
-        Log.d(TAG, "🛑 AndroidGPS.stopGPS called: courseId=" + courseId);
+        Log.e(TAG, "🛑 === SIMPLE GPS === AndroidGPS.stopGPS called: courseId=" + courseId);
         
         try {
-            Intent intent = new Intent(this, OptimalGPSService.class);
-            intent.setAction("STOP_GPS");
+            // Stop NEW SimpleGPSService
+            Intent intent = new Intent(this, SimpleGPSService.class);
+            intent.setAction("STOP_SIMPLE_GPS");
             intent.putExtra("courseId", courseId);
             
             startService(intent);
-            Log.d(TAG, "✅ OptimalGPSService stop requested for courseId: " + courseId);
-            return "SUCCESS: GPS stop requested for " + courseId;
+            Log.e(TAG, "✅ SimpleGPSService stop requested for courseId: " + courseId);
+            return "SUCCESS: NATIVE GPS stop requested for " + courseId;
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error stopping GPS: " + e.getMessage());
+            Log.e(TAG, "❌ Error stopping NATIVE GPS: " + e.getMessage());
             return "ERROR: " + e.getMessage();
         }
     }

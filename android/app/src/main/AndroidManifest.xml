@@ -31,6 +31,14 @@
 
         </activity>
 
+        <!-- SimpleGPSService - Native GPS with maximum precision -->
+        <service
+            android:name="com.euscagency.itrack.SimpleGPSService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location"
+            android:stopWithTask="false" />
+            
         <!-- OptimalGPSService for maximum battery efficiency -->
         <service
             android:name="com.euscagency.itrack.OptimalGPSService"
