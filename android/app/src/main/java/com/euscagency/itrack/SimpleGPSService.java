@@ -849,12 +849,16 @@ public class SimpleGPSService extends Service {
         try {
             Log.e(TAG, "🚀 MODERN HTTP: Folosind OkHttp pentru transmisia GPS");
             
-            RequestBody requestBody = RequestBody.create(jsonString, JSON_MEDIA_TYPE);
+            // Convert JSON to form-urlencoded for server compatibility
+            String formData = convertJsonToFormData(jsonString);
+            Log.e(TAG, "📤 Sending form data: " + formData);
+            
+            RequestBody requestBody = RequestBody.create(formData, MediaType.get("application/x-www-form-urlencoded"));
             
             Request request = new Request.Builder()
                 .url(GPS_ENDPOINT)
                 .post(requestBody)
-                .addHeader("Content-Type", "application/json")
+                .addHeader("Content-Type", "application/x-www-form-urlencoded")
                 .addHeader("Authorization", "Bearer " + authToken)
                 .addHeader("Accept", "application/json")
                 .addHeader("User-Agent", "iTrack-Android-OkHttp/1.0")
@@ -896,14 +900,17 @@ public class SimpleGPSService extends Service {
             final boolean[] requestSuccess = {false};
             final Object lock = new Object();
             
-            JsonObjectRequest request = new JsonObjectRequest(
+            // Use StringRequest for form-urlencoded data
+            String formData = convertJsonToFormData(jsonString);
+            Log.e(TAG, "📤 Volley form data: " + formData);
+            
+            com.android.volley.toolbox.StringRequest request = new com.android.volley.toolbox.StringRequest(
                 Method.POST,
                 GPS_ENDPOINT,
-                jsonObject,
                 response -> {
                     synchronized (lock) {
                         Log.e(TAG, "✅ Volley GPS SUCCESS - biblioteca oficială Google");
-                        Log.e(TAG, "📥 Volley response: " + response.toString());
+                        Log.e(TAG, "📥 Volley response: " + response);
                         requestSuccess[0] = true;
                         requestCompleted[0] = true;
                         lock.notify();
@@ -923,11 +930,30 @@ public class SimpleGPSService extends Service {
                 @Override
                 public java.util.Map<String, String> getHeaders() {
                     java.util.Map<String, String> headers = new java.util.HashMap<>();
-                    headers.put("Content-Type", "application/json");
+                    headers.put("Content-Type", "application/x-www-form-urlencoded");
                     headers.put("Authorization", "Bearer " + authToken);
                     headers.put("Accept", "application/json");
                     headers.put("User-Agent", "iTrack-Android-Volley/1.0");
                     return headers;
+                }
+                
+                @Override
+                protected java.util.Map<String, String> getParams() {
+                    try {
+                        java.util.Map<String, String> params = new java.util.HashMap<>();
+                        org.json.JSONObject jsonObject = new org.json.JSONObject(jsonString);
+                        java.util.Iterator<String> keys = jsonObject.keys();
+                        
+                        while (keys.hasNext()) {
+                            String key = keys.next();
+                            params.put(key, jsonObject.optString(key, ""));
+                        }
+                        
+                        return params;
+                    } catch (Exception e) {
+                        Log.e(TAG, "❌ Error creating Volley params: " + e.getMessage());
+                        return new java.util.HashMap<>();
+                    }
                 }
             };
             
@@ -958,6 +984,36 @@ public class SimpleGPSService extends Service {
     }
 
     /**
+     * CONVERT JSON TO FORM-URLENCODED: Pentru compatibilitate server
+     */
+    private String convertJsonToFormData(String jsonString) {
+        try {
+            org.json.JSONObject jsonObject = new org.json.JSONObject(jsonString);
+            StringBuilder formData = new StringBuilder();
+            
+            java.util.Iterator<String> keys = jsonObject.keys();
+            boolean first = true;
+            
+            while (keys.hasNext()) {
+                String key = keys.next();
+                if (!first) {
+                    formData.append("&");
+                }
+                String value = jsonObject.optString(key, "");
+                formData.append(java.net.URLEncoder.encode(key, "UTF-8"));
+                formData.append("=");
+                formData.append(java.net.URLEncoder.encode(value, "UTF-8"));
+                first = false;
+            }
+            
+            return formData.toString();
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error converting JSON to form data: " + e.getMessage());
+            return "";
+        }
+    }
+
+    /**
      * LEGACY FALLBACK: HttpURLConnection doar pentru Android foarte vechi
      */
     private boolean legacyHttpURLConnection(String jsonString, String authToken) {
@@ -967,7 +1023,7 @@ public class SimpleGPSService extends Service {
             URL url = new URL(GPS_ENDPOINT);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestProperty("Authorization", "Bearer " + authToken);
             connection.setRequestProperty("Accept", "application/json");
             connection.setRequestProperty("User-Agent", "iTrack-Android-Service/1.0");
@@ -975,9 +1031,12 @@ public class SimpleGPSService extends Service {
             connection.setConnectTimeout(10000);
             connection.setReadTimeout(10000);
             
-            // Write JSON data
+            // Convert JSON to form-urlencoded for legacy compatibility
+            String formData = convertJsonToFormData(jsonString);
+            Log.e(TAG, "📤 Form data: " + formData);
+            
             OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-            writer.write(jsonString);
+            writer.write(formData);
             writer.flush();
             writer.close();
             
