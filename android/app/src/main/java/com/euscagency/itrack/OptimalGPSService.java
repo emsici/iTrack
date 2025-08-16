@@ -42,8 +42,8 @@ public class OptimalGPSService extends Service {
     private static final String API_BASE_URL_DEV = "https://www.euscagency.com/etsm3/platforme/transport/apk/";
     private static final String API_BASE_URL_PROD = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/";
     
-    // Mediul activ curent - TRECUT PE PROD (etsm_prod) - conform solicitării utilizatorului  
-    private static final String API_BASE_URL = API_BASE_URL_PROD; // Trecut pe PRODUCȚIE
+    // Mediul activ curent - REVERT la etsm3 care mergea în commit 5e64eec
+    private static final String API_BASE_URL = API_BASE_URL_DEV; // REVERT la etsm3 (varianta funcțională)
     
     private AlarmManager alarmManager;
     private PendingIntent gpsPendingIntent;
