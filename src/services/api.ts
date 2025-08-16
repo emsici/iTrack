@@ -51,83 +51,38 @@ export const login = async (
     console.log("Direct CapacitorHttp login for:", email);
     logAPI(`Direct CapacitorHttp login attempt for ${email}`);
 
-    // Use CapacitorHttp directly for fast authentication
-    try {
-      console.log("Using CapacitorHttp for fast login");
+    // ANDROID ONLY: Direct CapacitorHttp - no fallbacks needed
+    const response = await CapacitorHttp.post({
+      url: `${API_BASE_URL}login.php`,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        Accept: "application/json",
+        "User-Agent": "iTrack-Native/1.0",
+      },
+      data: { email, password },
+    });
 
-      const response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}login.php`,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          Accept: "application/json",
-          "User-Agent": "iTrack-Native/1.0",
-        },
-        data: { email, password },
-      });
-
-      if (response.status >= 200 && response.status < 300 && response.data) {
-        const data = response.data;
-        if (data.status === "success" && data.token) {
-          console.log("CapacitorHttp login successful");
-          logAPI(`CapacitorHttp login successful for ${email}`);
-          return { status: "success", token: data.token };
-        } else {
-          logAPI(`CapacitorHttp login failed: ${data.message}`);
-          return {
-            status: "error",
-            error: data.message || "Date de conectare incorecte",
-          };
-        }
-      }
-    } catch (capacitorError) {
-      console.log(
-        "CapacitorHttp not available, trying fallback:",
-        capacitorError,
-      );
-    }
-
-    // Browser/fetch fallback for development
-    try {
-      const response = await fetch(`${API_BASE_URL}login.php`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          Accept: "application/json",
-          "User-Agent": "iTrack-Browser/1.0",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        logAPI(
-          `Login HTTP error ${response.status} - continuing with fallback`,
-        );
-        // Continue to fallback method
+    if (response.status >= 200 && response.status < 300 && response.data) {
+      const data = response.data;
+      if (data.status === "success" && data.token) {
+        console.log("✅ CapacitorHttp login successful");
+        logAPI(`CapacitorHttp login successful for ${email}`);
+        return { status: "success", token: data.token };
       } else {
-        try {
-          const data = await response.json();
-
-          if (data.status === "success" && data.token) {
-            logAPI(`Browser login successful for ${email}`);
-            return { status: "success", token: data.token };
-          } else {
-            logAPI(`Browser login failed: ${data.message}`);
-            return {
-              status: "error",
-              error: data.message || "Date de conectare incorecte",
-            };
-          }
-        } catch (parseError) {
-          logAPI(`JSON parse error - continuing with fallback`);
-        }
+        logAPI(`CapacitorHttp login failed: ${data.message}`);
+        return {
+          status: "error",
+          error: data.message || "Date de conectare incorecte",
+        };
       }
-    } catch (error: any) {
-      logAPI(`Browser login error: ${error.message}`);
-      return { status: "error", error: "Eroare de conexiune la server" };
+    } else {
+      console.error("❌ Login failed:", response.status);
+      logAPI(`Login failed: ${response.status}`);
+      return {
+        status: "error",
+        error: `Eroare server: ${response.status}`,
+      };
     }
-
-    // If both CapacitorHttp and fetch failed
-    return { status: "error", error: "Eroare de conexiune la server" };
   } catch (error: any) {
     console.error("Login error:", error);
     logAPI(`Login error: ${error.message}`);
@@ -242,42 +197,9 @@ const performVehicleCoursesRequest = async (
         data: capacitorResponse.data,
       };
     } catch (capacitorError) {
-      console.log("=== CapacitorHttp failed, trying fetch ===");
-      console.log("CapacitorHttp error:", capacitorError);
-
-      // SECONDARY: fetch fallback pentru browser
-      console.log("=== TRYING fetch for courses ===");
-
-      const fetchResponse = await fetch(urlWithCacheBuster, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-        },
-      });
-
-      console.log("=== Fetch Courses Response ===");
-      console.log("Status:", fetchResponse.status);
-      console.log("OK:", fetchResponse.ok);
-
-      if (fetchResponse.status === 401) {
-        console.log("Fetch: Token expired - continuing with error response");
-        return { status: "error", error: "TOKEN_EXPIRED" };
-      }
-
-      if (!fetchResponse.ok) {
-        console.log(
-          `Fetch: HTTP error ${fetchResponse.status} - continuing with error response`,
-        );
-        return { status: "error", error: `HTTP_ERROR_${fetchResponse.status}` };
-      }
-
-      response = {
-        status: fetchResponse.status,
-        data: await fetchResponse.json(),
-      };
+      console.error("❌ CapacitorHttp courses failed:", capacitorError);
+      logAPI(`CapacitorHttp courses error: ${capacitorError}`);
+      return { status: "error", error: "CAPACITOR_HTTP_ERROR" };
     }
 
     console.log("API Response Status:", response.status);
@@ -391,28 +313,8 @@ export const logout = async (token: string): Promise<boolean> => {
         return true;
       }
     } catch (capacitorError) {
-      console.log("CapacitorHttp logout failed, using fetch fallback");
-
-      try {
-        const fetchResponse = await fetch(logoutUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json; charset=utf-8",
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-            "User-Agent": "iTrack-Native/1.0",
-          },
-          body: JSON.stringify({}),
-        });
-
-        if (fetchResponse.status >= 200 && fetchResponse.status < 300) {
-          console.log("Fetch logout successful");
-          logAPI("Fetch logout successful");
-          return true;
-        }
-      } catch (fetchError) {
-        console.error("All logout methods failed:", fetchError);
-      }
+      console.error("❌ CapacitorHttp logout failed:", capacitorError);
+      logAPI(`CapacitorHttp logout error: ${capacitorError}`);
     }
 
     console.log("Logout failed - continuing anyway");
