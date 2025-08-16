@@ -95,6 +95,32 @@ public class SimpleGPSService extends Service {
     private static final MediaType JSON_MEDIA_TYPE = MediaType.get("application/json; charset=utf-8");
     private static RequestQueue volleyQueue;
     
+    // JavaScript bridge logging pentru debugging
+    private void callJavaScriptLog(String message) {
+        try {
+            // Create GPS data object with debug message
+            org.json.JSONObject debugData = new org.json.JSONObject();
+            debugData.put("debug_message", message);
+            debugData.put("timestamp", System.currentTimeMillis());
+            debugData.put("service", "SimpleGPSService");
+            
+            // Call JavaScript bridge with debug data
+            if (getApplicationContext() != null) {
+                Intent debugIntent = new Intent("com.euscagency.itrack.DEBUG_LOG");
+                debugIntent.putExtra("debug_data", debugData.toString());
+                sendBroadcast(debugIntent);
+            }
+            
+            // Also call JavaScript directly if possible
+            String jsCall = "window.androidDebugLog && window.androidDebugLog('" + message.replace("'", "\\'") + "');";
+            
+            // Log to Android as well
+            Log.e(TAG, "JS_BRIDGE: " + message);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to call JavaScript debug log: " + e.getMessage());
+        }
+    }
+    
     @Override
     public void onCreate() {
         super.onCreate();
@@ -372,6 +398,10 @@ public class SimpleGPSService extends Service {
         Log.e(TAG, "🎯 === startContinuousGPSTimer CALLED ===");
         Log.e(TAG, "⏰ Starting CONTINUOUS GPS timer with Handler");
         
+        // Force logging to JavaScript bridge
+        callJavaScriptLog("🎯 ANDROID DEBUG: startContinuousGPSTimer CALLED");
+        callJavaScriptLog("⏰ ANDROID DEBUG: Starting Handler timer");
+        
         try {
             if (continuousGPSHandler == null) {
                 Log.e(TAG, "🔧 Creating new Handler with MainLooper");
@@ -386,6 +416,10 @@ public class SimpleGPSService extends Service {
             public void run() {
                 Log.e(TAG, "🎯 === HANDLER RUNNABLE TRIGGERED ===");
                 Log.e(TAG, "🔍 DIAGNOSTIC: isGPSActive=" + isGPSActive + ", activeCourses=" + activeCourses.size());
+                
+                // Force critical logging to JavaScript bridge
+                callJavaScriptLog("🎯 ANDROID DEBUG: HANDLER RUNNABLE TRIGGERED!!!");
+                callJavaScriptLog("🔍 ANDROID DEBUG: GPS=" + isGPSActive + ", courses=" + activeCourses.size());
                 
                 if (isGPSActive && !activeCourses.isEmpty()) {
                     Log.e(TAG, "✅ CONDITIONS MET - Proceeding with GPS cycle");
@@ -442,6 +476,9 @@ public class SimpleGPSService extends Service {
             continuousGPSHandler.postDelayed(continuousGPSRunnable, GPS_INTERVAL_MS);
             Log.e(TAG, "✅ FIRST GPS CYCLE SCHEDULED SUCCESSFULLY");
             Log.e(TAG, "⏰ First cycle will trigger in " + GPS_INTERVAL_MS + "ms (10 secunde)");
+            
+            // Force logging to JavaScript bridge
+            callJavaScriptLog("✅ ANDROID DEBUG: FIRST GPS CYCLE SCHEDULED - next in " + (GPS_INTERVAL_MS/1000) + "s");
         } catch (Exception e) {
             Log.e(TAG, "❌ FAILED TO SCHEDULE FIRST CYCLE: " + e.getMessage());
             e.printStackTrace();
