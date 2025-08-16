@@ -346,28 +346,25 @@ public class SimpleGPSService extends Service {
             Log.e(TAG, "🎯 IMMEDIATE READ - Course: " + course.courseId + " (UIT: " + course.uit + ") Status: " + course.status);
         }
         
-        // IMMEDIATE GPS reading - NO DELAY
+        // IMMEDIATE GPS reading with error checking
         Log.e(TAG, "🔥 === IMMEDIATE GPS CYCLE STARTING ===");
         Log.e(TAG, "📊 Active courses count: " + activeCourses.size());
         
-        // Start immediate GPS cycle in background thread
-        new Thread(() -> {
-            try {
-                Log.e(TAG, "🚀 IMMEDIATE performGPSCycle() called directly");
-                performGPSCycle();
-                
-                // Start continuous timer for subsequent readings
-                Log.e(TAG, "⏰ Starting continuous GPS timer after immediate reading");
-                android.os.Handler mainHandler = new android.os.Handler(Looper.getMainLooper());
-                mainHandler.post(() -> {
-                    startContinuousGPSTimer();
-                });
-                
-            } catch (Exception e) {
-                Log.e(TAG, "❌ Error in immediate GPS cycle: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }).start();
+        // Check permissions immediately
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "❌ === CRITICAL === No GPS permission at startup!");
+            return;
+        }
+        
+        Log.e(TAG, "✅ GPS permission verified - starting immediate cycle");
+        
+        // DIRECT immediate call - no thread delay
+        Log.e(TAG, "🚀 CALLING performGPSCycle() DIRECTLY NOW");
+        performGPSCycle();
+        
+        // Start continuous timer
+        Log.e(TAG, "⏰ Starting continuous GPS timer");
+        startContinuousGPSTimer();
         
     }
     
@@ -427,6 +424,28 @@ public class SimpleGPSService extends Service {
         for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
             CourseData course = entry.getValue();
             Log.e(TAG, "🎯 GPS CYCLE for Course: " + course.courseId + " (UIT: " + course.uit + ") Status: " + course.status);
+        }
+        
+        // DIRECT GPS TRANSMISSION TEST - Skip location check temporarily
+        Log.e(TAG, "🧪 === TESTING DIRECT GPS TRANSMISSION ===");
+        try {
+            // Create fake GPS data for immediate testing
+            Location testLocation = new Location("test");
+            testLocation.setLatitude(44.4268); // Bucharest coordinates
+            testLocation.setLongitude(26.1025);
+            testLocation.setAccuracy(5.0f);
+            testLocation.setAltitude(100.0);
+            testLocation.setSpeed(0.0f);
+            testLocation.setBearing(0.0f);
+            
+            Log.e(TAG, "📍 Using test coordinates: Bucharest (44.4268, 26.1025)");
+            Log.e(TAG, "🚀 Calling transmitGPSDataForAllCourses() directly");
+            
+            transmitGPSDataForAllCourses(testLocation);
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ TEST GPS transmission failed: " + e.getMessage());
+            e.printStackTrace();
         }
         
         Log.e(TAG, "📡 === GPS CYCLE STARTING === for " + activeCourses.size() + " active courses");
@@ -515,10 +534,10 @@ public class SimpleGPSService extends Service {
             }
             
             // Extended timeout for high precision GPS
-            new android.os.Handler().postDelayed(() -> {
-                Log.e(TAG, "⏰ GPS timeout (10s) - accepting any available location");
+            new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
+                Log.e(TAG, "⏰ GPS timeout (10s) - moving to next cycle");
                 locationManager.removeUpdates(listener);
-                scheduleNextGPSCycle();
+                // Continue with next cycle instead of old scheduleNextGPSCycle
             }, 10000); // 10 second timeout for precision
             
         } catch (Exception e) {
