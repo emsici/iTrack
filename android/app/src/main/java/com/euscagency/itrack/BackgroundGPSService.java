@@ -103,7 +103,9 @@ public class BackgroundGPSService extends Service {
         gpsExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                Log.e(TAG, "🔄 === SCHEDULED GPS CYCLE ===");
+                long timestamp = System.currentTimeMillis();
+                Log.e(TAG, "🔄 === SCHEDULED GPS CYCLE " + timestamp + " ===");
+                Log.e(TAG, "⏱️ Next cycle in " + GPS_INTERVAL_SECONDS + " seconds");
                 
                 // Run GPS cycle on background thread
                 backgroundHandler.post(new Runnable() {
@@ -134,10 +136,14 @@ public class BackgroundGPSService extends Service {
     }
     
     private void performGPSCycle() {
-        Log.e(TAG, "📍 === GPS CYCLE START ===");
+        long cycleStart = System.currentTimeMillis();
+        Log.e(TAG, "📍 === GPS CYCLE START " + cycleStart + " ===");
+        Log.e(TAG, "🔍 Checking data: UIT=" + activeUIT + ", Vehicle=" + activeVehicle);
         
         if (activeUIT == null || activeToken == null) {
-            Log.e(TAG, "❌ Missing UIT or Token");
+            Log.e(TAG, "❌ Missing UIT or Token - cannot proceed");
+            Log.e(TAG, "   UIT: " + (activeUIT != null ? "✅" : "❌"));
+            Log.e(TAG, "   Token: " + (activeToken != null ? "✅" : "❌"));
             return;
         }
         
@@ -229,15 +235,49 @@ public class BackgroundGPSService extends Service {
     
     private void callJavaScriptBridge(String gpsDataJson) {
         try {
-            // Create MainActivity instance or use existing
-            Intent bridgeIntent = new Intent();
-            bridgeIntent.setAction("com.euscagency.itrack.GPS_DATA");
-            bridgeIntent.putExtra("gps_data", gpsDataJson);
-            bridgeIntent.putExtra("auth_token", activeToken);
+            // Use Capacitor HTTP directly through native Android
+            Log.e(TAG, "🌐 Sending GPS via native HTTP request");
             
-            sendBroadcast(bridgeIntent);
+            // Format data for direct HTTP transmission
+            org.json.JSONObject requestData = new org.json.JSONObject(gpsDataJson);
             
-            Log.e(TAG, "🌉 GPS data sent to JavaScript bridge");
+            // Make HTTP request on background thread
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
+                        javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty("Content-Type", "application/json");
+                        conn.setRequestProperty("Authorization", "Bearer " + activeToken);
+                        conn.setDoOutput(true);
+                        
+                        // Send JSON data
+                        try (java.io.OutputStream os = conn.getOutputStream()) {
+                            byte[] input = gpsDataJson.getBytes("utf-8");
+                            os.write(input, 0, input.length);
+                        }
+                        
+                        int responseCode = conn.getResponseCode();
+                        Log.e(TAG, "🌉 GPS HTTP response: " + responseCode);
+                        
+                        if (responseCode == 200) {
+                            java.io.BufferedReader reader = new java.io.BufferedReader(
+                                new java.io.InputStreamReader(conn.getInputStream())
+                            );
+                            String response = reader.readLine();
+                            Log.e(TAG, "✅ GPS transmitted successfully: " + response);
+                        } else {
+                            Log.e(TAG, "❌ GPS transmission failed with code: " + responseCode);
+                        }
+                        
+                    } catch (Exception e) {
+                        Log.e(TAG, "❌ Native HTTP GPS error: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Bridge call failed: " + e.getMessage());
