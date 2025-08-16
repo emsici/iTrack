@@ -235,20 +235,32 @@ class DirectAndroidGPSService {
   }
 
   /**
-   * PRIORITY GPS: Smart method selection with fallback - no duplicate transmissions
-   * Uses priority system: Android Native → Capacitor → JavaScript backup
+   * DIRECT ANDROID GPS: Call window.AndroidGPS directly pentru background service
    */
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
-    logGPS(`🎯 ANDROID GPS: Starting direct Android GPS service`);
+    logGPS(`🎯 ANDROID GPS: Starting direct Android background service`);
     
-    try {
+    // DIRECT ANDROID GPS CALL pentru background service
+    if (window.AndroidGPS && window.AndroidGPS.startGPS) {
+      try {
+        const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
+        logGPS(`✅ DIRECT Android GPS started: ${result}`);
+        
+        // Backup garantat service pentru siguranță
+        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+        logGPS(`✅ Backup GPS service started for course: ${courseId}`);
+        
+      } catch (error) {
+        logGPSError(`❌ Direct Android GPS failed: ${error} - using backup`);
+        // Fallback la garanteed GPS
+        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
+      }
+    } else {
+      logGPS(`⚠️ AndroidGPS interface not available - using garanteed GPS backup`);
+      // Direct backup când nu avem Android GPS
       await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-      logGPS(`✅ Android GPS started successfully for course: ${courseId}`);
-    } catch (guaranteedError) {
-      logGPSError(`❌ Android GPS failed: ${guaranteedError}`);
-      throw guaranteedError;
     }
   }
 

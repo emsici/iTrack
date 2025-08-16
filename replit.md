@@ -13,6 +13,7 @@ Backup files: Remove unnecessary backup files (OptimalGPSService_backup.java rem
 UI Performance: Remove heavy animations (rainbow flows, floating animations, gradient shifts, pulse effects) that may affect performance on Android devices.
 Offline Coordinates Policy: NEVER clear offline coordinates at logout - preserve route continuity across login sessions to avoid missing road segments.
 Code Cleanup: Comprehensive cleanup completed - removed 7 unused files/services (capacitorGPS.ts, performanceOptimizer.ts, gpsdiagnostic.ts, CourseModal.tsx, CourseQuickView.tsx, OfflineGPSMonitor.tsx, OfflineStatusIndicator.tsx) and 9 unused functions from active services. Application now runs 90%+ active code with zero functionality impact.
+GPS Background Fix: Restored direct Android GPS calls (window.AndroidGPS.startGPS) for background service with hybrid browser backup system to ensure GPS continues working when phone is locked/app minimized.
 
 ## System Architecture
 
