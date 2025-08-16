@@ -127,12 +127,14 @@ public class MainActivity extends BridgeActivity {
         Log.e(TAG, "  - status: " + status);
         
         try {
-            // Start BackgroundGPSService for better reliability
+            // Start BackgroundGPSService
             Intent intent = new Intent(this, BackgroundGPSService.class);
             intent.setAction("START_BACKGROUND_GPS");
             intent.putExtra("uit", uit);
             intent.putExtra("token", authToken);
             intent.putExtra("vehicle", vehicleNumber);
+            
+            Log.e(TAG, "Intent prepared with extras - UIT: " + uit + ", Vehicle: " + vehicleNumber);
             
             Log.e(TAG, "🚀 === STARTING === BackgroundGPSService with ScheduledExecutorService...");
             Log.e(TAG, "📦 Intent created with action: START_BACKGROUND_GPS");

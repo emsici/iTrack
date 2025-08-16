@@ -67,53 +67,62 @@ public class BackgroundGPSService extends Service {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.e(TAG, "onStartCommand called with action: " + (intent != null ? intent.getAction() : "null"));
+        
         if (intent != null && "START_BACKGROUND_GPS".equals(intent.getAction())) {
             activeUIT = intent.getStringExtra("uit");
             activeToken = intent.getStringExtra("token");
             activeVehicle = intent.getStringExtra("vehicle");
             
-            Log.e(TAG, "🚀 Starting Background GPS for: " + activeUIT);
+            Log.e(TAG, "Data received - UIT: " + activeUIT + ", Vehicle: " + activeVehicle);
             startBackgroundGPS();
             
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {
-            Log.e(TAG, "🛑 Stopping Background GPS");
+            Log.e(TAG, "Stop GPS requested");
             stopBackgroundGPS();
         }
         
-        return START_STICKY; // Restart dacă este killed
+        return START_STICKY;
     }
     
     private void startBackgroundGPS() {
+        Log.e(TAG, "startBackgroundGPS called, isGPSRunning: " + isGPSRunning);
+        
         if (isGPSRunning) {
-            Log.e(TAG, "⚠️ GPS already running");
+            Log.e(TAG, "GPS already running, skipping");
+            return;
+        }
+        
+        if (activeUIT == null || activeToken == null) {
+            Log.e(TAG, "Cannot start GPS - missing data (UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL") + ")");
             return;
         }
         
         // Acquire WakeLock
         if (!wakeLock.isHeld()) {
             wakeLock.acquire();
-            Log.e(TAG, "✅ WakeLock acquired");
+            Log.e(TAG, "WakeLock acquired");
         }
         
-        // Start ScheduledExecutorService pentru GPS cycles
+        // Start ScheduledExecutorService
         gpsExecutor = Executors.newSingleThreadScheduledExecutor();
-        
-        Log.e(TAG, "🎯 Starting GPS with ScheduledExecutorService");
+        Log.e(TAG, "GPS Executor created, scheduling cycles every " + GPS_INTERVAL_SECONDS + "s");
         
         gpsExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Log.e(TAG, "🔄 GPS Cycle");
+                    Log.e(TAG, "GPS Cycle executing");
                     performGPSCycle();
                 } catch (Exception e) {
-                    Log.e(TAG, "❌ Cycle error: " + e.getMessage());
+                    Log.e(TAG, "Cycle error: " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }, 2, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
         
         isGPSRunning = true;
-        Log.e(TAG, "✅ ScheduledExecutorService started - GPS every " + GPS_INTERVAL_SECONDS + " seconds");
+        Log.e(TAG, "GPS Service STARTED successfully");
     }
     
     private void stopBackgroundGPS() {
