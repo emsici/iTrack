@@ -135,8 +135,8 @@ class DirectAndroidGPSService {
       console.log(`📊 Active courses after start: ${this.activeCourses.size}`);
       console.log(`🗂️ Courses in map: [${Array.from(this.activeCourses.keys()).join(', ')}]`);
       
-      // HYBRID: June 26th format + Android background service for phone locked
-      await this.startHybridGPS_June26thFormat_AndroidBackground(courseData);
+      // DIRECT Android GPS - varianta simplă care mergea
+      await this.startAndroidBackgroundService(courseData);
       
     } catch (error) {
       logGPSError(`❌ GPS start error: ${error}`);
@@ -145,19 +145,19 @@ class DirectAndroidGPSService {
   }
 
   /**
-   * METODA SIMPLĂ CARE MERGEA: Direct Android GPS fără complicații
+   * METODA PRINCIPALA CARE MERGEA: Direct Android GPS din commit 656f7610
    */
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
-    logGPS(`🎯 ANDROID GPS: Starting direct Android service - varianta simplă`);
+    logGPS(`🎯 ANDROID GPS: Starting direct service - commit 656f7610 care mergea`);
     
-    // SIMPLU: Doar Android GPS direct ca în commit-ul care mergea
+    // EXACT ca în commit-ul care mergea - DOAR Android GPS direct
     if (window.AndroidGPS && window.AndroidGPS.startGPS) {
       const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
-      logGPS(`✅ Android GPS started: ${result} - versiunea care mergea`);
+      logGPS(`✅ Android GPS PORNIT: ${result} - varianta funcțională`);
     } else {
-      logGPS(`⚠️ AndroidGPS interface not available - normal în browser`);
+      logGPS(`⚠️ AndroidGPS interface not available - normal în browser development`);
     }
   }
 
