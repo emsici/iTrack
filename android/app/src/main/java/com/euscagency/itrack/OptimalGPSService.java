@@ -539,15 +539,22 @@ public class OptimalGPSService extends Service {
         // Create GPS data JSON - EXACT format ca în logurile funcționale
         org.json.JSONObject gpsData = new org.json.JSONObject();
         
-        // EXACT ca în logurile funcționale - coordonate simple
-        gpsData.put("lat", location.getLatitude());
-        gpsData.put("lng", location.getLongitude());
+        // COORDONATE - exact 7 decimale ca în varianta funcțională
+        double lat = Math.round(location.getLatitude() * 10000000.0) / 10000000.0;
+        double lng = Math.round(location.getLongitude() * 10000000.0) / 10000000.0;
+        gpsData.put("lat", lat);
+        gpsData.put("lng", lng);
         
-        // TIMESTAMP - format simplu UTC ca în logurile funcționale
+        // TIMESTAMP PARTAJAT - exact ca în logurile funcționale
+        if (gpsSharedTimestamp == null) {
+            gpsSharedTimestamp = new java.util.Date();
+        }
         java.text.SimpleDateFormat utcFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.getDefault());
         utcFormat.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
-        String timestamp = utcFormat.format(new java.util.Date());
-        gpsData.put("timestamp", timestamp);
+        String sharedTimestamp = utcFormat.format(gpsSharedTimestamp);
+        gpsData.put("timestamp", sharedTimestamp);
+        
+        Log.d(TAG, "🕒 SHARED TIMESTAMP Android: " + sharedTimestamp + " for course: " + course.courseId);
         
         // EXACT ca în logurile funcționale - format original
         gpsData.put("viteza", location.getSpeed() * 3.6); // m/s to km/h as float (ca în log)
@@ -563,6 +570,11 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "📡 OPTIMAL GPS data for course " + course.courseId + ": " + gpsData.toString());
         Log.d(TAG, "🔑 Auth token length: " + course.authToken.length() + " chars (starts with: " + course.authToken.substring(0, Math.min(20, course.authToken.length())) + "...)");
         Log.d(TAG, "🌐 Transmitting to: " + API_BASE_URL + "gps.php");
+        
+        // DEBUGGING: Log exact data being sent ca în logurile funcționale
+        Log.d(TAG, "🚨 COMPLETE GPS DATA BEING SENT: " + gpsData.toString());
+        Log.d(TAG, "📡 GPS Transmission to gps.php");
+        Log.d(TAG, "🔐 FULL TOKEN BEING SENT: Bearer " + course.authToken.substring(0, Math.min(50, course.authToken.length())) + "...");
         
         // FOREGROUND OPTIMIZED: Instant transmission with single optimized thread
         // No batching - GPS must be sent immediately for real-time tracking
