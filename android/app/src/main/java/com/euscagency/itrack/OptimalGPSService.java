@@ -155,12 +155,10 @@ public class OptimalGPSService extends Service {
             startForeground(NOTIFICATION_ID, createNotification());
             android.util.Log.e(TAG, "✅ FOREGROUND SERVICE STARTED - GPS will run with phone locked");
             
-            // CRITICAL: Keep service alive with WakeLock pentru telefon blocat
+            // CRITICAL: Keep service alive with WakeLock exact ca în commit funcțional 63d83ed
             if (wakeLock != null && !wakeLock.isHeld()) {
-                wakeLock.acquire(); // INDEFINITE WakeLock pentru GPS continuu
-                Log.d(TAG, "✅ WAKELOCK ACQUIRED INDEFINIT - previne deep sleep când e blocat");
-            } else if (wakeLock != null && wakeLock.isHeld()) {
-                Log.d(TAG, "✅ WAKELOCK ALREADY HELD - GPS continuu garantat");
+                wakeLock.acquire();
+                Log.e(TAG, "✅ WAKELOCK ACQUIRED - prevents deep sleep");
             }
         } catch (Exception e) {
             Log.e(TAG, "❌ CRITICAL: Foreground service FAILED: " + e.getMessage());
@@ -229,30 +227,16 @@ public class OptimalGPSService extends Service {
             }
             
             if (lastLocation != null && 
-                (System.currentTimeMillis() - lastLocation.getTime()) < 3000) { // Less than 3s old
+                (System.currentTimeMillis() - lastLocation.getTime()) < 2000) { // Less than 2s old for fresher data - exact ca în commit funcțional
                 
-                long age = System.currentTimeMillis() - lastLocation.getTime();
-                float accuracy = lastLocation.getAccuracy();
-                
-                // PRECISION CHECK pentru lastKnownLocation
-                if (accuracy <= 15.0f) { // Acceptă lastKnown sub 15m pentru eficiență
-                    Log.e(TAG, "✅ Using recent HIGH PRECISION GPS - Age: " + age + "ms, Accuracy: " + accuracy + "m");
-                    transmitGPSForAllCourses(lastLocation);
-                } else {
-                    Log.d(TAG, "⚠️ Recent GPS cu precizie scăzută (" + accuracy + "m) - solicită GPS nou pentru precizie înaltă");
-                    requestSingleGPSLocation();
-                }
+                Log.d(TAG, "✅ Using recent GPS location (battery efficient) - NO fresh request needed");
+                transmitGPSForAllCourses(lastLocation);
+                // IMPORTANT: scheduleNextOptimalGPSCycle() called inside transmitGPSForAllCourses
                 
             } else {
-                if (lastLocation != null) {
-                    long age = System.currentTimeMillis() - lastLocation.getTime();
-                    Log.d(TAG, "🔄 LastKnown GPS too old (" + age + "ms) - requesting fresh location");
-                } else {
-                    Log.d(TAG, "🔄 No lastKnown GPS - requesting fresh location");
-                }
+                Log.d(TAG, "🔄 Requesting fresh GPS location (minimal battery impact)");
                 requestSingleGPSLocation();
-                
-                // TIMEOUT SAFETY ELIMINAT - requestSingleGPSLocation acum gestionează scheduling
+                // IMPORTANT: onLocationChanged will call transmitGPSForAllCourses → scheduleNextOptimalGPSCycle
             }
             
         } catch (Exception e) {
