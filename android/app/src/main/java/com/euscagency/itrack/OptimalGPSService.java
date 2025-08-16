@@ -328,6 +328,8 @@ public class OptimalGPSService extends Service {
         Log.d(TAG, "📍 GPS Location: lat=" + location.getLatitude() + ", lng=" + location.getLongitude() + ", accuracy=" + location.getAccuracy() + "m");
         
         int transmissionCount = 0;
+        java.util.Set<String> coursesToRemove = new java.util.HashSet<>();
+        
         for (Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
             CourseData course = entry.getValue();
             try {
@@ -335,10 +337,35 @@ public class OptimalGPSService extends Service {
                 transmitOptimalGPSData(course, location);
                 transmissionCount++;
                 Log.d(TAG, "✅ GPS transmission SUCCESS for course: " + course.courseId);
+                
+                // STATUS 3 (PAUSE): Mark as transmitted and schedule for removal
+                if (course.status == 3) {
+                    course.pauseTransmitted = true;
+                    coursesToRemove.add(course.courseId);
+                    Log.d(TAG, "⏸️ PAUSE transmitted and marked for removal for: " + course.courseId + " - consistent with frontend");
+                }
+                
+                // STATUS 4 (STOP): Schedule for removal after successful transmission
+                if (course.status == 4) {
+                    coursesToRemove.add(course.courseId);
+                    Log.d(TAG, "🏁 Course " + course.courseId + " marked for removal after FINAL transmission");
+                }
+                
             } catch (Exception e) {
                 Log.e(TAG, "❌ GPS transmission FAILED for course " + course.courseId + ": " + e.getMessage());
                 e.printStackTrace();
+                
+                // Still remove status 4 courses even if transmission failed
+                if (course.status == 4) {
+                    coursesToRemove.add(course.courseId);
+                }
             }
+        }
+        
+        // Remove completed courses (status 3 PAUSE and status 4 STOP) after transmission
+        for (String courseIdToRemove : coursesToRemove) {
+            activeCourses.remove(courseIdToRemove);
+            Log.d(TAG, "🗑️ REMOVED course: " + courseIdToRemove + " (PAUSE or STOP status)");
         }
         
         Log.d(TAG, "📊 GPS TRANSMISSION SUMMARY: " + transmissionCount + "/" + activeCourses.size() + " courses transmitted successfully");
