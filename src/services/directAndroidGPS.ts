@@ -145,44 +145,19 @@ class DirectAndroidGPSService {
   }
 
   /**
-   * ANDROID ONLY: Direct Android background service for all GPS (phone locked + unlocked)
-   */
-  private async startHybridGPS_June26thFormat_AndroidBackground(course: ActiveCourse): Promise<void> {
-    // ONLY Android background service - no browser GPS to prevent duplicates
-    await this.startAndroidBackgroundService(course);
-    
-    logGPS(`🔥 ANDROID ONLY GPS - no browser intervals to prevent double transmissions`);
-  }
-
-  /**
-   * DIRECT ANDROID GPS: Call window.AndroidGPS directly pentru background service
+   * METODA SIMPLĂ CARE MERGEA: Direct Android GPS fără complicații
    */
   private async startAndroidBackgroundService(course: ActiveCourse): Promise<void> {
     const { courseId, vehicleNumber, uit, token, status } = course;
     
-    logGPS(`🎯 ANDROID GPS: Starting direct Android background service`);
+    logGPS(`🎯 ANDROID GPS: Starting direct Android service - varianta simplă`);
     
-    // METODA PRINCIPALA CARE MERGEA: DOAR Android GPS nativ, fără backup simultan
+    // SIMPLU: Doar Android GPS direct ca în commit-ul care mergea
     if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-      try {
-        const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`✅ METODA PRINCIPALA: Direct Android GPS started: ${result}`);
-        logGPS(`🎯 DOAR OptimalGPSService.java va transmite - NU MAI PORNIM backup simultan`);
-        
-        // NU MAI PORNIM garanteedGPSService simultan - era cauza duplicatelor
-        // OptimalGPSService.java se ocupă de tot background GPS-ul
-        
-      } catch (error) {
-        logGPSError(`❌ Direct Android GPS failed: ${error} - usando backup`);
-        // DOAR la eșec pornesc backup
-        await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-        logGPS(`🔄 BACKUP ACTIVAT doar pentru că Android GPS a eșuat`);
-      }
+      const result = window.AndroidGPS.startGPS(courseId, vehicleNumber, uit, token, status);
+      logGPS(`✅ Android GPS started: ${result} - versiunea care mergea`);
     } else {
-      logGPS(`⚠️ AndroidGPS interface not available - usando backup`);
-      // DOAR când Android GPS nu e disponibil
-      await guaranteedGPSService.startGuaranteedGPS(courseId, vehicleNumber, uit, token, status);
-      logGPS(`🔄 BACKUP ACTIVAT doar pentru că Android GPS nu e disponibil`);
+      logGPS(`⚠️ AndroidGPS interface not available - normal în browser`);
     }
   }
 
