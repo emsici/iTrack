@@ -187,8 +187,11 @@ public class OptimalGPSService extends Service {
                 if (!isAlarmActive) {
                     Log.e(TAG, "🚨 CRITICAL: Active courses but NO timer - starting GPS timer immediately");
                     startOptimalGPSTimer();
+                } else {
+                    Log.e(TAG, "✅ GPS TIMER ALREADY ACTIVE - continuă ciclul GPS");
                 }
                 
+                Log.e(TAG, "🚀 FORȚEZ EXECUȚIA IMMEDIATE A CICLULUI GPS - DEBUGGING");
                 performOptimalGPSCycle();
             } else {
                 Log.w(TAG, "⚠️ DIAGNOSTIC: NO ACTIVE COURSES - skipping GPS cycle");
@@ -210,7 +213,8 @@ public class OptimalGPSService extends Service {
             return;
         }
         
-        Log.d(TAG, "⏰ OPTIMAL GPS CYCLE - getting location for " + activeCourses.size() + " courses");
+        Log.e(TAG, "⏰ === DEBUGGING === OPTIMAL GPS CYCLE STARTED - getting location for " + activeCourses.size() + " courses");
+        Log.e(TAG, "📊 GPS CYCLE DEBUG: courses=" + activeCourses.size() + ", timer=" + isAlarmActive);
         
         // CRITICAL: WakeLock check în GPS cycle
         if (wakeLock != null && !wakeLock.isHeld()) {
@@ -680,8 +684,9 @@ public class OptimalGPSService extends Service {
         );
         
         isAlarmActive = true;
-        Log.d(TAG, "✅ OPTIMAL GPS timer started - " + (forcedInterval/1000) + "s intervals");
-        Log.d(TAG, "🔥 AlarmManager setExactAndAllowWhileIdle - BYPASS Doze mode");
+        Log.e(TAG, "✅ === CRITICAL === OPTIMAL GPS TIMER STARTED - " + (forcedInterval/1000) + "s intervals");
+        Log.e(TAG, "🔥 AlarmManager setExactAndAllowWhileIdle - BYPASS Doze mode ACTIVAT");
+        Log.e(TAG, "⏰ Next trigger in: " + (forcedInterval/1000) + " seconds from now");
     }
     
     /**
