@@ -426,123 +426,74 @@ public class SimpleGPSService extends Service {
             Log.e(TAG, "🎯 GPS CYCLE for Course: " + course.courseId + " (UIT: " + course.uit + ") Status: " + course.status);
         }
         
-        // DIRECT GPS TRANSMISSION TEST - Skip location check temporarily
-        Log.e(TAG, "🧪 === TESTING DIRECT GPS TRANSMISSION ===");
-        try {
-            // Create fake GPS data for immediate testing
-            Location testLocation = new Location("test");
-            testLocation.setLatitude(44.4268); // Bucharest coordinates
-            testLocation.setLongitude(26.1025);
-            testLocation.setAccuracy(5.0f);
-            testLocation.setAltitude(100.0);
-            testLocation.setSpeed(0.0f);
-            testLocation.setBearing(0.0f);
-            
-            Log.e(TAG, "📍 Using test coordinates: Bucharest (44.4268, 26.1025)");
-            Log.e(TAG, "🚀 Calling transmitGPSDataForAllCourses() directly");
-            
-            transmitGPSDataForAllCourses(testLocation);
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ TEST GPS transmission failed: " + e.getMessage());
-            e.printStackTrace();
+        // REAL GPS LOCATION REQUEST
+        Log.e(TAG, "📍 === REQUESTING REAL GPS LOCATION ===");
+        
+        // Check GPS permissions
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "❌ GPS permissions not granted");
+            return;
         }
         
-        Log.e(TAG, "📡 === GPS CYCLE STARTING === for " + activeCourses.size() + " active courses");
-        for (String courseId : activeCourses.keySet()) {
-            Log.e(TAG, "  - Course: " + courseId + " (status: " + activeCourses.get(courseId).status + ")");
-        }
-        
-        Log.e(TAG, "📍 Getting HIGH PRECISION GPS location...");
-        
         try {
-            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Log.e(TAG, "❌ === CRITICAL === No GPS permission - aborting GPS cycle");
-                scheduleNextGPSCycle();
-                return;
-            }
-            
-            Log.e(TAG, "✅ GPS permission verified - proceeding with location request");
-            
-            // NATIVE GPS: Configure criteria for highest precision
+            // Request single GPS update with high accuracy
             Criteria criteria = new Criteria();
             criteria.setAccuracy(Criteria.ACCURACY_FINE);
             criteria.setPowerRequirement(Criteria.POWER_HIGH);
             criteria.setAltitudeRequired(true);
-            criteria.setBearingRequired(true);
             criteria.setSpeedRequired(true);
-            criteria.setCostAllowed(true);
+            criteria.setBearingRequired(true);
             
             String bestProvider = locationManager.getBestProvider(criteria, true);
-            Log.e(TAG, "🎯 Best GPS provider: " + bestProvider);
+            Log.e(TAG, "🛰️ Best GPS provider: " + bestProvider);
+            
+            if (bestProvider == null) {
+                Log.e(TAG, "❌ No GPS provider available");
+                return;
+            }
             
             LocationListener listener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    // VALIDATE GPS PRECISION
-                    float accuracy = location.getAccuracy();
-                    Log.e(TAG, "✅ GPS Location: lat=" + location.getLatitude() + 
-                               ", lng=" + location.getLongitude() + 
-                               ", accuracy=" + accuracy + "m" +
-                               ", altitude=" + location.getAltitude() + "m" +
-                               ", speed=" + location.getSpeed() + "m/s" +
-                               ", bearing=" + location.getBearing() + "°");
+                    Log.e(TAG, "📍 REAL GPS received - Lat: " + location.getLatitude() + ", Lng: " + location.getLongitude());
+                    Log.e(TAG, "📊 Accuracy: " + location.getAccuracy() + "m, Provider: " + location.getProvider());
                     
-                    // Accept only high precision locations (under 15m accuracy)
-                    if (accuracy <= 15.0f) {
-                        Log.e(TAG, "🎯 HIGH PRECISION GPS accepted - accuracy: " + accuracy + "m");
-                        locationManager.removeUpdates(this);
-                        transmitGPSDataForAllCourses(location);
-                        scheduleNextGPSCycle();
-                    } else {
-                        Log.e(TAG, "⚠️ LOW PRECISION GPS rejected - accuracy: " + accuracy + "m, waiting for better signal...");
-                        // Continue listening for better accuracy
-                    }
+                    // Remove this listener after first location
+                    locationManager.removeUpdates(this);
+                    
+                    // Transmit real GPS data
+                    transmitGPSDataForAllCourses(location);
                 }
                 
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {
-                    Log.e(TAG, "📡 GPS Provider " + provider + " status: " + status);
-                }
                 @Override
                 public void onProviderEnabled(String provider) {
                     Log.e(TAG, "✅ GPS Provider enabled: " + provider);
                 }
+                
                 @Override
                 public void onProviderDisabled(String provider) {
                     Log.e(TAG, "❌ GPS Provider disabled: " + provider);
                 }
+                
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                    Log.e(TAG, "🔄 GPS Status changed: " + provider + " Status: " + status);
+                }
             };
             
-            // PRIORITY 1: Native GPS provider for maximum precision
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, listener, null);
-                Log.e(TAG, "📡 NATIVE GPS request sent (highest precision)");
-                
-            } else if (bestProvider != null && locationManager.isProviderEnabled(bestProvider)) {
-                locationManager.requestSingleUpdate(bestProvider, listener, null);
-                Log.e(TAG, "📡 Best provider request sent: " + bestProvider);
-                
-            } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, listener, null);
-                Log.e(TAG, "📡 Network location request sent (fallback)");
-                
-            } else {
-                Log.e(TAG, "❌ No location providers available");
-                scheduleNextGPSCycle();
-                return;
-            }
+            // Request location update with timeout
+            locationManager.requestLocationUpdates(bestProvider, 0, 0, listener);
+            Log.e(TAG, "🚀 Real GPS location request sent to: " + bestProvider);
             
-            // Extended timeout for high precision GPS
+            // Timeout handler - remove listener after 15 seconds if no location
             new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
-                Log.e(TAG, "⏰ GPS timeout (10s) - moving to next cycle");
+                Log.e(TAG, "⏰ GPS timeout (15s) - removing location listener");
                 locationManager.removeUpdates(listener);
-                // Continue with next cycle instead of old scheduleNextGPSCycle
-            }, 10000); // 10 second timeout for precision
+            }, 15000);
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ GPS request error: " + e.getMessage());
-            scheduleNextGPSCycle();
+            Log.e(TAG, "❌ Real GPS request failed: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
