@@ -183,24 +183,13 @@ class DirectAndroidGPSService {
     try {
       logGPS(`🛑 Stopping Android GPS tracking: ${courseId}`);
       
-      // Stop Android native GPS service - HYBRID APPROACH
-      try {
-        const { registerPlugin } = await import('@capacitor/core');
-        const AndroidGPSPlugin = registerPlugin('AndroidGPSPlugin');
-        
-        const result = await (AndroidGPSPlugin as any).stopGPS({
-          courseId
-        });
-        logGPS(`✅ Android GPS STOPPED via Capacitor Plugin: ${JSON.stringify(result)}`);
-        return;
-      } catch (error) {
-        logGPS(`⚠️ Capacitor plugin stop failed, falling back to WebView: ${error}`);
-      }
+      // FORCE WebView ONLY: AndroidGPSPlugin nu funcționează
+      logGPS(`🚨 STOPPING SimpleGPS via WebView - AndroidGPSPlugin disabled`);
       
-      // Fallback to WebView bridge
+      // Direct WebView bridge to SimpleGPSService
       if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
         const result = window.AndroidGPS.stopGPS(courseId);
-        logGPS(`✅ MainActivity GPS stopped via WebView: ${result}`);
+        logGPS(`✅ NATIVE SimpleGPS STOPPED via WebView: ${result} - GPS nativ oprit`);
       }
       
       // SIMPLIFICAT: Fără GPS garantat - doar Android GPS direct
