@@ -473,37 +473,44 @@ public class SimpleGPSService extends Service {
                 boolean transmissionSuccess = false;
                 
                 try {
-                    // EXACT GPS DATA FORMAT: Identic cu OptimalGPSService original
-                    String postData = "uit=" + course.uit +
-                                    "&lat=" + lat +
-                                    "&lng=" + lng +
-                                    "&data=" + timestamp +
-                                    "&numar_masina=" + course.vehicleNumber +
-                                    "&level_baterie=" + batteryLevel +
-                                    "&putere_semnal=" + signalStrength +
-                                    "&status=" + course.status +
-                                    "&jwt_token=" + course.authToken;
+                    // EXACT JSON FORMAT: Identic cu api.ts sendGPSData()
+                    org.json.JSONObject jsonData = new org.json.JSONObject();
+                    jsonData.put("uit", course.uit);
+                    jsonData.put("lat", lat);
+                    jsonData.put("lng", lng);
+                    jsonData.put("timestamp", timestamp);
+                    jsonData.put("numar_inmatriculare", course.vehicleNumber);
+                    jsonData.put("level_baterie", batteryLevel);
+                    jsonData.put("putere_semnal", signalStrength);
+                    jsonData.put("status", course.status);
+                    jsonData.put("viteza", speed);
+                    jsonData.put("directie", bearing);
+                    jsonData.put("altitudine", altitude);
+                    jsonData.put("baterie", batteryLevel); // alias
+                    jsonData.put("hdop", String.valueOf(accuracy));
+                    jsonData.put("gsm_signal", String.valueOf(signalStrength));
                     
-                    Log.e(TAG, "📤 POST DATA EXACT pentru gps.php:");
-                    Log.e(TAG, "  uit=" + course.uit);
-                    Log.e(TAG, "  lat=" + lat + " lng=" + lng);
-                    Log.e(TAG, "  numar_masina=" + course.vehicleNumber);
-                    Log.e(TAG, "  level_baterie=" + batteryLevel + " putere_semnal=" + signalStrength);
-                    Log.e(TAG, "  status=" + course.status + " jwt_token=[HIDDEN]");
+                    String jsonString = jsonData.toString();
                     
-                    // Send HTTP POST to gps.php
+                    Log.e(TAG, "📤 JSON DATA EXACT pentru gps.php:");
+                    Log.e(TAG, "  JSON: " + jsonString);
+                    Log.e(TAG, "  Token: Bearer [HIDDEN]");
+                    
+                    // Send HTTP POST to gps.php - EXACT format like api.ts
                     URL url = new URL(GPS_ENDPOINT);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                    connection.setRequestProperty("User-Agent", "iTrack-Android-Native");
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setRequestProperty("Authorization", "Bearer " + course.authToken);
+                    connection.setRequestProperty("Accept", "application/json");
+                    connection.setRequestProperty("User-Agent", "iTrack-Android-Service/1.0");
                     connection.setDoOutput(true);
                     connection.setConnectTimeout(10000);
                     connection.setReadTimeout(10000);
                     
-                    // Write POST data
+                    // Write JSON data
                     OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-                    writer.write(postData);
+                    writer.write(jsonString);
                     writer.flush();
                     writer.close();
                     
@@ -717,29 +724,39 @@ public class SimpleGPSService extends Service {
                     try {
                         org.json.JSONObject coord = coordinates.getJSONObject(i);
                         
-                        // Prepare POST data from saved coordinate
-                        String postData = "uit=" + coord.getString("uit") +
-                                        "&lat=" + coord.getDouble("lat") +
-                                        "&lng=" + coord.getDouble("lng") +
-                                        "&data=" + coord.getString("timestamp") +
-                                        "&numar_masina=" + coord.getString("vehicleNumber") +
-                                        "&level_baterie=" + coord.getInt("battery") +
-                                        "&putere_semnal=" + coord.getInt("signal") +
-                                        "&status=" + coord.getInt("status") +
-                                        "&jwt_token=" + coord.getString("authToken");
+                        // Prepare JSON data from saved coordinate - EXACT format
+                        org.json.JSONObject jsonData = new org.json.JSONObject();
+                        jsonData.put("uit", coord.getString("uit"));
+                        jsonData.put("lat", coord.getDouble("lat"));
+                        jsonData.put("lng", coord.getDouble("lng"));
+                        jsonData.put("timestamp", coord.getString("timestamp"));
+                        jsonData.put("numar_inmatriculare", coord.getString("vehicleNumber"));
+                        jsonData.put("level_baterie", coord.getInt("battery"));
+                        jsonData.put("putere_semnal", coord.getInt("signal"));
+                        jsonData.put("status", coord.getInt("status"));
+                        jsonData.put("viteza", coord.getDouble("speed"));
+                        jsonData.put("directie", coord.getDouble("bearing"));
+                        jsonData.put("altitudine", coord.getDouble("altitude"));
+                        jsonData.put("baterie", coord.getInt("battery"));
+                        jsonData.put("hdop", String.valueOf(coord.getDouble("accuracy")));
+                        jsonData.put("gsm_signal", String.valueOf(coord.getInt("signal")));
                         
-                        // Send to server
+                        String jsonString = jsonData.toString();
+                        
+                        // Send to server - EXACT format like api.ts
                         URL url = new URL(GPS_ENDPOINT);
                         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                         connection.setRequestMethod("POST");
-                        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                        connection.setRequestProperty("User-Agent", "iTrack-Android-Sync");
+                        connection.setRequestProperty("Content-Type", "application/json");
+                        connection.setRequestProperty("Authorization", "Bearer " + coord.getString("authToken"));
+                        connection.setRequestProperty("Accept", "application/json");
+                        connection.setRequestProperty("User-Agent", "iTrack-Android-Sync/1.0");
                         connection.setDoOutput(true);
                         connection.setConnectTimeout(10000);
                         connection.setReadTimeout(10000);
                         
                         OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-                        writer.write(postData);
+                        writer.write(jsonString);
                         writer.flush();
                         writer.close();
                         
