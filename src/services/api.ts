@@ -421,20 +421,29 @@ export const logout = async (token: string): Promise<boolean> => {
   }
 };
 
-// Global function for Android GPS service to use CapacitorHttp
+// UNIFIED GPS TRANSMISSION FUNCTION - handles both Android (string) and JS (object) input
 (window as any).sendGPSViaCapacitor = async (
-  jsonString: string,
+  gpsDataInput: any,
   token: string,
-) => {
+): Promise<boolean> => {
   try {
     if (!token || token.trim() === "") {
-      console.error("Transmisia GPS a eșuat: Nu s-a furnizat Bearer token");
+      console.error("❌ GPS transmission failed: No Bearer token provided");
       return false;
     }
 
-    const gpsData = JSON.parse(jsonString);
-    console.log("🚀 === GPS TRANSMISSION STARTED ===");
-    console.log("📍 GPS de la serviciul Android:", {
+    // Handle both string (from Android) and object (from JS) input
+    let gpsData;
+    if (typeof gpsDataInput === 'string') {
+      gpsData = JSON.parse(gpsDataInput);
+      console.log("📱 ANDROID BRIDGE → GPS data received as JSON string");
+    } else {
+      gpsData = gpsDataInput;
+      console.log("🌐 JAVASCRIPT → GPS data received as object");
+    }
+
+    console.log("🚀 === UNIFIED GPS TRANSMISSION ===");
+    console.log("📍 GPS Data Details:", {
       courseId: gpsData.uit,
       lat: gpsData.lat,
       lng: gpsData.lng,
@@ -451,94 +460,65 @@ export const logout = async (token: string): Promise<boolean> => {
 
     console.log("🔑 Using Bearer token:", token.substring(0, 20) + "...");
     console.log("🌐 Sending to URL:", `${API_BASE_URL}gps.php`);
+    console.log("📤 Headers: Content-Type: application/json; charset=utf-8");
 
-    try {
-      const response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}gps.php`,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-          "User-Agent": "iTrack-Android-Service/1.0",
-        },
-        data: gpsData,
-      });
+    const response = await CapacitorHttp.post({
+      url: `${API_BASE_URL}gps.php`,
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "User-Agent": "iTrack-Native/1.0",
+      },
+      data: gpsData,
+    });
 
-      console.log("📡 === ANDROID CapacitorHttp GPS Response DETAILED ===");
-      console.log("📊 Status Code:", response.status);
-      console.log("📥 Response Data:", response.data);
-      console.log("📦 Response Headers:", response.headers || {});
-      console.log("📏 Response Size:", response.data ? JSON.stringify(response.data).length : 0);
-      
-      // Detailed response analysis
-      if (response.data && typeof response.data === 'string') {
+    console.log("📡 === GPS RESPONSE DETAILED ===");
+    console.log("📊 Status Code:", response.status);
+    console.log("📥 Response Data:", response.data);
+    console.log("📦 Response Headers:", response.headers || {});
+    
+    // Detailed response analysis
+    if (response.data) {
+      if (typeof response.data === 'string') {
         console.log("📄 Response Preview:", response.data.substring(0, 300));
-      } else if (response.data && typeof response.data === 'object') {
+        console.log("📏 Response Length:", response.data.length);
+      } else if (typeof response.data === 'object') {
         console.log("📋 Response Object:", JSON.stringify(response.data, null, 2));
       }
+    }
 
-      if (response.status === 401) {
-        console.error("❌ 401 NEAUTORIZAT - Token GPS Android respins");
-        console.error("Token complet folosit:", `Bearer ${token}`);
-        console.error("URL cerere:", `${API_BASE_URL}gps.php`);
-        return false;
-      } else if (response.status === 403) {
-        console.error(
-          "❌ 403 FORBIDDEN - Server restricts GPS for admin/test tokens",
-        );
-        console.error(
-          "⚠️ ADMIN TOKEN DETECTED - Production server blocks GPS transmission for security",
-        );
-        console.error(
-          "💾 Coordinate saved offline - will auto-sync with real user token",
-        );
-        console.error("Token type: ADMIN/TEST (+40722222222)");
-        logAPI(
-          `403 FORBIDDEN - Admin token GPS restricted - courseId: ${gpsData.uit}`,
-        );
-        return false;
-      }
-
-      if (response.status >= 200 && response.status < 300) {
-        console.log(
-          "✅ GPS transmis cu succes prin CapacitorHttp pentru cursa:",
-          gpsData.uit,
-          "- Status:", response.status
-        );
-        return true;
-      }
-
-      console.error("Serverul GPS a respins datele:", response.status);
-      // SimpleGPSService handles GPS error reporting natively
+    // Handle specific error codes
+    if (response.status === 401) {
+      console.error("❌ 401 UNAUTHORIZED - Invalid or expired token");
+      logAPI(`GPS 401 UNAUTHORIZED - Course: ${gpsData.uit}`);
       return false;
-    } catch (capacitorError: any) {
-      console.error(
-        "CapacitorHttp failed, trying fallback fetch:",
-        capacitorError.message,
-      );
-      // SimpleGPSService handles CapacitorHttp error reporting natively
-
-      const fallbackResponse = await fetch(`${API_BASE_URL}gps.php`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-        body: JSON.stringify(gpsData),
-        signal: AbortSignal.timeout(8000),
-      });
-
-      if (fallbackResponse.ok) {
-        console.log("GPS sent via fallback fetch");
-        return true;
-      }
-
-      console.error("Fallback fetch failed:", fallbackResponse.status);
+    } else if (response.status === 403) {
+      console.error("❌ 403 FORBIDDEN - Admin token restricted");
+      logAPI(`GPS 403 FORBIDDEN - Admin token - Course: ${gpsData.uit}`);
+      return false;
+    } else if (response.status === 415) {
+      console.error("❌ 415 UNSUPPORTED MEDIA TYPE - Check headers");
+      logAPI(`GPS 415 UNSUPPORTED MEDIA TYPE - Course: ${gpsData.uit}`);
       return false;
     }
-  } catch (error: any) {
-    console.error("Android GPS transmission error:", error.message);
+
+    if (response.status >= 200 && response.status < 300) {
+      console.log("✅ GPS transmitted successfully for course:", gpsData.uit, "- Status:", response.status);
+      logAPI(`GPS transmission successful - Course: ${gpsData.uit} - Status: ${response.status}`);
+      return true;
+    } else {
+      console.error("❌ GPS transmission failed with status:", response.status);
+      logAPI(`GPS transmission failed - Course: ${gpsData.uit} - Status: ${response.status}`);
+      return false;
+    }
+
+  } catch (error) {
+    console.error("❌ GPS transmission error:", error);
+    if (error instanceof Error) {
+      console.error("  Error details:", error.name, error.message);
+    }
+    logAPI(`GPS transmission error: ${error}`);
     return false;
   }
 };
@@ -731,75 +711,5 @@ export const sendGPSData = async (
 export function initializeGPSBridge() {
   console.log("✅ GPS Bridge inițializat - serviciul Android pregătit pentru transmisia GPS");
   console.log("📡 SimpleGPSService folosește logging direct - nu mai e nevoie de callback");
-  
-  // Function is already declared globally below
   console.log("🌐 window.sendGPSViaCapacitor disponibil pentru Android service");
 }
-
-// Global function for SimpleGPSService to send GPS via CapacitorHttp
-(window as any).sendGPSViaCapacitor = async (
-  gpsData: any,
-  token: string,
-): Promise<boolean> => {
-  try {
-    console.log("🚀 SimpleGPSService → CapacitorHttp GPS transmission");
-    console.log("📱 Android Bridge called with data:", gpsData);
-    logAPI(`SimpleGPSService GPS via CapacitorHttp: ${gpsData.uit}`);
-
-    // CRITICAL: Server returns 415 for both JSON and form-urlencoded from curl
-    // But Postman shows 200 OK - must be different in auth or format
-    console.log("📤 CRITICAL: Troubleshooting GPS transmission");
-    console.log("🔍 Token validity check:", token ? "exists" : "missing");
-    console.log("📋 GPS data structure:", gpsData);
-    
-    // Try both JSON and fallback to form-data
-    let response;
-    try {
-      console.log("🎯 Attempt 1: JSON format with EXACT login headers (confirmed working)");
-      response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}gps.php`,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-          "User-Agent": "iTrack-Native/1.0",
-        },
-        data: gpsData,
-      });
-    } catch (jsonError: any) {
-      console.log("⚠️ JSON failed, trying form-urlencoded fallback");
-      
-      // Convert to form data as fallback
-      const formData = new URLSearchParams();
-      Object.keys(gpsData).forEach(key => {
-        formData.append(key, String(gpsData[key]));
-      });
-      
-      response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}gps.php`,
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: `Bearer ${token}`,
-          "User-Agent": "iTrack-Native/1.0",
-        },
-        data: formData.toString(),
-      });
-    }
-
-    console.log("📥 GPS Response:", response.status, response.data);
-
-    if (response.status >= 200 && response.status < 300) {
-      console.log("✅ SimpleGPSService GPS sent successfully via CapacitorHttp");
-      logAPI(`SimpleGPSService GPS success: ${response.status}`);
-      return true;
-    } else {
-      console.error("❌ SimpleGPSService GPS failed:", response.status);
-      logAPI(`SimpleGPSService GPS failed: ${response.status}`);
-      return false;
-    }
-  } catch (error: any) {
-    console.error("❌ SimpleGPSService GPS error:", error.message);
-    logAPI(`SimpleGPSService GPS error: ${error.message}`);
-    return false;
-  }
-};
