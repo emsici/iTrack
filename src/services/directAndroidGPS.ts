@@ -22,9 +22,7 @@ declare global {
 import { logGPS, logGPSError } from './appLogger';
 import { sendGPSData } from './api';
 import { Geolocation } from '@capacitor/geolocation';
-import { Device } from '@capacitor/device';
 import { getStoredToken, getStoredVehicleNumber } from './storage';
-import { offlineGPSService } from './offlineGPS';
 import { guaranteedGPSService } from './garanteedGPS';
 import { sharedTimestampService } from './sharedTimestamp';
 // Direct AndroidGPS service handles native interface operations
@@ -59,7 +57,7 @@ class DirectAndroidGPSService {
       });
 
       // Create GPS data for status transmission
-      const currentTime = sharedTimestampService.getCurrentSharedTimestamp();
+      const currentTime = sharedTimestampService.getSharedTimestampISO();
       const gpsData = {
         uit: uit,
         lat: position.coords.latitude,
@@ -70,11 +68,13 @@ class DirectAndroidGPSService {
         altitudine: position.coords.altitude || 0,
         baterie: 85, // Default battery
         hdop: position.coords.accuracy.toString(),
-        gsm_signal: "4G"
+        gsm_signal: "4G",
+        numar_inmatriculare: vehicleNumber,
+        status: status
       };
 
-      // Send to server with status
-      await sendGPSData(gpsData, vehicleNumber, token, status);
+      // Send to server with status - FIXED: sendGPSData primește doar 2 argumente
+      await sendGPSData(gpsData, token);
       logGPS(`✅ Status ${status} + coordonată trimisă pentru ${uit} - hibrid approach`);
       
     } catch (error) {
@@ -184,7 +184,7 @@ class DirectAndroidGPSService {
         }
 
         logGPS(`🔄 HIBRID BACKUP: Transmisie browser GPS pentru ${courseId}`);
-        await this.sendStatusToServer(uit, vehicleNumber, token, status);
+        await this.sendStatusToServer(uit, vehicleNumber, token, 2); // Status 2 pentru transmisie în progres
         
       } catch (error) {
         logGPSError(`❌ HIBRID BACKUP: Eroare transmisie pentru ${courseId}: ${error}`);
