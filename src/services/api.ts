@@ -719,14 +719,24 @@ export const sendGPSData = async (
   }
 };
 
-// Global function for OptimalGPSService to send GPS via CapacitorHttp
+// Enhanced GPS Bridge initialization
+export function initializeGPSBridge() {
+  console.log("✅ GPS Bridge inițializat - serviciul Android pregătit pentru transmisia GPS");
+  console.log("📡 SimpleGPSService folosește logging direct - nu mai e nevoie de callback");
+  
+  // Function is already declared globally below
+  console.log("🌐 window.sendGPSViaCapacitor disponibil pentru Android service");
+}
+
+// Global function for SimpleGPSService to send GPS via CapacitorHttp
 (window as any).sendGPSViaCapacitor = async (
   gpsData: any,
   token: string,
 ): Promise<boolean> => {
   try {
-    console.log("🚀 OptimalGPSService → CapacitorHttp GPS transmission");
-    logAPI(`OptimalGPSService GPS via CapacitorHttp: ${gpsData.uit}`);
+    console.log("🚀 SimpleGPSService → CapacitorHttp GPS transmission");
+    console.log("📱 Android Bridge called with data:", gpsData);
+    logAPI(`SimpleGPSService GPS via CapacitorHttp: ${gpsData.uit}`);
 
     const response = await CapacitorHttp.post({
       url: `${API_BASE_URL}gps.php`,

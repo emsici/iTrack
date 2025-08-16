@@ -63,8 +63,6 @@ public class MainActivity extends BridgeActivity {
         new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 1000);
     }
 
-    // Removed onPageFinished override - not available in BridgeActivity
-
     private void addAndroidGPSInterface() {
         try {
             WebView webView = getBridge().getWebView();

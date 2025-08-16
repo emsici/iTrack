@@ -852,9 +852,25 @@ public class SimpleGPSService extends Service {
             com.euscagency.itrack.MainActivity mainActivity = com.euscagency.itrack.MainActivity.getInstance();
             if (mainActivity != null) {
                 // Call JavaScript function that uses CapacitorHttp
+                // Create JavaScript object from JSON string
                 String jsCode = String.format(
-                    "if (window.sendGPSViaCapacitor) { window.sendGPSViaCapacitor('%s', '%s'); } else { console.error('sendGPSViaCapacitor not available'); }",
-                    jsonString.replace("'", "\\'").replace("\n", "\\n"),
+                    "try { " +
+                    "  console.log('🚀 ANDROID BRIDGE: Calling sendGPSViaCapacitor'); " +
+                    "  const gpsData = %s; " +
+                    "  console.log('📍 BRIDGE GPS DATA:', gpsData); " +
+                    "  if (window.sendGPSViaCapacitor) { " +
+                    "    window.sendGPSViaCapacitor(gpsData, '%s').then(success => { " +
+                    "      console.log('✅ BRIDGE GPS Result:', success); " +
+                    "    }).catch(error => { " +
+                    "      console.error('❌ BRIDGE GPS Error:', error); " +
+                    "    }); " +
+                    "  } else { " +
+                    "    console.error('❌ sendGPSViaCapacitor not available on window'); " +
+                    "  } " +
+                    "} catch(e) { " +
+                    "  console.error('❌ BRIDGE Error:', e); " +
+                    "}",
+                    jsonString,
                     authToken.replace("'", "\\'")
                 );
                 
