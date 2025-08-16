@@ -36,8 +36,8 @@ public class MainActivity extends BridgeActivity {
         Log.d(TAG, "✅ MainActivity initialized - preparing AndroidGPS interfaces");
         
         // Register AndroidGPS Plugin as fallback
-        registerPlugin(AndroidGPSPlugin.class);
-        Log.d(TAG, "🔌 AndroidGPSPlugin registered as Capacitor plugin");
+        // AndroidGPSPlugin removed - using WebView bridge only  
+        Log.d(TAG, "🔌 Using WebView bridge directly - AndroidGPSPlugin eliminated");
     }
     
     // Bridge ready handling moved to onResume for compatibility
