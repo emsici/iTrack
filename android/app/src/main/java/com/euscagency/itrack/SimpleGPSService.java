@@ -240,13 +240,19 @@ public class SimpleGPSService extends Service {
                     if (!isGPSActive) {
                         startGPSTimer();
                     }
-                } else if (newStatus == 3) { // PAUSE
+                } else if (newStatus == 3) { // PAUSE - OPTIMIZED: Remove from map
                     Log.e(TAG, "⏸️ PAUSE: Course " + courseId + " GPS tracking PAUSED");
-                    // Check if all courses are paused
-                    boolean allPaused = activeCourses.values().stream()
-                        .allMatch(c -> c.status == 3 || c.status == 4);
-                    if (allPaused) {
-                        Log.e(TAG, "⏸️ All courses paused - stopping GPS timer");
+                    Log.e(TAG, "🚀 OPTIMIZATION: Removing paused course from activeCourses for efficiency");
+                    
+                    // Store paused course data for quick resume
+                    saveToSharedPreferences("paused_course_" + courseId, course);
+                    
+                    // Remove from active map to optimize GPS loop
+                    activeCourses.remove(courseId);
+                    
+                    // Stop GPS timer if no more active courses
+                    if (activeCourses.isEmpty()) {
+                        Log.e(TAG, "⏸️ No active courses - stopping GPS timer");
                         stopGPSTimer();
                     }
                 } else if (newStatus == 4) { // STOP
@@ -262,6 +268,26 @@ public class SimpleGPSService extends Service {
                 }
                 
                 Log.e(TAG, "📊 Updated course status - Active courses: " + activeCourses.size());
+            } else if (newStatus == 2) {
+                // RESUME: Check if course is in paused storage
+                Log.e(TAG, "🔄 RESUME: Checking for paused course " + courseId);
+                CourseData pausedCourse = loadFromSharedPreferences("paused_course_" + courseId);
+                
+                if (pausedCourse != null) {
+                    Log.e(TAG, "✅ RESUME: Restoring paused course " + courseId + " to active map");
+                    pausedCourse.status = 2; // Set to ACTIVE
+                    activeCourses.put(courseId, pausedCourse);
+                    
+                    // Remove from paused storage
+                    removeFromSharedPreferences("paused_course_" + courseId);
+                    
+                    // Start GPS timer if not active
+                    if (!isGPSActive) {
+                        startGPSTimer();
+                    }
+                } else {
+                    Log.e(TAG, "⚠️ RESUME: No paused course found for " + courseId);
+                }
             } else {
                 Log.e(TAG, "⚠️ Status update for unknown course: " + courseId);
             }
@@ -457,13 +483,10 @@ public class SimpleGPSService extends Service {
         sdf.setTimeZone(romaniaTimeZone);
         String sharedTimestamp = sdf.format(new java.util.Date());
         
-        // Transmit for each active course
+        // OPTIMIZED: Only ACTIVE courses in map - no status checking needed
         for (CourseData course : activeCourses.values()) {
-            if (course.status == 2) { // Only for ACTIVE courses
-                transmitGPSDataForCourse(location, course, sharedTimestamp);
-            } else {
-                Log.e(TAG, "⏸️ Skipping course " + course.courseId + " - status: " + course.status);
-            }
+            // All courses in activeCourses are guaranteed to be status 2 (ACTIVE)
+            transmitGPSDataForCourse(location, course, sharedTimestamp);
         }
     }
     
@@ -1064,6 +1087,59 @@ public class SimpleGPSService extends Service {
         return null;
     }
     
+    /**
+     * HELPER METHODS for paused course storage optimization
+     */
+    private void saveToSharedPreferences(String key, CourseData course) {
+        try {
+            android.content.SharedPreferences prefs = getSharedPreferences("paused_courses", MODE_PRIVATE);
+            org.json.JSONObject courseJson = new org.json.JSONObject();
+            courseJson.put("courseId", course.courseId);
+            courseJson.put("uit", course.uit);
+            courseJson.put("status", course.status);
+            courseJson.put("vehicleNumber", course.vehicleNumber);
+            courseJson.put("authToken", course.authToken);
+            
+            prefs.edit().putString(key, courseJson.toString()).apply();
+            Log.e(TAG, "💾 Paused course saved: " + key);
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error saving paused course: " + e.getMessage());
+        }
+    }
+    
+    private CourseData loadFromSharedPreferences(String key) {
+        try {
+            android.content.SharedPreferences prefs = getSharedPreferences("paused_courses", MODE_PRIVATE);
+            String courseJson = prefs.getString(key, null);
+            
+            if (courseJson != null) {
+                org.json.JSONObject json = new org.json.JSONObject(courseJson);
+                CourseData course = new CourseData(
+                    json.getString("courseId"),
+                    json.getString("uit"),
+                    json.getInt("status"),
+                    json.getString("vehicleNumber"),
+                    json.getString("authToken")
+                );
+                Log.e(TAG, "📂 Paused course loaded: " + key);
+                return course;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error loading paused course: " + e.getMessage());
+        }
+        return null;
+    }
+    
+    private void removeFromSharedPreferences(String key) {
+        try {
+            android.content.SharedPreferences prefs = getSharedPreferences("paused_courses", MODE_PRIVATE);
+            prefs.edit().remove(key).apply();
+            Log.e(TAG, "🗑️ Paused course removed: " + key);
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error removing paused course: " + e.getMessage());
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
