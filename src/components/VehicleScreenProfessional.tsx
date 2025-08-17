@@ -996,8 +996,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`✅ Real GPS received: ${latitude}, ${longitude}`);
       console.log(`📐 Accuracy: ${accuracy}m, Speed: ${speed}, Altitude: ${altitude}m`);
 
-      // Transmit GPS data for each active course with its specific UIT
+      // Transmit GPS data DOAR pentru cursele cu status 2 (ACTIVE)
       for (const [uit, course] of activeCourses) {
+        // CRITICĂ: Verifică statusul real al cursei - nu trimite pentru PAUSE (3) sau STOP (4)
+        if (course.status !== 2) {
+          console.log(`⏸️ GPS transmission SKIPPED pentru UIT ${uit} - status: ${course.status} (3=PAUSE, 4=STOP)`);
+          continue; // Skip transmission pentru curse inactive
+        }
+        
+        console.log(`✅ GPS transmission PROCEEDING pentru UIT ${uit} - status: ${course.status} (ACTIVE)`);
+        
         const gpsData = {
           uit: course.uit,
           numar_inmatriculare: activeGPSVehicle,
@@ -1009,7 +1017,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           hdop: Math.round(accuracy || 0),
           gsm_signal: await getNetworkSignal(),
           baterie: await getBatteryLevel(),
-          status: 2, // ACTIVE
+          status: 2, // ACTIVE - trimis doar pentru curse cu status 2
           timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
         };
 

@@ -76,7 +76,8 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - **STATUS UPDATES**: 3/4 includ coordonate GPS reale prin getLastKnownLocation()
 - **NETWORK DETECTION**: WiFi vs Cellular cu signal strength autentic
 
-### **Critical Status Transmission**
-- **Status 3/4**: Trimise direct de BackgroundGPSService cu sendStatusHTTPDirect()
-- **GPS Coordinates**: Status updates includ locația reală, nu mai dummy (0,0)
-- **Server Communication**: Garantat pentru toate statusurile (2,3,4)
+### **Critical Status Transmission Fix**
+- **PROBLEMA GĂSITĂ**: JavaScript GPS transmission trimitea status 2 pentru toate cursele din activeCourses, inclusiv cele în PAUSE
+- **SOLUȚIA IMPLEMENTATĂ**: Verificare `course.status !== 2` în JavaScript GPS loop - skip transmission pentru PAUSE/STOP
+- **ANDROID FIX**: BackgroundGPSService oprește transmisia complet pentru status 3/4 
+- **WORKFLOW COMPLET**: PAUSE nu mai trimite status 2 automat - transmisia se oprește total până la RESUME
