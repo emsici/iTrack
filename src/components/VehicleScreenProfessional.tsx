@@ -47,7 +47,9 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     });
     
     console.log(`✅ Actualizarea statusului pe server cu succes: ${response.status}`);
-    console.log(`📊 Răspuns server:`, response.data);
+    console.log(`📊 Răspuns server complet:`, response.data);
+    console.log(`📋 Tip răspuns pentru STATUS ${newStatus}:`, typeof response.data);
+    console.log(`📊 Response headers:`, response.headers);
     console.log(`🎯 STATUS ${newStatus} TRIMIS CU SUCCES PENTRU UIT ${courseId}`);
     
     // PASUL 2: Actualizează serviciul GPS Android
