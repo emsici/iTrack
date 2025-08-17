@@ -33,21 +33,21 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
-        Log.d(TAG, "✅ MainActivity initialized - preparing AndroidGPS interfaces");
+        Log.d(TAG, "✅ MainActivity inițializat - pregătirea interfețelor AndroidGPS");
         
-        // Register AndroidGPS Plugin as fallback
-        // AndroidGPSPlugin removed - using WebView bridge only  
-        Log.d(TAG, "🔌 Using WebView bridge directly - AndroidGPSPlugin eliminated");
+        // Înregistrează AndroidGPS Plugin ca fallback
+        // AndroidGPSPlugin eliminat - folosind doar bridge WebView  
+        Log.d(TAG, "🔌 Folosind bridge WebView direct - AndroidGPSPlugin eliminat");
     }
     
-    // Bridge ready handling moved to onResume for compatibility
+    // Gestionarea bridge-ului gata mutată în onResume pentru compatibilitate
 
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(TAG, "MainActivity onStart() - scheduling AndroidGPS interface setup");
+        Log.d(TAG, "MainActivity onStart() - programez configurarea interfeței AndroidGPS");
         
-        // Multiple attempts to ensure WebView is ready
+        // Încercări multiple pentru a asigura că WebView este gata
         new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 500);
         new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 1000);
         new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 2000);
@@ -56,9 +56,9 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "MainActivity onResume() - ensuring AndroidGPS interface availability");
+        Log.d(TAG, "MainActivity onResume() - asigur disponibilitatea interfeței AndroidGPS");
         
-        // Immediate and delayed attempts
+        // Încercări imediate și întârziate
         addAndroidGPSInterface();
         new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 1000);
     }
@@ -67,7 +67,7 @@ public class MainActivity extends BridgeActivity {
         try {
             WebView webView = getBridge().getWebView();
             if (webView != null) {
-                Log.d(TAG, "🔧 Adding AndroidGPS interface to WebView...");
+                Log.d(TAG, "🔧 Adaug interfața AndroidGPS la WebView...");
                 
                 // Add JavaScript interface - this creates window.AndroidGPS
                 webView.addJavascriptInterface(this, "AndroidGPS");

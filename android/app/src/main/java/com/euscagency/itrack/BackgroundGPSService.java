@@ -24,7 +24,7 @@ import android.os.HandlerThread;
 import android.app.Notification;
 
 /**
- * BACKGROUND GPS SERVICE - Mai eficient pentru transmisia continuă GPS
+ * SERVICIU GPS DE FUNDAL - Mai eficient pentru transmisia continuă GPS
  * Folosește ScheduledExecutorService în loc de Handler pentru mai multă stabilitate
  */
 public class BackgroundGPSService extends Service {
@@ -43,20 +43,20 @@ public class BackgroundGPSService extends Service {
     private String activeToken;
     private String activeVehicle;
     private boolean isGPSRunning = false;
-    private int courseStatus = 0; // 2=ACTIVE, 3=PAUSE, 4=STOP
+    private int courseStatus = 0; // 2=ACTIV, 3=PAUZA, 4=STOP
     
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.e(TAG, "🚀 BackgroundGPS Service Created");
+        Log.e(TAG, "🚀 Serviciul BackgroundGPS Creat");
         
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
-        // WakeLock pentru background garantat
+        // WakeLock pentru fundal garantat
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "iTrack:BackgroundGPS");
         
-        // Background thread pentru GPS operations
+        // Thread de fundal pentru operații GPS
         backgroundThread = new HandlerThread("BackgroundGPSThread");
         backgroundThread.start();
         backgroundHandler = new Handler(backgroundThread.getLooper());
@@ -459,7 +459,7 @@ public class BackgroundGPSService extends Service {
     
     @Override
     public void onDestroy() {
-        Log.e(TAG, "🛑 BackgroundGPS Service Destroyed");
+        Log.e(TAG, "🛑 Serviciul BackgroundGPS Distrus");
         stopBackgroundGPS();
         
         if (backgroundThread != null) {

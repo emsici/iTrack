@@ -3,38 +3,38 @@ import { Geolocation } from '@capacitor/geolocation';
 import { CapacitorHttp } from '@capacitor/core';
 import { Course } from "../types";
 import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
-// Active courses tracking - for GPS transmission efficiency
+// Urmărirea curselor active - pentru eficiența transmisiei GPS
 let activeCourses = new Map<string, Course>();
 let activeGPSInterval: NodeJS.Timeout | null = null;
 
-// Direct Android GPS functions - BackgroundGPSService handles everything natively
+// Funcții GPS Android directe - BackgroundGPSService gestionează totul nativ
 const updateCourseStatus = async (courseId: string, newStatus: number, authToken: string, vehicleNumber: string) => {
   try {
-    // STEP 1: Update server via API
-    console.log(`🌐 === TRIMITTING STATUS UPDATE ===`);
+    // PASUL 1: Actualizează serverul prin API
+    console.log(`🌐 === TRIMITERE ACTUALIZARE STATUS ===`);
     console.log(`📊 UIT: ${courseId}`);
-    console.log(`📋 New Status: ${newStatus} (2=ACTIVE, 3=PAUSE, 4=STOP)`);
-    console.log(`🔑 Token Length: ${authToken?.length || 0}`);
-    console.log(`🚛 Vehicle Number: ${vehicleNumber}`);
+    console.log(`📋 Status Nou: ${newStatus} (2=ACTIV, 3=PAUZA, 4=STOP)`);
+    console.log(`🔑 Lungime Token: ${authToken?.length || 0}`);
+    console.log(`🚛 Numărul Vehiculului: ${vehicleNumber}`);
     console.log(`🎯 IMPORTANT: Trimite la fel pentru TOATE statusurile - doar cifra statusului diferă!`);
     
     const statusUpdateData = {
-      nr: vehicleNumber,  // CRITICAL: Server needs vehicle number for all status updates
+      nr: vehicleNumber,  // CRITIC: Serverul are nevoie de numărul vehiculului pentru toate actualizările de status
       uit: courseId,
       status: newStatus,
       timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
     };
     
     console.log(`📤 === STRUCTURA IDENTICĂ PENTRU STATUS ${newStatus} ===`);
-    console.log(`📤 Sending data:`, JSON.stringify(statusUpdateData, null, 2));
+    console.log(`📤 Trimitere date:`, JSON.stringify(statusUpdateData, null, 2));
     
-    // CRITICAL FIX: ALL status updates go to gps.php (vehicul.php only for course queries)
-    // Use centralized API_BASE_URL from configuration (automatically detects etsm_prod vs etsm3)
+    // CORECTARE CRITICĂ: TOATE actualizările de status merg la gps.php (vehicul.php doar pentru interogări curse)
+    // Folosește API_BASE_URL centralizat din configurație (detectează automat etsm_prod vs etsm3)
     const endpoint = `${API_BASE_URL}gps.php`;
     
-    console.log(`🎯 ENDPOINT SELECTION: ALL status updates → gps.php`);
-    console.log(`📋 gps.php = status updates | vehicul.php = course queries only`);
-    console.log(`🌐 API Base URL: ${API_BASE_URL} (centralized config)`);
+    console.log(`🎯 SELECTARE ENDPOINT: TOATE actualizările de status → gps.php`);
+    console.log(`📋 gps.php = actualizări status | vehicul.php = doar interogări curse`);
+    console.log(`🌐 URL API de bază: ${API_BASE_URL} (configurație centralizată)`);
     
     const response = await CapacitorHttp.post({
       url: endpoint,

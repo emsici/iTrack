@@ -1,6 +1,6 @@
 /**
- * Application Logger Service
- * Captures console logs and stores them locally for AdminPanel viewing
+ * Serviciu Logger Aplicație
+ * Capturează logurile din consolă și le stochează local pentru vizualizarea în AdminPanel
  */
 
 import { Preferences } from "@capacitor/preferences";
@@ -15,7 +15,7 @@ export interface AppLog {
 
 class AppLoggerService {
   private readonly STORAGE_KEY = "app_logs";
-  private readonly MAX_LOGS = 10000; // Maximum logs to store
+  private readonly MAX_LOGS = 10000; // Numărul maxim de loguri de stocat
   private logs: AppLog[] = [];
   private initialized = false;
 
@@ -23,10 +23,10 @@ class AppLoggerService {
     if (this.initialized) return;
 
     try {
-      // Load existing logs from storage
+      // Încarcă logurile existente din stocare
       await this.loadLogs();
 
-      // Override console methods to capture logs
+      // Suprascrie metodele console pentru a captura logurile
       this.interceptConsole();
 
       this.initialized = true;
@@ -50,7 +50,7 @@ class AppLoggerService {
 
   private async saveLogs(): Promise<void> {
     try {
-      // Keep only the most recent logs
+      // Păstrează doar logurile cele mai recente
       if (this.logs.length > this.MAX_LOGS) {
         this.logs = this.logs.slice(-this.MAX_LOGS);
       }

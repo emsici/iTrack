@@ -1,14 +1,14 @@
 import { logAPI } from "./appLogger";
-// BackgroundGPSService handles network detection through HTTP responses
+// BackgroundGPSService gestionează detectarea rețelei prin răspunsuri HTTP
 import { CapacitorHttp } from "@capacitor/core";
-// BackgroundGPSService handles offline GPS natively - no separate service needed
-// Static import to resolve Vite dynamic/static import warning
+// BackgroundGPSService gestionează GPS offline nativ - nu este necesar serviciu separat
+// Import static pentru a rezolva avertismentul Vite dynamic/static import
 
-// Centralized API Configuration
+// Configurația API Centralizată
 export const API_CONFIG = {
-  // Development environment (default)
+  // Mediul de dezvoltare (implicit)
   DEV: "https://www.euscagency.com/etsm3/platforme/transport/apk/",
-  // Production environment
+  // Mediul de producție
   PROD: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/",
 };
 
