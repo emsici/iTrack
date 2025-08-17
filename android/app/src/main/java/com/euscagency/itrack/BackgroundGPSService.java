@@ -148,6 +148,12 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
+        // TEMPORARY: Send test coordinate immediately to verify HTTP works
+        Log.e(TAG, "🧪 SENDING TEST COORDINATE (dummy data) pentru verificare HTTP...");
+        sendTestCoordinate();
+        
+        // Continue with real GPS request after test
+        
         // Check permissions
         boolean fineLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         boolean coarseLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
@@ -356,6 +362,42 @@ public class BackgroundGPSService extends Service {
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Bridge call failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private void sendTestCoordinate() {
+        try {
+            Log.e(TAG, "🧪 === SENDING TEST DUMMY COORDINATE ===");
+            
+            // Create dummy GPS data JSON - coordonate România
+            org.json.JSONObject gpsData = new org.json.JSONObject();
+            gpsData.put("uit", activeUIT);
+            gpsData.put("numar_inmatriculare", activeVehicle);
+            gpsData.put("lat", 44.4268); // București dummy coordinate
+            gpsData.put("lng", 26.1025); // București dummy coordinate  
+            gpsData.put("viteza", 0);
+            gpsData.put("directie", 0);
+            gpsData.put("altitudine", 85);
+            gpsData.put("hdop", 5);
+            gpsData.put("gsm_signal", 4);
+            gpsData.put("baterie", getBatteryLevel());
+            gpsData.put("status", 2); // ACTIVE
+            
+            // Romania timestamp
+            java.util.TimeZone romaniaTimeZone = java.util.TimeZone.getTimeZone("Europe/Bucharest");
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.setTimeZone(romaniaTimeZone);
+            String timestamp = sdf.format(new java.util.Date());
+            gpsData.put("timestamp", timestamp);
+            
+            Log.e(TAG, "🧪 TEST JSON: " + gpsData.toString());
+            
+            // Call direct HTTP transmission
+            callJavaScriptBridge(gpsData.toString());
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Test coordinate error: " + e.getMessage());
             e.printStackTrace();
         }
     }
