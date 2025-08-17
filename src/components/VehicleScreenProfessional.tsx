@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
-
+import { CapacitorHttp } from '@capacitor/core';
 import { Course } from "../types";
-import { getVehicleCourses, logout } from "../services/api";
-import { getStoredVehicleNumber, storeVehicleNumber } from "../services/storage";
-import { themeService, Theme, THEME_INFO } from "../services/themeService";
-import { useToast } from "../hooks/useToast";
-import { logAPI } from "../services/appLogger";
-
+import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
 // Urmărirea curselor active - pentru analytics și gestionare Android GPS
 let activeCourses = new Map<string, Course>();
 
@@ -23,12 +18,12 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     
     // PRIORITATE: Android BackgroundGPSService cu DATE REALE (GPS + senzori nativi)
     // Android are acces direct la senzori hardware pentru date autentice
-    if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
+    if (window.AndroidGPS && window.AndroidGPS.sendStatusUpdate) {
       console.log("📱 Trimit status update direct prin Android cu DATE REALE (GPS + senzori nativi)");
       console.log("🎯 Android are acces direct la: baterie reală, GPS nativ, signal strength autentic");
       
       try {
-        const androidResponse = window.AndroidGPS.updateStatus(courseId, newStatus);
+        const androidResponse = await window.AndroidGPS.sendStatusUpdate(courseId, newStatus, authToken, vehicleNumber);
         console.log(`✅ Status ${newStatus} trimis cu succes prin Android cu date reale:`, androidResponse);
         
         // PASUL 2: Actualizează serviciul GPS Android
@@ -93,45 +88,25 @@ const logoutClearAllGPS = async () => {
   console.warn('AndroidGPS interface not available - browser mode');
 };
 
-// Importuri suplimentare pentru servicii  
-import { clearToken } from "../services/storage";
-import { logAPIError } from "../services/appLogger";
+import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
+// BackgroundGPSService handles offline GPS natively - no separate service needed
+import { logAPI, logAPIError } from "../services/appLogger";
 import { courseAnalyticsService } from "../services/courseAnalytics";
-
-// Importuri componente UI
+import { Network } from '@capacitor/network';
+// Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
+
+import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Added for offline GPS monitoring
 import ToastNotification from "./ToastNotification";
+
+import { useToast } from "../hooks/useToast";
+// garanteedGPS eliminat complet - folosim doar BackgroundGPSService
 import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
-import SimpleGPSIndicator from "./SimpleGPSIndicator";
-import RouteMapModal from "./RouteMapModal";
-
-// Helper functions for theme support
-const isDarkTheme = (theme: Theme): boolean => {
-  return ['dark', 'nature', 'night', 'driver'].includes(theme);
-};
-
-const getThemeBackground = (theme: Theme): string => {
-  switch (theme) {
-    case 'light':
-      return 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #e2e8f0 100%)';
-    case 'business':
-      return 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)';
-    case 'nature':
-      return 'linear-gradient(135deg, #0f172a 0%, #064e3b 50%, #065f46 100%)';
-    case 'night':
-      return 'linear-gradient(135deg, #0f0f23 0%, #1e1b4b 50%, #312e81 100%)';
-    case 'driver':
-      return 'linear-gradient(135deg, #0c0a09 0%, #44403c 50%, #57534e 100%)';
-    default: // dark
-      return 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)';
-  }
-};
-
-
+import { themeService, Theme, THEME_INFO } from "../services/themeService";
 
 // import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Commented unused import
 // BackgroundGPSService detectează network status prin răspunsurile HTTP
@@ -166,32 +141,51 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
 
-
-
   const toast = useToast();
 
-  // SIMPLIFIED: Direct initialization without async complications
+  // PERFORMANCE OPTIMIZED: Initialize theme and vehicle number with debouncing
   useEffect(() => {
-    // Set default theme immediately
-    setCurrentTheme('dark');
-    
-    // Load stored vehicle number without blocking
-    getStoredVehicleNumber().then((storedVehicle) => {
-      if (storedVehicle) {
-        setVehicleNumber(storedVehicle);
-        // Don't auto-load courses - user should manually search
+    let mounted = true;
+    const initializeApp = async () => {
+      try {
+        // Initialize theme with caching
+        const savedTheme = await themeService.initialize();
+        if (mounted) {
+          setCurrentTheme(savedTheme);
+        }
+        
+        // ALWAYS load stored vehicle number și coursele asociate
+        const storedVehicle = await getStoredVehicleNumber();
+        if (storedVehicle && mounted) {
+          setVehicleNumber(storedVehicle);
+          console.log('✅ Numărul de vehicul stocat încărcat:', storedVehicle);
+          
+          // AUTO-LOAD courses pentru vehiculul stocat DOAR dacă avem token
+          if (token) {
+            try {
+              console.log('🔄 Auto-loading courses pentru vehicul stocat:', storedVehicle);
+              const response = await getVehicleCourses(storedVehicle, token);
+              if (response && response.length > 0) {
+                setCourses(response);
+                setCoursesLoaded(true);
+                console.log('✅ Cursele vehiculului încărcate automat după revenire:', response.length);
+              } else {
+                console.log('⚠️ Vehiculul stocat nu are curse disponibile');
+              }
+            } catch (error) {
+              console.log('⚠️ Nu s-au putut încărca cursele automat (probabil token expirat):', error);
+            }
+          } else {
+            console.log('⚠️ Nu pot auto-încărca cursele - lipsește token-ul');
+          }
+        }
+      } catch (error) {
+        console.error('Eroare la inițializarea aplicației:', error);
       }
-    }).catch(() => {
-      // Ignore errors, just continue with empty vehicle number
-    });
+    };
     
-    // Initialize theme service in background
-    themeService.initialize().then((savedTheme) => {
-      setCurrentTheme(savedTheme);
-    }).catch(() => {
-      // Ignore errors, keep default theme
-    });
-  }, []);
+    initializeApp();
+  }, []); // Empty dependency array - runs only once on mount
 
   // Separate useEffect for background refresh events + network status
   useEffect(() => {
@@ -923,8 +917,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   // Remove the debug page component - we'll show inline instead
 
-  console.log('VehicleScreen render - coursesLoaded:', coursesLoaded, 'theme:', currentTheme);
-  
   return (
     <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""} theme-${currentTheme}`} style={{
       paddingTop: coursesLoaded ? 'env(safe-area-inset-top)' : '0'
@@ -932,7 +924,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       {!coursesLoaded ? (
         <div style={{
           minHeight: '100dvh',
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)',
+          background: currentTheme === 'dark' 
+            ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)'
+            : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
           backgroundAttachment: 'fixed',
           display: 'flex',
           flexDirection: 'column',
@@ -979,9 +973,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div style={{
               width: '100%',
               maxWidth: '400px',
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
+              background: currentTheme === 'dark' 
+                ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)'
+                : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
               backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
               borderRadius: '24px',
               padding: '40px 30px',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
