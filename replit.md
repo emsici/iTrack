@@ -66,7 +66,7 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 
 ## Recent Critical Fixes (August 2025)
 
-### **MULTI-VEHICLE MULTI-UIT SUPPORT (August 17, 2025)**
+### **MULTI-VEHICLE MULTI-UIT SUPPORT + PERFORMANCE FIX (August 17, 2025)**
 
 **FUNCȚIONALITATE COMPLETĂ MULTI-VEHICUL:**
 - Eliminat `activeVehicle` global și înlocuit cu `Map<String, String> courseVehicles`
@@ -75,6 +75,12 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - GPS transmis corect pentru fiecare UIT cu vehiculul său specific
 - Switching între vehicule păstrează cursele active pentru toate vehiculele
 - Transmisie continuă pentru toate vehiculele active chiar și cu telefonul blocat
+
+**PERFORMANCE FIX CRITIC:**
+- Eliminat debugging agresiv care bloca ScheduledExecutor după primul ciclu
+- Revenit la logica simplă din commit 7b7bb19 care funcționa corect
+- Păstrat doar multi-vehicle support fără overhead de performance
+- GPS continuă să transmită la fiecare 10 secunde exact ca înainte
 
 **SCENARIO VALIDAT:**
 - CT-39-ECC cu 3 curse (1 pauzată, 2 active)

@@ -182,38 +182,15 @@ public class BackgroundGPSService extends Service {
             @Override
             public void run() {
                 try {
-                    Log.e(TAG, "🚨 === AGGRESSIVE DEBUGGING - EXECUTOR STATUS ===");
-                    Log.e(TAG, "🔧 Executor shutdown: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
-                    Log.e(TAG, "🔧 Executor terminated: " + (gpsExecutor != null ? gpsExecutor.isTerminated() : "NULL"));
-                    Log.e(TAG, "🔧 Service isGPSRunning: " + isGPSRunning);
-                    Log.e(TAG, "🔧 WakeLock held: " + (wakeLock != null && wakeLock.isHeld()));
-                    Log.e(TAG, "🔧 Courses count: " + courseStatuses.size());
-                    Log.e(TAG, "🔧 Token exists: " + (activeToken != null));
-                    
                     Log.e(TAG, "⏰ === SCHEDULED GPS CYCLE TRIGGERED ===");
                     Log.e(TAG, "🕐 Timpul curent: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
                     Log.e(TAG, "📊 Service activ: " + isGPSRunning + ", Curse înregistrate: " + courseStatuses.size());
                     sendLogToJavaScript("⏰ GPS CYCLE la " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                    
-                    // VERIFICARE CRITICĂ: Dacă serviciul nu mai rulează, nu executa
-                    if (!isGPSRunning) {
-                        Log.e(TAG, "🚨 CRITICAL: Service marked as NOT RUNNING - stopping execution");
-                        sendLogToJavaScript("🚨 SERVICE NOT RUNNING - executor va fi oprit");
-                        return;
-                    }
-                    
                     performGPSCycle();
-                    
-                    Log.e(TAG, "✅ GPS CYCLE COMPLETED - EXECUTOR RĂMÂNE ACTIV");
-                    sendLogToJavaScript("✅ CYCLE OK - următorul în " + GPS_INTERVAL_SECONDS + "s");
-                    
                 } catch (Exception e) {
                     Log.e(TAG, "❌ CRITICAL: ScheduledExecutor error: " + e.getMessage());
                     sendLogToJavaScript("❌ EROARE GPS CYCLE: " + e.getMessage());
                     e.printStackTrace();
-                    
-                    // NU opri executorul pentru o eroare - continuă
-                    Log.e(TAG, "🔄 EXECUTOR CONTINUĂ în ciuda erorii");
                 }
             }
         }, 2, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
@@ -225,26 +202,17 @@ public class BackgroundGPSService extends Service {
     }
     
     private void stopBackgroundGPS() {
-        Log.e(TAG, "🚨 === STOP GPS CALLED - DEBUGGING ===");
-        Log.e(TAG, "🔧 Before: isGPSRunning = " + isGPSRunning);
-        Log.e(TAG, "🔧 Before: Executor status = " + (gpsExecutor != null ? (!gpsExecutor.isShutdown() ? "ACTIVE" : "SHUTDOWN") : "NULL"));
-        
         isGPSRunning = false;
         
         if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
             gpsExecutor.shutdown();
             Log.e(TAG, "🛑 ScheduledExecutorService stopped");
-            sendLogToJavaScript("🛑 GPS EXECUTOR OPRIT");
-        } else {
-            Log.e(TAG, "🚨 EXECUTOR deja oprit sau NULL");
         }
         
         if (wakeLock != null && wakeLock.isHeld()) {
             wakeLock.release();
             Log.e(TAG, "🛑 WakeLock released");
         }
-        
-        Log.e(TAG, "🚨 === STOP GPS COMPLETED ===");
     }
     
     private void performGPSCycle() {
@@ -872,14 +840,7 @@ public class BackgroundGPSService extends Service {
     
     @Override
     public void onDestroy() {
-        Log.e(TAG, "🚨 === SERVICIUL BACKGROUNDGPS DISTRUS - DEBUGGING ===");
-        Log.e(TAG, "🔧 onDestroy called - checking why service is being destroyed");
-        Log.e(TAG, "🔧 Courses active: " + courseStatuses.size());
-        Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning);
-        Log.e(TAG, "🔧 Stack trace pentru identificare apelant:");
-        Thread.dumpStack();
-        
-        sendLogToJavaScript("🚨 SERVICIU DISTRUS - onDestroy called");
+        Log.e(TAG, "🛑 Serviciul BackgroundGPS Distrus");
         stopBackgroundGPS();
         
         if (backgroundThread != null) {
