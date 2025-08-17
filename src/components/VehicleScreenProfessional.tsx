@@ -53,6 +53,7 @@ const logoutClearAllGPS = async () => {
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 // BackgroundGPSService handles offline GPS natively - no separate service needed
 import { logAPI, logAPIError } from "../services/appLogger";
+import { CapacitorHttp } from '@capacitor/core';
 // Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
@@ -796,20 +797,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       console.log('📤 Transmitting real GPS data:', gpsData);
 
-      // Send to server using fetch
-      const response = await fetch('https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php', {
-        method: 'POST',
+      // Send to server using CapacitorHttp for APK compatibility
+      const response = await CapacitorHttp.post({
+        url: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${activeGPSToken}`,
           'Accept': 'application/json'
         },
-        body: JSON.stringify(gpsData)
+        data: gpsData
       });
 
       console.log('✅ GPS transmission successful:', response.status);
-      const responseData = await response.text();
-      console.log('📊 Server response:', responseData);
+      console.log('📊 Server response:', response.data);
 
     } catch (error) {
       console.error('❌ GPS transmission error:', error);

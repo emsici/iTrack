@@ -1,0 +1,83 @@
+iTrack Application Logs
+Generated: 17.08.2025, 15:53:29
+Total Logs: 79
+
+[2025-08-17T12:53:23.543Z] ERROR (APP): ❌ GPS transmission error: TypeError: Failed to fetch
+[2025-08-17T12:53:23.465Z] INFO (APP): 📤 Transmitting real GPS data: [object Object]
+[2025-08-17T12:53:23.464Z] INFO (APP): 📐 Accuracy: 13.898m, Speed: 0, Altitude: 54.599998474121094m
+[2025-08-17T12:53:23.463Z] INFO (APP): ✅ Real GPS received: 44.2583915, 28.6175305
+[2025-08-17T12:53:23.425Z] INFO (APP): 📍 === GETTING REAL GPS COORDINATES ===
+[2025-08-17T12:53:14.580Z] ERROR (APP): ❌ GPS transmission error: TypeError: Failed to fetch
+[2025-08-17T12:53:14.393Z] INFO (APP): 📤 Transmitting real GPS data: [object Object]
+[2025-08-17T12:53:14.386Z] INFO (APP): 📐 Accuracy: 15.342m, Speed: 0, Altitude: 54.599998474121094m
+[2025-08-17T12:53:14.385Z] INFO (APP): ✅ Real GPS received: 44.2583923, 28.6175327
+[2025-08-17T12:53:14.312Z] INFO (APP): 📍 === GETTING REAL GPS COORDINATES ===
+[2025-08-17T12:53:11.255Z] INFO (APP): Log-uri copiate cu succes în clipboard
+[2025-08-17T12:53:03.576Z] ERROR (APP): ❌ GPS transmission error: TypeError: Failed to fetch
+[2025-08-17T12:53:03.490Z] INFO (APP): 📤 Transmitting real GPS data: [object Object]
+[2025-08-17T12:53:03.489Z] INFO (APP): 📐 Accuracy: 13.629m, Speed: 0, Altitude: 54.70000076293945m
+[2025-08-17T12:53:03.488Z] INFO (APP): ✅ Real GPS received: 44.2583908, 28.6175403
+[2025-08-17T12:53:03.425Z] INFO (APP): 📍 === GETTING REAL GPS COORDINATES ===
+[2025-08-17T12:52:54.482Z] ERROR (APP): ❌ GPS transmission error: TypeError: Failed to fetch
+[2025-08-17T12:52:54.395Z] INFO (APP): 📤 Transmitting real GPS data: [object Object]
+[2025-08-17T12:52:54.390Z] INFO (APP): 📐 Accuracy: 13.464m, Speed: 0, Altitude: 54.599998474121094m
+[2025-08-17T12:52:54.389Z] INFO (APP): ✅ Real GPS received: 44.2583889, 28.6175391
+[2025-08-17T12:52:54.310Z] INFO (APP): 📍 === GETTING REAL GPS COORDINATES ===
+[2025-08-17T12:52:44.461Z] ERROR (APP): ❌ GPS transmission error: TypeError: Failed to fetch
+[2025-08-17T12:52:44.371Z] INFO (APP): 📤 Transmitting real GPS data: [object Object]
+[2025-08-17T12:52:44.368Z] INFO (APP): 📐 Accuracy: 19.666m, Speed: 0, Altitude: 54.599998474121094m
+[2025-08-17T12:52:44.367Z] INFO (APP): ✅ Real GPS received: 44.2583164, 28.617416
+[2025-08-17T12:52:44.309Z] INFO (APP): 📍 === GETTING REAL GPS COORDINATES ===
+[2025-08-17T12:52:34.445Z] ERROR (APP): ❌ GPS transmission error: TypeError: Failed to fetch
+[2025-08-17T12:52:34.360Z] INFO (APP): 📤 Transmitting real GPS data: [object Object]
+[2025-08-17T12:52:34.359Z] INFO (APP): 📐 Accuracy: 19.223m, Speed: 0, Altitude: 54.599998474121094m
+[2025-08-17T12:52:34.358Z] INFO (APP): ✅ Real GPS received: 44.2582958, 28.6173895
+[2025-08-17T12:52:34.308Z] INFO (APP): 📍 === GETTING REAL GPS COORDINATES ===
+[2025-08-17T12:52:28.614Z] INFO (APP): Log-uri copiate cu succes în clipboard
+[2025-08-17T12:52:23.621Z] ERROR (APP): ❌ GPS transmission error: TypeError: Failed to fetch
+[2025-08-17T12:52:23.531Z] INFO (APP): 📤 Transmitting real GPS data: [object Object]
+[2025-08-17T12:52:23.529Z] INFO (APP): 📐 Accuracy: 19.767m, Speed: 0, Altitude: 54.599998474121094m
+[2025-08-17T12:52:23.528Z] INFO (APP): ✅ Real GPS received: 44.2583653, 28.6174546
+[2025-08-17T12:52:23.427Z] INFO (APP): 📍 === GETTING REAL GPS COORDINATES ===
+[2025-08-17T12:52:13.727Z] ERROR (APP): ❌ GPS transmission error: TypeError: Failed to fetch
+[2025-08-17T12:52:13.570Z] INFO (APP): 📤 Transmitting real GPS data: [object Object]
+[2025-08-17T12:52:13.542Z] INFO (APP): 📐 Accuracy: 19.679m, Speed: 0, Altitude: 54.599998474121094m
+[2025-08-17T12:52:13.542Z] INFO (APP): ✅ Real GPS received: 44.2583555, 28.6174801
+[2025-08-17T12:52:13.438Z] INFO (APP): Acțiune cursă finalizată: 133944
+[2025-08-17T12:52:13.438Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-17T12:52:13.438Z] INFO (API): Course 8K6N433546130173 status updated successfully to 2
+[2025-08-17T12:52:13.437Z] INFO (APP): ✅ Cursa 8K6N433546130173 status actualizat la 2 cu succes
+[2025-08-17T12:52:13.437Z] INFO (APP): ✅ Android GPS status updated: SUCCESS: BACKGROUND GPS status ACTIVE for 8K6N433546130173
+[2025-08-17T12:52:13.434Z] INFO (APP): 📱 Updating Android GPS service status to 2
+[2025-08-17T12:52:13.425Z] INFO (APP): ✅ JavaScript GPS started - transmitting every 10 seconds
+[2025-08-17T12:52:13.425Z] INFO (APP): 📍 === GETTING REAL GPS COORDINATES ===
+[2025-08-17T12:52:13.425Z] INFO (APP): 📍 Course UIT: 8K6N433546130173, Vehicle: TM20RTA
+[2025-08-17T12:52:13.424Z] INFO (APP): 🚀 === STARTING JAVASCRIPT GPS ===
+[2025-08-17T12:52:13.424Z] INFO (APP): 🔄 Starting JavaScript GPS for real coordinates...
+[2025-08-17T12:52:13.424Z] INFO (APP): 📱 Android GPS Service Result: SUCCESS: BACKGROUND GPS started for 133944
+[2025-08-17T12:52:13.424Z] INFO (APP): 📊 GPS service va urmări toate cursele active cu același set de coordonate
+[2025-08-17T12:52:13.424Z] INFO (APP): 🔥 BackgroundGPSService Result: SUCCESS: BACKGROUND GPS started for 133944
+[2025-08-17T12:52:13.417Z] INFO (APP): 🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS
+[2025-08-17T12:52:13.417Z] INFO (APP): 📋 IMPORTANT: BackgroundGPSService acceptă MULTIPLE curse - se adaugă la lista activă
+[2025-08-17T12:52:13.417Z] INFO (APP): ✅ AndroidGPS.startGPS disponibil - pornesc BackgroundGPSService
+[2025-08-17T12:52:13.417Z] INFO (APP): 📱 AndroidGPS interface check: [object Object]
+[2025-08-17T12:52:13.416Z] INFO (APP): 🚀 === CALLING ANDROID GPS SERVICE ===
+[2025-08-17T12:52:13.416Z] INFO (APP): 🚀 PORNIRE GPS: Status 2 (ACTIVE) - pornesc GPS real
+[2025-08-17T12:52:13.416Z] INFO (APP): 📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat
+[2025-08-17T12:52:13.416Z] INFO (APP): 📞 Se apelează direct Android GPS cu UIT: 8K6N433546130173
+[2025-08-17T12:52:13.416Z] INFO (APP): 🎯 ANDROID NATIVE: BackgroundGPSService cu GPS nativ și precizie maximă
+[2025-08-17T12:52:13.416Z] INFO (APP): ✅ Permisiuni GPS verificate și acordate
+[2025-08-17T12:52:13.416Z] INFO (APP): 📝 Rezultat permisiuni background: [object Object]
+[2025-08-17T12:52:13.401Z] INFO (APP): 🔐 Solicit permisiuni GPS background (coarse)...
+[2025-08-17T12:52:13.401Z] INFO (APP): 📝 Rezultat cerere permisiuni standard: [object Object]
+[2025-08-17T12:52:12.275Z] INFO (APP): 🔐 Solicit permisiuni GPS standard...
+[2025-08-17T12:52:12.275Z] INFO (APP): 📋 Permisiuni GPS actuale: [object Object]
+[2025-08-17T12:52:12.243Z] INFO (APP): 🔍 === VERIFICARE PERMISIUNI GPS ===
+[2025-08-17T12:52:12.243Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-17T12:52:12.243Z] INFO (APP): UIT REAL: 8K6N433546130173, Vehicul: TM20RTA
+[2025-08-17T12:52:12.243Z] INFO (APP): Cursă: 133944, Status: 1 → 2
+[2025-08-17T12:52:12.242Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-17T12:52:12.242Z] INFO (APP): 💾 Status 2 salvat pentru UIT 8K6N433546130173
+[2025-08-17T12:52:12.242Z] INFO (APP): Se procesează acțiunea pentru cursa: 133944
+[2025-08-17T12:52:11.060Z] INFO (APP): Log-uri șterse cu succes
+[2025-08-17T12:52:11.060Z] INFO (SYSTEM): Logs cleared
