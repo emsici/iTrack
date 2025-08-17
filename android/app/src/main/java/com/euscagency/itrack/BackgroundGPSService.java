@@ -454,11 +454,83 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "   Timestamp: " + timestamp);
             Log.e(TAG, "📤 Full JSON: " + statusData.toString());
             
-            // Call direct HTTP transmission - ACELAȘI ca GPS-ul!
-            callJavaScriptBridge(statusData.toString());
+            // CORECTARE: Transmisie HTTP directă pentru status updates!
+            sendStatusHTTPDirect(statusData.toString());
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Status update preparation error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private void sendStatusHTTPDirect(String statusDataJson) {
+        try {
+            Log.e(TAG, "🔄 === STARTING STATUS HTTP TRANSMISSION ===");
+            Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
+            Log.e(TAG, "📊 Status Data: " + statusDataJson);
+            
+            // Make HTTP request on background thread
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Log.e(TAG, "📡 Status HTTP thread started");
+                        
+                        java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
+                        javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty("Content-Type", "application/json");
+                        conn.setRequestProperty("Authorization", "Bearer " + activeToken);
+                        conn.setRequestProperty("Accept", "application/json");
+                        conn.setRequestProperty("User-Agent", "iTrack-StatusUpdate/1.0");
+                        conn.setDoOutput(true);
+                        conn.setConnectTimeout(15000); // 15 seconds
+                        conn.setReadTimeout(15000);    // 15 seconds
+                        
+                        Log.e(TAG, "🔗 Status connection configured, sending data...");
+                        
+                        // Send JSON data
+                        try (java.io.OutputStream os = conn.getOutputStream()) {
+                            byte[] input = statusDataJson.getBytes("utf-8");
+                            os.write(input, 0, input.length);
+                            Log.e(TAG, "📤 Status data sent: " + input.length + " bytes");
+                        }
+                        
+                        int responseCode = conn.getResponseCode();
+                        String responseMessage = conn.getResponseMessage();
+                        
+                        Log.e(TAG, "📡 === STATUS HTTP RESPONSE ===");
+                        Log.e(TAG, "📊 Response Code: " + responseCode);
+                        Log.e(TAG, "📝 Response Message: " + responseMessage);
+                        
+                        // Read response body for debugging
+                        try {
+                            java.io.InputStream is = (responseCode >= 200 && responseCode < 300) ? 
+                                conn.getInputStream() : conn.getErrorStream();
+                            if (is != null) {
+                                java.util.Scanner scanner = new java.util.Scanner(is).useDelimiter("\\A");
+                                String responseBody = scanner.hasNext() ? scanner.next() : "";
+                                Log.e(TAG, "📄 Status Response Body: " + responseBody);
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "⚠️ Could not read status response body: " + e.getMessage());
+                        }
+                        
+                        if (responseCode >= 200 && responseCode < 300) {
+                            Log.e(TAG, "✅ === STATUS TRANSMISSION SUCCESS ===");
+                        } else {
+                            Log.e(TAG, "❌ === STATUS TRANSMISSION FAILED ===");
+                        }
+                        
+                    } catch (Exception e) {
+                        Log.e(TAG, "❌ Status HTTP error: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Status HTTP bridge call failed: " + e.getMessage());
             e.printStackTrace();
         }
     }
