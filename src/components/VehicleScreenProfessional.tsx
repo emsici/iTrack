@@ -3,6 +3,11 @@ import { Geolocation } from '@capacitor/geolocation';
 
 import { Course } from "../types";
 import { getVehicleCourses, logout } from "../services/api";
+import { getStoredVehicleNumber, storeVehicleNumber } from "../services/storage";
+import { themeService, Theme, THEME_INFO } from "../services/themeService";
+import { useToast } from "../hooks/useToast";
+import { logAPI } from "../services/appLogger";
+
 // Urmărirea curselor active - pentru analytics și gestionare Android GPS
 let activeCourses = new Map<string, Course>();
 
@@ -88,25 +93,21 @@ const logoutClearAllGPS = async () => {
   console.warn('AndroidGPS interface not available - browser mode');
 };
 
-import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
-// BackgroundGPSService handles offline GPS natively - no separate service needed
-import { logAPI, logAPIError } from "../services/appLogger";
+// Importuri suplimentare pentru servicii  
+import { clearToken } from "../services/storage";
+import { logAPIError } from "../services/appLogger";
 import { courseAnalyticsService } from "../services/courseAnalytics";
 
-// Analytics imports removed - unused
+// Importuri componente UI
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
-
-
 import ToastNotification from "./ToastNotification";
-
-import { useToast } from "../hooks/useToast";
-// garanteedGPS eliminat complet - folosim doar BackgroundGPSService
 import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
-import { themeService, Theme, THEME_INFO } from "../services/themeService";
+import SimpleGPSIndicator from "./SimpleGPSIndicator";
+import RouteMapModal from "./RouteMapModal";
 
 // Helper functions for theme support
 const isDarkTheme = (theme: Theme): boolean => {
