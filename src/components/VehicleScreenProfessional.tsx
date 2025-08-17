@@ -28,14 +28,12 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     console.log(`📤 === STRUCTURA IDENTICĂ PENTRU STATUS ${newStatus} ===`);
     console.log(`📤 Sending data:`, JSON.stringify(statusUpdateData, null, 2));
     
-    // CRITICAL FIX: Status 3/4 should go to gps.php, not vehicul.php
+    // CRITICAL FIX: ALL status updates go to gps.php (vehicul.php only for course queries)
     // Use centralized API_BASE_URL from configuration (automatically detects etsm_prod vs etsm3)
-    const endpoint = (newStatus === 3 || newStatus === 4) 
-      ? `${API_BASE_URL}gps.php`
-      : `${API_BASE_URL}vehicul.php`;
+    const endpoint = `${API_BASE_URL}gps.php`;
     
-    console.log(`🎯 ENDPOINT SELECTION: Status ${newStatus} → ${endpoint}`);
-    console.log(`📋 Status 2 → vehicul.php | Status 3,4 → gps.php`);
+    console.log(`🎯 ENDPOINT SELECTION: ALL status updates → gps.php`);
+    console.log(`📋 gps.php = status updates | vehicul.php = course queries only`);
     console.log(`🌐 API Base URL: ${API_BASE_URL} (centralized config)`);
     
     const response = await CapacitorHttp.post({

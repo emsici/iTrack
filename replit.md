@@ -95,8 +95,9 @@ Real Device Data: Implemented dynamic battery level detection and real network t
 - **📊 UIT-SPECIFIC TRANSMISSION**: Each active course transmits GPS data with its unique UIT identifier, ensuring proper server tracking and data association.
 - **🔄 ENHANCED STATUS DEBUGGING**: Added comprehensive logging for status updates (3=PAUSE, 4=STOP) with detailed transmission confirmation and active courses count tracking.
 
-### 2025-08-17: Status Transmission Fix - Unified Data Structure
+### 2025-08-17: Status Transmission Fix - Unified Data Structure & Correct Endpoint
 - **🔧 STATUS TRANSMISSION FIX**: Resolved "Număr lipsă" error for status 3 (PAUSE) and 4 (STOP) by ensuring updateCourseStatus function receives vehicleNumber parameter for all status updates.
 - **📊 UNIFIED DATA STRUCTURE**: All status transmissions (2=ACTIVE, 3=PAUSE, 4=STOP) now use identical data structure with only status number difference: `{"nr":"vehicleNumber","uit":"courseId","status":X,"timestamp":"YYYY-MM-DD HH:mm:ss"}`.
-- **🎯 CONSISTENT API CALLS**: Status updates 3 and 4 now transmit exactly like status 2 to vehicul.php endpoint with proper vehicle number parameter, eliminating server rejection errors.
+- **🎯 CORRECT ENDPOINT USAGE**: ALL status updates (2,3,4) now transmit to gps.php endpoint. vehicul.php is used exclusively for course queries, not status updates.
+- **🌐 CENTRALIZED API CONFIG**: Status updates now use centralized API_BASE_URL configuration that automatically adapts to environment (etsm_prod/etsm3).
 - **🔍 ENHANCED DEBUGGING**: Added comprehensive logging to track vehicleNumber availability and status transmission success for all status types.
