@@ -21,6 +21,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import android.os.HandlerThread;
+import androidx.core.app.NotificationCompat;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.Notification;
 
 /**
  * BACKGROUND GPS SERVICE - Mai eficient pentru transmisia continuă GPS
@@ -75,6 +79,11 @@ public class BackgroundGPSService extends Service {
             activeVehicle = intent.getStringExtra("vehicle");
             
             Log.e(TAG, "Data received - UIT: " + activeUIT + ", Vehicle: " + activeVehicle);
+            
+            // Start foreground notification IMMEDIATELY
+            startForeground(1, createNotification());
+            Log.e(TAG, "Foreground service notification created");
+            
             startBackgroundGPS();
             
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {
@@ -108,27 +117,12 @@ public class BackgroundGPSService extends Service {
         gpsExecutor = Executors.newSingleThreadScheduledExecutor();
         Log.e(TAG, "GPS Executor created, scheduling cycles every " + GPS_INTERVAL_SECONDS + "s");
         
-        // Add a simple test cycle first
-        gpsExecutor.schedule(new Runnable() {
-            @Override
-            public void run() {
-                Log.e(TAG, "TEST: ScheduledExecutorService IS WORKING!");
-            }
-        }, 1, TimeUnit.SECONDS);
-        
         gpsExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                try {
-                    long currentTime = System.currentTimeMillis();
-                    Log.e(TAG, "GPS Cycle executing at: " + currentTime);
-                    performGPSCycle();
-                } catch (Exception e) {
-                    Log.e(TAG, "Cycle error: " + e.getMessage());
-                    e.printStackTrace();
-                }
+                performGPSCycle();
             }
-        }, 3, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
+        }, 2, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
         
         isGPSRunning = true;
         Log.e(TAG, "GPS Service STARTED successfully");
@@ -149,10 +143,8 @@ public class BackgroundGPSService extends Service {
     }
     
     private void performGPSCycle() {
-        Log.e(TAG, "GPS CYCLE START - UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL"));
-        
         if (activeUIT == null || activeToken == null) {
-            Log.e(TAG, "Missing data - UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL"));
+            Log.e(TAG, "GPS cycle skipped - missing data");
             return;
         }
         
@@ -330,6 +322,27 @@ public class BackgroundGPSService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+    
+    private void createNotificationChannel() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID,
+                "GPS Background Service",
+                NotificationManager.IMPORTANCE_LOW
+            );
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
+    }
+    
+    private Notification createNotification() {
+        return new NotificationCompat.Builder(this, CHANNEL_ID)
+            .setContentTitle("iTrack GPS Active")
+            .setContentText("GPS tracking in background")
+            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .build();
     }
     
     @Override
