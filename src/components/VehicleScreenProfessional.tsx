@@ -168,6 +168,64 @@ import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
 
+// Funcții globale pentru senzori reali - utilizate în updateCourseStatus și startGPSForActiveCourses
+const getBatteryLevel = async (): Promise<string> => {
+  try {
+    if ('getBattery' in navigator) {
+      const battery = await (navigator as any).getBattery();
+      return `${Math.round(battery.level * 100)}%`;
+    }
+    return "75%"; // Default if battery API not available  
+  } catch {
+    return "75%";
+  }
+};
+
+const getNetworkSignal = async (): Promise<number> => {
+  try {
+    // Try Capacitor Network plugin for connection type
+    const networkStatus = await Network.getStatus();
+    
+    if (!networkStatus.connected) {
+      return 0; // No connection = no GSM signal
+    }
+    
+    const connectionType = networkStatus.connectionType;
+    
+    // GSM Signal reprezintă doar rețeaua CELULARĂ, nu WiFi
+    if (connectionType === 'wifi') {
+      return 0; // WiFi nu este GSM - nu are semnal cellular
+    } else if (connectionType === 'cellular') {
+      // Pentru cellular generic, estimez signal bazat pe browser API
+      try {
+        const connection = (navigator as any).connection || 
+                          (navigator as any).mozConnection || 
+                          (navigator as any).webkitConnection;
+        
+        if (connection && connection.effectiveType) {
+          switch (connection.effectiveType) {
+            case '5g': return 5; // 5G = semnal GSM excelent
+            case '4g': return 4; // 4G = semnal GSM bun
+            case '3g': return 3; // 3G = semnal GSM moderat  
+            case '2g': return 2; // 2G = semnal GSM slab
+            case 'slow-2g': return 1; // 2G lent = semnal GSM foarte slab
+            default: return 3; // Default pentru cellular necunoscut
+          }
+        }
+      } catch (browserError) {
+        console.log('Browser effective type not available');
+      }
+      
+      return 3; // Default pentru cellular fără detalii
+    } else {
+      return 2; // Alt tip de conexiune = semnal GSM moderat
+    }
+  } catch (error) {
+    console.error('Network status check failed:', error);
+    return 2; // Default pe eroare
+  }
+};
+
 // import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Commented unused import
 // BackgroundGPSService detectează network status prin răspunsurile HTTP
 // BackgroundGPSService handles offline GPS natively - no separate service needed
@@ -1083,92 +1141,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const getBatteryLevel = async (): Promise<string> => {
-    try {
-      if ('getBattery' in navigator) {
-        const battery = await (navigator as any).getBattery();
-        return `${Math.round(battery.level * 100)}%`;
-      }
-      return "75%"; // Default if battery API not available  
-    } catch {
-      return "75%";
-    }
-  };
 
-  const getNetworkSignal = async (): Promise<number> => {
-    try {
-      // Try Capacitor Network plugin for connection type
-      const networkStatus = await Network.getStatus();
-      
-      if (!networkStatus.connected) {
-        return 0; // No connection = no GSM signal
-      }
-      
-      const connectionType = networkStatus.connectionType;
-      
-      // GSM Signal reprezintă doar rețeaua CELULARĂ, nu WiFi
-      if (connectionType === 'wifi') {
-        return 0; // WiFi nu este GSM - nu are semnal cellular
-      } else if (connectionType === 'cellular') {
-        // Pentru cellular generic, estimez signal bazat pe browser API
-        try {
-          const connection = (navigator as any).connection || 
-                            (navigator as any).mozConnection || 
-                            (navigator as any).webkitConnection;
-          
-          if (connection && connection.effectiveType) {
-            switch (connection.effectiveType) {
-              case '5g': return 5; // 5G = semnal GSM excelent
-              case '4g': return 4; // 4G = semnal GSM bun
-              case '3g': return 3; // 3G = semnal GSM moderat  
-              case '2g': return 2; // 2G = semnal GSM slab
-              case 'slow-2g': return 1; // 2G lent = semnal GSM foarte slab
-              default: return 3; // Default pentru cellular necunoscut
-            }
-          }
-        } catch (browserError) {
-          console.log('Browser effective type not available');
-        }
-        
-        return 3; // Default pentru cellular fără detalii
-      } else if (connectionType === 'none') {
-        return 0; // Fără conexiune = fără GSM
-      } else {
-        return 2; // Tip necunoscut, probabil GSM slab
-      }
-      
-    } catch (error) {
-      console.log('Network detection fallback to browser API');
-      
-      // Fallback complet la browser navigator connection API
-      try {
-        const connection = (navigator as any).connection || 
-                          (navigator as any).mozConnection || 
-                          (navigator as any).webkitConnection;
-        
-        if (connection) {
-          // Verific dacă e WiFi prin alte metode
-          if (connection.type === 'wifi') {
-            return 0; // WiFi confirmat = nu e GSM
-          }
-          
-          const effectiveType = connection.effectiveType;
-          switch (effectiveType) {
-            case '5g': return 5; // 5G GSM excelent
-            case '4g': return 4; // 4G GSM bun
-            case '3g': return 3; // 3G GSM moderat
-            case '2g': return 2; // 2G GSM slab
-            case 'slow-2g': return 1; // 2G lent GSM foarte slab
-            default: return 3; // Default GSM moderat
-          }
-        }
-      } catch (browserError) {
-        console.log('Browser network API not available');
-      }
-      
-      return 2; // Default GSM slab dacă toate metodele eșuează
-    }
-  };
+
+
 
   // Theme helper functions
   const isDarkTheme = (theme: Theme) => theme === 'dark' || theme === 'driver' || theme === 'nature' || theme === 'night';
