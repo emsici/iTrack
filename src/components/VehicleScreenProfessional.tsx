@@ -1544,7 +1544,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 : currentTheme === 'business'
                   ? 'linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%)'
                   : currentTheme === 'nature'
-                    ? 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)'
+                    ? 'linear-gradient(135deg, #14532d 0%, #166534 100%)'
                     : currentTheme === 'night'
                       ? 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)'
                       : currentTheme === 'driver'
@@ -1630,7 +1630,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? 'rgba(100, 116, 139, 0.2)'  // Gri pentru business
                         : currentTheme === 'nature'
-                          ? 'rgba(120, 113, 108, 0.2)'  // Maro pentru nature
+                          ? 'rgba(34, 197, 94, 0.15)'  // Verde elegant pentru nature
                           : currentTheme === 'night'
                             ? 'rgba(139, 92, 246, 0.2)'  // Violet pentru night
                             : 'rgba(241, 245, 249, 0.9)',
@@ -1643,7 +1643,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? '1px solid rgba(100, 116, 139, 0.5)'
                         : currentTheme === 'nature'
-                          ? '1px solid rgba(120, 113, 108, 0.5)'
+                          ? '1px solid rgba(34, 197, 94, 0.3)'
                           : currentTheme === 'night'
                             ? '1px solid rgba(139, 92, 246, 0.5)'
                             : '1px solid rgba(148, 163, 184, 0.3)',
@@ -1662,7 +1662,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? '#475569'  
                         : currentTheme === 'nature'
-                          ? '#78716c'  
+                          ? '#dcfce7'  
                           : currentTheme === 'night'
                             ? '#8b5cf6'  
                             : '#334155',
@@ -1683,7 +1683,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? 'rgba(59, 130, 246, 0.2)'  // Albastru pentru business
                         : currentTheme === 'nature'
-                          ? 'rgba(255, 255, 255, 0.2)'  // Alb pentru contrast maxim pe verde
+                          ? 'rgba(22, 163, 74, 0.2)'  // Verde accent pentru nature
                           : currentTheme === 'night'
                             ? 'rgba(168, 85, 247, 0.2)'  // Violet pentru night
                             : 'rgba(16, 185, 129, 0.2)',
@@ -1696,7 +1696,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? '1px solid rgba(59, 130, 246, 0.5)'
                         : currentTheme === 'nature'
-                          ? '1px solid rgba(255, 255, 255, 0.5)'  // Alb border pentru contrast
+                          ? '1px solid rgba(22, 163, 74, 0.4)'
                           : currentTheme === 'night'
                             ? '1px solid rgba(168, 85, 247, 0.5)'
                             : '1px solid rgba(16, 185, 129, 0.5)',
@@ -1715,7 +1715,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? '#1d4ed8'  
                         : currentTheme === 'nature'
-                          ? '#ffffff'  
+                          ? '#f0fdf4'  
                           : currentTheme === 'night'
                             ? '#a855f7'  
                             : '#047857',
@@ -1822,7 +1822,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   background: currentTheme === 'light' || currentTheme === 'business'
                     ? 'rgba(255, 255, 255, 0.9)'
                     : currentTheme === 'nature'
-                      ? 'rgba(6, 78, 59, 0.6)'
+                      ? 'rgba(20, 83, 45, 0.85)'
                       : currentTheme === 'night'
                         ? 'rgba(30, 27, 75, 0.6)'
                         : currentTheme === 'driver'
@@ -1868,7 +1868,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <div style={{
                       height: '100%',
                       background: currentTheme === 'nature'
-                        ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)'
+                        ? 'linear-gradient(90deg, #16a34a 0%, #15803d 100%)'
                         : currentTheme === 'night'
                           ? 'linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%)'
                           : currentTheme === 'driver'
@@ -1932,7 +1932,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     : currentTheme === 'business'
                       ? 'rgba(255, 255, 255, 0.9)' // Business theme - light background
                       : currentTheme === 'nature'
-                        ? 'rgba(6, 78, 59, 0.9)' // Nature theme - dark green background
+                        ? 'rgba(20, 83, 45, 0.9)' // Nature theme - culoare verde profesională
                         : currentTheme === 'night'
                           ? 'rgba(30, 27, 75, 0.9)' // Night theme - dark purple background
                           : currentTheme === 'driver'
