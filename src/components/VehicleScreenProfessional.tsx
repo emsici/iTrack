@@ -169,63 +169,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const toast = useToast();
 
-  // PERFORMANCE OPTIMIZED: Initialize theme and vehicle number with debouncing
+  // SIMPLIFIED: Direct initialization without async complications
   useEffect(() => {
-    let mounted = true;
-    console.log('🚀 VehicleScreen useEffect started - initializing...');
+    // Set default theme immediately
+    setCurrentTheme('dark');
     
-    const initializeApp = async () => {
-      try {
-        console.log('📱 Step 1: Initialize theme...');
-        // Initialize theme with caching
-        const savedTheme = await themeService.initialize();
-        if (mounted) {
-          setCurrentTheme(savedTheme);
-          console.log('✅ Theme initialized:', savedTheme);
-        }
-        
-        console.log('📱 Step 2: Load stored vehicle number...');
-        // ALWAYS load stored vehicle number și cursele asociate
-        const storedVehicle = await getStoredVehicleNumber();
-        if (storedVehicle && mounted) {
-          setVehicleNumber(storedVehicle);
-          console.log('✅ Numărul de vehicul stocat încărcat:', storedVehicle);
-          
-          // AUTO-LOAD courses pentru vehiculul stocat DOAR dacă avem token
-          if (token) {
-            try {
-              console.log('🔄 Auto-loading courses pentru vehicul stocat:', storedVehicle);
-              const response = await getVehicleCourses(storedVehicle, token);
-              if (response && response.length > 0) {
-                setCourses(response);
-                setCoursesLoaded(true);
-                console.log('✅ Cursele vehiculului încărcate automat după revenire:', response.length);
-              } else {
-                console.log('⚠️ Vehiculul stocat nu are curse disponibile');
-              }
-            } catch (error) {
-              console.log('⚠️ Nu s-au putut încărca cursele automat (probabil token expirat):', error);
-            }
-          } else {
-            console.log('⚠️ Nu pot auto-încărca cursele - lipsește token-ul');
-          }
-        } else {
-          console.log('📱 No stored vehicle found - showing input screen');
-        }
-        
-        console.log('✅ VehicleScreen initialization completed successfully');
-      } catch (error) {
-        console.error('❌ Eroare la inițializarea aplicației:', error);
+    // Load stored vehicle number without blocking
+    getStoredVehicleNumber().then((storedVehicle) => {
+      if (storedVehicle) {
+        setVehicleNumber(storedVehicle);
+        // Don't auto-load courses - user should manually search
       }
-    };
+    }).catch(() => {
+      // Ignore errors, just continue with empty vehicle number
+    });
     
-    initializeApp();
-    
-    return () => {
-      mounted = false;
-      console.log('🧹 VehicleScreen cleanup');
-    };
-  }, [token]); // Add token dependency to re-run when token changes
+    // Initialize theme service in background
+    themeService.initialize().then((savedTheme) => {
+      setCurrentTheme(savedTheme);
+    }).catch(() => {
+      // Ignore errors, keep default theme
+    });
+  }, []);
 
   // Separate useEffect for background refresh events + network status
   useEffect(() => {
@@ -957,6 +922,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   // Remove the debug page component - we'll show inline instead
 
+  console.log('VehicleScreen render - coursesLoaded:', coursesLoaded, 'theme:', currentTheme);
+  
   return (
     <div className={`vehicle-screen ${coursesLoaded ? "courses-loaded" : ""} theme-${currentTheme}`} style={{
       paddingTop: coursesLoaded ? 'env(safe-area-inset-top)' : '0'
@@ -964,9 +931,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       {!coursesLoaded ? (
         <div style={{
           minHeight: '100dvh',
-          background: currentTheme === 'dark' 
-            ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)'
-            : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)',
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)',
           backgroundAttachment: 'fixed',
           display: 'flex',
           flexDirection: 'column',
@@ -1013,11 +978,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div style={{
               width: '100%',
               maxWidth: '400px',
-              background: currentTheme === 'dark' 
-                ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)'
-                : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)',
               backdropFilter: 'blur(20px)',
-              border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '24px',
               padding: '40px 30px',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
