@@ -667,9 +667,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         // CRITICĂ: Gestionarea eficientă GPS cu lista curselor active
         if (newStatus === 2) {
-          console.log("🚀 PORNIRE GPS: Status 2 (ACTIV) - adaug cursa la lista activă");
+          console.log("🚀 PORNIRE/RESUME GPS: Status 2 (ACTIV) - adaug cursa la lista activă");
           
-          // Adaugă cursa la lista activă
+          // Verifică dacă este RESUME (cursa era deja în listă) sau START nou
+          const wasAlreadyActive = activeCourses.has(courseToUpdate.uit);
+          if (wasAlreadyActive) {
+            console.log("▶️ RESUME: Cursa era deja în activeCourses - reactivez analytics");
+            await courseAnalyticsService.resumeCourseTracking(courseToUpdate.uit);
+          } else {
+            console.log("🚀 START NOU: Adaug cursă nouă la activeCourses și pornesc analytics");
+            await courseAnalyticsService.startCourseTracking(courseToUpdate.uit, courseToUpdate.uit, vehicleNumber);
+          }
+          
+          // Adaugă cursa la lista activă (sau confirmă că este deja acolo)
           activeCourses.set(courseToUpdate.uit, courseToUpdate);
           console.log(`📋 Curse active: ${activeCourses.size}`);
           
@@ -693,16 +703,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             await startGPSForActiveCourses(vehicleNumber, token);
           }
           
-        } else {
-          console.log(`🔄 SCHIMBARE STATUS: Status ${newStatus} - elimin cursa din lista activă`);
-          console.log("📋 Semnificații status: 2=ACTIV, 3=PAUZA, 4=STOP");
+        } else if (newStatus === 3) {
+          console.log(`⏸️ PAUSE STATUS: Status 3 - cursa rămâne în listă dar inactivă`);
+          console.log("📋 PAUSE: Cursa nu se elimină din activeCourses - doar se pune în pauză");
           
-          // Elimină cursa din lista activă
+          // Pentru PAUSE nu eliminăm cursa din activeCourses
+          // Cursa rămâne în listă pentru a putea fi reluată ușor
+          console.log(`📋 Curse active rămân: ${activeCourses.size} (inclusiv ${courseToUpdate.uit} în pauză)`);
+          
+          // Pause course analytics but don't stop completely
+          await courseAnalyticsService.pauseCourseTracking(courseToUpdate.uit);
+          console.log(`⏸️ Analytics paused pentru UIT: ${courseToUpdate.uit}`);
+          
+        } else if (newStatus === 4) {
+          console.log(`🔄 STOP STATUS: Status 4 - elimin cursa din lista activă`);
+          console.log("📋 STOP: Eliminare completă din activeCourses");
+          
+          // Pentru STOP eliminăm cursa din lista activă
           activeCourses.delete(courseToUpdate.uit);
           console.log(`📋 Curse active rămase: ${activeCourses.size}`);
           
-          // Stop course analytics for this specific course
+          // Stop course analytics completely for this specific course
           await courseAnalyticsService.stopCourseTracking(courseToUpdate.uit);
+          console.log(`🛑 Analytics stopped pentru UIT: ${courseToUpdate.uit}`);
           
           // If no active courses remain, stop GPS transmission entirely  
           if (activeCourses.size === 0) {

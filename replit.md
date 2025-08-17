@@ -61,3 +61,22 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php` (GPS Data Transmission)
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/rezultate.php` (GPS Result Verification)
 - **UI Libraries**: Bootstrap 5.3.6
+
+## Recent Critical Fixes (August 2025)
+
+### **Workflow PAUSE→RESUME→STOP Corrigat**
+- **PROBLEMĂ IDENTIFICATĂ**: PAUSE (status 3) elimina cursa din activeCourses, făcând RESUME imposibil
+- **SOLUȚIE**: PAUSE păstrează cursa în activeCourses, doar STOP (4) elimină definitiv
+- **ANALYTICS**: Adăugat pauseCourseTracking() și resumeCourseTracking() în courseAnalytics.ts
+- **WORKFLOW CORECT**: START→PAUSE→RESUME→STOP funcționează perfect
+
+### **Real Sensor Data Integration Completă**
+- **ELIMINAT**: Toate valorile hardcodate (battery 50%, gsm_signal 4, GPS dummy)
+- **IMPLEMENTAT**: getNetworkSignal() și getLastKnownLocation() în BackgroundGPSService
+- **STATUS UPDATES**: 3/4 includ coordonate GPS reale prin getLastKnownLocation()
+- **NETWORK DETECTION**: WiFi vs Cellular cu signal strength autentic
+
+### **Critical Status Transmission**
+- **Status 3/4**: Trimise direct de BackgroundGPSService cu sendStatusHTTPDirect()
+- **GPS Coordinates**: Status updates includ locația reală, nu mai dummy (0,0)
+- **Server Communication**: Garantat pentru toate statusurile (2,3,4)

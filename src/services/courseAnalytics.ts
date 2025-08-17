@@ -148,6 +148,54 @@ class CourseAnalyticsService {
   }
 
   /**
+   * Pause tracking for a course (for resume later)
+   */
+  async pauseCourseTracking(courseId: string): Promise<CourseStatistics | null> {
+    try {
+      const analytics = await this.getCourseAnalytics(courseId);
+      if (!analytics) {
+        return null;
+      }
+
+      analytics.isActive = false; // Pause analytics but don't finalize
+      analytics.lastUpdateTime = new Date().toISOString();
+
+      await this.saveCourseAnalytics(courseId, analytics);
+      console.log(`⏸️ Paused analytics tracking for course: ${courseId}`);
+      console.log(`📊 Current stats: ${analytics.totalDistance.toFixed(2)}km, ${analytics.drivingTime}min, ${analytics.averageSpeed.toFixed(1)}km/h`);
+      
+      return analytics;
+    } catch (error) {
+      console.error('❌ Error pausing course tracking:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Resume tracking for a paused course
+   */
+  async resumeCourseTracking(courseId: string): Promise<CourseStatistics | null> {
+    try {
+      const analytics = await this.getCourseAnalytics(courseId);
+      if (!analytics) {
+        return null;
+      }
+
+      analytics.isActive = true; // Resume analytics
+      analytics.lastUpdateTime = new Date().toISOString();
+
+      await this.saveCourseAnalytics(courseId, analytics);
+      console.log(`▶️ Resumed analytics tracking for course: ${courseId}`);
+      console.log(`📊 Continuing from: ${analytics.totalDistance.toFixed(2)}km, ${analytics.drivingTime}min`);
+      
+      return analytics;
+    } catch (error) {
+      console.error('❌ Error resuming course tracking:', error);
+      return null;
+    }
+  }
+
+  /**
    * Stop tracking and finalize course statistics
    */
   async stopCourseTracking(courseId: string): Promise<CourseStatistics | null> {
