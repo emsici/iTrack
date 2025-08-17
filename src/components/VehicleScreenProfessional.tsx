@@ -16,18 +16,40 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     console.log(`📋 Status Nou: ${newStatus} (2=ACTIV, 3=PAUZA, 4=STOP)`);
     console.log(`🔑 Lungime Token: ${authToken?.length || 0}`);
     console.log(`🚛 Numărul Vehiculului: ${vehicleNumber}`);
-    console.log(`🎯 IMPORTANT: Toate câmpurile completate ca GPS-ul pentru a primi răspuns 200!`);
+    console.log(`🎯 IMPORTANT: Serverul cere coordonate GPS reale pentru răspuns 200!`);
     
-    // COMPLETĂM TOATE CÂMPURILE ca BackgroundGPSService pentru a primi răspuns 200
+    // Obține coordonate GPS reale pentru status update
+    let currentLat = 0, currentLng = 0, currentAlt = 0, currentAcc = 0, currentSpeed = 0, currentHeading = 0;
+    
+    try {
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 30000
+      });
+      
+      currentLat = position.coords.latitude;
+      currentLng = position.coords.longitude;
+      currentAlt = position.coords.altitude || 0;
+      currentAcc = position.coords.accuracy || 0;
+      currentSpeed = position.coords.speed || 0;
+      currentHeading = position.coords.heading || 0;
+      
+      console.log(`📍 GPS reale obținute pentru status ${newStatus}: ${currentLat}, ${currentLng}`);
+    } catch (gpsError) {
+      console.log(`⚠️ Nu s-au putut obține coordonate GPS pentru status ${newStatus}, folosesc valori default`);
+    }
+    
+    // EXACT ACEEAȘI ORDINE CA BACKGROUNDGPSSERVICE pentru a primi răspuns 200
     const statusUpdateData = {
       uit: courseId,
       numar_inmatriculare: vehicleNumber,
-      lat: 0,  // Pentru status update nu contează, dar serverul poate verifica
-      lng: 0,  
-      viteza: 0,
-      directie: 0,
-      altitudine: 0,
-      hdop: 0,
+      lat: currentLat,
+      lng: currentLng,  
+      viteza: Math.round(currentSpeed * 3.6), // m/s to km/h ca în BackgroundGPSService
+      directie: Math.round(currentHeading),
+      altitudine: Math.round(currentAlt),
+      hdop: Math.round(currentAcc),
       gsm_signal: 4,
       baterie: 50,  // Valoare default
       status: newStatus,
