@@ -143,16 +143,23 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "🔄 === GPS CYCLE START ===");
         Log.e(TAG, "📊 UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL"));
         
+        // Send Android log to JavaScript for debugging
+        sendLogToJavaScript("🔄 Android GPS CYCLE START - UIT: " + activeUIT);
+        
         if (activeUIT == null || activeToken == null) {
             Log.e(TAG, "❌ GPS cycle skipped - missing data (UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL") + ")");
+            sendLogToJavaScript("❌ GPS cycle skipped - missing token or UIT");
             return;
         }
         
         // TEMPORARY: Send test coordinate immediately to verify HTTP works
         Log.e(TAG, "🧪 SENDING TEST COORDINATE (dummy data) pentru verificare HTTP...");
+        sendLogToJavaScript("🧪 Sending dummy data test...");
         sendTestCoordinate();
         
         // Continue with real GPS request after test
+        Log.e(TAG, "🔄 Now requesting REAL GPS coordinates...");
+        sendLogToJavaScript("🔄 Now requesting REAL GPS coordinates...");
         
         // Check permissions
         boolean fineLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
@@ -176,6 +183,8 @@ public class BackgroundGPSService extends Service {
                         Log.e(TAG, "📐 Accuracy: " + location.getAccuracy() + "m");
                         Log.e(TAG, "🕐 Age: " + (System.currentTimeMillis() - location.getTime()) + "ms");
                         Log.e(TAG, "🚀 Provider: " + location.getProvider());
+                        
+                        sendLogToJavaScript("✅ REAL GPS RECEIVED: " + location.getLatitude() + ", " + location.getLongitude() + " (accuracy: " + location.getAccuracy() + "m)");
                         
                         locationManager.removeUpdates(this);
                         transmitGPSData(location);
@@ -213,8 +222,10 @@ public class BackgroundGPSService extends Service {
             
             if (provider != null) {
                 Log.e(TAG, "📡 Using provider: " + provider);
+                sendLogToJavaScript("📡 Using GPS provider: " + provider);
                 locationManager.requestLocationUpdates(provider, 0, 0, listener);
                 Log.e(TAG, "🛰️ GPS request sent to " + provider);
+                sendLogToJavaScript("🛰️ GPS request sent to " + provider);
                 
                 // Get last known location as immediate fallback
                 try {
@@ -363,6 +374,23 @@ public class BackgroundGPSService extends Service {
         } catch (Exception e) {
             Log.e(TAG, "❌ Bridge call failed: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+    
+    private void sendLogToJavaScript(String message) {
+        try {
+            // Send log message to JavaScript console using bridge
+            if (bridge != null) {
+                bridge.getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        bridge.getWebView().evaluateJavascript(
+                            "console.log('[Android GPS]: " + message.replace("'", "\\'") + "');", null);
+                    }
+                });
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to send log to JS: " + e.getMessage());
         }
     }
     
