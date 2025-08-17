@@ -46,30 +46,30 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
       data: statusUpdateData
     });
     
-    console.log(`✅ Server status update successful: ${response.status}`);
-    console.log(`📊 Server response:`, response.data);
-    console.log(`🎯 STATUS ${newStatus} SENT SUCCESSFULLY FOR UIT ${courseId}`);
+    console.log(`✅ Actualizarea statusului pe server cu succes: ${response.status}`);
+    console.log(`📊 Răspuns server:`, response.data);
+    console.log(`🎯 STATUS ${newStatus} TRIMIS CU SUCCES PENTRU UIT ${courseId}`);
     
-    // STEP 2: Update Android GPS service
+    // PASUL 2: Actualizează serviciul GPS Android
     if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
       const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus);
-      console.log(`📱 Android GPS service updated: ${androidResult}`);
+      console.log(`📱 Serviciul GPS Android actualizat: ${androidResult}`);
       return androidResult;
     }
     
-    return `SUCCESS: Status ${newStatus} updated for ${courseId}`;
+    return `SUCCES: Status ${newStatus} actualizat pentru ${courseId}`;
     
   } catch (error) {
-    console.error(`❌ Status update failed for ${courseId}:`, error);
+    console.error(`❌ Actualizarea statusului a eșuat pentru ${courseId}:`, error);
     
-    // Still try Android service even if server fails
+    // Încearcă totuși serviciul Android chiar dacă serverul eșuează
     if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
       const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus);
-      console.log(`📱 Android GPS service updated (offline): ${androidResult}`);
+      console.log(`📱 Serviciul GPS Android actualizat (offline): ${androidResult}`);
       return androidResult;
     }
     
-    console.warn('AndroidGPS interface not available - browser mode');
+    console.warn('Interfața AndroidGPS nu este disponibilă - mod browser');
     throw error;
   }
 };
@@ -654,24 +654,27 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
         }
         
-        // Always call updateCourseStatus for status synchronization with server AND Android service
-        console.log(`🔄 === SENDING STATUS UPDATE TO SERVER ===`);
-        console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus}, Token Available: ${!!token}`);
-        console.log(`🚛 VehicleNumber pentru status update: "${vehicleNumber}" (length: ${vehicleNumber?.length || 0})`);
+        // CRITICAL FIX: Always call updateCourseStatus for ALL status changes (2, 3, 4)
+        console.log(`🔄 === TRIMITERE ACTUALIZARE STATUS LA SERVER ===`);
+        console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus} (2=ACTIV, 3=PAUZA, 4=STOP)`);
+        console.log(`🚛 Numărul vehiculului pentru actualizare status: "${vehicleNumber}" (lungime: ${vehicleNumber?.length || 0})`);
+        console.log(`🎯 IMPORTANT: Status ${newStatus} va fi trimis la gps.php cu structura identică`);
         
         if (!vehicleNumber || vehicleNumber.trim() === '') {
           console.error(`❌ EROARE CRITICĂ: vehicleNumber este gol pentru status ${newStatus}!`);
           console.error(`📋 vehicleNumber value:`, vehicleNumber);
-          throw new Error(`Vehicle number is missing for status update ${newStatus}`);
+          throw new Error(`Numărul vehiculului lipsește pentru actualizarea status ${newStatus}`);
         }
         
+        // Send status update to server (WORKS FOR ALL: 2=ACTIVE, 3=PAUSE, 4=STOP)
         await updateCourseStatus(courseToUpdate.uit, newStatus, token, vehicleNumber);
+        console.log(`✅ Status ${newStatus} trimis cu succes la server pentru UIT ${courseToUpdate.uit}`);
         
-        // Update Android GPS service status
+        // Actualizează statusul serviciului GPS Android
         if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-          console.log(`📱 Updating Android GPS service status to ${newStatus}`);
+          console.log(`📱 Actualizez statusul serviciului GPS Android la ${newStatus}`);
           const androidResult = window.AndroidGPS.updateStatus(courseToUpdate.uit, newStatus);
-          console.log(`✅ Android GPS status updated: ${androidResult}`);
+          console.log(`✅ Statusul GPS Android actualizat: ${androidResult}`);
         }
         
         console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);

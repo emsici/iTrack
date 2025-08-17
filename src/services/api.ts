@@ -12,10 +12,10 @@ export const API_CONFIG = {
   PROD: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/",
 };
 
-// Current active environment - SWITCHED TO PROD (etsm_prod) - conform solicitării utilizatorului
+// Mediul activ curent - COMMUTAT PE PROD (etsm_prod) - conform solicitării utilizatorului
 export const API_BASE_URL = API_CONFIG.PROD; // Trecut pe PRODUCȚIE
 
-// Single request management to prevent conflicts
+// Gestionarea cererii unice pentru a preveni conflictele
 let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null =
   null;
 let requestInProgress = false;
@@ -48,10 +48,10 @@ export const login = async (
   password: string,
 ): Promise<LoginResponse> => {
   try {
-    console.log("Direct CapacitorHttp login for:", email);
-    logAPI(`Direct CapacitorHttp login attempt for ${email}`);
+    console.log("Login direct CapacitorHttp pentru:", email);
+    logAPI(`Încercare login direct CapacitorHttp pentru ${email}`);
 
-    // ANDROID ONLY: Direct CapacitorHttp - no fallbacks needed
+    // DOAR ANDROID: CapacitorHttp direct - nu sunt necesare fallback-uri
     const response = await CapacitorHttp.post({
       url: `${API_BASE_URL}login.php`,
       headers: {
