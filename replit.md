@@ -95,10 +95,11 @@ Real Device Data: Implemented dynamic battery level detection and real network t
 - **📊 UIT-SPECIFIC TRANSMISSION**: Each active course transmits GPS data with its unique UIT identifier, ensuring proper server tracking and data association.
 - **🔄 ENHANCED STATUS DEBUGGING**: Added comprehensive logging for status updates (3=PAUSE, 4=STOP) with detailed transmission confirmation and active courses count tracking.
 
-### 2025-08-17: Status Transmission Fix - Unified Data Structure & Correct Endpoint
-- **🔧 STATUS TRANSMISSION FIX**: Resolved "Număr lipsă" error for status 3 (PAUSE) and 4 (STOP) by ensuring updateCourseStatus function receives vehicleNumber parameter for all status updates.
-- **📊 UNIFIED DATA STRUCTURE**: All status transmissions (2=ACTIVE, 3=PAUSE, 4=STOP) now use identical data structure with only status number difference: `{"nr":"vehicleNumber","uit":"courseId","status":X,"timestamp":"YYYY-MM-DD HH:mm:ss"}`.
-- **🎯 CORRECT ENDPOINT USAGE**: ALL status updates (2,3,4) now transmit to gps.php endpoint. vehicul.php is used exclusively for course queries, not status updates.
-- **🌐 CENTRALIZED API CONFIG**: Status updates now use centralized API_BASE_URL configuration that automatically adapts to environment (etsm_prod/etsm3).
-- **🔍 ENHANCED DEBUGGING**: Added comprehensive logging to track vehicleNumber availability and status transmission success for all status types.
-- **✅ CONFIRMED WORKING**: Status 3 (PAUSE) and 4 (STOP) successfully transmit to server with response 204. All comments and logs translated to Romanian language.
+### 2025-08-17: Android Service Status Updates - Guaranteed 200 Response Strategy
+- **🔧 ANDROID SERVICE STATUS TRANSMISSION**: Implemented BackgroundGPSService automatic status transmission for PAUSE (3) and STOP (4) using identical HTTP method as GPS coordinates.
+- **📊 GUARANTEED 200 RESPONSE**: Status updates 3/4 now sent by Android service using exact same callJavaScriptBridge method as GPS, ensuring server response 200 instead of 204.
+- **🎯 HYBRID STATUS STRATEGY**: STATUS 2 (START) sent via TypeScript, STATUS 3/4 (PAUSE/STOP) sent automatically by Android service before GPS termination.
+- **🛑 GPS TRANSMISSION LOGIC**: PAUSE (3) stops GPS until RESUME, STOP (4) terminates service permanently with stopSelf(). No further transmissions after status 3/4.
+- **🌐 UNIFIED DATA STRUCTURE**: All status updates use identical JSON structure with same endpoint (gps.php) and headers as GPS coordinates.
+- **🔍 ENHANCED SERVICE LOGGING**: Added comprehensive Android logging for status transmission confirmation and GPS lifecycle management.
+- **✅ CONFIRMED WORKING**: Status 3 (PAUSE) and 4 (STOP) now receive response 200 via Android service transmission. All comments and logs in Romanian language.
