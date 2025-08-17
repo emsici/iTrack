@@ -95,6 +95,7 @@ import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../servi
 // BackgroundGPSService handles offline GPS natively - no separate service needed
 import { logAPI, logAPIError } from "../services/appLogger";
 import { CapacitorHttp } from '@capacitor/core';
+import { Network } from '@capacitor/network';
 // Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
@@ -822,7 +823,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         directie: Math.round(heading || 0),
         altitudine: Math.round(altitude || 0),
         hdop: Math.round(accuracy || 0),
-        gsm_signal: 4,
+        gsm_signal: await getNetworkSignal(),
         baterie: await getBatteryLevel(),
         status: 2, // ACTIVE
         timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
@@ -858,6 +859,58 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       return 85; // Default if battery API not available
     } catch {
       return 85;
+    }
+  };
+
+  const getNetworkSignal = async (): Promise<number> => {
+    try {
+      // Try Capacitor Network plugin for connection type
+      const networkStatus = await Network.getStatus();
+      
+      // Map connection types to signal strength (1-5 scale)
+      if (!networkStatus.connected) {
+        return 0; // No connection
+      }
+      
+      switch (networkStatus.connectionType) {
+        case 'wifi':
+          return 5; // WiFi usually has strong signal
+        case '4g':
+        case 'lte':
+          return 4; // 4G/LTE good signal
+        case '3g':
+          return 3; // 3G moderate signal
+        case '2g':
+          return 2; // 2G weak signal
+        case 'cellular':
+          return 3; // Generic cellular, assume moderate
+        default:
+          return 4; // Unknown but connected, assume good
+      }
+    } catch (error) {
+      console.log('Network detection fallback to browser API');
+      
+      // Fallback to browser navigator connection API
+      try {
+        const connection = (navigator as any).connection || 
+                          (navigator as any).mozConnection || 
+                          (navigator as any).webkitConnection;
+        
+        if (connection) {
+          const effectiveType = connection.effectiveType;
+          switch (effectiveType) {
+            case '4g': return 4;
+            case '3g': return 3;
+            case '2g': return 2;
+            case 'slow-2g': return 1;
+            default: return 4;
+          }
+        }
+      } catch (browserError) {
+        console.log('Browser network API not available');
+      }
+      
+      return 4; // Default signal if all methods fail
     }
   };
 
