@@ -66,6 +66,24 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 
 ## Recent Critical Fixes (August 2025)
 
+### **MULTI-VEHICLE MULTI-UIT SUPPORT (August 17, 2025)**
+
+**FUNCȚIONALITATE COMPLETĂ MULTI-VEHICUL:**
+- Eliminat `activeVehicle` global și înlocuit cu `Map<String, String> courseVehicles`
+- Fiecare UIT își păstrează propriul vehicul independent
+- Suport pentru scenario complex: multiple vehicule cu multiple curse simultan
+- GPS transmis corect pentru fiecare UIT cu vehiculul său specific
+- Switching între vehicule păstrează cursele active pentru toate vehiculele
+- Transmisie continuă pentru toate vehiculele active chiar și cu telefonul blocat
+
+**SCENARIO VALIDAT:**
+- CT-39-ECC cu 3 curse (1 pauzată, 2 active)
+- CT-20-RTA cu 4 curse (toate active)
+- GPS transmis simultan pentru ambele vehicule la fiecare 10 secunde
+- Cursele rămân active la schimbarea vehiculului în dropdown
+
+## Recent Critical Fixes (August 2025)
+
 ### **VERIFICARE COMPLETĂ APLICAȚIE MULTI-COURSE (August 17, 2025)**
 
 #### **Componente Verificate Exhaustiv:**
