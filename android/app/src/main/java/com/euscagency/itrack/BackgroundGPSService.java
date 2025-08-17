@@ -96,12 +96,13 @@ public class BackgroundGPSService extends Service {
             
         } else if (intent != null && "UPDATE_COURSE_STATUS".equals(intent.getAction())) {
             int newStatus = intent.getIntExtra("status", 0);
-            Log.e(TAG, "Updating course status: " + courseStatus + " → " + newStatus);
+            String specificUIT = intent.getStringExtra("uit"); // CORECTARE: Primește UIT-ul specificat!
+            Log.e(TAG, "Updating course status: " + courseStatus + " → " + newStatus + " pentru UIT: " + specificUIT);
             
             // TRIMITE STATUS UPDATE LA SERVER ÎNAINTE DE SCHIMBARE (pentru 3=PAUSE, 4=STOP)
             if (newStatus == 3 || newStatus == 4) {
-                Log.e(TAG, "🔄 Trimit status " + newStatus + " la server din serviciul Android");
-                sendStatusUpdateToServer(newStatus);
+                Log.e(TAG, "🔄 Trimit status " + newStatus + " la server pentru UIT " + specificUIT);
+                sendStatusUpdateToServer(newStatus, specificUIT); // CORECTARE: Trimite UIT-ul specificat!
             }
             
             courseStatus = newStatus;
@@ -421,13 +422,13 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    private void sendStatusUpdateToServer(int newStatus) {
+    private void sendStatusUpdateToServer(int newStatus, String specificUIT) {
         try {
             Log.e(TAG, "📤 === PREPARING STATUS UPDATE FROM ANDROID SERVICE ===");
             
             // Create status update JSON cu exact aceeași structură ca GPS
             org.json.JSONObject statusData = new org.json.JSONObject();
-            statusData.put("uit", activeUIT);
+            statusData.put("uit", specificUIT); // CORECTARE: Folosește UIT-ul specificat!
             statusData.put("numar_inmatriculare", activeVehicle);
             statusData.put("lat", 0);  // Nu contează pentru status update
             statusData.put("lng", 0);
@@ -447,7 +448,7 @@ public class BackgroundGPSService extends Service {
             statusData.put("timestamp", timestamp);
             
             Log.e(TAG, "📊 Status Data prepared for status " + newStatus + ":");
-            Log.e(TAG, "   UIT: " + activeUIT);
+            Log.e(TAG, "   UIT: " + specificUIT); // CORECTARE: Log UIT-ul specificat!
             Log.e(TAG, "   Vehicle: " + activeVehicle);
             Log.e(TAG, "   Status: " + newStatus);
             Log.e(TAG, "   Timestamp: " + timestamp);

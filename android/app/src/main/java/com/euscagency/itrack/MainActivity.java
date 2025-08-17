@@ -213,6 +213,7 @@ public class MainActivity extends BridgeActivity {
             Intent intent = new Intent(this, BackgroundGPSService.class);
             intent.setAction("UPDATE_COURSE_STATUS");
             intent.putExtra("status", newStatus);
+            intent.putExtra("uit", courseId); // CORECTARE: Trimite UIT-ul specificat!
             
             startService(intent);
             Log.e(TAG, "✅ Status update sent to BackgroundGPSService: " + newStatus);
