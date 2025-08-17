@@ -51,7 +51,7 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
       altitudine: Math.round(currentAlt),
       hdop: Math.round(currentAcc),
       gsm_signal: 4,
-      baterie: 50,  // Valoare default
+      baterie: await getBatteryLevel(),  // Baterie reală din device
       status: newStatus,
       timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
     };
@@ -1058,9 +1058,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         const battery = await (navigator as any).getBattery();
         return Math.round(battery.level * 100);
       }
-      return 85; // Default if battery API not available
+      return 75; // Default if battery API not available  
     } catch {
-      return 85;
+      return 75;
     }
   };
 
