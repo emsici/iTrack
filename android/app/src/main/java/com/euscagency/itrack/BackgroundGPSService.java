@@ -21,9 +21,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import android.os.HandlerThread;
-import androidx.core.app.NotificationCompat;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.Notification;
 
 /**
