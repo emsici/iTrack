@@ -140,14 +140,22 @@ public class BackgroundGPSService extends Service {
     }
     
     private void performGPSCycle() {
+        Log.e(TAG, "🔄 === GPS CYCLE START ===");
+        Log.e(TAG, "📊 UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL"));
+        
         if (activeUIT == null || activeToken == null) {
-            Log.e(TAG, "GPS cycle skipped - missing data");
+            Log.e(TAG, "❌ GPS cycle skipped - missing data (UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL") + ")");
             return;
         }
         
         // Check permissions
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG, "❌ No GPS permission");
+        boolean fineLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean coarseLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        
+        Log.e(TAG, "📍 Permissions - Fine: " + fineLocationPermission + ", Coarse: " + coarseLocationPermission);
+        
+        if (!fineLocationPermission && !coarseLocationPermission) {
+            Log.e(TAG, "❌ No GPS permission - stopping cycle");
             return;
         }
         
@@ -157,28 +165,63 @@ public class BackgroundGPSService extends Service {
                 @Override
                 public void onLocationChanged(Location location) {
                     try {
-                        Log.e(TAG, "✅ GPS: " + location.getLatitude() + ", " + location.getLongitude());
+                        Log.e(TAG, "✅ === GPS LOCATION RECEIVED ===");
+                        Log.e(TAG, "📍 Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
+                        Log.e(TAG, "📐 Accuracy: " + location.getAccuracy() + "m");
+                        Log.e(TAG, "🕐 Age: " + (System.currentTimeMillis() - location.getTime()) + "ms");
+                        Log.e(TAG, "🚀 Provider: " + location.getProvider());
+                        
                         locationManager.removeUpdates(this);
                         transmitGPSData(location);
                     } catch (Exception e) {
-                        Log.e(TAG, "❌ Location error: " + e.getMessage());
+                        Log.e(TAG, "❌ Location processing error: " + e.getMessage());
+                        e.printStackTrace();
                     }
                 }
                 
                 @Override
-                public void onProviderEnabled(String provider) {}
+                public void onProviderEnabled(String provider) {
+                    Log.e(TAG, "🟢 Provider enabled: " + provider);
+                }
                 
                 @Override
-                public void onProviderDisabled(String provider) {}
+                public void onProviderDisabled(String provider) {
+                    Log.e(TAG, "🔴 Provider disabled: " + provider);
+                }
                 
                 @Override
-                public void onStatusChanged(String provider, int status, android.os.Bundle extras) {}
+                public void onStatusChanged(String provider, int status, android.os.Bundle extras) {
+                    Log.e(TAG, "🔄 Provider status change: " + provider + " status: " + status);
+                }
             };
             
-            // Direct GPS request - simplified
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, listener);
-                Log.e(TAG, "🛰️ GPS request sent");
+            // Check GPS provider status
+            boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            
+            Log.e(TAG, "🛰️ GPS Enabled: " + gpsEnabled + ", Network Enabled: " + networkEnabled);
+            
+            // Try GPS first, then network as fallback
+            String provider = gpsEnabled ? LocationManager.GPS_PROVIDER : 
+                            (networkEnabled ? LocationManager.NETWORK_PROVIDER : null);
+            
+            if (provider != null) {
+                Log.e(TAG, "📡 Using provider: " + provider);
+                locationManager.requestLocationUpdates(provider, 0, 0, listener);
+                Log.e(TAG, "🛰️ GPS request sent to " + provider);
+                
+                // Get last known location as immediate fallback
+                try {
+                    Location lastKnown = locationManager.getLastKnownLocation(provider);
+                    if (lastKnown != null) {
+                        Log.e(TAG, "📍 Last known location available: " + lastKnown.getLatitude() + ", " + lastKnown.getLongitude());
+                        // Dar totuși așteaptă locația proaspătă
+                    } else {
+                        Log.e(TAG, "📍 No last known location");
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ Last known location error: " + e.getMessage());
+                }
                 
                 // Simple timeout without handler complications
                 new Thread(new Runnable() {
@@ -187,12 +230,14 @@ public class BackgroundGPSService extends Service {
                         try {
                             Thread.sleep(8000);
                             locationManager.removeUpdates(listener);
-                            Log.e(TAG, "⏰ GPS timeout");
-                        } catch (Exception e) {}
+                            Log.e(TAG, "⏰ GPS timeout after 8 seconds");
+                        } catch (Exception e) {
+                            Log.e(TAG, "❌ Timeout error: " + e.getMessage());
+                        }
                     }
                 }).start();
             } else {
-                Log.e(TAG, "❌ GPS disabled");
+                Log.e(TAG, "❌ No location providers available - GPS and Network both disabled");
             }
             
         } catch (Exception e) {
@@ -203,6 +248,8 @@ public class BackgroundGPSService extends Service {
     
     private void transmitGPSData(Location location) {
         try {
+            Log.e(TAG, "📤 === PREPARING GPS TRANSMISSION ===");
+            
             // Create GPS data JSON
             org.json.JSONObject gpsData = new org.json.JSONObject();
             gpsData.put("uit", activeUIT);
@@ -224,46 +271,80 @@ public class BackgroundGPSService extends Service {
             String timestamp = sdf.format(new java.util.Date());
             gpsData.put("timestamp", timestamp);
             
-            Log.e(TAG, "📤 Transmitting: " + gpsData.toString());
+            Log.e(TAG, "📊 GPS Data prepared:");
+            Log.e(TAG, "   UIT: " + activeUIT);
+            Log.e(TAG, "   Vehicle: " + activeVehicle);
+            Log.e(TAG, "   Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
+            Log.e(TAG, "   Battery: " + getBatteryLevel());
+            Log.e(TAG, "   Timestamp: " + timestamp);
+            Log.e(TAG, "📤 Full JSON: " + gpsData.toString());
             
             // Call direct HTTP transmission
             callJavaScriptBridge(gpsData.toString());
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ GPS transmission error: " + e.getMessage());
+            Log.e(TAG, "❌ GPS transmission preparation error: " + e.getMessage());
             e.printStackTrace();
         }
     }
     
     private void callJavaScriptBridge(String gpsDataJson) {
         try {
-            Log.e(TAG, "🌐 HTTP Request start");
+            Log.e(TAG, "🌐 === STARTING HTTP TRANSMISSION ===");
+            Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
+            Log.e(TAG, "🔑 Token length: " + (activeToken != null ? activeToken.length() : "NULL"));
             
             // Make HTTP request on background thread
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
+                        Log.e(TAG, "📡 HTTP thread started");
+                        
                         java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
                         javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");
                         conn.setRequestProperty("Content-Type", "application/json");
                         conn.setRequestProperty("Authorization", "Bearer " + activeToken);
+                        conn.setRequestProperty("Accept", "application/json");
+                        conn.setRequestProperty("User-Agent", "iTrack-BackgroundGPS/1.0");
                         conn.setDoOutput(true);
+                        conn.setConnectTimeout(15000); // 15 seconds
+                        conn.setReadTimeout(15000);    // 15 seconds
+                        
+                        Log.e(TAG, "🔗 Connection configured, sending data...");
                         
                         // Send JSON data
                         try (java.io.OutputStream os = conn.getOutputStream()) {
                             byte[] input = gpsDataJson.getBytes("utf-8");
                             os.write(input, 0, input.length);
+                            Log.e(TAG, "📤 Data sent: " + input.length + " bytes");
                         }
                         
                         int responseCode = conn.getResponseCode();
-                        Log.e(TAG, "📡 Response: " + responseCode);
+                        String responseMessage = conn.getResponseMessage();
                         
-                        if (responseCode == 200) {
-                            Log.e(TAG, "✅ GPS OK");
+                        Log.e(TAG, "📡 === HTTP RESPONSE ===");
+                        Log.e(TAG, "📊 Response Code: " + responseCode);
+                        Log.e(TAG, "📝 Response Message: " + responseMessage);
+                        
+                        // Read response body for debugging
+                        try {
+                            java.io.InputStream is = (responseCode >= 200 && responseCode < 300) ? 
+                                conn.getInputStream() : conn.getErrorStream();
+                            if (is != null) {
+                                java.util.Scanner scanner = new java.util.Scanner(is).useDelimiter("\\A");
+                                String responseBody = scanner.hasNext() ? scanner.next() : "";
+                                Log.e(TAG, "📄 Response Body: " + responseBody);
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "⚠️ Could not read response body: " + e.getMessage());
+                        }
+                        
+                        if (responseCode >= 200 && responseCode < 300) {
+                            Log.e(TAG, "✅ === GPS TRANSMISSION SUCCESS ===");
                         } else {
-                            Log.e(TAG, "❌ GPS Failed: " + responseCode);
+                            Log.e(TAG, "❌ === GPS TRANSMISSION FAILED ===");
                         }
                         
                     } catch (Exception e) {

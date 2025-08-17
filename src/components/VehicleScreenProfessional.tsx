@@ -500,14 +500,40 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       // Solicită permisiuni GPS mai întâi dacă se pornește cursa
       if (newStatus === 2) {
-        console.log('🔍 Se solicită permisiuni GPS pentru pornirea cursei...');
+        console.log('🔍 === VERIFICARE PERMISIUNI GPS ===');
         try {
-          await Geolocation.requestPermissions();
-          console.log('✅ Permisiuni GPS acordate');
+          // Verifică permisiunile curente
+          const permissions = await Geolocation.checkPermissions();
+          console.log('📋 Permisiuni GPS actuale:', permissions);
+          
+          if (permissions.location !== 'granted') {
+            console.log('🔐 Solicit permisiuni GPS standard...');
+            const requestResult = await Geolocation.requestPermissions();
+            console.log('📝 Rezultat cerere permisiuni standard:', requestResult);
+            
+            if (requestResult.location !== 'granted') {
+              console.log('❌ Permisiuni GPS standard refuzate');
+              toast.error('Permisiuni GPS necesare', 'Acordați permisiuni de localizare pentru urmărirea GPS.', 5000);
+              return; // Stop aici dacă nu avem permisiuni
+            }
+          }
+          
+          // Verifică și solicită permisiuni background location (Android)
+          if (permissions.coarseLocation !== 'granted') {
+            console.log('🔐 Solicit permisiuni GPS background (coarse)...');
+            try {
+              const backgroundRequest = await Geolocation.requestPermissions();
+              console.log('📝 Rezultat permisiuni background:', backgroundRequest);
+            } catch (bgError) {
+              console.log('⚠️ Permisiuni background nu au fost acordate:', bgError);
+              console.log('📱 GPS va funcționa în foreground, background va fi gestionat de serviciul Android');
+            }
+          }
+          
+          console.log('✅ Permisiuni GPS verificate și acordate');
         } catch (permError) {
-          console.log('⚠️ Permisiuni GPS nu acordate imediat:', permError);
-          console.log('📱 Mediu APK: Permisiunile vor fi solicitate de serviciul Android');
-          console.log('✅ Se continuă pornirea cursei - serviciul GPS va gestiona permisiunile');
+          console.log('⚠️ Eroare verificare permisiuni GPS:', permError);
+          console.log('📱 Continuez - serviciul Android va gestiona permisiunile');
         }
       }
 
