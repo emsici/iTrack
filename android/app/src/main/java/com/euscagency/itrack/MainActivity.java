@@ -83,7 +83,7 @@ public class MainActivity extends BridgeActivity {
                     
                     // CRITICAL: Test and report if interface is working
                     webView.evaluateJavascript(
-                        "const isAvailable = (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function');" +
+                        "const isAvailable = (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function' && typeof window.AndroidGPS.sendStatusUpdate === 'function');" +
                         "window.androidGPSVerified = isAvailable;",
                         null
                     );
@@ -110,7 +110,7 @@ public class MainActivity extends BridgeActivity {
             WebView webView = getBridge().getWebView();
             if (webView != null) {
                 webView.evaluateJavascript(
-                    "window.androidGPSVerified = (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function');",
+                    "window.androidGPSVerified = (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function' && typeof window.AndroidGPS.sendStatusUpdate === 'function');",
                     null
                 );
             }
@@ -223,6 +223,35 @@ public class MainActivity extends BridgeActivity {
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error updating NATIVE GPS status: " + e.getMessage());
+            return "ERROR: " + e.getMessage();
+        }
+    }
+
+    @JavascriptInterface
+    public String sendStatusUpdate(String courseId, int newStatus, String authToken, String vehicleNumber) {
+        Log.e(TAG, "📤 === STATUS UPDATE === AndroidGPS.sendStatusUpdate called");
+        Log.e(TAG, "📊 UIT: " + courseId + ", Status: " + newStatus + ", Vehicle: " + vehicleNumber);
+        Log.e(TAG, "🔑 Token length: " + (authToken != null ? authToken.length() : "NULL"));
+        
+        try {
+            // Trimite status update direct prin BackgroundGPSService cu date reale
+            Intent intent = new Intent(this, BackgroundGPSService.class);
+            intent.setAction("SEND_STATUS_UPDATE");
+            intent.putExtra("uit", courseId);
+            intent.putExtra("status", newStatus);
+            intent.putExtra("token", authToken);
+            intent.putExtra("vehicle", vehicleNumber);
+            
+            Log.e(TAG, "📱 Trimit status update prin BackgroundGPSService cu DATE REALE");
+            Log.e(TAG, "🎯 Android are acces la: GPS nativ, baterie reală, signal strength autentic");
+            
+            startService(intent);
+            Log.e(TAG, "✅ Status update trimis cu succes prin BackgroundGPSService");
+            
+            return "SUCCESS: Status " + newStatus + " update sent with real sensor data for " + courseId;
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error sending status update: " + e.getMessage());
+            e.printStackTrace();
             return "ERROR: " + e.getMessage();
         }
     }

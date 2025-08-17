@@ -15,94 +15,35 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     console.log(`📋 Status Nou: ${newStatus} (2=ACTIV, 3=PAUZA, 4=STOP)`);
     console.log(`🔑 Lungime Token: ${authToken?.length || 0}`);
     console.log(`🚛 Numărul Vehiculului: ${vehicleNumber}`);
-    console.log(`🎯 IMPORTANT: Serverul cere coordonate GPS reale pentru răspuns 200!`);
     
-    // Obține coordonate GPS reale pentru status update
-    let currentLat = 0, currentLng = 0, currentAlt = 0, currentAcc = 0, currentSpeed = 0, currentHeading = 0;
-    
-    try {
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 30000
-      });
+    // PRIORITATE: Android BackgroundGPSService cu DATE REALE (GPS + senzori nativi)
+    // Android are acces direct la senzori hardware pentru date autentice
+    if (window.AndroidGPS && window.AndroidGPS.sendStatusUpdate) {
+      console.log("📱 Trimit status update direct prin Android cu DATE REALE (GPS + senzori nativi)");
+      console.log("🎯 Android are acces direct la: baterie reală, GPS nativ, signal strength autentic");
       
-      currentLat = position.coords.latitude;
-      currentLng = position.coords.longitude;
-      currentAlt = position.coords.altitude || 0;
-      currentAcc = position.coords.accuracy || 0;
-      currentSpeed = position.coords.speed || 0;
-      currentHeading = position.coords.heading || 0;
-      
-      console.log(`📍 GPS reale obținute pentru status ${newStatus}: ${currentLat}, ${currentLng}`);
-    } catch (gpsError) {
-      console.log(`⚠️ Nu s-au putut obține coordonate GPS pentru status ${newStatus}, folosesc valori default`);
+      try {
+        const androidResponse = await window.AndroidGPS.sendStatusUpdate(courseId, newStatus, authToken, vehicleNumber);
+        console.log(`✅ Status ${newStatus} trimis cu succes prin Android cu date reale:`, androidResponse);
+        
+        // PASUL 2: Actualizează serviciul GPS Android
+        if (window.AndroidGPS.updateStatus) {
+          const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus);
+          console.log(`📱 Serviciul GPS Android actualizat: ${androidResult}`);
+        }
+        
+        return androidResponse;
+      } catch (androidError) {
+        console.error(`❌ Eroare trimitere status prin Android:`, androidError);
+        throw androidError; // Nu fallback la JavaScript cu dummy data
+      }
+    } else {
+      console.error("❌ Android GPS interface nu este disponibilă - APK necesar pentru funcționalitate completă");
+      throw new Error("Android GPS interface necesar pentru status updates cu date reale");
     }
-    
-    // EXACT ACEEAȘI ORDINE CA BACKGROUNDGPSSERVICE pentru a primi răspuns 200
-    const statusUpdateData = {
-      uit: courseId,
-      numar_inmatriculare: vehicleNumber,
-      lat: currentLat,
-      lng: currentLng,  
-      viteza: Math.round(currentSpeed * 3.6), // m/s to km/h ca în BackgroundGPSService
-      directie: Math.round(currentHeading),
-      altitudine: Math.round(currentAlt),
-      hdop: Math.round(currentAcc),
-      gsm_signal: 4, // Android BackgroundGPSService gestionează valorile reale
-      baterie: "100%", // Android BackgroundGPSService gestionează valorile reale
-      status: newStatus,
-      timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
-    };
-    
-    console.log(`📤 === STRUCTURA COMPLETĂ CA GPS PENTRU STATUS ${newStatus} ===`);
-    console.log(`📤 Toate câmpurile completate ca BackgroundGPSService + headers identice pentru răspuns 200:`, JSON.stringify(statusUpdateData, null, 2));
-    
-    // CORECTARE CRITICĂ: TOATE actualizările de status merg la gps.php (vehicul.php doar pentru interogări curse)
-    // Folosește API_BASE_URL centralizat din configurație (detectează automat etsm_prod vs etsm3)
-    const endpoint = `${API_BASE_URL}gps.php`;
-    
-    console.log(`🎯 SELECTARE ENDPOINT: TOATE actualizările de status → gps.php`);
-    console.log(`📋 gps.php = actualizări status | vehicul.php = doar interogări curse`);
-    console.log(`🌐 URL API de bază: ${API_BASE_URL} (configurație centralizată)`);
-    
-    const response = await CapacitorHttp.post({
-      url: endpoint,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${authToken}`,
-        "Accept": "application/json",
-        "User-Agent": "iTrack-StatusUpdate/1.0"
-      },
-      data: statusUpdateData
-    });
-    
-    console.log(`✅ Actualizarea statusului pe server cu succes: ${response.status}`);
-    console.log(`📊 Răspuns server complet:`, response.data);
-    console.log(`📋 Tip răspuns pentru STATUS ${newStatus}:`, typeof response.data);
-    console.log(`📊 Response headers:`, response.headers);
-    console.log(`🎯 STATUS ${newStatus} TRIMIS CU SUCCES PENTRU UIT ${courseId}`);
-    
-    // PASUL 2: Actualizează serviciul GPS Android
-    if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-      const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus);
-      console.log(`📱 Serviciul GPS Android actualizat: ${androidResult}`);
-      return androidResult;
-    }
-    
-    return `SUCCES: Status ${newStatus} actualizat pentru ${courseId}`;
     
   } catch (error) {
     console.error(`❌ Actualizarea statusului a eșuat pentru ${courseId}:`, error);
-    
-    // Încearcă totuși serviciul Android chiar dacă serverul eșuează
-    if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-      const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus);
-      console.log(`📱 Serviciul GPS Android actualizat (offline): ${androidResult}`);
-      return androidResult;
-    }
-    
-    console.warn('Interfața AndroidGPS nu este disponibilă - mod browser');
     throw error;
   }
 };

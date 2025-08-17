@@ -83,8 +83,15 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - **STOP Logic**: Status 4 oprește transmisia GPS și elimină cursa din activeCourses
 - **Server Communication**: Garantat pentru toate statusurile (2,3,4)
 
+### **GPS Transmission Fix - Eliminarea Dublei Transmisii (Август 2025)**
+- **PROBLEMĂ REZOLVATĂ**: JavaScript și Android trimiteau amândouă coordonate, creând transmisie neregulară
+- **JAVASCRIPT GPS ELIMINAT**: Toate funcțiile `sendGPSForAllActiveCourses()`, `getBatteryLevel()`, `getNetworkSignal()` eliminate
+- **DOAR ANDROID GPS**: BackgroundGPSService gestionează exclusiv transmisia la interval fix de 10 secunde
+- **STATUS UPDATES CU DATE REALE**: `sendStatusUpdate()` Android folosește senzori nativi (GPS, baterie, signal)
+- **REZULTAT**: Transmisie consistentă la 10 secunde pentru toate cursele, fără dummy data
+
 ### **Workflow Logic Clarificat**
-1. **START (status 2)**: Trimite status + pornește GPS continuu
-2. **PAUSE (status 3)**: Trimite status + OPREȘTE GPS (nu mai coordonate)
-3. **RESUME (status 2)**: Trimite status + REPORNEȘTE GPS
-4. **STOP (status 4)**: Trimite status + oprește GPS + elimină din activeCourses
+1. **START (status 2)**: Android trimite status + pornește GPS continuu (10s interval)
+2. **PAUSE (status 3)**: Android trimite status cu date reale + OPREȘTE GPS (nu mai coordonate)
+3. **RESUME (status 2)**: Android trimite status cu date reale + REPORNEȘTE GPS (10s interval)
+4. **STOP (status 4)**: Android trimite status cu date reale + oprește GPS + elimină din activeCourses

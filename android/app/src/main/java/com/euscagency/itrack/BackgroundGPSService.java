@@ -124,6 +124,35 @@ public class BackgroundGPSService extends Service {
                 Log.e(TAG, "ℹ️ Service remains active for other potential UITs");
             }
             
+        } else if (intent != null && "SEND_STATUS_UPDATE".equals(intent.getAction())) {
+            // Nou: Trimite status update cu date reale (GPS + senzori)
+            String uitForStatus = intent.getStringExtra("uit");
+            int statusForUpdate = intent.getIntExtra("status", 0);
+            String tokenForStatus = intent.getStringExtra("token");
+            String vehicleForStatus = intent.getStringExtra("vehicle");
+            
+            Log.e(TAG, "📤 SEND_STATUS_UPDATE received: UIT=" + uitForStatus + ", Status=" + statusForUpdate);
+            Log.e(TAG, "🎯 Trimit cu DATE REALE (GPS nativ + senzori autentici)");
+            
+            // Actualizăm temporar datele pentru status update
+            String originalUIT = activeUIT;
+            String originalToken = activeToken;
+            String originalVehicle = activeVehicle;
+            
+            activeUIT = uitForStatus;
+            activeToken = tokenForStatus;
+            activeVehicle = vehicleForStatus;
+            
+            // Trimite status update cu date reale
+            sendStatusUpdateToServer(statusForUpdate, uitForStatus);
+            
+            // Restaurăm datele originale
+            activeUIT = originalUIT;
+            activeToken = originalToken;
+            activeVehicle = originalVehicle;
+            
+            Log.e(TAG, "✅ Status update cu date reale trimis pentru UIT: " + uitForStatus);
+            
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {
             Log.e(TAG, "Stop GPS requested");
             stopBackgroundGPS();
