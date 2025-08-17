@@ -93,32 +93,47 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
   };
 
   return (
-    <div className={`card ${className}`} style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)' }}>
+    <div className={`card ${className}`} style={{ 
+      backgroundColor: 'rgba(255, 255, 255, 0.15)', 
+      border: '1px solid rgba(255, 255, 255, 0.2)',
+      borderRadius: '12px',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
+    }}>
       <div 
         className="card-header d-flex justify-content-between align-items-center cursor-pointer"
         onClick={() => setExpanded(!expanded)}
-        style={{ cursor: 'pointer' }}
+        style={{ 
+          cursor: 'pointer',
+          backgroundColor: 'transparent',
+          border: 'none',
+          padding: '12px 16px'
+        }}
       >
         <div className="d-flex align-items-center">
-          <span className="me-2" style={{ fontSize: '1.2em' }}>{getSyncStatusIcon()}</span>
-          <h6 className="mb-0">
+          <span className="me-2" style={{ fontSize: '1.1em' }}>{getSyncStatusIcon()}</span>
+          <h6 className="mb-0" style={{ fontSize: '0.95rem', fontWeight: '600' }}>
             <span className={getSyncStatusColor()}>
-              GPS Offline Monitor
+              Sincronizare GPS
             </span>
           </h6>
         </div>
         <div className="d-flex align-items-center">
           {stats.totalOffline > 0 && (
-            <span className="badge bg-warning me-2">
-              {stats.totalOffline} offline
+            <span className="badge me-2" style={{ 
+              backgroundColor: 'rgba(255, 193, 7, 0.8)', 
+              color: '#000',
+              fontSize: '0.75rem',
+              padding: '4px 8px'
+            }}>
+              {stats.totalOffline} coord.
             </span>
           )}
-          <i className={`bi bi-chevron-${expanded ? 'up' : 'down'}`}></i>
+          <i className={`bi bi-chevron-${expanded ? 'up' : 'down'}`} style={{ fontSize: '0.9rem' }}></i>
         </div>
       </div>
 
       {expanded && (
-        <div className="card-body">
+        <div className="card-body" style={{ padding: '16px', backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
           {/* Statistici generale */}
           <div className="row mb-3">
             <div className="col-4">
@@ -173,9 +188,18 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
           {/* Butoane de acțiune */}
           <div className="d-grid gap-2">
             <button 
-              className="btn btn-outline-warning btn-sm"
+              className="btn btn-sm"
               onClick={handleManualSync}
               disabled={stats.syncInProgress || !isOnline || stats.totalOffline === 0}
+              style={{
+                backgroundColor: stats.syncInProgress || !isOnline || stats.totalOffline === 0 
+                  ? 'rgba(108, 117, 125, 0.3)' 
+                  : 'rgba(255, 193, 7, 0.8)',
+                border: '1px solid rgba(255, 193, 7, 0.4)',
+                color: stats.syncInProgress || !isOnline || stats.totalOffline === 0 ? '#6c757d' : '#000',
+                fontWeight: '500',
+                padding: '8px 12px'
+              }}
             >
               {stats.syncInProgress ? (
                 <>

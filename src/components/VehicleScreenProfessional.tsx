@@ -1810,19 +1810,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
             
-            {/* Offline Sync Progress - Performance Optimized */}
+            {/* GPS Offline Monitor - Organizat frumos sub curse */}
             <div style={{ 
-              marginTop: '10px', 
+              marginTop: '15px', 
               width: '100%', 
               maxWidth: '500px', 
-              margin: '10px auto 0 auto',
+              margin: '15px auto 0 auto',
               contain: 'layout style paint',
-              /* REMOVED willChange pentru ZERO lag la scroll */
             }}>
-              <OfflineSyncProgress className="offline-monitor-header-style" />
-              
-              {/* Monitor GPS Offline - integrat cu BackgroundGPSService */}
-              <OfflineSyncMonitor isOnline={isOnline} className="mb-3" />
+              {/* Monitor GPS Offline - Progres sincronizare în timp real */}
+              <OfflineSyncMonitor isOnline={isOnline} className="mb-2" />
             </div>
           </div>
 
