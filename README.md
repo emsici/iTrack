@@ -1,148 +1,298 @@
-# iTrack GPS - Aplicație Enterprise Multi-Course GPS Fleet Management
+# iTrack GPS - Enterprise Multi-Course Fleet Management System
 
-> **Aplicație profesională GPS cu management simultan pentru multiple curse, servicii native Android și capacități avansate de urmărire în timp real cu gestionare individuală per UIT**
-
----
-
-## 📊 **STATISTICI PROIECT VERIFICATE (August 2025)**
-- **23 fișiere TypeScript/TSX** - **~9,000 linii de cod frontend**
-- **2 fișiere Java** - **~1,100 linii cod Android nativ**
-- **BackgroundGPSService Android (759 linii)** cu multi-course management
-- **MainActivity Java (350 linii)** cu bridge WebView perfect
-- **Map<String, Integer> courseStatuses** pentru tracking individual per UIT
-- **6 servicii TypeScript** pentru logica business completă
-- **12 componente React** cu interfață profesională glassmorphism
-- **100% log-uri în română** pentru debugging local
+> **Prima aplicație profesională din România cu management simultan pentru multiple curse GPS pe același vehicul, dezvoltată cu tehnologii native Android și React pentru tracking în timp real cu gestionare individuală per UIT**
 
 ---
 
-## 🚀 **QUICK START - MULTI-COURSE GPS SETUP**
+## 📈 **Despre iTrack GPS**
 
-### **Development Server (Multi-Course Testing)**
+**iTrack GPS** revolutionează industria transportului din România prin implementarea primei soluții multi-course care permite unui singur vehicul să gestioneze simultan 5-10 curse cu statusuri independente. Aplicația elimină problemele tradiționale ale aplicațiilor single-course și oferă control granular asupra fiecărei livrări separate.
+
+### 🎯 **Problema Rezolvată**
+- **Aplicațiile tradiționale**: O cursă per vehicul → Confuzie și timp pierdut
+- **Soluția iTrack**: Multiple curse simultane → Control total și eficiență maximă
+
+### 🏆 **Avantaje Competitive**
+- **Management Simultan**: 5-10 curse active pe același vehicul
+- **Control Individual**: START/PAUSE/RESUME/STOP independent per cursă
+- **GPS Inteligent**: Transmisie doar pentru cursele ACTIVE (economie resurse)
+- **Offline Robust**: Cache GPS local cu sincronizare automată
+- **Analytics Separate**: Statistici individuale pentru fiecare livrare
+
+## 📊 **Statistici Proiect Verificate (August 2025)**
+```
+📁 Total: 25 fișiere (~10,100 linii de cod)
+├── 🎨 Frontend: 23 fișiere TypeScript/TSX (~9,000 linii)
+│   ├── VehicleScreenProfessional.tsx (2,345 linii) - Dashboard principal
+│   ├── CourseDetailCard.tsx (1,066 linii) - Control individual per cursă
+│   ├── LoginScreen.tsx (867 linii) - Autentificare securizată
+│   ├── api.ts (621 linii) - Client API cu etsm_prod integration
+│   ├── courseAnalytics.ts (434 linii) - Analytics cu pause/resume
+│   └── offlineGPS.ts (346 linii) - Manager coordonate offline
+├── 🤖 Android Native: 2 fișiere Java (~1,100 linii)
+│   ├── BackgroundGPSService.java (759 linii) - Multi-course GPS engine
+│   └── MainActivity.java (350 linii) - Bridge JavaScript-Android
+└── ⚙️ Config: capacitor.config.ts, vite.config.ts, package.json
+```
+
+---
+
+## 🚀 **Instalare și Setup - Verificat pentru Dezvoltatori**
+
+### **📋 Cerințe de Sistem**
 ```bash
-# Pornește dev server pentru testarea multi-course
+✅ Node.js 18+ (pentru Vite și dependințe moderne)
+✅ Android Studio 2024.1+ (pentru build APK și debugging)
+✅ Capacitor CLI 7.3.0+ (pentru bridge JavaScript-Android)
+✅ TypeScript 5.8.3+ (pentru type safety în React)
+✅ Windows 10/11 (pentru script-urile .bat verificate)
+```
+
+### **🔧 Setup Rapid cu Script-uri Automate**
+
+#### **Opțiunea 1: Build Complet Automat (Recomandat)**
+```bash
+# Build complet cu verificări de eroare integrale
+.\build.bat
+
+# Script verificat care execută:
+# [1/4] npm install
+# [2/4] npx vite build  
+# [3/4] npx cap sync android
+# [4/4] npx cap open android
+```
+
+#### **Opțiunea 2: Build cu Environment Selection**
+```bash
+# Pentru PRODUCTION (etsm_prod - default)
+.\start.bat
+
+# Pentru DEVELOPMENT (etsm3 - testing)  
+.\start.bat DEV
+
+# Script-ul comută automat API endpoints și rulează build.bat
+```
+
+#### **Opțiunea 3: Development Server (Pentru testare rapidă)**
+```bash
+# Pornește Vite dev server pe port 5555
 npm run dev
-# SAU
-npx vite --host 0.0.0.0 --port 5000
+
+# SAU manual
+npx vite --host 0.0.0.0 --port 5555
 ```
 
-### **Build APK pentru Production**
+### **📱 Build APK Manual (Pas cu Pas)**
 ```bash
-# Build complet cu BackgroundGPSService
-npm run build
-npx cap sync android
-npx cap open android
-```
-
-### **Testarea Multi-Course VERIFICATĂ:**
-1. **LoginScreen.tsx** - autentificare cu API-ul etsm_prod/login.php
-2. **VehicleScreenProfessional.tsx** - încărcare curse prin vehicul.php
-3. **CourseDetailCard.tsx** - interfață pentru START/PAUSE/RESUME/STOP
-4. **BackgroundGPSService.java** - Map courseStatuses pentru fiecare UIT separat
-5. **MainActivity.java** - bridge startGPS/updateStatus/stopGPS
-6. **CourseAnalytics.ts** - statistici individuale cu pause/resume per cursă
-
-**WORKFLOW VERIFICAT:**
-- **START**: activeCourses.set(uit, {status: 2}) + BackgroundGPSService pornește
-- **PAUSE**: activeCourses.set(uit, {status: 3}) + GPS skip pentru UIT-ul respectiv  
-- **RESUME**: activeCourses.set(uit, {status: 2}) + GPS reactivat
-- **STOP**: activeCourses.delete(uit) + courseStatuses.remove(uit)
-
-### **Build Manual (Dacă nu folosești start.bat)**
-```bash
-# 1. Build complet cu dependințe
-build.bat
-
-# SAU pas cu pas:
-# 1. Instalare dependințe
+# 1. Instalare dependințe verificate
 npm install
 
-# 2. Build aplicație  
+# 2. Build aplicație pentru producție
 npx vite build
+# ✅ Output: dist/ folder cu index.html și assets/
 
-# 3. Sincronizare Capacitor
-npx cap sync android
+# 3. Sincronizare cu proiectul Android
+npx cap sync android  
+# ✅ Copiază dist/ în android/app/src/main/assets/public/
 
-# 4. Deschide Android Studio
+# 4. Deschide Android Studio pentru build final
 npx cap open android
+# ✅ Deschide android/ folder în Android Studio
+
+# 5. În Android Studio:
+# Build → Generate Signed Bundle/APK → APK → Release
+```
+
+### **⚙️ Configurare Environment (API Endpoints)**
+
+**Fișierele de configurare verificate:**
+```typescript
+// src/services/api.ts - API Configuration
+const API_CONFIG = {
+  PROD: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/',
+  TEST: 'https://www.euscagency.com/etsm_test/platforme/transport/apk/', 
+  DEV: 'http://localhost:3000/api/'
+};
+
+// Switching prin start.bat DEV/PROD
+const API_BASE_URL = API_CONFIG.PROD; // default
+```
+
+**Capacitor Configuration (capacitor.config.ts):**
+```typescript
+const config: CapacitorConfig = {
+  appId: 'com.euscagency.itrack',      // ✅ Verificat în AndroidManifest.xml
+  appName: 'iTrack',                   // ✅ Numele aplicației
+  webDir: 'dist',                      // ✅ Output folder Vite
+  server: { androidScheme: 'https' },  // ✅ HTTPS pentru security
+  plugins: {
+    Geolocation: {
+      enableBackgroundLocationUpdates: true,
+      backgroundLocationUpdateInterval: 5000  // ✅ 5s GPS interval
+    }
+  }
+};
 ```
 
 ---
 
-## 🏗️ **ARHITECTURA APLICAȚIEI**
+## 🏗️ **Arhitectura Tehnologică Multi-Course**
 
-### **Stack Tehnologic VERIFICAT Multi-Course**
+### **Stack Tehnologic Complet**
 ```
-Frontend:        React 19.1.0 + TypeScript
-UI Components:   12 componente React (.tsx) cu glassmorphism
-Build Tool:      Vite 6.3.5 pentru dev server + build APK
-Mobile:          Capacitor 7.3.0 pentru bridge JavaScript-Android
-Android Native:  BackgroundGPSService.java (759 linii) + MainActivity.java (350 linii)
-GPS Management:  Map<String, Integer> courseStatuses pentru multi-course individual
-Business Logic: 6 servicii TypeScript (api.ts, courseAnalytics.ts, offlineGPS.ts, etc.)
-API Integration: CapacitorHttp pentru comunicare server etsm_prod
-UI/UX:          Bootstrap 5.3.6 + professional.css cu teme multiple
-```
+🎨 Frontend Stack:
+├── React 19.1.0 + TypeScript 5.8.3 (Modern UI cu type safety)
+├── Vite 6.3.5 (Build tool rapid cu HMR pentru development)
+├── Bootstrap 5.3.6 (UI framework pentru consistency)
+└── CSS Custom (6 teme profesionale cu glassmorphism effects)
 
-### **Arhitectura în 5 Straturi**
+📱 Mobile Integration:
+├── Capacitor 7.3.0 (Bridge JavaScript-Android nativ)
+├── Capacitor Plugins: Geolocation, Device, Network, Preferences
+└── Android API Level 33+ (pentru background GPS permissions)
 
-#### **1. STRATUL PREZENTARE (UI/UX)**
-```
-src/components/
-├── LoginScreen.tsx          # Autentificare corporativă
-├── VehicleScreenProfessional.tsx  # Dashboard principal
-├── CourseDetailCard.tsx     # Cartonașe curse cu detalii extinse
-├── AdminPanel.tsx           # Panel administrativ cu diagnostice
-├── RouteMapModal.tsx        # Hartă interactivă cu OpenStreetMap
-├── CourseStatsModal.tsx     # Analytics și statistici complete
-├── ThemeSelector.tsx        # Selector 6 teme corporative
-├── AboutModal.tsx           # Informații aplicație cu versiune
-├── ToastNotification.tsx    # Notificări toast animate
-└── OfflineGPSMonitor.tsx    # Monitorizare GPS offline
+🤖 Android Native:
+├── BackgroundGPSService.java (759 linii - Multi-course GPS engine)
+├── MainActivity.java (350 linii - WebView bridge pentru JS communication)
+├── Map<String, Integer> courseStatuses (Status tracking per UIT individual)
+└── ScheduledExecutorService (10s GPS interval cu WakeLock pentru background)
+
+🌐 API & Backend:
+├── etsm_prod endpoints (login, vehicul, gps, rezultate, logout)
+├── JWT Authentication cu Bearer tokens
+├── CapacitorHttp + fetch fallback pentru network reliability
+└── Retry logic cu exponential backoff pentru failed requests
 ```
 
-#### **2. STRATUL SERVICII BUSINESS (Core Logic)**
+### **Arhitectura Multi-Course în Detaliu**
+
+#### **🎯 1. Componente React Principale**
 ```
-src/services/
-├── priorityGPS.ts           # Serviciu GPS cu prioritate și fallback
-├── garanteedGPS.ts          # GPS garantat pentru telefon blocat
-├── directAndroidGPS.ts      # GPS direct prin interfața Android
-├── sharedTimestampService.ts # Sincronizare timestamp între servicii
-├── api.ts                   # Client REST API cu configurații medii
-├── themeService.ts          # Management teme și status bar
-├── storage.ts               # Persistență Capacitor Preferences
-├── appLogger.ts             # Logger centralizat cu export
-└── offlineSync.ts           # Sincronizare offline cu retry logic
+src/components/ (12 componente specializate)
+├── 🚛 VehicleScreenProfessional.tsx (2,345 linii)
+│   ├── activeCourses Map pentru multi-course management
+│   ├── Real-time status updates cu color coding
+│   ├── Theme switching (6 teme disponibile)
+│   └── Debug panel access (50 clicks pe timestamp)
+├── 📋 CourseDetailCard.tsx (1,066 linii) 
+│   ├── Individual course cards cu butoane START/PAUSE/RESUME/STOP
+│   ├── Status visual per cursă (verde/albastru/galben/gri)
+│   ├── Loading states pentru fiecare acțiune
+│   └── Real-time GPS status indication
+├── 🔐 LoginScreen.tsx (867 linii)
+│   ├── Corporate authentication cu validation
+│   ├── Remember credentials prin Capacitor Preferences
+│   └── Environment switching pentru TEST/PROD
+└── 📊 CourseStatsModal.tsx (614 linii)
+    ├── Analytics individuale per cursă
+    ├── Distance calculation cu Haversine formula
+    └── Time tracking cu pause/resume support
 ```
 
-#### **3. STRATUL COMUNICARE (GPS & API)**
+#### **⚙️ 2. Servicii Business Logic**
 ```
-GPS Multi-Layer Architecture:
-┌─ Android Native GPS     (Prioritate 1) ─ serviciul Java optim
-├─ Capacitor GPS Plugin  (Prioritate 2) ─ backup Capacitor  
-└─ JavaScript Backup     (Prioritate 3) ─ fallback universal
-
-API Endpoints (TEST/PROD):
-├─ /login.php            # JWT Authentication
-├─ /logout.php           # Session cleanup
-├─ /vehicul.php          # Course loading cu paginare
-├─ /update_course_status.php  # Status updates real-time
-├─ /gps.php              # GPS coordinates transmission
-└─ /rezultate.php        # GPS verification & analytics
-```
-
-#### **4. STRATUL PERSISTENȚĂ (Storage)**
-```
-Capacitor Preferences Storage:
-├─ auth_token            # JWT pentru autentificare
-├─ vehicle_number        # Numărul vehiculului curent
-├─ offline_gps_count     # Coordonate GPS offline cached
-├─ app_logs              # Log-uri aplicație (max 10,000)
-├─ course_statuses       # Statusuri curse salvate
-└─ theme_preference      # Tema selectată de utilizator
+src/services/ (6 servicii core)
+├── 📡 api.ts (621 linii) - API Client Master
+│   ├── Environment configuration (PROD/TEST/DEV)
+│   ├── Authentication endpoints cu JWT handling
+│   ├── GPS transmission cu retry logic
+│   └── Error handling cu fallback mechanisms
+├── 📈 courseAnalytics.ts (434 linii) - Analytics Engine  
+│   ├── Per-course statistics tracking
+│   ├── pauseCourseTracking() / resumeCourseTracking()
+│   ├── Distance calculation cu GPS coordinates
+│   └── Performance metrics cu time/speed analysis
+├── 💾 offlineGPS.ts (346 linii) - Offline Manager
+│   ├── Local GPS coordinate caching
+│   ├── Batch synchronization (50 coords per batch)
+│   ├── Retry logic pentru failed transmissions
+│   └── Progress tracking pentru sync operations
+├── 🎨 themeService.ts (226 linii) - Theme Manager
+├── 📝 appLogger.ts (153 linii) - Centralized Logging
+└── 💽 storage.ts (94 linii) - Capacitor Preferences wrapper
 ```
 
-#### **5. STRATUL NATIV (Android Integration)**
+#### **🤖 3. Android Native Implementation**
+```
+android/app/src/main/java/com/euscagency/itrack/
+├── 📍 BackgroundGPSService.java (759 linii) - GPS Core Engine
+│   ├── Map<String, Integer> courseStatuses (Multi-course status tracking)
+│   ├── transmitGPSDataForActiveCourses() (GPS pentru status = 2 only)
+│   ├── ScheduledExecutorService (Exact 10s interval GPS transmission)
+│   ├── WakeLock PARTIAL_WAKE_LOCK (Background execution guarantee)
+│   ├── LocationManager cu GPS + Network providers
+│   └── Foreground Service cu HIGH priority notification
+└── 🌉 MainActivity.java (350 linii) - JavaScript Bridge  
+    ├── @JavascriptInterface methods (startGPS, updateStatus, stopGPS)
+    ├── WebView AndroidGPS interface creation
+    ├── Service status reporting către frontend
+    └── Error handling cu retry mechanisms
+```
+
+### **🔄 Workflow Multi-Course Verificat**
+```
+📱 Frontend (VehicleScreenProfessional.tsx):
+├── activeCourses = new Map<string, Course>()
+├── START cursă → activeCourses.set(uit, {status: 2}) → AndroidGPS.startGPS()
+├── PAUSE cursă → activeCourses.set(uit, {status: 3}) → AndroidGPS.updateStatus()  
+├── RESUME cursă → activeCourses.set(uit, {status: 2}) → AndroidGPS.updateStatus()
+└── STOP cursă → activeCourses.delete(uit) → AndroidGPS.stopGPS()
+
+🤖 Android (BackgroundGPSService.java):  
+├── courseStatuses.put(uit, status) pentru fiecare UIT individual
+├── GPS transmission doar pentru status = 2 (ACTIVE courses)
+├── Status 3 (PAUSE) → GPS skip pentru UIT respectiv
+└── Status 4 (STOP) → courseStatuses.remove(uit) eliminare completă
+```
+### **📡 API Integration - etsm_prod Endpoints**
+```
+🔗 Base URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/
+
+🔐 Authentication:
+├── POST /login.php (email, password → JWT token)
+└── POST /logout.php (Bearer token → session cleanup)
+
+🚛 Course Management:
+├── GET /vehicul.php?numar=B123ABC (Bearer token → curse disponibile)
+└── POST /update_course_status.php (UIT, status → server confirmation)
+
+📍 GPS Data:
+├── POST /gps.php (coordonate GPS + metadata → server storage)
+└── GET /rezultate.php (verificare GPS data reception)
+
+📊 Data Format GPS (transmis la 10 secunde):
+{
+  "uit": "UIT67890",           // Identificator cursă  
+  "numar_inmatriculare": "B123ABC", // Număr vehicul
+  "lat": 44.4267674,           // Latitudine (7 decimale)
+  "lng": 26.1025384,           // Longitudine (7 decimale)
+  "viteza": 45,                // km/h
+  "directie": 180,             // 0-360 grade
+  "altitudine": 85,            // metri
+  "hdop": 1.2,                 // GPS accuracy
+  "gsm_signal": 4,             // 1-4 signal strength
+  "baterie": 85,               // 0-100% battery level
+  "status": 2,                 // 2=ACTIVE, 3=PAUSE, 4=STOP
+  "timestamp": "2025-08-17 14:30:25" // Romania timezone
+}
+```
+
+### **💾 Storage & Persistenta**
+```
+📁 Capacitor Preferences (Local Storage):
+├── 🔑 auth_token (JWT pentru API authentication)
+├── 🚛 vehicle_number (Numărul vehiculului curent)  
+├── 💾 offline_gps_coordinates (Cache GPS offline)
+├── 📊 course_analytics_[UIT] (Statistici per cursă)
+├── 📝 app_logs (Log-uri aplicație cu categorii)
+├── 🎨 theme_preference (Tema UI selectată)
+└── ⚙️ settings (Configurări aplicație)
+
+📱 Android Internal Storage:
+├── Shared Preferences pentru service state
+├── SQLite pentru coordonate GPS offline (viitor)
+└── Log files pentru debugging (export-abil)
+```
 ```
 android/app/src/main/java/com/euscagency/itrack/
 ├─ OptimalGPSService.java     # Serviciu GPS principal cu WakeLock
