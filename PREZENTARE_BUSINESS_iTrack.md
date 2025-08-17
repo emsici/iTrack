@@ -1,15 +1,16 @@
-# iTrack GPS v1807.99 - Prezentare Tehnică Business
+# iTrack GPS - Prezentare Tehnică Multi-Course Enterprise
 
 ## 🎯 Scurtă Prezentare Executivă
 
-**iTrack GPS** este o aplicație enterprise de urmărire GPS dezvoltată special pentru companiile de transport din România, oferind tracking în timp real cu precisie GPS nativă Android și sistem robust offline. Aplicația combină tehnologii web moderne (React 19.1.0) cu servicii GPS native pentru performance și fiabilitate maximă.
+**iTrack GPS** este prima aplicație enterprise cu **management simultan pentru multiple curse GPS**, dezvoltată special pentru companiile de transport din România. Oferă tracking în timp real cu serviciu Android nativ BackgroundGPSService și gestionare individuală per UIT pentru curse multiple simultane.
 
-### Propunerea de Valoare Unică
-- **Tracking GPS nativ**: Serviciu Android dedicat cu interval exact de 5 secunde
-- **Redundanță garantată**: 3 servicii GPS paralele pentru transmisie 100% sigură
-- **Offline robus**: Cache inteligent până la 10,000 coordonate cu sync automat
-- **Design enterprise**: 6 teme profesionale pentru branding corporatist
-- **Performance optimizat**: Conceput pentru telefoane Android de toate nivelurile
+### Propunerea de Valoare Unică Multi-Course
+- **Multi-Course GPS Management**: Map<String, Integer> courseStatuses pentru tracking simultan
+- **Individual Status per UIT**: Fiecare cursă are status propriu (START/PAUSE/RESUME/STOP)
+- **BackgroundGPSService Nativ**: Serviciu Android cu interval exact de 10 secunde
+- **Transmisie Inteligentă**: GPS trimis doar pentru cursele ACTIVE (status = 2)
+- **Analytics per Cursă**: Statistici individuale cu pause/resume per UIT
+- **Offline Robust Multi-Course**: Cache GPS separat pentru fiecare cursă
 
 ---
 
@@ -39,11 +40,13 @@ src/main.tsx → src/App.tsx → 14 componente specializate
 - **Plugin-uri native**: Geolocation, Preferences, Device
 - **Cross-platform**: Suport Android primar + iOS potential
 
-#### 4. **Android Native Layer (Java)**
-- **OptimalGPSService.java** (594 linii): Serviciu GPS cu AlarmManager exact 5000ms
-- **MainActivity.java** (247 linii): Bridge WebView cu retry logic
-- **Foreground Service**: Tracking continuu chiar și în deep sleep
-- **WakeLock**: Prevenire oprire sistem Android
+#### 4. **Android Native Layer Multi-Course (Java)**
+- **BackgroundGPSService.java** (600+ linii): Multi-course GPS cu Map<String, Integer> courseStatuses
+- **MainActivity.java** (300+ linii): Bridge JavaScript cu startGPS/updateStatus/stopGPS
+- **Multi-Course Logic**: transmitGPSDataForActiveCourses() pentru toate cursele ACTIVE
+- **Individual Status Management**: courseStatuses.put(uit, status) per UIT
+- **Foreground Service**: Tracking continuu multi-course în background
+- **WakeLock & ScheduledExecutorService**: Performance garantat pentru curse multiple
 
 #### 5. **External API Integration**
 - **Environment flexibil**: PROD/TEST cu switching la nivel de cod

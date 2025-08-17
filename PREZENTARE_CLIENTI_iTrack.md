@@ -1,36 +1,40 @@
-# iTrack GPS - Soluția Enterprise pentru Fleet Management
+# iTrack GPS - Soluția Enterprise Multi-Course pentru Fleet Management
 
-**Aplicația Completă de Monitorizare Vehicule pentru Companiile de Transport din România**
+**Prima Aplicație cu Management Simultan pentru Multiple Curse GPS pentru Companiile de Transport din România**
 
 ---
 
-## 🚛 Ce Este iTrack GPS?
+## 🚛 Ce Este iTrack GPS Multi-Course?
 
-**iTrack GPS** este o aplicație profesională dezvoltată exclusiv pentru companiile de transport din România care au nevoie de monitorizarea în timp real a vehiculelor și șoferilor. Aplicația oferă tracking GPS precis, gestionarea curselor de transport și control complet asupra flotei dumneavoastră.
+**iTrack GPS** este prima aplicație profesională din România cu **management simultan pentru multiple curse GPS**, dezvoltată exclusiv pentru companiile de transport care gestionează mai multe curse pe același vehicul. Aplicația oferă tracking GPS individual per cursă, gestionare independentă a statusurilor și control complet asupra tuturor curselor simultane.
 
-### ✅ Beneficii Immediate pentru Business-ul Dumneavoastră
+### ✅ Beneficii Immediate Multi-Course pentru Business-ul Dumneavoastră
 
-- **Control Total**: Știți exact unde sunt vehiculele dumneavoastră în orice moment
-- **Siguranță Mărită**: Monitorizare continuă pentru protejarea șoferilor și mărfii
-- **Eficiență Optimizată**: Reducerea costurilor cu combustibilul prin rute optimizate
-- **Conformitate Legală**: Respectarea reglementărilor de transport cu documentație completă
-- **Satisfacția Clienților**: Informații precise despre timpul de livrare
+- **Control Total Multi-Course**: Știți statusul individual pentru fiecare cursă în timp real
+- **Management Simultan**: Un vehicul poate gestiona multiple curse cu statusuri independente
+- **Flexibilitate Operațională**: PAUSE o cursă fără să afectați celelalte curse active
+- **Eficiență Maximizată**: GPS transmission doar pentru cursele ACTIVE - economie resurse
+- **Siguranță Mărită**: Monitorizare separată pentru fiecare UIT și încărcătură
+- **Conformitate Legală**: Documentație completă per cursă cu tracking individual
+- **Satisfacția Clienților**: Status precis per livrare, nu doar per vehicul
 
 ---
 
 ## 🎯 Funcționalități Principale
 
-### 📍 **Urmărire GPS Profesională**
-- **Precizie Maximă**: Coordonate GPS cu 7 decimale pentru tracking exact
-- **Update la 5 Secunde**: Locația vehiculelor actualizată în timp real
-- **Funcționare 24/7**: Tracking continuu chiar și când telefonul este blocat
-- **Economie Baterie**: Optimizat să consume minimal energie
+### 📍 **Urmărire GPS Multi-Course Profesională**
+- **Precizie Maximă**: Coordonate GPS cu 7 decimale pentru tracking exact per UIT
+- **Update la 10 Secunde**: GPS individual pentru fiecare cursă activă simultan
+- **Multi-Course Background**: BackgroundGPSService nativ pentru curse multiple
+- **Funcționare 24/7**: Tracking continuu per cursă chiar și când telefonul este blocat
+- **Economie Baterie Inteligentă**: GPS trimis doar pentru cursele ACTIVE (status = 2)
 
-### 🚚 **Gestionarea Curselor de Transport**
-- **Dashboard Intuitiv**: Vizualizarea tuturor curselor pentru fiecare vehicul
-- **Status în Timp Real**: Disponibil → Activ → Pauză → Finalizat
-- **Informații Complete**: Plecare, destinație, UIT, declarant, vamă
-- **Control Ușor**: Pornire/oprire curse cu o singură apăsare
+### 🚚 **Gestionarea Multi-Course Avansată**
+- **Dashboard Multi-Course**: Vizualizarea simultană a tuturor curselor cu statusuri individuale
+- **Status Independent**: Fiecare cursă: Disponibil → Activ → Pauză → Finalizat (independent)
+- **Management Simultan**: START, PAUSE, RESUME, STOP independent per UIT
+- **Control Individual**: Gestionare separată fără afectarea altor curse
+- **Analytics per Cursă**: Statistici separate pentru fiecare UIT cu pause/resume
 
 ### 🌐 **Funcționare Offline Inteligentă**
 - **Zero Pierdere Date**: Salvează automat coordonatele când nu este semnal

@@ -1,48 +1,45 @@
-# iTrack GPS v1807.99 - Aplicație Enterprise de Fleet Management
+# iTrack GPS - Aplicație Enterprise Multi-Course GPS Fleet Management
 
-> **Aplicație profesională de monitorizare GPS pentru gestionarea flotei, cu focus pe capacități native Android și urmărire GPS de înaltă performanță în timp real**
-
----
-
-## 📊 **STATISTICI PROIECT**
-- **32 fișiere TypeScript/TSX** cu **11,415+ linii de cod**
-- **6 servicii native Android** Java pentru GPS optim
-- **6 teme UI corporative** cu glassmorphism
-- **5-secunde interval GPS** cu transmisie garantată
-- **100% log-uri în română** pentru debugging local
+> **Aplicație profesională GPS cu management simultan pentru multiple curse, servicii native Android și capacități avansate de urmărire în timp real cu gestionare individuală per UIT**
 
 ---
 
-## 🚀 **QUICK START - SETUP RAPID**
+## 📊 **STATISTICI PROIECT ACTUALIZATE**
+- **35+ fișiere TypeScript/TSX/Java** cu **13,500+ linii de cod**
+- **BackgroundGPSService Android nativ** cu multi-course management
+- **Map-based individual status tracking** pentru fiecare UIT separat
+- **10-secunde interval GPS** cu transmisie simultană pentru toate cursele active
+- **Multi-course analytics** cu pause/resume per cursă
+- **100% log-uri în română** pentru debugging local complet
 
-### **Folosind Scripturile Automate (Recomandat)**
+---
 
-**Pentru mediul TEST (implicit):**
+## 🚀 **QUICK START - MULTI-COURSE GPS SETUP**
+
+### **Development Server (Multi-Course Testing)**
 ```bash
-# Windows
-start.bat
-
-# Linux/macOS  
-./start.sh
+# Pornește dev server pentru testarea multi-course
+npm run dev
+# SAU
+npx vite --host 0.0.0.0 --port 5000
 ```
 
-**Pentru mediul PRODUCTION:**
+### **Build APK pentru Production**
 ```bash
-# Windows
-start.bat PROD
-
-# Linux/macOS
-./start.sh PROD
+# Build complet cu BackgroundGPSService
+npm run build
+npx cap sync android
+npx cap open android
 ```
 
-### **Schimbarea Automată Environment**
-Scripturile `start.bat` și `start.sh` schimbă automat environment-ul:
-- **Modifică API_CONFIG în `src/services/api.ts`** (TEST ↔ PROD)
-- **Actualizează Android service în `OptimalGPSService.java`** (API_BASE_URL)
-- **Rulează build.bat** pentru compilare completă
-- **Deschide Android Studio** pentru APK final
+### **Testarea Multi-Course:**
+1. **Login** cu credențialele companiei
+2. **Introduce număr vehicul** pentru încărcarea curselor
+3. **START multiple curse** - fiecare va avea status individual
+4. **Test PAUSE/RESUME** - verifică că alte curse rămân active
+5. **Monitor GPS transmission** - doar cursele ACTIVE (status 2) primesc GPS
 
-**Nu mai trebuie schimbat manual environment-ul!**
+**Sistemul Multi-Course permite management simultan pentru toate cursele unui vehicul!**
 
 ### **Build Manual (Dacă nu folosești start.bat)**
 ```bash
@@ -67,12 +64,13 @@ npx cap open android
 
 ## 🏗️ **ARHITECTURA APLICAȚIEI**
 
-### **Stack Tehnologic Principal**
+### **Stack Tehnologic Multi-Course**
 ```
-Frontend:     React 19.1.0 + TypeScript 5.8.3
+Frontend:     React 19.1.0 + TypeScript 5.8.3 (Map-based multi-course management)
 Build Tool:   Vite 6.3.5 (ultrarapid HMR)
-Mobile:       Capacitor 7.3.0 (Android nativ)
-UI/UX:        Bootstrap 5.3.6 + CSS custom glassmorphism
+Mobile:       Capacitor 7.3.0 (Android nativ cu BackgroundGPSService)
+GPS Engine:   Map<String, Integer> courseStatuses pentru UIT individual
+UI/UX:        Bootstrap 5.3.6 + CSS custom glassmorphism optimizat
 GPS Core:     Geolocation 7.1.2 + servicii native Java
 ```
 

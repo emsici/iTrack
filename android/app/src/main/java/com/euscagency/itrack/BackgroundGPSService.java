@@ -158,8 +158,8 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        if (activeUIT == null || activeToken == null) {
-            Log.e(TAG, "Cannot start GPS - missing data (UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL") + ")");
+        if (courseStatuses.isEmpty() || activeToken == null) {
+            Log.e(TAG, "Cannot start GPS - missing data (Courses: " + courseStatuses.size() + ", Token: " + (activeToken != null ? "OK" : "NULL") + ")");
             return;
         }
         
