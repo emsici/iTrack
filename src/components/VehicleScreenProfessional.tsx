@@ -94,6 +94,7 @@ const logoutClearAllGPS = async () => {
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
 // BackgroundGPSService handles offline GPS natively - no separate service needed
 import { logAPI, logAPIError } from "../services/appLogger";
+import { courseAnalyticsService } from "../services/courseAnalytics";
 import { CapacitorHttp } from '@capacitor/core';
 import { Network } from '@capacitor/network';
 // Analytics imports removed - unused
@@ -598,14 +599,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           
           // Start JavaScript GPS for immediate testing
           console.log("🔄 Starting JavaScript GPS for real coordinates...");
-          startJavaScriptGPS(courseToUpdate, vehicleNumber, token);
+          await startJavaScriptGPS(courseToUpdate, vehicleNumber, token);
           
         } else {
           console.log(`🔄 STATUS CHANGE: Status ${newStatus} - stopping GPS transmission`);
           console.log("📋 Status meanings: 2=ACTIVE, 3=PAUSE, 4=STOP");
           
           // Stop GPS transmission
-          stopJavaScriptGPS();
+          await stopJavaScriptGPS();
         }
         
         // Always call updateCourseStatus for status synchronization with server AND Android service
@@ -753,13 +754,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   let activeGPSToken: string | null = null;
   let activeGPSVehicle: string | null = null;
 
-  const startJavaScriptGPS = (course: Course, vehicleNumber: string, token: string) => {
+  const startJavaScriptGPS = async (course: Course, vehicleNumber: string, token: string) => {
     console.log('🚀 === STARTING JAVASCRIPT GPS ===');
     console.log(`📍 Course UIT: ${course.uit}, Vehicle: ${vehicleNumber}`);
     
     activeGPSCourse = course;
     activeGPSToken = token;
     activeGPSVehicle = vehicleNumber;
+    
+    // Initialize course analytics tracking
+    console.log('📊 === STARTING COURSE ANALYTICS ===');
+    await courseAnalyticsService.startCourseTracking(course.uit, course.uit, vehicleNumber);
+    console.log('✅ Course analytics initialized');
     
     // Clear any existing interval
     if (gpsInterval) {
@@ -777,12 +783,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     console.log('✅ JavaScript GPS started - transmitting every 10 seconds');
   };
 
-  const stopJavaScriptGPS = () => {
+  const stopJavaScriptGPS = async () => {
     console.log('🛑 === STOPPING JAVASCRIPT GPS ===');
     
     if (gpsInterval) {
       clearInterval(gpsInterval);
       gpsInterval = null;
+    }
+    
+    // Stop course analytics tracking
+    if (activeGPSCourse) {
+      console.log('📊 === STOPPING COURSE ANALYTICS ===');
+      await courseAnalyticsService.stopCourseTracking(activeGPSCourse.uit);
+      console.log('✅ Course analytics stopped');
     }
     
     activeGPSCourse = null;
@@ -845,8 +858,39 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log('✅ GPS transmission successful:', response.status);
       console.log('📊 Server response:', response.data);
 
+      // IMPORTANT: Update local statistics with real GPS data
+      console.log('📊 === UPDATING LOCAL STATISTICS ===');
+      await courseAnalyticsService.updateCourseStatistics(
+        activeGPSCourse.uit,
+        latitude,
+        longitude,
+        speed || 0,
+        accuracy || 0
+      );
+      console.log('✅ Local statistics updated with real GPS data');
+
     } catch (error) {
       console.error('❌ GPS transmission error:', error);
+      
+      // Even if server transmission fails, update local statistics
+      try {
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 15000
+        });
+        
+        await courseAnalyticsService.updateCourseStatistics(
+          activeGPSCourse.uit,
+          position.coords.latitude,
+          position.coords.longitude,
+          position.coords.speed || 0,
+          position.coords.accuracy || 0
+        );
+        console.log('✅ Local statistics updated offline');
+      } catch (offlineError) {
+        console.error('❌ Offline statistics update failed:', offlineError);
+      }
     }
   };
 
@@ -872,20 +916,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         return 0; // No connection
       }
       
-      switch (networkStatus.connectionType) {
-        case 'wifi':
-          return 5; // WiFi usually has strong signal
-        case '4g':
-        case 'lte':
-          return 4; // 4G/LTE good signal
-        case '3g':
-          return 3; // 3G moderate signal
-        case '2g':
-          return 2; // 2G weak signal
-        case 'cellular':
-          return 3; // Generic cellular, assume moderate
-        default:
-          return 4; // Unknown but connected, assume good
+      const connectionType = networkStatus.connectionType;
+      
+      if (connectionType === 'wifi') {
+        return 5; // WiFi usually has strong signal
+      } else if (connectionType === 'cellular') {
+        return 3; // Generic cellular, assume moderate
+      } else if (connectionType === 'none') {
+        return 0; // No connection
+      } else {
+        return 4; // Unknown but connected, assume good
       }
     } catch (error) {
       console.log('Network detection fallback to browser API');
