@@ -784,7 +784,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         gsm_signal: 4,
         baterie: await getBatteryLevel(),
         status: 2, // ACTIVE
-        timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
+        timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
       };
 
       console.log('📤 Transmitting real GPS data:', gpsData);
