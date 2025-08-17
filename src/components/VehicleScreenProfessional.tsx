@@ -911,46 +911,71 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Try Capacitor Network plugin for connection type
       const networkStatus = await Network.getStatus();
       
-      // Map connection types to signal strength (1-5 scale)
       if (!networkStatus.connected) {
-        return 0; // No connection
+        return 0; // No connection = no GSM signal
       }
       
       const connectionType = networkStatus.connectionType;
       
+      // GSM Signal reprezintă doar rețeaua CELULARĂ, nu WiFi
       if (connectionType === 'wifi') {
-        return 5; // WiFi usually has strong signal
+        return 0; // WiFi nu este GSM - nu are semnal cellular
       } else if (connectionType === 'cellular') {
-        return 3; // Generic cellular, assume moderate
+        // Pentru cellular generic, estimez signal bazat pe browser API
+        try {
+          const connection = (navigator as any).connection || 
+                            (navigator as any).mozConnection || 
+                            (navigator as any).webkitConnection;
+          
+          if (connection && connection.effectiveType) {
+            switch (connection.effectiveType) {
+              case '4g': return 4; // 4G = semnal GSM bun
+              case '3g': return 3; // 3G = semnal GSM moderat  
+              case '2g': return 2; // 2G = semnal GSM slab
+              case 'slow-2g': return 1; // 2G lent = semnal GSM foarte slab
+              default: return 3; // Default pentru cellular necunoscut
+            }
+          }
+        } catch (browserError) {
+          console.log('Browser effective type not available');
+        }
+        
+        return 3; // Default pentru cellular fără detalii
       } else if (connectionType === 'none') {
-        return 0; // No connection
+        return 0; // Fără conexiune = fără GSM
       } else {
-        return 4; // Unknown but connected, assume good
+        return 2; // Tip necunoscut, probabil GSM slab
       }
+      
     } catch (error) {
       console.log('Network detection fallback to browser API');
       
-      // Fallback to browser navigator connection API
+      // Fallback complet la browser navigator connection API
       try {
         const connection = (navigator as any).connection || 
                           (navigator as any).mozConnection || 
                           (navigator as any).webkitConnection;
         
         if (connection) {
+          // Verific dacă e WiFi prin alte metode
+          if (connection.type === 'wifi') {
+            return 0; // WiFi confirmat = nu e GSM
+          }
+          
           const effectiveType = connection.effectiveType;
           switch (effectiveType) {
-            case '4g': return 4;
-            case '3g': return 3;
-            case '2g': return 2;
-            case 'slow-2g': return 1;
-            default: return 4;
+            case '4g': return 4; // 4G GSM
+            case '3g': return 3; // 3G GSM
+            case '2g': return 2; // 2G GSM
+            case 'slow-2g': return 1; // 2G lent GSM
+            default: return 3; // Default GSM moderat
           }
         }
       } catch (browserError) {
         console.log('Browser network API not available');
       }
       
-      return 4; // Default signal if all methods fail
+      return 2; // Default GSM slab dacă toate metodele eșuează
     }
   };
 
