@@ -1,0 +1,108 @@
+iTrack Application Logs
+Generated: 18.08.2025, 01:55:19
+Total Logs: 91
+
+[2025-08-17T22:55:19.002Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T22:55:15.377Z] INFO (APP): 🔍 Network check failed: Failed to fetch, using navigator.onLine=true
+[2025-08-17T22:55:10.099Z] INFO (APP): 🔍 Network check failed: Failed to fetch, using navigator.onLine=true
+[2025-08-17T22:55:09.003Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T22:55:05.229Z] INFO (APP): 🔍 Network check failed: Failed to fetch, using navigator.onLine=true
+[2025-08-17T22:55:00.067Z] INFO (APP): 🔍 Network check failed: Failed to fetch, using navigator.onLine=true
+[2025-08-17T22:54:59.003Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T22:54:55.066Z] INFO (APP): 🔍 Network check failed: Failed to fetch, using navigator.onLine=true
+[2025-08-17T22:54:50.072Z] INFO (APP): 🔍 Network check failed: Failed to fetch, using navigator.onLine=true
+[2025-08-17T22:54:49.003Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T22:54:45.076Z] INFO (APP): 🔍 Network check failed: Failed to fetch, using navigator.onLine=true
+[2025-08-17T22:54:41.621Z] INFO (APP): Acțiune cursă finalizată: 133378
+[2025-08-17T22:54:41.621Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-17T22:54:41.620Z] INFO (API): Course 6C7V511585130172 status updated successfully to 2
+[2025-08-17T22:54:41.619Z] INFO (APP): ✅ Cursa 6C7V511585130172 status actualizat la 2 cu succes
+[2025-08-17T22:54:41.619Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE COMPLETED ===
+[2025-08-17T22:54:41.618Z] INFO (APP): ✅ Rezultat Android updateStatus: SUCCESS: BACKGROUND GPS status ACTIVE for 6C7V511585130172
+[2025-08-17T22:54:41.613Z] INFO (APP): 📊 UIT: 6C7V511585130172, Status: 2
+[2025-08-17T22:54:41.612Z] INFO (APP): 🔧 updateStatus method disponibil: true
+[2025-08-17T22:54:41.612Z] INFO (APP): 🔧 AndroidGPS disponibil: true
+[2025-08-17T22:54:41.611Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE START ===
+[2025-08-17T22:54:41.610Z] INFO (APP): ✅ Status 2 (START) trimis cu succes la server pentru UIT 6C7V511585130172
+[2025-08-17T22:54:41.605Z] INFO (APP): 📱 Serviciul GPS Android actualizat: SUCCESS: BACKGROUND GPS status ACTIVE for 6C7V511585130172
+[2025-08-17T22:54:41.598Z] INFO (APP): 🎯 STATUS 2 TRIMIS CU SUCCES PENTRU UIT 6C7V511585130172
+[2025-08-17T22:54:41.597Z] INFO (APP): 📊 Response headers: [object Object]
+[2025-08-17T22:54:41.595Z] INFO (APP): 📋 Tip răspuns pentru STATUS 2: string
+[2025-08-17T22:54:41.595Z] INFO (APP): 📊 Răspuns server complet: 
+[2025-08-17T22:54:41.593Z] INFO (APP): ✅ Actualizarea statusului pe server cu succes: 200
+[2025-08-17T22:54:41.388Z] INFO (APP): 🌐 URL API de bază: https://www.euscagency.com/etsm_prod/platforme/transport/apk/ (configurație centralizată)
+[2025-08-17T22:54:41.387Z] INFO (APP): 📋 gps.php = actualizări status | vehicul.php = doar interogări curse
+[2025-08-17T22:54:41.387Z] INFO (APP): 🎯 SELECTARE ENDPOINT: TOATE actualizările de status → gps.php
+[2025-08-17T22:54:41.387Z] INFO (APP): 📤 Toate câmpurile completate ca BackgroundGPSService + headers identice pentru răspuns 200: {
+  "uit": "6C7V511585130172",
+  "numar_inmatriculare": "TM39ECC",
+  "lat": 44.2583248,
+  "lng": 28.6174159,
+  "viteza": 0,
+  "directie": 0,
+  "altitudine": 55,
+  "hdop": 20,
+  "gsm_signal": 4,
+  "baterie": "2%",
+  "status": 2,
+  "timestamp": "2025-08-18 01:54:41"
+}
+[2025-08-17T22:54:41.387Z] INFO (APP): 📤 === STRUCTURA COMPLETĂ CA GPS PENTRU STATUS 2 ===
+[2025-08-17T22:54:41.351Z] INFO (APP): 📍 GPS reale obținute pentru status 2: 44.2583248, 28.6174159
+[2025-08-17T22:54:40.091Z] INFO (APP): 🔍 Network check failed: Failed to fetch, using navigator.onLine=true
+[2025-08-17T22:54:39.001Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T22:54:38.802Z] INFO (APP): 🎯 IMPORTANT: Serverul cere coordonate GPS reale pentru răspuns 200!
+[2025-08-17T22:54:38.802Z] INFO (APP): 🚛 Numărul Vehiculului: TM39ECC
+[2025-08-17T22:54:38.802Z] INFO (APP): 🔑 Lungime Token: 136
+[2025-08-17T22:54:38.802Z] INFO (APP): 📋 Status Nou: 2 (2=ACTIV, 3=PAUZA, 4=STOP)
+[2025-08-17T22:54:38.802Z] INFO (APP): 📊 UIT: 6C7V511585130172
+[2025-08-17T22:54:38.802Z] INFO (APP): 🌐 === TRIMITERE ACTUALIZARE STATUS ===
+[2025-08-17T22:54:38.801Z] INFO (APP): 🚛 Numărul vehiculului pentru actualizare status: "TM39ECC"
+[2025-08-17T22:54:38.801Z] INFO (APP): 📊 UIT: 6C7V511585130172, Status: 2 (2=ACTIV)
+[2025-08-17T22:54:38.801Z] INFO (APP): 🔄 === TRIMITERE STATUS 2 (START) LA SERVER ===
+[2025-08-17T22:54:38.801Z] INFO (APP): ✅ Analytics pornit - GPS delegat la BackgroundGPSService
+[2025-08-17T22:54:38.801Z] INFO (APP): ⚡ GPS va continua să lucreze când aplicația este blocată/minimizată
+[2025-08-17T22:54:38.801Z] INFO (APP): 🔋 BackgroundGPSService va gestiona transmisia GPS în background
+[2025-08-17T22:54:38.801Z] INFO (APP): 📱 === GPS GESTIONAT COMPLET DE BACKGROUNDGPSSERVICE ===
+[2025-08-17T22:54:38.801Z] INFO (APP): ✅ Analytics started for UIT: 6C7V511585130172
+[2025-08-17T22:54:38.800Z] INFO (APP): 📊 Started NEW analytics tracking for course: 6C7V511585130172 | UIT: 6C7V511585130172
+[2025-08-17T22:54:38.755Z] INFO (APP): 📊 === STARTING COURSE ANALYTICS FOR ALL ACTIVE ===
+[2025-08-17T22:54:38.755Z] INFO (APP): 📍 Active courses count: 1
+[2025-08-17T22:54:38.755Z] INFO (APP): 🚀 === ANALYTICS PENTRU CURSE ACTIVE ===
+[2025-08-17T22:54:38.755Z] INFO (APP): 🔄 Pornesc transmisia GPS pentru cursele active...
+[2025-08-17T22:54:38.755Z] INFO (APP): 📱 Rezultat Serviciu GPS Android: SUCCESS: BACKGROUND GPS started for 133378
+[2025-08-17T22:54:38.755Z] INFO (APP): 📊 GPS service va urmări toate cursele active cu același set de coordonate
+[2025-08-17T22:54:38.755Z] INFO (APP): 🔥 BackgroundGPSService Result: SUCCESS: BACKGROUND GPS started for 133378
+[2025-08-17T22:54:38.748Z] INFO (APP): 🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS
+[2025-08-17T22:54:38.748Z] INFO (APP): 📋 IMPORTANT: BackgroundGPSService acceptă MULTIPLE curse - se adaugă la lista activă
+[2025-08-17T22:54:38.748Z] INFO (APP): ✅ AndroidGPS.startGPS disponibil - pornesc BackgroundGPSService
+[2025-08-17T22:54:38.748Z] INFO (APP): 📱 Verificare interfață AndroidGPS: [object Object]
+[2025-08-17T22:54:38.748Z] INFO (APP): 🚀 === APELARE SERVICIU GPS ANDROID ===
+[2025-08-17T22:54:38.748Z] INFO (APP): 🚀 Prima cursă activă - pornesc serviciul Android GPS
+[2025-08-17T22:54:38.748Z] INFO (APP): 📋 Curse active: 1
+[2025-08-17T22:54:38.747Z] INFO (APP): 📊 Started NEW analytics tracking for course: 6C7V511585130172 | UIT: 6C7V511585130172
+[2025-08-17T22:54:38.727Z] INFO (APP): 🚀 START NOU: Adaug cursă nouă la activeCourses și pornesc analytics
+[2025-08-17T22:54:38.727Z] INFO (APP): 🚀 PORNIRE/RESUME GPS: Status 2 (ACTIV) - adaug cursa la lista activă
+[2025-08-17T22:54:38.727Z] INFO (APP): 📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat
+[2025-08-17T22:54:38.727Z] INFO (APP): 📞 Se apelează direct Android GPS cu UIT: 6C7V511585130172
+[2025-08-17T22:54:38.727Z] INFO (APP): 🎯 ANDROID NATIVE: BackgroundGPSService cu GPS nativ și precizie maximă
+[2025-08-17T22:54:38.727Z] INFO (APP): ✅ Permisiuni GPS verificate și acordate
+[2025-08-17T22:54:38.727Z] INFO (APP): 📝 Rezultat permisiuni background: [object Object]
+[2025-08-17T22:54:38.708Z] INFO (APP): 🔐 Solicit permisiuni GPS background (coarse)...
+[2025-08-17T22:54:38.707Z] INFO (APP): 📝 Rezultat cerere permisiuni standard: [object Object]
+[2025-08-17T22:54:37.513Z] INFO (APP): 🔐 Solicit permisiuni GPS standard...
+[2025-08-17T22:54:37.513Z] INFO (APP): 📋 Permisiuni GPS actuale: [object Object]
+[2025-08-17T22:54:37.482Z] INFO (APP): 🔍 === VERIFICARE PERMISIUNI GPS ===
+[2025-08-17T22:54:37.482Z] INFO (APP): 🚛 VehicleNumber pentru status update: "TM39ECC" (length: 7)
+[2025-08-17T22:54:37.482Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-17T22:54:37.481Z] INFO (APP): UIT REAL: 6C7V511585130172, Vehicul: TM39ECC
+[2025-08-17T22:54:37.481Z] INFO (APP): Cursă: 133378, Status: 1 → 2
+[2025-08-17T22:54:37.481Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-17T22:54:37.481Z] INFO (APP): 💾 Status 2 salvat pentru UIT 6C7V511585130172
+[2025-08-17T22:54:37.480Z] INFO (APP): Se procesează acțiunea pentru cursa: 133378
+[2025-08-17T22:54:35.425Z] INFO (APP): 🔍 Network check failed: Failed to fetch, using navigator.onLine=true
+[2025-08-17T22:54:30.107Z] INFO (APP): 🔍 Network check failed: Failed to fetch, using navigator.onLine=true
+[2025-08-17T22:54:29.004Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T22:54:25.441Z] INFO (APP): 🔍 Network check failed: Failed to fetch, using navigator.onLine=true
+[2025-08-17T22:54:24.718Z] INFO (APP): Log-uri șterse cu succes
+[2025-08-17T22:54:24.717Z] INFO (SYSTEM): Logs cleared

@@ -176,12 +176,24 @@ public class BackgroundGPSService extends Service {
         gpsExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                performGPSCycle();
+                try {
+                    Log.e(TAG, "⏰ === SCHEDULED GPS CYCLE TRIGGERED ===");
+                    Log.e(TAG, "🕐 Timpul curent: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
+                    Log.e(TAG, "📊 Service activ: " + isGPSRunning + ", Curse înregistrate: " + courseStatuses.size());
+                    sendLogToJavaScript("⏰ GPS CYCLE la " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
+                    performGPSCycle();
+                } catch (Exception e) {
+                    Log.e(TAG, "❌ CRITICAL: ScheduledExecutor error: " + e.getMessage());
+                    sendLogToJavaScript("❌ EROARE GPS CYCLE: " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
         }, 2, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
         
         isGPSRunning = true;
         Log.e(TAG, "GPS Service STARTED successfully");
+        Log.e(TAG, "⏰ PRIMUL GPS CYCLE în 2 secunde, apoi la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
+        sendLogToJavaScript("🚀 GPS SERVICE PORNIT - primul cycle în 2 secunde, apoi la " + GPS_INTERVAL_SECONDS + "s");
     }
     
     private void stopBackgroundGPS() {
@@ -201,9 +213,11 @@ public class BackgroundGPSService extends Service {
     private void performGPSCycle() {
         Log.e(TAG, "🔄 === GPS CYCLE START ===");
         Log.e(TAG, "📊 Courses: " + courseStatuses.size() + ", Token: " + (activeToken != null ? "OK" : "NULL"));
+        Log.e(TAG, "🔋 Service running: " + isGPSRunning + ", WakeLock held: " + (wakeLock != null && wakeLock.isHeld()));
+        Log.e(TAG, "📱 Executor status: " + (gpsExecutor != null && !gpsExecutor.isShutdown() ? "ACTIVE" : "SHUTDOWN"));
         
         // Send Android log to JavaScript for debugging
-        sendLogToJavaScript("🔄 Android GPS CYCLE START - Active courses: " + courseStatuses.size());
+        sendLogToJavaScript("🔄 Android GPS CYCLE START - Active courses: " + courseStatuses.size() + " - Service: " + isGPSRunning);
         
         if (activeToken == null || courseStatuses.isEmpty()) {
             Log.e(TAG, "❌ GPS cycle skipped - missing data (Token: " + (activeToken != null ? "OK" : "NULL") + ", Courses: " + courseStatuses.size() + ")");
@@ -241,8 +255,11 @@ public class BackgroundGPSService extends Service {
                         sendLogToJavaScript("✅ REAL GPS RECEIVED: " + location.getLatitude() + ", " + location.getLongitude() + " (accuracy: " + location.getAccuracy() + "m)");
                         
                         locationManager.removeUpdates(this);
+                        Log.e(TAG, "🔄 === STARTING MULTI-COURSE GPS TRANSMISSION ===");
                         // MULTI-COURSE: Send GPS data for ALL ACTIVE courses
                         transmitGPSDataForActiveCourses(location);
+                        Log.e(TAG, "✅ === GPS CYCLE COMPLETED SUCCESSFULLY ===");
+                        sendLogToJavaScript("✅ GPS CYCLE COMPLET - următorul în " + GPS_INTERVAL_SECONDS + " secunde");
                     } catch (Exception e) {
                         Log.e(TAG, "❌ Location processing error: " + e.getMessage());
                         e.printStackTrace();
