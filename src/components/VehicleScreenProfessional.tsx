@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
-import { CapacitorHttp } from '@capacitor/core';
+
 import { Course } from "../types";
-import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
+import { getVehicleCourses, logout } from "../services/api";
 // Urmărirea curselor active - pentru analytics și gestionare Android GPS
 let activeCourses = new Map<string, Course>();
 
@@ -18,12 +18,12 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     
     // PRIORITATE: Android BackgroundGPSService cu DATE REALE (GPS + senzori nativi)
     // Android are acces direct la senzori hardware pentru date autentice
-    if (window.AndroidGPS && window.AndroidGPS.sendStatusUpdate) {
+    if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
       console.log("📱 Trimit status update direct prin Android cu DATE REALE (GPS + senzori nativi)");
       console.log("🎯 Android are acces direct la: baterie reală, GPS nativ, signal strength autentic");
       
       try {
-        const androidResponse = await window.AndroidGPS.sendStatusUpdate(courseId, newStatus, authToken, vehicleNumber);
+        const androidResponse = window.AndroidGPS.updateStatus(courseId, newStatus);
         console.log(`✅ Status ${newStatus} trimis cu succes prin Android cu date reale:`, androidResponse);
         
         // PASUL 2: Actualizează serviciul GPS Android
@@ -92,13 +92,13 @@ import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../servi
 // BackgroundGPSService handles offline GPS natively - no separate service needed
 import { logAPI, logAPIError } from "../services/appLogger";
 import { courseAnalyticsService } from "../services/courseAnalytics";
-import { Network } from '@capacitor/network';
+
 // Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
 
-import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Added for offline GPS monitoring
+
 import ToastNotification from "./ToastNotification";
 
 import { useToast } from "../hooks/useToast";
@@ -107,6 +107,30 @@ import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
+
+// Helper functions for theme support
+const isDarkTheme = (theme: Theme): boolean => {
+  return ['dark', 'nature', 'night', 'driver'].includes(theme);
+};
+
+const getThemeBackground = (theme: Theme): string => {
+  switch (theme) {
+    case 'light':
+      return 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #e2e8f0 100%)';
+    case 'business':
+      return 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)';
+    case 'nature':
+      return 'linear-gradient(135deg, #0f172a 0%, #064e3b 50%, #065f46 100%)';
+    case 'night':
+      return 'linear-gradient(135deg, #0f0f23 0%, #1e1b4b 50%, #312e81 100%)';
+    case 'driver':
+      return 'linear-gradient(135deg, #0c0a09 0%, #44403c 50%, #57534e 100%)';
+    default: // dark
+      return 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)';
+  }
+};
+
+
 
 // import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Commented unused import
 // BackgroundGPSService detectează network status prin răspunsurile HTTP
@@ -140,6 +164,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
+
+
 
   const toast = useToast();
 
