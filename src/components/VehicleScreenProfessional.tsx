@@ -641,6 +641,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             : course
         )
       );
+      
+      // CRITICĂ: Sincronizez statusul și în activeCourses pentru consistență
+      if (activeCourses.has(courseToUpdate.uit)) {
+        activeCourses.set(courseToUpdate.uit, { ...courseToUpdate, status: newStatus });
+        console.log(`🔄 Status actualizat în activeCourses pentru UIT ${courseToUpdate.uit}: ${newStatus}`);
+      }
 
       // Store the status in localStorage for persistence
       try {
@@ -737,8 +743,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             await courseAnalyticsService.startCourseTracking(courseToUpdate.uit, courseToUpdate.uit, vehicleNumber);
           }
           
-          // Adaugă cursa la lista activă (sau confirmă că este deja acolo)
-          activeCourses.set(courseToUpdate.uit, courseToUpdate);
+          // Adaugă cursa la lista activă (sau confirmă că este deja acolo) cu status 2 actualizat
+          activeCourses.set(courseToUpdate.uit, { ...courseToUpdate, status: 2 });
           console.log(`📋 Curse active: ${activeCourses.size}`);
           
           // STRATEGIE EFICIENȚĂ: Serviciul Android pornește o singură dată și rămâne activ
@@ -765,8 +771,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           console.log(`⏸️ PAUSE STATUS: Status 3 - cursa rămâne în listă dar inactivă`);
           console.log("📋 PAUSE: Cursa nu se elimină din activeCourses - doar se pune în pauză");
           
-          // Pentru PAUSE nu eliminăm cursa din activeCourses
-          // Cursa rămâne în listă pentru a putea fi reluată ușor
+          // Pentru PAUSE actualizez statusul în activeCourses la 3
+          if (activeCourses.has(courseToUpdate.uit)) {
+            activeCourses.set(courseToUpdate.uit, { ...courseToUpdate, status: 3 });
+          }
           console.log(`📋 Curse active rămân: ${activeCourses.size} (inclusiv ${courseToUpdate.uit} în pauză)`);
           
           // Pause course analytics but don't stop completely
@@ -1055,6 +1063,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`📐 Accuracy: ${accuracy}m, Speed: ${speed}, Altitude: ${altitude}m`);
 
       // Transmit GPS data DOAR pentru cursele cu status 2 (ACTIVE)
+      console.log(`🔍 DEBUG activeCourses content:`, Array.from(activeCourses.entries()).map(([uit, course]) => ({uit, status: course.status})));
+      
       for (const [uit, course] of activeCourses) {
         // CRITICĂ: Verifică statusul real al cursei - nu trimite pentru PAUSE (3) sau STOP (4)
         if (course.status !== 2) {
