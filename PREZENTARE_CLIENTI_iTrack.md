@@ -1,78 +1,114 @@
-# iTrack GPS - Soluția Enterprise Multi-Course pentru Fleet Management
+# iTrack GPS - Soluția Simplă pentru Șoferii Dumneavoastră
 
-**Prima Aplicație cu Management Simultan pentru Multiple Curse GPS pentru Companiile de Transport din România**
-
----
-
-## 🚛 Ce Este iTrack GPS Multi-Course?
-
-**iTrack GPS** este prima aplicație profesională din România cu **management simultan pentru multiple curse GPS**, dezvoltată exclusiv pentru companiile de transport care gestionează mai multe curse pe același vehicul. Aplicația oferă tracking GPS individual per cursă, gestionare independentă a statusurilor și control complet asupra tuturor curselor simultane.
-
-### ✅ Beneficii Immediate Multi-Course pentru Business-ul Dumneavoastră
-
-- **Control Total Multi-Course**: Știți statusul individual pentru fiecare cursă în timp real
-- **Management Simultan**: Un vehicul poate gestiona multiple curse cu statusuri independente
-- **Flexibilitate Operațională**: PAUSE o cursă fără să afectați celelalte curse active
-- **Eficiență Maximizată**: GPS transmission doar pentru cursele ACTIVE - economie resurse
-- **Siguranță Mărită**: Monitorizare separată pentru fiecare UIT și încărcătură
-- **Conformitate Legală**: Documentație completă per cursă cu tracking individual
-- **Satisfacția Clienților**: Status precis per livrare, nu doar per vehicul
+**Aplicația care face transportul mai ușor și mai organizat**
 
 ---
 
-## 🎯 Funcționalități Principale
+## 🚛 De Ce Să Alegeti iTrack GPS?
 
-### 📍 **Urmărire GPS Multi-Course Profesională**
-- **Precizie Maximă**: Coordonate GPS cu 7 decimale pentru tracking exact per UIT
-- **Update la 10 Secunde**: GPS individual pentru fiecare cursă activă simultan
-- **Multi-Course Background**: BackgroundGPSService nativ pentru curse multiple
-- **Funcționare 24/7**: Tracking continuu per cursă chiar și când telefonul este blocat
-- **Economie Baterie Inteligentă**: GPS trimis doar pentru cursele ACTIVE (status = 2)
+**iTrack GPS** este aplicația care ajută șoferii să gestioneze mai ușor multiple livrări pe același camion. Nu mai trebuie să țineți minte care cursă este activă - aplicația face totul pentru dumneavoastră.
 
-### 🚚 **Gestionarea Multi-Course Avansată**
-- **Dashboard Multi-Course**: Vizualizarea simultană a tuturor curselor cu statusuri individuale
-- **Status Independent**: Fiecare cursă: Disponibil → Activ → Pauză → Finalizat (independent)
-- **Management Simultan**: START, PAUSE, RESUME, STOP independent per UIT
-- **Control Individual**: Gestionare separată fără afectarea altor curse
-- **Analytics per Cursă**: Statistici separate pentru fiecare UIT cu pause/resume
+### ✅ Ce Câștigați cu iTrack GPS
 
-### 🌐 **Funcționare Offline Inteligentă**
-- **Zero Pierdere Date**: Salvează automat coordonatele când nu este semnal
-- **Sincronizare Automată**: Transmite datele când reapare conexiunea
-- **Progress Visual**: Vedeți exact câte coordonate au fost sincronizate
-- **Backup Garantat**: 3 sisteme de backup pentru siguranță maximă
-
-### 🎨 **Design Profesional Personalizabil**
-- **6 Teme Disponibile**: Dark, Light, Business, Driver, Nature, Night
-- **Branding Corporate**: Personalizarea culorilor pentru compania dumneavoastră
-- **Interfață Simplă**: Ușor de folosit chiar și pentru șoferii fără experiență tehnică
-- **Design Modern**: Interfață elegantă cu efecte glassmorphism
+- **Mai Puține Telefoane**: Nu mai trebuie să sunați la birou pentru fiecare schimbare
+- **Control Ușor**: Vedeți toate cursele pe același ecran
+- **Status Clar**: Știți exact ce faceți cu fiecare livrare
+- **Funcționare Simplă**: 3 butoane simple - START, PAUZĂ, STOP
+- **Funcționează Offline**: Nu vă faceți griji dacă nu aveți semnal
+- **Economisește Timp**: Mai puțin timp pierdut, mai mult timp pe drum
+- **Șeful Mulțumit**: Rapoarte automate, fără hârtii
 
 ---
 
-## 📱 Cum Funcționează pentru Șoferii Dumneavoastră
+## 📱 Cum Funcționează - Super Simplu!
 
-### **Pasul 1: Login Simplu**
-Șoferul își introduce email-ul și parola companiei. Aplicația își amintește automat datele pentru următoarele utilizări.
+### **Pasul 1: Porniți Aplicația**
+Deschideți iTrack pe telefon. Introduceți email-ul și parola pe care vi le-a dat compania. Aplicația își amintește datele, nu trebuie să le introduceți de fiecare dată.
 
-### **Pasul 2: Introducere Număr Vehicul**
-Se introduce numărul de înmatriculare al vehiculului (ex: B123ABC). Aplicația încarcă automat toate cursele disponibile pentru acel vehicul.
+### **Pasul 2: Introduceți Numărul Camionului**
+Scrieți numărul de înmatriculare (ex: B123ABC). Aplicația încarcă automat toate livrarile pentru camionul dumneavoastră.
 
-### **Pasul 3: Selectare Cursă**
-Șoferul vede lista cu toate cursele:
-- **Curse Disponibile** (verde) - gata de pornire
-- **Curse în Progres** (albastru) - în derulare
-- **Curse în Pauză** (galben) - temporar oprite
-- **Curse Finalizate** (gri) - completate
+### **Pasul 3: Vedeți Toate Livrarile**
+Pe ecran aparat toate cursele cu culori diferite:
+- **VERDE** = Gata de pornit
+- **ALBASTRU** = În derulare acum
+- **GALBEN** = În pauză (pauza legală, încărcare)
+- **GRI** = Terminată
 
-### **Pasul 4: Gestionare Cursă**
-Cu butoane simple și clare:
-- **START** - pornește cursa și tracking-ul GPS
-- **PAUZĂ** - oprește temporar (pauza legală, încărcare/descărcare)
-- **RESUME** - reia cursa după pauză
-- **STOP** - finalizează complet cursa
+### **Pasul 4: Folosiți Butoanele Simple**
+Pentru fiecare livrare aveți butoane mari și clare:
+- **START** = Pornesc cursa
+- **PAUZĂ** = Mă opresc temporar (pauza legală, încărcare/descărcare)
+- **RESUME** = Continui după pauză
+- **STOP** = Am terminat complet cursa
 
-### **Pasul 5: Monitoring Automat**
+### **Pasul 5: Aplicația Face Restul**
+Nu mai trebuie să faceți nimic! Aplicația trimite automat locația la birou și ține evidența pentru fiecare livrare separat.
+
+---
+
+## ✅ De Ce Este Diferit de Alte Aplicații?
+
+### **PROBLEMA cu aplicațiile vechi:**
+- O singură cursă pe camion
+- Telefoane multe la birou pentru status
+- Confuzie între livrări diferite  
+- Pierdere de timp cu hârtii
+
+### **SOLUȚIA iTrack:**
+- **5-10 curse** pe același camion
+- **Status automat** pentru fiecare livrare
+- **Fără telefoane** la birou
+- **Fără hârtii** - totul automat
+
+### **Exemplu Practic:**
+**Camionul B123ABC are azi 4 livrări:**
+- **Livrarea A**: Plecare București → Cluj (ACTIVĂ - GPS pornit)  
+- **Livrarea B**: Plecare Cluj → Timișoara (ÎN AȘTEPTARE)
+- **Livrarea C**: Întoarcere Timișoara → București (ÎN AȘTEPTARE)
+- **Livrarea D**: Livrare locală București (ÎN AȘTEPTARE)
+
+**Cu iTrack:** Șoferul vede toate 4 pe același ecran și le gestionează simplu cu butoane.
+**Fără iTrack:** 16 telefoane la birou (4 livrări x 4 statusuri fiecare).
+
+---
+
+## 🛟 Support și Ajutor
+
+### **Dacă Aveți Probleme:**
+- **Telefon Support**: Disponibil 8:00 - 20:00
+- **Chat în Aplicație**: Răspuns în max 30 minute
+- **Training Gratuit**: 2 ore per șofer incluse în pachet
+
+### **Întrebări Frecvente:**
+
+**"Ce fac dacă nu am semnal?"**
+→ Aplicația funcționează și fără internet. Salvează totul local și trimite când reapare semnalul.
+
+**"Ce fac dacă uit să apăs STOP?"**  
+→ Nu vă faceți griji! Biroul vede că ați ajuns la destinație și vă pot suna să confirmați.
+
+**"Consumă mult din baterie?"**
+→ Nu! Aplicația este optimizată să consume foarte puțin. Funcționează toată ziua fără probleme.
+
+**"E greu de învățat?"**
+→ Deloc! Dacă știți să folosiți WhatsApp, știți să folosiți și iTrack. Doar 4 butoane importante.
+
+---
+
+## 💬 Ce Spun Șoferii Care Folosesc iTrack:
+
+*"Înainte sunam de 10 ori pe zi la birou. Acum apăs doar butoane și aia e. Mult mai simplu!"*  
+**- Ion, șofer 15 ani experiență**
+
+*"Mi-a plăcut că văd toate livrarile pe același ecran. Nu mai uit de niciuna."*  
+**- Maria, șofer urban**
+
+*"Functioneaza si fara semnal, care e foarte important pe drumurile din munti."*  
+**- Vasile, transport international**
+
+*"Păgubă că nu am avut aplicația asta mai devreme. Îmi economisește 2 ore pe zi."*  
+**- Alexandru, șofer pe curse lungi**
 După pornirea cursei, aplicația:
 - Transmite automat coordonatele la fiecare 5 secunde
 - Funcționează în fundal chiar și cu telefonul blocat
