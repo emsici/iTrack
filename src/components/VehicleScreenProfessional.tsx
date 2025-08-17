@@ -35,7 +35,7 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     };
     
     console.log(`📤 === STRUCTURA COMPLETĂ CA GPS PENTRU STATUS ${newStatus} ===`);
-    console.log(`📤 Toate câmpurile completate ca BackgroundGPSService pentru răspuns 200:`, JSON.stringify(statusUpdateData, null, 2));
+    console.log(`📤 Toate câmpurile completate ca BackgroundGPSService + headers identice pentru răspuns 200:`, JSON.stringify(statusUpdateData, null, 2));
     
     // CORECTARE CRITICĂ: TOATE actualizările de status merg la gps.php (vehicul.php doar pentru interogări curse)
     // Folosește API_BASE_URL centralizat din configurație (detectează automat etsm_prod vs etsm3)
@@ -48,9 +48,10 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     const response = await CapacitorHttp.post({
       url: endpoint,
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`,
-        'Accept': 'application/json'
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${authToken}`,
+        "Accept": "application/json",
+        "User-Agent": "iTrack-StatusUpdate/1.0"
       },
       data: statusUpdateData
     });
@@ -920,9 +921,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           const response = await CapacitorHttp.post({
             url: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php',
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${activeGPSToken}`,
-              'Accept': 'application/json'
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${activeGPSToken}`,
+              "Accept": "application/json",
+              "User-Agent": "iTrack-GPS/1.0"
             },
             data: gpsData
           });
