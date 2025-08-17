@@ -929,6 +929,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           
           if (connection && connection.effectiveType) {
             switch (connection.effectiveType) {
+              case '5g': return 5; // 5G = semnal GSM excelent
               case '4g': return 4; // 4G = semnal GSM bun
               case '3g': return 3; // 3G = semnal GSM moderat  
               case '2g': return 2; // 2G = semnal GSM slab
@@ -964,10 +965,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           
           const effectiveType = connection.effectiveType;
           switch (effectiveType) {
-            case '4g': return 4; // 4G GSM
-            case '3g': return 3; // 3G GSM
-            case '2g': return 2; // 2G GSM
-            case 'slow-2g': return 1; // 2G lent GSM
+            case '5g': return 5; // 5G GSM excelent
+            case '4g': return 4; // 4G GSM bun
+            case '3g': return 3; // 3G GSM moderat
+            case '2g': return 2; // 2G GSM slab
+            case 'slow-2g': return 1; // 2G lent GSM foarte slab
             default: return 3; // Default GSM moderat
           }
         }
