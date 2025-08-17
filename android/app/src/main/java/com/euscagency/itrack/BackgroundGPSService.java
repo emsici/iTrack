@@ -107,12 +107,15 @@ public class BackgroundGPSService extends Service {
                     startBackgroundGPS();
                 }
             } else if (newStatus == 3) { // PAUSE
-                Log.e(TAG, "PAUSE: Stopping GPS transmission");
-                stopBackgroundGPS();
+                Log.e(TAG, "PAUSE: UIT paused but service continues for other UITs");
+                // Nu oprim GPS complet - doar notăm că acest UIT este în pauză
+                // GPS va continua pentru alte UIT-uri active din TypeScript
+                Log.e(TAG, "ℹ️ GPS service remains active for other active UITs");
             } else if (newStatus == 4) { // STOP
-                Log.e(TAG, "STOP: Stopping service completely");
-                stopBackgroundGPS();
-                stopSelf();
+                Log.e(TAG, "STOP: Removing UIT from active tracking (service continues for other UITs)");
+                // Nu oprim serviciul complet - doar eliminăm UIT-ul din tracking
+                // Serviciul va continua pentru alte UIT-uri active
+                Log.e(TAG, "ℹ️ Service remains active for other potential UITs");
             }
             
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {

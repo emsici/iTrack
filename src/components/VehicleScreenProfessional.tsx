@@ -696,10 +696,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           // Stop course analytics for this specific course
           await courseAnalyticsService.stopCourseTracking(courseToUpdate.uit);
           
-          // If no active courses remain, stop GPS transmission entirely
+          // If no active courses remain, stop GPS transmission entirely  
           if (activeCourses.size === 0) {
             console.log("🛑 Nu mai sunt curse active - opresc GPS complet");
             await stopAllGPSTransmission();
+            
+            // Oprește serviciul Android doar când nu mai sunt curse active
+            if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
+              console.log("📱 Opresc serviciul Android GPS - nu mai sunt curse active");
+              window.AndroidGPS.stopGPS("all_courses_inactive");
+            }
           }
         }
         

@@ -91,7 +91,7 @@ Real Device Data: Implemented dynamic battery level detection and real network t
 ### 2025-08-17: GPS Efficiency Optimization & Active Courses Management
 - **🎯 ACTIVE COURSES MAP**: Implemented efficient GPS management using Map<string, Course> to track only active courses (status 2). Courses are removed from active list when paused (status 3) or stopped (status 4).
 - **⚡ GPS TRANSMISSION EFFICIENCY**: Single GPS coordinate acquisition transmitted to ALL active courses with their specific UIT identifiers. Eliminates redundant GPS calls and optimizes battery usage.
-- **🛑 SMART GPS STOPPING**: GPS transmission completely stops when no active courses remain. Individual course pause/stop removes course from active tracking without affecting other active courses.
+- **🛑 SMART GPS STOPPING**: GPS transmission stops only when ALL courses are inactive. Individual course pause/stop removes course from active tracking without closing Android service - other courses continue normally. Service closes only when no active courses remain.
 - **📊 UIT-SPECIFIC TRANSMISSION**: Each active course transmits GPS data with its unique UIT identifier, ensuring proper server tracking and data association.
 - **🔄 ENHANCED STATUS DEBUGGING**: Added comprehensive logging for status updates (3=PAUSE, 4=STOP) with detailed transmission confirmation and active courses count tracking.
 
