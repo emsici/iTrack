@@ -303,6 +303,17 @@ public class BackgroundGPSService extends Service {
         try {
             Log.e(TAG, "📤 === PREPARING GPS TRANSMISSION ===");
             
+            // CRITICĂ: Nu trimite GPS data dacă cursa este în PAUSE (status 3) sau STOP (status 4)
+            if (courseStatus == 3) {
+                Log.e(TAG, "⏸️ GPS transmission SKIPPED - course is PAUSED (status 3)");
+                return;
+            } else if (courseStatus == 4) {
+                Log.e(TAG, "🛑 GPS transmission SKIPPED - course is STOPPED (status 4)");
+                return;
+            }
+            
+            Log.e(TAG, "✅ GPS transmission ALLOWED - course is ACTIVE (status " + courseStatus + ")");
+            
             // Create GPS data JSON
             org.json.JSONObject gpsData = new org.json.JSONObject();
             gpsData.put("uit", activeUIT);
@@ -315,7 +326,7 @@ public class BackgroundGPSService extends Service {
             gpsData.put("hdop", (int) location.getAccuracy());
             gpsData.put("gsm_signal", getNetworkSignal()); // Real network signal
             gpsData.put("baterie", getBatteryLevel());
-            gpsData.put("status", courseStatus); // Current course status
+            gpsData.put("status", 2); // IMPORTANT: GPS data is ALWAYS status 2 (ACTIVE transmission)
             
             // Romania timestamp
             java.util.TimeZone romaniaTimeZone = java.util.TimeZone.getTimeZone("Europe/Bucharest");

@@ -1075,15 +1075,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const getBatteryLevel = async (): Promise<number> => {
+  const getBatteryLevel = async (): Promise<string> => {
     try {
       if ('getBattery' in navigator) {
         const battery = await (navigator as any).getBattery();
-        return Math.round(battery.level * 100);
+        return `${Math.round(battery.level * 100)}%`;
       }
-      return 75; // Default if battery API not available  
+      return "75%"; // Default if battery API not available  
     } catch {
-      return 75;
+      return "75%";
     }
   };
 
