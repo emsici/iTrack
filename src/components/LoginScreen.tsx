@@ -78,7 +78,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         : currentTheme === 'business'
           ? 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)'
           : currentTheme === 'nature'
-            ? 'linear-gradient(135deg, #0f172a 0%, #064e3b 50%, #065f46 100%)'
+            ? 'linear-gradient(135deg, #14532d 0%, #166534 50%, #16a34a 100%)'
             : currentTheme === 'night'
               ? 'linear-gradient(135deg, #0f0f23 0%, #1e1b4b 50%, #312e81 100%)'
               : currentTheme === 'driver'
