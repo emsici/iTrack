@@ -172,15 +172,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   // PERFORMANCE OPTIMIZED: Initialize theme and vehicle number with debouncing
   useEffect(() => {
     let mounted = true;
+    console.log('🚀 VehicleScreen useEffect started - initializing...');
+    
     const initializeApp = async () => {
       try {
+        console.log('📱 Step 1: Initialize theme...');
         // Initialize theme with caching
         const savedTheme = await themeService.initialize();
         if (mounted) {
           setCurrentTheme(savedTheme);
+          console.log('✅ Theme initialized:', savedTheme);
         }
         
-        // ALWAYS load stored vehicle number și coursele asociate
+        console.log('📱 Step 2: Load stored vehicle number...');
+        // ALWAYS load stored vehicle number și cursele asociate
         const storedVehicle = await getStoredVehicleNumber();
         if (storedVehicle && mounted) {
           setVehicleNumber(storedVehicle);
@@ -204,14 +209,23 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           } else {
             console.log('⚠️ Nu pot auto-încărca cursele - lipsește token-ul');
           }
+        } else {
+          console.log('📱 No stored vehicle found - showing input screen');
         }
+        
+        console.log('✅ VehicleScreen initialization completed successfully');
       } catch (error) {
-        console.error('Eroare la inițializarea aplicației:', error);
+        console.error('❌ Eroare la inițializarea aplicației:', error);
       }
     };
     
     initializeApp();
-  }, []); // Empty dependency array - runs only once on mount
+    
+    return () => {
+      mounted = false;
+      console.log('🧹 VehicleScreen cleanup');
+    };
+  }, [token]); // Add token dependency to re-run when token changes
 
   // Separate useEffect for background refresh events + network status
   useEffect(() => {
