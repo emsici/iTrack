@@ -28,8 +28,16 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     console.log(`📤 === STRUCTURA IDENTICĂ PENTRU STATUS ${newStatus} ===`);
     console.log(`📤 Sending data:`, JSON.stringify(statusUpdateData, null, 2));
     
+    // CRITICAL FIX: Status 3/4 should go to gps.php, not vehicul.php
+    const endpoint = (newStatus === 3 || newStatus === 4) 
+      ? 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php'
+      : 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php';
+    
+    console.log(`🎯 ENDPOINT SELECTION: Status ${newStatus} → ${endpoint}`);
+    console.log(`📋 Status 2 → vehicul.php | Status 3,4 → gps.php`);
+    
     const response = await CapacitorHttp.post({
-      url: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php',
+      url: endpoint,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${authToken}`,
