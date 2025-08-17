@@ -3,11 +3,52 @@ import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
 import { getVehicleCourses, logout } from "../services/api";
 // Direct Android GPS functions - BackgroundGPSService handles everything natively
-const updateCourseStatus = async (courseId: string, newStatus: number) => {
-  if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-    return window.AndroidGPS.updateStatus(courseId, newStatus);
+const updateCourseStatus = async (courseId: string, newStatus: number, authToken: string) => {
+  try {
+    // STEP 1: Update server via API
+    console.log(`🌐 Sending status ${newStatus} to server for UIT: ${courseId}`);
+    
+    const statusUpdateData = {
+      uit: courseId,
+      status: newStatus,
+      timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
+    };
+    
+    const response = await CapacitorHttp.post({
+      url: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`,
+        'Accept': 'application/json'
+      },
+      data: statusUpdateData
+    });
+    
+    console.log(`✅ Server status update successful: ${response.status}`);
+    console.log(`📊 Server response:`, response.data);
+    
+    // STEP 2: Update Android GPS service
+    if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
+      const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus);
+      console.log(`📱 Android GPS service updated: ${androidResult}`);
+      return androidResult;
+    }
+    
+    return `SUCCESS: Status ${newStatus} updated for ${courseId}`;
+    
+  } catch (error) {
+    console.error(`❌ Status update failed for ${courseId}:`, error);
+    
+    // Still try Android service even if server fails
+    if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
+      const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus);
+      console.log(`📱 Android GPS service updated (offline): ${androidResult}`);
+      return androidResult;
+    }
+    
+    console.warn('AndroidGPS interface not available - browser mode');
+    throw error;
   }
-  console.warn('AndroidGPS interface not available - browser mode');
 };
 
 const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) => {
@@ -567,7 +608,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }
         
         // Always call updateCourseStatus for status synchronization with server AND Android service
-        await updateCourseStatus(courseToUpdate.uit, newStatus);
+        await updateCourseStatus(courseToUpdate.uit, newStatus, token);
         
         // Update Android GPS service status
         if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
