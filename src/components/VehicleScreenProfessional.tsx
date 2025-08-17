@@ -725,12 +725,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         // Actualizează statusul serviciului GPS Android (va trimite automat status 3/4 la server)
         if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-          console.log(`📱 Actualizez statusul serviciului GPS Android la ${newStatus}`);
+          console.log(`📱 === ANDROID GPS STATUS UPDATE START ===`);
+          console.log(`🔧 AndroidGPS disponibil: ${!!window.AndroidGPS}`);
+          console.log(`🔧 updateStatus method disponibil: ${!!window.AndroidGPS.updateStatus}`);
+          console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus}`);
+          
           if (newStatus === 3 || newStatus === 4) {
-            console.log(`📡 Serviciul Android va trimite automat status ${newStatus} la server`);
+            console.log(`🎯 === CRITICĂ === Status ${newStatus} va fi trimis la server de serviciul Android!`);
+            console.log(`📡 Endpoint: gps.php - ar trebui să primească răspuns 200`);
           }
-          const androidResult = window.AndroidGPS.updateStatus(courseToUpdate.uit, newStatus);
-          console.log(`✅ Statusul GPS Android actualizat: ${androidResult}`);
+          
+          try {
+            const androidResult = window.AndroidGPS.updateStatus(courseToUpdate.uit, newStatus);
+            console.log(`✅ Rezultat Android updateStatus: ${androidResult}`);
+            console.log(`📱 === ANDROID GPS STATUS UPDATE COMPLETED ===`);
+          } catch (androidError) {
+            console.error(`❌ EROARE Android updateStatus:`, androidError);
+          }
+        } else {
+          console.error(`❌ === PROBLEMĂ CRITICĂ ===`);
+          console.error(`📱 AndroidGPS nu este disponibil sau updateStatus lipsește!`);
+          console.error(`🔧 window.AndroidGPS: ${!!window.AndroidGPS}`);
+          console.error(`🔧 updateStatus method: ${!!(window.AndroidGPS && window.AndroidGPS.updateStatus)}`);
+          console.error(`⚠️ Status ${newStatus} NU va fi trimis la server!`);
         }
         
         console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);
