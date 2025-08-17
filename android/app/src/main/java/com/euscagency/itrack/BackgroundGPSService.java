@@ -108,18 +108,27 @@ public class BackgroundGPSService extends Service {
         gpsExecutor = Executors.newSingleThreadScheduledExecutor();
         Log.e(TAG, "GPS Executor created, scheduling cycles every " + GPS_INTERVAL_SECONDS + "s");
         
+        // Add a simple test cycle first
+        gpsExecutor.schedule(new Runnable() {
+            @Override
+            public void run() {
+                Log.e(TAG, "TEST: ScheduledExecutorService IS WORKING!");
+            }
+        }, 1, TimeUnit.SECONDS);
+        
         gpsExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Log.e(TAG, "GPS Cycle executing");
+                    long currentTime = System.currentTimeMillis();
+                    Log.e(TAG, "GPS Cycle executing at: " + currentTime);
                     performGPSCycle();
                 } catch (Exception e) {
                     Log.e(TAG, "Cycle error: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
-        }, 2, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
+        }, 3, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
         
         isGPSRunning = true;
         Log.e(TAG, "GPS Service STARTED successfully");
@@ -140,10 +149,10 @@ public class BackgroundGPSService extends Service {
     }
     
     private void performGPSCycle() {
-        Log.e(TAG, "📍 GPS CYCLE START");
+        Log.e(TAG, "GPS CYCLE START - UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL"));
         
         if (activeUIT == null || activeToken == null) {
-            Log.e(TAG, "❌ Missing data");
+            Log.e(TAG, "Missing data - UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL"));
             return;
         }
         
