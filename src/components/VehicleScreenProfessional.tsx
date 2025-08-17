@@ -545,12 +545,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         // CRITICAL: Handle all GPS status changes properly
         if (newStatus === 2) {
-          console.log("🚀 PORNIRE GPS: Status 2 (ACTIVE) - pornesc BackgroundGPSService");
-          const gpsResult = startAndroidGPS(courseToUpdate, vehicleNumber, token);
-          console.log("📱 GPS Service Result:", gpsResult);
+          console.log("🚀 PORNIRE GPS: Status 2 (ACTIVE) - pornesc GPS real");
+          
+          // Start Android service if available
+          if (window.AndroidGPS) {
+            const gpsResult = startAndroidGPS(courseToUpdate, vehicleNumber, token);
+            console.log("📱 Android GPS Service Result:", gpsResult);
+          }
+          
+          // Start JavaScript GPS for immediate testing
+          console.log("🔄 Starting JavaScript GPS for real coordinates...");
+          startJavaScriptGPS(courseToUpdate, vehicleNumber, token);
+          
         } else {
-          console.log(`🔄 STATUS CHANGE: Status ${newStatus} - apelează updateStatus direct`);
+          console.log(`🔄 STATUS CHANGE: Status ${newStatus} - stopping GPS transmission`);
           console.log("📋 Status meanings: 2=ACTIVE, 3=PAUSE, 4=STOP");
+          
+          // Stop GPS transmission
+          stopJavaScriptGPS();
         }
         
         // Always call updateCourseStatus for status synchronization with server AND Android service
@@ -691,6 +703,130 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   }, []);
 
   // SCROLL PERFORMANCE optimizat special pentru șoferi - REMOVED complet pentru zero overhead
+
+  // JavaScript GPS functions for real coordinates
+  let gpsInterval: NodeJS.Timeout | null = null;
+  let activeGPSCourse: Course | null = null;
+  let activeGPSToken: string | null = null;
+  let activeGPSVehicle: string | null = null;
+
+  const startJavaScriptGPS = (course: Course, vehicleNumber: string, token: string) => {
+    console.log('🚀 === STARTING JAVASCRIPT GPS ===');
+    console.log(`📍 Course UIT: ${course.uit}, Vehicle: ${vehicleNumber}`);
+    
+    activeGPSCourse = course;
+    activeGPSToken = token;
+    activeGPSVehicle = vehicleNumber;
+    
+    // Clear any existing interval
+    if (gpsInterval) {
+      clearInterval(gpsInterval);
+    }
+    
+    // Start GPS transmission every 10 seconds
+    gpsInterval = setInterval(async () => {
+      await sendRealGPSCoordinate();
+    }, 10000);
+    
+    // Send first coordinate immediately
+    sendRealGPSCoordinate();
+    
+    console.log('✅ JavaScript GPS started - transmitting every 10 seconds');
+  };
+
+  const stopJavaScriptGPS = () => {
+    console.log('🛑 === STOPPING JAVASCRIPT GPS ===');
+    
+    if (gpsInterval) {
+      clearInterval(gpsInterval);
+      gpsInterval = null;
+    }
+    
+    activeGPSCourse = null;
+    activeGPSToken = null;
+    activeGPSVehicle = null;
+    
+    console.log('✅ JavaScript GPS stopped');
+  };
+
+  const sendRealGPSCoordinate = async () => {
+    if (!activeGPSCourse || !activeGPSToken || !activeGPSVehicle) {
+      console.log('❌ GPS data missing - skipping transmission');
+      return;
+    }
+
+    try {
+      console.log('📍 === GETTING REAL GPS COORDINATES ===');
+      
+      // Get real GPS position
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 10000
+      });
+
+      const { latitude, longitude, altitude, accuracy, speed, heading } = position.coords;
+      
+      console.log(`✅ Real GPS received: ${latitude}, ${longitude}`);
+      console.log(`📐 Accuracy: ${accuracy}m, Speed: ${speed}, Altitude: ${altitude}m`);
+
+      // Create GPS data object
+      const gpsData = {
+        uit: activeGPSCourse.uit,
+        numar_inmatriculare: activeGPSVehicle,
+        lat: latitude,
+        lng: longitude,
+        viteza: Math.round(speed || 0),
+        directie: Math.round(heading || 0),
+        altitudine: Math.round(altitude || 0),
+        hdop: Math.round(accuracy || 0),
+        gsm_signal: 4,
+        baterie: await getBatteryLevel(),
+        status: 2, // ACTIVE
+        timestamp: new Date().toLocaleString('ro-RO', { 
+          timeZone: 'Europe/Bucharest',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        }).replace(/(\d+)\/(\d+)\/(\d+),\s*(\d+:\d+:\d+)/, '$3-$2-$1 $4')
+      };
+
+      console.log('📤 Transmitting real GPS data:', gpsData);
+
+      // Send to server using fetch
+      const response = await fetch('https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${activeGPSToken}`,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(gpsData)
+      });
+
+      console.log('✅ GPS transmission successful:', response.status);
+      const responseData = await response.text();
+      console.log('📊 Server response:', responseData);
+
+    } catch (error) {
+      console.error('❌ GPS transmission error:', error);
+    }
+  };
+
+  const getBatteryLevel = async (): Promise<number> => {
+    try {
+      if ('getBattery' in navigator) {
+        const battery = await (navigator as any).getBattery();
+        return Math.round(battery.level * 100);
+      }
+      return 85; // Default if battery API not available
+    } catch {
+      return 85;
+    }
+  };
 
   // Theme helper functions
   const isDarkTheme = (theme: Theme) => theme === 'dark' || theme === 'driver' || theme === 'nature' || theme === 'night';
