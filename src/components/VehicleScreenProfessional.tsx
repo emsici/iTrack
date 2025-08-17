@@ -6,13 +6,18 @@ import { getVehicleCourses, logout } from "../services/api";
 const updateCourseStatus = async (courseId: string, newStatus: number, authToken: string) => {
   try {
     // STEP 1: Update server via API
-    console.log(`🌐 Sending status ${newStatus} to server for UIT: ${courseId}`);
+    console.log(`🌐 === TRIMITTING STATUS UPDATE ===`);
+    console.log(`📊 UIT: ${courseId}`);
+    console.log(`📋 New Status: ${newStatus} (2=ACTIVE, 3=PAUSE, 4=STOP)`);
+    console.log(`🔑 Token Length: ${authToken?.length || 0}`);
     
     const statusUpdateData = {
       uit: courseId,
       status: newStatus,
       timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
     };
+    
+    console.log(`📤 Sending data:`, statusUpdateData);
     
     const response = await CapacitorHttp.post({
       url: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php',
@@ -26,6 +31,7 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     
     console.log(`✅ Server status update successful: ${response.status}`);
     console.log(`📊 Server response:`, response.data);
+    console.log(`🎯 STATUS ${newStatus} SENT SUCCESSFULLY FOR UIT ${courseId}`);
     
     // STEP 2: Update Android GPS service
     if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
@@ -610,6 +616,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }
         
         // Always call updateCourseStatus for status synchronization with server AND Android service
+        console.log(`🔄 === SENDING STATUS UPDATE TO SERVER ===`);
+        console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus}, Token Available: ${!!token}`);
         await updateCourseStatus(courseToUpdate.uit, newStatus, token);
         
         // Update Android GPS service status
@@ -842,7 +850,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
       };
 
-      console.log('📤 Transmitting real GPS data:', gpsData);
+      console.log('📤 === TRANSMITTING GPS FOR SPECIFIC UIT ===');
+      console.log(`🎯 UIT SPECIFIC: ${activeGPSCourse.uit}`);
+      console.log(`🚛 Vehicle: ${activeGPSVehicle}`);
+      console.log(`📍 Coordinates: ${latitude}, ${longitude}`);
+      console.log('📤 Full GPS data:', gpsData);
 
       // Send to server using CapacitorHttp for APK compatibility
       const response = await CapacitorHttp.post({
