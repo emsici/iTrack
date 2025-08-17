@@ -556,6 +556,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         // Always call updateCourseStatus for status synchronization with server AND Android service
         await updateCourseStatus(courseToUpdate.uit, newStatus);
         
+        // Update Android GPS service status
+        if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
+          console.log(`📱 Updating Android GPS service status to ${newStatus}`);
+          const androidResult = window.AndroidGPS.updateStatus(courseToUpdate.uit, newStatus);
+          console.log(`✅ Android GPS status updated: ${androidResult}`);
+        }
+        
         console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);
         
         // Show success toast after successful API call

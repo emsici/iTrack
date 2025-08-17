@@ -133,6 +133,7 @@ public class MainActivity extends BridgeActivity {
             intent.putExtra("uit", uit);
             intent.putExtra("token", authToken);
             intent.putExtra("vehicle", vehicleNumber);
+            intent.putExtra("status", status);
             
             Log.e(TAG, "Intent prepared with extras - UIT: " + uit + ", Vehicle: " + vehicleNumber);
             
@@ -205,9 +206,13 @@ public class MainActivity extends BridgeActivity {
         Log.e(TAG, "  Status meanings: 2=START/RESUME, 3=PAUSE, 4=STOP");
         
         try {
-            // BackgroundGPSService doesn't need status updates - it runs continuously
-            Log.e(TAG, "ℹ️ BackgroundGPSService runs continuously - status changes handled automatically");
-            Log.e(TAG, "📊 Status change logged: " + courseId + " → " + newStatus);
+            // Send status update to BackgroundGPSService
+            Intent intent = new Intent(this, BackgroundGPSService.class);
+            intent.setAction("UPDATE_COURSE_STATUS");
+            intent.putExtra("status", newStatus);
+            
+            startService(intent);
+            Log.e(TAG, "✅ Status update sent to BackgroundGPSService: " + newStatus);
             
             String statusName = (newStatus == 2) ? "ACTIVE" : (newStatus == 3) ? "PAUSE" : (newStatus == 4) ? "STOP" : "UNKNOWN";
             return "SUCCESS: BACKGROUND GPS status " + statusName + " for " + courseId;
