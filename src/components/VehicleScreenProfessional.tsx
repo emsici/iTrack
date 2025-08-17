@@ -16,17 +16,17 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     console.log(`📋 Status Nou: ${newStatus} (2=ACTIV, 3=PAUZA, 4=STOP)`);
     console.log(`🔑 Lungime Token: ${authToken?.length || 0}`);
     console.log(`🚛 Numărul Vehiculului: ${vehicleNumber}`);
-    console.log(`🎯 IMPORTANT: Trimite la fel pentru TOATE statusurile - doar cifra statusului diferă!`);
+    console.log(`🎯 IMPORTANT: Aceeași structură ca GPS-ul (numar_inmatriculare) pentru a primi răspuns 200!`);
     
     const statusUpdateData = {
-      nr: vehicleNumber,  // CRITIC: Serverul are nevoie de numărul vehiculului pentru toate actualizările de status
+      numar_inmatriculare: vehicleNumber,  // CRÍTICA: Aceeași structură ca GPS-ul - folosește numar_inmatriculare nu nr
       uit: courseId,
       status: newStatus,
       timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
     };
     
-    console.log(`📤 === STRUCTURA IDENTICĂ PENTRU STATUS ${newStatus} ===`);
-    console.log(`📤 Trimitere date:`, JSON.stringify(statusUpdateData, null, 2));
+    console.log(`📤 === STRUCTURA IDENTICĂ CU GPS PENTRU STATUS ${newStatus} ===`);
+    console.log(`📤 Trimitere date (aceeași structură ca BackgroundGPSService):`, JSON.stringify(statusUpdateData, null, 2));
     
     // CORECTARE CRITICĂ: TOATE actualizările de status merg la gps.php (vehicul.php doar pentru interogări curse)
     // Folosește API_BASE_URL centralizat din configurație (detectează automat etsm_prod vs etsm3)
