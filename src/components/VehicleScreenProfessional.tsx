@@ -1009,16 +1009,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   // SCROLL PERFORMANCE optimizat special pentru șoferi - REMOVED complet pentru zero overhead
 
-  // Global variables for GPS tracking
-  let activeGPSToken: string | null = null;
-  let activeGPSVehicle: string | null = null;
+  // GPS token și vehicul sunt gestionate de BackgroundGPSService
+  // Nu mai sunt necesare variabile globale pentru browser GPS
 
   const startGPSForActiveCourses = async (vehicleNumber: string, token: string) => {
-    console.log('🚀 === STARTING GPS FOR ALL ACTIVE COURSES ===');
+    console.log('🚀 === ANALYTICS PENTRU CURSE ACTIVE ===');
     console.log(`📍 Active courses count: ${activeCourses.size}`);
-    
-    activeGPSToken = token;
-    activeGPSVehicle = vehicleNumber;
     
     // Initialize course analytics for all active courses
     console.log('📊 === STARTING COURSE ANALYTICS FOR ALL ACTIVE ===');
@@ -1027,20 +1023,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`✅ Analytics started for UIT: ${uit}`);
     }
     
-    // Clear any existing interval
-    if (activeGPSInterval) {
-      clearInterval(activeGPSInterval);
-    }
-    
-    // Start GPS transmission every 10 seconds for ALL active courses
-    activeGPSInterval = setInterval(async () => {
-      await sendGPSForAllActiveCourses();
-    }, 10000);
-    
-    // Send first coordinate immediately for all active courses
-    sendGPSForAllActiveCourses();
-    
-    console.log('✅ GPS started for all active courses - transmitting every 10 seconds');
+    console.log('📱 === GPS GESTIONAT COMPLET DE BACKGROUNDGPSSERVICE ===');
+    console.log('🔋 BackgroundGPSService va gestiona transmisia GPS în background');
+    console.log('⚡ GPS va continua să lucreze când aplicația este blocată/minimizată');
+    console.log('✅ Analytics pornit - GPS delegat la BackgroundGPSService');
   };
 
   const stopAllGPSTransmission = async () => {
@@ -1058,122 +1044,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`✅ Analytics stopped for UIT: ${uit}`);
     }
     
-    activeGPSToken = null;
-    activeGPSVehicle = null;
+    // Token și vehicul gestionate de BackgroundGPSService
     
     console.log('✅ All GPS transmission stopped');
   };
 
-  const sendGPSForAllActiveCourses = async () => {
-    if (activeCourses.size === 0 || !activeGPSToken || !activeGPSVehicle) {
-      console.log('❌ No active courses or GPS data missing - skipping transmission');
-      return;
-    }
-
-    try {
-      console.log('📍 === GETTING REAL GPS COORDINATES FOR ALL ACTIVE COURSES ===');
-      console.log(`🎯 Transmitting for ${activeCourses.size} active courses`);
-      
-      // Get real GPS position once for all courses
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 10000
-      });
-
-      const { latitude, longitude, altitude, accuracy, speed, heading } = position.coords;
-      
-      console.log(`✅ Real GPS received: ${latitude}, ${longitude}`);
-      console.log(`📐 Accuracy: ${accuracy}m, Speed: ${speed}, Altitude: ${altitude}m`);
-
-      // Transmit GPS data DOAR pentru cursele cu status 2 (ACTIVE)
-      console.log(`🔍 DEBUG activeCourses content:`, Array.from(activeCourses.entries()).map(([uit, course]) => ({uit, status: course.status})));
-      
-      for (const [uit, course] of activeCourses) {
-        // CRITICĂ: Verifică statusul real al cursei - nu trimite pentru PAUSE (3) sau STOP (4)
-        if (course.status !== 2) {
-          console.log(`⏸️ GPS transmission SKIPPED pentru UIT ${uit} - status: ${course.status} (3=PAUSE, 4=STOP)`);
-          continue; // Skip transmission pentru curse inactive
-        }
-        
-        console.log(`✅ GPS transmission PROCEEDING pentru UIT ${uit} - status: ${course.status} (ACTIVE)`);
-        
-        const gpsData = {
-          uit: course.uit,
-          numar_inmatriculare: activeGPSVehicle,
-          lat: latitude,
-          lng: longitude,
-          viteza: Math.round(speed || 0),
-          directie: Math.round(heading || 0),
-          altitudine: Math.round(altitude || 0),
-          hdop: Math.round(accuracy || 0),
-          gsm_signal: await getNetworkSignal(),
-          baterie: await getBatteryLevel(),
-          status: 2, // ACTIVE - trimis doar pentru curse cu status 2
-          timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
-        };
-
-        console.log(`📤 === TRANSMITTING GPS FOR UIT: ${uit} ===`);
-        console.log(`🚛 Vehicle: ${activeGPSVehicle}`);
-        console.log(`📍 Coordinates: ${latitude}, ${longitude}`);
-
-        try {
-          // Send to server using CapacitorHttp for APK compatibility
-          const response = await CapacitorHttp.post({
-            url: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php',
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${activeGPSToken}`,
-              "Accept": "application/json",
-              "User-Agent": "iTrack-GPS/1.0"
-            },
-            data: gpsData
-          });
-
-          console.log(`✅ GPS transmission successful for UIT ${uit}:`, response.status);
-
-          // Update local statistics with real GPS data
-          await courseAnalyticsService.updateCourseStatistics(
-            course.uit,
-            latitude,
-            longitude,
-            speed || 0,
-            accuracy || 0
-          );
-          console.log(`✅ Statistics updated for UIT: ${uit}`);
-
-        } catch (courseError) {
-          console.error(`❌ GPS transmission error for UIT ${uit}:`, courseError);
-          
-          // Salvează coordonata offline pentru sincronizare ulterioară
-          try {
-            const { offlineGPSService } = await import('../services/offlineGPS');
-            await offlineGPSService.saveOfflineCoordinate(gpsData);
-            console.log(`💾 GPS salvat offline pentru UIT: ${uit}`);
-          } catch (offlineError) {
-            console.error(`❌ Eroare salvare GPS offline pentru UIT ${uit}:`, offlineError);
-          }
-          
-          // Even if server transmission fails, update local statistics
-          try {
-            await courseAnalyticsService.updateCourseStatistics(
-              course.uit,
-              latitude,
-              longitude,
-              speed || 0,
-              accuracy || 0
-            );
-            console.log(`✅ Offline statistics updated for UIT: ${uit}`);
-          } catch (offlineError) {
-            console.error(`❌ Offline statistics update failed for UIT ${uit}:`, offlineError);
-          }
-        }
-      }
-
-    } catch (error) {
-      console.error('❌ GPS coordinate acquisition error:', error);
-    }
-  };
+  // Browser GPS complet eliminat - BackgroundGPSService.java gestionează transmisia
 
 
 
