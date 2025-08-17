@@ -295,40 +295,16 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                CHANNEL_ID,
-                "Background GPS Tracking",
-                NotificationManager.IMPORTANCE_LOW
-            );
-            channel.setDescription("Efficient background GPS tracking");
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
-        }
-    }
-    
-    private android.app.Notification createNotification() {
-        return new NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("📍 iTrack GPS Background")
-            .setContentText("Efficient GPS tracking - " + GPS_INTERVAL_SECONDS + "s intervals")
-            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_NAVIGATION)
-            .build();
-    }
-    
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
     
     private void createNotificationChannel() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
-                "GPS Background Service",
+                "iTrack GPS",
                 NotificationManager.IMPORTANCE_LOW
             );
             NotificationManager manager = getSystemService(NotificationManager.class);
@@ -337,11 +313,11 @@ public class BackgroundGPSService extends Service {
     }
     
     private Notification createNotification() {
-        return new NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("iTrack GPS Active")
-            .setContentText("GPS tracking in background")
+        return new Notification.Builder(this, CHANNEL_ID)
+            .setContentTitle("iTrack GPS")
+            .setContentText("GPS active")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true)
             .build();
     }
     
