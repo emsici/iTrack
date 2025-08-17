@@ -50,7 +50,7 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
       directie: Math.round(currentHeading),
       altitudine: Math.round(currentAlt),
       hdop: Math.round(currentAcc),
-      gsm_signal: 4,
+      gsm_signal: await getNetworkSignal(),
       baterie: await getBatteryLevel(),  // Baterie reală din device
       status: newStatus,
       timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
