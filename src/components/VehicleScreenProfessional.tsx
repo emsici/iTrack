@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { CapacitorHttp } from '@capacitor/core';
 import { Course } from "../types";
-import { getVehicleCourses, logout } from "../services/api";
+import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
 // Active courses tracking - for GPS transmission efficiency
 let activeCourses = new Map<string, Course>();
 let activeGPSInterval: NodeJS.Timeout | null = null;
@@ -29,12 +29,14 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     console.log(`📤 Sending data:`, JSON.stringify(statusUpdateData, null, 2));
     
     // CRITICAL FIX: Status 3/4 should go to gps.php, not vehicul.php
+    // Use centralized API_BASE_URL from configuration (automatically detects etsm_prod vs etsm3)
     const endpoint = (newStatus === 3 || newStatus === 4) 
-      ? 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php'
-      : 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php';
+      ? `${API_BASE_URL}gps.php`
+      : `${API_BASE_URL}vehicul.php`;
     
     console.log(`🎯 ENDPOINT SELECTION: Status ${newStatus} → ${endpoint}`);
     console.log(`📋 Status 2 → vehicul.php | Status 3,4 → gps.php`);
+    console.log(`🌐 API Base URL: ${API_BASE_URL} (centralized config)`);
     
     const response = await CapacitorHttp.post({
       url: endpoint,
