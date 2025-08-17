@@ -301,9 +301,12 @@ public class BackgroundGPSService extends Service {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
-                "iTrack GPS",
-                NotificationManager.IMPORTANCE_LOW
+                "iTrack GPS Tracking",
+                NotificationManager.IMPORTANCE_HIGH
             );
+            channel.setDescription("Transmisie GPS continuă pentru urmărire vehicule");
+            channel.setShowBadge(false);
+            channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
@@ -311,10 +314,13 @@ public class BackgroundGPSService extends Service {
     
     private Notification createNotification() {
         return new Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("iTrack GPS")
-            .setContentText("GPS active")
+            .setContentTitle("iTrack GPS Active")
+            .setContentText("Transmisie coordonate la 10 secunde")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setOngoing(true)
+            .setPriority(Notification.PRIORITY_HIGH)
+            .setCategory(Notification.CATEGORY_SERVICE)
+            .setVisibility(Notification.VISIBILITY_PUBLIC)
             .build();
     }
     
