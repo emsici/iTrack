@@ -158,7 +158,7 @@ import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
 
-import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Added for offline GPS monitoring
+// import OfflineSyncMonitor from "./OfflineSyncMonitor"; // UNUSED - offline sync logic în main component
 import ToastNotification from "./ToastNotification";
 
 import { useToast } from "../hooks/useToast";
@@ -324,8 +324,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log('🌐 Internet restored - auto-syncing offline coordinates...');
         try {
           const { offlineGPSService } = await import('../services/offlineGPS');
-          await offlineGPSService.syncOfflineCoordinates();
-          console.log('📡 Sincronizare offline pornită automat');
+          // CRITICĂ: Transmite token-ul pentru autentificare
+          const syncResult = await offlineGPSService.syncOfflineCoordinates(token);
+          console.log('📡 Sincronizare offline rezultat:', syncResult);
+          
+          // Actualizează count-ul după sincronizare
+          const stats = offlineGPSService.getStats();
+          setOfflineGPSCount(stats.totalOffline);
+          console.log(`📊 Count actualizat după sync: ${stats.totalOffline}`);
         } catch (syncError) {
           console.error('❌ Eroare sincronizare automată:', syncError);
         }
@@ -353,8 +359,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         console.log(`🔍 Network check: navigator=${navigatorOnline}, ping=${response.ok}, final=${actuallyOnline}`);
         return actuallyOnline;
-      } catch (error) {
-        console.log(`🔍 Network check failed: ${error.message}, using navigator.onLine=${navigator.onLine}`);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.log(`🔍 Network check failed: ${errorMessage}, using navigator.onLine=${navigator.onLine}`);
         return navigator.onLine;
       }
     };
@@ -389,8 +396,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       try {
         const { offlineGPSService } = await import('../services/offlineGPS');
         const stats = offlineGPSService.getStats();
-        setOfflineGPSCount(stats.totalOffline);
-        console.log(`📊 Offline GPS count: ${stats.totalOffline}`);
+        
+        // Actualizează DOAR dacă există schimbare
+        if (stats.totalOffline !== offlineGPSCount) {
+          setOfflineGPSCount(stats.totalOffline);
+          console.log(`📊 Offline GPS count updated: ${stats.totalOffline}`);
+        }
       } catch (error) {
         console.error("Error getting offline count:", error);
         setOfflineGPSCount(0);
@@ -398,7 +409,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
     
     updateOfflineCount();
-    const countInterval = setInterval(updateOfflineCount, 10000); // Check every 10 seconds
+    const countInterval = setInterval(updateOfflineCount, 5000); // Check every 5 seconds
     
     window.addEventListener('backgroundRefresh', handleBackgroundRefresh);
     
@@ -958,45 +969,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  // Monitor connection status with enhanced detection
-  useEffect(() => {
-    const checkConnectivity = async () => {
-      try {
-        // Real connectivity test
-        await fetch('https://www.google.com/favicon.ico', { 
-          mode: 'no-cors',
-          cache: 'no-cache',
-          method: 'HEAD'
-        });
-        setIsOnline(true);
-      } catch {
-        setIsOnline(false);
-      }
-    };
-
-    const handleOnline = () => {
-      checkConnectivity();
-    };
-    
-    const handleOffline = () => {
-      setIsOnline(false);
-    };
-
-    // Initial check
-    checkConnectivity();
-
-    // Reduced polling for better performance - every 2 minutes
-    const interval = setInterval(checkConnectivity, 180000); // OPTIMIZAT: 3 minute pentru mai puțin lag
-
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
-  }, []);
+  // ELIMINAT - Cod duplicate pentru detectarea conectivității
+  // Network detection este deja implementat în useEffect-ul principal
 
   // Removed unused function
 
