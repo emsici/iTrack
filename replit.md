@@ -87,3 +87,10 @@ Real Device Data: Implemented dynamic battery level detection and real network t
 - **📡 REAL SENSOR DATA**: Implemented comprehensive sensor detection: Speed/Direction from GPS coords, HDOP from GPS accuracy, GSM Signal from Network API (5G=5, 4G=4, 3G=3, 2G=2, WiFi=0), Battery from Browser API.
 - **🔄 STATUS SERVER SYNC**: Enhanced status updates (PAUSE=3, STOP=4) to transmit to server via CapacitorHttp while maintaining Android service synchronization.
 - **⚡ COMPLETE SENSOR ECOSYSTEM**: All sensor values now authentic - no more hardcoded data. Application provides production-grade GPS tracking with real device metrics.
+
+### 2025-08-17: GPS Efficiency Optimization & Active Courses Management
+- **🎯 ACTIVE COURSES MAP**: Implemented efficient GPS management using Map<string, Course> to track only active courses (status 2). Courses are removed from active list when paused (status 3) or stopped (status 4).
+- **⚡ GPS TRANSMISSION EFFICIENCY**: Single GPS coordinate acquisition transmitted to ALL active courses with their specific UIT identifiers. Eliminates redundant GPS calls and optimizes battery usage.
+- **🛑 SMART GPS STOPPING**: GPS transmission completely stops when no active courses remain. Individual course pause/stop removes course from active tracking without affecting other active courses.
+- **📊 UIT-SPECIFIC TRANSMISSION**: Each active course transmits GPS data with its unique UIT identifier, ensuring proper server tracking and data association.
+- **🔄 ENHANCED STATUS DEBUGGING**: Added comprehensive logging for status updates (3=PAUSE, 4=STOP) with detailed transmission confirmation and active courses count tracking.

@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
+import { CapacitorHttp } from '@capacitor/core';
 import { Course } from "../types";
 import { getVehicleCourses, logout } from "../services/api";
+// Active courses tracking - for GPS transmission efficiency
+let activeCourses = new Map<string, Course>();
+let activeGPSInterval: NodeJS.Timeout | null = null;
+
 // Direct Android GPS functions - BackgroundGPSService handles everything natively
 const updateCourseStatus = async (courseId: string, newStatus: number, authToken: string) => {
   try {
@@ -101,7 +106,6 @@ import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../servi
 // BackgroundGPSService handles offline GPS natively - no separate service needed
 import { logAPI, logAPIError } from "../services/appLogger";
 import { courseAnalyticsService } from "../services/courseAnalytics";
-import { CapacitorHttp } from '@capacitor/core';
 import { Network } from '@capacitor/network';
 // Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
@@ -593,9 +597,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`📞 Se apelează direct Android GPS cu UIT: ${courseToUpdate.uit}`);
         console.log(`📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat`);
         
-        // CRITICAL: Handle all GPS status changes properly
+        // CRITICAL: Efficient GPS management with active courses list
         if (newStatus === 2) {
-          console.log("🚀 PORNIRE GPS: Status 2 (ACTIVE) - pornesc GPS real");
+          console.log("🚀 PORNIRE GPS: Status 2 (ACTIVE) - adaug cursa la lista activă");
+          
+          // Add course to active list
+          activeCourses.set(courseToUpdate.uit, courseToUpdate);
+          console.log(`📋 Curse active: ${activeCourses.size}`);
           
           // Start Android service if available
           if (window.AndroidGPS) {
@@ -603,16 +611,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             console.log("📱 Android GPS Service Result:", gpsResult);
           }
           
-          // Start JavaScript GPS for immediate testing
-          console.log("🔄 Starting JavaScript GPS for real coordinates...");
-          await startJavaScriptGPS(courseToUpdate, vehicleNumber, token);
+          // Start GPS transmission for all active courses (if not already running)
+          if (!activeGPSInterval) {
+            console.log("🔄 Starting GPS transmission for active courses...");
+            await startGPSForActiveCourses(vehicleNumber, token);
+          }
           
         } else {
-          console.log(`🔄 STATUS CHANGE: Status ${newStatus} - stopping GPS transmission`);
+          console.log(`🔄 STATUS CHANGE: Status ${newStatus} - removing course from active list`);
           console.log("📋 Status meanings: 2=ACTIVE, 3=PAUSE, 4=STOP");
           
-          // Stop GPS transmission
-          await stopJavaScriptGPS();
+          // Remove course from active list
+          activeCourses.delete(courseToUpdate.uit);
+          console.log(`📋 Curse active rămase: ${activeCourses.size}`);
+          
+          // Stop course analytics for this specific course
+          await courseAnalyticsService.stopCourseTracking(courseToUpdate.uit);
+          
+          // If no active courses remain, stop GPS transmission entirely
+          if (activeCourses.size === 0) {
+            console.log("🛑 Nu mai sunt curse active - opresc GPS complet");
+            await stopAllGPSTransmission();
+          }
         }
         
         // Always call updateCourseStatus for status synchronization with server AND Android service
@@ -756,73 +776,72 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   // SCROLL PERFORMANCE optimizat special pentru șoferi - REMOVED complet pentru zero overhead
 
-  // JavaScript GPS functions for real coordinates
-  let gpsInterval: NodeJS.Timeout | null = null;
-  let activeGPSCourse: Course | null = null;
+  // Global variables for GPS tracking
   let activeGPSToken: string | null = null;
   let activeGPSVehicle: string | null = null;
 
-  const startJavaScriptGPS = async (course: Course, vehicleNumber: string, token: string) => {
-    console.log('🚀 === STARTING JAVASCRIPT GPS ===');
-    console.log(`📍 Course UIT: ${course.uit}, Vehicle: ${vehicleNumber}`);
+  const startGPSForActiveCourses = async (vehicleNumber: string, token: string) => {
+    console.log('🚀 === STARTING GPS FOR ALL ACTIVE COURSES ===');
+    console.log(`📍 Active courses count: ${activeCourses.size}`);
     
-    activeGPSCourse = course;
     activeGPSToken = token;
     activeGPSVehicle = vehicleNumber;
     
-    // Initialize course analytics tracking
-    console.log('📊 === STARTING COURSE ANALYTICS ===');
-    await courseAnalyticsService.startCourseTracking(course.uit, course.uit, vehicleNumber);
-    console.log('✅ Course analytics initialized');
+    // Initialize course analytics for all active courses
+    console.log('📊 === STARTING COURSE ANALYTICS FOR ALL ACTIVE ===');
+    for (const [uit, course] of activeCourses) {
+      await courseAnalyticsService.startCourseTracking(course.uit, course.uit, vehicleNumber);
+      console.log(`✅ Analytics started for UIT: ${uit}`);
+    }
     
     // Clear any existing interval
-    if (gpsInterval) {
-      clearInterval(gpsInterval);
+    if (activeGPSInterval) {
+      clearInterval(activeGPSInterval);
     }
     
-    // Start GPS transmission every 10 seconds
-    gpsInterval = setInterval(async () => {
-      await sendRealGPSCoordinate();
+    // Start GPS transmission every 10 seconds for ALL active courses
+    activeGPSInterval = setInterval(async () => {
+      await sendGPSForAllActiveCourses();
     }, 10000);
     
-    // Send first coordinate immediately
-    sendRealGPSCoordinate();
+    // Send first coordinate immediately for all active courses
+    sendGPSForAllActiveCourses();
     
-    console.log('✅ JavaScript GPS started - transmitting every 10 seconds');
+    console.log('✅ GPS started for all active courses - transmitting every 10 seconds');
   };
 
-  const stopJavaScriptGPS = async () => {
-    console.log('🛑 === STOPPING JAVASCRIPT GPS ===');
+  const stopAllGPSTransmission = async () => {
+    console.log('🛑 === STOPPING ALL GPS TRANSMISSION ===');
     
-    if (gpsInterval) {
-      clearInterval(gpsInterval);
-      gpsInterval = null;
+    if (activeGPSInterval) {
+      clearInterval(activeGPSInterval);
+      activeGPSInterval = null;
     }
     
-    // Stop course analytics tracking
-    if (activeGPSCourse) {
-      console.log('📊 === STOPPING COURSE ANALYTICS ===');
-      await courseAnalyticsService.stopCourseTracking(activeGPSCourse.uit);
-      console.log('✅ Course analytics stopped');
+    // Stop course analytics for all courses
+    console.log('📊 === STOPPING ALL COURSE ANALYTICS ===');
+    for (const [uit] of activeCourses) {
+      await courseAnalyticsService.stopCourseTracking(uit);
+      console.log(`✅ Analytics stopped for UIT: ${uit}`);
     }
     
-    activeGPSCourse = null;
     activeGPSToken = null;
     activeGPSVehicle = null;
     
-    console.log('✅ JavaScript GPS stopped');
+    console.log('✅ All GPS transmission stopped');
   };
 
-  const sendRealGPSCoordinate = async () => {
-    if (!activeGPSCourse || !activeGPSToken || !activeGPSVehicle) {
-      console.log('❌ GPS data missing - skipping transmission');
+  const sendGPSForAllActiveCourses = async () => {
+    if (activeCourses.size === 0 || !activeGPSToken || !activeGPSVehicle) {
+      console.log('❌ No active courses or GPS data missing - skipping transmission');
       return;
     }
 
     try {
-      console.log('📍 === GETTING REAL GPS COORDINATES ===');
+      console.log('📍 === GETTING REAL GPS COORDINATES FOR ALL ACTIVE COURSES ===');
+      console.log(`🎯 Transmitting for ${activeCourses.size} active courses`);
       
-      // Get real GPS position
+      // Get real GPS position once for all courses
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 15000,
@@ -834,75 +853,72 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`✅ Real GPS received: ${latitude}, ${longitude}`);
       console.log(`📐 Accuracy: ${accuracy}m, Speed: ${speed}, Altitude: ${altitude}m`);
 
-      // Create GPS data object
-      const gpsData = {
-        uit: activeGPSCourse.uit,
-        numar_inmatriculare: activeGPSVehicle,
-        lat: latitude,
-        lng: longitude,
-        viteza: Math.round(speed || 0),
-        directie: Math.round(heading || 0),
-        altitudine: Math.round(altitude || 0),
-        hdop: Math.round(accuracy || 0),
-        gsm_signal: await getNetworkSignal(),
-        baterie: await getBatteryLevel(),
-        status: 2, // ACTIVE
-        timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
-      };
+      // Transmit GPS data for each active course with its specific UIT
+      for (const [uit, course] of activeCourses) {
+        const gpsData = {
+          uit: course.uit,
+          numar_inmatriculare: activeGPSVehicle,
+          lat: latitude,
+          lng: longitude,
+          viteza: Math.round(speed || 0),
+          directie: Math.round(heading || 0),
+          altitudine: Math.round(altitude || 0),
+          hdop: Math.round(accuracy || 0),
+          gsm_signal: await getNetworkSignal(),
+          baterie: await getBatteryLevel(),
+          status: 2, // ACTIVE
+          timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
+        };
 
-      console.log('📤 === TRANSMITTING GPS FOR SPECIFIC UIT ===');
-      console.log(`🎯 UIT SPECIFIC: ${activeGPSCourse.uit}`);
-      console.log(`🚛 Vehicle: ${activeGPSVehicle}`);
-      console.log(`📍 Coordinates: ${latitude}, ${longitude}`);
-      console.log('📤 Full GPS data:', gpsData);
+        console.log(`📤 === TRANSMITTING GPS FOR UIT: ${uit} ===`);
+        console.log(`🚛 Vehicle: ${activeGPSVehicle}`);
+        console.log(`📍 Coordinates: ${latitude}, ${longitude}`);
 
-      // Send to server using CapacitorHttp for APK compatibility
-      const response = await CapacitorHttp.post({
-        url: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${activeGPSToken}`,
-          'Accept': 'application/json'
-        },
-        data: gpsData
-      });
+        try {
+          // Send to server using CapacitorHttp for APK compatibility
+          const response = await CapacitorHttp.post({
+            url: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${activeGPSToken}`,
+              'Accept': 'application/json'
+            },
+            data: gpsData
+          });
 
-      console.log('✅ GPS transmission successful:', response.status);
-      console.log('📊 Server response:', response.data);
+          console.log(`✅ GPS transmission successful for UIT ${uit}:`, response.status);
 
-      // IMPORTANT: Update local statistics with real GPS data
-      console.log('📊 === UPDATING LOCAL STATISTICS ===');
-      await courseAnalyticsService.updateCourseStatistics(
-        activeGPSCourse.uit,
-        latitude,
-        longitude,
-        speed || 0,
-        accuracy || 0
-      );
-      console.log('✅ Local statistics updated with real GPS data');
+          // Update local statistics with real GPS data
+          await courseAnalyticsService.updateCourseStatistics(
+            course.uit,
+            latitude,
+            longitude,
+            speed || 0,
+            accuracy || 0
+          );
+          console.log(`✅ Statistics updated for UIT: ${uit}`);
+
+        } catch (courseError) {
+          console.error(`❌ GPS transmission error for UIT ${uit}:`, courseError);
+          
+          // Even if server transmission fails, update local statistics
+          try {
+            await courseAnalyticsService.updateCourseStatistics(
+              course.uit,
+              latitude,
+              longitude,
+              speed || 0,
+              accuracy || 0
+            );
+            console.log(`✅ Offline statistics updated for UIT: ${uit}`);
+          } catch (offlineError) {
+            console.error(`❌ Offline statistics update failed for UIT ${uit}:`, offlineError);
+          }
+        }
+      }
 
     } catch (error) {
-      console.error('❌ GPS transmission error:', error);
-      
-      // Even if server transmission fails, update local statistics
-      try {
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 15000
-        });
-        
-        await courseAnalyticsService.updateCourseStatistics(
-          activeGPSCourse.uit,
-          position.coords.latitude,
-          position.coords.longitude,
-          position.coords.speed || 0,
-          position.coords.accuracy || 0
-        );
-        console.log('✅ Local statistics updated offline');
-      } catch (offlineError) {
-        console.error('❌ Offline statistics update failed:', offlineError);
-      }
+      console.error('❌ GPS coordinate acquisition error:', error);
     }
   };
 
