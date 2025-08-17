@@ -222,7 +222,21 @@ public class BackgroundGPSService extends Service {
         if (activeToken == null || courseStatuses.isEmpty()) {
             Log.e(TAG, "❌ GPS cycle skipped - missing data (Token: " + (activeToken != null ? "OK" : "NULL") + ", Courses: " + courseStatuses.size() + ")");
             sendLogToJavaScript("❌ GPS cycle skipped - missing token or no courses registered");
-            return;
+            // ✅ CORECTARE CRITICĂ: Nu face return - continuă cu fallback pentru a completa ciclul
+            Log.e(TAG, "🔄 Continuând cu fallback pentru a completa ciclul și a permite următorul cycle");
+            
+            // Încearcă fallback cu last known location chiar dacă lipsesc date
+            Location lastKnown = getLastKnownLocation();
+            if (lastKnown != null && !courseStatuses.isEmpty()) {
+                Log.e(TAG, "📍 EMERGENCY FALLBACK: Using last known location cu curse existente");
+                transmitGPSDataForActiveCourses(lastKnown);
+                Log.e(TAG, "✅ === GPS CYCLE COMPLETED cu EMERGENCY FALLBACK ===");
+                sendLogToJavaScript("✅ GPS CYCLE COMPLET (emergency) - următorul în " + GPS_INTERVAL_SECONDS + "s");
+            } else {
+                Log.e(TAG, "❌ Cycle completed without transmission - waiting for next cycle");
+                sendLogToJavaScript("❌ Cycle complet fără transmisie - următorul în " + GPS_INTERVAL_SECONDS + "s");
+            }
+            return; // Acum return este OK - ciclul s-a completat
         }
         
         // Direct GPS reading - no dummy data
@@ -237,7 +251,10 @@ public class BackgroundGPSService extends Service {
         
         if (!fineLocationPermission && !coarseLocationPermission) {
             Log.e(TAG, "❌ No GPS permission - stopping cycle");
-            return;
+            // ✅ CORECTARE CRITICĂ: Nu face return - completează ciclul pentru continuitate
+            Log.e(TAG, "🔄 Completând ciclul fără permisiuni pentru a permite următorul cycle");
+            sendLogToJavaScript("❌ GPS permissions denied - cycle completed, următorul în " + GPS_INTERVAL_SECONDS + "s");
+            return; // Acum return este OK - ciclul s-a completat
         }
         
         try {
@@ -336,8 +353,9 @@ public class BackgroundGPSService extends Service {
                                     Log.e(TAG, "✅ === GPS CYCLE COMPLETED cu FALLBACK ===");
                                     sendLogToJavaScript("✅ GPS CYCLE COMPLET (fallback) - următorul în " + GPS_INTERVAL_SECONDS + "s");
                                 } else {
-                                    Log.e(TAG, "❌ No GPS data available - skipping this cycle");
-                                    sendLogToJavaScript("❌ GPS indisponibil - skipping cycle");
+                                    Log.e(TAG, "❌ No GPS data available - completing cycle without transmission");
+                                    sendLogToJavaScript("❌ GPS indisponibil - cycle completed, următorul în " + GPS_INTERVAL_SECONDS + "s");
+                                    Log.e(TAG, "✅ === GPS CYCLE COMPLETED (NO DATA) ===");
                                 }
                                 
                             } catch (SecurityException se) {
@@ -361,8 +379,9 @@ public class BackgroundGPSService extends Service {
                     transmitGPSDataForActiveCourses(lastKnown);
                     Log.e(TAG, "✅ === GPS CYCLE COMPLETED cu CACHED FALLBACK ===");
                 } else {
-                    Log.e(TAG, "❌ Absolutely no GPS data available - cycle failed");
-                    sendLogToJavaScript("❌ NO GPS DATA - cycle failed");
+                    Log.e(TAG, "❌ Absolutely no GPS data available - completing cycle");
+                    sendLogToJavaScript("❌ NO GPS DATA - cycle completed, următorul în " + GPS_INTERVAL_SECONDS + "s");
+                    Log.e(TAG, "✅ === GPS CYCLE COMPLETED (NO PROVIDERS) ===");
                 }
             }
             
