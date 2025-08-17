@@ -118,7 +118,7 @@ public class MainActivity extends BridgeActivity {
     
     @JavascriptInterface
     public String startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
-        Log.e(TAG, "🚀 === SIMPLE GPS === AndroidGPS.startGPS CALLED FROM JAVASCRIPT");
+        Log.e(TAG, "🚀 === BACKGROUND GPS === AndroidGPS.startGPS CALLED FROM JAVASCRIPT");
         Log.e(TAG, "📍 Starting NATIVE GPS system:");
         Log.e(TAG, "  - courseId: " + courseId);
         Log.e(TAG, "  - vehicleNumber: " + vehicleNumber);
@@ -182,7 +182,7 @@ public class MainActivity extends BridgeActivity {
 
     @JavascriptInterface
     public String stopGPS(String courseId) {
-        Log.e(TAG, "🛑 === SIMPLE GPS === AndroidGPS.stopGPS called: courseId=" + courseId);
+        Log.e(TAG, "🛑 === BACKGROUND GPS === AndroidGPS.stopGPS called: courseId=" + courseId);
         
         try {
             // Stop BackgroundGPSService
@@ -201,7 +201,7 @@ public class MainActivity extends BridgeActivity {
 
     @JavascriptInterface
     public String updateStatus(String courseId, int newStatus) {
-        Log.e(TAG, "🔄 === SIMPLE GPS === Status update: courseId=" + courseId + ", newStatus=" + newStatus);
+        Log.e(TAG, "🔄 === BACKGROUND GPS === Status update: courseId=" + courseId + ", newStatus=" + newStatus);
         Log.e(TAG, "  Status meanings: 2=START/RESUME, 3=PAUSE, 4=STOP");
         
         try {

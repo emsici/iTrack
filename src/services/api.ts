@@ -1,7 +1,7 @@
 import { logAPI } from "./appLogger";
-// SimpleGPSService handles network detection through HTTP responses
+// BackgroundGPSService handles network detection through HTTP responses
 import { CapacitorHttp } from "@capacitor/core";
-// SimpleGPSService handles offline GPS natively - no separate service needed
+// BackgroundGPSService handles offline GPS natively - no separate service needed
 // Static import to resolve Vite dynamic/static import warning
 
 // Centralized API Configuration

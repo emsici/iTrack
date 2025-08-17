@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { Course } from "../types";
 import { getVehicleCourses, logout } from "../services/api";
-// Direct Android GPS functions - SimpleGPSService handles everything natively
+// Direct Android GPS functions - BackgroundGPSService handles everything natively
 const updateCourseStatus = async (courseId: string, newStatus: number) => {
   if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
     return window.AndroidGPS.updateStatus(courseId, newStatus);
@@ -21,8 +21,8 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
   });
   
   if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-    console.log("✅ AndroidGPS.startGPS disponibil - pornesc SimpleGPSService");
-    console.log("📋 IMPORTANT: SimpleGPSService acceptă MULTIPLE curse - se adaugă la lista activă");
+    console.log("✅ AndroidGPS.startGPS disponibil - pornesc BackgroundGPSService");
+    console.log("📋 IMPORTANT: BackgroundGPSService acceptă MULTIPLE curse - se adaugă la lista activă");
     console.log("🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS");
     
     const result = window.AndroidGPS.startGPS(
@@ -33,7 +33,7 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
       2
     );
     
-    console.log("🔥 SimpleGPSService Result:", result);
+    console.log("🔥 BackgroundGPSService Result:", result);
     console.log("📊 GPS service va urmări toate cursele active cu același set de coordonate");
     return result;
   } else {
@@ -51,7 +51,7 @@ const logoutClearAllGPS = async () => {
 };
 
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
-// SimpleGPSService handles offline GPS natively - no separate service needed
+// BackgroundGPSService handles offline GPS natively - no separate service needed
 import { logAPI, logAPIError } from "../services/appLogger";
 // Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
@@ -61,15 +61,15 @@ import OfflineSyncProgress from "./OfflineSyncProgress"; // Added for header int
 import ToastNotification from "./ToastNotification";
 
 import { useToast } from "../hooks/useToast";
-// garanteedGPS eliminat complet - folosim doar SimpleGPSService
+// garanteedGPS eliminat complet - folosim doar BackgroundGPSService
 import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
 
 // import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Commented unused import
-// SimpleGPSService detectează network status prin răspunsurile HTTP
-// SimpleGPSService handles offline GPS natively - no separate service needed
+// BackgroundGPSService detectează network status prin răspunsurile HTTP
+// BackgroundGPSService handles offline GPS natively - no separate service needed
 
 interface VehicleScreenProps {
   token: string;
@@ -93,7 +93,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
 
-  // Offline GPS count handled by SimpleGPSService natively
+  // Offline GPS count handled by BackgroundGPSService natively
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
   // Removed unused offline sync progress state - managed by OfflineSyncProgress component
   const [showSettings, setShowSettings] = useState(false);
@@ -396,7 +396,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       
       // STEP 2: Clear any remaining guaranteed GPS services 
       try {
-        // garanteedGPS eliminat complet - folosim doar SimpleGPSService
+        // garanteedGPS eliminat complet - folosim doar BackgroundGPSService
         console.log('✅ Servicii GPS auxiliare eliminate');
       } catch (error) {
         console.warn('Curățarea serviciilor GPS auxiliare eșuată:', error);
