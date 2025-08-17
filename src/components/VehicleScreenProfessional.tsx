@@ -219,26 +219,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     // Call the network change handler with default online status
     handleNetworkChange(true);
 
-    // Monitor offline GPS count cu inițializare forțată
+    // Monitor offline GPS count
     const updateOfflineCount = async () => {
       try {
         const { offlineGPSService } = await import('../services/offlineGPS');
-        
-        // Forțează actualizarea statisticilor înainte de citire
-        await offlineGPSService.forceStatsUpdate();
-        
         const stats = offlineGPSService.getStats();
         setOfflineGPSCount(stats.totalOffline);
-        console.log(`📊 [FORCED UPDATE] Offline GPS count: ${stats.totalOffline}`);
-        
-        // Debug: Verifică și coordonatele direct din storage
-        const coords = await offlineGPSService.getOfflineCoordinates();
-        console.log(`📊 [DIRECT CHECK] Coordonate în storage: ${coords.length}`);
-        
-        if (stats.totalOffline !== coords.length) {
-          console.warn(`⚠️ DISCREPANȚĂ: stats=${stats.totalOffline}, storage=${coords.length}`);
-          setOfflineGPSCount(coords.length); // Folosește valoarea reală din storage
-        }
+        console.log(`📊 Offline GPS count: ${stats.totalOffline}`);
       } catch (error) {
         console.error("Error getting offline count:", error);
         setOfflineGPSCount(0);
@@ -246,7 +233,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
     
     updateOfflineCount();
-    const countInterval = setInterval(updateOfflineCount, 5000); // Check every 5 seconds pentru debugging
+    const countInterval = setInterval(updateOfflineCount, 10000); // Check every 10 seconds
     
     window.addEventListener('backgroundRefresh', handleBackgroundRefresh);
     
@@ -848,21 +835,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
 
 
-  // Monitor offline GPS count cu verificare dublă
+  // Monitor offline GPS count
   useEffect(() => {
     const updateOfflineCount = async () => {
       try {
         const { offlineGPSService } = await import('../services/offlineGPS');
-        
-        // Verificare dublă pentru consistență
-        await offlineGPSService.forceStatsUpdate();
         const stats = offlineGPSService.getStats();
-        const directCoords = await offlineGPSService.getOfflineCoordinates();
-        
-        const finalCount = Math.max(stats.totalOffline, directCoords.length);
-        setOfflineGPSCount(finalCount);
-        
-        console.log(`📊 [MONITOR] Offline GPS: stats=${stats.totalOffline}, direct=${directCoords.length}, final=${finalCount}`);
+        setOfflineGPSCount(stats.totalOffline);
+        console.log(`📊 Offline GPS count updated: ${stats.totalOffline}`);
       } catch (error) {
         console.error("Error getting offline count:", error);
         setOfflineGPSCount(0);
@@ -870,7 +850,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
 
     updateOfflineCount();
-    const interval = setInterval(updateOfflineCount, 3000); // Update every 3 seconds pentru debugging rapid
+    const interval = setInterval(updateOfflineCount, 10000); // Update every 10 seconds pentru monitoring activ
     return () => clearInterval(interval);
   }, []);
 
@@ -1317,13 +1297,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
 
 
-            {/* Second Row - Action Icons - LAYOUT SIMETRIC */}
+            {/* Second Row - Action Icons */}
             <div style={{
               display: 'flex',
-              justifyContent: 'center',
+              justifyContent: 'space-evenly',
               alignItems: 'center',
-              gap: '20px',
-              maxWidth: '280px',
+              gap: '15px',
+              maxWidth: '300px',
               margin: '0 auto'
             }}>
               <div className="settings-button" onClick={() => setShowSettings(true)} title="Setări" style={{ 
@@ -1432,7 +1412,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <i className="fas fa-info-circle" style={{ fontSize: '18px' }}></i>
               </div>
 
-              {/* Status GPS + Internet unificat - SIMETRIC cu celelalte butoane */}
+              {/* Status GPS + Internet unificat - elimină redundanța */}
               <div style={{ 
                 background: isOnline 
                   ? (offlineGPSCount > 0 ? 'rgba(255, 193, 7, 0.15)' : 'rgba(34, 197, 94, 0.15)')
@@ -1441,29 +1421,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   ? (offlineGPSCount > 0 ? '1px solid rgba(255, 193, 7, 0.3)' : '1px solid rgba(34, 197, 94, 0.3)')
                   : '1px solid rgba(239, 68, 68, 0.3)',
                 borderRadius: '12px', 
-                padding: '12px', 
+                padding: '6px 12px', 
                 display: 'flex', 
                 alignItems: 'center', 
-                justifyContent: 'center',
-                flexDirection: 'column',
-                gap: '2px',
-                width: '50px',
-                height: '50px',
+                gap: '8px',
                 flex: '0 0 auto'
               }}>
-                <span style={{ fontSize: '16px', lineHeight: '1' }}>
+                <span style={{ fontSize: '0.9rem' }}>
                   {isOnline ? (offlineGPSCount > 0 ? '📡' : '🟢') : '🔴'}
                 </span>
                 <div style={{ 
-                  fontSize: '9px', 
+                  fontSize: '0.8rem', 
                   color: isOnline 
                     ? (offlineGPSCount > 0 ? '#f59e0b' : '#22c55e')
                     : '#ef4444', 
                   fontWeight: '600',
-                  textAlign: 'center',
-                  lineHeight: '1'
+                  whiteSpace: 'nowrap'
                 }}>
-                  {!isOnline ? 'OFF' : (offlineGPSCount > 0 ? offlineGPSCount : 'ON')}
+                  {!isOnline ? 'Offline' : (offlineGPSCount > 0 ? `${offlineGPSCount} offline` : 'Online')}
                 </div>
               </div>
 
