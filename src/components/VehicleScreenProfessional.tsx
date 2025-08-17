@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
-import { CapacitorHttp } from '@capacitor/core';
 import { Course } from "../types";
-import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
+import { getVehicleCourses, logout } from "../services/api";
 // Urmărirea curselor active - pentru analytics și gestionare Android GPS
 let activeCourses = new Map<string, Course>();
 
@@ -18,12 +17,12 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     
     // PRIORITATE: Android BackgroundGPSService cu DATE REALE (GPS + senzori nativi)
     // Android are acces direct la senzori hardware pentru date autentice
-    if (window.AndroidGPS && window.AndroidGPS.sendStatusUpdate) {
+    if (window.AndroidGPS && (window.AndroidGPS as any).sendStatusUpdate) {
       console.log("📱 Trimit status update direct prin Android cu DATE REALE (GPS + senzori nativi)");
       console.log("🎯 Android are acces direct la: baterie reală, GPS nativ, signal strength autentic");
       
       try {
-        const androidResponse = await window.AndroidGPS.sendStatusUpdate(courseId, newStatus, authToken, vehicleNumber);
+        const androidResponse = await (window.AndroidGPS as any).sendStatusUpdate(courseId, newStatus, authToken, vehicleNumber);
         console.log(`✅ Status ${newStatus} trimis cu succes prin Android cu date reale:`, androidResponse);
         
         // PASUL 2: Actualizează serviciul GPS Android
@@ -92,13 +91,13 @@ import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../servi
 // BackgroundGPSService handles offline GPS natively - no separate service needed
 import { logAPI, logAPIError } from "../services/appLogger";
 import { courseAnalyticsService } from "../services/courseAnalytics";
-import { Network } from '@capacitor/network';
+
 // Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
 
-import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Added for offline GPS monitoring
+
 import ToastNotification from "./ToastNotification";
 
 import { useToast } from "../hooks/useToast";
@@ -1090,7 +1089,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   background: 'rgba(239, 68, 68, 0.1)',
                   border: '1px solid rgba(239, 68, 68, 0.3)',
                   borderRadius: '16px',
-                  color: isDarkTheme(currentTheme) ? '#fca5a5' : '#dc2626',
+                  color: currentTheme === 'dark' ? '#fca5a5' : '#dc2626',
                   fontSize: '16px',
                   fontWeight: '600',
                   cursor: loading ? 'not-allowed' : 'pointer',
@@ -1147,7 +1146,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               
               /* Lightweight scroll optimization - focus on performance */
               html, body, #root {
-                background-color: ${isDarkTheme(currentTheme) ? '#0f172a' : '#ffffff'} !important;
+                background-color: ${currentTheme === 'dark' ? '#0f172a' : '#ffffff'} !important;
                 color: ${getThemeTextColor(currentTheme)} !important;
                 overflow-x: hidden;
               }
@@ -1608,7 +1607,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           {/* Main Dashboard Content */}
           <div className="vehicle-dashboard-main-content" style={{ 
             paddingTop: '180px', // INCREASED to 180px to completely clear the fixed header
-            background: getThemeBackground(currentTheme),
+            background: currentTheme === 'dark' ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             minHeight: 'calc(100dvh - 180px)' // Updated to match padding
           }}>
             {/* Statistics Cards - 4 in One Row */}
