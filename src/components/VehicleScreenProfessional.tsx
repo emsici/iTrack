@@ -1676,6 +1676,36 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <i className="fas fa-info-circle" style={{ fontSize: '18px' }}></i>
               </div>
 
+              {/* GPS Status Compact în Header */}
+              <div style={{ 
+                background: isOnline 
+                  ? (offlineGPSCount > 0 ? 'rgba(255, 193, 7, 0.15)' : 'rgba(34, 197, 94, 0.15)')
+                  : 'rgba(239, 68, 68, 0.15)', 
+                border: isOnline 
+                  ? (offlineGPSCount > 0 ? '1px solid rgba(255, 193, 7, 0.3)' : '1px solid rgba(34, 197, 94, 0.3)')
+                  : '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '12px', 
+                padding: '6px 10px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px',
+                flex: '0 0 auto'
+              }}>
+                <span style={{ fontSize: '0.85rem' }}>
+                  {isOnline ? (offlineGPSCount > 0 ? '📡' : '✅') : '🔌'}
+                </span>
+                <div style={{ 
+                  fontSize: '0.75rem', 
+                  color: isOnline 
+                    ? (offlineGPSCount > 0 ? '#f59e0b' : '#22c55e')
+                    : '#ef4444', 
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {offlineGPSCount > 0 ? `${offlineGPSCount}` : (isOnline ? 'GPS' : 'OFF')}
+                </div>
+              </div>
+
               <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
                 background: currentTheme === 'dark' 
                   ? 'rgba(239, 68, 68, 0.1)' 
@@ -1810,17 +1840,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               )}
             </div>
             
-            {/* GPS Offline Monitor - Organizat frumos sub curse */}
-            <div style={{ 
-              marginTop: '15px', 
-              width: '100%', 
-              maxWidth: '500px', 
-              margin: '15px auto 0 auto',
-              contain: 'layout style paint',
-            }}>
-              {/* Monitor GPS Offline - Progres sincronizare în timp real */}
-              <OfflineSyncMonitor isOnline={isOnline} className="mb-2" />
-            </div>
+
           </div>
 
           {/* Debug Trigger - Hidden Timestamp Area */}
