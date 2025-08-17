@@ -16,17 +16,26 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     console.log(`📋 Status Nou: ${newStatus} (2=ACTIV, 3=PAUZA, 4=STOP)`);
     console.log(`🔑 Lungime Token: ${authToken?.length || 0}`);
     console.log(`🚛 Numărul Vehiculului: ${vehicleNumber}`);
-    console.log(`🎯 IMPORTANT: Aceeași structură ca GPS-ul (numar_inmatriculare) pentru a primi răspuns 200!`);
+    console.log(`🎯 IMPORTANT: Toate câmpurile completate ca GPS-ul pentru a primi răspuns 200!`);
     
+    // COMPLETĂM TOATE CÂMPURILE ca BackgroundGPSService pentru a primi răspuns 200
     const statusUpdateData = {
-      numar_inmatriculare: vehicleNumber,  // CRÍTICA: Aceeași structură ca GPS-ul - folosește numar_inmatriculare nu nr
       uit: courseId,
+      numar_inmatriculare: vehicleNumber,
+      lat: 0,  // Pentru status update nu contează, dar serverul poate verifica
+      lng: 0,  
+      viteza: 0,
+      directie: 0,
+      altitudine: 0,
+      hdop: 0,
+      gsm_signal: 4,
+      baterie: 50,  // Valoare default
       status: newStatus,
       timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
     };
     
-    console.log(`📤 === STRUCTURA IDENTICĂ CU GPS PENTRU STATUS ${newStatus} ===`);
-    console.log(`📤 Trimitere date (aceeași structură ca BackgroundGPSService):`, JSON.stringify(statusUpdateData, null, 2));
+    console.log(`📤 === STRUCTURA COMPLETĂ CA GPS PENTRU STATUS ${newStatus} ===`);
+    console.log(`📤 Toate câmpurile completate ca BackgroundGPSService pentru răspuns 200:`, JSON.stringify(statusUpdateData, null, 2));
     
     // CORECTARE CRITICĂ: TOATE actualizările de status merg la gps.php (vehicul.php doar pentru interogări curse)
     // Folosește API_BASE_URL centralizat din configurație (detectează automat etsm_prod vs etsm3)
