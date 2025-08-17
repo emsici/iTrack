@@ -8,15 +8,17 @@ let activeCourses = new Map<string, Course>();
 let activeGPSInterval: NodeJS.Timeout | null = null;
 
 // Direct Android GPS functions - BackgroundGPSService handles everything natively
-const updateCourseStatus = async (courseId: string, newStatus: number, authToken: string) => {
+const updateCourseStatus = async (courseId: string, newStatus: number, authToken: string, vehicleNumber: string) => {
   try {
     // STEP 1: Update server via API
     console.log(`🌐 === TRIMITTING STATUS UPDATE ===`);
     console.log(`📊 UIT: ${courseId}`);
     console.log(`📋 New Status: ${newStatus} (2=ACTIVE, 3=PAUSE, 4=STOP)`);
     console.log(`🔑 Token Length: ${authToken?.length || 0}`);
+    console.log(`🚛 Vehicle Number: ${vehicleNumber}`);
     
     const statusUpdateData = {
+      nr: vehicleNumber,  // CRITICAL: Server needs vehicle number for all status updates
       uit: courseId,
       status: newStatus,
       timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
@@ -638,7 +640,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         // Always call updateCourseStatus for status synchronization with server AND Android service
         console.log(`🔄 === SENDING STATUS UPDATE TO SERVER ===`);
         console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus}, Token Available: ${!!token}`);
-        await updateCourseStatus(courseToUpdate.uit, newStatus, token);
+        await updateCourseStatus(courseToUpdate.uit, newStatus, token, vehicleNumber);
         
         // Update Android GPS service status
         if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
