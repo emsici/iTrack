@@ -79,4 +79,12 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 ### **Critical Status Transmission**
 - **Status 3/4**: Trimise direct de BackgroundGPSService cu sendStatusHTTPDirect()
 - **GPS Coordinates**: Status updates includ locația reală, nu mai dummy (0,0)
+- **PAUSE Logic**: Status 3 oprește transmisia GPS, doar trimite status update la server
+- **STOP Logic**: Status 4 oprește transmisia GPS și elimină cursa din activeCourses
 - **Server Communication**: Garantat pentru toate statusurile (2,3,4)
+
+### **Workflow Logic Clarificat**
+1. **START (status 2)**: Trimite status + pornește GPS continuu
+2. **PAUSE (status 3)**: Trimite status + OPREȘTE GPS (nu mai coordonate)
+3. **RESUME (status 2)**: Trimite status + REPORNEȘTE GPS
+4. **STOP (status 4)**: Trimite status + oprește GPS + elimină din activeCourses
