@@ -226,9 +226,8 @@ const getNetworkSignal = async (): Promise<number> => {
   }
 };
 
-// import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Commented unused import
-// BackgroundGPSService detectează network status prin răspunsurile HTTP
-// BackgroundGPSService handles offline GPS natively - no separate service needed
+// ❌ ELIMINAT COMPLET: Browser network checks și offline sync monitoring
+// BackgroundGPSService gestionează totul nativ - network status prin răspunsuri HTTP
 
 interface VehicleScreenProps {
   token: string;
@@ -338,58 +337,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
     };
     
-    // Setup real network detection with both browser API and ping test
-    const checkNetworkStatus = async () => {
-      try {
-        // First check navigator.onLine
-        const navigatorOnline = navigator.onLine;
-        
-        // Then do a ping test to verify real connectivity
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-        
-        const response = await fetch(API_BASE_URL + 'ping', {
-          method: 'HEAD',
-          signal: controller.signal,
-          cache: 'no-cache'
-        });
-        
-        clearTimeout(timeoutId);
-        const actuallyOnline = navigatorOnline && response.ok;
-        
-        console.log(`🔍 Network check: navigator=${navigatorOnline}, ping=${response.ok}, final=${actuallyOnline}`);
-        return actuallyOnline;
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.log(`🔍 Network check failed: ${errorMessage}, using navigator.onLine=${navigator.onLine}`);
-        return navigator.onLine;
-      }
-    };
+    // ❌ ELIMINAT COMPLET: Browser network checks interferează cu BackgroundGPSService
+    // Network status va fi detectat de BackgroundGPSService prin răspunsurile HTTP
+    console.log('📱 === NETWORK STATUS GESTIONAT DE BACKGROUNDGPSSERVICE ===');
+    console.log('🔋 Eliminat network checks din browser - folosim doar serviciul Android nativ');
     
-    // Initial network status check
-    checkNetworkStatus().then(handleNetworkChange);
-    
-    // Setup periodic network monitoring
-    const networkInterval = setInterval(async () => {
-      const online = await checkNetworkStatus();
-      if (online !== isOnline) {
-        handleNetworkChange(online);
-      }
-    }, 5000); // Check every 5 seconds
-    
-    // Setup browser online/offline event listeners
-    const handleOnline = () => {
-      console.log('🌐 Browser online event detected');
-      checkNetworkStatus().then(handleNetworkChange);
-    };
-    
-    const handleOffline = () => {
-      console.log('🔌 Browser offline event detected');
-      handleNetworkChange(false);
-    };
-    
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    // Setează statusul online implicit - BackgroundGPSService se ocupă de detectarea reală
+    setIsOnline(true);
+    console.log('📡 Network status implicit: ONLINE (gestionat de BackgroundGPSService)');
 
     // Monitor offline GPS count
     const updateOfflineCount = async () => {
@@ -415,10 +370,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     return () => {
       window.removeEventListener('backgroundRefresh', handleBackgroundRefresh);
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
       clearInterval(countInterval);
-      clearInterval(networkInterval);
+      // ❌ ELIMINAT: networkInterval și event listeners pentru network browser
     };
   }, [vehicleNumber, token, coursesLoaded]);
 
