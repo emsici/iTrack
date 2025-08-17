@@ -219,13 +219,26 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     // Call the network change handler with default online status
     handleNetworkChange(true);
 
-    // Monitor offline GPS count
+    // Monitor offline GPS count cu inițializare forțată
     const updateOfflineCount = async () => {
       try {
         const { offlineGPSService } = await import('../services/offlineGPS');
+        
+        // Forțează actualizarea statisticilor înainte de citire
+        await offlineGPSService.forceStatsUpdate();
+        
         const stats = offlineGPSService.getStats();
         setOfflineGPSCount(stats.totalOffline);
-        console.log(`📊 Offline GPS count: ${stats.totalOffline}`);
+        console.log(`📊 [FORCED UPDATE] Offline GPS count: ${stats.totalOffline}`);
+        
+        // Debug: Verifică și coordonatele direct din storage
+        const coords = await offlineGPSService.getOfflineCoordinates();
+        console.log(`📊 [DIRECT CHECK] Coordonate în storage: ${coords.length}`);
+        
+        if (stats.totalOffline !== coords.length) {
+          console.warn(`⚠️ DISCREPANȚĂ: stats=${stats.totalOffline}, storage=${coords.length}`);
+          setOfflineGPSCount(coords.length); // Folosește valoarea reală din storage
+        }
       } catch (error) {
         console.error("Error getting offline count:", error);
         setOfflineGPSCount(0);
@@ -233,7 +246,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
     
     updateOfflineCount();
-    const countInterval = setInterval(updateOfflineCount, 10000); // Check every 10 seconds
+    const countInterval = setInterval(updateOfflineCount, 5000); // Check every 5 seconds pentru debugging
     
     window.addEventListener('backgroundRefresh', handleBackgroundRefresh);
     
@@ -835,14 +848,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
 
 
-  // Monitor offline GPS count
+  // Monitor offline GPS count cu verificare dublă
   useEffect(() => {
     const updateOfflineCount = async () => {
       try {
         const { offlineGPSService } = await import('../services/offlineGPS');
+        
+        // Verificare dublă pentru consistență
+        await offlineGPSService.forceStatsUpdate();
         const stats = offlineGPSService.getStats();
-        setOfflineGPSCount(stats.totalOffline);
-        console.log(`📊 Offline GPS count updated: ${stats.totalOffline}`);
+        const directCoords = await offlineGPSService.getOfflineCoordinates();
+        
+        const finalCount = Math.max(stats.totalOffline, directCoords.length);
+        setOfflineGPSCount(finalCount);
+        
+        console.log(`📊 [MONITOR] Offline GPS: stats=${stats.totalOffline}, direct=${directCoords.length}, final=${finalCount}`);
       } catch (error) {
         console.error("Error getting offline count:", error);
         setOfflineGPSCount(0);
@@ -850,7 +870,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
 
     updateOfflineCount();
-    const interval = setInterval(updateOfflineCount, 10000); // Update every 10 seconds pentru monitoring activ
+    const interval = setInterval(updateOfflineCount, 3000); // Update every 3 seconds pentru debugging rapid
     return () => clearInterval(interval);
   }, []);
 

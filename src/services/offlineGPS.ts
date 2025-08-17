@@ -335,6 +335,20 @@ class OfflineGPSService {
     return { ...this.currentStats };
   }
 
+  // Forțează actualizarea statisticilor (pentru debugging)
+  async forceStatsUpdate(): Promise<void> {
+    console.log('🔄 Forțez actualizarea statisticilor offline...');
+    const offlineCoords = await this.getOfflineCoordinates();
+    const oldCount = this.currentStats.totalOffline;
+    this.currentStats.totalOffline = offlineCoords.length;
+    
+    console.log(`📊 Actualizare forțată: ${oldCount} → ${this.currentStats.totalOffline}`);
+    
+    if (oldCount !== this.currentStats.totalOffline) {
+      this.notifyListeners();
+    }
+  }
+
   // Curăță toate coordonatele offline (pentru debug)
   async clearOfflineCoordinates(): Promise<void> {
     await Preferences.remove({ key: this.STORAGE_KEY });
