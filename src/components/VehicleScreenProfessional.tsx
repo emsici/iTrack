@@ -3,9 +3,8 @@ import { Geolocation } from '@capacitor/geolocation';
 import { CapacitorHttp } from '@capacitor/core';
 import { Course } from "../types";
 import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
-// Urmărirea curselor active - pentru eficiența transmisiei GPS
+// Urmărirea curselor active - pentru analytics și gestionare Android GPS
 let activeCourses = new Map<string, Course>();
-let activeGPSInterval: NodeJS.Timeout | null = null;
 
 // Funcții GPS Android directe - BackgroundGPSService gestionează totul nativ
 const updateCourseStatus = async (courseId: string, newStatus: number, authToken: string, vehicleNumber: string) => {
@@ -50,8 +49,8 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
       directie: Math.round(currentHeading),
       altitudine: Math.round(currentAlt),
       hdop: Math.round(currentAcc),
-      gsm_signal: await getNetworkSignal(),
-      baterie: await getBatteryLevel(),  // Baterie reală din device
+      gsm_signal: 4, // Android BackgroundGPSService gestionează valorile reale
+      baterie: "100%", // Android BackgroundGPSService gestionează valorile reale
       status: newStatus,
       timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
     };
@@ -697,11 +696,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }
           }
           
-          // Pornește transmisia GPS pentru toate cursele active (dacă nu rulează deja)
-          if (!activeGPSInterval) {
-            console.log("🔄 Pornesc transmisia GPS pentru cursele active...");
-            await startGPSForActiveCourses(vehicleNumber, token);
-          }
+          // NU MAI pornim JavaScript GPS - Android BackgroundGPSService gestionează totul
+          console.log("🔄 GPS gestionat complet de BackgroundGPSService Android - nu mai folosim JavaScript GPS");
+          console.log("⚡ EFICIENT: Un singur sistem GPS (Android) pentru toate cursele, 10 secunde interval fix");
           
         } else if (newStatus === 3) {
           console.log(`⏸️ PAUSE STATUS: Status 3 - cursa rămâne în listă dar inactivă`);
@@ -729,8 +726,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           
           // If no active courses remain, stop GPS transmission entirely  
           if (activeCourses.size === 0) {
-            console.log("🛑 Nu mai sunt curse active - opresc GPS complet");
-            await stopAllGPSTransmission();
+            console.log("🛑 Nu mai sunt curse active - opresc doar serviciul Android GPS");
             
             // Oprește serviciul Android doar când nu mai sunt curse active
             if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
@@ -919,263 +915,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   // SCROLL PERFORMANCE optimizat special pentru șoferi - REMOVED complet pentru zero overhead
 
-  // Global variables for GPS tracking
-  let activeGPSToken: string | null = null;
-  let activeGPSVehicle: string | null = null;
+  // ELIMINAT: JavaScript GPS variables - Android BackgroundGPSService gestionează totul
 
-  const startGPSForActiveCourses = async (vehicleNumber: string, token: string) => {
-    console.log('🚀 === STARTING GPS FOR ALL ACTIVE COURSES ===');
-    console.log(`📍 Active courses count: ${activeCourses.size}`);
-    
-    activeGPSToken = token;
-    activeGPSVehicle = vehicleNumber;
-    
-    // Initialize course analytics for all active courses
+  // ELIMINAT: JavaScript GPS nu mai este necesar - Android BackgroundGPSService gestionează totul
+  // Păstrez doar analytics pentru cursele active
+  const initializeAnalyticsForActiveCourses = async (vehicleNumber: string) => {
     console.log('📊 === STARTING COURSE ANALYTICS FOR ALL ACTIVE ===');
     for (const [uit, course] of activeCourses) {
       await courseAnalyticsService.startCourseTracking(course.uit, course.uit, vehicleNumber);
       console.log(`✅ Analytics started for UIT: ${uit}`);
     }
-    
-    // Clear any existing interval
-    if (activeGPSInterval) {
-      clearInterval(activeGPSInterval);
-    }
-    
-    // Start GPS transmission every 10 seconds for ALL active courses
-    activeGPSInterval = setInterval(async () => {
-      await sendGPSForAllActiveCourses();
-    }, 10000);
-    
-    // Send first coordinate immediately for all active courses
-    sendGPSForAllActiveCourses();
-    
-    console.log('✅ GPS started for all active courses - transmitting every 10 seconds');
   };
 
-  const stopAllGPSTransmission = async () => {
-    console.log('🛑 === STOPPING ALL GPS TRANSMISSION ===');
-    
-    if (activeGPSInterval) {
-      clearInterval(activeGPSInterval);
-      activeGPSInterval = null;
-    }
-    
-    // Stop course analytics for all courses
+  // ELIMINAT: JavaScript GPS nu mai este necesar
+  // Păstrez doar oprirea analytics pentru toate cursele
+  const stopAllAnalytics = async () => {
     console.log('📊 === STOPPING ALL COURSE ANALYTICS ===');
     for (const [uit] of activeCourses) {
       await courseAnalyticsService.stopCourseTracking(uit);
       console.log(`✅ Analytics stopped for UIT: ${uit}`);
     }
-    
-    activeGPSToken = null;
-    activeGPSVehicle = null;
-    
-    console.log('✅ All GPS transmission stopped');
+    console.log('✅ All analytics stopped');
   };
 
-  const sendGPSForAllActiveCourses = async () => {
-    if (activeCourses.size === 0 || !activeGPSToken || !activeGPSVehicle) {
-      console.log('❌ No active courses or GPS data missing - skipping transmission');
-      return;
-    }
-
-    try {
-      console.log('📍 === GETTING REAL GPS COORDINATES FOR ALL ACTIVE COURSES ===');
-      console.log(`🎯 Transmitting for ${activeCourses.size} active courses`);
-      
-      // Get real GPS position once for all courses
-      const position = await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 10000
-      });
-
-      const { latitude, longitude, altitude, accuracy, speed, heading } = position.coords;
-      
-      console.log(`✅ Real GPS received: ${latitude}, ${longitude}`);
-      console.log(`📐 Accuracy: ${accuracy}m, Speed: ${speed}, Altitude: ${altitude}m`);
-
-      // Transmit GPS data for each active course with its specific UIT
-      for (const [uit, course] of activeCourses) {
-        const gpsData = {
-          uit: course.uit,
-          numar_inmatriculare: activeGPSVehicle,
-          lat: latitude,
-          lng: longitude,
-          viteza: Math.round(speed || 0),
-          directie: Math.round(heading || 0),
-          altitudine: Math.round(altitude || 0),
-          hdop: Math.round(accuracy || 0),
-          gsm_signal: await getNetworkSignal(),
-          baterie: await getBatteryLevel(),
-          status: 2, // ACTIVE
-          timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
-        };
-
-        console.log(`📤 === TRANSMITTING GPS FOR UIT: ${uit} ===`);
-        console.log(`🚛 Vehicle: ${activeGPSVehicle}`);
-        console.log(`📍 Coordinates: ${latitude}, ${longitude}`);
-
-        try {
-          // Send to server using CapacitorHttp for APK compatibility
-          const response = await CapacitorHttp.post({
-            url: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php',
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${activeGPSToken}`,
-              "Accept": "application/json",
-              "User-Agent": "iTrack-GPS/1.0"
-            },
-            data: gpsData
-          });
-
-          console.log(`✅ GPS transmission successful for UIT ${uit}:`, response.status);
-
-          // Update local statistics with real GPS data
-          await courseAnalyticsService.updateCourseStatistics(
-            course.uit,
-            latitude,
-            longitude,
-            speed || 0,
-            accuracy || 0
-          );
-          console.log(`✅ Statistics updated for UIT: ${uit}`);
-
-        } catch (courseError) {
-          console.error(`❌ GPS transmission error for UIT ${uit}:`, courseError);
-          
-          // Salvează coordonata offline pentru sincronizare ulterioară
-          try {
-            const { offlineGPSService } = await import('../services/offlineGPS');
-            await offlineGPSService.saveOfflineCoordinate(gpsData);
-            console.log(`💾 GPS salvat offline pentru UIT: ${uit}`);
-          } catch (offlineError) {
-            console.error(`❌ Eroare salvare GPS offline pentru UIT ${uit}:`, offlineError);
-          }
-          
-          // Even if server transmission fails, update local statistics
-          try {
-            await courseAnalyticsService.updateCourseStatistics(
-              course.uit,
-              latitude,
-              longitude,
-              speed || 0,
-              accuracy || 0
-            );
-            console.log(`✅ Offline statistics updated for UIT: ${uit}`);
-          } catch (offlineError) {
-            console.error(`❌ Offline statistics update failed for UIT ${uit}:`, offlineError);
-          }
-        }
-      }
-
-    } catch (error) {
-      console.error('❌ GPS coordinate acquisition error:', error);
-    }
-  };
-
-  const getBatteryLevel = async (): Promise<number> => {
-    try {
-      if ('getBattery' in navigator) {
-        const battery = await (navigator as any).getBattery();
-        return Math.round(battery.level * 100);
-      }
-      return 75; // Default if battery API not available  
-    } catch {
-      return 75;
-    }
-  };
-
-  const getNetworkSignal = async (): Promise<number> => {
-    try {
-      // Try Capacitor Network plugin for connection type
-      const networkStatus = await Network.getStatus();
-      
-      if (!networkStatus.connected) {
-        return 0; // No connection = no GSM signal
-      }
-      
-      const connectionType = networkStatus.connectionType;
-      
-      // GSM Signal reprezintă doar rețeaua CELULARĂ, nu WiFi
-      if (connectionType === 'wifi') {
-        return 0; // WiFi nu este GSM - nu are semnal cellular
-      } else if (connectionType === 'cellular') {
-        // Pentru cellular generic, estimez signal bazat pe browser API
-        try {
-          const connection = (navigator as any).connection || 
-                            (navigator as any).mozConnection || 
-                            (navigator as any).webkitConnection;
-          
-          if (connection && connection.effectiveType) {
-            switch (connection.effectiveType) {
-              case '5g': return 5; // 5G = semnal GSM excelent
-              case '4g': return 4; // 4G = semnal GSM bun
-              case '3g': return 3; // 3G = semnal GSM moderat  
-              case '2g': return 2; // 2G = semnal GSM slab
-              case 'slow-2g': return 1; // 2G lent = semnal GSM foarte slab
-              default: return 3; // Default pentru cellular necunoscut
-            }
-          }
-        } catch (browserError) {
-          console.log('Browser effective type not available');
-        }
-        
-        return 3; // Default pentru cellular fără detalii
-      } else if (connectionType === 'none') {
-        return 0; // Fără conexiune = fără GSM
-      } else {
-        return 2; // Tip necunoscut, probabil GSM slab
-      }
-      
-    } catch (error) {
-      console.log('Network detection fallback to browser API');
-      
-      // Fallback complet la browser navigator connection API
-      try {
-        const connection = (navigator as any).connection || 
-                          (navigator as any).mozConnection || 
-                          (navigator as any).webkitConnection;
-        
-        if (connection) {
-          // Verific dacă e WiFi prin alte metode
-          if (connection.type === 'wifi') {
-            return 0; // WiFi confirmat = nu e GSM
-          }
-          
-          const effectiveType = connection.effectiveType;
-          switch (effectiveType) {
-            case '5g': return 5; // 5G GSM excelent
-            case '4g': return 4; // 4G GSM bun
-            case '3g': return 3; // 3G GSM moderat
-            case '2g': return 2; // 2G GSM slab
-            case 'slow-2g': return 1; // 2G lent GSM foarte slab
-            default: return 3; // Default GSM moderat
-          }
-        }
-      } catch (browserError) {
-        console.log('Browser network API not available');
-      }
-      
-      return 2; // Default GSM slab dacă toate metodele eșuează
-    }
-  };
-
-  // Theme helper functions
-  const isDarkTheme = (theme: Theme) => theme === 'dark' || theme === 'driver' || theme === 'nature' || theme === 'night';
-  const getThemeBackground = (theme: Theme) => {
-    switch (theme) {
-      case 'dark': return 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
-      case 'light': return 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)';
-      case 'driver': return 'linear-gradient(135deg, #1c1917 0%, #292524 50%, #44403c 100%)';
-      case 'business': return 'linear-gradient(135deg, #f8fafc 0%, #ffffff 30%, #e2e8f0 70%, #f1f5f9 100%)';
-      case 'nature': return 'linear-gradient(135deg, #064e3b 0%, #065f46 30%, #047857 70%, #059669 100%)';
-      case 'night': return 'linear-gradient(135deg, #1e1b4b 0%, #312e81 30%, #4338ca 70%, #5b21b6 100%)';
-      default: return 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
-    }
-  };
-  
   const getThemeTextColor = (theme: Theme) => {
     switch (theme) {
       case 'dark': return '#f1f5f9';
