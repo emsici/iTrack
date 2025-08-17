@@ -157,7 +157,7 @@ import { Network } from '@capacitor/network';
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
-import OfflineSyncProgress from "./OfflineSyncProgress"; // Added for header integration
+
 import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Added for offline GPS monitoring
 import ToastNotification from "./ToastNotification";
 
@@ -196,7 +196,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   // Offline GPS count handled by BackgroundGPSService natively
   const [offlineGPSCount, setOfflineGPSCount] = useState(0);
-  // Removed unused offline sync progress state - managed by OfflineSyncProgress component
+  // Offline sync monitoring handled by OfflineSyncMonitor component
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
