@@ -39,11 +39,11 @@ public class BackgroundGPSService extends Service {
     private HandlerThread backgroundThread;
     private Handler backgroundHandler;
     
-    private String activeUIT;
     private String activeToken;
     private String activeVehicle;
     private boolean isGPSRunning = false;
-    private int courseStatus = 0; // 2=ACTIV, 3=PAUZA, 4=STOP
+    // MULTIPLE COURSE MANAGEMENT: Track individual statuses per UIT
+    private java.util.Map<String, Integer> courseStatuses = new java.util.HashMap<>();
     
     @Override
     public void onCreate() {
@@ -72,57 +72,75 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "onStartCommand called with action: " + (intent != null ? intent.getAction() : "null"));
         
         if (intent != null && "START_BACKGROUND_GPS".equals(intent.getAction())) {
-            activeUIT = intent.getStringExtra("uit");
+            String uit = intent.getStringExtra("uit");
             activeToken = intent.getStringExtra("token");
             activeVehicle = intent.getStringExtra("vehicle");
-            courseStatus = intent.getIntExtra("status", 2); // Default ACTIVE
+            int status = intent.getIntExtra("status", 2); // Default ACTIVE
             
-            Log.e(TAG, "⚡ EFICIENT - Data received UIT: " + activeUIT + ", Vehicle: " + activeVehicle + ", Status: " + courseStatus);
+            Log.e(TAG, "⚡ MULTI-COURSE - Data received UIT: " + uit + ", Vehicle: " + activeVehicle + ", Status: " + status);
+            
+            // MULTI-COURSE FIX: Store individual status per UIT
+            courseStatuses.put(uit, status);
+            Log.e(TAG, "📊 Course registered: " + uit + " with status " + status + ". Total courses: " + courseStatuses.size());
             
             // Start foreground notification IMMEDIATELY  
             startForeground(1, createNotification());
             Log.e(TAG, "📱 Foreground service persistent notification created");
             
-            if (courseStatus == 2) {
+            if (status == 2) {
                 if (!isGPSRunning) {
-                    Log.e(TAG, "🚀 PORNIRE GPS pentru prima cursă activă");
+                    Log.e(TAG, "🚀 PORNIRE GPS pentru prima cursă activă: " + uit);
                     startBackgroundGPS();
                 } else {
-                    Log.e(TAG, "⚡ GPS rulează deja - adăugare cursă la tracking existent");
+                    Log.e(TAG, "⚡ GPS rulează deja - adăugare cursă " + uit + " la tracking existent");
                 }
             } else {
-                Log.e(TAG, "GPS not started - course status is " + courseStatus + " (not ACTIVE)");
+                Log.e(TAG, "GPS not started for course " + uit + " - status is " + status + " (not ACTIVE)");
             }
             
         } else if (intent != null && "UPDATE_COURSE_STATUS".equals(intent.getAction())) {
             int newStatus = intent.getIntExtra("status", 0);
-            String specificUIT = intent.getStringExtra("uit"); // CORECTARE: Primește UIT-ul specificat!
-            Log.e(TAG, "Updating course status: " + courseStatus + " → " + newStatus + " pentru UIT: " + specificUIT);
+            String specificUIT = intent.getStringExtra("uit");
+            int oldStatus = courseStatuses.getOrDefault(specificUIT, 0);
+            
+            Log.e(TAG, "MULTI-COURSE: Updating status for UIT " + specificUIT + ": " + oldStatus + " → " + newStatus);
             
             // TRIMITE STATUS UPDATE LA SERVER ÎNAINTE DE SCHIMBARE (pentru 3=PAUSE, 4=STOP)
             if (newStatus == 3 || newStatus == 4) {
                 Log.e(TAG, "🔄 Trimit status " + newStatus + " la server pentru UIT " + specificUIT);
-                sendStatusUpdateToServer(newStatus, specificUIT); // CORECTARE: Trimite UIT-ul specificat!
+                sendStatusUpdateToServer(newStatus, specificUIT);
             }
             
-            courseStatus = newStatus;
+            // MULTI-COURSE FIX: Update specific UIT status
+            if (newStatus == 4) { // STOP - remove completely
+                courseStatuses.remove(specificUIT);
+                Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " removed. Remaining courses: " + courseStatuses.size());
+            } else {
+                courseStatuses.put(specificUIT, newStatus);
+                Log.e(TAG, "📊 STATUS UPDATED: UIT " + specificUIT + " now has status " + newStatus);
+            }
+            
+            // Check if we should continue GPS service
+            boolean hasActiveCourses = false;
+            for (java.util.Map.Entry<String, Integer> entry : courseStatuses.entrySet()) {
+                if (entry.getValue() == 2) { // ACTIVE
+                    hasActiveCourses = true;
+                    break;
+                }
+            }
             
             if (newStatus == 2) { // ACTIVE/RESUME
-                Log.e(TAG, "RESUME: Starting GPS transmission");
-                if (!isGPSRunning) {
+                Log.e(TAG, "RESUME/START: UIT " + specificUIT + " is now ACTIVE");
+                if (!isGPSRunning && hasActiveCourses) {
                     startBackgroundGPS();
                 }
-            } else if (newStatus == 3) { // PAUSE
-                Log.e(TAG, "PAUSE: UIT paused but service continues for other UITs");
-                // Nu oprim GPS complet - doar notăm că acest UIT este în pauză
-                // GPS va continua pentru alte UIT-uri active din TypeScript
-                Log.e(TAG, "ℹ️ GPS service remains active for other active UITs");
-            } else if (newStatus == 4) { // STOP
-                Log.e(TAG, "STOP: Removing UIT from active tracking (service continues for other UITs)");
-                // Nu oprim serviciul complet - doar eliminăm UIT-ul din tracking
-                // Serviciul va continua pentru alte UIT-uri active
-                Log.e(TAG, "ℹ️ Service remains active for other potential UITs");
+            } else if (!hasActiveCourses && isGPSRunning) {
+                Log.e(TAG, "⏸️ No more ACTIVE courses - pausing GPS transmission");
+                // Don't stop service completely, but pause transmission
+                Log.e(TAG, "ℹ️ Service remains running for potential RESUME operations");
             }
+            
+            Log.e(TAG, "📊 Current course statuses: " + courseStatuses.toString());
             
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {
             Log.e(TAG, "Stop GPS requested");
@@ -182,14 +200,14 @@ public class BackgroundGPSService extends Service {
     
     private void performGPSCycle() {
         Log.e(TAG, "🔄 === GPS CYCLE START ===");
-        Log.e(TAG, "📊 UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL"));
+        Log.e(TAG, "📊 Courses: " + courseStatuses.size() + ", Token: " + (activeToken != null ? "OK" : "NULL"));
         
         // Send Android log to JavaScript for debugging
-        sendLogToJavaScript("🔄 Android GPS CYCLE START - UIT: " + activeUIT);
+        sendLogToJavaScript("🔄 Android GPS CYCLE START - Active courses: " + courseStatuses.size());
         
-        if (activeUIT == null || activeToken == null) {
-            Log.e(TAG, "❌ GPS cycle skipped - missing data (UIT: " + activeUIT + ", Token: " + (activeToken != null ? "OK" : "NULL") + ")");
-            sendLogToJavaScript("❌ GPS cycle skipped - missing token or UIT");
+        if (activeToken == null || courseStatuses.isEmpty()) {
+            Log.e(TAG, "❌ GPS cycle skipped - missing data (Token: " + (activeToken != null ? "OK" : "NULL") + ", Courses: " + courseStatuses.size() + ")");
+            sendLogToJavaScript("❌ GPS cycle skipped - missing token or no courses registered");
             return;
         }
         
@@ -223,7 +241,8 @@ public class BackgroundGPSService extends Service {
                         sendLogToJavaScript("✅ REAL GPS RECEIVED: " + location.getLatitude() + ", " + location.getLongitude() + " (accuracy: " + location.getAccuracy() + "m)");
                         
                         locationManager.removeUpdates(this);
-                        transmitGPSData(location);
+                        // MULTI-COURSE: Send GPS data for ALL ACTIVE courses
+                        transmitGPSDataForActiveCourses(location);
                     } catch (Exception e) {
                         Log.e(TAG, "❌ Location processing error: " + e.getMessage());
                         e.printStackTrace();
@@ -299,24 +318,43 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    private void transmitGPSData(Location location) {
+    // MULTI-COURSE: Send GPS data for ALL ACTIVE courses simultaneously
+    private void transmitGPSDataForActiveCourses(Location location) {
         try {
-            Log.e(TAG, "📤 === PREPARING GPS TRANSMISSION ===");
+            Log.e(TAG, "📤 === PREPARING MULTI-COURSE GPS TRANSMISSION ===");
+            Log.e(TAG, "📊 Total registered courses: " + courseStatuses.size());
             
-            // CRITICĂ: Nu trimite GPS data dacă cursa este în PAUSE (status 3) sau STOP (status 4)
-            if (courseStatus == 3) {
-                Log.e(TAG, "⏸️ GPS transmission SKIPPED - course is PAUSED (status 3)");
-                return;
-            } else if (courseStatus == 4) {
-                Log.e(TAG, "🛑 GPS transmission SKIPPED - course is STOPPED (status 4)");
-                return;
+            int activeCourseCount = 0;
+            
+            // Send GPS data for each ACTIVE course
+            for (java.util.Map.Entry<String, Integer> entry : courseStatuses.entrySet()) {
+                String uit = entry.getKey();
+                int status = entry.getValue();
+                
+                if (status == 2) { // ACTIVE only
+                    activeCourseCount++;
+                    transmitGPSDataForCourse(location, uit);
+                } else {
+                    Log.e(TAG, "⏸️ SKIPPING UIT " + uit + " - status " + status + " (not ACTIVE)");
+                }
             }
             
-            Log.e(TAG, "✅ GPS transmission ALLOWED - course is ACTIVE (status " + courseStatus + ")");
+            Log.e(TAG, "📊 GPS transmitted for " + activeCourseCount + " ACTIVE courses out of " + courseStatuses.size() + " total");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Multi-course GPS transmission error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    // Send GPS data for a specific course
+    private void transmitGPSDataForCourse(Location location, String uit) {
+        try {
+            Log.e(TAG, "📤 Preparing GPS for UIT: " + uit);
             
             // Create GPS data JSON
             org.json.JSONObject gpsData = new org.json.JSONObject();
-            gpsData.put("uit", activeUIT);
+            gpsData.put("uit", uit);
             gpsData.put("numar_inmatriculare", activeVehicle);
             gpsData.put("lat", location.getLatitude());
             gpsData.put("lng", location.getLongitude());
@@ -335,19 +373,13 @@ public class BackgroundGPSService extends Service {
             String timestamp = sdf.format(new java.util.Date());
             gpsData.put("timestamp", timestamp);
             
-            Log.e(TAG, "📊 GPS Data prepared:");
-            Log.e(TAG, "   UIT: " + activeUIT);
-            Log.e(TAG, "   Vehicle: " + activeVehicle);
-            Log.e(TAG, "   Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
-            Log.e(TAG, "   Battery: " + getBatteryLevel());
-            Log.e(TAG, "   Timestamp: " + timestamp);
-            Log.e(TAG, "📤 Full JSON: " + gpsData.toString());
+            Log.e(TAG, "📊 GPS Data for " + uit + ": " + location.getLatitude() + ", " + location.getLongitude());
             
             // Call direct HTTP transmission
             callJavaScriptBridge(gpsData.toString());
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ GPS transmission preparation error: " + e.getMessage());
+            Log.e(TAG, "❌ GPS transmission error for UIT " + uit + ": " + e.getMessage());
             e.printStackTrace();
         }
     }

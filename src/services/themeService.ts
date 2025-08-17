@@ -178,7 +178,7 @@ export class ThemeService {
           const { StatusBar } = module;
           StatusBar.setBackgroundColor({ color: statusBarColor });
           StatusBar.setStyle({ 
-            style: isLightContent ? 'LIGHT' : 'DARK'
+            style: isLightContent ? StatusBar.Style.Light : StatusBar.Style.Dark
           });
           console.log(`🎨 Status bar updated: ${statusBarColor}, content: ${isLightContent ? 'LIGHT' : 'DARK'}`);
         }).catch(err => {
@@ -202,7 +202,7 @@ export class ThemeService {
     return statusBarColors[theme] || statusBarColors.dark;
   }
 
-  private isLightStatusBarContent(theme: Theme): boolean {
+  private isLightStatusBarContent(_theme: Theme): boolean {
     // FIXED: All themes now use light content (white icons/text) on dark status bar
     return true; // Always use light content for consistent dark status bar across all themes
   }
