@@ -15,6 +15,7 @@ Offline Coordinates Policy: NEVER clear offline coordinates at logout - preserve
 Code Cleanup: Comprehensive cleanup completed - removed unused files/services and functions.
 GPS Background Fix: EXCLUSIV BackgroundGPSService.java pentru transmisie GPS - eliminat complet GPS-ul din browser pentru a asigura funcționarea continuă când telefonul este blocat/aplicația minimizată.
 Network Status Fix: Eliminat complet browser network checks (checkNetworkStatus, fetch ping tests) care interferau cu BackgroundGPSService - network status detectat nativ prin răspunsuri HTTP.
+GPS Continuity Fix: Implementat fallback robust în BackgroundGPSService - timeout GPS redus la 5 secunde cu fallback automat la last known location pentru a garanta transmisia continuă la fiecare 10 secunde.
 Real Device Data: Implemented dynamic battery level detection and real network type detection instead of static values, using Android native APIs, Capacitor Device/Network plugins, and browser APIs with intelligent fallbacks.
 UI Optimization: Eliminated redundant status indicators - unified GPS+Internet status replaces separate "Online/Offline" indicator for cleaner interface.
 

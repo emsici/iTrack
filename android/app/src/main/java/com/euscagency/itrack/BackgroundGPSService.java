@@ -312,14 +312,38 @@ public class BackgroundGPSService extends Service {
                     Log.e(TAG, "❌ Last known location error: " + e.getMessage());
                 }
                 
-                // Simple timeout without handler complications
+                // CORECTARE CRITICĂ: Timeout scurt + fallback garantat
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            Thread.sleep(8000);
-                            locationManager.removeUpdates(listener);
-                            Log.e(TAG, "⏰ GPS timeout after 8 seconds");
+                            Thread.sleep(5000); // SCURTAT la 5 secunde pentru răspuns rapid
+                            
+                            // Oprește listener-ul după timeout
+                            try {
+                                locationManager.removeUpdates(listener);
+                                Log.e(TAG, "⏰ GPS timeout after 5 seconds - folosind fallback");
+                                sendLogToJavaScript("⏰ GPS timeout 5s - folosesc last known location");
+                                
+                                // FALLBACK GARANTAT: Folosește last known location
+                                Location lastKnown = getLastKnownLocation();
+                                if (lastKnown != null) {
+                                    Log.e(TAG, "📍 FALLBACK: Using last known location: " + lastKnown.getLatitude() + ", " + lastKnown.getLongitude());
+                                    sendLogToJavaScript("📍 FALLBACK GPS: " + lastKnown.getLatitude() + ", " + lastKnown.getLongitude());
+                                    
+                                    // Transmite GPS cu last known location pentru a menține continuitatea
+                                    transmitGPSDataForActiveCourses(lastKnown);
+                                    Log.e(TAG, "✅ === GPS CYCLE COMPLETED cu FALLBACK ===");
+                                    sendLogToJavaScript("✅ GPS CYCLE COMPLET (fallback) - următorul în " + GPS_INTERVAL_SECONDS + "s");
+                                } else {
+                                    Log.e(TAG, "❌ No GPS data available - skipping this cycle");
+                                    sendLogToJavaScript("❌ GPS indisponibil - skipping cycle");
+                                }
+                                
+                            } catch (SecurityException se) {
+                                Log.e(TAG, "❌ Security exception removing GPS updates: " + se.getMessage());
+                            }
+                            
                         } catch (Exception e) {
                             Log.e(TAG, "❌ Timeout error: " + e.getMessage());
                         }
@@ -327,6 +351,19 @@ public class BackgroundGPSService extends Service {
                 }).start();
             } else {
                 Log.e(TAG, "❌ No location providers available - GPS and Network both disabled");
+                sendLogToJavaScript("❌ Providers disabled - încercare fallback cu last known");
+                
+                // ULTIMUL FALLBACK: Încearcă oricum last known location
+                Location lastKnown = getLastKnownLocation();
+                if (lastKnown != null) {
+                    Log.e(TAG, "🔄 PROVIDER DISABLED FALLBACK: Using cached location");
+                    sendLogToJavaScript("🔄 PROVIDER DISABLED - folosesc cached GPS");
+                    transmitGPSDataForActiveCourses(lastKnown);
+                    Log.e(TAG, "✅ === GPS CYCLE COMPLETED cu CACHED FALLBACK ===");
+                } else {
+                    Log.e(TAG, "❌ Absolutely no GPS data available - cycle failed");
+                    sendLogToJavaScript("❌ NO GPS DATA - cycle failed");
+                }
             }
             
         } catch (Exception e) {

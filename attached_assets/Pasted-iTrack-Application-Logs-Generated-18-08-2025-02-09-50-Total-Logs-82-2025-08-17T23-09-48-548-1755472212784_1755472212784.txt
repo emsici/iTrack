@@ -1,0 +1,99 @@
+iTrack Application Logs
+Generated: 18.08.2025, 02:09:50
+Total Logs: 82
+
+[2025-08-17T23:09:48.548Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T23:09:38.552Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T23:09:28.552Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T23:09:18.553Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T23:09:08.548Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T23:08:58.551Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T23:08:48.549Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T23:08:43.225Z] INFO (APP): Acțiune cursă finalizată: 133378
+[2025-08-17T23:08:43.224Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-17T23:08:43.223Z] INFO (API): Course 6C7V511585130172 status updated successfully to 2
+[2025-08-17T23:08:43.221Z] INFO (APP): ✅ Cursa 6C7V511585130172 status actualizat la 2 cu succes
+[2025-08-17T23:08:43.220Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE COMPLETED ===
+[2025-08-17T23:08:43.218Z] INFO (APP): ✅ Rezultat Android updateStatus: SUCCESS: BACKGROUND GPS status ACTIVE for 6C7V511585130172
+[2025-08-17T23:08:43.212Z] INFO (APP): 📊 UIT: 6C7V511585130172, Status: 2
+[2025-08-17T23:08:43.212Z] INFO (APP): 🔧 updateStatus method disponibil: true
+[2025-08-17T23:08:43.211Z] INFO (APP): 🔧 AndroidGPS disponibil: true
+[2025-08-17T23:08:43.210Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE START ===
+[2025-08-17T23:08:43.209Z] INFO (APP): ✅ Status 2 (START) trimis cu succes la server pentru UIT 6C7V511585130172
+[2025-08-17T23:08:43.202Z] INFO (APP): 📱 Serviciul GPS Android actualizat: SUCCESS: BACKGROUND GPS status ACTIVE for 6C7V511585130172
+[2025-08-17T23:08:43.195Z] INFO (APP): 🎯 STATUS 2 TRIMIS CU SUCCES PENTRU UIT 6C7V511585130172
+[2025-08-17T23:08:43.195Z] INFO (APP): 📊 Response headers: [object Object]
+[2025-08-17T23:08:43.194Z] INFO (APP): 📋 Tip răspuns pentru STATUS 2: string
+[2025-08-17T23:08:43.193Z] INFO (APP): 📊 Răspuns server complet: 
+[2025-08-17T23:08:43.192Z] INFO (APP): ✅ Actualizarea statusului pe server cu succes: 200
+[2025-08-17T23:08:42.952Z] INFO (APP): 🌐 URL API de bază: https://www.euscagency.com/etsm_prod/platforme/transport/apk/ (configurație centralizată)
+[2025-08-17T23:08:42.952Z] INFO (APP): 📋 gps.php = actualizări status | vehicul.php = doar interogări curse
+[2025-08-17T23:08:42.952Z] INFO (APP): 🎯 SELECTARE ENDPOINT: TOATE actualizările de status → gps.php
+[2025-08-17T23:08:42.952Z] INFO (APP): 📤 Toate câmpurile completate ca BackgroundGPSService + headers identice pentru răspuns 200: {
+  "uit": "6C7V511585130172",
+  "numar_inmatriculare": "TM39ECC",
+  "lat": 44.2582842,
+  "lng": 28.6173854,
+  "viteza": 0,
+  "directie": 0,
+  "altitudine": 55,
+  "hdop": 19,
+  "gsm_signal": 4,
+  "baterie": "7%",
+  "status": 2,
+  "timestamp": "2025-08-18 02:08:42"
+}
+[2025-08-17T23:08:42.951Z] INFO (APP): 📤 === STRUCTURA COMPLETĂ CA GPS PENTRU STATUS 2 ===
+[2025-08-17T23:08:42.905Z] INFO (APP): 📍 GPS reale obținute pentru status 2: 44.2582842, 28.6173854
+[2025-08-17T23:08:40.562Z] INFO (APP): 🎯 IMPORTANT: Serverul cere coordonate GPS reale pentru răspuns 200!
+[2025-08-17T23:08:40.562Z] INFO (APP): 🚛 Numărul Vehiculului: TM39ECC
+[2025-08-17T23:08:40.562Z] INFO (APP): 🔑 Lungime Token: 136
+[2025-08-17T23:08:40.562Z] INFO (APP): 📋 Status Nou: 2 (2=ACTIV, 3=PAUZA, 4=STOP)
+[2025-08-17T23:08:40.562Z] INFO (APP): 📊 UIT: 6C7V511585130172
+[2025-08-17T23:08:40.562Z] INFO (APP): 🌐 === TRIMITERE ACTUALIZARE STATUS ===
+[2025-08-17T23:08:40.562Z] INFO (APP): 🚛 Numărul vehiculului pentru actualizare status: "TM39ECC"
+[2025-08-17T23:08:40.561Z] INFO (APP): 📊 UIT: 6C7V511585130172, Status: 2 (2=ACTIV)
+[2025-08-17T23:08:40.561Z] INFO (APP): 🔄 === TRIMITERE STATUS 2 (START) LA SERVER ===
+[2025-08-17T23:08:40.561Z] INFO (APP): ✅ Analytics pornit - GPS delegat la BackgroundGPSService
+[2025-08-17T23:08:40.561Z] INFO (APP): ⚡ GPS va continua să lucreze când aplicația este blocată/minimizată
+[2025-08-17T23:08:40.561Z] INFO (APP): 🔋 BackgroundGPSService va gestiona transmisia GPS în background
+[2025-08-17T23:08:40.560Z] INFO (APP): 📱 === GPS GESTIONAT COMPLET DE BACKGROUNDGPSSERVICE ===
+[2025-08-17T23:08:40.560Z] INFO (APP): ✅ Analytics started for UIT: 6C7V511585130172
+[2025-08-17T23:08:40.560Z] INFO (APP): 📊 Started NEW analytics tracking for course: 6C7V511585130172 | UIT: 6C7V511585130172
+[2025-08-17T23:08:40.514Z] INFO (APP): 📊 === STARTING COURSE ANALYTICS FOR ALL ACTIVE ===
+[2025-08-17T23:08:40.514Z] INFO (APP): 📍 Active courses count: 1
+[2025-08-17T23:08:40.514Z] INFO (APP): 🚀 === ANALYTICS PENTRU CURSE ACTIVE ===
+[2025-08-17T23:08:40.513Z] INFO (APP): 🔄 Pornesc transmisia GPS pentru cursele active...
+[2025-08-17T23:08:40.513Z] INFO (APP): 📱 Rezultat Serviciu GPS Android: SUCCESS: BACKGROUND GPS started for 133378
+[2025-08-17T23:08:40.513Z] INFO (APP): 📊 GPS service va urmări toate cursele active cu același set de coordonate
+[2025-08-17T23:08:40.513Z] INFO (APP): 🔥 BackgroundGPSService Result: SUCCESS: BACKGROUND GPS started for 133378
+[2025-08-17T23:08:40.509Z] INFO (APP): 🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS
+[2025-08-17T23:08:40.509Z] INFO (APP): 📋 IMPORTANT: BackgroundGPSService acceptă MULTIPLE curse - se adaugă la lista activă
+[2025-08-17T23:08:40.509Z] INFO (APP): ✅ AndroidGPS.startGPS disponibil - pornesc BackgroundGPSService
+[2025-08-17T23:08:40.508Z] INFO (APP): 📱 Verificare interfață AndroidGPS: [object Object]
+[2025-08-17T23:08:40.508Z] INFO (APP): 🚀 === APELARE SERVICIU GPS ANDROID ===
+[2025-08-17T23:08:40.508Z] INFO (APP): 🚀 Prima cursă activă - pornesc serviciul Android GPS
+[2025-08-17T23:08:40.508Z] INFO (APP): 📋 Curse active: 1
+[2025-08-17T23:08:40.508Z] INFO (APP): 📊 Started NEW analytics tracking for course: 6C7V511585130172 | UIT: 6C7V511585130172
+[2025-08-17T23:08:40.487Z] INFO (APP): 🚀 START NOU: Adaug cursă nouă la activeCourses și pornesc analytics
+[2025-08-17T23:08:40.487Z] INFO (APP): 🚀 PORNIRE/RESUME GPS: Status 2 (ACTIV) - adaug cursa la lista activă
+[2025-08-17T23:08:40.487Z] INFO (APP): 📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat
+[2025-08-17T23:08:40.487Z] INFO (APP): 📞 Se apelează direct Android GPS cu UIT: 6C7V511585130172
+[2025-08-17T23:08:40.487Z] INFO (APP): 🎯 ANDROID NATIVE: BackgroundGPSService cu GPS nativ și precizie maximă
+[2025-08-17T23:08:40.486Z] INFO (APP): ✅ Permisiuni GPS verificate și acordate
+[2025-08-17T23:08:40.486Z] INFO (APP): 📝 Rezultat permisiuni background: [object Object]
+[2025-08-17T23:08:40.474Z] INFO (APP): 🔐 Solicit permisiuni GPS background (coarse)...
+[2025-08-17T23:08:40.474Z] INFO (APP): 📝 Rezultat cerere permisiuni standard: [object Object]
+[2025-08-17T23:08:39.423Z] INFO (APP): 🔐 Solicit permisiuni GPS standard...
+[2025-08-17T23:08:39.423Z] INFO (APP): 📋 Permisiuni GPS actuale: [object Object]
+[2025-08-17T23:08:39.393Z] INFO (APP): 🔍 === VERIFICARE PERMISIUNI GPS ===
+[2025-08-17T23:08:39.393Z] INFO (APP): 🚛 VehicleNumber pentru status update: "TM39ECC" (length: 7)
+[2025-08-17T23:08:39.393Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-17T23:08:39.393Z] INFO (APP): UIT REAL: 6C7V511585130172, Vehicul: TM39ECC
+[2025-08-17T23:08:39.393Z] INFO (APP): Cursă: 133378, Status: 1 → 2
+[2025-08-17T23:08:39.392Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-17T23:08:39.392Z] INFO (APP): 💾 Status 2 salvat pentru UIT 6C7V511585130172
+[2025-08-17T23:08:39.392Z] INFO (APP): Se procesează acțiunea pentru cursa: 133378
+[2025-08-17T23:08:38.550Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-17T23:08:38.195Z] INFO (APP): Log-uri șterse cu succes
+[2025-08-17T23:08:38.195Z] INFO (SYSTEM): Logs cleared
