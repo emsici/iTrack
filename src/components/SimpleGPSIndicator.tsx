@@ -29,11 +29,11 @@ const SimpleGPSIndicator: React.FC<SimpleGPSIndicatorProps> = ({ className = '' 
   });
 
   useEffect(() => {
-    // Funcție pentru a obține statusul real din SimpleGPSService
+    // Funcție pentru a obține statusul real din BackgroundGPSService
     const updateGPSStatus = async () => {
       try {
         if (window.AndroidGPS && window.AndroidGPS.getServiceStatus) {
-          // Obține statusul direct din SimpleGPSService
+          // Obține statusul direct din BackgroundGPSService
           const statusJson = await window.AndroidGPS.getServiceStatus();
           const status = JSON.parse(statusJson);
           setGpsStatus({
@@ -54,7 +54,7 @@ const SimpleGPSIndicator: React.FC<SimpleGPSIndicatorProps> = ({ className = '' 
           });
         }
       } catch (error) {
-        console.log('SimpleGPS status check failed (browser mode):', error);
+        console.log('BackgroundGPS status check failed (browser mode):', error);
       }
     };
 

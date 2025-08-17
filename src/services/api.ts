@@ -492,8 +492,8 @@ export const sendGPSData = async (
         console.error(`❌ GPS failed: ${response.status}`);
         console.error("Response:", response.data);
         
-        // SimpleGPSService handles offline storage natively
-        console.log('💾 SimpleGPSService handles offline storage natively');
+        // BackgroundGPSService handles offline storage natively
+        console.log('💾 BackgroundGPSService handles offline storage natively');
         return false;
       }
 
@@ -537,11 +537,11 @@ export const sendGPSData = async (
       // SALVARE AUTOMATĂ OFFLINE pentru orice status care nu e 200/204
       console.error(`❌ GPS failed: ${response.status}`);
       console.error("Response:", response.data);
-      // SimpleGPSService handles HTTP error reporting natively
+      // BackgroundGPSService handles HTTP error reporting natively
       
       console.log('💾 Salvez coordonată offline - server nu răspunde cu succes');
       try {
-        // SimpleGPSService handles offline GPS storage natively
+        // BackgroundGPSService handles offline GPS storage natively
         // await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
       } catch (error) {
         console.error('❌ Eroare salvare offline:', error);
@@ -584,7 +584,7 @@ export const sendGPSData = async (
         
         console.log('💾 Salvez coordonată offline - fetch fallback eșuat');
         try {
-          // SimpleGPSService handles offline GPS storage natively
+          // BackgroundGPSService handles offline GPS storage natively
           // await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
         } catch (error) {
           console.error('❌ Eroare salvare offline (fetch):', error);
@@ -604,7 +604,7 @@ export const sendGPSData = async (
     // SALVARE AUTOMATĂ OFFLINE pentru eroare completă de transmisie  
     console.log('💾 Salvez coordonată offline - eroare completă de transmisie');
     try {
-      // SimpleGPSService handles offline GPS storage natively
+      // BackgroundGPSService handles offline GPS storage natively
       // await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
     } catch (offlineError) {
       console.error('❌ Eroare salvare offline (error catch):', offlineError);
@@ -616,6 +616,6 @@ export const sendGPSData = async (
 // Enhanced GPS Bridge initialization
 export function initializeGPSBridge() {
   console.log("✅ GPS Bridge inițializat - serviciul Android pregătit pentru transmisia GPS");
-  console.log("📡 SimpleGPSService folosește logging direct - nu mai e nevoie de callback");
+  console.log("📡 BackgroundGPSService folosește logging direct - nu mai e nevoie de callback");
   console.log("🌐 window.sendGPSViaCapacitor disponibil pentru Android service");
 }

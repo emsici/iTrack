@@ -156,7 +156,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
     
     // Setup network status listener
-    // SimpleGPSService handles network detection through GPS transmissions
+    // BackgroundGPSService handles network detection through GPS transmissions
     const handleNetworkChange = (online: boolean) => {
       setIsOnline(online);
       console.log(`📡 Network status: ${online ? 'ONLINE' : 'OFFLINE'}`);
@@ -164,7 +164,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       // Auto-sync când revii online
       if (online && offlineGPSCount > 0) {
         console.log('🌐 Internet restored - auto-syncing offline coordinates...');
-        // SimpleGPSService handles offline sync natively
+        // BackgroundGPSService handles offline sync natively
       }
     };
     
@@ -173,7 +173,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
     // Monitor offline GPS count
     const updateOfflineCount = async () => {
-      const count = 0; // SimpleGPSService handles offline count natively
+      const count = 0; // BackgroundGPSService handles offline count natively
       setOfflineGPSCount(count);
     };
     
@@ -511,15 +511,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         }
       }
 
-      // GPS logic handled directly by SimpleGPSService Android native
+      // GPS logic handled directly by BackgroundGPSService Android native
       try {
-        console.log(`🎯 ANDROID NATIVE: SimpleGPSService cu GPS nativ și precizie maximă`);
+        console.log(`🎯 ANDROID NATIVE: BackgroundGPSService cu GPS nativ și precizie maximă`);
         console.log(`📞 Se apelează direct Android GPS cu UIT: ${courseToUpdate.uit}`);
         console.log(`📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat`);
         
         // CRITICAL: Handle all GPS status changes properly
         if (newStatus === 2) {
-          console.log("🚀 PORNIRE GPS: Status 2 (ACTIVE) - pornesc SimpleGPSService");
+          console.log("🚀 PORNIRE GPS: Status 2 (ACTIVE) - pornesc BackgroundGPSService");
           const gpsResult = startAndroidGPS(courseToUpdate, vehicleNumber, token);
           console.log("📱 GPS Service Result:", gpsResult);
         } else {
@@ -645,7 +645,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   useEffect(() => {
     const updateOfflineCount = async () => {
       try {
-        const count = 0; // SimpleGPSService handles offline count natively
+        const count = 0; // BackgroundGPSService handles offline count natively
         setOfflineGPSCount(count);
       } catch (error) {
         console.error("Error getting offline count:", error);

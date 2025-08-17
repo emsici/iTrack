@@ -1,29 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-// SimpleGPSService handles offline sync natively - simplified stub component
-interface SyncProgress {
-  isActive: boolean;
-  totalToSync: number;
-  synced: number;
-  failed: number;
-  remaining: number;
-  percentage: number;
-  startTime: Date | null;
-  estimatedTimeRemaining: number | null;
-  lastError: string | null;
-}
+// BackgroundGPSService handles offline sync natively - simplified stub component
 
 interface OfflineSyncProgressProps {
   className?: string;
 }
 
 const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '' }) => {
-  // SimpleGPSService handles all sync natively - this is just a UI stub
-  const [isOnline] = useState(true);
+  // BackgroundGPSService handles all sync natively - this is just a UI stub
   const [hasOfflineData] = useState(false);
   const [showProgress] = useState(false);
 
-  // Don't render anything - SimpleGPSService handles sync in background
+  // Don't render anything - BackgroundGPSService handles sync in background
   if (!hasOfflineData && !showProgress) {
     return null;
   }
@@ -35,7 +23,7 @@ const OfflineSyncProgress: React.FC<OfflineSyncProgressProps> = ({ className = '
           <span className="visually-hidden">Sincronizare...</span>
         </div>
         <small className="text-muted">
-          SimpleGPSService gestionează sincronizarea în background
+          BackgroundGPSService gestionează sincronizarea în background
         </small>
       </div>
     </div>
