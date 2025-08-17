@@ -807,16 +807,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           await courseAnalyticsService.stopCourseTracking(courseToUpdate.uit);
           console.log(`🛑 Analytics stopped pentru UIT: ${courseToUpdate.uit}`);
           
-          // If no active courses remain, stop GPS transmission entirely  
-          if (activeCourses.size === 0) {
-            console.log("🛑 Nu mai sunt curse active - opresc GPS complet");
+          // MULTI-VEHICLE FIX: Nu opri GPS dacă mai sunt curse active pentru alte vehicule
+          // Calculează toate cursele active din TOATE vehiculele
+          const totalActiveCourses = Array.from(activeCourses.values()).filter(course => course.status === 2).length;
+          console.log(`📊 MULTI-VEHICLE CHECK: Active courses pentru vehicul curent: ${activeCourses.size}, Total active global: ${totalActiveCourses}`);
+          
+          if (totalActiveCourses === 0) {
+            console.log("🛑 Nu mai sunt curse active în NICIUN vehicul - opresc GPS complet");
             await stopAllGPSTransmission();
             
-            // Oprește serviciul Android doar când nu mai sunt curse active
+            // Oprește serviciul Android doar când ABSOLUT nicio cursă nu mai este activă
             if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-              console.log("📱 Opresc serviciul Android GPS - nu mai sunt curse active");
+              console.log("📱 Opresc serviciul Android GPS - nicio cursă activă global");
               window.AndroidGPS.stopGPS("all_courses_inactive");
             }
+          } else {
+            console.log(`⚡ MULTI-VEHICLE: GPS CONTINUĂ - mai sunt ${totalActiveCourses} curse active în alte vehicule`);
           }
         }
         
