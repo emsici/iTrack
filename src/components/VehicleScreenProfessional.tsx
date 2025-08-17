@@ -1815,8 +1815,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
               {/* ELIMINAT - Duplicare cu indicatorul din header */}
               
-              {/* Sync Progress Bar - Only when offline and syncing */}
-              {!isOnline && offlineGPSCount > 0 && (
+              {/* Sync Progress Bar - Only when ONLINE and syncing offline coordinates */}
+              {isOnline && offlineGPSCount > 0 && (
                 <div style={{
                   width: '200px',
                   background: currentTheme === 'light' || currentTheme === 'business'
@@ -1851,7 +1851,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                             : '#cbd5e1'  // Default pentru Dark
                   }}>
                     <span>Sincronizare GPS</span>
-                    <span>{offlineGPSCount} coord.</span>
+                    <span>{offlineGPSCount} coord. în așteptare</span>
                   </div>
                   
                   {/* Progress Bar */}
