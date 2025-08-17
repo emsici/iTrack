@@ -124,35 +124,6 @@ public class BackgroundGPSService extends Service {
                 Log.e(TAG, "ℹ️ Service remains active for other potential UITs");
             }
             
-        } else if (intent != null && "SEND_STATUS_UPDATE".equals(intent.getAction())) {
-            // Nou: Trimite status update cu date reale (GPS + senzori)
-            String uitForStatus = intent.getStringExtra("uit");
-            int statusForUpdate = intent.getIntExtra("status", 0);
-            String tokenForStatus = intent.getStringExtra("token");
-            String vehicleForStatus = intent.getStringExtra("vehicle");
-            
-            Log.e(TAG, "📤 SEND_STATUS_UPDATE received: UIT=" + uitForStatus + ", Status=" + statusForUpdate);
-            Log.e(TAG, "🎯 Trimit cu DATE REALE (GPS nativ + senzori autentici)");
-            
-            // Actualizăm temporar datele pentru status update
-            String originalUIT = activeUIT;
-            String originalToken = activeToken;
-            String originalVehicle = activeVehicle;
-            
-            activeUIT = uitForStatus;
-            activeToken = tokenForStatus;
-            activeVehicle = vehicleForStatus;
-            
-            // Trimite status update cu date reale
-            sendStatusUpdateToServer(statusForUpdate, uitForStatus);
-            
-            // Restaurăm datele originale
-            activeUIT = originalUIT;
-            activeToken = originalToken;
-            activeVehicle = originalVehicle;
-            
-            Log.e(TAG, "✅ Status update cu date reale trimis pentru UIT: " + uitForStatus);
-            
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {
             Log.e(TAG, "Stop GPS requested");
             stopBackgroundGPS();
@@ -330,20 +301,7 @@ public class BackgroundGPSService extends Service {
     
     private void transmitGPSData(Location location) {
         try {
-            // KRITICKÉ: Nu trimite coordonate GPS pentru cursele în PAUSE (status 3) sau STOP (status 4)
-            if (courseStatus == 3) {
-                Log.e(TAG, "⏸️ PAUSE: Nu trimit coordonate GPS pentru status 3 (PAUSE) - cursa este pauzată");
-                return;
-            }
-            
-            if (courseStatus == 4) {
-                Log.e(TAG, "🛑 STOP: Nu trimit coordonate GPS pentru status 4 (STOP) - cursa este oprită");
-                return;
-            }
-            
-            // Doar pentru status 2 (ACTIVE) trimitem coordonate GPS
-            Log.e(TAG, "📤 === PREPARING GPS TRANSMISSION FOR ACTIVE COURSE ===");
-            Log.e(TAG, "✅ Status 2 (ACTIVE) - trimit coordonate GPS normale");
+            Log.e(TAG, "📤 === PREPARING GPS TRANSMISSION ===");
             
             // Create GPS data JSON
             org.json.JSONObject gpsData = new org.json.JSONObject();
@@ -357,7 +315,7 @@ public class BackgroundGPSService extends Service {
             gpsData.put("hdop", (int) location.getAccuracy());
             gpsData.put("gsm_signal", getNetworkSignal()); // Real network signal
             gpsData.put("baterie", getBatteryLevel());
-            gpsData.put("status", 2); // FORȚAT status 2 pentru coordonate GPS normale
+            gpsData.put("status", courseStatus); // Current course status
             
             // Romania timestamp
             java.util.TimeZone romaniaTimeZone = java.util.TimeZone.getTimeZone("Europe/Bucharest");
