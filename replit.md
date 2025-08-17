@@ -101,3 +101,4 @@ Real Device Data: Implemented dynamic battery level detection and real network t
 - **🎯 CORRECT ENDPOINT USAGE**: ALL status updates (2,3,4) now transmit to gps.php endpoint. vehicul.php is used exclusively for course queries, not status updates.
 - **🌐 CENTRALIZED API CONFIG**: Status updates now use centralized API_BASE_URL configuration that automatically adapts to environment (etsm_prod/etsm3).
 - **🔍 ENHANCED DEBUGGING**: Added comprehensive logging to track vehicleNumber availability and status transmission success for all status types.
+- **✅ CONFIRMED WORKING**: Status 3 (PAUSE) and 4 (STOP) successfully transmit to server with response 204. All comments and logs translated to Romanian language.

@@ -75,8 +75,8 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
 };
 
 const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) => {
-  console.log("🚀 === CALLING ANDROID GPS SERVICE ===");
-  console.log("📱 AndroidGPS interface check:", {
+  console.log("🚀 === APELARE SERVICIU GPS ANDROID ===");
+  console.log("📱 Verificare interfață AndroidGPS:", {
     available: !!(window.AndroidGPS),
     startGPS: !!(window.AndroidGPS?.startGPS),
     courseId: course.ikRoTrans,
@@ -616,31 +616,31 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`📞 Se apelează direct Android GPS cu UIT: ${courseToUpdate.uit}`);
         console.log(`📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat`);
         
-        // CRITICAL: Efficient GPS management with active courses list
+        // CRITICĂ: Gestionarea eficientă GPS cu lista curselor active
         if (newStatus === 2) {
-          console.log("🚀 PORNIRE GPS: Status 2 (ACTIVE) - adaug cursa la lista activă");
+          console.log("🚀 PORNIRE GPS: Status 2 (ACTIV) - adaug cursa la lista activă");
           
-          // Add course to active list
+          // Adaugă cursa la lista activă
           activeCourses.set(courseToUpdate.uit, courseToUpdate);
           console.log(`📋 Curse active: ${activeCourses.size}`);
           
-          // Start Android service if available
+          // Pornește serviciul Android dacă este disponibil
           if (window.AndroidGPS) {
             const gpsResult = startAndroidGPS(courseToUpdate, vehicleNumber, token);
-            console.log("📱 Android GPS Service Result:", gpsResult);
+            console.log("📱 Rezultat Serviciu GPS Android:", gpsResult);
           }
           
-          // Start GPS transmission for all active courses (if not already running)
+          // Pornește transmisia GPS pentru toate cursele active (dacă nu rulează deja)
           if (!activeGPSInterval) {
-            console.log("🔄 Starting GPS transmission for active courses...");
+            console.log("🔄 Pornesc transmisia GPS pentru cursele active...");
             await startGPSForActiveCourses(vehicleNumber, token);
           }
           
         } else {
-          console.log(`🔄 STATUS CHANGE: Status ${newStatus} - removing course from active list`);
-          console.log("📋 Status meanings: 2=ACTIVE, 3=PAUSE, 4=STOP");
+          console.log(`🔄 SCHIMBARE STATUS: Status ${newStatus} - elimin cursa din lista activă`);
+          console.log("📋 Semnificații status: 2=ACTIV, 3=PAUZA, 4=STOP");
           
-          // Remove course from active list
+          // Elimină cursa din lista activă
           activeCourses.delete(courseToUpdate.uit);
           console.log(`📋 Curse active rămase: ${activeCourses.size}`);
           
