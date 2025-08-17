@@ -1566,28 +1566,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 onChangeNumber={() => setCoursesLoaded(false)}
               />
 
-              {/* Status Indicator */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                <div style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  background: isOnline ? '#22c55e' : '#ef4444'
-                }}></div>
-                <span style={{
-                  color: currentTheme === 'light' || currentTheme === 'business' 
-                    ? '#64748b' 
-                    : '#9ca3af',
-                  fontSize: '12px',
-                  fontWeight: '500'
-                }}>
-                  {isOnline ? 'Online' : 'Offline'}
-                </span>
-              </div>
+              {/* GPS Status complet - elimină indicatorul redundant "Online/Offline" */}
             </div>
 
 
@@ -1707,7 +1686,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <i className="fas fa-info-circle" style={{ fontSize: '18px' }}></i>
               </div>
 
-              {/* GPS Status Compact în Header */}
+              {/* Status GPS + Internet unificat - elimină redundanța */}
               <div style={{ 
                 background: isOnline 
                   ? (offlineGPSCount > 0 ? 'rgba(255, 193, 7, 0.15)' : 'rgba(34, 197, 94, 0.15)')
@@ -1716,24 +1695,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   ? (offlineGPSCount > 0 ? '1px solid rgba(255, 193, 7, 0.3)' : '1px solid rgba(34, 197, 94, 0.3)')
                   : '1px solid rgba(239, 68, 68, 0.3)',
                 borderRadius: '12px', 
-                padding: '6px 10px', 
+                padding: '6px 12px', 
                 display: 'flex', 
                 alignItems: 'center', 
-                gap: '6px',
+                gap: '8px',
                 flex: '0 0 auto'
               }}>
-                <span style={{ fontSize: '0.85rem' }}>
-                  {isOnline ? (offlineGPSCount > 0 ? '📡' : '✅') : '🔌'}
+                <span style={{ fontSize: '0.9rem' }}>
+                  {isOnline ? (offlineGPSCount > 0 ? '📡' : '🟢') : '🔴'}
                 </span>
                 <div style={{ 
-                  fontSize: '0.75rem', 
+                  fontSize: '0.8rem', 
                   color: isOnline 
                     ? (offlineGPSCount > 0 ? '#f59e0b' : '#22c55e')
                     : '#ef4444', 
-                  fontWeight: '500',
+                  fontWeight: '600',
                   whiteSpace: 'nowrap'
                 }}>
-                  {offlineGPSCount > 0 ? `${offlineGPSCount}` : (isOnline ? 'GPS' : 'OFF')}
+                  {!isOnline ? 'Offline' : (offlineGPSCount > 0 ? `${offlineGPSCount} offline` : 'Online')}
                 </div>
               </div>
 

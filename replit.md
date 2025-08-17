@@ -15,6 +15,7 @@ Offline Coordinates Policy: NEVER clear offline coordinates at logout - preserve
 Code Cleanup: Comprehensive cleanup completed - removed unused files/services and functions.
 GPS Background Fix: Restored direct Android GPS calls for background service with hybrid browser backup system to ensure GPS continues working when phone is locked/app minimized.
 Real Device Data: Implemented dynamic battery level detection and real network type detection instead of static values, using Android native APIs, Capacitor Device/Network plugins, and browser APIs with intelligent fallbacks.
+UI Optimization: Eliminated redundant status indicators - unified GPS+Internet status replaces separate "Online/Offline" indicator for cleaner interface.
 
 ## System Architecture
 
