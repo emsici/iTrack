@@ -538,6 +538,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`Cursă: ${courseId}, Status: ${courseToUpdate.status} → ${newStatus}`);
       console.log(`UIT REAL: ${courseToUpdate.uit}, Vehicul: ${vehicleNumber}`);
       console.log(`Token disponibil: ${!!token}, Lungime token: ${token?.length || 0}`);
+      console.log(`🚛 VehicleNumber pentru status update: "${vehicleNumber}" (length: ${vehicleNumber?.length || 0})`);
+      
+      if (!vehicleNumber || vehicleNumber.trim() === '') {
+        console.error(`❌ EROARE CRITICĂ: vehicleNumber este gol pentru status ${newStatus}!`);
+        console.error(`📋 vehicleNumber value:`, vehicleNumber);
+        throw new Error(`Vehicle number is missing for status update ${newStatus}`);
+      }
 
       // Show action-specific toast and handle GPS permissions
       if (action) {
@@ -640,6 +647,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         // Always call updateCourseStatus for status synchronization with server AND Android service
         console.log(`🔄 === SENDING STATUS UPDATE TO SERVER ===`);
         console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus}, Token Available: ${!!token}`);
+        console.log(`🚛 VehicleNumber pentru status update: "${vehicleNumber}" (length: ${vehicleNumber?.length || 0})`);
+        
+        if (!vehicleNumber || vehicleNumber.trim() === '') {
+          console.error(`❌ EROARE CRITICĂ: vehicleNumber este gol pentru status ${newStatus}!`);
+          console.error(`📋 vehicleNumber value:`, vehicleNumber);
+          throw new Error(`Vehicle number is missing for status update ${newStatus}`);
+        }
+        
         await updateCourseStatus(courseToUpdate.uit, newStatus, token, vehicleNumber);
         
         // Update Android GPS service status
