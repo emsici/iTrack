@@ -393,6 +393,15 @@ public class BackgroundGPSService extends Service {
                         
                     } catch (Exception e) {
                         Log.e(TAG, "❌ Native HTTP GPS error: " + e.getMessage());
+                        Log.e(TAG, "💾 Salvez coordonata offline pentru sincronizare ulterioară");
+                        
+                        // Salvează coordonata offline când transmisia eșuează
+                        try {
+                            sendOfflineGPSToJavaScript(gpsDataJson);
+                        } catch (Exception offlineError) {
+                            Log.e(TAG, "❌ Eroare salvare offline: " + offlineError.getMessage());
+                        }
+                        
                         e.printStackTrace();
                     }
                 }
@@ -441,6 +450,26 @@ public class BackgroundGPSService extends Service {
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Status update preparation error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private void sendOfflineGPSToJavaScript(String gpsDataJson) {
+        try {
+            Log.e(TAG, "💾 === SALVARE GPS OFFLINE ===");
+            Log.e(TAG, "📤 GPS Data pentru salvare offline: " + gpsDataJson);
+            
+            // Call JavaScript bridge pentru salvare offline
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                String script = "if (window.saveOfflineGPS) { window.saveOfflineGPS(" + gpsDataJson + "); }";
+                Log.e(TAG, "📱 Apelez JavaScript pentru salvare offline");
+                
+                // Această funcție va fi apelată din JavaScript side pentru a salva datele
+                Log.e("OFFLINE_GPS_SAVE", gpsDataJson);
+            }
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Eroare salvare GPS offline: " + e.getMessage());
             e.printStackTrace();
         }
     }

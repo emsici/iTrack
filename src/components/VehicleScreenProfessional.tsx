@@ -158,6 +158,7 @@ import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
 import OfflineSyncProgress from "./OfflineSyncProgress"; // Added for header integration
+import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Added for offline GPS monitoring
 import ToastNotification from "./ToastNotification";
 
 import { useToast } from "../hooks/useToast";
@@ -257,14 +258,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     // Setup network status listener
     // BackgroundGPSService handles network detection through GPS transmissions
-    const handleNetworkChange = (online: boolean) => {
+    const handleNetworkChange = async (online: boolean) => {
       setIsOnline(online);
       console.log(`📡 Network status: ${online ? 'ONLINE' : 'OFFLINE'}`);
       
       // Auto-sync când revii online
       if (online && offlineGPSCount > 0) {
         console.log('🌐 Internet restored - auto-syncing offline coordinates...');
-        // BackgroundGPSService handles offline sync natively
+        // Trigger offline sync când revine internetul
+        try {
+          const { offlineGPSService } = await import('../services/offlineGPS');
+          await offlineGPSService.syncOfflineCoordinates();
+          console.log('📡 Sincronizare offline pornită automat');
+        } catch (syncError) {
+          console.error('❌ Eroare sincronizare automată:', syncError);
+        }
       }
     };
     
@@ -273,8 +281,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
     // Monitor offline GPS count
     const updateOfflineCount = async () => {
-      const count = 0; // BackgroundGPSService handles offline count natively
-      setOfflineGPSCount(count);
+      try {
+        const { offlineGPSService } = await import('../services/offlineGPS');
+        const stats = offlineGPSService.getStats();
+        setOfflineGPSCount(stats.totalOffline);
+        console.log(`📊 Offline GPS count: ${stats.totalOffline}`);
+      } catch (error) {
+        console.error("Error getting offline count:", error);
+        setOfflineGPSCount(0);
+      }
     };
     
     updateOfflineCount();
@@ -833,15 +848,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   useEffect(() => {
     const updateOfflineCount = async () => {
       try {
-        const count = 0; // BackgroundGPSService handles offline count natively
-        setOfflineGPSCount(count);
+        const { offlineGPSService } = await import('../services/offlineGPS');
+        const stats = offlineGPSService.getStats();
+        setOfflineGPSCount(stats.totalOffline);
+        console.log(`📊 Offline GPS count updated: ${stats.totalOffline}`);
       } catch (error) {
         console.error("Error getting offline count:", error);
+        setOfflineGPSCount(0);
       }
     };
 
     updateOfflineCount();
-    const interval = setInterval(updateOfflineCount, 120000); // ULTRA OPTIMIZAT pentru șoferi: every 2 minute pentru zero lag
+    const interval = setInterval(updateOfflineCount, 10000); // Update every 10 seconds pentru monitoring activ
     return () => clearInterval(interval);
   }, []);
 
@@ -972,6 +990,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
         } catch (courseError) {
           console.error(`❌ GPS transmission error for UIT ${uit}:`, courseError);
+          
+          // Salvează coordonata offline pentru sincronizare ulterioară
+          try {
+            const { offlineGPSService } = await import('../services/offlineGPS');
+            await offlineGPSService.saveOfflineCoordinate(gpsData);
+            console.log(`💾 GPS salvat offline pentru UIT: ${uit}`);
+          } catch (offlineError) {
+            console.error(`❌ Eroare salvare GPS offline pentru UIT ${uit}:`, offlineError);
+          }
           
           // Even if server transmission fails, update local statistics
           try {
@@ -1793,6 +1820,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               /* REMOVED willChange pentru ZERO lag la scroll */
             }}>
               <OfflineSyncProgress className="offline-monitor-header-style" />
+              
+              {/* Monitor GPS Offline - integrat cu BackgroundGPSService */}
+              <OfflineSyncMonitor isOnline={isOnline} className="mb-3" />
             </div>
           </div>
 
