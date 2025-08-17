@@ -379,16 +379,11 @@ public class BackgroundGPSService extends Service {
     
     private void sendLogToJavaScript(String message) {
         try {
-            // Send log message to JavaScript console using bridge
-            if (bridge != null) {
-                bridge.getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        bridge.getWebView().evaluateJavascript(
-                            "console.log('[Android GPS]: " + message.replace("'", "\\'") + "');", null);
-                    }
-                });
-            }
+            // Send log via Android system log with special tag for JS capture
+            Log.e("JS_BRIDGE_LOG", "[Android GPS]: " + message);
+            
+            // Also send to system log for debugging
+            Log.e(TAG, "JS Log: " + message);
         } catch (Exception e) {
             Log.e(TAG, "Failed to send log to JS: " + e.getMessage());
         }
