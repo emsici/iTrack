@@ -688,25 +688,32 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
         }
         
-        // CRITICAL FIX: Always call updateCourseStatus for ALL status changes (2, 3, 4)
-        console.log(`🔄 === TRIMITERE ACTUALIZARE STATUS LA SERVER ===`);
-        console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus} (2=ACTIV, 3=PAUZA, 4=STOP)`);
-        console.log(`🚛 Numărul vehiculului pentru actualizare status: "${vehicleNumber}" (lungime: ${vehicleNumber?.length || 0})`);
-        console.log(`🎯 IMPORTANT: Status ${newStatus} va fi trimis la gps.php cu structura identică`);
-        
-        if (!vehicleNumber || vehicleNumber.trim() === '') {
-          console.error(`❌ EROARE CRITICĂ: vehicleNumber este gol pentru status ${newStatus}!`);
-          console.error(`📋 vehicleNumber value:`, vehicleNumber);
-          throw new Error(`Numărul vehiculului lipsește pentru actualizarea status ${newStatus}`);
+        // STRATEGIA NOUĂ: Serviciul Android trimite status updates pentru 3 și 4 (garantat răspuns 200)
+        if (newStatus === 3 || newStatus === 4) {
+          console.log(`🔄 === STATUS ${newStatus} TRIMIS DE SERVICIUL ANDROID ===`);
+          console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus} (3=PAUZA, 4=STOP)`);
+          console.log(`🎯 Serviciul Android va trimite la gps.php cu răspuns 200 garantat`);
+        } else if (newStatus === 2) {
+          console.log(`🔄 === TRIMITERE STATUS 2 (START) LA SERVER ===`);
+          console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus} (2=ACTIV)`);
+          console.log(`🚛 Numărul vehiculului pentru actualizare status: "${vehicleNumber}"`);
+          
+          if (!vehicleNumber || vehicleNumber.trim() === '') {
+            console.error(`❌ EROARE CRITICĂ: vehicleNumber este gol pentru status ${newStatus}!`);
+            throw new Error(`Numărul vehiculului lipsește pentru actualizarea status ${newStatus}`);
+          }
+          
+          // Send status update to server doar pentru STATUS 2 (START)
+          await updateCourseStatus(courseToUpdate.uit, newStatus, token, vehicleNumber);
+          console.log(`✅ Status ${newStatus} (START) trimis cu succes la server pentru UIT ${courseToUpdate.uit}`);
         }
         
-        // Send status update to server (WORKS FOR ALL: 2=ACTIVE, 3=PAUSE, 4=STOP)
-        await updateCourseStatus(courseToUpdate.uit, newStatus, token, vehicleNumber);
-        console.log(`✅ Status ${newStatus} trimis cu succes la server pentru UIT ${courseToUpdate.uit}`);
-        
-        // Actualizează statusul serviciului GPS Android
+        // Actualizează statusul serviciului GPS Android (va trimite automat status 3/4 la server)
         if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
           console.log(`📱 Actualizez statusul serviciului GPS Android la ${newStatus}`);
+          if (newStatus === 3 || newStatus === 4) {
+            console.log(`📡 Serviciul Android va trimite automat status ${newStatus} la server`);
+          }
           const androidResult = window.AndroidGPS.updateStatus(courseToUpdate.uit, newStatus);
           console.log(`✅ Statusul GPS Android actualizat: ${androidResult}`);
         }

@@ -93,6 +93,12 @@ public class BackgroundGPSService extends Service {
             int newStatus = intent.getIntExtra("status", 0);
             Log.e(TAG, "Updating course status: " + courseStatus + " → " + newStatus);
             
+            // TRIMITE STATUS UPDATE LA SERVER ÎNAINTE DE SCHIMBARE (pentru 3=PAUSE, 4=STOP)
+            if (newStatus == 3 || newStatus == 4) {
+                Log.e(TAG, "🔄 Trimit status " + newStatus + " la server din serviciul Android");
+                sendStatusUpdateToServer(newStatus);
+            }
+            
             courseStatus = newStatus;
             
             if (newStatus == 2) { // ACTIVE/RESUME
@@ -394,6 +400,47 @@ public class BackgroundGPSService extends Service {
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Bridge call failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private void sendStatusUpdateToServer(int newStatus) {
+        try {
+            Log.e(TAG, "📤 === PREPARING STATUS UPDATE FROM ANDROID SERVICE ===");
+            
+            // Create status update JSON cu exact aceeași structură ca GPS
+            org.json.JSONObject statusData = new org.json.JSONObject();
+            statusData.put("uit", activeUIT);
+            statusData.put("numar_inmatriculare", activeVehicle);
+            statusData.put("lat", 0);  // Nu contează pentru status update
+            statusData.put("lng", 0);
+            statusData.put("viteza", 0);
+            statusData.put("directie", 0);
+            statusData.put("altitudine", 0);
+            statusData.put("hdop", 0);
+            statusData.put("gsm_signal", 4);
+            statusData.put("baterie", getBatteryLevel());
+            statusData.put("status", newStatus); // PAUSE (3) sau STOP (4)
+            
+            // Romania timestamp
+            java.util.TimeZone romaniaTimeZone = java.util.TimeZone.getTimeZone("Europe/Bucharest");
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.setTimeZone(romaniaTimeZone);
+            String timestamp = sdf.format(new java.util.Date());
+            statusData.put("timestamp", timestamp);
+            
+            Log.e(TAG, "📊 Status Data prepared for status " + newStatus + ":");
+            Log.e(TAG, "   UIT: " + activeUIT);
+            Log.e(TAG, "   Vehicle: " + activeVehicle);
+            Log.e(TAG, "   Status: " + newStatus);
+            Log.e(TAG, "   Timestamp: " + timestamp);
+            Log.e(TAG, "📤 Full JSON: " + statusData.toString());
+            
+            // Call direct HTTP transmission - ACELAȘI ca GPS-ul!
+            callJavaScriptBridge(statusData.toString());
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Status update preparation error: " + e.getMessage());
             e.printStackTrace();
         }
     }
