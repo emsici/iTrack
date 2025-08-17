@@ -35,7 +35,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd android && export ANDROID_HOME=/nix/store/6vcafwxrilrmbglxjm3zpnyak8byfdvv-android-tools-35.0.1 && ./gradlew assembleDebug"
+args = ""
 
 [workflows.workflow.metadata]
 outputType = "console"

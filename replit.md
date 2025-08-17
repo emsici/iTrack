@@ -68,7 +68,7 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 
 #### **Componente Verificate Exhaustiv:**
 
-**FRONTEND (23 fișiere TypeScript/TSX - ~9,000 linii):**
+**FRONTEND (18 fișiere TypeScript/TSX - 9,269 linii exacte verificate):**
 - `VehicleScreenProfessional.tsx` (2345 linii) - Dashboard principal cu activeCourses Map pentru management multi-course
 - `CourseDetailCard.tsx` (1066 linii) - Carduri individuale cu butoane START/PAUSE/RESUME/STOP per cursă
 - `LoginScreen.tsx` (867 linii) - Autentificare securizată cu API etsm_prod/login.php
@@ -78,7 +78,7 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - `courseAnalytics.ts` (434 linii) - Serviciu analytics per cursă cu pauseCourseTracking() și resumeCourseTracking()
 - `offlineGPS.ts` (346 linii) - Manager GPS offline cu batch sync pentru coordonate cached
 
-**BACKEND ANDROID NATIV (2 fișiere Java - ~1,100 linii):**
+**BACKEND ANDROID NATIV (2 fișiere Java - 1,109 linii exacte verificate):**
 - `BackgroundGPSService.java` (759 linii) - Serviciu GPS multi-course cu Map<String, Integer> courseStatuses
 - `MainActivity.java` (350 linii) - Bridge WebView cu startGPS/updateStatus/stopGPS pentru comunicare JavaScript-Android
 
