@@ -16,6 +16,7 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     console.log(`📋 New Status: ${newStatus} (2=ACTIVE, 3=PAUSE, 4=STOP)`);
     console.log(`🔑 Token Length: ${authToken?.length || 0}`);
     console.log(`🚛 Vehicle Number: ${vehicleNumber}`);
+    console.log(`🎯 IMPORTANT: Trimite la fel pentru TOATE statusurile - doar cifra statusului diferă!`);
     
     const statusUpdateData = {
       nr: vehicleNumber,  // CRITICAL: Server needs vehicle number for all status updates
@@ -24,7 +25,8 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
       timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
     };
     
-    console.log(`📤 Sending data:`, statusUpdateData);
+    console.log(`📤 === STRUCTURA IDENTICĂ PENTRU STATUS ${newStatus} ===`);
+    console.log(`📤 Sending data:`, JSON.stringify(statusUpdateData, null, 2));
     
     const response = await CapacitorHttp.post({
       url: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php',
