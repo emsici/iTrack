@@ -315,15 +315,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
     
     // Setup network status listener
-    // BackgroundGPSService handles network detection through GPS transmissions
     const handleNetworkChange = async (online: boolean) => {
       setIsOnline(online);
-      console.log(`📡 Network status: ${online ? 'ONLINE' : 'OFFLINE'}`);
+      console.log(`📡 Network status changed: ${online ? 'ONLINE' : 'OFFLINE'}`);
       
       // Auto-sync când revii online
       if (online && offlineGPSCount > 0) {
         console.log('🌐 Internet restored - auto-syncing offline coordinates...');
-        // Trigger offline sync când revine internetul
         try {
           const { offlineGPSService } = await import('../services/offlineGPS');
           await offlineGPSService.syncOfflineCoordinates();
@@ -334,8 +332,57 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
     };
     
-    // Call the network change handler with default online status
-    handleNetworkChange(true);
+    // Setup real network detection with both browser API and ping test
+    const checkNetworkStatus = async () => {
+      try {
+        // First check navigator.onLine
+        const navigatorOnline = navigator.onLine;
+        
+        // Then do a ping test to verify real connectivity
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
+        const response = await fetch(API_BASE_URL + 'ping', {
+          method: 'HEAD',
+          signal: controller.signal,
+          cache: 'no-cache'
+        });
+        
+        clearTimeout(timeoutId);
+        const actuallyOnline = navigatorOnline && response.ok;
+        
+        console.log(`🔍 Network check: navigator=${navigatorOnline}, ping=${response.ok}, final=${actuallyOnline}`);
+        return actuallyOnline;
+      } catch (error) {
+        console.log(`🔍 Network check failed: ${error.message}, using navigator.onLine=${navigator.onLine}`);
+        return navigator.onLine;
+      }
+    };
+    
+    // Initial network status check
+    checkNetworkStatus().then(handleNetworkChange);
+    
+    // Setup periodic network monitoring
+    const networkInterval = setInterval(async () => {
+      const online = await checkNetworkStatus();
+      if (online !== isOnline) {
+        handleNetworkChange(online);
+      }
+    }, 5000); // Check every 5 seconds
+    
+    // Setup browser online/offline event listeners
+    const handleOnline = () => {
+      console.log('🌐 Browser online event detected');
+      checkNetworkStatus().then(handleNetworkChange);
+    };
+    
+    const handleOffline = () => {
+      console.log('🔌 Browser offline event detected');
+      handleNetworkChange(false);
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
     // Monitor offline GPS count
     const updateOfflineCount = async () => {
@@ -357,7 +404,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     return () => {
       window.removeEventListener('backgroundRefresh', handleBackgroundRefresh);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
       clearInterval(countInterval);
+      clearInterval(networkInterval);
     };
   }, [vehicleNumber, token, coursesLoaded]);
 
@@ -1711,25 +1761,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   ? (offlineGPSCount > 0 ? '1px solid rgba(255, 193, 7, 0.3)' : '1px solid rgba(34, 197, 94, 0.3)')
                   : '1px solid rgba(239, 68, 68, 0.3)',
                 borderRadius: '12px', 
-                padding: '6px 12px', 
+                padding: '12px', 
                 display: 'flex', 
                 alignItems: 'center', 
+                justifyContent: 'center',
                 gap: '8px',
+                width: '50px',
+                height: '50px',
                 flex: '0 0 auto'
               }}>
                 <span style={{ fontSize: '0.9rem' }}>
                   {isOnline ? (offlineGPSCount > 0 ? '📡' : '🟢') : '🔴'}
                 </span>
-                <div style={{ 
-                  fontSize: '0.8rem', 
-                  color: isOnline 
-                    ? (offlineGPSCount > 0 ? '#f59e0b' : '#22c55e')
-                    : '#ef4444', 
-                  fontWeight: '600',
-                  whiteSpace: 'nowrap'
-                }}>
-                  {!isOnline ? 'Offline' : (offlineGPSCount > 0 ? `${offlineGPSCount} offline` : 'Online')}
-                </div>
               </div>
 
               <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
