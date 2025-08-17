@@ -93,6 +93,7 @@ Real Device Data: Implemented dynamic battery level detection and real network t
 - **⚡ GPS TRANSMISSION EFFICIENCY**: Single GPS coordinate acquisition transmitted to ALL active courses with their specific UIT identifiers. Eliminates redundant GPS calls and optimizes battery usage.
 - **🛑 SMART GPS STOPPING**: GPS transmission stops only when ALL courses are inactive. Individual course pause/stop removes course from active tracking without closing Android service - other courses continue normally. Service closes only when no active courses remain.
 - **📊 UIT-SPECIFIC TRANSMISSION**: Each active course transmits GPS data with its unique UIT identifier, ensuring proper server tracking and data association.
+- **🔋 PERSISTENT SERVICE STRATEGY**: Android GPS service starts once with first active course and remains running for all subsequent courses. Maximum efficiency - single service handles multiple UITs simultaneously.
 - **🔄 ENHANCED STATUS DEBUGGING**: Added comprehensive logging for status updates (3=PAUSE, 4=STOP) with detailed transmission confirmation and active courses count tracking.
 
 ### 2025-08-17: Offline GPS System Integration & UI Organization

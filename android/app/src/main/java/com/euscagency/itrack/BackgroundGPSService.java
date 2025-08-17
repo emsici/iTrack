@@ -77,14 +77,19 @@ public class BackgroundGPSService extends Service {
             activeVehicle = intent.getStringExtra("vehicle");
             courseStatus = intent.getIntExtra("status", 2); // Default ACTIVE
             
-            Log.e(TAG, "Data received - UIT: " + activeUIT + ", Vehicle: " + activeVehicle + ", Status: " + courseStatus);
+            Log.e(TAG, "⚡ EFICIENT - Data received UIT: " + activeUIT + ", Vehicle: " + activeVehicle + ", Status: " + courseStatus);
             
-            // Start foreground notification IMMEDIATELY
+            // Start foreground notification IMMEDIATELY  
             startForeground(1, createNotification());
-            Log.e(TAG, "Foreground service notification created");
+            Log.e(TAG, "📱 Foreground service persistent notification created");
             
             if (courseStatus == 2) {
-                startBackgroundGPS();
+                if (!isGPSRunning) {
+                    Log.e(TAG, "🚀 PORNIRE GPS pentru prima cursă activă");
+                    startBackgroundGPS();
+                } else {
+                    Log.e(TAG, "⚡ GPS rulează deja - adăugare cursă la tracking existent");
+                }
             } else {
                 Log.e(TAG, "GPS not started - course status is " + courseStatus + " (not ACTIVE)");
             }

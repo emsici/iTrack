@@ -673,10 +673,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           activeCourses.set(courseToUpdate.uit, courseToUpdate);
           console.log(`📋 Curse active: ${activeCourses.size}`);
           
-          // Pornește serviciul Android dacă este disponibil
+          // STRATEGIE EFICIENȚĂ: Serviciul Android pornește o singură dată și rămâne activ
           if (window.AndroidGPS) {
-            const gpsResult = startAndroidGPS(courseToUpdate, vehicleNumber, token);
-            console.log("📱 Rezultat Serviciu GPS Android:", gpsResult);
+            if (activeCourses.size === 1) {
+              // Prima cursă activă - pornește serviciul Android
+              console.log("🚀 Prima cursă activă - pornesc serviciul Android GPS");
+              const gpsResult = startAndroidGPS(courseToUpdate, vehicleNumber, token);
+              console.log("📱 Rezultat Serviciu GPS Android:", gpsResult);
+            } else {
+              // Cursele următoare - serviciul rulează deja, doar notifică noua cursă
+              console.log(`📋 Cursă ${activeCourses.size} adăugată - serviciul Android rulează deja`);
+              console.log("⚡ EFICIENT: Un singur serviciu GPS pentru toate cursele active");
+            }
           }
           
           // Pornește transmisia GPS pentru toate cursele active (dacă nu rulează deja)
