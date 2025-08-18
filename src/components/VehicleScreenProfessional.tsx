@@ -166,6 +166,7 @@ import { useToast } from "../hooks/useToast";
 import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
+import SimpleGPSIndicator from "./SimpleGPSIndicator";
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
 
 // Funcții globale pentru senzori reali - utilizate în updateCourseStatus și startGPSForActiveCourses
@@ -1425,39 +1426,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 />
               </div>
 
-              {/* Right Side - GPS Status Indicator */}
+              {/* Right Side - SimpleGPSIndicator (unified GPS+Network status) */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
                 flex: '0 0 auto'
               }}>
-                <div style={{ 
-                  background: isOnline 
-                    ? (offlineGPSCount > 0 ? 'rgba(255, 193, 7, 0.2)' : 'rgba(34, 197, 94, 0.2)')
-                    : 'rgba(239, 68, 68, 0.2)', 
-                  border: isOnline 
-                    ? (offlineGPSCount > 0 ? '1px solid rgba(255, 193, 7, 0.4)' : '1px solid rgba(34, 197, 94, 0.4)')
-                    : '1px solid rgba(239, 68, 68, 0.4)',
-                  borderRadius: '8px', 
-                  padding: '6px 10px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '6px'
-                }}>
-                  <span style={{ fontSize: '14px' }}>
-                    {isOnline ? (offlineGPSCount > 0 ? '📡' : '🟢') : '🔴'}
-                  </span>
-                  <span style={{
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    color: isOnline 
-                      ? (offlineGPSCount > 0 ? '#f59e0b' : '#16a34a')
-                      : '#dc2626'
-                  }}>
-                    {isOnline ? (offlineGPSCount > 0 ? 'SYNC' : 'OK') : 'OFF'}
-                  </span>
-                </div>
+                <SimpleGPSIndicator className="header-gps-indicator" />
               </div>
             </div>
 

@@ -46,7 +46,7 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 
 ### Technical Implementations
 - **GPS Logic**: `BackgroundGPSService` runs persistently in the background with `ScheduledExecutorService` for reliable timing. Acquires `WakeLock` for deep sleep prevention, uses dedicated `HandlerThread` for GPS operations, and guaranteed execution through foreground service protection with HIGH priority notification. Uses `getLastKnownLocation()` for synchronous GPS data acquisition with fallbacks.
-- **UI/UX Decisions**: Corporate design with glassmorphism effects, gradient backgrounds, and intuitive iconography. Responsive layouts with safe area padding. Optimized for zero-lag scrolling by eliminating `backdrop-filter`, `blur` effects, and `transform` properties. Cleaner interface without redundant GPS status indicators.
+- **UI/UX Decisions**: Corporate design with glassmorphism effects, gradient backgrounds, and intuitive iconography. Responsive layouts with safe area padding. Optimized for zero-lag scrolling by eliminating `backdrop-filter`, `blur` effects, and `transform` properties. Unified GPS+Network status indicator (SimpleGPSIndicator) replaces redundant online/offline indicators for cleaner interface.
 - **Error Handling**: Comprehensive error logging, non-blocking GPS operations, graceful degradation for network issues, and clear user guidance for permissions.
 - **Environment Management**: Centralized `API_CONFIG` system for easy environment switching (PROD/TEST/DEV) with automated build scripts.
 - **HTTP Modernization**: Exclusively uses CapacitorHttp native methods for all API calls in Android-only environment.
