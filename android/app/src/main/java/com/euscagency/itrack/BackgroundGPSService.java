@@ -867,7 +867,7 @@ public class BackgroundGPSService extends Service {
                         e.printStackTrace();
                     }
                 }
-            }).start();
+            });
             
         } catch (Exception e) {
             Log.e(TAG, "❌ GPS transmission error pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + e.getMessage());
