@@ -54,17 +54,20 @@ public class BackgroundGPSService extends Service {
         String courseId; // ikRoTrans - identificator unic pentru HashMap
         int status; // 2=ACTIV, 3=PAUZA, 4=STOP
         String realUit; // UIT real pentru transmisia către server
+        String vehicleNumber; // Numărul mașinii specific pentru această cursă
         
         CourseData(String courseId, int status) {
             this.courseId = courseId;
             this.status = status;
             this.realUit = courseId; // Fallback pentru compatibilitate
+            this.vehicleNumber = null;
         }
         
-        CourseData(String courseId, int status, String realUit) {
+        CourseData(String courseId, int status, String realUit, String vehicleNumber) {
             this.courseId = courseId;
             this.status = status;
             this.realUit = realUit != null ? realUit : courseId; // UIT real sau fallback
+            this.vehicleNumber = vehicleNumber; // Vehiculul specific pentru cursă
         }
     }
     
@@ -110,8 +113,8 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "   Vehicle: " + globalVehicle);
             Log.e(TAG, "   Status: " + courseStatus);
             
-            // Adaugă cursa la lista activă cu ikRoTrans ca key, dar păstrează UIT real
-            activeCourses.put(uitId, new CourseData(uitId, courseStatus, realUit));
+            // Adaugă cursa la lista activă cu ikRoTrans ca key, păstrează UIT real și vehiculul specific
+            activeCourses.put(uitId, new CourseData(uitId, courseStatus, realUit, globalVehicle));
             Log.e(TAG, "📋 Total curse active: " + activeCourses.size());
             
             // Start foreground notification IMMEDIATELY  
@@ -714,7 +717,7 @@ public class BackgroundGPSService extends Service {
                 // Create GPS data JSON pentru această cursă
                 org.json.JSONObject gpsData = new org.json.JSONObject();
                 gpsData.put("uit", courseData.realUit); // UIT REAL pentru server, NU ikRoTrans
-                gpsData.put("numar_inmatriculare", globalVehicle);
+                gpsData.put("numar_inmatriculare", courseData.vehicleNumber); // Vehicul specific pentru cursă
                 gpsData.put("lat", location.getLatitude());
                 gpsData.put("lng", location.getLongitude());
                 gpsData.put("viteza", (int) (location.getSpeed() * 3.6)); // m/s to km/h
@@ -727,7 +730,7 @@ public class BackgroundGPSService extends Service {
                 gpsData.put("timestamp", timestamp);
                 
                 Log.e(TAG, "📊 GPS Data pentru ikRoTrans " + uitId + " (server UIT: " + courseData.realUit + "):");
-                Log.e(TAG, "   Vehicle: " + globalVehicle);
+                Log.e(TAG, "   Vehicle: " + courseData.vehicleNumber);
                 Log.e(TAG, "   Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
                 Log.e(TAG, "   Battery: " + batteryLevel);
                 Log.e(TAG, "   Timestamp: " + timestamp);
@@ -923,7 +926,7 @@ public class BackgroundGPSService extends Service {
             // Create status update JSON cu exact aceeași structură ca GPS
             org.json.JSONObject statusData = new org.json.JSONObject();
             statusData.put("uit", realUit); // FIXED: Trimite realUit la server, NU ikRoTrans
-            statusData.put("numar_inmatriculare", globalVehicle);
+            statusData.put("numar_inmatriculare", courseData.vehicleNumber); // Vehicul specific pentru cursă
             // Obține coordonate GPS reale pentru status update
             Location lastLocation = getLastKnownLocation();
             if (lastLocation != null) {
@@ -955,7 +958,7 @@ public class BackgroundGPSService extends Service {
             
             Log.e(TAG, "📊 Status Data prepared for status " + newStatus + ":");
             Log.e(TAG, "   ikRoTrans: " + specificUIT + " → realUIT: " + realUit); // FIXED: Log both values
-            Log.e(TAG, "   Vehicle: " + globalVehicle);
+            Log.e(TAG, "   Vehicle: " + courseData.vehicleNumber);
             Log.e(TAG, "   Status: " + newStatus);
             Log.e(TAG, "   Timestamp: " + timestamp);
             Log.e(TAG, "📤 Full JSON: " + statusData.toString());
