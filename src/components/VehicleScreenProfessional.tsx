@@ -859,8 +859,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
           
           try {
-            const androidResult = window.AndroidGPS.updateStatus(courseToUpdate.uit, newStatus);
-            console.log(`✅ Rezultat Android updateStatus: ${androidResult}`);
+            const androidResult = window.AndroidGPS.updateStatus(courseToUpdate.uit, newStatus, token, vehicleNumber);
+            console.log(`✅ Rezultat Android updateStatus cu vehicle ${vehicleNumber}: ${androidResult}`);
             console.log(`📱 === ANDROID GPS STATUS UPDATE COMPLETED ===`);
           } catch (androidError) {
             console.error(`❌ EROARE Android updateStatus:`, androidError);
