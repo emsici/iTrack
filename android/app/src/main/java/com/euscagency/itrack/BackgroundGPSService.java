@@ -170,11 +170,31 @@ public class BackgroundGPSService extends Service {
             @Override
             public void run() {
                 try {
+                    Log.e(TAG, "🚨 === AGGRESSIVE DEBUGGING - EXECUTOR STATUS ===");
+                    Log.e(TAG, "🔧 Executor shutdown: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
+                    Log.e(TAG, "🔧 Executor terminated: " + (gpsExecutor != null ? gpsExecutor.isTerminated() : "NULL"));
+                    Log.e(TAG, "🔧 Service isGPSRunning: " + isGPSRunning);
+                    Log.e(TAG, "🔧 WakeLock held: " + (wakeLock != null && wakeLock.isHeld()));
+                    Log.e(TAG, "🔧 Courses count: " + courseStatuses.size());
+                    Log.e(TAG, "🔧 Token exists: " + (activeToken != null));
+                    
                     Log.e(TAG, "⏰ === SCHEDULED GPS CYCLE TRIGGERED ===");
                     Log.e(TAG, "🕐 Timpul curent: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                    Log.e(TAG, "📊 Service activ: " + isGPSRunning + ", Total curse: " + courseStatuses.size());
+                    Log.e(TAG, "📊 Service activ: " + isGPSRunning + ", Curse înregistrate: " + courseStatuses.size());
                     sendLogToJavaScript("⏰ GPS CYCLE la " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
+                    
+                    // VERIFICARE CRITICĂ: Dacă serviciul nu mai rulează, nu executa
+                    if (!isGPSRunning) {
+                        Log.e(TAG, "🚨 CRITICAL: Service marked as NOT RUNNING - stopping execution");
+                        sendLogToJavaScript("🚨 SERVICE NOT RUNNING - executor va fi oprit");
+                        return;
+                    }
+                    
                     performGPSCycle();
+                    
+                    Log.e(TAG, "✅ GPS CYCLE COMPLETED - EXECUTOR RĂMÂNE ACTIV");
+                    sendLogToJavaScript("✅ CYCLE OK - următorul în " + GPS_INTERVAL_SECONDS + "s");
+                    
                 } catch (Exception e) {
                     Log.e(TAG, "❌ CRITICAL: ScheduledExecutor error: " + e.getMessage());
                     sendLogToJavaScript("❌ EROARE GPS CYCLE: " + e.getMessage());
