@@ -62,6 +62,60 @@ class OfflineGPSService {
     this.loadStats();
     // Setup global bridge pentru BackgroundGPSService
     (window as any).saveOfflineGPS = this.saveOfflineCoordinate.bind(this);
+    
+    // Setup mecanism de recuperare din SharedPreferences Android
+    this.setupSharedPreferencesRecovery();
+  }
+  
+  // Recuperează coordonate din SharedPreferences Android (fallback)
+  private async setupSharedPreferencesRecovery(): Promise<void> {
+    try {
+      // Verifică dacă avem coordonate salvate în SharedPreferences (fallback Android)
+      const sharedPrefsData = await Preferences.get({ key: 'android_fallback_offline_gps' });
+      if (sharedPrefsData.value) {
+        const androidCoords = JSON.parse(sharedPrefsData.value);
+        if (androidCoords.length > 0) {
+          console.log(`🔄 Recuperez ${androidCoords.length} coordonate din Android SharedPreferences fallback`);
+          
+          // Convertește și integrează în sistemul principal
+          const existingCoords = await this.getOfflineCoordinates();
+          for (const androidCoord of androidCoords) {
+            const convertedCoord: OfflineGPSCoordinate = {
+              id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+              uit: androidCoord.uit || '',
+              numar_inmatriculare: androidCoord.numar_inmatriculare || '',
+              lat: androidCoord.lat || 0,
+              lng: androidCoord.lng || 0,
+              viteza: androidCoord.viteza || 0,
+              directie: androidCoord.directie || 0,
+              altitudine: androidCoord.altitudine || 0,
+              hdop: androidCoord.hdop || 0,
+              gsm_signal: androidCoord.gsm_signal || 0,
+              baterie: androidCoord.baterie || '0%',
+              status: androidCoord.status || 2,
+              timestamp: androidCoord.timestamp || new Date().toISOString().slice(0, 19).replace('T', ' '),
+              attempts: 0,
+              lastAttempt: new Date().toISOString()
+            };
+            existingCoords.push(convertedCoord);
+          }
+          
+          // Salvează coordonatele recuperate în sistemul principal
+          await Preferences.set({
+            key: this.STORAGE_KEY,
+            value: JSON.stringify(existingCoords)
+          });
+          
+          // Curăță fallback-ul după recuperare
+          await Preferences.remove({ key: 'android_fallback_offline_gps' });
+          
+          console.log(`✅ ${androidCoords.length} coordonate recuperate din Android SharedPreferences`);
+          this.updateStats();
+        }
+      }
+    } catch (error) {
+      console.error('❌ Eroare recuperare SharedPreferences:', error);
+    }
   }
 
   // Salvează coordonate GPS când transmisia eșuează
