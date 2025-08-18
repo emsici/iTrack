@@ -166,7 +166,7 @@ import { useToast } from "../hooks/useToast";
 import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
-import SimpleGPSIndicator from "./SimpleGPSIndicator";
+// SimpleGPSIndicator removed per user request
 import { themeService, Theme, THEME_INFO } from "../services/themeService";
 
 // Funcții globale pentru senzori reali - utilizate în updateCourseStatus și startGPSForActiveCourses
@@ -1419,22 +1419,27 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               }}>
                 <VehicleNumberDropdown
                   value={vehicleNumber}
-                  onChange={setVehicleNumber}
+                  onChange={(newVehicle) => {
+                    setVehicleNumber(newVehicle);
+                    // Reîncarcă cursele pentru noul vehicul
+                    if (newVehicle && newVehicle !== vehicleNumber) {
+                      console.log(`🚛 Vehicul schimbat la: ${newVehicle} - reîncarc cursele`);
+                      handleLoadCourses();
+                    }
+                  }}
                   placeholder="Număr de înmatriculare (ex: B123ABC)"
                   darkMode={currentTheme === 'dark'}
                   disabled={loading}
+                  onNavigateToInput={() => {
+                    // Reset la pagina de input de după logare
+                    console.log('🔄 Reset la pagina de input vehicul');
+                    setVehicleNumber('');
+                    setCourses([]);
+                  }}
                 />
               </div>
 
-              {/* Right Side - SimpleGPSIndicator (unified GPS+Network status) */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                flex: '0 0 auto'
-              }}>
-                <SimpleGPSIndicator className="header-gps-indicator" />
-              </div>
+              {/* Right Side - Removed SimpleGPSIndicator per user request */}
             </div>
 
 

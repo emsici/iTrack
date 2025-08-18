@@ -8,13 +8,15 @@ interface VehicleNumberDropdownProps {
   darkMode?: boolean;
   onKeyPress?: (e: React.KeyboardEvent) => void;
   disabled?: boolean;
+  onNavigateToInput?: () => void; // Callback pentru navigare la pagina de input
 }
 
 const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
   value,
   onChange,
   darkMode = false,
-  disabled = false
+  disabled = false,
+  onNavigateToInput
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [vehicleHistory, setVehicleHistory] = useState<string[]>([]);
@@ -251,8 +253,13 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
           <div
             onClick={(e) => {
               e.stopPropagation();
-              setShowInputPage(true);
               setIsOpen(false);
+              // Folosește callback pentru navigare la pagina de input în loc de popup
+              if (onNavigateToInput) {
+                onNavigateToInput();
+              } else {
+                setShowInputPage(true);
+              }
             }}
             style={{
               padding: '12px 16px',
