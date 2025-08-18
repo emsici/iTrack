@@ -99,3 +99,10 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
   - Verificare dacă toate cursele sunt în PAUSE pentru skip GPS cycle complet
 - **WORKFLOW COMPLET**: START(2)→GPS transmission / PAUSE(3)→skip GPS / RESUME(2)→reactivare GPS / STOP(4)→remove și status final
 - **STATUS**: COMPLET REPARAT - Multi-UIT ScheduledExecutorService cu transmisie continuă garantată
+
+### **Network Check Failed Fix (18 Aug 2025)**
+- **PROBLEMĂ IDENTIFICATĂ**: JavaScript network check folosea fetch ping test spre endpoint inexistent '/ping'
+- **CAUZA**: fetch(API_BASE_URL + 'ping') genera "Network check failed: Failed to fetch"
+- **SOLUȚIA APLICATĂ**: Înlocuit cu Capacitor Network plugin pentru detectare robustă Android
+- **IMPACT ELIMIAT**: Eroarea nu afecta BackgroundGPSService - doar UI network status
+- **REZULTAT**: Eliminată eroarea repetitivă, detectare rețea mai fiabilă pentru Android

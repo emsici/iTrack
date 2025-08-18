@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { CapacitorHttp } from '@capacitor/core';
+import { Network } from '@capacitor/network';
 import { Course } from "../types";
 import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
 // Urmărirea curselor active - pentru Android BackgroundGPSService  
@@ -152,7 +153,6 @@ import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../servi
 // BackgroundGPSService handles offline GPS natively - no separate service needed
 import { logAPI, logAPIError } from "../services/appLogger";
 import { courseAnalyticsService } from "../services/courseAnalytics";
-import { Network } from '@capacitor/network';
 // Analytics imports removed - unused
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
@@ -338,27 +338,27 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
     };
     
-    // Setup real network detection with both browser API and ping test
+    // Setup network detection with Capacitor Network plugin - eliminat ping test problematic
     const checkNetworkStatus = async () => {
       try {
         // First check navigator.onLine
         const navigatorOnline = navigator.onLine;
         
-        // Then do a ping test to verify real connectivity
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-        
-        const response = await fetch(API_BASE_URL + 'ping', {
-          method: 'HEAD',
-          signal: controller.signal,
-          cache: 'no-cache'
-        });
-        
-        clearTimeout(timeoutId);
-        const actuallyOnline = navigatorOnline && response.ok;
-        
-        console.log(`🔍 Network check: navigator=${navigatorOnline}, ping=${response.ok}, final=${actuallyOnline}`);
-        return actuallyOnline;
+        // Folosește Capacitor Network plugin pentru Android - mai fiabil decât ping test
+        try {
+          const networkStatus = await Network.getStatus();
+          const capacitorOnline = networkStatus.connected;
+          
+          const finalStatus = navigatorOnline && capacitorOnline;
+          console.log(`🌐 Network status: navigator=${navigatorOnline}, capacitor=${capacitorOnline}, final=${finalStatus}`);
+          console.log(`📶 Network type: ${networkStatus.connectionType}`);
+          
+          return finalStatus;
+        } catch (networkError) {
+          // Fallback la navigator.onLine dacă Capacitor Network eșuează
+          console.log(`🔍 Capacitor Network check failed, using navigator.onLine=${navigatorOnline}`);
+          return navigatorOnline;
+        }
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.log(`🔍 Network check failed: ${errorMessage}, using navigator.onLine=${navigator.onLine}`);
