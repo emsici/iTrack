@@ -139,6 +139,21 @@ public class BackgroundGPSService extends Service {
                 } else if (newStatus == 3) { // PAUSE
                     courseData.status = 3;
                     Log.e(TAG, "⏸️ PAUSE: UIT " + specificUIT + " paused, serviciul continuă pentru alte curse");
+                    
+                    // Verifică dacă mai există curse active după PAUSE
+                    int activeCourseCount = 0;
+                    for (CourseData course : activeCourses.values()) {
+                        if (course.status == 2) {
+                            activeCourseCount++;
+                        }
+                    }
+                    
+                    if (activeCourseCount == 0) {
+                        Log.e(TAG, "⚠️ TOATE cursele sunt în PAUSE - ScheduledExecutorService continuă dar nu va transmite GPS");
+                        sendLogToJavaScript("⚠️ Toate cursele sunt în PAUSE - GPS transmission oprită");
+                    } else {
+                        Log.e(TAG, "✅ " + activeCourseCount + " curse încă active - GPS transmission continuă");
+                    }
                 } else if (newStatus == 4) { // STOP
                     activeCourses.remove(specificUIT);
                     Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " eliminat din tracking");
@@ -317,8 +332,23 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        Log.e(TAG, "✅ GPS cycle PROCEEDING - " + activeCourses.size() + " active courses, token available");
-        sendLogToJavaScript("✅ GPS cycle PROCEEDING - " + activeCourses.size() + " courses");
+        // VERIFICĂ dacă există cel puțin o cursă cu status 2 (ACTIVE) înainte de a continua
+        int activeCourseCount = 0;
+        for (CourseData course : activeCourses.values()) {
+            if (course.status == 2) {
+                activeCourseCount++;
+            }
+        }
+        
+        if (activeCourseCount == 0) {
+            Log.e(TAG, "⚠️ GPS cycle SKIPPED - No ACTIVE courses (toate sunt PAUSE/STOP)");
+            Log.e(TAG, "📊 Total courses: " + activeCourses.size() + ", Active courses: " + activeCourseCount);
+            sendLogToJavaScript("⚠️ GPS cycle SKIPPED - toate cursele sunt în PAUSE");
+            return;
+        }
+        
+        Log.e(TAG, "✅ GPS cycle PROCEEDING - " + activeCourseCount + " active courses din " + activeCourses.size() + " total");
+        sendLogToJavaScript("✅ GPS cycle PROCEEDING - " + activeCourseCount + " curse ACTIVE");
         
         // Direct GPS reading - no dummy data
         Log.e(TAG, "🔄 Reading REAL GPS sensors now...");
@@ -441,21 +471,30 @@ public class BackgroundGPSService extends Service {
             int networkSignal = getNetworkSignal();
             String batteryLevel = getBatteryLevel();
             
-            // Transmite GPS pentru fiecare cursă activă cu status 2
+            // Transmite GPS DOAR pentru cursele ACTIVE (status 2)
             for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
                 String uitId = entry.getKey();
                 CourseData courseData = entry.getValue();
                 
+                Log.e(TAG, "🔍 Verificare UIT " + uitId + " - Status: " + courseData.status);
+                
                 // CRITICĂ: Nu trimite GPS data dacă cursa este în PAUSE (status 3) sau STOP (status 4)
                 if (courseData.status == 3) {
                     Log.e(TAG, "⏸️ GPS transmission SKIPPED pentru UIT " + uitId + " - PAUSED (status 3)");
+                    sendLogToJavaScript("⏸️ Skip GPS pentru UIT " + uitId + " - PAUSED");
                     continue;
                 } else if (courseData.status == 4) {
                     Log.e(TAG, "🛑 GPS transmission SKIPPED pentru UIT " + uitId + " - STOPPED (status 4)");
+                    sendLogToJavaScript("🛑 Skip GPS pentru UIT " + uitId + " - STOPPED");
+                    continue;
+                } else if (courseData.status != 2) {
+                    Log.e(TAG, "⚠️ GPS transmission SKIPPED pentru UIT " + uitId + " - Status unknown: " + courseData.status);
+                    sendLogToJavaScript("⚠️ Skip GPS pentru UIT " + uitId + " - Status necunoscut: " + courseData.status);
                     continue;
                 }
                 
                 Log.e(TAG, "✅ GPS transmission PROCEEDING pentru UIT " + uitId + " - ACTIVE (status " + courseData.status + ")");
+                sendLogToJavaScript("✅ Transmit GPS pentru UIT " + uitId + " - ACTIVE");
                 
                 // Create GPS data JSON pentru această cursă
                 org.json.JSONObject gpsData = new org.json.JSONObject();

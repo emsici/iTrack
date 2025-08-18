@@ -89,10 +89,13 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - **ANDROID FIX**: BackgroundGPSService oprește transmisia complet pentru status 3/4 
 - **WORKFLOW COMPLET**: PAUSE nu mai trimite status 2 automat - transmisia se oprește total până la RESUME
 
-### **GPS ScheduledExecutorService Debugging Fix (18 Aug 2025)**
-- **PROBLEMĂ IDENTIFICATĂ**: ScheduledExecutorService funcționa pentru un singur UIT, dar logica multi-UIT avea probleme în verificări
-- **CAUZA REALĂ**: Verificarea `activeCourses.isEmpty() || globalToken == null` bloca execuția când erau multiple UIT-uri
-- **SOLUȚIE CORECTĂ**: Separat verificările și adăugat logging detaliat pentru fiecare pas al GPS cycle
-- **MULTI-UIT LOGIC**: Un singur ScheduledExecutorService transmite pentru TOATE cursele active simultan
-- **ENHANCED DEBUGGING**: Thread status monitoring, ScheduledFuture tracking, test threads pentru validare
-- **STATUS**: REPARAT - ScheduledExecutorService va transmite continuu pentru toate UIT-urile active
+### **ScheduledExecutorService Complete Fix (18 Aug 2025) - FINAL**
+- **PROBLEMĂ IDENTIFICATĂ**: ScheduledExecutorService nu se executa continuu din cauza Android kill și logica PAUSE/RESUME
+- **REPARAȚII CRITICE APLICATE**:
+  - WakeLock cu `ACQUIRE_CAUSES_WAKEUP` și timeout 1h cu auto-renewal pentru anti-kill
+  - Prima execuție ScheduledExecutorService IMEDIAT (delay=0) în loc de 2 secunde
+  - Verificare completă status cursă în loop GPS: DOAR status=2 primesc GPS data
+  - Enhanced debugging cu WakeLock monitoring și JavaScript logging
+  - Verificare dacă toate cursele sunt în PAUSE pentru skip GPS cycle complet
+- **WORKFLOW COMPLET**: START(2)→GPS transmission / PAUSE(3)→skip GPS / RESUME(2)→reactivare GPS / STOP(4)→remove și status final
+- **STATUS**: COMPLET REPARAT - Multi-UIT ScheduledExecutorService cu transmisie continuă garantată
