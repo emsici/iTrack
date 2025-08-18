@@ -961,8 +961,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
           
           try {
-            // CRITICAL FIX: Trimite UIT real, nu ikRoTrans la serviciul Android + vehiculul pentru unique key
-            const androidResult = window.AndroidGPS.updateStatus(String(courseToUpdate.uit), newStatus, vehicleNumber);
+            // CRITICAL FIX: Trimite ikRoTrans (courseId), NU UIT real pentru a se potrivi cu HashMap key-ul!
+            // Android HashMap folosește vehicul_ikRoTrans ca key, NU vehicul_realUIT!
+            console.log(`🔧 CRITICAL: HashMap key format în Android: ${vehicleNumber}_${courseToUpdate.id} (ikRoTrans)`);
+            console.log(`🔧 GREȘIT ar fi: ${vehicleNumber}_${courseToUpdate.uit} (UIT real)`);
+            
+            const androidResult = window.AndroidGPS.updateStatus(String(courseToUpdate.id), newStatus, vehicleNumber);
             console.log(`✅ Rezultat Android updateStatus: ${androidResult}`);
             console.log(`📱 === ANDROID GPS STATUS UPDATE COMPLETED ===`);
           } catch (androidError) {

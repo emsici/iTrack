@@ -168,14 +168,25 @@ public class BackgroundGPSService extends Service {
             String specificUIT = intent.getStringExtra("uit");
             String vehicleForUpdate = intent.getStringExtra("vehicle"); // Vehicul pentru status update
             
+            Log.e(TAG, "🔄 === INTENT UPDATE_COURSE_STATUS RECEIVED ===");
+            Log.e(TAG, "📤 Intent extras received:");
+            Log.e(TAG, "   newStatus: " + newStatus + " (2=ACTIVE, 3=PAUSE, 4=STOP)");
+            Log.e(TAG, "   specificUIT: " + specificUIT);
+            Log.e(TAG, "   vehicleForUpdate: " + vehicleForUpdate);
+            
             // CRITICAL: Construiește key unic pentru găsirea cursei corecte
             String uniqueKeyForUpdate = vehicleForUpdate + "_" + specificUIT;
             Log.e(TAG, "🔍 Searching for course with unique key: " + uniqueKeyForUpdate);
             
+            Log.e(TAG, "🔍 HashMap keys available: " + activeCourses.keySet().toString());
+            Log.e(TAG, "🔍 Total courses in HashMap: " + activeCourses.size());
+            
             CourseData courseData = activeCourses.get(uniqueKeyForUpdate);
             if (courseData != null) {
                 int oldStatus = courseData.status;
+                Log.e(TAG, "✅ Course FOUND in HashMap!");
                 Log.e(TAG, "🔄 Updating course status: " + oldStatus + " → " + newStatus + " pentru UIT: " + specificUIT);
+                Log.e(TAG, "📊 CourseData details: vehicleNumber=" + courseData.vehicleNumber + ", realUit=" + courseData.realUit);
                 
                 if (newStatus == 2) { // ACTIVE/RESUME
                     courseData.status = 2;
@@ -223,7 +234,14 @@ public class BackgroundGPSService extends Service {
                     }
                 }
             } else {
-                Log.e(TAG, "⚠️ UIT " + specificUIT + " cu unique key " + uniqueKeyForUpdate + " nu găsit în liste active");
+                Log.e(TAG, "❌ === COURSE NOT FOUND ERROR ===");
+                Log.e(TAG, "❌ UIT " + specificUIT + " cu unique key " + uniqueKeyForUpdate + " nu găsit în liste active");
+                Log.e(TAG, "🔍 Available keys în HashMap:");
+                for (String key : activeCourses.keySet()) {
+                    CourseData data = activeCourses.get(key);
+                    Log.e(TAG, "   - Key: " + key + " → UIT: " + data.courseId + ", realUit: " + data.realUit + ", vehicle: " + data.vehicleNumber);
+                }
+                Log.e(TAG, "⚠️ STATUS UPDATE VA EȘUA - cursa nu există în HashMap!");
             }
             
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {

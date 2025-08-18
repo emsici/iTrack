@@ -1,13 +1,81 @@
 # DEBUG: Status Transmission și GPS Blocking
 
-## 🔧 PROBLEME IDENTIFICATE
+## 🔧 PROBLEME IDENTIFICATE (UPDATE)
 
-1. **Status 3/4 nu se trimit la server**
-2. **Coordonate GPS continuă să fie transmise în PAUSE**
+1. **Status 3/4 nu se trimit la server** - Frontend confirmă SUCCESS dar serverul nu primește
+2. **Coordonate GPS continuă să fie transmise în PAUSE** - HashMap check-ul nu funcționează  
+3. **Posibil Key Mismatch** - Frontend trimite UIT care nu se găsește în HashMap
+
+## 🔍 ANALIZA LOG-URILOR UTILIZATOR
+
+Din log-urile de la 15:38:08, observ:
+
+**Frontend confirmă success:**
+```
+✅ Rezultat Android updateStatus: SUCCESS: BACKGROUND GPS status PAUSE for 8K6N433546130173
+🎯 Status 3 va fi trimis la server de serviciul Android
+```
+
+**Dar problema persistă:**
+- Statusul 3 nu ajunge la server 
+- GPS coordonatele continuă să se transmită
+- Android returnează "SUCCESS" dar operațiunea eșuează
+
+**Suspectul principal:** Key mismatch între frontend și HashMap
+
+## 🎯 **ROOT CAUSE GĂSIT: KEY MISMATCH**
+
+**Problema critică identificată:**
+```javascript
+// FRONTEND (GREȘIT):
+androidResult = window.AndroidGPS.updateStatus("8K6N433546130173", 3, "TM20RTA")
+//                                             ^ UIT real
+
+// ANDROID CAUTĂ:
+uniqueKey = "TM20RTA_8K6N433546130173"  // vehicul_realUIT ❌
+
+// DAR HASHMAP CONȚINE:
+uniqueKey = "TM20RTA_133944"  // vehicul_ikRoTrans ✅
+```
 
 ## ✅ SOLUȚII IMPLEMENTATE
 
-### 1. CORECTARE ORDINE OPERAȚIUNI
+### 1. **CRITICAL FIX: Key Mismatch Corrigat**
+
+**Frontend updated să trimită ikRoTrans:**
+```javascript
+// ÎNAINTE (GREȘIT):
+window.AndroidGPS.updateStatus(String(courseToUpdate.uit), newStatus, vehicleNumber);
+//                                    ^ UIT real (8K6N433546130173)
+
+// DUPĂ (CORECT):  
+window.AndroidGPS.updateStatus(String(courseToUpdate.id), newStatus, vehicleNumber);
+//                                   ^ ikRoTrans (133944)
+```
+
+**Rezultat:**
+- Frontend → `updateStatus("133944", 3, "TM20RTA")`
+- Android → uniqueKey = `"TM20RTA_133944"`  
+- HashMap găsește cursa → Status update SUCCES!
+
+### 1. ENHANCED DEBUG LOGGING
+
+**Added comprehensive logging în UPDATE_COURSE_STATUS:**
+```java
+Log.e(TAG, "🔄 === INTENT UPDATE_COURSE_STATUS RECEIVED ===");
+Log.e(TAG, "   newStatus: " + newStatus + " (2=ACTIVE, 3=PAUSE, 4=STOP)");  
+Log.e(TAG, "   specificUIT: " + specificUIT);
+Log.e(TAG, "   vehicleForUpdate: " + vehicleForUpdate);
+Log.e(TAG, "🔍 HashMap keys available: " + activeCourses.keySet().toString());
+
+// La NOT FOUND:
+Log.e(TAG, "🔍 Available keys în HashMap:");
+for (String key : activeCourses.keySet()) {
+    Log.e(TAG, "   - Key: " + key + " → UIT: " + data.courseId + ", realUit: " + data.realUit);
+}
+```
+
+### 2. CORECTARE ORDINE OPERAȚIUNI
 
 **ÎNAINTE (GREȘIT):**
 ```java
