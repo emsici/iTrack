@@ -20,6 +20,7 @@ PAUSE GPS Fix: GPS transmission is now correctly blocked for paused courses (sta
 Vehicle Dropdown Redesign: Compact dropdown with stored vehicle numbers, remove function, and "Add New" button leading to dedicated input page for better UX.
 SimpleGPSIndicator Cleanup: Component completely removed from codebase as it was redundant after header simplification.
 Modularitate Completă: Sistemul este complet modular - curse și mașini sunt total independente cu unique key system, operațiuni individuale, și zero interferențe.
+STATUS TRANSMISSION FIX: Problema cu statusurile 3/4 care nu se trimiteau la server și GPS care continua în PAUSE a fost rezolvată prin corectarea key mismatch-ului între frontend (UIT real) și Android HashMap (ikRoTrans). Log-urile debug excesive au fost eliminate, păstrând doar cele esențiale.
 
 ## System Architecture
 

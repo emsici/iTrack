@@ -928,59 +928,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
         }
         
-        // STRATEGIA NOUĂ: Serviciul Android trimite status updates pentru 3 și 4 (garantat răspuns 200)
-        if (newStatus === 3 || newStatus === 4) {
-          console.log(`🔄 === STATUS ${newStatus} TRIMIS DE SERVICIUL ANDROID ===`);
-          console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus} (3=PAUZA, 4=STOP)`);
-          console.log(`🎯 Serviciul Android va trimite la gps.php cu răspuns 200 garantat`);
-        } else if (newStatus === 2) {
-          console.log(`🔄 === TRIMITERE STATUS 2 (START) LA SERVER ===`);
-          console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus} (2=ACTIV)`);
-          console.log(`🚛 Numărul vehiculului pentru actualizare status: "${vehicleNumber}"`);
-          
+        if (newStatus === 2) {
           if (!vehicleNumber || vehicleNumber.trim() === '') {
-            console.error(`❌ EROARE CRITICĂ: vehicleNumber este gol pentru status ${newStatus}!`);
             throw new Error(`Numărul vehiculului lipsește pentru actualizarea status ${newStatus}`);
           }
           
-          // Send status update to server doar pentru STATUS 2 (START) - ORDINEA CORECTĂ A PARAMETRILOR
-          await updateCourseStatus(courseToUpdate.uit, newStatus, token, vehicleNumber); // FIXED: folosește UIT real
-          console.log(`✅ Status ${newStatus} (START) trimis cu succes la server pentru UIT ${courseToUpdate.uit}`);
+          await updateCourseStatus(courseToUpdate.uit, newStatus, token, vehicleNumber);
+          console.log(`Status ${newStatus} trimis la server pentru UIT ${courseToUpdate.uit}`);
         }
         
-        // Actualizează statusul serviciului GPS Android (va trimite automat status 3/4 la server)
+        // Actualizează statusul serviciului GPS Android
         if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-          console.log(`📱 === ANDROID GPS STATUS UPDATE START ===`);
-          console.log(`🔧 AndroidGPS disponibil: ${!!window.AndroidGPS}`);
-          console.log(`🔧 updateStatus method disponibil: ${!!window.AndroidGPS.updateStatus}`);
-          console.log(`📊 UIT: ${courseToUpdate.uit}, Status: ${newStatus}`);
-          
-          if (newStatus === 3 || newStatus === 4) {
-            console.log(`🎯 === CRITICĂ === Status ${newStatus} va fi trimis la server de serviciul Android!`);
-            console.log(`📡 Endpoint: gps.php - ar trebui să primească răspuns 200`);
-          }
-          
           try {
-            // CRITICAL FIX: Trimite ikRoTrans (courseId), NU UIT real pentru a se potrivi cu HashMap key-ul!
-            // Android HashMap folosește vehicul_ikRoTrans ca key, NU vehicul_realUIT!
-            console.log(`🔧 CRITICAL: HashMap key format în Android: ${vehicleNumber}_${courseToUpdate.id} (ikRoTrans)`);
-            console.log(`🔧 GREȘIT ar fi: ${vehicleNumber}_${courseToUpdate.uit} (UIT real)`);
-            
             const androidResult = window.AndroidGPS.updateStatus(String(courseToUpdate.id), newStatus, vehicleNumber);
-            console.log(`✅ Rezultat Android updateStatus: ${androidResult}`);
-            console.log(`📱 === ANDROID GPS STATUS UPDATE COMPLETED ===`);
+            console.log(`Android GPS status updated: ${androidResult}`);
           } catch (androidError) {
-            console.error(`❌ EROARE Android updateStatus:`, androidError);
+            console.error(`Error updating Android GPS status:`, androidError);
           }
         } else {
-          console.error(`❌ === PROBLEMĂ CRITICĂ ===`);
-          console.error(`📱 AndroidGPS nu este disponibil sau updateStatus lipsește!`);
-          console.error(`🔧 window.AndroidGPS: ${!!window.AndroidGPS}`);
-          console.error(`🔧 updateStatus method: ${!!(window.AndroidGPS && window.AndroidGPS.updateStatus)}`);
-          console.error(`⚠️ Status ${newStatus} NU va fi trimis la server!`);
+          console.error(`AndroidGPS nu este disponibil - status ${newStatus} nu va fi trimis`);
         }
         
-        console.log(`✅ Cursa ${courseToUpdate.uit} status actualizat la ${newStatus} cu succes`);
+        console.log(`Status ${newStatus} aplicat pentru cursa ${courseToUpdate.uit}`);
         
         // Show success toast after successful API call
         if (action) {
