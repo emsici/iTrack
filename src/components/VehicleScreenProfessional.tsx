@@ -429,6 +429,56 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
   }, [vehicleNumber, token, coursesLoaded]);
 
+  // Funcție separată pentru încărcarea curselor unui vehicul specific (folosită din dropdown)
+  const handleLoadCoursesForVehicle = async (specificVehicle: string) => {
+    if (!specificVehicle.trim()) {
+      console.error("Vehicul specificat este gol");
+      return;
+    }
+
+    if (!isOnline || !navigator.onLine) {
+      console.log("🔌 No internet connection - cannot load courses");
+      toast.error("Fără conexiune", "Nu există conexiune la internet pentru încărcarea curselor.");
+      return;
+    }
+
+    console.log(`📋 Încărcare curse pentru vehicul specific: ${specificVehicle}`);
+    setLoading(true);
+    setError("");
+    
+    try {
+      const response = await getVehicleCourses(specificVehicle, token);
+      
+      let coursesArray = [];
+      if (Array.isArray(response)) {
+        coursesArray = response;
+      } else if (response && typeof response === 'object' && Array.isArray(response.data)) {
+        coursesArray = response.data;
+      } else if (response && typeof response === 'object' && response.data) {
+        coursesArray = [response.data];
+      } else if (response && typeof response === 'object') {
+        coursesArray = [response];
+      }
+
+      if (coursesArray.length > 0) {
+        setCourses(coursesArray);
+        setCoursesLoaded(true);
+        await storeVehicleNumber(specificVehicle.trim());
+        toast.success("Vehicul schimbat!", `Cursele pentru ${specificVehicle} au fost încărcate.`, 3000);
+        console.log(`✅ Cursele pentru vehicul ${specificVehicle} au fost încărcate: ${coursesArray.length}`);
+      } else {
+        setError(`Nu s-au găsit curse pentru vehiculul ${specificVehicle}`);
+        toast.warning("Fără curse", `Nu există curse disponibile pentru vehiculul ${specificVehicle}.`, 4000);
+      }
+    } catch (error) {
+      console.error(`Eroare încărcare curse pentru ${specificVehicle}:`, error);
+      setError(`Eroare la încărcarea curselor pentru ${specificVehicle}`);
+      toast.error("Eroare încărcare", `Nu s-au putut încărca cursele pentru ${specificVehicle}.`, 5000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
       setError("Introduceți numărul vehiculului");
@@ -1423,12 +1473,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 <VehicleNumberDropdown
                   value={vehicleNumber}
                   onChange={(newVehicle) => {
-                    console.log(`🔄 Vehicul schimbat: ${vehicleNumber} → ${newVehicle}`);
+                    console.log(`🔄 Vehicul selectat din dropdown: ${vehicleNumber} → ${newVehicle}`);
                     setVehicleNumber(newVehicle);
-                    // Reîncarcă cursele pentru noul vehicul doar dacă este diferit
+                    // CRITICĂ: Auto-încarcă cursele pentru vehiculul selectat din dropdown
                     if (newVehicle && newVehicle.trim() !== vehicleNumber?.trim()) {
-                      console.log(`🚛 Vehicul nou confirmat: ${newVehicle} - reîncarc cursele`);
-                      handleLoadCourses();
+                      console.log(`🚛 Vehicul selectat din istoric: ${newVehicle} - auto-încărcare curse`);
+                      // Forțează încărcarea curselor pentru vehiculul selectat
+                      setLoading(true);
+                      handleLoadCoursesForVehicle(newVehicle);
                     }
                   }}
                   darkMode={currentTheme === 'dark' || currentTheme === 'night' || currentTheme === 'nature' || currentTheme === 'driver'}
