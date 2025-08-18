@@ -238,6 +238,19 @@ interface VehicleScreenProps {
 }
 
 const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
+  // Declare AndroidGPS interface for TypeScript
+  declare global {
+    interface Window {
+      AndroidGPS?: {
+        startBackgroundGPS: (courseId: string, token: string, vehicleNumber: string, status: number, extraUit: string) => string;
+        stopGPS: (courseId: string) => string;
+        updateStatus: (courseId: string, newStatus: number, vehicleNumber: string) => string;
+        clearAllOnLogout: () => string;
+        getOfflineGPSCount: () => string;
+        syncOfflineGPS: () => string;
+      };
+    }
+  }
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(false);
