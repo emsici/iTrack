@@ -180,9 +180,12 @@ public class BackgroundGPSService extends Service {
     private void startBackgroundGPS() {
         Log.e(TAG, "startBackgroundGPS called, isGPSRunning: " + isGPSRunning);
         
-        if (isGPSRunning) {
-            Log.e(TAG, "GPS already running, skipping");
+        if (isGPSRunning && gpsExecutor != null && !gpsExecutor.isShutdown()) {
+            Log.e(TAG, "GPS already running and ScheduledExecutorService active, skipping");
             return;
+        } else if (isGPSRunning) {
+            Log.e(TAG, "⚠️ isGPSRunning=true dar ScheduledExecutorService nu există - RESETEZ isGPSRunning");
+            isGPSRunning = false;
         }
         
         if (activeCourses.isEmpty()) {
@@ -204,7 +207,12 @@ public class BackgroundGPSService extends Service {
             sendLogToJavaScript("WakeLock acquired - serviciul va rula continuu");
         }
         
-        // Start ScheduledExecutorService
+        // Start ScheduledExecutorService - IMPORTANT: Check dacă există deja
+        if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
+            Log.e(TAG, "⚠️ ScheduledExecutorService există deja - va fi reinitialized");
+            gpsExecutor.shutdown();
+        }
+        
         gpsExecutor = Executors.newSingleThreadScheduledExecutor();
         Log.e(TAG, "🔧 GPS Executor created: " + (gpsExecutor != null));
         Log.e(TAG, "🔧 Scheduling cycles every " + GPS_INTERVAL_SECONDS + "s");
@@ -297,17 +305,32 @@ public class BackgroundGPSService extends Service {
     }
     
     private void stopBackgroundGPS() {
+        Log.e(TAG, "🛑 === STOP BACKGROUND GPS CALLED ===");
+        Log.e(TAG, "🛑 Current isGPSRunning: " + isGPSRunning);
+        Log.e(TAG, "🛑 Active courses: " + activeCourses.size());
+        
         isGPSRunning = false;
         
         if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
+            Log.e(TAG, "🛑 Shutting down ScheduledExecutorService...");
             gpsExecutor.shutdown();
             Log.e(TAG, "🛑 ScheduledExecutorService stopped");
+            sendLogToJavaScript("🛑 GPS Service stopped - ScheduledExecutorService shutdown");
+        } else {
+            Log.e(TAG, "🛑 ScheduledExecutorService was already shutdown or null");
         }
         
         if (wakeLock != null && wakeLock.isHeld()) {
             wakeLock.release();
             Log.e(TAG, "🛑 WakeLock released");
+            sendLogToJavaScript("🛑 WakeLock released");
+        } else {
+            Log.e(TAG, "🛑 WakeLock was already released or null");
         }
+        
+        // IMPORTANT: Clear executor reference pentru restart curat
+        gpsExecutor = null;
+        Log.e(TAG, "🛑 GPS Service completely stopped and ready for clean restart");
     }
     
     private void performGPSCycle() {
@@ -974,13 +997,35 @@ public class BackgroundGPSService extends Service {
     
     @Override
     public void onDestroy() {
-        Log.e(TAG, "🛑 Serviciul BackgroundGPS Distrus");
-        stopBackgroundGPS();
+        Log.e(TAG, "🛑 === BACKGROUND GPS SERVICE DESTROY CALLED ===");
         
+        // FORCE cleanup complet pentru restart curat
+        isGPSRunning = false;
+        activeCourses.clear();
+        globalToken = null;
+        globalVehicle = null;
+        
+        // Stop ScheduledExecutorService complet
+        if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
+            gpsExecutor.shutdownNow(); // Force immediate shutdown
+            gpsExecutor = null;
+            Log.e(TAG, "🛑 ScheduledExecutorService FORCE SHUTDOWN");
+        }
+        
+        // Release WakeLock
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+            Log.e(TAG, "🛑 WakeLock force released");
+        }
+        
+        // Stop background thread
         if (backgroundThread != null) {
             backgroundThread.quitSafely();
+            backgroundThread = null;
+            Log.e(TAG, "🛑 Background thread stopped");
         }
         
         super.onDestroy();
+        Log.e(TAG, "🛑 BackgroundGPS Service completely destroyed and cleaned up");
     }
 }
