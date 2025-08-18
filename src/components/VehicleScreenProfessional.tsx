@@ -274,13 +274,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           setCurrentTheme(savedTheme);
         }
         
-        // ALWAYS load stored vehicle number și coursele asociate
+        // Load stored vehicle number DOAR dacă există și este valid (nu pentru prima instalare)
         const storedVehicle = await getStoredVehicleNumber();
-        if (storedVehicle && mounted) {
+        if (storedVehicle && storedVehicle.trim() && mounted) {
+          console.log('✅ Vehicul stocat găsit:', storedVehicle);
           setVehicleNumber(storedVehicle);
-          console.log('✅ Numărul de vehicul stocat încărcat:', storedVehicle);
           
-          // AUTO-LOAD courses pentru vehiculul stocat DOAR dacă avem token
+          // AUTO-LOAD courses pentru vehiculul stocat DOAR dacă avem token valid
           if (token) {
             try {
               console.log('🔄 Auto-loading courses pentru vehicul stocat:', storedVehicle);
@@ -288,16 +288,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               if (response && response.length > 0) {
                 setCourses(response);
                 setCoursesLoaded(true);
-                console.log('✅ Cursele vehiculului încărcate automat după revenire:', response.length);
+                console.log('✅ Cursele vehiculului încărcate automat:', response.length);
               } else {
                 console.log('⚠️ Vehiculul stocat nu are curse disponibile');
               }
             } catch (error) {
-              console.log('⚠️ Nu s-au putut încărca cursele automat (probabil token expirat):', error);
+              console.log('⚠️ Nu s-au putut încărca cursele automat:', error);
             }
           } else {
             console.log('⚠️ Nu pot auto-încărca cursele - lipsește token-ul');
           }
+        } else {
+          console.log('ℹ️ PRIMA INSTALARE - nu există vehicul stocat, se va cere input');
+          // Pentru prima instalare, forțează afișarea paginii de input
+          setCoursesLoaded(false);
+          setVehicleNumber('');
         }
       } catch (error) {
         console.error('Eroare la inițializarea aplicației:', error);
@@ -1429,11 +1434,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   darkMode={currentTheme === 'dark' || currentTheme === 'night' || currentTheme === 'nature' || currentTheme === 'driver'}
                   disabled={loading}
                   onNavigateToInput={() => {
-                    // Reset la input mode pentru adăugare vehicul nou
-                    console.log('🔄 Navigare la input vehicul - resetez aplicația');
+                    // CRITIC: Reset complet pentru a forța pagina de input
+                    console.log('🔄 ADAUGĂ VEHICUL NOU - reset complet la input mode');
                     setVehicleNumber('');
                     setCourses([]);
+                    setCoursesLoaded(false);
                     setLoading(false);
+                    console.log('✅ Aplicația resetată - va afișa input de vehicul');
                   }}
                 />
               </div>
