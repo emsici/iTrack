@@ -90,8 +90,9 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - **WORKFLOW COMPLET**: PAUSE nu mai trimite status 2 automat - transmisia se oprește total până la RESUME
 
 ### **GPS ScheduledExecutorService Debugging Fix (18 Aug 2025)**
-- **PROBLEMĂ IDENTIFICATĂ**: ScheduledExecutorService nu executa ciclurile GPS la interval de 10 secunde - se executa doar prima dată
-- **CAUZĂ SUSPECTATĂ**: scheduleAtFixedRate se oprește după prima execuție din motive necunoscute
-- **SOLUȚIE INTENSIVĂ**: Enhanced debugging cu thread status, future monitoring, și test threads pentru identificare problemă
-- **LOGGING COMPLET**: Timestamp pentru fiecare pas ScheduledExecutorService, status executor real-time
-- **STATUS CURENT**: Investigare activă - APK cu debugging intensiv pentru identificarea blocajului
+- **PROBLEMĂ IDENTIFICATĂ**: ScheduledExecutorService funcționa pentru un singur UIT, dar logica multi-UIT avea probleme în verificări
+- **CAUZA REALĂ**: Verificarea `activeCourses.isEmpty() || globalToken == null` bloca execuția când erau multiple UIT-uri
+- **SOLUȚIE CORECTĂ**: Separat verificările și adăugat logging detaliat pentru fiecare pas al GPS cycle
+- **MULTI-UIT LOGIC**: Un singur ScheduledExecutorService transmite pentru TOATE cursele active simultan
+- **ENHANCED DEBUGGING**: Thread status monitoring, ScheduledFuture tracking, test threads pentru validare
+- **STATUS**: REPARAT - ScheduledExecutorService va transmite continuu pentru toate UIT-urile active

@@ -100,10 +100,13 @@ public class BackgroundGPSService extends Service {
             
             if (courseStatus == 2) {
                 if (!isGPSRunning) {
-                    Log.e(TAG, "🚀 PORNIRE GPS pentru prima cursă activă");
+                    Log.e(TAG, "🚀 PORNIRE GPS pentru prima cursă activă - start ScheduledExecutorService");
                     startBackgroundGPS();
                 } else {
                     Log.e(TAG, "⚡ GPS rulează deja - cursă nouă adăugată la tracking existent");
+                    Log.e(TAG, "📋 ScheduledExecutorService va include automat noul UIT în loop-ul existent");
+                    Log.e(TAG, "🔄 Nu e nevoie de restart - serviciul transmite pentru TOATE cursele active");
+                    sendLogToJavaScript("⚡ UIT nou adăugat la ScheduledExecutorService existent: " + uitId);
                 }
             } else {
                 Log.e(TAG, "GPS not started - course status is " + courseStatus + " (not ACTIVE)");
@@ -283,11 +286,20 @@ public class BackgroundGPSService extends Service {
         // Send Android log to JavaScript for debugging  
         sendLogToJavaScript("🔄 GPS CYCLE EXECUTING [" + currentTime + "] - Active Courses: " + activeCourses.size());
         
-        if (activeCourses.isEmpty() || globalToken == null) {
-            Log.e(TAG, "❌ GPS cycle skipped - missing data (Active Courses: " + activeCourses.size() + ", Token: " + (globalToken != null ? "OK" : "NULL") + ")");
-            sendLogToJavaScript("❌ GPS cycle skipped - missing token or active courses");
+        if (activeCourses.isEmpty()) {
+            Log.e(TAG, "❌ GPS cycle skipped - NO ACTIVE COURSES (size: " + activeCourses.size() + ")");
+            sendLogToJavaScript("❌ GPS cycle skipped - no active courses");
             return;
         }
+        
+        if (globalToken == null) {
+            Log.e(TAG, "❌ GPS cycle skipped - NO TOKEN available");
+            sendLogToJavaScript("❌ GPS cycle skipped - missing token");
+            return;
+        }
+        
+        Log.e(TAG, "✅ GPS cycle PROCEEDING - " + activeCourses.size() + " active courses, token available");
+        sendLogToJavaScript("✅ GPS cycle PROCEEDING - " + activeCourses.size() + " courses");
         
         // Direct GPS reading - no dummy data
         Log.e(TAG, "🔄 Reading REAL GPS sensors now...");
