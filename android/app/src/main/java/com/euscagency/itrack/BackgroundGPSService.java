@@ -918,8 +918,8 @@ public class BackgroundGPSService extends Service {
                         }
                         
                     } catch (Exception e) {
-                        Log.e(TAG, "❌ Native HTTP GPS error: " + e.getMessage());
-                        Log.e(TAG, "💾 Salvez coordonata offline pentru sincronizare ulterioară");
+                        Log.e(TAG, "❌ GPS transmission failed: " + e.getMessage());
+                        Log.e(TAG, "💾 Salvez offline pentru retry");
                         
                         // Salvează coordonata offline când transmisia eșuează
                         try {
@@ -927,8 +927,6 @@ public class BackgroundGPSService extends Service {
                         } catch (Exception offlineError) {
                             Log.e(TAG, "❌ Eroare salvare offline: " + offlineError.getMessage());
                         }
-                        
-                        e.printStackTrace();
                     }
                 }
             }).start();
@@ -1077,21 +1075,18 @@ public class BackgroundGPSService extends Service {
     
     private void sendOfflineGPSToJavaScript(String gpsDataJson) {
         try {
-            Log.e(TAG, "💾 === SALVARE GPS OFFLINE ===");
-            Log.e(TAG, "📤 GPS Data pentru salvare offline: " + gpsDataJson);
+            Log.e(TAG, "💾 Salvare GPS offline");
             
             // Call JavaScript bridge pentru salvare offline
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 String script = "if (window.saveOfflineGPS) { window.saveOfflineGPS(" + gpsDataJson + "); }";
-                Log.e(TAG, "📱 Apelez JavaScript pentru salvare offline");
                 
-                // Această funcție va fi apelată din JavaScript side pentru a salva datele
+                // Log special pentru capturare JavaScript
                 Log.e("OFFLINE_GPS_SAVE", gpsDataJson);
             }
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Eroare salvare GPS offline: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
