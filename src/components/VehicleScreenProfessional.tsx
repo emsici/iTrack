@@ -4,7 +4,7 @@ import { CapacitorHttp } from '@capacitor/core';
 import { Network } from '@capacitor/network';
 import { Course } from "../types";
 import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
-import { offlineGPSTest } from "../utils/testOfflineGPS";
+
 // Urmărirea curselor active - pentru Android BackgroundGPSService  
 let activeCourses = new Map<string, Course>();
 // activeGPSInterval eliminat - folosim doar Android BackgroundGPSService
@@ -747,23 +747,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         setShowDebugPage(true);
         setClickCount(0);
       }
-    } else if (newCount === 10) {
-      // Test offline GPS la 10 clicks
-      console.log('🧪 === TEST OFFLINE GPS LA 10 CLICKS ===');
-      try {
-        const result = await offlineGPSTest.runCompleteTest();
-        console.log('🧪 Rezultat test offline:', result.message);
-        
-        if (result.success) {
-          alert('✅ Test offline GPS reușit! Consultă consola pentru detalii.');
-        } else {
-          alert('❌ Test offline GPS eșuat! Consultă consola pentru detalii.');  
-        }
-      } catch (error) {
-        console.error('❌ Eroare test offline:', error);
-        alert('❌ Eroare la testarea offline GPS!');
-      }
-    }
+
   };
 
   const handleCourseStatusUpdate = async (courseId: string, newStatus: number, action?: string) => {
