@@ -41,8 +41,9 @@ public class BackgroundGPSService extends Service {
     
     private String activeToken;
     private boolean isGPSRunning = false;
-    // MULTI-VEHICLE: Track all courses across all vehicles - key format: "UIT|VEHICLE"
-    private java.util.Map<String, Integer> globalCourseStatuses = new java.util.HashMap<>();
+    // MULTI-CAR MULTI-COURSE: UIT este unic global - păstrează status și vehicul pentru fiecare UIT
+    private java.util.Map<String, Integer> courseStatuses = new java.util.HashMap<>();
+    private java.util.Map<String, String> uitToVehicle = new java.util.HashMap<>();
     
     @Override
     public void onCreate() {
@@ -76,12 +77,12 @@ public class BackgroundGPSService extends Service {
             String vehicle = intent.getStringExtra("vehicle");
             int status = intent.getIntExtra("status", 2); // Default ACTIVE
             
-            Log.e(TAG, "⚡ MULTI-VEHICLE STORAGE - UIT: " + uit + ", Vehicle: " + vehicle + ", Status: " + status);
+            Log.e(TAG, "⚡ MULTI-CAR STORAGE - UIT: " + uit + ", Vehicle: " + vehicle + ", Status: " + status);
             
-            // MULTI-VEHICLE: Store with composite key "UIT|VEHICLE"
-            String courseKey = uit + "|" + vehicle;
-            globalCourseStatuses.put(courseKey, status);
-            Log.e(TAG, "📊 Stored globally: " + courseKey + " = " + status + ". Total: " + globalCourseStatuses.size());
+            // MULTI-CAR: UIT unic - stochează status și vehicul separat  
+            courseStatuses.put(uit, status);
+            uitToVehicle.put(uit, vehicle);
+            Log.e(TAG, "📊 UIT " + uit + " → Vehicle: " + vehicle + ", Status: " + status + ". Total: " + courseStatuses.size());
             
             // Start foreground notification IMMEDIATELY  
             startForeground(1, createNotification());
@@ -102,29 +103,35 @@ public class BackgroundGPSService extends Service {
             int newStatus = intent.getIntExtra("status", 0);
             String specificUIT = intent.getStringExtra("uit");
             String specificVehicle = intent.getStringExtra("vehicle");
-            String courseKey = specificUIT + "|" + specificVehicle;
-            int oldStatus = globalCourseStatuses.getOrDefault(courseKey, 0);
+            int oldStatus = courseStatuses.getOrDefault(specificUIT, 0);
+            String currentVehicle = uitToVehicle.get(specificUIT);
             
-            Log.e(TAG, "MULTI-VEHICLE: Updating " + courseKey + ": " + oldStatus + " → " + newStatus);
+            Log.e(TAG, "MULTI-CAR UPDATE: UIT " + specificUIT + " (" + currentVehicle + "): " + oldStatus + " → " + newStatus);
             
-            // TRIMITE STATUS UPDATE LA SERVER ÎNAINTE DE SCHIMBARE (pentru 3=PAUSE, 4=STOP)
+            // TRIMITE STATUS UPDATE LA SERVER ÎNAINTE DE SCHIMBARE
             if (newStatus == 3 || newStatus == 4) {
-                Log.e(TAG, "🔄 Trimit status " + newStatus + " pentru " + courseKey);
-                sendStatusUpdateToServer(newStatus, specificUIT, specificVehicle);
+                Log.e(TAG, "🔄 Trimit status " + newStatus + " pentru UIT " + specificUIT + " pe " + currentVehicle);
+                sendStatusUpdateToServer(newStatus, specificUIT, currentVehicle);
             }
             
-            // MULTI-VEHICLE: Update specific course status
+            // MULTI-CAR: Actualizează status UIT
             if (newStatus == 4) { // STOP - remove completely
-                globalCourseStatuses.remove(courseKey);
-                Log.e(TAG, "🛑 STOP: " + courseKey + " removed. Remaining: " + globalCourseStatuses.size());
+                courseStatuses.remove(specificUIT);
+                uitToVehicle.remove(specificUIT);
+                Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " eliminat. Remaining: " + courseStatuses.size());
             } else {
-                globalCourseStatuses.put(courseKey, newStatus);
-                Log.e(TAG, "📊 UPDATED: " + courseKey + " = " + newStatus);
+                courseStatuses.put(specificUIT, newStatus);
+                // Actualizează vehiculul dacă e diferit
+                if (specificVehicle != null && !specificVehicle.equals(currentVehicle)) {
+                    uitToVehicle.put(specificUIT, specificVehicle);
+                    Log.e(TAG, "🚛 UIT " + specificUIT + " mutat de la " + currentVehicle + " la " + specificVehicle);
+                }
+                Log.e(TAG, "📊 UPDATED: UIT " + specificUIT + " = " + newStatus);
             }
             
-            // Check if we should continue GPS service across ALL vehicles
+            // Check dacă mai sunt curse active
             boolean hasActiveCourses = false;
-            for (java.util.Map.Entry<String, Integer> entry : globalCourseStatuses.entrySet()) {
+            for (java.util.Map.Entry<String, Integer> entry : courseStatuses.entrySet()) {
                 if (entry.getValue() == 2) { // ACTIVE
                     hasActiveCourses = true;
                     break;
@@ -160,8 +167,8 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        if (globalCourseStatuses.isEmpty() || activeToken == null) {
-            Log.e(TAG, "Cannot start GPS - missing data (Courses: " + globalCourseStatuses.size() + ", Token: " + (activeToken != null ? "OK" : "NULL") + ")");
+        if (courseStatuses.isEmpty() || activeToken == null) {
+            Log.e(TAG, "Cannot start GPS - missing data (Courses: " + courseStatuses.size() + ", Token: " + (activeToken != null ? "OK" : "NULL") + ")");
             return;
         }
         
@@ -181,7 +188,7 @@ public class BackgroundGPSService extends Service {
                 try {
                     Log.e(TAG, "⏰ === SCHEDULED GPS CYCLE TRIGGERED ===");
                     Log.e(TAG, "🕐 Timpul curent: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                    Log.e(TAG, "📊 Service activ: " + isGPSRunning + ", Curse globale: " + globalCourseStatuses.size());
+                    Log.e(TAG, "📊 Service activ: " + isGPSRunning + ", Total curse: " + courseStatuses.size());
                     sendLogToJavaScript("⏰ GPS CYCLE la " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
                     performGPSCycle();
                 } catch (Exception e) {
@@ -214,7 +221,7 @@ public class BackgroundGPSService extends Service {
     
     private void performGPSCycle() {
         Log.e(TAG, "🔄 === GPS CYCLE START ===");
-        Log.e(TAG, "📊 Global Courses: " + globalCourseStatuses.size() + ", Token: " + (activeToken != null ? "OK" : "NULL"));
+        Log.e(TAG, "📊 Total Courses: " + courseStatuses.size() + ", Token: " + (activeToken != null ? "OK" : "NULL"));
         Log.e(TAG, "🔋 Service running: " + isGPSRunning + ", WakeLock held: " + (wakeLock != null && wakeLock.isHeld()));
         Log.e(TAG, "📱 Executor status: " + (gpsExecutor != null && !gpsExecutor.isShutdown() ? "ACTIVE" : "SHUTDOWN"));
         
@@ -393,32 +400,35 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    // MULTI-VEHICLE: Send GPS data for ALL ACTIVE courses across ALL vehicles
+    // MULTI-CAR MULTI-COURSE: Send GPS data for ALL ACTIVE courses across ALL vehicles
     private void transmitGPSDataForActiveCourses(Location location) {
         try {
-            Log.e(TAG, "📤 === MULTI-VEHICLE GPS TRANSMISSION ===");
-            Log.e(TAG, "📊 Total global courses: " + globalCourseStatuses.size());
+            Log.e(TAG, "📤 === MULTI-CAR GPS TRANSMISSION ===");
+            Log.e(TAG, "📊 Total courses: " + courseStatuses.size());
             
             int activeCourseCount = 0;
             
-            // Send GPS data for each ACTIVE course across ALL vehicles
-            for (java.util.Map.Entry<String, Integer> entry : globalCourseStatuses.entrySet()) {
-                String courseKey = entry.getKey();
+            // Send GPS pentru fiecare UIT ACTIV cu vehiculul său specific
+            for (java.util.Map.Entry<String, Integer> entry : courseStatuses.entrySet()) {
+                String uit = entry.getKey();
                 int status = entry.getValue();
                 
                 if (status == 2) { // ACTIVE only
                     activeCourseCount++;
-                    // Extract UIT and Vehicle from composite key "UIT|VEHICLE"
-                    String[] parts = courseKey.split("\\|");
-                    String uit = parts[0];
-                    String vehicle = parts[1];
-                    transmitGPSDataForCourse(location, uit, vehicle);
+                    String vehicle = uitToVehicle.get(uit);
+                    if (vehicle != null) {
+                        transmitGPSDataForCourse(location, uit, vehicle);
+                        Log.e(TAG, "✅ GPS transmis: UIT " + uit + " → " + vehicle);
+                    } else {
+                        Log.e(TAG, "❌ UIT " + uit + " nu are vehicul asociat!");
+                    }
                 } else {
-                    Log.e(TAG, "⏸️ SKIPPING " + courseKey + " - status " + status);
+                    String vehicle = uitToVehicle.get(uit);
+                    Log.e(TAG, "⏸️ SKIP: UIT " + uit + " (" + vehicle + ") - status " + status);
                 }
             }
             
-            Log.e(TAG, "📊 GPS transmitted for " + activeCourseCount + " ACTIVE courses out of " + globalCourseStatuses.size() + " total");
+            Log.e(TAG, "📊 GPS transmitted for " + activeCourseCount + " ACTIVE courses out of " + courseStatuses.size() + " total");
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Multi-course GPS transmission error: " + e.getMessage());

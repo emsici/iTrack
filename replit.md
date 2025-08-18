@@ -89,18 +89,20 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - GPS transmisie continuă garantată la fiecare 10 secunde ca înainte
 - Multi-vehicle support va fi implementat la nivel frontend prin schimbarea vehiculului activ
 
-**MULTI-VEHICLE IMPLEMENTAT COMPLET (August 18, 2025):**
-- **Composite Key System**: `"UIT|VEHICLE"` pentru separarea curselor per vehicul
-- **Global Course Storage**: `Map<String, Integer> globalCourseStatuses` păstrează toate cursele
+**MULTI-CAR MULTI-COURSE FINAL IMPLEMENTATION (August 18, 2025):**
+- **UIT Unic Global**: Fiecare UIT este identificator unic - nu avem nevoie de composite keys
+- **Dual Map System**: 
+  - `Map<String, Integer> courseStatuses` - Status pentru fiecare UIT (2=ACTIV, 3=PAUZA, 4=STOP)
+  - `Map<String, String> uitToVehicle` - Mapare UIT → Vehicle (CT-39-ECC, CT-20-RTA, etc.)
 - **Cross-Vehicle Persistence**: Cursele rămân active la schimbarea dropdown-ului
-- **Individual Vehicle GPS**: Fiecare UIT transmite GPS cu vehiculul său specific
-- **Status independente**: CT-39-ECC și CT-20-RTA își păstrează cursele separate
+- **Individual Vehicle GPS**: Fiecare UIT activ transmite GPS cu vehiculul său specific
+- **Vehicle Independence**: Fiecare vehicul își păstrează cursele separate și independente
 
-**SCENARIO VALIDAT FINAL:**
-- CT-39-ECC cu 3 curse (1 pauzată, 2 active) → 2 transmisii GPS
-- CT-20-RTA cu 4 curse (toate active) → 4 transmisii GPS  
-- TOTAL: 6 transmisii GPS simultane la fiecare 10 secunde
-- Cursele CT-39-ECC rămân active când te muți pe CT-20-RTA
+**SCENARIO MULTI-CAR VALIDAT:**
+- **CT-39-ECC**: UIT1(ACTIV), UIT2(ACTIV), UIT3(PAUZA) → 2 transmisii GPS cu CT-39-ECC
+- **CT-20-RTA**: UIT4(ACTIV), UIT5(ACTIV), UIT6(ACTIV), UIT7(ACTIV) → 4 transmisii GPS cu CT-20-RTA
+- **TOTAL**: 6 transmisii GPS simultane la fiecare 10 secunde
+- **PERSISTENȚĂ**: Cursele CT-39-ECC rămân active când schimbi dropdown pe CT-20-RTA
 
 ## Recent Critical Fixes (August 2025)
 
