@@ -82,6 +82,13 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - Păstrat doar multi-vehicle support fără overhead de performance
 - GPS continuă să transmită la fiecare 10 secunde exact ca înainte
 
+**MULTI-VEHICLE ARCHITECTURE FINAL:**
+- `Map<String, Integer> courseStatuses` pentru status fiecare UIT
+- `Map<String, String> uitToVehicle` pentru mapare UIT→Vehicul  
+- Fiecare UIT transmite GPS cu vehiculul său specific (CT-39-ECC, CT-20-RTA etc)
+- Support complet pentru multiple vehicule cu multiple curse simultan
+- Logs optimizate cu count vehicule unice și curse active
+
 **SCENARIO VALIDAT:**
 - CT-39-ECC cu 3 curse (1 pauzată, 2 active)
 - CT-20-RTA cu 4 curse (toate active)

@@ -41,10 +41,10 @@ public class BackgroundGPSService extends Service {
     
     private String activeToken;
     private boolean isGPSRunning = false;
-    // MULTIPLE COURSE MANAGEMENT: Track individual statuses per UIT
+    // MULTI-VEHICLE SUPPORT: Track statuses per UIT across all vehicles
     private java.util.Map<String, Integer> courseStatuses = new java.util.HashMap<>();
-    // MULTI-VEHICLE SUPPORT: Track vehicle per UIT
-    private java.util.Map<String, String> courseVehicles = new java.util.HashMap<>();
+    // MULTI-VEHICLE SUPPORT: Track which vehicle each UIT belongs to
+    private java.util.Map<String, String> uitToVehicle = new java.util.HashMap<>();
     
     @Override
     public void onCreate() {
@@ -78,14 +78,13 @@ public class BackgroundGPSService extends Service {
             String vehicle = intent.getStringExtra("vehicle");
             int status = intent.getIntExtra("status", 2); // Default ACTIVE
             
-            Log.e(TAG, "⚡ MULTI-VEHICLE MULTI-COURSE - Data received UIT: " + uit + ", Vehicle: " + vehicle + ", Status: " + status);
+            Log.e(TAG, "⚡ MULTI-VEHICLE MULTI-COURSE - UIT: " + uit + ", Vehicle: " + vehicle + ", Status: " + status);
             
-            // MULTI-COURSE FIX: Store individual status per UIT
+            // MULTI-VEHICLE: Store UIT status and vehicle mapping
             courseStatuses.put(uit, status);
-            // MULTI-VEHICLE FIX: Store vehicle per UIT
-            courseVehicles.put(uit, vehicle);
-            Log.e(TAG, "📊 Course registered: " + uit + " with vehicle " + vehicle + " and status " + status);
-            Log.e(TAG, "📊 Total courses: " + courseStatuses.size() + ", Total vehicles: " + courseVehicles.size());
+            uitToVehicle.put(uit, vehicle);
+            Log.e(TAG, "📊 Registered UIT: " + uit + " → Vehicle: " + vehicle + " (Status: " + status + ")");
+            Log.e(TAG, "📊 Total courses: " + courseStatuses.size() + " across " + getUniqueVehicleCount() + " vehicles");
             
             // Start foreground notification IMMEDIATELY  
             startForeground(1, createNotification());
@@ -115,14 +114,17 @@ public class BackgroundGPSService extends Service {
                 sendStatusUpdateToServer(newStatus, specificUIT);
             }
             
-            // MULTI-COURSE FIX: Update specific UIT status
+            // MULTI-VEHICLE: Update specific UIT status
             if (newStatus == 4) { // STOP - remove completely
+                String vehicleForUIT = uitToVehicle.get(specificUIT);
                 courseStatuses.remove(specificUIT);
-                courseVehicles.remove(specificUIT); // MULTI-VEHICLE: Remove vehicle mapping too
-                Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " removed. Remaining courses: " + courseStatuses.size());
+                uitToVehicle.remove(specificUIT);
+                Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " (Vehicle: " + vehicleForUIT + ") removed");
+                Log.e(TAG, "📊 Remaining: " + courseStatuses.size() + " courses across " + getUniqueVehicleCount() + " vehicles");
             } else {
                 courseStatuses.put(specificUIT, newStatus);
-                Log.e(TAG, "📊 STATUS UPDATED: UIT " + specificUIT + " now has status " + newStatus);
+                String vehicleForUIT = uitToVehicle.get(specificUIT);
+                Log.e(TAG, "📊 STATUS UPDATED: UIT " + specificUIT + " (Vehicle: " + vehicleForUIT + ") → Status " + newStatus);
             }
             
             // Check if we should continue GPS service
@@ -417,7 +419,7 @@ public class BackgroundGPSService extends Service {
                 }
             }
             
-            Log.e(TAG, "📊 GPS transmitted for " + activeCourseCount + " ACTIVE courses out of " + courseStatuses.size() + " total");
+            Log.e(TAG, "📊 GPS transmitted for " + activeCourseCount + " ACTIVE courses out of " + courseStatuses.size() + " total across " + getUniqueVehicleCount() + " vehicles");
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Multi-course GPS transmission error: " + e.getMessage());
@@ -428,19 +430,19 @@ public class BackgroundGPSService extends Service {
     // Send GPS data for a specific course
     private void transmitGPSDataForCourse(Location location, String uit) {
         try {
-            // MULTI-VEHICLE: Get vehicle for this specific UIT
-            String vehicleForUIT = courseVehicles.get(uit);
+            // MULTI-VEHICLE: Get specific vehicle for this UIT
+            String vehicleForUIT = uitToVehicle.get(uit);
             if (vehicleForUIT == null) {
-                Log.e(TAG, "❌ No vehicle found for UIT " + uit + " - skipping transmission");
+                Log.e(TAG, "❌ No vehicle mapping found for UIT: " + uit + " - skipping");
                 return;
             }
             
-            Log.e(TAG, "📤 Preparing GPS for UIT: " + uit + " with vehicle: " + vehicleForUIT);
+            Log.e(TAG, "📤 GPS pentru UIT: " + uit + " → Vehicle: " + vehicleForUIT);
             
             // Create GPS data JSON
             org.json.JSONObject gpsData = new org.json.JSONObject();
             gpsData.put("uit", uit);
-            gpsData.put("numar_inmatriculare", vehicleForUIT); // MULTI-VEHICLE: Use specific vehicle
+            gpsData.put("numar_inmatriculare", vehicleForUIT);
             gpsData.put("lat", location.getLatitude());
             gpsData.put("lng", location.getLongitude());
             gpsData.put("viteza", (int) (location.getSpeed() * 3.6)); // m/s to km/h
@@ -552,19 +554,19 @@ public class BackgroundGPSService extends Service {
     
     private void sendStatusUpdateToServer(int newStatus, String specificUIT) {
         try {
-            Log.e(TAG, "📤 === PREPARING STATUS UPDATE FROM ANDROID SERVICE ===");
+            Log.e(TAG, "📤 === STATUS UPDATE FROM ANDROID SERVICE ===");
             
-            // MULTI-VEHICLE: Get vehicle for this specific UIT
-            String vehicleForUIT = courseVehicles.get(specificUIT);
+            // MULTI-VEHICLE: Get specific vehicle for this UIT
+            String vehicleForUIT = uitToVehicle.get(specificUIT);
             if (vehicleForUIT == null) {
-                Log.e(TAG, "❌ No vehicle found for UIT " + specificUIT + " in status update");
+                Log.e(TAG, "❌ No vehicle mapping for UIT: " + specificUIT + " in status update");
                 return;
             }
             
-            // Create status update JSON cu exact aceeași structură ca GPS
+            // Create status update JSON
             org.json.JSONObject statusData = new org.json.JSONObject();
-            statusData.put("uit", specificUIT); // CORECTARE: Folosește UIT-ul specificat!
-            statusData.put("numar_inmatriculare", vehicleForUIT); // MULTI-VEHICLE: Use specific vehicle
+            statusData.put("uit", specificUIT);
+            statusData.put("numar_inmatriculare", vehicleForUIT);
             // Obține coordonate GPS reale pentru status update
             Location lastLocation = getLastKnownLocation();
             if (lastLocation != null) {
@@ -594,12 +596,7 @@ public class BackgroundGPSService extends Service {
             String timestamp = sdf.format(new java.util.Date());
             statusData.put("timestamp", timestamp);
             
-            Log.e(TAG, "📊 Status Data prepared for status " + newStatus + ":");
-            Log.e(TAG, "   UIT: " + specificUIT); // CORECTARE: Log UIT-ul specificat!
-            Log.e(TAG, "   Vehicle: " + vehicleForUIT); // MULTI-VEHICLE: Log specific vehicle
-            Log.e(TAG, "   Status: " + newStatus);
-            Log.e(TAG, "   Timestamp: " + timestamp);
-            Log.e(TAG, "📤 Full JSON: " + statusData.toString());
+            Log.e(TAG, "📊 Status Update pentru UIT: " + specificUIT + " → Vehicle: " + vehicleForUIT + " (Status: " + newStatus + ")");
             
             // CORECTARE: Transmisie HTTP directă pentru status updates!
             sendStatusHTTPDirect(statusData.toString());
@@ -848,5 +845,11 @@ public class BackgroundGPSService extends Service {
         }
         
         super.onDestroy();
+    }
+    
+    // MULTI-VEHICLE: Helper method to count unique vehicles
+    private int getUniqueVehicleCount() {
+        java.util.Set<String> uniqueVehicles = new java.util.HashSet<>(uitToVehicle.values());
+        return uniqueVehicles.size();
     }
 }
