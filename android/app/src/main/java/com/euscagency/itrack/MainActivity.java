@@ -133,7 +133,8 @@ public class MainActivity extends BridgeActivity {
             // Start BackgroundGPSService
             Intent intent = new Intent(this, BackgroundGPSService.class);
             intent.setAction("START_BACKGROUND_GPS");
-            intent.putExtra("uit", uit);
+            intent.putExtra("uit", courseId); // ikRoTrans ca identificator unic pentru HashMap
+            intent.putExtra("extra_uit", uit); // UIT real pentru server
             intent.putExtra("token", authToken);
             intent.putExtra("vehicle", vehicleNumber);
             intent.putExtra("status", status);

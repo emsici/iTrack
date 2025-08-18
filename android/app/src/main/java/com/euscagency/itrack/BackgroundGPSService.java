@@ -47,12 +47,20 @@ public class BackgroundGPSService extends Service {
     
     // Clasă pentru datele cursei
     private static class CourseData {
-        String uit;
+        String courseId; // ikRoTrans - identificator unic pentru HashMap
         int status; // 2=ACTIV, 3=PAUZA, 4=STOP
+        String realUit; // UIT real pentru transmisia către server
         
-        CourseData(String uit, int status) {
-            this.uit = uit;
+        CourseData(String courseId, int status) {
+            this.courseId = courseId;
             this.status = status;
+            this.realUit = courseId; // Fallback pentru compatibilitate
+        }
+        
+        CourseData(String courseId, int status, String realUit) {
+            this.courseId = courseId;
+            this.status = status;
+            this.realUit = realUit != null ? realUit : courseId; // UIT real sau fallback
         }
     }
     
@@ -86,15 +94,20 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "onStartCommand called with action: " + (intent != null ? intent.getAction() : "null"));
         
         if (intent != null && "START_BACKGROUND_GPS".equals(intent.getAction())) {
-            String uitId = intent.getStringExtra("uit");
+            String uitId = intent.getStringExtra("uit"); // ikRoTrans ca identificator HashMap
+            String realUit = intent.getStringExtra("extra_uit"); // UIT real pentru server
             globalToken = intent.getStringExtra("token");
             globalVehicle = intent.getStringExtra("vehicle");
             int courseStatus = intent.getIntExtra("status", 2); // Default ACTIVE
             
-            Log.e(TAG, "⚡ MULTI-UIT - Adăugare cursă UIT: " + uitId + ", Vehicle: " + globalVehicle + ", Status: " + courseStatus);
+            Log.e(TAG, "⚡ MULTI-UIT - Adăugare cursă:");
+            Log.e(TAG, "   ikRoTrans (HashMap key): " + uitId);
+            Log.e(TAG, "   UIT real (server): " + realUit);
+            Log.e(TAG, "   Vehicle: " + globalVehicle);
+            Log.e(TAG, "   Status: " + courseStatus);
             
-            // Adaugă cursa la lista activă
-            activeCourses.put(uitId, new CourseData(uitId, courseStatus));
+            // Adaugă cursa la lista activă cu ikRoTrans ca key, dar păstrează UIT real
+            activeCourses.put(uitId, new CourseData(uitId, courseStatus, realUit));
             Log.e(TAG, "📋 Total curse active: " + activeCourses.size());
             
             // Start foreground notification IMMEDIATELY  
@@ -521,7 +534,7 @@ public class BackgroundGPSService extends Service {
                 
                 // Create GPS data JSON pentru această cursă
                 org.json.JSONObject gpsData = new org.json.JSONObject();
-                gpsData.put("uit", uitId);
+                gpsData.put("uit", courseData.realUit); // UIT REAL pentru server, NU ikRoTrans
                 gpsData.put("numar_inmatriculare", globalVehicle);
                 gpsData.put("lat", location.getLatitude());
                 gpsData.put("lng", location.getLongitude());
@@ -534,14 +547,14 @@ public class BackgroundGPSService extends Service {
                 gpsData.put("status", 2); // IMPORTANT: GPS data is ALWAYS status 2 (ACTIVE transmission)
                 gpsData.put("timestamp", timestamp);
                 
-                Log.e(TAG, "📊 GPS Data pentru UIT " + uitId + ":");
+                Log.e(TAG, "📊 GPS Data pentru ikRoTrans " + uitId + " (server UIT: " + courseData.realUit + "):");
                 Log.e(TAG, "   Vehicle: " + globalVehicle);
                 Log.e(TAG, "   Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
                 Log.e(TAG, "   Battery: " + batteryLevel);
                 Log.e(TAG, "   Timestamp: " + timestamp);
                 
                 // Call direct HTTP transmission pentru această cursă
-                transmitSingleCourseGPS(gpsData, uitId);
+                transmitSingleCourseGPS(gpsData, uitId, courseData.realUit);
             }
             
         } catch (Exception e) {
@@ -550,10 +563,10 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    private void transmitSingleCourseGPS(org.json.JSONObject gpsData, String uitId) {
+    private void transmitSingleCourseGPS(org.json.JSONObject gpsData, String ikRoTransId, String realUit) {
         try {
             String gpsDataJson = gpsData.toString();
-            Log.e(TAG, "🌐 === STARTING HTTP TRANSMISSION PENTRU UIT " + uitId + " ===");
+            Log.e(TAG, "🌐 === STARTING HTTP TRANSMISSION PENTRU ikRoTrans " + ikRoTransId + " (server UIT: " + realUit + ") ===");
             Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
             Log.e(TAG, "🔑 Token length: " + (globalToken != null ? globalToken.length() : "NULL"));
             
@@ -562,7 +575,7 @@ public class BackgroundGPSService extends Service {
                 @Override
                 public void run() {
                     try {
-                        Log.e(TAG, "📡 HTTP thread started pentru UIT " + uitId);
+                        Log.e(TAG, "📡 HTTP thread started pentru ikRoTrans " + ikRoTransId + " (server UIT: " + realUit + ")");
                         
                         java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
                         javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
