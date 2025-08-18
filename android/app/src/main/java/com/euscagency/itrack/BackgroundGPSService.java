@@ -177,26 +177,77 @@ public class BackgroundGPSService extends Service {
         
         // Start ScheduledExecutorService
         gpsExecutor = Executors.newSingleThreadScheduledExecutor();
-        Log.e(TAG, "GPS Executor created, scheduling cycles every " + GPS_INTERVAL_SECONDS + "s");
+        Log.e(TAG, "🔧 GPS Executor created: " + (gpsExecutor != null));
+        Log.e(TAG, "🔧 Scheduling cycles every " + GPS_INTERVAL_SECONDS + "s");
         
         try {
             Log.e(TAG, "🚀 PORNIRE ScheduledExecutorService - prima execuție în 2 secunde, apoi la fiecare " + GPS_INTERVAL_SECONDS + "s");
             sendLogToJavaScript("🚀 PORNIRE ScheduledExecutorService GPS - prima transmisie în 2 secunde");
             
-            gpsExecutor.scheduleAtFixedRate(new Runnable() {
+            // Create a runnable that MUST be executed
+            Runnable gpsRunnable = new Runnable() {
                 @Override
                 public void run() {
+                    Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION START ===");
+                    Log.e(TAG, "🕐 Current time: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
+                    Log.e(TAG, "🔧 Thread: " + Thread.currentThread().getName());
+                    Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning);
+                    Log.e(TAG, "🔧 activeCourses.size(): " + activeCourses.size());
+                    
+                    sendLogToJavaScript("⏰ SCHEDULED TASK EXECUTION - " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
+                    
                     try {
-                        Log.e(TAG, "⏰ ScheduledExecutorService TICK - executând performGPSCycle()");
-                        sendLogToJavaScript("⏰ ScheduledExecutorService TICK - executând GPS cycle");
                         performGPSCycle();
+                        Log.e(TAG, "✅ GPS cycle completed successfully");
+                        sendLogToJavaScript("✅ GPS cycle completed");
                     } catch (Exception e) {
-                        Log.e(TAG, "❌ EROARE în ScheduledExecutorService GPS cycle: " + e.getMessage());
+                        Log.e(TAG, "❌ EROARE în GPS cycle: " + e.getMessage());
                         sendLogToJavaScript("❌ EROARE GPS cycle: " + e.getMessage());
                         e.printStackTrace();
                     }
+                    
+                    Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION END ===");
                 }
-            }, 2, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
+            };
+            
+            Log.e(TAG, "🔧 About to call scheduleAtFixedRate...");
+            
+            java.util.concurrent.ScheduledFuture<?> future = gpsExecutor.scheduleAtFixedRate(
+                gpsRunnable, 
+                2, 
+                GPS_INTERVAL_SECONDS, 
+                TimeUnit.SECONDS
+            );
+            
+            Log.e(TAG, "🔧 ScheduledFuture created: " + (future != null));
+            Log.e(TAG, "🔧 Is cancelled: " + (future != null ? future.isCancelled() : "N/A"));
+            Log.e(TAG, "🔧 Is done: " + (future != null ? future.isDone() : "N/A"));
+            
+            // Immediate test execution after 3 seconds
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Thread.sleep(3000);
+                        Log.e(TAG, "🧪 === TESTING SCHEDULED SERVICE STATUS ===");
+                        Log.e(TAG, "🧪 isGPSRunning: " + isGPSRunning);
+                        Log.e(TAG, "🧪 Executor shutdown: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
+                        Log.e(TAG, "🧪 Executor terminated: " + (gpsExecutor != null ? gpsExecutor.isTerminated() : "NULL"));
+                        Log.e(TAG, "🧪 Future cancelled: " + (future != null ? future.isCancelled() : "NULL"));
+                        Log.e(TAG, "🧪 Future done: " + (future != null ? future.isDone() : "NULL"));
+                        sendLogToJavaScript("🧪 Service Status Check - isRunning: " + isGPSRunning + ", Future: " + (future != null ? !future.isCancelled() : "NULL"));
+                        
+                        // Also schedule a manual check
+                        Thread.sleep(12000); // After first cycle should have completed
+                        Log.e(TAG, "🧪 === 15-SECOND STATUS CHECK ===");
+                        Log.e(TAG, "🧪 Expecting at least one GPS cycle by now...");
+                        sendLogToJavaScript("🧪 15s check - Should have seen GPS cycles by now");
+                        
+                    } catch (Exception e) {
+                        Log.e(TAG, "🧪 Test thread error: " + e.getMessage());
+                    }
+                }
+            }).start();
             
             isGPSRunning = true;
             Log.e(TAG, "✅ GPS Service STARTED successfully cu ScheduledExecutorService");
@@ -225,11 +276,12 @@ public class BackgroundGPSService extends Service {
     private void performGPSCycle() {
         String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
         Log.e(TAG, "🔄 === GPS CYCLE START [" + currentTime + "] ===");
-        Log.e(TAG, "📊 Active Courses: " + activeCourses.size() + ", Token: " + (globalToken != null ? "OK" : "NULL"));
+        Log.e(TAG, "📊 Active Courses: " + activeCourses.size() + ", Token: " + (globalToken != null ? "OK (" + globalToken.length() + " chars)" : "NULL"));
         Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning + ", ScheduledExecutor: " + (gpsExecutor != null && !gpsExecutor.isShutdown()));
+        Log.e(TAG, "🔧 Service is ALIVE and EXECUTING at " + currentTime);
         
-        // Send Android log to JavaScript for debugging
-        sendLogToJavaScript("🔄 GPS CYCLE [" + currentTime + "] - Active Courses: " + activeCourses.size());
+        // Send Android log to JavaScript for debugging  
+        sendLogToJavaScript("🔄 GPS CYCLE EXECUTING [" + currentTime + "] - Active Courses: " + activeCourses.size());
         
         if (activeCourses.isEmpty() || globalToken == null) {
             Log.e(TAG, "❌ GPS cycle skipped - missing data (Active Courses: " + activeCourses.size() + ", Token: " + (globalToken != null ? "OK" : "NULL") + ")");

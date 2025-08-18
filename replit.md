@@ -90,7 +90,8 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - **WORKFLOW COMPLET**: PAUSE nu mai trimite status 2 automat - transmisia se oprește total până la RESUME
 
 ### **GPS ScheduledExecutorService Debugging Fix (18 Aug 2025)**
-- **PROBLEMĂ IDENTIFICATĂ**: ScheduledExecutorService nu executa ciclurile GPS la interval de 10 secunde
-- **SOLUȚIE**: Adăugat try-catch robust în scheduleAtFixedRate + logging detaliat pentru debugging
-- **DEBUGGING ENHANCED**: Timestamp-uri pentru fiecare GPS cycle, status executor, verificare WakeLock
-- **LOGGING JAVASCRIPT**: Toate erorile Android GPS se transmit către JavaScript pentru debugging în aplicație
+- **PROBLEMĂ IDENTIFICATĂ**: ScheduledExecutorService nu executa ciclurile GPS la interval de 10 secunde - se executa doar prima dată
+- **CAUZĂ SUSPECTATĂ**: scheduleAtFixedRate se oprește după prima execuție din motive necunoscute
+- **SOLUȚIE INTENSIVĂ**: Enhanced debugging cu thread status, future monitoring, și test threads pentru identificare problemă
+- **LOGGING COMPLET**: Timestamp pentru fiecare pas ScheduledExecutorService, status executor real-time
+- **STATUS CURENT**: Investigare activă - APK cu debugging intensiv pentru identificarea blocajului
