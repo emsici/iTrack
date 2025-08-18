@@ -39,13 +39,16 @@ public class BackgroundGPSService extends Service {
     private HandlerThread backgroundThread;
     private Handler backgroundHandler;
     
-    // MULTI-UIT SUPPORT: Map pentru toate cursele active simultan
-    private java.util.Map<String, CourseData> activeCourses = new java.util.HashMap<>();
+    // MULTI-UIT SUPPORT: Thread-safe Map pentru toate cursele active simultan - CRITICAL pentru multi-threading
+    private java.util.Map<String, CourseData> activeCourses = new java.util.concurrent.ConcurrentHashMap<>();
     private String globalToken;
     
     // HEALTH MONITORING: Pentru monitorizarea continuă a serviciului
     private java.util.concurrent.ScheduledExecutorService healthMonitor;
     private long lastGPSCycleTime = 0;
+    
+    // RATE LIMITING: Thread pool pentru HTTP transmissions pentru a evita server overloading
+    private java.util.concurrent.ThreadPoolExecutor httpThreadPool;
     private String globalVehicle;
     private boolean isGPSRunning = false;
     
@@ -76,6 +79,9 @@ public class BackgroundGPSService extends Service {
         super.onCreate();
         Log.e(TAG, "🚀 Serviciul BackgroundGPS Creat");
         
+        // Initialize HTTP Thread Pool pentru rate limiting
+        initializeHttpThreadPool();
+        
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
         // WakeLock pentru fundal garantat - HIGH PRIORITY pentru Android Doze bypass
@@ -94,6 +100,24 @@ public class BackgroundGPSService extends Service {
         startForeground(NOTIFICATION_ID, createNotification());
         
         Log.e(TAG, "✅ BackgroundGPS Service Ready");
+    }
+    
+    // Initialize HTTP Thread Pool pentru rate limiting - max 3 connections simultan
+    private void initializeHttpThreadPool() {
+        try {
+            if (httpThreadPool == null || httpThreadPool.isShutdown()) {
+                httpThreadPool = new java.util.concurrent.ThreadPoolExecutor(
+                    1, // Core threads - minim 1
+                    3, // Max threads - maxim 3 simultan pentru a nu supraîncărca serverul
+                    60L, // Keep alive 60 secunde
+                    java.util.concurrent.TimeUnit.SECONDS,
+                    new java.util.concurrent.LinkedBlockingQueue<Runnable>() // Queue unlimited
+                );
+                Log.e(TAG, "🔧 HTTP Thread Pool inițializat: max 3 connections simultan");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Eroare inițializare HTTP Thread Pool: " + e.getMessage());
+        }
     }
     
     @Override
@@ -413,6 +437,20 @@ public class BackgroundGPSService extends Service {
         if (healthMonitor != null && !healthMonitor.isShutdown()) {
             healthMonitor.shutdown();
             Log.e(TAG, "🛑 Health Monitor stopped");
+        }
+        
+        // Stop HTTP Thread Pool pentru a evita memory leaks
+        if (httpThreadPool != null && !httpThreadPool.isShutdown()) {
+            httpThreadPool.shutdown();
+            try {
+                if (!httpThreadPool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
+                    httpThreadPool.shutdownNow();
+                }
+                Log.e(TAG, "🛑 HTTP Thread Pool stopped");
+            } catch (InterruptedException e) {
+                httpThreadPool.shutdownNow();
+                Log.e(TAG, "🛑 HTTP Thread Pool force stopped");
+            }
         }
         
         // IMPORTANT: Clear executor reference pentru restart curat
@@ -762,8 +800,8 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
             Log.e(TAG, "🔑 Token length: " + (globalToken != null ? globalToken.length() : "NULL"));
             
-            // Make HTTP request on background thread
-            new Thread(new Runnable() {
+            // CRITICAL: Use thread pool pentru rate limiting - max 3 HTTP connections simultan
+            httpThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -786,13 +824,13 @@ public class BackgroundGPSService extends Service {
                         try (java.io.OutputStream os = conn.getOutputStream()) {
                             byte[] input = gpsDataJson.getBytes("utf-8");
                             os.write(input, 0, input.length);
-                            Log.e(TAG, "📤 Data sent pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + input.length + " bytes");
+                            Log.e(TAG, "📤 Data sent pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + input.length + " bytes");
                         }
                         
                         int responseCode = conn.getResponseCode();
                         String responseMessage = conn.getResponseMessage();
                         
-                        Log.e(TAG, "📡 === HTTP RESPONSE PENTRU UIT " + realUit + " (ikRoTrans: " + ikRoTransId + ") ===");
+                        Log.e(TAG, "📡 === HTTP RESPONSE PENTRU UIT " + realUit + " (unique key: " + uniqueKey + ") ===");
                         Log.e(TAG, "📊 Response Code: " + responseCode);
                         Log.e(TAG, "📝 Response Message: " + responseMessage);
                         
@@ -803,27 +841,27 @@ public class BackgroundGPSService extends Service {
                             if (is != null) {
                                 java.util.Scanner scanner = new java.util.Scanner(is).useDelimiter("\\A");
                                 String responseBody = scanner.hasNext() ? scanner.next() : "";
-                                Log.e(TAG, "📄 Response Body pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + responseBody);
+                                Log.e(TAG, "📄 Response Body pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + responseBody);
                             }
                         } catch (Exception e) {
-                            Log.e(TAG, "⚠️ Could not read response body pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + e.getMessage());
+                            Log.e(TAG, "⚠️ Could not read response body pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + e.getMessage());
                         }
                         
                         if (responseCode >= 200 && responseCode < 300) {
-                            Log.e(TAG, "✅ === GPS TRANSMISSION SUCCESS PENTRU UIT " + realUit + " (ikRoTrans: " + ikRoTransId + ") ===");
+                            Log.e(TAG, "✅ === GPS TRANSMISSION SUCCESS PENTRU UIT " + realUit + " (unique key: " + uniqueKey + ") ===");
                         } else {
-                            Log.e(TAG, "❌ === GPS TRANSMISSION FAILED PENTRU UIT " + realUit + " (ikRoTrans: " + ikRoTransId + ") ===");
+                            Log.e(TAG, "❌ === GPS TRANSMISSION FAILED PENTRU UIT " + realUit + " (unique key: " + uniqueKey + ") ===");
                         }
                         
                     } catch (Exception e) {
-                        Log.e(TAG, "❌ Native HTTP GPS error pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + e.getMessage());
-                        Log.e(TAG, "💾 Salvez coordonata offline pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + ")");
+                        Log.e(TAG, "❌ Native HTTP GPS error pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + e.getMessage());
+                        Log.e(TAG, "💾 Salvez coordonata offline pentru UIT " + realUit + " (unique key: " + uniqueKey + ")");
                         
                         // Salvează coordonata offline când transmisia eșuează
                         try {
                             sendOfflineGPSToJavaScript(gpsDataJson);
                         } catch (Exception offlineError) {
-                            Log.e(TAG, "❌ Eroare salvare offline pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + offlineError.getMessage());
+                            Log.e(TAG, "❌ Eroare salvare offline pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + offlineError.getMessage());
                         }
                         
                         e.printStackTrace();
@@ -832,7 +870,7 @@ public class BackgroundGPSService extends Service {
             }).start();
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ GPS transmission error pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + e.getMessage());
+            Log.e(TAG, "❌ GPS transmission error pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + e.getMessage());
             e.printStackTrace();
         }
     }
