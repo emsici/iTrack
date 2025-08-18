@@ -149,7 +149,7 @@ const logoutClearAllGPS = async () => {
   console.warn('AndroidGPS interface not available - browser mode');
 };
 
-import { clearToken, storeVehicleNumber, getStoredVehicleNumber } from "../services/storage";
+import { clearToken, storeVehicleNumber, getStoredVehicleNumber, clearStoredVehicleNumber } from "../services/storage";
 // BackgroundGPSService handles offline GPS natively - no separate service needed
 import { logAPI, logAPIError } from "../services/appLogger";
 import { courseAnalyticsService } from "../services/courseAnalytics";
@@ -276,9 +276,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         // Load stored vehicle number DOAR dacă există și este valid (nu pentru prima instalare)
         const storedVehicle = await getStoredVehicleNumber();
-        if (storedVehicle && storedVehicle.trim() && mounted) {
-          console.log('✅ Vehicul stocat găsit:', storedVehicle);
-          setVehicleNumber(storedVehicle);
+        // CRITICĂ: Elimină orice număr de vehicul predefinit/invalid (inclusiv IL02ADD)
+        const isValidStoredVehicle = storedVehicle && 
+                                   storedVehicle.trim() && 
+                                   storedVehicle.trim() !== 'IL02ADD' && 
+                                   storedVehicle.trim() !== 'undefined' && 
+                                   storedVehicle.trim() !== 'null' &&
+                                   storedVehicle.trim().length > 2;
+        
+        if (isValidStoredVehicle && mounted) {
+          console.log('✅ Vehicul stocat valid găsit:', storedVehicle);
+          setVehicleNumber(storedVehicle!);
           
           // AUTO-LOAD courses pentru vehiculul stocat DOAR dacă avem token valid
           if (token) {
@@ -299,8 +307,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             console.log('⚠️ Nu pot auto-încărca cursele - lipsește token-ul');
           }
         } else {
-          console.log('ℹ️ PRIMA INSTALARE - nu există vehicul stocat, se va cere input');
-          // Pentru prima instalare, forțează afișarea paginii de input
+          console.log('ℹ️ PRIMA INSTALARE sau vehicul invalid - se va cere input');
+          // Pentru prima instalare sau dacă vehiculul stocat este invalid (IL02ADD), forțează afișarea paginii de input
+          if (storedVehicle && (storedVehicle.trim() === 'IL02ADD' || storedVehicle.trim().length <= 2)) {
+            console.log(`🗑️ Vehicul invalid "${storedVehicle}" șters din storage`);
+            await clearStoredVehicleNumber();
+          }
           setCoursesLoaded(false);
           setVehicleNumber('');
         }

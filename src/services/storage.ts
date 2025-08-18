@@ -71,7 +71,24 @@ export const getVehicleNumberHistory = async (): Promise<string[]> => {
   try {
     const result = await Preferences.get({ key: VEHICLE_HISTORY_KEY });
     if (result.value) {
-      return JSON.parse(result.value);
+      const history = JSON.parse(result.value);
+      // CRITICĂ: Filtrează numerele invalide din istoric (inclusiv IL02ADD)
+      const validHistory = history.filter((v: string) => 
+        v && 
+        v.trim() && 
+        v.trim() !== 'IL02ADD' && 
+        v.trim() !== 'undefined' && 
+        v.trim() !== 'null' &&
+        v.trim().length > 2
+      );
+      
+      // Dacă istoricul s-a schimbat, salvează varianta curățată
+      if (validHistory.length !== history.length) {
+        console.log(`🗑️ Număre invalide eliminate din istoric: ${history.length - validHistory.length}`);
+        await Preferences.set({ key: VEHICLE_HISTORY_KEY, value: JSON.stringify(validHistory) });
+      }
+      
+      return validHistory;
     }
     return [];
   } catch (error) {
@@ -87,6 +104,16 @@ export const removeVehicleNumberFromHistory = async (vehicleNumber: string): Pro
     await Preferences.set({ key: VEHICLE_HISTORY_KEY, value: JSON.stringify(updatedHistory) });
   } catch (error) {
     console.error('Error removing vehicle number from history:', error);
+    throw error;
+  }
+};
+
+export const clearStoredVehicleNumber = async (): Promise<void> => {
+  try {
+    await Preferences.remove({ key: VEHICLE_NUMBER_KEY });
+    console.log('🗑️ Numărul vehiculului șters din storage');
+  } catch (error) {
+    console.error('Error clearing stored vehicle number:', error);
     throw error;
   }
 };
