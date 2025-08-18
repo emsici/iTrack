@@ -13,9 +13,7 @@ interface VehicleNumberDropdownProps {
 const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
   value,
   onChange,
-  placeholder = "Introduceți numărul vehiculului",
   darkMode = false,
-  onKeyPress,
   disabled = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -112,7 +110,9 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
-        padding: '20px'
+        padding: '40px 20px', // Padding top/bottom mărit pentru safe area
+        paddingTop: 'max(40px, env(safe-area-inset-top))', // Safe area pentru bara de sistem
+        paddingBottom: 'max(40px, env(safe-area-inset-bottom))' // Safe area pentru bara de navigare
       }}>
         <h3 style={{
           color: darkMode ? '#ffffff' : '#1e293b',
