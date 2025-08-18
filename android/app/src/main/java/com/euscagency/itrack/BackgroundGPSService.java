@@ -588,19 +588,19 @@ public class BackgroundGPSService extends Service {
                         conn.setConnectTimeout(15000); // 15 seconds
                         conn.setReadTimeout(15000);    // 15 seconds
                         
-                        Log.e(TAG, "🔗 Connection configured pentru UIT " + uitId + ", sending data...");
+                        Log.e(TAG, "🔗 Connection configured pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "), sending data...");
                         
                         // Send JSON data
                         try (java.io.OutputStream os = conn.getOutputStream()) {
                             byte[] input = gpsDataJson.getBytes("utf-8");
                             os.write(input, 0, input.length);
-                            Log.e(TAG, "📤 Data sent pentru UIT " + uitId + ": " + input.length + " bytes");
+                            Log.e(TAG, "📤 Data sent pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + input.length + " bytes");
                         }
                         
                         int responseCode = conn.getResponseCode();
                         String responseMessage = conn.getResponseMessage();
                         
-                        Log.e(TAG, "📡 === HTTP RESPONSE PENTRU UIT " + uitId + " ===");
+                        Log.e(TAG, "📡 === HTTP RESPONSE PENTRU UIT " + realUit + " (ikRoTrans: " + ikRoTransId + ") ===");
                         Log.e(TAG, "📊 Response Code: " + responseCode);
                         Log.e(TAG, "📝 Response Message: " + responseMessage);
                         
@@ -611,27 +611,27 @@ public class BackgroundGPSService extends Service {
                             if (is != null) {
                                 java.util.Scanner scanner = new java.util.Scanner(is).useDelimiter("\\A");
                                 String responseBody = scanner.hasNext() ? scanner.next() : "";
-                                Log.e(TAG, "📄 Response Body pentru UIT " + uitId + ": " + responseBody);
+                                Log.e(TAG, "📄 Response Body pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + responseBody);
                             }
                         } catch (Exception e) {
-                            Log.e(TAG, "⚠️ Could not read response body pentru UIT " + uitId + ": " + e.getMessage());
+                            Log.e(TAG, "⚠️ Could not read response body pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + e.getMessage());
                         }
                         
                         if (responseCode >= 200 && responseCode < 300) {
-                            Log.e(TAG, "✅ === GPS TRANSMISSION SUCCESS PENTRU UIT " + uitId + " ===");
+                            Log.e(TAG, "✅ === GPS TRANSMISSION SUCCESS PENTRU UIT " + realUit + " (ikRoTrans: " + ikRoTransId + ") ===");
                         } else {
-                            Log.e(TAG, "❌ === GPS TRANSMISSION FAILED PENTRU UIT " + uitId + " ===");
+                            Log.e(TAG, "❌ === GPS TRANSMISSION FAILED PENTRU UIT " + realUit + " (ikRoTrans: " + ikRoTransId + ") ===");
                         }
                         
                     } catch (Exception e) {
-                        Log.e(TAG, "❌ Native HTTP GPS error pentru UIT " + uitId + ": " + e.getMessage());
-                        Log.e(TAG, "💾 Salvez coordonata offline pentru UIT " + uitId);
+                        Log.e(TAG, "❌ Native HTTP GPS error pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + e.getMessage());
+                        Log.e(TAG, "💾 Salvez coordonata offline pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + ")");
                         
                         // Salvează coordonata offline când transmisia eșuează
                         try {
                             sendOfflineGPSToJavaScript(gpsDataJson);
                         } catch (Exception offlineError) {
-                            Log.e(TAG, "❌ Eroare salvare offline pentru UIT " + uitId + ": " + offlineError.getMessage());
+                            Log.e(TAG, "❌ Eroare salvare offline pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + offlineError.getMessage());
                         }
                         
                         e.printStackTrace();
@@ -640,7 +640,7 @@ public class BackgroundGPSService extends Service {
             }).start();
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ GPS transmission error pentru UIT " + uitId + ": " + e.getMessage());
+            Log.e(TAG, "❌ GPS transmission error pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "): " + e.getMessage());
             e.printStackTrace();
         }
     }
