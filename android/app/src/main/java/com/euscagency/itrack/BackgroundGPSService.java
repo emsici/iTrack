@@ -427,18 +427,36 @@ public class BackgroundGPSService extends Service {
         }
         
         try {
-            // Request single GPS location
+            // SYNC GPS SOLUTION: Get last known location IMMEDIATELY like dummy test worked
+            Log.e(TAG, "🔍 Getting IMMEDIATE GPS location (like dummy test)...");
+            
+            Location lastKnownLocation = getLastKnownLocation();
+            if (lastKnownLocation != null) {
+                Log.e(TAG, "✅ === IMMEDIATE GPS LOCATION ===");
+                Log.e(TAG, "📍 Coordinates: " + lastKnownLocation.getLatitude() + ", " + lastKnownLocation.getLongitude());
+                Log.e(TAG, "📐 Accuracy: " + lastKnownLocation.getAccuracy() + "m");
+                Log.e(TAG, "🕐 Age: " + (System.currentTimeMillis() - lastKnownLocation.getTime()) + "ms");
+                
+                sendLogToJavaScript("✅ IMMEDIATE GPS: " + lastKnownLocation.getLatitude() + ", " + lastKnownLocation.getLongitude());
+                
+                // IMMEDIATE TRANSMISSION like dummy test
+                transmitGPSDataToAllActiveCourses(lastKnownLocation);
+                
+                Log.e(TAG, "✅ === GPS CYCLE COMPLETED SUCCESSFULLY ===");
+                sendLogToJavaScript("✅ GPS cycle transmission completed");
+                return;
+            }
+            
+            // FALLBACK: Async GPS only if no last known location
+            Log.e(TAG, "⚠️ No last known location - trying async GPS...");
             LocationListener listener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
                     try {
-                        Log.e(TAG, "✅ === GPS LOCATION RECEIVED ===");
+                        Log.e(TAG, "✅ === ASYNC GPS LOCATION RECEIVED ===");
                         Log.e(TAG, "📍 Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
-                        Log.e(TAG, "📐 Accuracy: " + location.getAccuracy() + "m");
-                        Log.e(TAG, "🕐 Age: " + (System.currentTimeMillis() - location.getTime()) + "ms");
-                        Log.e(TAG, "🚀 Provider: " + location.getProvider());
                         
-                        sendLogToJavaScript("✅ REAL GPS RECEIVED: " + location.getLatitude() + ", " + location.getLongitude() + " (accuracy: " + location.getAccuracy() + "m)");
+                        sendLogToJavaScript("✅ ASYNC GPS: " + location.getLatitude() + ", " + location.getLongitude());
                         
                         locationManager.removeUpdates(this);
                         transmitGPSDataToAllActiveCourses(location);
