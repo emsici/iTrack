@@ -557,18 +557,18 @@ public class BackgroundGPSService extends Service {
                 
                 Log.e(TAG, "🔍 Verificare UIT " + uitId + " - Status: " + courseData.status);
                 
-                // CRITICĂ: Nu trimite GPS data dacă cursa este în PAUSE (status 3) sau STOP (status 4)
-                if (courseData.status == 3) {
-                    Log.e(TAG, "⏸️ GPS transmission SKIPPED pentru UIT " + uitId + " - PAUSED (status 3)");
-                    sendLogToJavaScript("⏸️ Skip GPS pentru UIT " + uitId + " - PAUSED");
-                    continue;
-                } else if (courseData.status == 4) {
-                    Log.e(TAG, "🛑 GPS transmission SKIPPED pentru UIT " + uitId + " - STOPPED (status 4)");
-                    sendLogToJavaScript("🛑 Skip GPS pentru UIT " + uitId + " - STOPPED");
-                    continue;
-                } else if (courseData.status != 2) {
-                    Log.e(TAG, "⚠️ GPS transmission SKIPPED pentru UIT " + uitId + " - Status unknown: " + courseData.status);
-                    sendLogToJavaScript("⚠️ Skip GPS pentru UIT " + uitId + " - Status necunoscut: " + courseData.status);
+                // CRITICĂ: Doar cursele ACTIVE (status 2) pot transmite GPS data
+                if (courseData.status != 2) {
+                    if (courseData.status == 3) {
+                        Log.e(TAG, "⏸️ GPS transmission BLOCKED pentru UIT " + uitId + " - PAUSED (status 3)");
+                        sendLogToJavaScript("⏸️ BLOCKED GPS pentru UIT " + uitId + " - PAUSED");
+                    } else if (courseData.status == 4) {
+                        Log.e(TAG, "🛑 GPS transmission BLOCKED pentru UIT " + uitId + " - STOPPED (status 4)");
+                        sendLogToJavaScript("🛑 BLOCKED GPS pentru UIT " + uitId + " - STOPPED");
+                    } else {
+                        Log.e(TAG, "⚠️ GPS transmission BLOCKED pentru UIT " + uitId + " - Status unknown: " + courseData.status);
+                        sendLogToJavaScript("⚠️ BLOCKED GPS pentru UIT " + uitId + " - Status necunoscut: " + courseData.status);
+                    }
                     continue;
                 }
                 
@@ -587,7 +587,7 @@ public class BackgroundGPSService extends Service {
                 gpsData.put("hdop", (int) location.getAccuracy());
                 gpsData.put("gsm_signal", networkSignal);
                 gpsData.put("baterie", batteryLevel);
-                gpsData.put("status", 2); // IMPORTANT: GPS data is ALWAYS status 2 (ACTIVE transmission)
+                gpsData.put("status", courseData.status); // Status real al cursei (doar status 2 ajunge aici)
                 gpsData.put("timestamp", timestamp);
                 
                 Log.e(TAG, "📊 GPS Data pentru ikRoTrans " + uitId + " (server UIT: " + courseData.realUit + "):");

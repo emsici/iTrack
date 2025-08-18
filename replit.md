@@ -16,6 +16,8 @@ Code Cleanup: Comprehensive cleanup completed - removed unused files/services an
 GPS Background Fix: Restored direct Android GPS calls for background service with hybrid browser backup system to ensure GPS continues working when phone is locked/app minimized.
 Real Device Data: Implemented dynamic battery level detection and real network type detection instead of static values, using Android native APIs, Capacitor Device/Network plugins, and browser APIs with intelligent fallbacks.
 UI Optimization: Eliminated redundant status indicators - unified GPS+Internet status replaces separate "Online/Offline" indicator for cleaner interface.
+PAUSE GPS Fix: GPS transmission is now correctly blocked for paused courses (status 3) - only ACTIVE courses (status 2) can transmit GPS data.
+Vehicle Dropdown Redesign: Compact dropdown with stored vehicle numbers, remove function, and "Add New" button leading to dedicated input page for better UX.
 
 ## System Architecture
 
