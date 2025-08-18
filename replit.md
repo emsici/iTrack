@@ -89,20 +89,20 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - GPS transmisie continuă garantată la fiecare 10 secunde ca înainte
 - Multi-vehicle support va fi implementat la nivel frontend prin schimbarea vehiculului activ
 
-**MULTI-CAR MULTI-COURSE FINAL IMPLEMENTATION (August 18, 2025):**
-- **UIT Unic Global**: Fiecare UIT este identificator unic - nu avem nevoie de composite keys
-- **Dual Map System**: 
-  - `Map<String, Integer> courseStatuses` - Status pentru fiecare UIT (2=ACTIV, 3=PAUZA, 4=STOP)
-  - `Map<String, String> uitToVehicle` - Mapare UIT → Vehicle (CT-39-ECC, CT-20-RTA, etc.)
-- **Cross-Vehicle Persistence**: Cursele rămân active la schimbarea dropdown-ului
-- **Individual Vehicle GPS**: Fiecare UIT activ transmite GPS cu vehiculul său specific
-- **Vehicle Independence**: Fiecare vehicul își păstrează cursele separate și independente
+**REVERT LA COMMIT 7b7bb19 FUNCȚIONAL (August 18, 2025):**
+- **PROBLEMĂ**: Toate implementările multi-vehicle complexe blocau ScheduledExecutor după primul ciclu
+- **SOLUȚIE**: Revert complet la implementarea simplă din commit 7b7bb19 care funcționa
+- **ARQUITECTURA**: 
+  - `Map<String, Integer> courseStatuses` - Doar status pentru fiecare UIT
+  - Eliminat complet Map-urile vehicle care blocau executorul
+  - GPS transmisie continuă garantată la fiecare 10 secunde
+- **FUNCȚIONALITATE**: Multi-course pe același vehicul funcționează perfect
+- **MULTI-VEHICLE**: Va fi implementat la nivel frontend prin schimbarea vehiculului activ în dropdown
 
-**SCENARIO MULTI-CAR VALIDAT:**
-- **CT-39-ECC**: UIT1(ACTIV), UIT2(ACTIV), UIT3(PAUZA) → 2 transmisii GPS cu CT-39-ECC
-- **CT-20-RTA**: UIT4(ACTIV), UIT5(ACTIV), UIT6(ACTIV), UIT7(ACTIV) → 4 transmisii GPS cu CT-20-RTA
-- **TOTAL**: 6 transmisii GPS simultane la fiecare 10 secunde
-- **PERSISTENȚĂ**: Cursele CT-39-ECC rămân active când schimbi dropdown pe CT-20-RTA
+**PRIORITATE ABSOLUTĂ: GPS CONTINUU FUNCȚIONAL**
+- Implementarea simplă garantează transmisia GPS la fiecare 10 secunde
+- Multi-vehicle poate fi implementat după ce confirmăm că GPS funcționează continuu
+- Nu mai complicăm backend-ul până nu avem GPS stabil
 
 ## Recent Critical Fixes (August 2025)
 

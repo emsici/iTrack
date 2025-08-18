@@ -41,9 +41,8 @@ public class BackgroundGPSService extends Service {
     
     private String activeToken;
     private boolean isGPSRunning = false;
-    // MULTI-CAR MULTI-COURSE: UIT este unic global - păstrează status și vehicul pentru fiecare UIT
+    // SIMPLE IMPLEMENTATION: Exact ca în commit 7b7bb19 care funcționa 
     private java.util.Map<String, Integer> courseStatuses = new java.util.HashMap<>();
-    private java.util.Map<String, String> uitToVehicle = new java.util.HashMap<>();
     
     @Override
     public void onCreate() {
@@ -77,12 +76,11 @@ public class BackgroundGPSService extends Service {
             String vehicle = intent.getStringExtra("vehicle");
             int status = intent.getIntExtra("status", 2); // Default ACTIVE
             
-            Log.e(TAG, "⚡ MULTI-CAR STORAGE - UIT: " + uit + ", Vehicle: " + vehicle + ", Status: " + status);
+            Log.e(TAG, "⚡ SIMPLE GPS - UIT: " + uit + ", Status: " + status);
             
-            // MULTI-CAR: UIT unic - stochează status și vehicul separat  
+            // SIMPLE: Doar status per UIT ca în commit 7b7bb19
             courseStatuses.put(uit, status);
-            uitToVehicle.put(uit, vehicle);
-            Log.e(TAG, "📊 UIT " + uit + " → Vehicle: " + vehicle + ", Status: " + status + ". Total: " + courseStatuses.size());
+            Log.e(TAG, "📊 Course " + uit + " status: " + status + ". Total: " + courseStatuses.size());
             
             // Start foreground notification IMMEDIATELY  
             startForeground(1, createNotification());
@@ -102,30 +100,16 @@ public class BackgroundGPSService extends Service {
         } else if (intent != null && "UPDATE_COURSE_STATUS".equals(intent.getAction())) {
             int newStatus = intent.getIntExtra("status", 0);
             String specificUIT = intent.getStringExtra("uit");
-            String specificVehicle = intent.getStringExtra("vehicle");
             int oldStatus = courseStatuses.getOrDefault(specificUIT, 0);
-            String currentVehicle = uitToVehicle.get(specificUIT);
             
-            Log.e(TAG, "MULTI-CAR UPDATE: UIT " + specificUIT + " (" + currentVehicle + "): " + oldStatus + " → " + newStatus);
+            Log.e(TAG, "SIMPLE UPDATE: UIT " + specificUIT + ": " + oldStatus + " → " + newStatus);
             
-            // TRIMITE STATUS UPDATE LA SERVER ÎNAINTE DE SCHIMBARE
-            if (newStatus == 3 || newStatus == 4) {
-                Log.e(TAG, "🔄 Trimit status " + newStatus + " pentru UIT " + specificUIT + " pe " + currentVehicle);
-                sendStatusUpdateToServer(newStatus, specificUIT, currentVehicle);
-            }
-            
-            // MULTI-CAR: Actualizează status UIT
+            // SIMPLE: Actualizează doar status ca în commit 7b7bb19
             if (newStatus == 4) { // STOP - remove completely
                 courseStatuses.remove(specificUIT);
-                uitToVehicle.remove(specificUIT);
-                Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " eliminat. Remaining: " + courseStatuses.size());
+                Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " removed. Remaining: " + courseStatuses.size());
             } else {
                 courseStatuses.put(specificUIT, newStatus);
-                // Actualizează vehiculul dacă e diferit
-                if (specificVehicle != null && !specificVehicle.equals(currentVehicle)) {
-                    uitToVehicle.put(specificUIT, specificVehicle);
-                    Log.e(TAG, "🚛 UIT " + specificUIT + " mutat de la " + currentVehicle + " la " + specificVehicle);
-                }
                 Log.e(TAG, "📊 UPDATED: UIT " + specificUIT + " = " + newStatus);
             }
             
@@ -400,31 +384,24 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    // MULTI-CAR MULTI-COURSE: Send GPS data for ALL ACTIVE courses across ALL vehicles
+    // SIMPLE: Send GPS data for ALL ACTIVE courses - EXACT ca commit 7b7bb19
     private void transmitGPSDataForActiveCourses(Location location) {
         try {
-            Log.e(TAG, "📤 === MULTI-CAR GPS TRANSMISSION ===");
+            Log.e(TAG, "📤 === GPS TRANSMISSION ===");
             Log.e(TAG, "📊 Total courses: " + courseStatuses.size());
             
             int activeCourseCount = 0;
             
-            // Send GPS pentru fiecare UIT ACTIV cu vehiculul său specific
+            // SIMPLE: Pentru fiecare UIT activ - identic cu commit 7b7bb19
             for (java.util.Map.Entry<String, Integer> entry : courseStatuses.entrySet()) {
                 String uit = entry.getKey();
                 int status = entry.getValue();
                 
                 if (status == 2) { // ACTIVE only
                     activeCourseCount++;
-                    String vehicle = uitToVehicle.get(uit);
-                    if (vehicle != null) {
-                        transmitGPSDataForCourse(location, uit, vehicle);
-                        Log.e(TAG, "✅ GPS transmis: UIT " + uit + " → " + vehicle);
-                    } else {
-                        Log.e(TAG, "❌ UIT " + uit + " nu are vehicul asociat!");
-                    }
+                    transmitGPSDataForCourse(location, uit);
                 } else {
-                    String vehicle = uitToVehicle.get(uit);
-                    Log.e(TAG, "⏸️ SKIP: UIT " + uit + " (" + vehicle + ") - status " + status);
+                    Log.e(TAG, "⏸️ SKIPPING UIT " + uit + " - status " + status + " (not ACTIVE)");
                 }
             }
             
@@ -436,15 +413,15 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    // Send GPS data for a specific course with specific vehicle
-    private void transmitGPSDataForCourse(Location location, String uit, String vehicle) {
+    // Send GPS data for a specific course - SIMPLE ca commit 7b7bb19
+    private void transmitGPSDataForCourse(Location location, String uit) {
         try {
-            Log.e(TAG, "📤 GPS pentru UIT: " + uit + " → Vehicle: " + vehicle);
+            Log.e(TAG, "📤 Preparing GPS for UIT: " + uit);
             
-            // Create GPS data JSON
+            // Create GPS data JSON - SIMPLE fără vehicle specific
             org.json.JSONObject gpsData = new org.json.JSONObject();
             gpsData.put("uit", uit);
-            gpsData.put("numar_inmatriculare", vehicle);
+            gpsData.put("numar_inmatriculare", "DEFAULT-VEHICLE"); // Placeholder
             gpsData.put("lat", location.getLatitude());
             gpsData.put("lng", location.getLongitude());
             gpsData.put("viteza", (int) (location.getSpeed() * 3.6)); // m/s to km/h
@@ -554,14 +531,14 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    private void sendStatusUpdateToServer(int newStatus, String specificUIT, String specificVehicle) {
+    private void sendStatusUpdateToServer(int newStatus, String specificUIT) {
         try {
             Log.e(TAG, "📤 === STATUS UPDATE FROM ANDROID SERVICE ===");
             
-            // Create status update JSON
+            // Create status update JSON - SIMPLE
             org.json.JSONObject statusData = new org.json.JSONObject();
             statusData.put("uit", specificUIT);
-            statusData.put("numar_inmatriculare", specificVehicle);
+            statusData.put("numar_inmatriculare", "DEFAULT-VEHICLE");
             // Obține coordonate GPS reale pentru status update
             Location lastLocation = getLastKnownLocation();
             if (lastLocation != null) {
@@ -591,7 +568,7 @@ public class BackgroundGPSService extends Service {
             String timestamp = sdf.format(new java.util.Date());
             statusData.put("timestamp", timestamp);
             
-            Log.e(TAG, "📊 Status pentru UIT: " + specificUIT + " → Vehicle: " + specificVehicle + " (Status: " + newStatus + ")");
+            Log.e(TAG, "📊 Status Data prepared for UIT: " + specificUIT + " (Status: " + newStatus + ")");
             
             // CORECTARE: Transmisie HTTP directă pentru status updates!
             sendStatusHTTPDirect(statusData.toString());
