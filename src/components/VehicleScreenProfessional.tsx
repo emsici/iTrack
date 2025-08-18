@@ -247,6 +247,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<any>(null);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
@@ -1424,8 +1425,40 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 />
               </div>
 
-              {/* Spacer pentru echilibru vizual */}
-              <div style={{ width: '100px', flex: '0 0 auto' }} />
+              {/* Right Side - GPS Status Indicator */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                flex: '0 0 auto'
+              }}>
+                <div style={{ 
+                  background: isOnline 
+                    ? (offlineGPSCount > 0 ? 'rgba(255, 193, 7, 0.2)' : 'rgba(34, 197, 94, 0.2)')
+                    : 'rgba(239, 68, 68, 0.2)', 
+                  border: isOnline 
+                    ? (offlineGPSCount > 0 ? '1px solid rgba(255, 193, 7, 0.4)' : '1px solid rgba(34, 197, 94, 0.4)')
+                    : '1px solid rgba(239, 68, 68, 0.4)',
+                  borderRadius: '8px', 
+                  padding: '6px 10px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '6px'
+                }}>
+                  <span style={{ fontSize: '14px' }}>
+                    {isOnline ? (offlineGPSCount > 0 ? '📡' : '🟢') : '🔴'}
+                  </span>
+                  <span style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: isOnline 
+                      ? (offlineGPSCount > 0 ? '#f59e0b' : '#16a34a')
+                      : '#dc2626'
+                  }}>
+                    {isOnline ? (offlineGPSCount > 0 ? 'SYNC' : 'OK') : 'OFF'}
+                  </span>
+                </div>
+              </div>
             </div>
 
 
@@ -1533,7 +1566,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </span>
               </div>
 
-              <div className="logout-button-enhanced" onClick={handleLogout} title="Ieșire" style={{ 
+              <div className="logout-button-enhanced" onClick={() => setShowLogoutConfirm(true)} title="Ieșire" style={{ 
                 background: currentTheme === 'dark' 
                   ? 'rgba(239, 68, 68, 0.1)' 
                   : currentTheme === 'light'
@@ -2087,10 +2120,159 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
 
 
+            {/* Logout Confirmation Modal */}
+            {showLogoutConfirm && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(0, 0, 0, 0.7)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10000,
+                padding: '20px'
+              }}>
+                <div style={{
+                  background: currentTheme === 'dark' 
+                    ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
+                    : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                  borderRadius: '20px',
+                  padding: '30px',
+                  maxWidth: '400px',
+                  width: '100%',
+                  textAlign: 'center',
+                  border: currentTheme === 'dark' 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : '1px solid rgba(0, 0, 0, 0.1)',
+                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)'
+                }}>
+                  {/* Header */}
+                  <div style={{
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{
+                      width: '60px',
+                      height: '60px',
+                      background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '0 auto 15px',
+                      fontSize: '24px'
+                    }}>
+                      🚪
+                    </div>
+                    <h3 style={{
+                      color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
+                      fontSize: '20px',
+                      fontWeight: '700',
+                      margin: 0
+                    }}>
+                      Confirmare ieșire
+                    </h3>
+                  </div>
+
+                  {/* Warning Content */}
+                  <div style={{
+                    marginBottom: '25px',
+                    textAlign: 'left'
+                  }}>
+                    <p style={{
+                      color: currentTheme === 'dark' ? '#cbd5e1' : '#475569',
+                      fontSize: '16px',
+                      marginBottom: '15px',
+                      lineHeight: '1.5'
+                    }}>
+                      Sigur vrei să ieși din aplicație?
+                    </p>
+                    
+                    <div style={{
+                      background: currentTheme === 'dark' 
+                        ? 'rgba(239, 68, 68, 0.1)' 
+                        : 'rgba(239, 68, 68, 0.05)',
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      borderRadius: '12px',
+                      padding: '15px'
+                    }}>
+                      <p style={{
+                        color: currentTheme === 'dark' ? '#fca5a5' : '#dc2626',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        marginBottom: '8px'
+                      }}>
+                        ⚠️ Se vor pierde următoarele date:
+                      </p>
+                      <ul style={{
+                        color: currentTheme === 'dark' ? '#fca5a5' : '#dc2626',
+                        fontSize: '13px',
+                        marginBottom: 0,
+                        paddingLeft: '20px',
+                        lineHeight: '1.4'
+                      }}>
+                        <li>Toate cursele active se vor opri</li>
+                        <li>GPS tracking se va dezactiva</li>
+                        <li>Datele nesincronizate se păstrează pentru următoarea autentificare</li>
+                        <li>Sesiunea curentă se va închide</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div style={{
+                    display: 'flex',
+                    gap: '12px'
+                  }}>
+                    <button
+                      onClick={() => setShowLogoutConfirm(false)}
+                      style={{
+                        flex: 1,
+                        background: currentTheme === 'dark' 
+                          ? 'rgba(100, 116, 139, 0.2)' 
+                          : 'rgba(148, 163, 184, 0.1)',
+                        border: currentTheme === 'dark' 
+                          ? '1px solid rgba(100, 116, 139, 0.3)' 
+                          : '1px solid rgba(148, 163, 184, 0.2)',
+                        color: currentTheme === 'dark' ? '#cbd5e1' : '#475569',
+                        padding: '12px 20px',
+                        borderRadius: '12px',
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Anulează
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      disabled={loading}
+                      style={{
+                        flex: 1,
+                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        color: '#ffffff',
+                        padding: '12px 20px',
+                        borderRadius: '12px',
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        opacity: loading ? 0.7 : 1
+                      }}
+                    >
+                      {loading ? 'Se iese...' : 'Da, ieși'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Admin Panel Modal */}
             {showAdminPanel && (
               <AdminPanel
-                onLogout={handleLogout}
+                onLogout={() => setShowLogoutConfirm(true)}
                 onClose={() => setShowAdminPanel(false)}
               />
             )}
