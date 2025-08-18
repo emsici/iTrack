@@ -1632,8 +1632,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
               {/* ELIMINAT - Duplicare cu indicatorul din header */}
               
-              {/* Sync Progress Bar - Always visible when offline coords exist */}
-              {offlineGPSCount > 0 && (
+              {/* Sync Progress Bar - Only show when there are coordinates to sync AND progress is not complete */}
+              {offlineGPSCount > 0 && (offlineGPSCount > 5 || !isOnline) && (
                 <div style={{
                   width: '200px',
                   background: currentTheme === 'light' || currentTheme === 'business'
@@ -1684,7 +1684,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     }}>
                       <span>{offlineGPSCount}</span>
                       <span style={{ fontSize: '9px', opacity: 0.8 }}>
-                        {offlineGPSCount > 30 ? '⚠️ mult' : offlineGPSCount > 10 ? '⏳ mediu' : '✓ puțin'}
+                        {isOnline 
+                          ? (offlineGPSCount > 30 ? '📤 sync...' : offlineGPSCount > 10 ? '⏳ așteptare' : '🔄 finalizare')
+                          : '⭕ offline'
+                        }
                       </span>
                     </span>
                   </div>
@@ -1709,7 +1712,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                           : currentTheme === 'driver'
                             ? 'linear-gradient(90deg, #f97316 0%, #ea580c 100%)'
                             : 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
-                      width: offlineGPSCount === 0 ? '100%' : `${Math.max(5, 100 - offlineGPSCount)}%`, // Progress: 100% when 0 coords, decreases with more coords
+                      width: `${Math.max(10, 100 - (offlineGPSCount * 1.5))}%`, // Realistic progress based on pending coords
                       borderRadius: '2px',
                       transition: 'width 0.3s ease-in-out'
                     }} />

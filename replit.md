@@ -10,7 +10,7 @@ Timestamp preference: Romania local time (+3 hours from UTC) for all GPS data an
 Performance optimization: Universal optimization for ALL Android phones (not device-specific).
 Code comments: All comments must be in Romanian language.
 Backup files: Remove unnecessary backup files.
-UI Performance: Remove heavy animations that may affect performance on Android devices.
+UI Performance: Remove heavy animations that may affect performance on Android devices. Progress bar disappears completely when sync is at 100% (less than 5 coords remaining) - no point showing completed progress.
 Offline Coordinates Policy: NEVER clear offline coordinates at logout - preserve route continuity across login sessions to avoid missing road segments.
 Code Cleanup: Comprehensive cleanup completed - removed unused files/services and functions.
 GPS Background Fix: Restored direct Android GPS calls for background service with hybrid browser backup system to ensure GPS continues working when phone is locked/app minimized.
