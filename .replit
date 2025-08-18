@@ -33,12 +33,12 @@ waitForPort = 5000
 name = "APK Build"
 author = "agent"
 
-[workflows.workflow.metadata]
-outputType = "console"
-
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx cap build android"
+args = "cd android && export ANDROID_HOME=/nix/store/6vcafwxrilrmbglxjm3zpnyak8byfdvv-android-tools-35.0.1 && ./gradlew assembleDebug"
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [deployment]
 run = ["sh", "-c", "npm install vite @vitejs/plugin-react typescript react react-dom @types/react @types/react-dom @capacitor/core @capacitor/cli @capacitor/android @capacitor/geolocation @capacitor/background-mode @capacitor/device @capacitor/preferences bootstrap"]

@@ -1,114 +1,74 @@
-# iTrack GPS - Soluția Simplă pentru Șoferii Dumneavoastră
+# iTrack GPS - Soluția Enterprise pentru Fleet Management
 
-**Aplicația care face transportul mai ușor și mai organizat**
-
----
-
-## 🚛 De Ce Să Alegeti iTrack GPS?
-
-**iTrack GPS** este aplicația care ajută șoferii să gestioneze mai ușor multiple livrări pe același camion. Nu mai trebuie să țineți minte care cursă este activă - aplicația face totul pentru dumneavoastră.
-
-### ✅ Ce Câștigați cu iTrack GPS
-
-- **Mai Puține Telefoane**: Nu mai trebuie să sunați la birou pentru fiecare schimbare
-- **Control Ușor**: Vedeți toate cursele pe același ecran
-- **Status Clar**: Știți exact ce faceți cu fiecare livrare
-- **Funcționare Simplă**: 3 butoane simple - START, PAUZĂ, STOP
-- **Funcționează Offline**: Nu vă faceți griji dacă nu aveți semnal
-- **Economisește Timp**: Mai puțin timp pierdut, mai mult timp pe drum
-- **Șeful Mulțumit**: Rapoarte automate, fără hârtii
+**Aplicația Completă de Monitorizare Vehicule pentru Companiile de Transport din România**
 
 ---
 
-## 📱 Cum Funcționează - Super Simplu!
+## 🚛 Ce Este iTrack GPS?
 
-### **Pasul 1: Porniți Aplicația**
-Deschideți iTrack pe telefon. Introduceți email-ul și parola pe care vi le-a dat compania. Aplicația își amintește datele, nu trebuie să le introduceți de fiecare dată.
+**iTrack GPS** este o aplicație profesională dezvoltată exclusiv pentru companiile de transport din România care au nevoie de monitorizarea în timp real a vehiculelor și șoferilor. Aplicația oferă tracking GPS precis, gestionarea curselor de transport și control complet asupra flotei dumneavoastră.
 
-### **Pasul 2: Introduceți Numărul Camionului**
-Scrieți numărul de înmatriculare (ex: B123ABC). Aplicația încarcă automat toate livrarile pentru camionul dumneavoastră.
+### ✅ Beneficii Immediate pentru Business-ul Dumneavoastră
 
-### **Pasul 3: Vedeți Toate Livrarile**
-Pe ecran aparat toate cursele cu culori diferite:
-- **VERDE** = Gata de pornit
-- **ALBASTRU** = În derulare acum
-- **GALBEN** = În pauză (pauza legală, încărcare)
-- **GRI** = Terminată
-
-### **Pasul 4: Folosiți Butoanele Simple**
-Pentru fiecare livrare aveți butoane mari și clare:
-- **START** = Pornesc cursa
-- **PAUZĂ** = Mă opresc temporar (pauza legală, încărcare/descărcare)
-- **RESUME** = Continui după pauză
-- **STOP** = Am terminat complet cursa
-
-### **Pasul 5: Aplicația Face Restul**
-Nu mai trebuie să faceți nimic! Aplicația trimite automat locația la birou și ține evidența pentru fiecare livrare separat.
+- **Control Total**: Știți exact unde sunt vehiculele dumneavoastră în orice moment
+- **Siguranță Mărită**: Monitorizare continuă pentru protejarea șoferilor și mărfii
+- **Eficiență Optimizată**: Reducerea costurilor cu combustibilul prin rute optimizate
+- **Conformitate Legală**: Respectarea reglementărilor de transport cu documentație completă
+- **Satisfacția Clienților**: Informații precise despre timpul de livrare
 
 ---
 
-## ✅ De Ce Este Diferit de Alte Aplicații?
+## 🎯 Funcționalități Principale
 
-### **PROBLEMA cu aplicațiile vechi:**
-- O singură cursă pe camion
-- Telefoane multe la birou pentru status
-- Confuzie între livrări diferite  
-- Pierdere de timp cu hârtii
+### 📍 **Urmărire GPS Profesională**
+- **Precizie Maximă**: Coordonate GPS cu 7 decimale pentru tracking exact
+- **Update la 5 Secunde**: Locația vehiculelor actualizată în timp real
+- **Funcționare 24/7**: Tracking continuu chiar și când telefonul este blocat
+- **Economie Baterie**: Optimizat să consume minimal energie
 
-### **SOLUȚIA iTrack:**
-- **5-10 curse** pe același camion
-- **Status automat** pentru fiecare livrare
-- **Fără telefoane** la birou
-- **Fără hârtii** - totul automat
+### 🚚 **Gestionarea Curselor de Transport**
+- **Dashboard Intuitiv**: Vizualizarea tuturor curselor pentru fiecare vehicul
+- **Status în Timp Real**: Disponibil → Activ → Pauză → Finalizat
+- **Informații Complete**: Plecare, destinație, UIT, declarant, vamă
+- **Control Ușor**: Pornire/oprire curse cu o singură apăsare
 
-### **Exemplu Practic:**
-**Camionul B123ABC are azi 4 livrări:**
-- **Livrarea A**: Plecare București → Cluj (ACTIVĂ - GPS pornit)  
-- **Livrarea B**: Plecare Cluj → Timișoara (ÎN AȘTEPTARE)
-- **Livrarea C**: Întoarcere Timișoara → București (ÎN AȘTEPTARE)
-- **Livrarea D**: Livrare locală București (ÎN AȘTEPTARE)
+### 🌐 **Funcționare Offline Inteligentă**
+- **Zero Pierdere Date**: Salvează automat coordonatele când nu este semnal
+- **Sincronizare Automată**: Transmite datele când reapare conexiunea
+- **Progress Visual**: Vedeți exact câte coordonate au fost sincronizate
+- **Backup Garantat**: 3 sisteme de backup pentru siguranță maximă
 
-**Cu iTrack:** Șoferul vede toate 4 pe același ecran și le gestionează simplu cu butoane.
-**Fără iTrack:** 16 telefoane la birou (4 livrări x 4 statusuri fiecare).
-
----
-
-## 🛟 Support și Ajutor
-
-### **Dacă Aveți Probleme:**
-- **Telefon Support**: Disponibil 8:00 - 20:00
-- **Chat în Aplicație**: Răspuns în max 30 minute
-- **Training Gratuit**: 2 ore per șofer incluse în pachet
-
-### **Întrebări Frecvente:**
-
-**"Ce fac dacă nu am semnal?"**
-→ Aplicația funcționează și fără internet. Salvează totul local și trimite când reapare semnalul.
-
-**"Ce fac dacă uit să apăs STOP?"**  
-→ Nu vă faceți griji! Biroul vede că ați ajuns la destinație și vă pot suna să confirmați.
-
-**"Consumă mult din baterie?"**
-→ Nu! Aplicația este optimizată să consume foarte puțin. Funcționează toată ziua fără probleme.
-
-**"E greu de învățat?"**
-→ Deloc! Dacă știți să folosiți WhatsApp, știți să folosiți și iTrack. Doar 4 butoane importante.
+### 🎨 **Design Profesional Personalizabil**
+- **6 Teme Disponibile**: Dark, Light, Business, Driver, Nature, Night
+- **Branding Corporate**: Personalizarea culorilor pentru compania dumneavoastră
+- **Interfață Simplă**: Ușor de folosit chiar și pentru șoferii fără experiență tehnică
+- **Design Modern**: Interfață elegantă cu efecte glassmorphism
 
 ---
 
-## 💬 Ce Spun Șoferii Care Folosesc iTrack:
+## 📱 Cum Funcționează pentru Șoferii Dumneavoastră
 
-*"Înainte sunam de 10 ori pe zi la birou. Acum apăs doar butoane și aia e. Mult mai simplu!"*  
-**- Ion, șofer 15 ani experiență**
+### **Pasul 1: Login Simplu**
+Șoferul își introduce email-ul și parola companiei. Aplicația își amintește automat datele pentru următoarele utilizări.
 
-*"Mi-a plăcut că văd toate livrarile pe același ecran. Nu mai uit de niciuna."*  
-**- Maria, șofer urban**
+### **Pasul 2: Introducere Număr Vehicul**
+Se introduce numărul de înmatriculare al vehiculului (ex: B123ABC). Aplicația încarcă automat toate cursele disponibile pentru acel vehicul.
 
-*"Functioneaza si fara semnal, care e foarte important pe drumurile din munti."*  
-**- Vasile, transport international**
+### **Pasul 3: Selectare Cursă**
+Șoferul vede lista cu toate cursele:
+- **Curse Disponibile** (verde) - gata de pornire
+- **Curse în Progres** (albastru) - în derulare
+- **Curse în Pauză** (galben) - temporar oprite
+- **Curse Finalizate** (gri) - completate
 
-*"Păgubă că nu am avut aplicația asta mai devreme. Îmi economisește 2 ore pe zi."*  
-**- Alexandru, șofer pe curse lungi**
+### **Pasul 4: Gestionare Cursă**
+Cu butoane simple și clare:
+- **START** - pornește cursa și tracking-ul GPS
+- **PAUZĂ** - oprește temporar (pauza legală, încărcare/descărcare)
+- **RESUME** - reia cursa după pauză
+- **STOP** - finalizează complet cursa
+
+### **Pasul 5: Monitoring Automat**
 După pornirea cursei, aplicația:
 - Transmite automat coordonatele la fiecare 5 secunde
 - Funcționează în fundal chiar și cu telefonul blocat

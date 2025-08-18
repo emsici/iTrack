@@ -13,9 +13,7 @@ Backup files: Remove unnecessary backup files.
 UI Performance: Remove heavy animations that may affect performance on Android devices.
 Offline Coordinates Policy: NEVER clear offline coordinates at logout - preserve route continuity across login sessions to avoid missing road segments.
 Code Cleanup: Comprehensive cleanup completed - removed unused files/services and functions.
-GPS Background Fix: EXCLUSIV BackgroundGPSService.java pentru transmisie GPS - eliminat complet GPS-ul din browser pentru a asigura funcționarea continuă când telefonul este blocat/aplicația minimizată.
-Network Status Fix: Eliminat complet browser network checks (checkNetworkStatus, fetch ping tests) care interferau cu BackgroundGPSService - network status detectat nativ prin răspunsuri HTTP.
-GPS Continuity Fix: Implementat fallback robust în BackgroundGPSService - timeout GPS redus la 5 secunde cu fallback automat la last known location pentru a garanta transmisia continuă la fiecare 10 secunde.
+GPS Background Fix: Restored direct Android GPS calls for background service with hybrid browser backup system to ensure GPS continues working when phone is locked/app minimized.
 Real Device Data: Implemented dynamic battery level detection and real network type detection instead of static values, using Android native APIs, Capacitor Device/Network plugins, and browser APIs with intelligent fallbacks.
 UI Optimization: Eliminated redundant status indicators - unified GPS+Internet status replaces separate "Online/Offline" indicator for cleaner interface.
 
@@ -66,86 +64,20 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 
 ## Recent Critical Fixes (August 2025)
 
-### **MULTI-VEHICLE MULTI-UIT SUPPORT + PERFORMANCE FIX (August 17, 2025)**
+### **Workflow PAUSE→RESUME→STOP Corrigat**
+- **PROBLEMĂ IDENTIFICATĂ**: PAUSE (status 3) elimina cursa din activeCourses, făcând RESUME imposibil
+- **SOLUȚIE**: PAUSE păstrează cursa în activeCourses, doar STOP (4) elimină definitiv
+- **ANALYTICS**: Adăugat pauseCourseTracking() și resumeCourseTracking() în courseAnalytics.ts
+- **WORKFLOW CORECT**: START→PAUSE→RESUME→STOP funcționează perfect
 
-**FUNCȚIONALITATE COMPLETĂ MULTI-VEHICUL:**
-- Eliminat `activeVehicle` global și înlocuit cu `Map<String, String> courseVehicles`
-- Fiecare UIT își păstrează propriul vehicul independent
-- Suport pentru scenario complex: multiple vehicule cu multiple curse simultan
-- GPS transmis corect pentru fiecare UIT cu vehiculul său specific
-- Switching între vehicule păstrează cursele active pentru toate vehiculele
-- Transmisie continuă pentru toate vehiculele active chiar și cu telefonul blocat
+### **Real Sensor Data Integration Completă**
+- **ELIMINAT**: Toate valorile hardcodate (battery 50%, gsm_signal 4, GPS dummy)
+- **IMPLEMENTAT**: getNetworkSignal() și getLastKnownLocation() în BackgroundGPSService
+- **STATUS UPDATES**: 3/4 includ coordonate GPS reale prin getLastKnownLocation()
+- **NETWORK DETECTION**: WiFi vs Cellular cu signal strength autentic
 
-**PERFORMANCE FIX CRITIC:**
-- Eliminat debugging agresiv care bloca ScheduledExecutor după primul ciclu
-- Revenit la logica simplă din commit 7b7bb19 care funcționa corect
-- Păstrat doar multi-vehicle support fără overhead de performance
-- GPS continuă să transmită la fiecare 10 secunde exact ca înainte
-
-**ARCHITECTURE SIMPLIFICATĂ FUNCȚIONALĂ:**
-- Revenit la `String activeVehicle` simplu din commit 7b7bb19 care funcționa
-- `Map<String, Integer> courseStatuses` pentru multi-course support pe același vehicul
-- Eliminat Map-urile complexe `uitToVehicle` care blocau ScheduledExecutor
-- GPS transmisie continuă garantată la fiecare 10 secunde ca înainte
-- Multi-vehicle support va fi implementat la nivel frontend prin schimbarea vehiculului activ
-
-**RESTAURAT COMMIT d9264ef FUNCȚIONAL (August 18, 2025):**
-- **COMMIT IDENTIFICAT**: d9264efca56b7fb1966c306da659562fae8f5bb4 - "Enhance GPS tracking to manage multiple active courses simultaneously"
-- **SOLUȚIE SIMPLĂ**: Restaurat implementarea minimală și eficientă din commit d9264ef
-- **DIFERENȚA CRITICĂ**: 
-  - **ScheduledExecutor SIMPLU**: Fără debugging agresiv care bloca executorul
-  - **Multi-course management**: `Map<String, Integer> courseStatuses` pentru tracking individual
-  - **activeVehicle**: Vehicul specific pentru transmisii GPS
-- **ARQUITECTURA SIMPLĂ**: Executor curat cu `performGPSCycle()` direct
-- **FUNCȚIONALITATE**: Multi-course pe același vehicul cu GPS continuu simplificat
-
-**COMMIT d9264ef - IMPLEMENTARE MINIMALĂ FUNCȚIONALĂ**
-- Executor simplu: `gpsExecutor.scheduleAtFixedRate(() -> performGPSCycle(), 2, 10, SECONDS)`
-- Fără debugging agresiv care interferea cu ciclurile
-- Multi-course management cu status individual per UIT
-
-## Recent Critical Fixes (August 2025)
-
-### **VERIFICARE COMPLETĂ APLICAȚIE MULTI-COURSE (August 17, 2025)**
-
-#### **Componente Verificate Exhaustiv:**
-
-**FRONTEND (18 fișiere TypeScript/TSX - 9,269 linii exacte verificate):**
-- `VehicleScreenProfessional.tsx` (2345 linii) - Dashboard principal cu activeCourses Map pentru management multi-course
-- `CourseDetailCard.tsx` (1066 linii) - Carduri individuale cu butoane START/PAUSE/RESUME/STOP per cursă
-- `LoginScreen.tsx` (867 linii) - Autentificare securizată cu API etsm_prod/login.php
-- `CourseStatsModal.tsx` (614 linii) - Modal statistici individuale per cursă cu analytics separate
-- `AdminPanel.tsx` (355 linii) - Debug panel cu logs GPS în timp real pentru toate cursele
-- `api.ts` (621 linii) - Client API cu CapacitorHttp pentru toate endpoint-urile etsm_prod
-- `courseAnalytics.ts` (434 linii) - Serviciu analytics per cursă cu pauseCourseTracking() și resumeCourseTracking()
-- `offlineGPS.ts` (346 linii) - Manager GPS offline cu batch sync pentru coordonate cached
-
-**BACKEND ANDROID NATIV (2 fișiere Java - 1,109 linii exacte verificate):**
-- `BackgroundGPSService.java` (759 linii) - Serviciu GPS multi-course cu Map<String, Integer> courseStatuses
-- `MainActivity.java` (350 linii) - Bridge WebView cu startGPS/updateStatus/stopGPS pentru comunicare JavaScript-Android
-
-#### **FUNCȚIONALITĂȚI MULTI-COURSE VERIFICATE:**
-
-**GPS MANAGEMENT PER CURSĂ:**
-- `Map<String, Integer> courseStatuses` în BackgroundGPSService pentru status individual per UIT
-- `transmitGPSDataForActiveCourses()` transmite GPS doar pentru curse cu status = 2 (ACTIV)
-- Funcțiile PAUSE (3) și RESUME (2) operează independent pentru fiecare UIT
-- STOP (4) elimină cursa complet din courseStatuses Map
-
-**WORKFLOW COMPLET FUNCȚIONAL:**
-- **START**: `activeCourses.set(uit, {status: 2})` + `courseStatuses.put(uit, 2)` → GPS pornește
-- **PAUSE**: `activeCourses.set(uit, {status: 3})` + GPS skip pentru UIT-ul respectiv  
-- **RESUME**: `activeCourses.set(uit, {status: 2})` + GPS reactivat pentru UIT
-- **STOP**: `activeCourses.delete(uit)` + `courseStatuses.remove(uit)` → eliminare completă
-
-**REAL SENSOR DATA INTEGRATION:**
-- `getNetworkSignal()` pentru detectarea signal strength autentic (WiFi vs Cellular)
-- `getLastKnownLocation()` pentru coordonate GPS reale în status updates 3/4
-- Eliminat complet valorile hardcodate (battery 50%, gsm_signal 4, GPS dummy)
-
-**SYSTEM ARCHITECTURE COMPLETĂ VERIFICATĂ:**
-- **Frontend**: React 19.1.0 + TypeScript + Bootstrap 5.3.6 + 6 teme profesionale
-- **Mobile**: Capacitor 7.3.0 pentru bridge JavaScript-Android
-- **GPS Core**: BackgroundGPSService cu ScheduledExecutorService la 10 secunde interval
-- **API**: etsm_prod endpoints cu CapacitorHttp + fetch fallback
-- **Offline**: Cache GPS inteligent cu batch sync și retry logic
+### **Critical Status Transmission Fix**
+- **PROBLEMA GĂSITĂ**: JavaScript GPS transmission trimitea status 2 pentru toate cursele din activeCourses, inclusiv cele în PAUSE
+- **SOLUȚIA IMPLEMENTATĂ**: Verificare `course.status !== 2` în JavaScript GPS loop - skip transmission pentru PAUSE/STOP
+- **ANDROID FIX**: BackgroundGPSService oprește transmisia complet pentru status 3/4 
+- **WORKFLOW COMPLET**: PAUSE nu mai trimite status 2 automat - transmisia se oprește total până la RESUME

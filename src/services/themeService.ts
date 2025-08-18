@@ -107,18 +107,18 @@ export class ThemeService {
         errorColor: '#dc2626'
       },
       nature: {
-        bgPrimary: 'rgba(20, 83, 45, 0.95)',      // Verde închis profesional
-        bgSecondary: 'rgba(22, 101, 52, 0.95)',   // Verde mediu elegant  
-        bgTertiary: 'rgba(21, 128, 61, 0.95)',    // Verde accent subtil
-        textPrimary: '#f0fdf4',                   // Alb-verde foarte deschis
-        textSecondary: '#dcfce7',                 // Verde foarte deschis
-        textMuted: '#bbf7d0',                     // Verde deschis pentru text secundar
-        borderColor: 'rgba(34, 197, 94, 0.25)',  // Margini subtile
-        shadowColor: 'rgba(21, 128, 61, 0.3)',   // Umbre elegante
-        accentColor: '#16a34a',                   // Verde principal
-        successColor: '#22c55e',                  // Verde succes
-        warningColor: '#f59e0b',                  // Galben pentru avertizări
-        errorColor: '#ef4444'                     // Roșu pentru erori
+        bgPrimary: 'rgba(6, 78, 59, 0.95)',
+        bgSecondary: 'rgba(6, 95, 70, 0.95)',
+        bgTertiary: 'rgba(4, 120, 87, 0.95)',
+        textPrimary: '#ecfdf5',
+        textSecondary: '#bbf7d0',
+        textMuted: '#86efac',
+        borderColor: 'rgba(34, 197, 94, 0.3)',
+        shadowColor: 'rgba(34, 197, 94, 0.2)',
+        accentColor: '#16a34a',
+        successColor: '#22c55e',
+        warningColor: '#ca8a04',
+        errorColor: '#dc2626'
       },
       night: {
         bgPrimary: 'rgba(30, 27, 75, 0.95)',
@@ -178,7 +178,7 @@ export class ThemeService {
           const { StatusBar } = module;
           StatusBar.setBackgroundColor({ color: statusBarColor });
           StatusBar.setStyle({ 
-            style: isLightContent ? StatusBar.Style.Light : StatusBar.Style.Dark
+            style: isLightContent ? 'LIGHT' : 'DARK'
           });
           console.log(`🎨 Status bar updated: ${statusBarColor}, content: ${isLightContent ? 'LIGHT' : 'DARK'}`);
         }).catch(err => {
@@ -196,13 +196,13 @@ export class ThemeService {
       'light': '#0f172a',     // FIXED: Dark status bar for light theme
       'business': '#0f172a',  // FIXED: Dark status bar for business theme  
       'driver': '#1c1917',    // Dark brown
-      'nature': '#14532d',    // Verde închis profesional pentru status bar
+      'nature': '#064e3b',    // Dark green
       'night': '#1e1b4b'      // Dark blue
     };
     return statusBarColors[theme] || statusBarColors.dark;
   }
 
-  private isLightStatusBarContent(_theme: Theme): boolean {
+  private isLightStatusBarContent(theme: Theme): boolean {
     // FIXED: All themes now use light content (white icons/text) on dark status bar
     return true; // Always use light content for consistent dark status bar across all themes
   }
@@ -222,6 +222,6 @@ export const THEME_INFO = {
   light: { name: 'Luminoasă', description: 'Tema luminoasă pentru vizibilitate maximă', icon: 'sun' },
   driver: { name: 'Șofer', description: 'Tema caldă pentru șoferi profesioniști', icon: 'truck' },
   business: { name: 'Business', description: 'Tema corporate pentru manageri', icon: 'briefcase' },
-  nature: { name: 'Natură', description: 'Tema verde profesională pentru calm și eficiență', icon: 'leaf' },
+  nature: { name: 'Natură', description: 'Tema verde pentru relaxare', icon: 'leaf' },
   night: { name: 'Nocturnă', description: 'Tema violet pentru condusul nocturn', icon: 'star' }
 };

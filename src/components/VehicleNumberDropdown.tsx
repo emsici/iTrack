@@ -131,7 +131,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
               : currentTheme === 'business'
                 ? 'rgba(248, 250, 252, 0.95)'
                 : currentTheme === 'nature'
-                  ? 'rgba(22, 101, 52, 0.95)'
+                  ? 'rgba(6, 95, 70, 0.95)'
                   : currentTheme === 'night'
                     ? 'rgba(49, 46, 129, 0.95)'
                     : currentTheme === 'driver'

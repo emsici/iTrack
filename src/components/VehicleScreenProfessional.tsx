@@ -226,8 +226,9 @@ const getNetworkSignal = async (): Promise<number> => {
   }
 };
 
-// ❌ ELIMINAT COMPLET: Browser network checks și offline sync monitoring
-// BackgroundGPSService gestionează totul nativ - network status prin răspunsuri HTTP
+// import OfflineSyncMonitor from "./OfflineSyncMonitor"; // Commented unused import
+// BackgroundGPSService detectează network status prin răspunsurile HTTP
+// BackgroundGPSService handles offline GPS natively - no separate service needed
 
 interface VehicleScreenProps {
   token: string;
@@ -337,14 +338,58 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
     };
     
-    // ❌ ELIMINAT COMPLET: Browser network checks interferează cu BackgroundGPSService
-    // Network status va fi detectat de BackgroundGPSService prin răspunsurile HTTP
-    console.log('📱 === NETWORK STATUS GESTIONAT DE BACKGROUNDGPSSERVICE ===');
-    console.log('🔋 Eliminat network checks din browser - folosim doar serviciul Android nativ');
+    // Setup real network detection with both browser API and ping test
+    const checkNetworkStatus = async () => {
+      try {
+        // First check navigator.onLine
+        const navigatorOnline = navigator.onLine;
+        
+        // Then do a ping test to verify real connectivity
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
+        const response = await fetch(API_BASE_URL + 'ping', {
+          method: 'HEAD',
+          signal: controller.signal,
+          cache: 'no-cache'
+        });
+        
+        clearTimeout(timeoutId);
+        const actuallyOnline = navigatorOnline && response.ok;
+        
+        console.log(`🔍 Network check: navigator=${navigatorOnline}, ping=${response.ok}, final=${actuallyOnline}`);
+        return actuallyOnline;
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.log(`🔍 Network check failed: ${errorMessage}, using navigator.onLine=${navigator.onLine}`);
+        return navigator.onLine;
+      }
+    };
     
-    // Setează statusul online implicit - BackgroundGPSService se ocupă de detectarea reală
-    setIsOnline(true);
-    console.log('📡 Network status implicit: ONLINE (gestionat de BackgroundGPSService)');
+    // Initial network status check
+    checkNetworkStatus().then(handleNetworkChange);
+    
+    // Setup periodic network monitoring
+    const networkInterval = setInterval(async () => {
+      const online = await checkNetworkStatus();
+      if (online !== isOnline) {
+        handleNetworkChange(online);
+      }
+    }, 5000); // Check every 5 seconds
+    
+    // Setup browser online/offline event listeners
+    const handleOnline = () => {
+      console.log('🌐 Browser online event detected');
+      checkNetworkStatus().then(handleNetworkChange);
+    };
+    
+    const handleOffline = () => {
+      console.log('🔌 Browser offline event detected');
+      handleNetworkChange(false);
+    };
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
     // Monitor offline GPS count
     const updateOfflineCount = async () => {
@@ -370,8 +415,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     
     return () => {
       window.removeEventListener('backgroundRefresh', handleBackgroundRefresh);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
       clearInterval(countInterval);
-      // ❌ ELIMINAT: networkInterval și event listeners pentru network browser
+      clearInterval(networkInterval);
     };
   }, [vehicleNumber, token, coursesLoaded]);
 
@@ -807,22 +854,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           await courseAnalyticsService.stopCourseTracking(courseToUpdate.uit);
           console.log(`🛑 Analytics stopped pentru UIT: ${courseToUpdate.uit}`);
           
-          // MULTI-VEHICLE FIX: Nu opri GPS dacă mai sunt curse active pentru alte vehicule
-          // Calculează toate cursele active din TOATE vehiculele
-          const totalActiveCourses = Array.from(activeCourses.values()).filter(course => course.status === 2).length;
-          console.log(`📊 MULTI-VEHICLE CHECK: Active courses pentru vehicul curent: ${activeCourses.size}, Total active global: ${totalActiveCourses}`);
-          
-          if (totalActiveCourses === 0) {
-            console.log("🛑 Nu mai sunt curse active în NICIUN vehicul - opresc GPS complet");
+          // If no active courses remain, stop GPS transmission entirely  
+          if (activeCourses.size === 0) {
+            console.log("🛑 Nu mai sunt curse active - opresc GPS complet");
             await stopAllGPSTransmission();
             
-            // Oprește serviciul Android doar când ABSOLUT nicio cursă nu mai este activă
+            // Oprește serviciul Android doar când nu mai sunt curse active
             if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-              console.log("📱 Opresc serviciul Android GPS - nicio cursă activă global");
+              console.log("📱 Opresc serviciul Android GPS - nu mai sunt curse active");
               window.AndroidGPS.stopGPS("all_courses_inactive");
             }
-          } else {
-            console.log(`⚡ MULTI-VEHICLE: GPS CONTINUĂ - mai sunt ${totalActiveCourses} curse active în alte vehicule`);
           }
         }
         
@@ -859,8 +900,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
           
           try {
-            const androidResult = window.AndroidGPS.updateStatus(courseToUpdate.uit, newStatus, token, vehicleNumber);
-            console.log(`✅ Rezultat Android updateStatus cu vehicle ${vehicleNumber}: ${androidResult}`);
+            const androidResult = window.AndroidGPS.updateStatus(courseToUpdate.uit, newStatus);
+            console.log(`✅ Rezultat Android updateStatus: ${androidResult}`);
             console.log(`📱 === ANDROID GPS STATUS UPDATE COMPLETED ===`);
           } catch (androidError) {
             console.error(`❌ EROARE Android updateStatus:`, androidError);
@@ -968,12 +1009,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   // SCROLL PERFORMANCE optimizat special pentru șoferi - REMOVED complet pentru zero overhead
 
-  // GPS token și vehicul sunt gestionate de BackgroundGPSService
-  // Nu mai sunt necesare variabile globale pentru browser GPS
+  // Global variables for GPS tracking
+  let activeGPSToken: string | null = null;
+  let activeGPSVehicle: string | null = null;
 
   const startGPSForActiveCourses = async (vehicleNumber: string, token: string) => {
-    console.log('🚀 === ANALYTICS PENTRU CURSE ACTIVE ===');
+    console.log('🚀 === STARTING GPS FOR ALL ACTIVE COURSES ===');
     console.log(`📍 Active courses count: ${activeCourses.size}`);
+    
+    activeGPSToken = token;
+    activeGPSVehicle = vehicleNumber;
     
     // Initialize course analytics for all active courses
     console.log('📊 === STARTING COURSE ANALYTICS FOR ALL ACTIVE ===');
@@ -982,10 +1027,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`✅ Analytics started for UIT: ${uit}`);
     }
     
-    console.log('📱 === GPS GESTIONAT COMPLET DE BACKGROUNDGPSSERVICE ===');
-    console.log('🔋 BackgroundGPSService va gestiona transmisia GPS în background');
-    console.log('⚡ GPS va continua să lucreze când aplicația este blocată/minimizată');
-    console.log('✅ Analytics pornit - GPS delegat la BackgroundGPSService');
+    // Clear any existing interval
+    if (activeGPSInterval) {
+      clearInterval(activeGPSInterval);
+    }
+    
+    // Start GPS transmission every 10 seconds for ALL active courses
+    activeGPSInterval = setInterval(async () => {
+      await sendGPSForAllActiveCourses();
+    }, 10000);
+    
+    // Send first coordinate immediately for all active courses
+    sendGPSForAllActiveCourses();
+    
+    console.log('✅ GPS started for all active courses - transmitting every 10 seconds');
   };
 
   const stopAllGPSTransmission = async () => {
@@ -1003,12 +1058,122 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       console.log(`✅ Analytics stopped for UIT: ${uit}`);
     }
     
-    // Token și vehicul gestionate de BackgroundGPSService
+    activeGPSToken = null;
+    activeGPSVehicle = null;
     
     console.log('✅ All GPS transmission stopped');
   };
 
-  // Browser GPS complet eliminat - BackgroundGPSService.java gestionează transmisia
+  const sendGPSForAllActiveCourses = async () => {
+    if (activeCourses.size === 0 || !activeGPSToken || !activeGPSVehicle) {
+      console.log('❌ No active courses or GPS data missing - skipping transmission');
+      return;
+    }
+
+    try {
+      console.log('📍 === GETTING REAL GPS COORDINATES FOR ALL ACTIVE COURSES ===');
+      console.log(`🎯 Transmitting for ${activeCourses.size} active courses`);
+      
+      // Get real GPS position once for all courses
+      const position = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 10000
+      });
+
+      const { latitude, longitude, altitude, accuracy, speed, heading } = position.coords;
+      
+      console.log(`✅ Real GPS received: ${latitude}, ${longitude}`);
+      console.log(`📐 Accuracy: ${accuracy}m, Speed: ${speed}, Altitude: ${altitude}m`);
+
+      // Transmit GPS data DOAR pentru cursele cu status 2 (ACTIVE)
+      console.log(`🔍 DEBUG activeCourses content:`, Array.from(activeCourses.entries()).map(([uit, course]) => ({uit, status: course.status})));
+      
+      for (const [uit, course] of activeCourses) {
+        // CRITICĂ: Verifică statusul real al cursei - nu trimite pentru PAUSE (3) sau STOP (4)
+        if (course.status !== 2) {
+          console.log(`⏸️ GPS transmission SKIPPED pentru UIT ${uit} - status: ${course.status} (3=PAUSE, 4=STOP)`);
+          continue; // Skip transmission pentru curse inactive
+        }
+        
+        console.log(`✅ GPS transmission PROCEEDING pentru UIT ${uit} - status: ${course.status} (ACTIVE)`);
+        
+        const gpsData = {
+          uit: course.uit,
+          numar_inmatriculare: activeGPSVehicle,
+          lat: latitude,
+          lng: longitude,
+          viteza: Math.round(speed || 0),
+          directie: Math.round(heading || 0),
+          altitudine: Math.round(altitude || 0),
+          hdop: Math.round(accuracy || 0),
+          gsm_signal: await getNetworkSignal(),
+          baterie: await getBatteryLevel(),
+          status: 2, // ACTIVE - trimis doar pentru curse cu status 2
+          timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
+        };
+
+        console.log(`📤 === TRANSMITTING GPS FOR UIT: ${uit} ===`);
+        console.log(`🚛 Vehicle: ${activeGPSVehicle}`);
+        console.log(`📍 Coordinates: ${latitude}, ${longitude}`);
+
+        try {
+          // Send to server using CapacitorHttp for APK compatibility
+          const response = await CapacitorHttp.post({
+            url: 'https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php',
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${activeGPSToken}`,
+              "Accept": "application/json",
+              "User-Agent": "iTrack-GPS/1.0"
+            },
+            data: gpsData
+          });
+
+          console.log(`✅ GPS transmission successful for UIT ${uit}:`, response.status);
+
+          // Update local statistics with real GPS data
+          await courseAnalyticsService.updateCourseStatistics(
+            course.uit,
+            latitude,
+            longitude,
+            speed || 0,
+            accuracy || 0
+          );
+          console.log(`✅ Statistics updated for UIT: ${uit}`);
+
+        } catch (courseError) {
+          console.error(`❌ GPS transmission error for UIT ${uit}:`, courseError);
+          
+          // Salvează coordonata offline pentru sincronizare ulterioară
+          try {
+            const { offlineGPSService } = await import('../services/offlineGPS');
+            await offlineGPSService.saveOfflineCoordinate(gpsData);
+            console.log(`💾 GPS salvat offline pentru UIT: ${uit}`);
+          } catch (offlineError) {
+            console.error(`❌ Eroare salvare GPS offline pentru UIT ${uit}:`, offlineError);
+          }
+          
+          // Even if server transmission fails, update local statistics
+          try {
+            await courseAnalyticsService.updateCourseStatistics(
+              course.uit,
+              latitude,
+              longitude,
+              speed || 0,
+              accuracy || 0
+            );
+            console.log(`✅ Offline statistics updated for UIT: ${uit}`);
+          } catch (offlineError) {
+            console.error(`❌ Offline statistics update failed for UIT ${uit}:`, offlineError);
+          }
+        }
+      }
+
+    } catch (error) {
+      console.error('❌ GPS coordinate acquisition error:', error);
+    }
+  };
 
 
 
@@ -1022,7 +1187,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       case 'light': return 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%)';
       case 'driver': return 'linear-gradient(135deg, #1c1917 0%, #292524 50%, #44403c 100%)';
       case 'business': return 'linear-gradient(135deg, #f8fafc 0%, #ffffff 30%, #e2e8f0 70%, #f1f5f9 100%)';
-      case 'nature': return 'linear-gradient(135deg, #14532d 0%, #166534 30%, #16a34a 70%, #15803d 100%)';
+      case 'nature': return 'linear-gradient(135deg, #064e3b 0%, #065f46 30%, #047857 70%, #059669 100%)';
       case 'night': return 'linear-gradient(135deg, #1e1b4b 0%, #312e81 30%, #4338ca 70%, #5b21b6 100%)';
       default: return 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
     }
@@ -1379,7 +1544,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 : currentTheme === 'business'
                   ? 'linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%)'
                   : currentTheme === 'nature'
-                    ? 'linear-gradient(135deg, #14532d 0%, #166534 100%)'
+                    ? 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)'
                     : currentTheme === 'night'
                       ? 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)'
                       : currentTheme === 'driver'
@@ -1465,7 +1630,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? 'rgba(100, 116, 139, 0.2)'  // Gri pentru business
                         : currentTheme === 'nature'
-                          ? 'rgba(34, 197, 94, 0.15)'  // Verde elegant pentru nature
+                          ? 'rgba(120, 113, 108, 0.2)'  // Maro pentru nature
                           : currentTheme === 'night'
                             ? 'rgba(139, 92, 246, 0.2)'  // Violet pentru night
                             : 'rgba(241, 245, 249, 0.9)',
@@ -1478,7 +1643,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? '1px solid rgba(100, 116, 139, 0.5)'
                         : currentTheme === 'nature'
-                          ? '1px solid rgba(34, 197, 94, 0.3)'
+                          ? '1px solid rgba(120, 113, 108, 0.5)'
                           : currentTheme === 'night'
                             ? '1px solid rgba(139, 92, 246, 0.5)'
                             : '1px solid rgba(148, 163, 184, 0.3)',
@@ -1497,7 +1662,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? '#475569'  
                         : currentTheme === 'nature'
-                          ? '#dcfce7'  
+                          ? '#78716c'  
                           : currentTheme === 'night'
                             ? '#8b5cf6'  
                             : '#334155',
@@ -1518,7 +1683,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? 'rgba(59, 130, 246, 0.2)'  // Albastru pentru business
                         : currentTheme === 'nature'
-                          ? 'rgba(22, 163, 74, 0.2)'  // Verde accent pentru nature
+                          ? 'rgba(255, 255, 255, 0.2)'  // Alb pentru contrast maxim pe verde
                           : currentTheme === 'night'
                             ? 'rgba(168, 85, 247, 0.2)'  // Violet pentru night
                             : 'rgba(16, 185, 129, 0.2)',
@@ -1531,7 +1696,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? '1px solid rgba(59, 130, 246, 0.5)'
                         : currentTheme === 'nature'
-                          ? '1px solid rgba(22, 163, 74, 0.4)'
+                          ? '1px solid rgba(255, 255, 255, 0.5)'  // Alb border pentru contrast
                           : currentTheme === 'night'
                             ? '1px solid rgba(168, 85, 247, 0.5)'
                             : '1px solid rgba(16, 185, 129, 0.5)',
@@ -1550,7 +1715,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       : currentTheme === 'business'
                         ? '#1d4ed8'  
                         : currentTheme === 'nature'
-                          ? '#f0fdf4'  
+                          ? '#ffffff'  
                           : currentTheme === 'night'
                             ? '#a855f7'  
                             : '#047857',
@@ -1657,7 +1822,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   background: currentTheme === 'light' || currentTheme === 'business'
                     ? 'rgba(255, 255, 255, 0.9)'
                     : currentTheme === 'nature'
-                      ? 'rgba(20, 83, 45, 0.85)'
+                      ? 'rgba(6, 78, 59, 0.6)'
                       : currentTheme === 'night'
                         ? 'rgba(30, 27, 75, 0.6)'
                         : currentTheme === 'driver'
@@ -1703,7 +1868,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     <div style={{
                       height: '100%',
                       background: currentTheme === 'nature'
-                        ? 'linear-gradient(90deg, #16a34a 0%, #15803d 100%)'
+                        ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)'
                         : currentTheme === 'night'
                           ? 'linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%)'
                           : currentTheme === 'driver'
@@ -1767,7 +1932,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     : currentTheme === 'business'
                       ? 'rgba(255, 255, 255, 0.9)' // Business theme - light background
                       : currentTheme === 'nature'
-                        ? 'rgba(20, 83, 45, 0.9)' // Nature theme - culoare verde profesională
+                        ? 'rgba(6, 78, 59, 0.9)' // Nature theme - dark green background
                         : currentTheme === 'night'
                           ? 'rgba(30, 27, 75, 0.9)' // Night theme - dark purple background
                           : currentTheme === 'driver'

@@ -204,17 +204,16 @@ public class MainActivity extends BridgeActivity {
     }
 
     @JavascriptInterface
-    public String updateStatus(String courseId, int newStatus, String token, String vehicle) {
-        Log.e(TAG, "🔄 === MULTI-VEHICLE STATUS === courseId=" + courseId + ", newStatus=" + newStatus + ", vehicle=" + vehicle);
+    public String updateStatus(String courseId, int newStatus) {
+        Log.e(TAG, "🔄 === BACKGROUND GPS === Status update: courseId=" + courseId + ", newStatus=" + newStatus);
         Log.e(TAG, "  Status meanings: 2=START/RESUME, 3=PAUSE, 4=STOP");
         
         try {
-            // Send status update to BackgroundGPSService cu vehicul specific
+            // Send status update to BackgroundGPSService
             Intent intent = new Intent(this, BackgroundGPSService.class);
             intent.setAction("UPDATE_COURSE_STATUS");
             intent.putExtra("status", newStatus);
-            intent.putExtra("uit", courseId);
-            intent.putExtra("vehicle", vehicle);
+            intent.putExtra("uit", courseId); // CORECTARE: Trimite UIT-ul specificat!
             
             startService(intent);
             Log.e(TAG, "✅ Status update sent to BackgroundGPSService: " + newStatus);
