@@ -114,7 +114,8 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
   console.log("📱 Verificare interfață AndroidGPS:", {
     available: !!(window.AndroidGPS),
     startGPS: !!(window.AndroidGPS?.startGPS),
-    uit: course.uit,  // UIT-ul este identificatorul principal
+    uniqueId: "133377",   // Identificator unic pentru HashMap (evită conflicte UIT)
+    realUIT: course.uit,  // UIT-ul real pentru server
     vehicleNumber: vehicleNumber,
     ikRoTrans: course.ikRoTrans  // Database ID doar pentru referință
   });
@@ -125,9 +126,9 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
     console.log("🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS");
     
     const result = window.AndroidGPS.startGPS(
-      course.uit,          // UIT-ul ca courseId principal
+      "133377",            // Identificator unic pentru test (evită conflictele UIT duplicate)
       vehicleNumber,
-      course.uit,          // UIT-ul ca identificator
+      course.uit,          // UIT-ul real pentru server
       token,
       2
     );
@@ -700,9 +701,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       );
       
       // CRITICĂ: Sincronizez statusul și în activeCourses pentru consistență
-      if (activeCourses.has(courseToUpdate.uit)) {
-        activeCourses.set(courseToUpdate.uit, { ...courseToUpdate, status: newStatus });
-        console.log(`🔄 Status actualizat în activeCourses pentru UIT ${courseToUpdate.uit}: ${newStatus}`);
+      if (activeCourses.has("133377")) {
+        activeCourses.set("133377", { ...courseToUpdate, status: newStatus });
+        console.log(`🔄 Status actualizat în activeCourses pentru ID 133377 (real UIT: ${courseToUpdate.uit}): ${newStatus}`);
       }
 
       // Store the status in localStorage for persistence
@@ -875,7 +876,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
           
           // Send status update to server doar pentru STATUS 2 (START) - ORDINEA CORECTĂ A PARAMETRILOR
-          await updateCourseStatus(courseToUpdate.uit, newStatus, token, vehicleNumber);
+          await updateCourseStatus("133377", newStatus, token, vehicleNumber);
           console.log(`✅ Status ${newStatus} (START) trimis cu succes la server pentru UIT ${courseToUpdate.uit}`);
         }
         
@@ -892,7 +893,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
           
           try {
-            const androidResult = window.AndroidGPS.updateStatus(courseToUpdate.uit, newStatus);
+            const androidResult = window.AndroidGPS.updateStatus("133377", newStatus);
             console.log(`✅ Rezultat Android updateStatus: ${androidResult}`);
             console.log(`📱 === ANDROID GPS STATUS UPDATE COMPLETED ===`);
           } catch (androidError) {
