@@ -87,7 +87,7 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     
     // PASUL 2: Actualizează serviciul GPS Android
     if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-      const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus);
+      const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus, vehicleNumber);
       console.log(`📱 Serviciul GPS Android actualizat: ${androidResult}`);
       return androidResult;
     }
@@ -99,7 +99,7 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     
     // Încearcă totuși serviciul Android chiar dacă serverul eșuează
     if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-      const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus);
+      const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus, vehicleNumber);
       console.log(`📱 Serviciul GPS Android actualizat (offline): ${androidResult}`);
       return androidResult;
     }
@@ -961,8 +961,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
           
           try {
-            // CRITICAL FIX: Trimite UIT real, nu ikRoTrans la serviciul Android
-            const androidResult = window.AndroidGPS.updateStatus(String(courseToUpdate.uit), newStatus);
+            // CRITICAL FIX: Trimite UIT real, nu ikRoTrans la serviciul Android + vehiculul pentru unique key
+            const androidResult = window.AndroidGPS.updateStatus(String(courseToUpdate.uit), newStatus, vehicleNumber);
             console.log(`✅ Rezultat Android updateStatus: ${androidResult}`);
             console.log(`📱 === ANDROID GPS STATUS UPDATE COMPLETED ===`);
           } catch (androidError) {

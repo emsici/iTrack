@@ -107,14 +107,18 @@ public class BackgroundGPSService extends Service {
             globalVehicle = intent.getStringExtra("vehicle");
             int courseStatus = intent.getIntExtra("status", 2); // Default ACTIVE
             
-            Log.e(TAG, "⚡ MULTI-UIT - Adăugare cursă:");
-            Log.e(TAG, "   ikRoTrans (HashMap key): " + uitId);
+            // CRITICAL: Creează key unic pentru HashMap pentru a evita conflictul între mașini
+            String uniqueKey = globalVehicle + "_" + uitId; // Vehicul + ikRoTrans = key unic
+            
+            Log.e(TAG, "⚡ MULTI-VEHICLE MULTI-COURSE - Adăugare cursă:");
+            Log.e(TAG, "   ikRoTrans original: " + uitId);
+            Log.e(TAG, "   HashMap unique key: " + uniqueKey);
             Log.e(TAG, "   UIT real (server): " + realUit);
             Log.e(TAG, "   Vehicle: " + globalVehicle);
             Log.e(TAG, "   Status: " + courseStatus);
             
-            // Adaugă cursa la lista activă cu ikRoTrans ca key, păstrează UIT real și vehiculul specific
-            activeCourses.put(uitId, new CourseData(uitId, courseStatus, realUit, globalVehicle));
+            // Adaugă cursa la lista activă cu key unic (vehicul + ikRoTrans), păstrează toate datele
+            activeCourses.put(uniqueKey, new CourseData(uitId, courseStatus, realUit, globalVehicle));
             Log.e(TAG, "📋 Total curse active: " + activeCourses.size());
             
             // Start foreground notification IMMEDIATELY  
@@ -138,8 +142,13 @@ public class BackgroundGPSService extends Service {
         } else if (intent != null && "UPDATE_COURSE_STATUS".equals(intent.getAction())) {
             int newStatus = intent.getIntExtra("status", 0);
             String specificUIT = intent.getStringExtra("uit");
+            String vehicleForUpdate = intent.getStringExtra("vehicle"); // Vehicul pentru status update
             
-            CourseData courseData = activeCourses.get(specificUIT);
+            // CRITICAL: Construiește key unic pentru găsirea cursei corecte
+            String uniqueKeyForUpdate = vehicleForUpdate + "_" + specificUIT;
+            Log.e(TAG, "🔍 Searching for course with unique key: " + uniqueKeyForUpdate);
+            
+            CourseData courseData = activeCourses.get(uniqueKeyForUpdate);
             if (courseData != null) {
                 int oldStatus = courseData.status;
                 Log.e(TAG, "🔄 Updating course status: " + oldStatus + " → " + newStatus + " pentru UIT: " + specificUIT);
@@ -147,7 +156,7 @@ public class BackgroundGPSService extends Service {
                 // TRIMITE STATUS UPDATE LA SERVER ÎNAINTE DE SCHIMBARE (pentru 3=PAUSE, 4=STOP)
                 if (newStatus == 3 || newStatus == 4) {
                     Log.e(TAG, "🔄 Trimit status " + newStatus + " la server pentru UIT " + specificUIT);
-                    sendStatusUpdateToServer(newStatus, specificUIT);
+                    sendStatusUpdateToServer(newStatus, uniqueKeyForUpdate);
                 }
                 
                 if (newStatus == 2) { // ACTIVE/RESUME
@@ -175,8 +184,8 @@ public class BackgroundGPSService extends Service {
                         Log.e(TAG, "✅ " + activeCourseCount + " curse încă active - GPS transmission continuă");
                     }
                 } else if (newStatus == 4) { // STOP
-                    activeCourses.remove(specificUIT);
-                    Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " eliminat din tracking");
+                    activeCourses.remove(uniqueKeyForUpdate);
+                    Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " (key: " + uniqueKeyForUpdate + ") eliminat din tracking");
                     Log.e(TAG, "📋 Curse active rămase: " + activeCourses.size());
                     
                     // Dacă nu mai sunt curse active, oprește GPS complet
@@ -186,7 +195,7 @@ public class BackgroundGPSService extends Service {
                     }
                 }
             } else {
-                Log.e(TAG, "⚠️ UIT " + specificUIT + " nu găsit în liste active");
+                Log.e(TAG, "⚠️ UIT " + specificUIT + " cu unique key " + uniqueKeyForUpdate + " nu găsit în liste active");
             }
             
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {
@@ -691,28 +700,29 @@ public class BackgroundGPSService extends Service {
             
             // Transmite GPS DOAR pentru cursele ACTIVE (status 2)
             for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-                String uitId = entry.getKey();
+                String uniqueKey = entry.getKey(); // Vehicul_ikRoTrans
                 CourseData courseData = entry.getValue();
+                String originalUitId = courseData.courseId; // ikRoTrans original
                 
-                Log.e(TAG, "🔍 Verificare UIT " + uitId + " - Status: " + courseData.status);
+                Log.e(TAG, "🔍 Verificare unique key " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - Status: " + courseData.status);
                 
                 // CRITICĂ: Doar cursele ACTIVE (status 2) pot transmite GPS data
                 if (courseData.status != 2) {
                     if (courseData.status == 3) {
-                        Log.e(TAG, "⏸️ GPS transmission BLOCKED pentru UIT " + uitId + " - PAUSED (status 3)");
-                        sendLogToJavaScript("⏸️ BLOCKED GPS pentru UIT " + uitId + " - PAUSED");
+                        Log.e(TAG, "⏸️ GPS transmission BLOCKED pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - PAUSED (status 3)");
+                        sendLogToJavaScript("⏸️ BLOCKED GPS pentru " + courseData.vehicleNumber + " UIT " + originalUitId + " - PAUSED");
                     } else if (courseData.status == 4) {
-                        Log.e(TAG, "🛑 GPS transmission BLOCKED pentru UIT " + uitId + " - STOPPED (status 4)");
-                        sendLogToJavaScript("🛑 BLOCKED GPS pentru UIT " + uitId + " - STOPPED");
+                        Log.e(TAG, "🛑 GPS transmission BLOCKED pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - STOPPED (status 4)");
+                        sendLogToJavaScript("🛑 BLOCKED GPS pentru " + courseData.vehicleNumber + " UIT " + originalUitId + " - STOPPED");
                     } else {
-                        Log.e(TAG, "⚠️ GPS transmission BLOCKED pentru UIT " + uitId + " - Status unknown: " + courseData.status);
-                        sendLogToJavaScript("⚠️ BLOCKED GPS pentru UIT " + uitId + " - Status necunoscut: " + courseData.status);
+                        Log.e(TAG, "⚠️ GPS transmission BLOCKED pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - Status unknown: " + courseData.status);
+                        sendLogToJavaScript("⚠️ BLOCKED GPS pentru " + courseData.vehicleNumber + " UIT " + originalUitId + " - Status necunoscut: " + courseData.status);
                     }
                     continue;
                 }
                 
-                Log.e(TAG, "✅ GPS transmission PROCEEDING pentru UIT " + uitId + " - ACTIVE (status " + courseData.status + ")");
-                sendLogToJavaScript("✅ Transmit GPS pentru UIT " + uitId + " - ACTIVE");
+                Log.e(TAG, "✅ GPS transmission PROCEEDING pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - ACTIVE (status " + courseData.status + ")");
+                sendLogToJavaScript("✅ Transmit GPS pentru " + courseData.vehicleNumber + " UIT " + originalUitId + " - ACTIVE");
                 
                 // Create GPS data JSON pentru această cursă
                 org.json.JSONObject gpsData = new org.json.JSONObject();
@@ -729,14 +739,14 @@ public class BackgroundGPSService extends Service {
                 gpsData.put("status", courseData.status); // Status real al cursei (doar status 2 ajunge aici)
                 gpsData.put("timestamp", timestamp);
                 
-                Log.e(TAG, "📊 GPS Data pentru ikRoTrans " + uitId + " (server UIT: " + courseData.realUit + "):");
+                Log.e(TAG, "📊 GPS Data pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ", server UIT: " + courseData.realUit + "):");
                 Log.e(TAG, "   Vehicle: " + courseData.vehicleNumber);
                 Log.e(TAG, "   Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
                 Log.e(TAG, "   Battery: " + batteryLevel);
                 Log.e(TAG, "   Timestamp: " + timestamp);
                 
                 // Call direct HTTP transmission pentru această cursă
-                transmitSingleCourseGPS(gpsData, uitId, courseData.realUit);
+                transmitSingleCourseGPS(gpsData, uniqueKey, courseData.realUit);
             }
             
         } catch (Exception e) {
@@ -745,10 +755,10 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    private void transmitSingleCourseGPS(org.json.JSONObject gpsData, String ikRoTransId, String realUit) {
+    private void transmitSingleCourseGPS(org.json.JSONObject gpsData, String uniqueKey, String realUit) {
         try {
             String gpsDataJson = gpsData.toString();
-            Log.e(TAG, "🌐 === STARTING HTTP TRANSMISSION PENTRU ikRoTrans " + ikRoTransId + " (server UIT: " + realUit + ") ===");
+            Log.e(TAG, "🌐 === STARTING HTTP TRANSMISSION PENTRU unique key " + uniqueKey + " (server UIT: " + realUit + ") ===");
             Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
             Log.e(TAG, "🔑 Token length: " + (globalToken != null ? globalToken.length() : "NULL"));
             
@@ -757,7 +767,7 @@ public class BackgroundGPSService extends Service {
                 @Override
                 public void run() {
                     try {
-                        Log.e(TAG, "📡 HTTP thread started pentru ikRoTrans " + ikRoTransId + " (server UIT: " + realUit + ")");
+                        Log.e(TAG, "📡 HTTP thread started pentru unique key " + uniqueKey + " (server UIT: " + realUit + ")");
                         
                         java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
                         javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
@@ -770,7 +780,7 @@ public class BackgroundGPSService extends Service {
                         conn.setConnectTimeout(15000); // 15 seconds
                         conn.setReadTimeout(15000);    // 15 seconds
                         
-                        Log.e(TAG, "🔗 Connection configured pentru UIT " + realUit + " (ikRoTrans: " + ikRoTransId + "), sending data...");
+                        Log.e(TAG, "🔗 Connection configured pentru UIT " + realUit + " (unique key: " + uniqueKey + "), sending data...");
                         
                         // Send JSON data
                         try (java.io.OutputStream os = conn.getOutputStream()) {
@@ -909,19 +919,20 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    private void sendStatusUpdateToServer(int newStatus, String specificUIT) {
+    private void sendStatusUpdateToServer(int newStatus, String uniqueKey) {
         try {
             Log.e(TAG, "📤 === PREPARING STATUS UPDATE FROM ANDROID SERVICE ===");
             
-            // CRITICAL FIX: specificUIT este ikRoTrans, trebuie să găsesc realUit din activeCourses
-            CourseData courseData = activeCourses.get(specificUIT);
+            // CRITICAL FIX: uniqueKey este vehicul_ikRoTrans, extrag datele cursei
+            CourseData courseData = activeCourses.get(uniqueKey);
             if (courseData == null) {
-                Log.e(TAG, "❌ Nu găsesc courseData pentru ikRoTrans: " + specificUIT);
+                Log.e(TAG, "❌ Nu găsesc courseData pentru unique key: " + uniqueKey);
                 return;
             }
             
             String realUit = courseData.realUit;
-            Log.e(TAG, "🔧 CRITICAL FIX: specificUIT=" + specificUIT + " (ikRoTrans) → realUit=" + realUit + " (pentru server)");
+            String originalUitId = courseData.courseId;
+            Log.e(TAG, "🔧 CRITICAL FIX: unique key=" + uniqueKey + " (ikRoTrans: " + originalUitId + ") → realUit=" + realUit + " (pentru server)");
             
             // Create status update JSON cu exact aceeași structură ca GPS
             org.json.JSONObject statusData = new org.json.JSONObject();
@@ -957,7 +968,7 @@ public class BackgroundGPSService extends Service {
             statusData.put("timestamp", timestamp);
             
             Log.e(TAG, "📊 Status Data prepared for status " + newStatus + ":");
-            Log.e(TAG, "   ikRoTrans: " + specificUIT + " → realUIT: " + realUit); // FIXED: Log both values
+            Log.e(TAG, "   unique key: " + uniqueKey + " → ikRoTrans: " + originalUitId + " → realUIT: " + realUit); // FIXED: Log all values
             Log.e(TAG, "   Vehicle: " + courseData.vehicleNumber);
             Log.e(TAG, "   Status: " + newStatus);
             Log.e(TAG, "   Timestamp: " + timestamp);
