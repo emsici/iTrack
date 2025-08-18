@@ -472,7 +472,7 @@ public class BackgroundGPSService extends Service {
         try {
             Log.e(TAG, "🌐 === STARTING HTTP TRANSMISSION ===");
             Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
-            Log.e(TAG, "🔑 Token length: " + (activeToken != null ? activeToken.length() : "NULL"));
+            Log.e(TAG, "🔑 Token length: " + (globalToken != null ? globalToken.length() : "NULL"));
             
             // Make HTTP request on background thread
             new Thread(new Runnable() {
@@ -485,7 +485,7 @@ public class BackgroundGPSService extends Service {
                         javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");
                         conn.setRequestProperty("Content-Type", "application/json");
-                        conn.setRequestProperty("Authorization", "Bearer " + activeToken);
+                        conn.setRequestProperty("Authorization", "Bearer " + globalToken);
                         conn.setRequestProperty("Accept", "application/json");
                         conn.setRequestProperty("User-Agent", "iTrack-BackgroundGPS/1.0");
                         conn.setDoOutput(true);
@@ -556,7 +556,7 @@ public class BackgroundGPSService extends Service {
             // Create status update JSON cu exact aceeași structură ca GPS
             org.json.JSONObject statusData = new org.json.JSONObject();
             statusData.put("uit", specificUIT); // CORECTARE: Folosește UIT-ul specificat!
-            statusData.put("numar_inmatriculare", activeVehicle);
+            statusData.put("numar_inmatriculare", globalVehicle);
             // Obține coordonate GPS reale pentru status update
             Location lastLocation = getLastKnownLocation();
             if (lastLocation != null) {
@@ -588,7 +588,7 @@ public class BackgroundGPSService extends Service {
             
             Log.e(TAG, "📊 Status Data prepared for status " + newStatus + ":");
             Log.e(TAG, "   UIT: " + specificUIT); // CORECTARE: Log UIT-ul specificat!
-            Log.e(TAG, "   Vehicle: " + activeVehicle);
+            Log.e(TAG, "   Vehicle: " + globalVehicle);
             Log.e(TAG, "   Status: " + newStatus);
             Log.e(TAG, "   Timestamp: " + timestamp);
             Log.e(TAG, "📤 Full JSON: " + statusData.toString());
@@ -619,7 +619,7 @@ public class BackgroundGPSService extends Service {
                         javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");
                         conn.setRequestProperty("Content-Type", "application/json");
-                        conn.setRequestProperty("Authorization", "Bearer " + activeToken);
+                        conn.setRequestProperty("Authorization", "Bearer " + globalToken);
                         conn.setRequestProperty("Accept", "application/json");
                         conn.setRequestProperty("User-Agent", "iTrack-StatusUpdate/1.0");
                         conn.setDoOutput(true);

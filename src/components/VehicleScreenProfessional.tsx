@@ -812,9 +812,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               const gpsResult = startAndroidGPS(courseToUpdate, vehicleNumber, token);
               console.log("📱 Rezultat Serviciu GPS Android:", gpsResult);
             } else {
-              // Cursele următoare - serviciul rulează deja, doar notifică noua cursă
-              console.log(`📋 Cursă ${activeCourses.size} adăugată - serviciul Android rulează deja`);
-              console.log("⚡ EFICIENT: Un singur serviciu GPS pentru toate cursele active");
+              // Cursele următoare - trebuie să adaug UIT-ul la serviciul Android
+              console.log(`📋 Cursă ${activeCourses.size} adăugată - adaug UIT-ul la serviciul Android care rulează`);
+              const gpsResult = startAndroidGPS(courseToUpdate, vehicleNumber, token);
+              console.log("📱 UIT nou adăugat la serviciul Android:", gpsResult);
+              console.log("⚡ MULTI-UIT: Serviciul Android va transmite pentru toate cursele active");
             }
           }
           
