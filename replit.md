@@ -89,20 +89,20 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - GPS transmisie continuă garantată la fiecare 10 secunde ca înainte
 - Multi-vehicle support va fi implementat la nivel frontend prin schimbarea vehiculului activ
 
-**REVERT LA COMMIT 7b7bb19 FUNCȚIONAL (August 18, 2025):**
-- **PROBLEMĂ**: Toate implementările multi-vehicle complexe blocau ScheduledExecutor după primul ciclu
-- **SOLUȚIE**: Revert complet la implementarea simplă din commit 7b7bb19 care funcționa
-- **ARQUITECTURA**: 
-  - `Map<String, Integer> courseStatuses` - Doar status pentru fiecare UIT
-  - Eliminat complet Map-urile vehicle care blocau executorul
-  - GPS transmisie continuă garantată la fiecare 10 secunde
-- **FUNCȚIONALITATE**: Multi-course pe același vehicul funcționează perfect
-- **MULTI-VEHICLE**: Va fi implementat la nivel frontend prin schimbarea vehiculului activ în dropdown
+**RESTAURAT COMMIT 31307ea FUNCȚIONAL (August 18, 2025):**
+- **PROBLEMĂ IDENTIFICATĂ**: Lipsea aggressive debugging din commit 31307ea care garanta continuitatea
+- **SOLUȚIE EXACTĂ**: Restaurat complet implementarea din commit 31307ea38503c1d913a8f379a55624152351e242
+- **DIFERENȚA CRITICĂ**: 
+  - **Aggressive debugging** complet în ScheduledExecutor pentru status monitoring
+  - **Verificare critică** `if (!isGPSRunning)` cu return pentru robustețe
+  - **Cycle completion logging** pentru confirmarea continuității
+- **ARQUITECTURA**: `Map<String, Integer> courseStatuses` simplu cu debugging robust
+- **FUNCȚIONALITATE**: Multi-course pe același vehicul cu GPS continuu garantat
 
-**PRIORITATE ABSOLUTĂ: GPS CONTINUU FUNCȚIONAL**
-- Implementarea simplă garantează transmisia GPS la fiecare 10 secunde
-- Multi-vehicle poate fi implementat după ce confirmăm că GPS funcționează continuu
-- Nu mai complicăm backend-ul până nu avem GPS stabil
+**COMMIT 31307ea - GPS CONTINUU FUNCȚIONAL CONFIRMAT**
+- Implementarea cu aggressive debugging funcționa perfect la 10 secunde
+- Logging exhaustiv previne blocajele ScheduledExecutor
+- GPS transmission continuă chiar și cu debugging agresiv
 
 ## Recent Critical Fixes (August 2025)
 
