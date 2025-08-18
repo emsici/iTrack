@@ -177,21 +177,20 @@ public class BackgroundGPSService extends Service {
                 int oldStatus = courseData.status;
                 Log.e(TAG, "🔄 Updating course status: " + oldStatus + " → " + newStatus + " pentru UIT: " + specificUIT);
                 
-                // TRIMITE STATUS UPDATE LA SERVER ÎNAINTE DE SCHIMBARE (pentru 3=PAUSE, 4=STOP)
-                if (newStatus == 3 || newStatus == 4) {
-                    Log.e(TAG, "🔄 Trimit status " + newStatus + " la server pentru UIT " + specificUIT);
-                    sendStatusUpdateToServer(newStatus, uniqueKeyForUpdate);
-                }
-                
                 if (newStatus == 2) { // ACTIVE/RESUME
                     courseData.status = 2;
-                    Log.e(TAG, "▶️ RESUME: UIT " + specificUIT + " reactivat");
+                    Log.e(TAG, "▶️ RESUME: UIT " + specificUIT + " reactivat → status updated în HashMap");
                     if (!isGPSRunning) {
                         startBackgroundGPS();
                     }
                 } else if (newStatus == 3) { // PAUSE
+                    // CRITICĂ: Actualizez statusul ÎNAINTE de trimiterea la server
                     courseData.status = 3;
-                    Log.e(TAG, "⏸️ PAUSE: UIT " + specificUIT + " paused, serviciul continuă pentru alte curse");
+                    Log.e(TAG, "⏸️ PAUSE: UIT " + specificUIT + " → status 3 updated în HashMap");
+                    
+                    // TRIMITE STATUS UPDATE LA SERVER DUPĂ ACTUALIZAREA HASHMAP
+                    Log.e(TAG, "🔄 Trimit status PAUSE (3) la server pentru UIT " + specificUIT);
+                    sendStatusUpdateToServer(newStatus, uniqueKeyForUpdate);
                     
                     // Verifică dacă mai există curse active după PAUSE
                     int activeCourseCount = 0;
@@ -208,6 +207,11 @@ public class BackgroundGPSService extends Service {
                         Log.e(TAG, "✅ " + activeCourseCount + " curse încă active - GPS transmission continuă");
                     }
                 } else if (newStatus == 4) { // STOP
+                    // TRIMITE STATUS UPDATE LA SERVER ÎNAINTE DE ELIMINAREA DIN HASHMAP
+                    Log.e(TAG, "🔄 Trimit status STOP (4) la server pentru UIT " + specificUIT);
+                    sendStatusUpdateToServer(newStatus, uniqueKeyForUpdate);
+                    
+                    // Elimină cursa din HashMap DUPĂ trimiterea la server
                     activeCourses.remove(uniqueKeyForUpdate);
                     Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " (key: " + uniqueKeyForUpdate + ") eliminat din tracking");
                     Log.e(TAG, "📋 Curse active rămase: " + activeCourses.size());
@@ -737,27 +741,35 @@ public class BackgroundGPSService extends Service {
             String batteryLevel = getBatteryLevel();
             
             // Transmite GPS DOAR pentru cursele ACTIVE (status 2)
+            int totalCoursesChecked = 0;
+            int coursesBlocked = 0;
+            int coursesTransmitting = 0;
+            
             for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
                 String uniqueKey = entry.getKey(); // Vehicul_ikRoTrans
                 CourseData courseData = entry.getValue();
                 String originalUitId = courseData.courseId; // ikRoTrans original
+                totalCoursesChecked++;
                 
-                Log.e(TAG, "🔍 Verificare unique key " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - Status: " + courseData.status);
+                Log.e(TAG, "🔍 [" + totalCoursesChecked + "/" + activeCourses.size() + "] Verificare unique key " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - Status: " + courseData.status);
                 
                 // CRITICĂ: Doar cursele ACTIVE (status 2) pot transmite GPS data
                 if (courseData.status != 2) {
+                    coursesBlocked++;
                     if (courseData.status == 3) {
-                        Log.e(TAG, "⏸️ GPS transmission BLOCKED pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - PAUSED (status 3)");
+                        Log.e(TAG, "❌ GPS transmission BLOCKED pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - PAUSED (status 3)");
                         sendLogToJavaScript("⏸️ BLOCKED GPS pentru " + courseData.vehicleNumber + " UIT " + originalUitId + " - PAUSED");
                     } else if (courseData.status == 4) {
-                        Log.e(TAG, "🛑 GPS transmission BLOCKED pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - STOPPED (status 4)");
+                        Log.e(TAG, "❌ GPS transmission BLOCKED pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - STOPPED (status 4)");
                         sendLogToJavaScript("🛑 BLOCKED GPS pentru " + courseData.vehicleNumber + " UIT " + originalUitId + " - STOPPED");
                     } else {
-                        Log.e(TAG, "⚠️ GPS transmission BLOCKED pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - Status unknown: " + courseData.status);
+                        Log.e(TAG, "❌ GPS transmission BLOCKED pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - Status unknown: " + courseData.status);
                         sendLogToJavaScript("⚠️ BLOCKED GPS pentru " + courseData.vehicleNumber + " UIT " + originalUitId + " - Status necunoscut: " + courseData.status);
                     }
                     continue;
                 }
+                
+                coursesTransmitting++;
                 
                 Log.e(TAG, "✅ GPS transmission PROCEEDING pentru " + uniqueKey + " (ikRoTrans: " + originalUitId + ") - ACTIVE (status " + courseData.status + ")");
                 sendLogToJavaScript("✅ Transmit GPS pentru " + courseData.vehicleNumber + " UIT " + originalUitId + " - ACTIVE");
@@ -786,6 +798,13 @@ public class BackgroundGPSService extends Service {
                 // Call direct HTTP transmission pentru această cursă
                 transmitSingleCourseGPS(gpsData, uniqueKey, courseData.realUit);
             }
+            
+            // SUMĂ FINALĂ PENTRU DEBUG
+            Log.e(TAG, "📊 === GPS TRANSMISSION SUMMARY ===");
+            Log.e(TAG, "📊 Total curse verificate: " + totalCoursesChecked);
+            Log.e(TAG, "❌ Curse blocate (PAUSE/STOP): " + coursesBlocked);
+            Log.e(TAG, "✅ Curse care transmit GPS: " + coursesTransmitting);
+            sendLogToJavaScript("📊 GPS Summary: " + coursesTransmitting + " transmit, " + coursesBlocked + " blocate");
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Multi-course GPS transmission preparation error: " + e.getMessage());
