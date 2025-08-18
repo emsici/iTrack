@@ -106,3 +106,13 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - **SOLUȚIA APLICATĂ**: Înlocuit cu Capacitor Network plugin pentru detectare robustă Android
 - **IMPACT ELIMIAT**: Eroarea nu afecta BackgroundGPSService - doar UI network status
 - **REZULTAT**: Eliminată eroarea repetitivă, detectare rețea mai fiabilă pentru Android
+
+### **Identificator Consistent Fix - ikRoTrans (18 Aug 2025)**
+- **PROBLEMA IDENTIFICATĂ**: UIT-urile pot fi duplicate, causând conflicte în HashMap activeCourses
+- **SOLUȚIA APLICATĂ**: Folosire consistentă a ikRoTrans ca identificator unic în toată aplicația
+- **MODIFICĂRI**:
+  - JavaScript: startGPS(String(course.ikRoTrans), vehicleNumber, course.uit, token, 2)
+  - MainActivity: courseId = ikRoTrans (unic), uit = course.uit (pentru server)
+  - BackgroundGPSService: HashMap key = ikRoTrans, UIT real se trimite la server
+  - courseAnalytics: folosește ikRoTrans ca identificator
+- **BENEFICII**: Eliminare conflicte HashMap, consistență totală, tracking multi-cursă fiabil

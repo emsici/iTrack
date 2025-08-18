@@ -114,10 +114,9 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
   console.log("📱 Verificare interfață AndroidGPS:", {
     available: !!(window.AndroidGPS),
     startGPS: !!(window.AndroidGPS?.startGPS),
-    uniqueId: "133377",   // Identificator unic pentru HashMap (evită conflicte UIT)
-    realUIT: course.uit,  // UIT-ul real pentru server
-    vehicleNumber: vehicleNumber,
-    ikRoTrans: course.ikRoTrans  // Database ID doar pentru referință
+    ikRoTrans: course.ikRoTrans, // Identificator unic pentru HashMap
+    realUIT: course.uit,         // UIT-ul real pentru server
+    vehicleNumber: vehicleNumber
   });
   
   if (window.AndroidGPS && window.AndroidGPS.startGPS) {
@@ -126,9 +125,9 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
     console.log("🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS");
     
     const result = window.AndroidGPS.startGPS(
-      "133377",            // Identificator unic pentru test (evită conflictele UIT duplicate)
+      String(course.ikRoTrans),  // ikRoTrans ca identificator unic
       vehicleNumber,
-      course.uit,          // UIT-ul real pentru server
+      course.uit,                // UIT-ul real pentru server
       token,
       2
     );
@@ -701,9 +700,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       );
       
       // CRITICĂ: Sincronizez statusul și în activeCourses pentru consistență
-      if (activeCourses.has("133377")) {
-        activeCourses.set("133377", { ...courseToUpdate, status: newStatus });
-        console.log(`🔄 Status actualizat în activeCourses pentru ID 133377 (real UIT: ${courseToUpdate.uit}): ${newStatus}`);
+      if (activeCourses.has(String(courseToUpdate.ikRoTrans))) {
+        activeCourses.set(String(courseToUpdate.ikRoTrans), { ...courseToUpdate, status: newStatus });
+        console.log(`🔄 Status actualizat în activeCourses pentru ikRoTrans ${courseToUpdate.ikRoTrans} (UIT: ${courseToUpdate.uit}): ${newStatus}`);
       }
 
       // Store the status in localStorage for persistence
@@ -792,17 +791,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           console.log("🚀 PORNIRE/RESUME GPS: Status 2 (ACTIV) - adaug cursa la lista activă");
           
           // Verifică dacă este RESUME (cursa era deja în listă) sau START nou
-          const wasAlreadyActive = activeCourses.has(courseToUpdate.uit);
+          const wasAlreadyActive = activeCourses.has(String(courseToUpdate.ikRoTrans));
           if (wasAlreadyActive) {
             console.log("▶️ RESUME: Cursa era deja în activeCourses - reactivez analytics");
-            await courseAnalyticsService.resumeCourseTracking(courseToUpdate.uit);
+            await courseAnalyticsService.resumeCourseTracking(String(courseToUpdate.ikRoTrans));
           } else {
             console.log("🚀 START NOU: Adaug cursă nouă la activeCourses și pornesc analytics");
-            await courseAnalyticsService.startCourseTracking(courseToUpdate.uit, courseToUpdate.uit, vehicleNumber);
+            await courseAnalyticsService.startCourseTracking(String(courseToUpdate.ikRoTrans), courseToUpdate.uit, vehicleNumber);
           }
           
           // Adaugă cursa la lista activă (sau confirmă că este deja acolo) cu status 2 actualizat
-          activeCourses.set(courseToUpdate.uit, { ...courseToUpdate, status: 2 });
+          activeCourses.set(String(courseToUpdate.ikRoTrans), { ...courseToUpdate, status: 2 });
           console.log(`📋 Curse active: ${activeCourses.size}`);
           
           // STRATEGIE EFICIENȚĂ: Serviciul Android pornește o singură dată și rămâne activ
@@ -829,13 +828,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           console.log("📋 PAUSE: Cursa nu se elimină din activeCourses - doar se pune în pauză");
           
           // Pentru PAUSE actualizez statusul în activeCourses la 3
-          if (activeCourses.has(courseToUpdate.uit)) {
-            activeCourses.set(courseToUpdate.uit, { ...courseToUpdate, status: 3 });
+          if (activeCourses.has(String(courseToUpdate.ikRoTrans))) {
+            activeCourses.set(String(courseToUpdate.ikRoTrans), { ...courseToUpdate, status: 3 });
           }
           console.log(`📋 Curse active rămân: ${activeCourses.size} (inclusiv ${courseToUpdate.uit} în pauză)`);
           
           // Pause course analytics but don't stop completely
-          await courseAnalyticsService.pauseCourseTracking(courseToUpdate.uit);
+          await courseAnalyticsService.pauseCourseTracking(String(courseToUpdate.ikRoTrans));
           console.log(`⏸️ Analytics paused pentru UIT: ${courseToUpdate.uit}`);
           
         } else if (newStatus === 4) {
@@ -843,11 +842,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           console.log("📋 STOP: Eliminare completă din activeCourses");
           
           // Pentru STOP eliminăm cursa din lista activă
-          activeCourses.delete(courseToUpdate.uit);
+          activeCourses.delete(String(courseToUpdate.ikRoTrans));
           console.log(`📋 Curse active rămase: ${activeCourses.size}`);
           
           // Stop course analytics completely for this specific course
-          await courseAnalyticsService.stopCourseTracking(courseToUpdate.uit);
+          await courseAnalyticsService.stopCourseTracking(String(courseToUpdate.ikRoTrans));
           console.log(`🛑 Analytics stopped pentru UIT: ${courseToUpdate.uit}`);
           
           // If no active courses remain, stop Android GPS service  
@@ -876,7 +875,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
           
           // Send status update to server doar pentru STATUS 2 (START) - ORDINEA CORECTĂ A PARAMETRILOR
-          await updateCourseStatus("133377", newStatus, token, vehicleNumber);
+          await updateCourseStatus(String(courseToUpdate.ikRoTrans), newStatus, token, vehicleNumber);
           console.log(`✅ Status ${newStatus} (START) trimis cu succes la server pentru UIT ${courseToUpdate.uit}`);
         }
         
@@ -893,7 +892,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
           
           try {
-            const androidResult = window.AndroidGPS.updateStatus("133377", newStatus);
+            const androidResult = window.AndroidGPS.updateStatus(String(courseToUpdate.ikRoTrans), newStatus);
             console.log(`✅ Rezultat Android updateStatus: ${androidResult}`);
             console.log(`📱 === ANDROID GPS STATUS UPDATE COMPLETED ===`);
           } catch (androidError) {
