@@ -114,9 +114,9 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
   console.log("📱 Verificare interfață AndroidGPS:", {
     available: !!(window.AndroidGPS),
     startGPS: !!(window.AndroidGPS?.startGPS),
-    courseId: course.ikRoTrans,
+    uit: course.uit,  // UIT-ul este identificatorul principal
     vehicleNumber: vehicleNumber,
-    uit: course.uit
+    ikRoTrans: course.ikRoTrans  // Database ID doar pentru referință
   });
   
   if (window.AndroidGPS && window.AndroidGPS.startGPS) {
@@ -125,9 +125,9 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
     console.log("🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS");
     
     const result = window.AndroidGPS.startGPS(
-      String(course.ikRoTrans),
+      course.uit,          // UIT-ul ca courseId principal
       vehicleNumber,
-      course.uit,
+      course.uit,          // UIT-ul ca identificator
       token,
       2
     );
