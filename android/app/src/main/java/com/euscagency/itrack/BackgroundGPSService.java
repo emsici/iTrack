@@ -42,6 +42,10 @@ public class BackgroundGPSService extends Service {
     // MULTI-UIT SUPPORT: Map pentru toate cursele active simultan
     private java.util.Map<String, CourseData> activeCourses = new java.util.HashMap<>();
     private String globalToken;
+    
+    // HEALTH MONITORING: Pentru monitorizarea continuă a serviciului
+    private java.util.concurrent.ScheduledExecutorService healthMonitor;
+    private long lastGPSCycleTime = 0;
     private String globalVehicle;
     private boolean isGPSRunning = false;
     
@@ -248,6 +252,10 @@ public class BackgroundGPSService extends Service {
                     
                     try {
                         performGPSCycle();
+                        
+                        // Update health monitoring timestamp
+                        lastGPSCycleTime = System.currentTimeMillis();
+                        
                         Log.e(TAG, "✅ GPS cycle completed successfully");
                         sendLogToJavaScript("✅ GPS cycle completed");
                         
@@ -256,11 +264,30 @@ public class BackgroundGPSService extends Service {
                             wakeLock.release();
                             wakeLock.acquire(60 * 60 * 1000); // Re-acquire pentru încă 1 oră
                             Log.e(TAG, "🔄 WakeLock renewed pentru continuare garantată");
+                        } else if (wakeLock != null) {
+                            // WakeLock a fost eliberat - reîl dobândește
+                            Log.e(TAG, "🚨 WakeLock a fost eliberat - redobândire forțată!");
+                            wakeLock.acquire(60 * 60 * 1000);
+                            sendLogToJavaScript("🚨 WakeLock redobândit forțat");
                         }
+                        
                     } catch (Exception e) {
-                        Log.e(TAG, "❌ EROARE în GPS cycle: " + e.getMessage());
-                        sendLogToJavaScript("❌ EROARE GPS cycle: " + e.getMessage());
+                        Log.e(TAG, "❌ EROARE CRITICĂ în GPS cycle: " + e.getMessage());
+                        sendLogToJavaScript("❌ EROARE CRITICĂ GPS: " + e.getMessage());
                         e.printStackTrace();
+                        
+                        // CRITICAL: În caz de eroare critică, încearcă recovery
+                        try {
+                            Log.e(TAG, "🔄 Încercare recovery după eroare critică...");
+                            if (gpsExecutor == null || gpsExecutor.isShutdown()) {
+                                Log.e(TAG, "🚨 ScheduledExecutorService compromis - RESTART COMPLET!");
+                                isGPSRunning = false;
+                                startBackgroundGPS();
+                            }
+                        } catch (Exception recoveryError) {
+                            Log.e(TAG, "❌ Recovery failed: " + recoveryError.getMessage());
+                            sendLogToJavaScript("❌ Recovery failed: " + recoveryError.getMessage());
+                        }
                     }
                     
                     Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION END ===");
@@ -333,7 +360,11 @@ public class BackgroundGPSService extends Service {
             }).start();
             
             isGPSRunning = true;
-            Log.e(TAG, "✅ GPS Service STARTED successfully cu ScheduledExecutorService");
+            
+            // CRITICAL: Start health monitoring system pentru auto-recovery
+            startHealthMonitor();
+            
+            Log.e(TAG, "✅ GPS Service STARTED successfully cu ScheduledExecutorService + Health Monitor");
             sendLogToJavaScript("✅ GPS Service STARTED - va transmite coordonate la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
         } catch (Exception e) {
             Log.e(TAG, "❌ EROARE CRITICĂ la pornirea ScheduledExecutorService: " + e.getMessage());
@@ -366,9 +397,103 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🛑 WakeLock was already released or null");
         }
         
+        // Stop health monitor
+        if (healthMonitor != null && !healthMonitor.isShutdown()) {
+            healthMonitor.shutdown();
+            Log.e(TAG, "🛑 Health Monitor stopped");
+        }
+        
         // IMPORTANT: Clear executor reference pentru restart curat
         gpsExecutor = null;
+        healthMonitor = null;
+        lastGPSCycleTime = 0;
         Log.e(TAG, "🛑 GPS Service completely stopped and ready for clean restart");
+    }
+    
+    private void startHealthMonitor() {
+        try {
+            // Oprește health monitor existent dacă rulează
+            if (healthMonitor != null && !healthMonitor.isShutdown()) {
+                healthMonitor.shutdown();
+                Log.e(TAG, "🩺 Health Monitor existent oprit pentru restart");
+            }
+            
+            healthMonitor = Executors.newSingleThreadScheduledExecutor();
+            lastGPSCycleTime = System.currentTimeMillis(); // Initialize cu timpul curent
+            
+            Log.e(TAG, "🩺 === HEALTH MONITOR PORNIT ===");
+            sendLogToJavaScript("🩺 Health Monitor pornit - va verifica GPS la fiecare 60s");
+            
+            // Health check la fiecare 60 de secunde
+            healthMonitor.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
+                        long currentTimeMs = System.currentTimeMillis();
+                        long timeSinceLastGPS = currentTimeMs - lastGPSCycleTime;
+                        
+                        Log.e(TAG, "🩺 === HEALTH CHECK [" + currentTime + "] ===");
+                        Log.e(TAG, "🩺 Time since last GPS: " + (timeSinceLastGPS / 1000) + "s");
+                        Log.e(TAG, "🩺 GPS Expected every: " + GPS_INTERVAL_SECONDS + "s");
+                        Log.e(TAG, "🩺 isGPSRunning: " + isGPSRunning);
+                        Log.e(TAG, "🩺 ScheduledExecutor alive: " + (gpsExecutor != null && !gpsExecutor.isShutdown()));
+                        Log.e(TAG, "🩺 Active courses: " + activeCourses.size());
+                        
+                        // CRITICAL: Dacă GPS nu a fost executat în ultimele 3 intervale
+                        long maxAllowedGap = GPS_INTERVAL_SECONDS * 3 * 1000; // 30 secunde pentru 10s interval
+                        
+                        if (timeSinceLastGPS > maxAllowedGap && isGPSRunning && !activeCourses.isEmpty()) {
+                            Log.e(TAG, "🚨 === HEALTH CHECK FAILURE DETECTED ===");
+                            Log.e(TAG, "🚨 GPS nu a rulat în ultimele " + (timeSinceLastGPS / 1000) + " secunde!");
+                            Log.e(TAG, "🚨 FORȚEZ RESTART COMPLET ScheduledExecutorService!");
+                            
+                            sendLogToJavaScript("🚨 GPS BLOCAT! Ultimul GPS acum " + (timeSinceLastGPS / 1000) + "s - RESTART FORȚAT");
+                            
+                            // RECOVERY ACTION: Restart complet GPS service
+                            isGPSRunning = false;
+                            if (gpsExecutor != null) {
+                                gpsExecutor.shutdown();
+                                gpsExecutor = null;
+                            }
+                            
+                            // Restart în 2 secunde pentru a evita conflictele
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        Thread.sleep(2000);
+                                        Log.e(TAG, "🔄 HEALTH RECOVERY: Restart GPS service...");
+                                        startBackgroundGPS();
+                                        sendLogToJavaScript("🔄 GPS Service RESTARTAT de Health Monitor");
+                                    } catch (Exception e) {
+                                        Log.e(TAG, "❌ Health recovery error: " + e.getMessage());
+                                    }
+                                }
+                            }).start();
+                            
+                        } else {
+                            Log.e(TAG, "✅ Health check PASSED - GPS service healthy");
+                            if (timeSinceLastGPS <= GPS_INTERVAL_SECONDS * 1000 + 5000) { // +5s tolerance
+                                sendLogToJavaScript("✅ GPS service healthy - ultimul GPS acum " + (timeSinceLastGPS / 1000) + "s");
+                            }
+                        }
+                        
+                    } catch (Exception e) {
+                        Log.e(TAG, "❌ Health Monitor error: " + e.getMessage());
+                        sendLogToJavaScript("❌ Health Monitor error: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }, 60, 60, TimeUnit.SECONDS); // Check la fiecare 60 de secunde
+            
+            Log.e(TAG, "🩺 Health Monitor planificat cu succes");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ EROARE la pornirea Health Monitor: " + e.getMessage());
+            sendLogToJavaScript("❌ Health Monitor FAILED: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     private void performGPSCycle() {
@@ -377,6 +502,17 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "📊 Active Courses: " + activeCourses.size() + ", Token: " + (globalToken != null ? "OK (" + globalToken.length() + " chars)" : "NULL"));
         Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning + ", ScheduledExecutor: " + (gpsExecutor != null && !gpsExecutor.isShutdown()));
         Log.e(TAG, "🔧 Service is ALIVE and EXECUTING at " + currentTime);
+        
+        // CRITICAL: Auto-restart mechanism în caz că ScheduledExecutorService este compromis
+        if (gpsExecutor == null || gpsExecutor.isShutdown()) {
+            Log.e(TAG, "🚨 CRITICA: ScheduledExecutorService este NULL sau SHUTDOWN - RESTART FORȚAT!");
+            sendLogToJavaScript("🚨 RESTART FORȚAT ScheduledExecutorService la " + currentTime);
+            
+            // Forțează restart complet
+            isGPSRunning = false;
+            startBackgroundGPS();
+            return;
+        }
         
         // Send Android log to JavaScript for debugging  
         sendLogToJavaScript("🔄 GPS CYCLE EXECUTING [" + currentTime + "] - Active Courses: " + activeCourses.size());
