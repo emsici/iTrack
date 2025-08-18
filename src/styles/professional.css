@@ -67,17 +67,7 @@ html, body {
   touch-action: pan-y; /* Numai scroll vertical */
 }
 
-/* SimpleGPSIndicator in header - compact design */
-.header-gps-indicator .simple-gps-indicator .badge {
-  font-size: 11px !important;
-  padding: 6px 10px !important;
-  border-radius: 8px !important;
-}
-
-.header-gps-indicator .simple-gps-indicator small {
-  font-size: 10px !important;
-  font-weight: 600 !important;
-}
+/* SimpleGPSIndicator styles removed - component deleted */
 
 /* Courses List Design - Optimized for smooth scrolling */
 .vehicle-screen.courses-loaded {

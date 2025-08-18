@@ -18,6 +18,7 @@ Real Device Data: Implemented dynamic battery level detection and real network t
 UI Optimization: Eliminated redundant status indicators - unified GPS+Internet status replaces separate "Online/Offline" indicator for cleaner interface.
 PAUSE GPS Fix: GPS transmission is now correctly blocked for paused courses (status 3) - only ACTIVE courses (status 2) can transmit GPS data.
 Vehicle Dropdown Redesign: Compact dropdown with stored vehicle numbers, remove function, and "Add New" button leading to dedicated input page for better UX.
+SimpleGPSIndicator Cleanup: Component completely removed from codebase as it was redundant after header simplification.
 
 ## System Architecture
 
