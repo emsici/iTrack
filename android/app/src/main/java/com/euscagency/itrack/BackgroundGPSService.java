@@ -774,9 +774,19 @@ public class BackgroundGPSService extends Service {
         try {
             Log.e(TAG, "📤 === PREPARING STATUS UPDATE FROM ANDROID SERVICE ===");
             
+            // CRITICAL FIX: specificUIT este ikRoTrans, trebuie să găsesc realUit din activeCourses
+            CourseData courseData = activeCourses.get(specificUIT);
+            if (courseData == null) {
+                Log.e(TAG, "❌ Nu găsesc courseData pentru ikRoTrans: " + specificUIT);
+                return;
+            }
+            
+            String realUit = courseData.realUit;
+            Log.e(TAG, "🔧 CRITICAL FIX: specificUIT=" + specificUIT + " (ikRoTrans) → realUit=" + realUit + " (pentru server)");
+            
             // Create status update JSON cu exact aceeași structură ca GPS
             org.json.JSONObject statusData = new org.json.JSONObject();
-            statusData.put("uit", specificUIT); // CORECTARE: Folosește UIT-ul specificat!
+            statusData.put("uit", realUit); // FIXED: Trimite realUit la server, NU ikRoTrans
             statusData.put("numar_inmatriculare", globalVehicle);
             // Obține coordonate GPS reale pentru status update
             Location lastLocation = getLastKnownLocation();
@@ -808,7 +818,7 @@ public class BackgroundGPSService extends Service {
             statusData.put("timestamp", timestamp);
             
             Log.e(TAG, "📊 Status Data prepared for status " + newStatus + ":");
-            Log.e(TAG, "   UIT: " + specificUIT); // CORECTARE: Log UIT-ul specificat!
+            Log.e(TAG, "   ikRoTrans: " + specificUIT + " → realUIT: " + realUit); // FIXED: Log both values
             Log.e(TAG, "   Vehicle: " + globalVehicle);
             Log.e(TAG, "   Status: " + newStatus);
             Log.e(TAG, "   Timestamp: " + timestamp);

@@ -124,3 +124,24 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - **TELEFON BLOCAT**: Foreground Service + WakeLock garantează GPS transmission continuă cu ecranul oprit
 - **START SIMULTAN**: 3 curse pornesc simultan fără conflicte - ikRoTrans identificatori unici
 - **BACKGROUND EXECUTION**: WakeLock PARTIAL_WAKE_LOCK + ACQUIRE_CAUSES_WAKEUP bypass Android Doze complet
+
+### **CRITICAL FIX: Status Updates UIT Field (18 Aug 2025) - FINAL**
+- **PROBLEMĂ IDENTIFICATĂ**: sendStatusUpdateToServer trimitea ikRoTrans în câmpul "uit" la server în loc de UIT real
+- **CAUZA**: specificUIT parametru era ikRoTrans (HashMap key), nu UIT-ul real pentru server
+- **SOLUȚIA APLICATĂ**: 
+  - Extragere courseData din activeCourses.get(specificUIT) 
+  - Folosire courseData.realUit pentru câmpul "uit" la server
+  - Enhanced logging pentru debugging: ikRoTrans → realUit mapping
+- **IMPACT FIX**: Status updates (PAUSE/STOP) trimit acum UIT real la server, nu ikRoTrans
+- **VERIFICARE**: GPS data transmission era deja corectă (linia 580), doar status updates aveau problema
+- **REZULTAT**: Identificare consistentă cursă pe server pentru ambele - GPS data ȘI status updates
+
+### **Async GPS → Sync GPS Fix (18 Aug 2025) - FINAL**
+- **PROBLEMĂ IDENTIFICATĂ**: LocationListener ASINCRON căuza ScheduledExecutorService să nu execute repetitiv
+- **CAUZA**: performGPSCycle() se termina IMEDIAT după requestLocationUpdates(), onLocationChanged() venea DUPĂ
+- **SOLUȚIA APLICATĂ**: 
+  - getLastKnownLocation() SINCRON ca primary method (inspirat din dummy test care funcționa)
+  - Transmisie IMEDIATĂ în performGPSCycle() fără async waiting
+  - Fallback la async GPS doar dacă nu există last known location
+- **REZULTAT**: ScheduledExecutorService execută la fiecare 10 secunde cu transmisie garantată
+- **WORKFLOW CORECT**: Task se termină cu SUCCESS → următorul task la +10s → ciclu continuu
