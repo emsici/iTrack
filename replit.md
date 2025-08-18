@@ -64,6 +64,13 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 
 ## Recent Critical Fixes (August 2025)
 
+### **ARHITECTURĂ BACKGROUND GPS SIMPLIFICATĂ (18 Aug 2025)**
+- **ELIMINAT COMPLET**: JavaScript GPS service și duplicarea transmisiilor 
+- **ANDROID MULTI-UIT**: BackgroundGPSService acum gestionează TOATE cursele simultan cu HashMap<String, CourseData>
+- **TRANSMISIE UNICĂ**: Un singur ciclu GPS de 10 secunde transmite coordonate pentru toate UIT-urile active 
+- **BACKGROUND GARANTAT**: Foreground service cu IMPORTANCE_HIGH, WakeLock, ScheduledExecutorService pentru stabilitate maximă
+- **EFICIENȚĂ MAXIMĂ**: O singură implementație GPS nativă pentru app deschisă ȘI telefon blocat
+
 ### **Workflow PAUSE→RESUME→STOP Corrigat**
 - **PROBLEMĂ IDENTIFICATĂ**: PAUSE (status 3) elimina cursa din activeCourses, făcând RESUME imposibil
 - **SOLUȚIE**: PAUSE păstrează cursa în activeCourses, doar STOP (4) elimină definitiv

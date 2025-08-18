@@ -851,7 +851,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           if (activeCourses.size === 0) {
             console.log("🛑 Nu mai sunt curse active - opresc Android GPS service");
             if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-              window.AndroidGPS.stopGPS();
+              window.AndroidGPS.stopGPS("all_courses_stopped");
               console.log("📱 Android GPS service stopped");
             }
           }
