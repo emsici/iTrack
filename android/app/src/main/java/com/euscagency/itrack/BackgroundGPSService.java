@@ -179,15 +179,33 @@ public class BackgroundGPSService extends Service {
         gpsExecutor = Executors.newSingleThreadScheduledExecutor();
         Log.e(TAG, "GPS Executor created, scheduling cycles every " + GPS_INTERVAL_SECONDS + "s");
         
-        gpsExecutor.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                performGPSCycle();
-            }
-        }, 2, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
-        
-        isGPSRunning = true;
-        Log.e(TAG, "GPS Service STARTED successfully");
+        try {
+            Log.e(TAG, "🚀 PORNIRE ScheduledExecutorService - prima execuție în 2 secunde, apoi la fiecare " + GPS_INTERVAL_SECONDS + "s");
+            sendLogToJavaScript("🚀 PORNIRE ScheduledExecutorService GPS - prima transmisie în 2 secunde");
+            
+            gpsExecutor.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Log.e(TAG, "⏰ ScheduledExecutorService TICK - executând performGPSCycle()");
+                        sendLogToJavaScript("⏰ ScheduledExecutorService TICK - executând GPS cycle");
+                        performGPSCycle();
+                    } catch (Exception e) {
+                        Log.e(TAG, "❌ EROARE în ScheduledExecutorService GPS cycle: " + e.getMessage());
+                        sendLogToJavaScript("❌ EROARE GPS cycle: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }, 2, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
+            
+            isGPSRunning = true;
+            Log.e(TAG, "✅ GPS Service STARTED successfully cu ScheduledExecutorService");
+            sendLogToJavaScript("✅ GPS Service STARTED - va transmite coordonate la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
+        } catch (Exception e) {
+            Log.e(TAG, "❌ EROARE CRITICĂ la pornirea ScheduledExecutorService: " + e.getMessage());
+            sendLogToJavaScript("❌ EROARE CRITICĂ ScheduledExecutorService: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     private void stopBackgroundGPS() {
@@ -205,11 +223,13 @@ public class BackgroundGPSService extends Service {
     }
     
     private void performGPSCycle() {
-        Log.e(TAG, "🔄 === GPS CYCLE START ===");
+        String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
+        Log.e(TAG, "🔄 === GPS CYCLE START [" + currentTime + "] ===");
         Log.e(TAG, "📊 Active Courses: " + activeCourses.size() + ", Token: " + (globalToken != null ? "OK" : "NULL"));
+        Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning + ", ScheduledExecutor: " + (gpsExecutor != null && !gpsExecutor.isShutdown()));
         
         // Send Android log to JavaScript for debugging
-        sendLogToJavaScript("🔄 Android GPS CYCLE START - Active Courses: " + activeCourses.size());
+        sendLogToJavaScript("🔄 GPS CYCLE [" + currentTime + "] - Active Courses: " + activeCourses.size());
         
         if (activeCourses.isEmpty() || globalToken == null) {
             Log.e(TAG, "❌ GPS cycle skipped - missing data (Active Courses: " + activeCourses.size() + ", Token: " + (globalToken != null ? "OK" : "NULL") + ")");

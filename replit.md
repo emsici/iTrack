@@ -88,3 +88,9 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - **SOLUȚIA IMPLEMENTATĂ**: Verificare `course.status !== 2` în JavaScript GPS loop - skip transmission pentru PAUSE/STOP
 - **ANDROID FIX**: BackgroundGPSService oprește transmisia complet pentru status 3/4 
 - **WORKFLOW COMPLET**: PAUSE nu mai trimite status 2 automat - transmisia se oprește total până la RESUME
+
+### **GPS ScheduledExecutorService Debugging Fix (18 Aug 2025)**
+- **PROBLEMĂ IDENTIFICATĂ**: ScheduledExecutorService nu executa ciclurile GPS la interval de 10 secunde
+- **SOLUȚIE**: Adăugat try-catch robust în scheduleAtFixedRate + logging detaliat pentru debugging
+- **DEBUGGING ENHANCED**: Timestamp-uri pentru fiecare GPS cycle, status executor, verificare WakeLock
+- **LOGGING JAVASCRIPT**: Toate erorile Android GPS se transmit către JavaScript pentru debugging în aplicație
