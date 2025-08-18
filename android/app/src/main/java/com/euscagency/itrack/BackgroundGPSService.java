@@ -1027,12 +1027,12 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
             Log.e(TAG, "📊 Status Data: " + statusDataJson);
             
-            // Make HTTP request on background thread
-            new Thread(new Runnable() {
+            // CRITICAL: Use thread pool pentru rate limiting - status updates use same pool as GPS
+            httpThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        Log.e(TAG, "📡 Status HTTP thread started");
+                        Log.e(TAG, "📡 Status HTTP thread started from thread pool");
                         
                         java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
                         javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
@@ -1085,7 +1085,7 @@ public class BackgroundGPSService extends Service {
                         e.printStackTrace();
                     }
                 }
-            }).start();
+            });
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Status HTTP bridge call failed: " + e.getMessage());
