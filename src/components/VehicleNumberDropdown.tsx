@@ -117,7 +117,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
         />
       ) : (
         <div
-          onClick={() => filteredHistory.length > 0 ? setIsOpen(!isOpen) : setShowInput(true)}
+          onClick={() => setIsOpen(!isOpen)}
           style={{
             width: '100%',
             padding: '20px',
@@ -167,7 +167,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
       )}
 
       {/* Dropdown Menu */}
-      {isOpen && filteredHistory.length > 0 && (
+      {isOpen && (
         <div style={{
           position: 'absolute',
           top: '100%',
@@ -205,6 +205,45 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
               fontWeight: '500'
             }}>
               Vehicule recente
+            </span>
+          </div>
+
+          {/* Add New Vehicle Button */}
+          <div
+            onClick={() => {
+              setShowInput(true);
+              setIsOpen(false);
+            }}
+            style={{
+              padding: '16px 20px',
+              cursor: 'pointer',
+              borderBottom: filteredHistory.length > 0 
+                ? (darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)')
+                : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = darkMode 
+                ? 'rgba(34, 197, 94, 0.1)' 
+                : 'rgba(34, 197, 94, 0.05)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            <i className="fas fa-plus" style={{
+              color: darkMode ? '#34d399' : '#059669',
+              fontSize: '14px'
+            }}/>
+            <span style={{
+              color: darkMode ? '#34d399' : '#059669',
+              fontSize: '16px',
+              fontWeight: '600'
+            }}>
+              Adaugă număr nou
             </span>
           </div>
 
