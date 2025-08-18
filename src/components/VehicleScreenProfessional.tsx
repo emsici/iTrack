@@ -892,7 +892,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
           
           try {
-            const androidResult = window.AndroidGPS.updateStatus(String(courseToUpdate.ikRoTrans), newStatus);
+            // CRITICAL FIX: Trimite UIT real, nu ikRoTrans la serviciul Android
+            const androidResult = window.AndroidGPS.updateStatus(String(courseToUpdate.uit), newStatus);
             console.log(`✅ Rezultat Android updateStatus: ${androidResult}`);
             console.log(`📱 === ANDROID GPS STATUS UPDATE COMPLETED ===`);
           } catch (androidError) {

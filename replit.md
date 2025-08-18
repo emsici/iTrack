@@ -160,3 +160,13 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
   - Button "Adaugă vehicul nou" pentru input manual
   - Quick switch button în bottom navigation care arată vehiculul curent
 - **BENEFICII**: Utilizatorul poate comuta rapid între vehicule fără să retapeze numerele de înmatriculare
+
+### **CRITICAL FIX: RESUME Status ikRoTrans → UIT (18 Aug 2025) - FINAL**
+- **PROBLEMĂ IDENTIFICATĂ**: RESUME operations (status 2) trimiteau ikRoTrans în loc de UIT real la server
+- **CAUZA**: `window.AndroidGPS.updateStatus(String(courseToUpdate.ikRoTrans), newStatus)` în VehicleScreenProfessional.tsx linia 895
+- **SOLUȚIA APLICATĂ**: 
+  - Înlocuit `courseToUpdate.ikRoTrans` cu `courseToUpdate.uit` în updateStatus call
+  - BackgroundGPSService.java deja avea fix-ul pentru sendStatusUpdateToServer cu realUit extraction
+  - Enhanced logging pentru verificare: ikRoTrans → realUit mapping în Android service
+- **REZULTAT FINAL**: TOATE status updates (START/PAUSE/RESUME/STOP) trimit acum UIT real la server
+- **VERIFICARE**: LogCat va arăta "ikRoTrans: 133376 → realUIT: 0L8N331085130163" pentru debugging
