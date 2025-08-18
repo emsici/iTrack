@@ -522,7 +522,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .btn-pause-compact {
           background: linear-gradient(135deg, #f59e0b, #d97706);
           color: white;
-          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+          box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4); /* Umbră mai mare pentru PAUSE */
+          padding: 10px 18px; /* PAUSE mai mare */
+          font-size: 1rem; /* Text mai mare pentru PAUSE */
+          font-weight: 700; /* Bold mai puternic pentru PAUSE */
+          transform: scale(1.08); /* PAUSE mai mare vizual */
+          transition: all 0.1s ease; /* PAUSE mai rapid */
         }
 
         .btn-resume-compact {

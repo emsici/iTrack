@@ -45,7 +45,7 @@ export const storeVehicleNumber = async (vehicleNumber: string): Promise<void> =
     // Store vehicle number in history for dropdown
     const history = await getVehicleNumberHistory();
     if (!history.includes(vehicleNumber)) {
-      const updatedHistory = [vehicleNumber, ...history.slice(0, 9)]; // Keep last 10
+      const updatedHistory = [vehicleNumber, ...history.slice(0, 4)]; // Keep last 5
       await Preferences.set({ key: VEHICLE_HISTORY_KEY, value: JSON.stringify(updatedHistory) });
     }
   } catch (error) {

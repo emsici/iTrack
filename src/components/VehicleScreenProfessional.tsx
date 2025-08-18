@@ -1365,30 +1365,33 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(0, 0, 0, 0.1)'
           }}>
-            {/* Header Top Row - iTrack Brand & Controls */}
+            {/* Header Top Row - iTrack Brand & Vehicle Number */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '15px'
+              marginBottom: '20px',
+              gap: '15px'
             }}>
               {/* iTrack Brand Logo */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '10px',
+                flex: '0 0 auto'
               }}>
                 <div style={{
-                  width: '32px',
-                  height: '32px',
+                  width: '36px',
+                  height: '36px',
                   background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                  borderRadius: '8px',
+                  borderRadius: '10px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '16px',
+                  fontSize: '18px',
                   color: 'white',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
                 }}>
                   i
                 </div>
@@ -1396,7 +1399,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   color: currentTheme === 'light' || currentTheme === 'business' 
                     ? '#1e293b' 
                     : '#ffffff',
-                  fontSize: '20px',
+                  fontSize: '22px',
                   fontWeight: '700',
                   letterSpacing: '-0.5px'
                 }}>
@@ -1404,16 +1407,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </span>
               </div>
 
-              {/* Vehicle Number Dropdown - Centered */}
-              <VehicleNumberDropdown
-                value={vehicleNumber}
-                onChange={setVehicleNumber}
-                placeholder="Număr de înmatriculare (ex: B123ABC)"
-                darkMode={currentTheme === 'dark'}
-                disabled={loading}
-              />
+              {/* Vehicle Number - Center Aligned */}
+              <div style={{ 
+                flex: 1, 
+                display: 'flex', 
+                justifyContent: 'center',
+                maxWidth: '280px',
+                margin: '0 auto'
+              }}>
+                <VehicleNumberDropdown
+                  value={vehicleNumber}
+                  onChange={setVehicleNumber}
+                  placeholder="Număr de înmatriculare (ex: B123ABC)"
+                  darkMode={currentTheme === 'dark'}
+                  disabled={loading}
+                />
+              </div>
 
-              {/* GPS Status complet - elimină indicatorul redundant "Online/Offline" */}
+              {/* Spacer pentru echilibru vizual */}
+              <div style={{ width: '100px', flex: '0 0 auto' }} />
             </div>
 
 
@@ -1481,54 +1493,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
 
               <div className="about-button" onClick={() => setShowAbout(true)} title="Despre aplicație" style={{ 
-                background: currentTheme === 'dark' 
-                  ? 'rgba(16, 185, 129, 0.1)'
-                  : currentTheme === 'light'
-                    ? 'rgba(16, 185, 129, 0.2)'
-                    : currentTheme === 'driver'
-                      ? 'rgba(251, 191, 36, 0.2)'  // Galben/amber pentru driver
-                      : currentTheme === 'business'
-                        ? 'rgba(59, 130, 246, 0.2)'  // Albastru pentru business
-                        : currentTheme === 'nature'
-                          ? 'rgba(255, 255, 255, 0.2)'  // Alb pentru contrast maxim pe verde
-                          : currentTheme === 'night'
-                            ? 'rgba(168, 85, 247, 0.2)'  // Violet pentru night
-                            : 'rgba(16, 185, 129, 0.2)',
-                border: currentTheme === 'dark' 
-                  ? '1px solid rgba(16, 185, 129, 0.3)'
-                  : currentTheme === 'light'
-                    ? '1px solid rgba(16, 185, 129, 0.5)'
-                    : currentTheme === 'driver'
-                      ? '1px solid rgba(251, 191, 36, 0.5)'
-                      : currentTheme === 'business'
-                        ? '1px solid rgba(59, 130, 246, 0.5)'
-                        : currentTheme === 'nature'
-                          ? '1px solid rgba(255, 255, 255, 0.5)'  // Alb border pentru contrast
-                          : currentTheme === 'night'
-                            ? '1px solid rgba(168, 85, 247, 0.5)'
-                            : '1px solid rgba(16, 185, 129, 0.5)',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', // ALBASTRU FIX
+                border: '1px solid rgba(59, 130, 246, 0.3)',
                 borderRadius: '12px', 
                 padding: '12px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
                 cursor: 'pointer',
-                color: currentTheme === 'dark' 
-                  ? '#34d399'
-                  : currentTheme === 'light'
-                    ? '#047857'
-                    : currentTheme === 'driver'
-                      ? '#f59e0b'  
-                      : currentTheme === 'business'
-                        ? '#1d4ed8'  
-                        : currentTheme === 'nature'
-                          ? '#ffffff'  
-                          : currentTheme === 'night'
-                            ? '#a855f7'  
-                            : '#047857',
+                color: '#ffffff', // ALB FIX pentru contrast
                 width: '50px',
                 height: '50px',
-                flex: '0 0 auto'
+                flex: '0 0 auto',
+                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
               }}>
                 <i className="fas fa-info-circle" style={{ fontSize: '18px' }}></i>
               </div>
