@@ -89,20 +89,20 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 - GPS transmisie continuă garantată la fiecare 10 secunde ca înainte
 - Multi-vehicle support va fi implementat la nivel frontend prin schimbarea vehiculului activ
 
-**RESTAURAT COMMIT 31307ea FUNCȚIONAL (August 18, 2025):**
-- **PROBLEMĂ IDENTIFICATĂ**: Lipsea aggressive debugging din commit 31307ea care garanta continuitatea
-- **SOLUȚIE EXACTĂ**: Restaurat complet implementarea din commit 31307ea38503c1d913a8f379a55624152351e242
+**RESTAURAT COMMIT d9264ef FUNCȚIONAL (August 18, 2025):**
+- **COMMIT IDENTIFICAT**: d9264efca56b7fb1966c306da659562fae8f5bb4 - "Enhance GPS tracking to manage multiple active courses simultaneously"
+- **SOLUȚIE SIMPLĂ**: Restaurat implementarea minimală și eficientă din commit d9264ef
 - **DIFERENȚA CRITICĂ**: 
-  - **Aggressive debugging** complet în ScheduledExecutor pentru status monitoring
-  - **Verificare critică** `if (!isGPSRunning)` cu return pentru robustețe
-  - **Cycle completion logging** pentru confirmarea continuității
-- **ARQUITECTURA**: `Map<String, Integer> courseStatuses` simplu cu debugging robust
-- **FUNCȚIONALITATE**: Multi-course pe același vehicul cu GPS continuu garantat
+  - **ScheduledExecutor SIMPLU**: Fără debugging agresiv care bloca executorul
+  - **Multi-course management**: `Map<String, Integer> courseStatuses` pentru tracking individual
+  - **activeVehicle**: Vehicul specific pentru transmisii GPS
+- **ARQUITECTURA SIMPLĂ**: Executor curat cu `performGPSCycle()` direct
+- **FUNCȚIONALITATE**: Multi-course pe același vehicul cu GPS continuu simplificat
 
-**COMMIT 31307ea - GPS CONTINUU FUNCȚIONAL CONFIRMAT**
-- Implementarea cu aggressive debugging funcționa perfect la 10 secunde
-- Logging exhaustiv previne blocajele ScheduledExecutor
-- GPS transmission continuă chiar și cu debugging agresiv
+**COMMIT d9264ef - IMPLEMENTARE MINIMALĂ FUNCȚIONALĂ**
+- Executor simplu: `gpsExecutor.scheduleAtFixedRate(() -> performGPSCycle(), 2, 10, SECONDS)`
+- Fără debugging agresiv care interferea cu ciclurile
+- Multi-course management cu status individual per UIT
 
 ## Recent Critical Fixes (August 2025)
 

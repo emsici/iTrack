@@ -41,7 +41,8 @@ public class BackgroundGPSService extends Service {
     
     private String activeToken;
     private boolean isGPSRunning = false;
-    // SIMPLE IMPLEMENTATION: Exact ca în commit 7b7bb19 care funcționa 
+    private String activeVehicle;
+    // MULTIPLE COURSE MANAGEMENT: Track individual statuses per UIT
     private java.util.Map<String, Integer> courseStatuses = new java.util.HashMap<>();
     
     @Override
@@ -73,14 +74,13 @@ public class BackgroundGPSService extends Service {
         if (intent != null && "START_BACKGROUND_GPS".equals(intent.getAction())) {
             String uit = intent.getStringExtra("uit");
             activeToken = intent.getStringExtra("token");
-            String vehicle = intent.getStringExtra("vehicle");
+            activeVehicle = intent.getStringExtra("vehicle");
             int status = intent.getIntExtra("status", 2); // Default ACTIVE
+            Log.e(TAG, "⚡ MULTI-COURSE - Data received UIT: " + uit + ", Vehicle: " + activeVehicle + ", Status: " + status);
             
-            Log.e(TAG, "⚡ SIMPLE GPS - UIT: " + uit + ", Status: " + status);
-            
-            // SIMPLE: Doar status per UIT ca în commit 7b7bb19
+            // MULTI-COURSE FIX: Store individual status per UIT
             courseStatuses.put(uit, status);
-            Log.e(TAG, "📊 Course " + uit + " status: " + status + ". Total: " + courseStatuses.size());
+            Log.e(TAG, "📊 Course registered: " + uit + " with status " + status + ". Total courses: " + courseStatuses.size());
             
             // Start foreground notification IMMEDIATELY  
             startForeground(1, createNotification());
@@ -102,12 +102,18 @@ public class BackgroundGPSService extends Service {
             String specificUIT = intent.getStringExtra("uit");
             int oldStatus = courseStatuses.getOrDefault(specificUIT, 0);
             
-            Log.e(TAG, "SIMPLE UPDATE: UIT " + specificUIT + ": " + oldStatus + " → " + newStatus);
+            Log.e(TAG, "MULTI-COURSE: Updating status for UIT " + specificUIT + ": " + oldStatus + " → " + newStatus);
             
-            // SIMPLE: Actualizează doar status ca în commit 7b7bb19
+            // TRIMITE STATUS UPDATE LA SERVER ÎNAINTE DE SCHIMBARE (pentru 3=PAUSE, 4=STOP)
+            if (newStatus == 3 || newStatus == 4) {
+                Log.e(TAG, "🔄 Trimit status " + newStatus + " la server pentru UIT " + specificUIT);
+                sendStatusUpdateToServer(newStatus, specificUIT);
+            }
+            
+            // MULTI-COURSE FIX: Update specific UIT status
             if (newStatus == 4) { // STOP - remove completely
                 courseStatuses.remove(specificUIT);
-                Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " removed. Remaining: " + courseStatuses.size());
+                Log.e(TAG, "🛑 STOP: UIT " + specificUIT + " removed. Remaining courses: " + courseStatuses.size());
             } else {
                 courseStatuses.put(specificUIT, newStatus);
                 Log.e(TAG, "📊 UPDATED: UIT " + specificUIT + " = " + newStatus);
@@ -169,44 +175,12 @@ public class BackgroundGPSService extends Service {
         gpsExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                try {
-                    Log.e(TAG, "🚨 === AGGRESSIVE DEBUGGING - EXECUTOR STATUS ===");
-                    Log.e(TAG, "🔧 Executor shutdown: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
-                    Log.e(TAG, "🔧 Executor terminated: " + (gpsExecutor != null ? gpsExecutor.isTerminated() : "NULL"));
-                    Log.e(TAG, "🔧 Service isGPSRunning: " + isGPSRunning);
-                    Log.e(TAG, "🔧 WakeLock held: " + (wakeLock != null && wakeLock.isHeld()));
-                    Log.e(TAG, "🔧 Courses count: " + courseStatuses.size());
-                    Log.e(TAG, "🔧 Token exists: " + (activeToken != null));
-                    
-                    Log.e(TAG, "⏰ === SCHEDULED GPS CYCLE TRIGGERED ===");
-                    Log.e(TAG, "🕐 Timpul curent: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                    Log.e(TAG, "📊 Service activ: " + isGPSRunning + ", Curse înregistrate: " + courseStatuses.size());
-                    sendLogToJavaScript("⏰ GPS CYCLE la " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                    
-                    // VERIFICARE CRITICĂ: Dacă serviciul nu mai rulează, nu executa
-                    if (!isGPSRunning) {
-                        Log.e(TAG, "🚨 CRITICAL: Service marked as NOT RUNNING - stopping execution");
-                        sendLogToJavaScript("🚨 SERVICE NOT RUNNING - executor va fi oprit");
-                        return;
-                    }
-                    
-                    performGPSCycle();
-                    
-                    Log.e(TAG, "✅ GPS CYCLE COMPLETED - EXECUTOR RĂMÂNE ACTIV");
-                    sendLogToJavaScript("✅ CYCLE OK - următorul în " + GPS_INTERVAL_SECONDS + "s");
-                    
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ CRITICAL: ScheduledExecutor error: " + e.getMessage());
-                    sendLogToJavaScript("❌ EROARE GPS CYCLE: " + e.getMessage());
-                    e.printStackTrace();
-                }
+                performGPSCycle();
             }
         }, 2, GPS_INTERVAL_SECONDS, TimeUnit.SECONDS);
         
         isGPSRunning = true;
         Log.e(TAG, "GPS Service STARTED successfully");
-        Log.e(TAG, "⏰ PRIMUL GPS CYCLE în 2 secunde, apoi la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
-        sendLogToJavaScript("🚀 GPS SERVICE PORNIT - primul cycle în 2 secunde, apoi la " + GPS_INTERVAL_SECONDS + "s");
     }
     
     private void stopBackgroundGPS() {
@@ -225,12 +199,10 @@ public class BackgroundGPSService extends Service {
     
     private void performGPSCycle() {
         Log.e(TAG, "🔄 === GPS CYCLE START ===");
-        Log.e(TAG, "📊 Total Courses: " + courseStatuses.size() + ", Token: " + (activeToken != null ? "OK" : "NULL"));
-        Log.e(TAG, "🔋 Service running: " + isGPSRunning + ", WakeLock held: " + (wakeLock != null && wakeLock.isHeld()));
-        Log.e(TAG, "📱 Executor status: " + (gpsExecutor != null && !gpsExecutor.isShutdown() ? "ACTIVE" : "SHUTDOWN"));
+        Log.e(TAG, "📊 Courses: " + courseStatuses.size() + ", Token: " + (activeToken != null ? "OK" : "NULL"));
         
         // Send Android log to JavaScript for debugging
-        sendLogToJavaScript("🔄 Android GPS CYCLE START - Active courses: " + courseStatuses.size() + " - Service: " + isGPSRunning);
+        sendLogToJavaScript("🔄 Android GPS CYCLE START - Active courses: " + courseStatuses.size());
         
         if (activeToken == null || courseStatuses.isEmpty()) {
             Log.e(TAG, "❌ GPS cycle skipped - missing data (Token: " + (activeToken != null ? "OK" : "NULL") + ", Courses: " + courseStatuses.size() + ")");
@@ -441,7 +413,7 @@ public class BackgroundGPSService extends Service {
             // Create GPS data JSON - SIMPLE fără vehicle specific
             org.json.JSONObject gpsData = new org.json.JSONObject();
             gpsData.put("uit", uit);
-            gpsData.put("numar_inmatriculare", "DEFAULT-VEHICLE"); // Placeholder
+            gpsData.put("numar_inmatriculare", activeVehicle);
             gpsData.put("lat", location.getLatitude());
             gpsData.put("lng", location.getLongitude());
             gpsData.put("viteza", (int) (location.getSpeed() * 3.6)); // m/s to km/h
@@ -558,7 +530,7 @@ public class BackgroundGPSService extends Service {
             // Create status update JSON - SIMPLE
             org.json.JSONObject statusData = new org.json.JSONObject();
             statusData.put("uit", specificUIT);
-            statusData.put("numar_inmatriculare", "DEFAULT-VEHICLE");
+            statusData.put("numar_inmatriculare", activeVehicle);
             // Obține coordonate GPS reale pentru status update
             Location lastLocation = getLastKnownLocation();
             if (lastLocation != null) {
