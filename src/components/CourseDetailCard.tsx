@@ -384,11 +384,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           background: ${currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.98)' : 'rgba(248, 250, 252, 0.95)'};
           border-radius: 12px;
           border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(203, 213, 225, 0.4)'};
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
+          /* REMOVED blur effects pentru telefoane vechi - cauza lag */
           position: relative;
           z-index: ${showDetails ? '1000' : '1'};
-          box-shadow: ${showDetails ? (currentTheme === 'dark' ? '0 12px 40px rgba(0, 0, 0, 0.8)' : '0 12px 40px rgba(0, 0, 0, 0.2)') : 'none'};
+          /* REMOVED heavy box-shadow pentru telefoane vechi */
+          boxShadow: 'none';
           margin-bottom: 16px;
           isolation: isolate;
           display: block;
@@ -530,19 +530,17 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           transition: all 0.1s ease; /* PAUSE mai rapid */
         }
 
-        /* Animație pentru sincronizare GPS - pulsing effect */
+        /* LIGHTWEIGHT animație pentru telefoane vechi - doar opacity */
         .sync-pulse {
-          animation: syncPulse 2s infinite;
+          animation: syncPulse 3s infinite;
         }
 
         @keyframes syncPulse {
           0%, 100% { 
-            opacity: 1; 
-            transform: scale(1);
+            opacity: 1;
           }
           50% { 
-            opacity: 0.6; 
-            transform: scale(1.1);
+            opacity: 0.5;
           }
         }
 

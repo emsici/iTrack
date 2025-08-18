@@ -1632,8 +1632,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
               {/* ELIMINAT - Duplicare cu indicatorul din header */}
               
-              {/* Sync Progress Bar - Only when ONLINE and syncing offline coordinates */}
-              {isOnline && offlineGPSCount > 0 && (
+              {/* Sync Progress Bar - Always visible when offline coords exist */}
+              {offlineGPSCount > 0 && (
                 <div style={{
                   width: '200px',
                   background: currentTheme === 'light' || currentTheme === 'business'
@@ -1650,7 +1650,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     : '1px solid rgba(148, 163, 184, 0.3)',
                   borderRadius: '12px',
                   padding: '8px 12px',
-                  fontSize: '10px'
+                  fontSize: '10px',
+                  /* OPTIMIZAT pentru telefoane vechi - elimină blur și shadow greu */
+                  boxShadow: 'none'
                 }}>
                   <div style={{
                     display: 'flex',
@@ -1669,7 +1671,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <span className={offlineGPSCount > 0 ? 'sync-pulse' : ''} style={{ fontSize: '12px' }}>
-                        📡
+                        {isOnline ? '📡' : '🔄'}
                       </span>
                       Sincronizare GPS
                     </span>
@@ -1707,7 +1709,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                           : currentTheme === 'driver'
                             ? 'linear-gradient(90deg, #f97316 0%, #ea580c 100%)'
                             : 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
-                      width: `${Math.min(100, Math.max(15, 100 - (offlineGPSCount * 2)))}%`, // Real progress: starts high, decreases as coords pile up
+                      width: offlineGPSCount === 0 ? '100%' : `${Math.max(5, 100 - offlineGPSCount)}%`, // Progress: 100% when 0 coords, decreases with more coords
                       borderRadius: '2px',
                       transition: 'width 0.3s ease-in-out'
                     }} />
@@ -1992,8 +1994,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   paddingBottom: '120px', // Extra padding for last course and bottom bar
                   overflowY: 'auto',
                   WebkitOverflowScrolling: 'touch',
-                  /* REMOVED transform pentru ZERO lag la scroll */
-                  willChange: 'scroll-position'
+                  /* OPTIMIZAT pentru telefoane vechi - eliminate proprietățile grele */
+                  willChange: 'auto', // Reduce memory usage
+                  contain: 'layout style' // Optimize layout calculations
                 }}>
                   {filteredCourses.map((course, index) => (
                     <div key={course.id} style={{ 

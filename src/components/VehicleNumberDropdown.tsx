@@ -177,12 +177,11 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
           background: darkMode 
             ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)'
             : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
-          backdropFilter: 'blur(20px)',
+          /* REMOVED blur pentru telefoane vechi */
           border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
           borderRadius: '16px',
-          boxShadow: darkMode 
-            ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
-            : '0 8px 32px rgba(0, 0, 0, 0.15)',
+          /* REMOVED heavy shadow pentru telefoane vechi */
+          boxShadow: 'none',
           zIndex: 1000,
           maxHeight: '300px',
           overflowY: 'auto'
