@@ -193,7 +193,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
   }
 
   return (
-    <div ref={dropdownRef} style={{ position: 'relative', width: '100%', maxWidth: '220px' }}>
+    <div ref={dropdownRef} style={{ position: 'relative', width: '100%', maxWidth: '200px', minWidth: '160px' }}>
       {/* Compact Display Button */}
       <div
         onClick={() => setIsOpen(!isOpen)}
@@ -204,7 +204,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
           border: darkMode ? '1px solid rgba(148, 163, 184, 0.3)' : '1px solid rgba(0, 0, 0, 0.2)',
           borderRadius: '10px',
           color: darkMode ? '#ffffff' : '#1e293b',
-          fontSize: '14px',
+          fontSize: '13px',
           fontWeight: '600',
           textAlign: 'center',
           cursor: disabled ? 'not-allowed' : 'pointer',

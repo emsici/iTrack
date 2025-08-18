@@ -1367,19 +1367,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               ? '1px solid rgba(255, 255, 255, 0.1)'
               : '1px solid rgba(0, 0, 0, 0.1)'
           }}>
-            {/* Header Top Row - iTrack Brand & Vehicle Number */}
+            {/* Header Top Row - Optimized 2-column layout: iTrack Brand + Vehicle Number */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               marginBottom: '20px',
-              gap: '15px'
+              gap: '20px'
             }}>
-              {/* iTrack Brand Logo */}
+              {/* iTrack Brand Logo - Left */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
+                gap: '12px',
                 flex: '0 0 auto'
               }}>
                 <div style={{
@@ -1409,37 +1409,34 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </span>
               </div>
 
-              {/* Vehicle Number - Center Aligned */}
+              {/* Vehicle Number Dropdown - Right, aligned properly */}
               <div style={{ 
-                flex: 1, 
-                display: 'flex', 
-                justifyContent: 'center',
-                maxWidth: '280px',
-                margin: '0 auto'
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center'
               }}>
                 <VehicleNumberDropdown
                   value={vehicleNumber}
                   onChange={(newVehicle) => {
+                    console.log(`🔄 Vehicul schimbat: ${vehicleNumber} → ${newVehicle}`);
                     setVehicleNumber(newVehicle);
-                    // Reîncarcă cursele pentru noul vehicul
-                    if (newVehicle && newVehicle !== vehicleNumber) {
-                      console.log(`🚛 Vehicul schimbat la: ${newVehicle} - reîncarc cursele`);
+                    // Reîncarcă cursele pentru noul vehicul doar dacă este diferit
+                    if (newVehicle && newVehicle.trim() !== vehicleNumber?.trim()) {
+                      console.log(`🚛 Vehicul nou confirmat: ${newVehicle} - reîncarc cursele`);
                       handleLoadCourses();
                     }
                   }}
-                  placeholder="Număr de înmatriculare (ex: B123ABC)"
-                  darkMode={currentTheme === 'dark'}
+                  darkMode={currentTheme === 'dark' || currentTheme === 'night' || currentTheme === 'nature' || currentTheme === 'driver'}
                   disabled={loading}
                   onNavigateToInput={() => {
-                    // Reset la pagina de input de după logare
-                    console.log('🔄 Reset la pagina de input vehicul');
+                    // Reset la input mode pentru adăugare vehicul nou
+                    console.log('🔄 Navigare la input vehicul - resetez aplicația');
                     setVehicleNumber('');
                     setCourses([]);
+                    setLoading(false);
                   }}
                 />
               </div>
-
-              {/* Right Side - Removed SimpleGPSIndicator per user request */}
             </div>
 
 
