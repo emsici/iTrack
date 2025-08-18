@@ -268,6 +268,19 @@ public class BackgroundGPSService extends Service {
             };
             
             Log.e(TAG, "🔧 About to call scheduleAtFixedRate...");
+            Log.e(TAG, "🔧 GPS_INTERVAL_SECONDS = " + GPS_INTERVAL_SECONDS);
+            Log.e(TAG, "🔧 gpsExecutor null check: " + (gpsExecutor != null));
+            Log.e(TAG, "🔧 gpsExecutor shutdown check: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
+            
+            // IMMEDIATE TEST: Execute runnable once manually to verify it works
+            Log.e(TAG, "🧪 TESTING: Manual execution of GPS runnable...");
+            try {
+                gpsRunnable.run();
+                Log.e(TAG, "🧪 TESTING: Manual execution SUCCESS!");
+            } catch (Exception testException) {
+                Log.e(TAG, "🧪 TESTING: Manual execution FAILED: " + testException.getMessage());
+                testException.printStackTrace();
+            }
             
             java.util.concurrent.ScheduledFuture<?> future = gpsExecutor.scheduleAtFixedRate(
                 gpsRunnable, 
@@ -279,6 +292,18 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔧 ScheduledFuture created: " + (future != null));
             Log.e(TAG, "🔧 Is cancelled: " + (future != null ? future.isCancelled() : "N/A"));
             Log.e(TAG, "🔧 Is done: " + (future != null ? future.isDone() : "N/A"));
+            
+            // ENHANCED DEBUGGING: Schedule a verification task
+            Log.e(TAG, "🔧 Scheduling verification task in 3 seconds...");
+            gpsExecutor.schedule(new Runnable() {
+                @Override 
+                public void run() {
+                    Log.e(TAG, "🔍 VERIFICATION: ScheduledExecutorService is working!");
+                    Log.e(TAG, "🔍 VERIFICATION: Main future cancelled? " + (future != null ? future.isCancelled() : "NULL"));
+                    Log.e(TAG, "🔍 VERIFICATION: Main future done? " + (future != null ? future.isDone() : "NULL"));
+                    sendLogToJavaScript("🔍 VERIFICATION: Executor alive at 3s mark");
+                }
+            }, 3, TimeUnit.SECONDS);
             
             // Immediate test execution after 3 seconds
             new Thread(new Runnable() {
