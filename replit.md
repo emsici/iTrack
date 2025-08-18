@@ -38,18 +38,19 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
 
 ### Core Features
 - **Enterprise Authentication**: Secure email/password login, JWT token management, and secure logout.
-- **Advanced GPS Tracking**: Native Android service for continuous background tracking (10-second interval), offline caching of coordinates with batch synchronization, and high-precision data. Includes adaptive intervals, foreground service priority, and Doze mode bypass. GPS continues for both active and paused courses.
-- **Professional Trip Management**: Vehicle number input, loading of vehicle-specific trips, real-time status management (Available, Active, Pause, Stopped), and an optimized driver interface.
+- **Advanced GPS Tracking**: Native Android service for continuous background tracking (10-second interval), offline caching of coordinates with batch synchronization, and high-precision data. Includes adaptive intervals, foreground service priority, and Doze mode bypass. GPS continues for both active and paused courses. Supports multiple simultaneous courses using `HashMap<String, CourseData>`.
+- **Professional Trip Management**: Vehicle number input, loading of vehicle-specific trips, real-time status management (Available, Active, Pause, Stopped), and an optimized driver interface. Includes multi-vehicle support with quick switching, history management, and quick switch UI.
 - **Enterprise Analytics**: Dedicated modals for detailed trip statistics (distance, time, speed) using the Haversine formula, and cumulative reports.
 - **Advanced Debug Panel**: Accessible via 50 clicks on the timestamp, providing persistent logging (GPS, API, OFFLINE_SYNC, APP, ERROR categories) and export functions.
 - **Robust Offline Management**: Automatic online/offline status detection, intelligent GPS coordinate caching, visual synchronization progress, automatic recovery, and retry logic for data transmission. Syncs in batches of 50 coordinates with chronological sorting.
 
 ### Technical Implementations
-- **GPS Logic**: BackgroundGPSService runs persistently in the background with ScheduledExecutorService for reliable timing. Acquires WakeLock for deep sleep prevention, uses dedicated HandlerThread for GPS operations, and guaranteed execution through foreground service protection with HIGH priority notification.
+- **GPS Logic**: `BackgroundGPSService` runs persistently in the background with `ScheduledExecutorService` for reliable timing. Acquires `WakeLock` for deep sleep prevention, uses dedicated `HandlerThread` for GPS operations, and guaranteed execution through foreground service protection with HIGH priority notification. Uses `getLastKnownLocation()` for synchronous GPS data acquisition with fallbacks.
 - **UI/UX Decisions**: Corporate design with glassmorphism effects, gradient backgrounds, and intuitive iconography. Responsive layouts with safe area padding. Optimized for zero-lag scrolling by eliminating `backdrop-filter`, `blur` effects, and `transform` properties. Cleaner interface without redundant GPS status indicators.
 - **Error Handling**: Comprehensive error logging, non-blocking GPS operations, graceful degradation for network issues, and clear user guidance for permissions.
-- **Environment Management**: Centralized API_CONFIG system for easy environment switching (PROD/TEST/DEV) with automated build scripts.
+- **Environment Management**: Centralized `API_CONFIG` system for easy environment switching (PROD/TEST/DEV) with automated build scripts.
 - **HTTP Modernization**: Exclusively uses CapacitorHttp native methods for all API calls in Android-only environment.
+- **Identifier Consistency**: Uses `ikRoTrans` as a consistent unique identifier throughout the application, including for `HashMap` keys in `BackgroundGPSService` and for server communication where appropriate.
 
 ## External Dependencies
 - **Capacitor**: `@capacitor/core`, `@capacitor/android`, `@capacitor/geolocation`, `@capacitor/preferences`
@@ -61,112 +62,4 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php` (GPS Data Transmission)
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/rezultate.php` (GPS Result Verification)
 - **UI Libraries**: Bootstrap 5.3.6
-
-## Recent Critical Fixes (August 2025)
-
-### **ARHITECTURĂ BACKGROUND GPS SIMPLIFICATĂ (18 Aug 2025)**
-- **ELIMINAT COMPLET**: JavaScript GPS service și duplicarea transmisiilor 
-- **ANDROID MULTI-UIT**: BackgroundGPSService acum gestionează TOATE cursele simultan cu HashMap<String, CourseData>
-- **TRANSMISIE UNICĂ**: Un singur ciclu GPS de 10 secunde transmite coordonate pentru toate UIT-urile active 
-- **BACKGROUND GARANTAT**: Foreground service cu IMPORTANCE_HIGH, WakeLock, ScheduledExecutorService pentru stabilitate maximă
-- **EFICIENȚĂ MAXIMĂ**: O singură implementație GPS nativă pentru app deschisă ȘI telefon blocat
-
-### **Workflow PAUSE→RESUME→STOP Corrigat**
-- **PROBLEMĂ IDENTIFICATĂ**: PAUSE (status 3) elimina cursa din activeCourses, făcând RESUME imposibil
-- **SOLUȚIE**: PAUSE păstrează cursa în activeCourses, doar STOP (4) elimină definitiv
-- **ANALYTICS**: Adăugat pauseCourseTracking() și resumeCourseTracking() în courseAnalytics.ts
-- **WORKFLOW CORECT**: START→PAUSE→RESUME→STOP funcționează perfect
-
-### **Real Sensor Data Integration Completă**
-- **ELIMINAT**: Toate valorile hardcodate (battery 50%, gsm_signal 4, GPS dummy)
-- **IMPLEMENTAT**: getNetworkSignal() și getLastKnownLocation() în BackgroundGPSService
-- **STATUS UPDATES**: 3/4 includ coordonate GPS reale prin getLastKnownLocation()
-- **NETWORK DETECTION**: WiFi vs Cellular cu signal strength autentic
-
-### **Critical Status Transmission Fix**
-- **PROBLEMA GĂSITĂ**: JavaScript GPS transmission trimitea status 2 pentru toate cursele din activeCourses, inclusiv cele în PAUSE
-- **SOLUȚIA IMPLEMENTATĂ**: Verificare `course.status !== 2` în JavaScript GPS loop - skip transmission pentru PAUSE/STOP
-- **ANDROID FIX**: BackgroundGPSService oprește transmisia complet pentru status 3/4 
-- **WORKFLOW COMPLET**: PAUSE nu mai trimite status 2 automat - transmisia se oprește total până la RESUME
-
-### **ScheduledExecutorService Complete Fix (18 Aug 2025) - FINAL**
-- **PROBLEMĂ IDENTIFICATĂ**: ScheduledExecutorService nu se executa continuu din cauza Android kill și logica PAUSE/RESUME
-- **REPARAȚII CRITICE APLICATE**:
-  - WakeLock cu `ACQUIRE_CAUSES_WAKEUP` și timeout 1h cu auto-renewal pentru anti-kill
-  - Prima execuție ScheduledExecutorService IMEDIAT (delay=0) în loc de 2 secunde
-  - Verificare completă status cursă în loop GPS: DOAR status=2 primesc GPS data
-  - Enhanced debugging cu WakeLock monitoring și JavaScript logging
-  - Verificare dacă toate cursele sunt în PAUSE pentru skip GPS cycle complet
-- **WORKFLOW COMPLET**: START(2)→GPS transmission / PAUSE(3)→skip GPS / RESUME(2)→reactivare GPS / STOP(4)→remove și status final
-- **STATUS**: COMPLET REPARAT - Multi-UIT ScheduledExecutorService cu transmisie continuă garantată
-
-### **Network Check Failed Fix (18 Aug 2025)**
-- **PROBLEMĂ IDENTIFICATĂ**: JavaScript network check folosea fetch ping test spre endpoint inexistent '/ping'
-- **CAUZA**: fetch(API_BASE_URL + 'ping') genera "Network check failed: Failed to fetch"
-- **SOLUȚIA APLICATĂ**: Înlocuit cu Capacitor Network plugin pentru detectare robustă Android
-- **IMPACT ELIMIAT**: Eroarea nu afecta BackgroundGPSService - doar UI network status
-- **REZULTAT**: Eliminată eroarea repetitivă, detectare rețea mai fiabilă pentru Android
-
-### **Identificator Consistent Fix - ikRoTrans (18 Aug 2025)**
-- **PROBLEMA IDENTIFICATĂ**: UIT-urile pot fi duplicate, causând conflicte în HashMap activeCourses
-- **SOLUȚIA APLICATĂ**: Folosire consistentă a ikRoTrans ca identificator unic în toată aplicația
-- **MODIFICĂRI**:
-  - JavaScript: startGPS(String(course.ikRoTrans), vehicleNumber, course.uit, token, 2)
-  - MainActivity: courseId = ikRoTrans (unic), uit = course.uit (pentru server)
-  - BackgroundGPSService: HashMap key = ikRoTrans, UIT real se trimite la server
-  - courseAnalytics: folosește ikRoTrans ca identificator
-- **BENEFICII**: Eliminare conflicte HashMap, consistență totală, tracking multi-cursă fiabil
-
-### **Verificare Exhaustivă Multi-Course ScheduledExecutorService (18 Aug 2025)**
-- **CONFIRMAT FUNCȚIONAL**: ScheduledExecutorService transmite GPS la 10 secunde pentru toate cursele cu status=2
-- **MULTI-COURSE SUPPORT**: HashMap cu ikRoTrans keys suportă 3 curse active + 2 pauză simultan
-- **PAUSE/RESUME WORKFLOW**: status=3 skip transmission, status=2 reactivează GPS transmission automat
-- **TELEFON BLOCAT**: Foreground Service + WakeLock garantează GPS transmission continuă cu ecranul oprit
-- **START SIMULTAN**: 3 curse pornesc simultan fără conflicte - ikRoTrans identificatori unici
-- **BACKGROUND EXECUTION**: WakeLock PARTIAL_WAKE_LOCK + ACQUIRE_CAUSES_WAKEUP bypass Android Doze complet
-
-### **CRITICAL FIX: Status Updates UIT Field (18 Aug 2025) - FINAL**
-- **PROBLEMĂ IDENTIFICATĂ**: sendStatusUpdateToServer trimitea ikRoTrans în câmpul "uit" la server în loc de UIT real
-- **CAUZA**: specificUIT parametru era ikRoTrans (HashMap key), nu UIT-ul real pentru server
-- **SOLUȚIA APLICATĂ**: 
-  - Extragere courseData din activeCourses.get(specificUIT) 
-  - Folosire courseData.realUit pentru câmpul "uit" la server
-  - Enhanced logging pentru debugging: ikRoTrans → realUit mapping
-- **IMPACT FIX**: Status updates (PAUSE/STOP) trimit acum UIT real la server, nu ikRoTrans
-- **VERIFICARE**: GPS data transmission era deja corectă (linia 580), doar status updates aveau problema
-- **REZULTAT**: Identificare consistentă cursă pe server pentru ambele - GPS data ȘI status updates
-
-### **Async GPS → Sync GPS Fix (18 Aug 2025) - FINAL**
-- **PROBLEMĂ IDENTIFICATĂ**: LocationListener ASINCRON căuza ScheduledExecutorService să nu execute repetitiv
-- **CAUZA**: performGPSCycle() se termina IMEDIAT după requestLocationUpdates(), onLocationChanged() venea DUPĂ
-- **SOLUȚIA APLICATĂ**: 
-  - getLastKnownLocation() SINCRON ca primary method (inspirat din dummy test care funcționa)
-  - Transmisie IMEDIATĂ în performGPSCycle() fără async waiting
-  - Fallback la async GPS doar dacă nu există last known location
-- **REZULTAT**: ScheduledExecutorService execută la fiecare 10 secunde cu transmisie garantată
-- **WORKFLOW CORECT**: Task se termină cu SUCCESS → următorul task la +10s → ciclu continuu
-
-### **Multi-Vehicle Support Implementation (18 Aug 2025) - COMPLETĂ**
-- **FUNCȚIONALITATE NOUĂ**: Implementat sistem complet multi-vehicle cu schimbarea rapidă între mașini
-- **COMPONENTE IMPLEMENTATE**:
-  - VehicleNumberDropdown component modern cu istoric vehicule și dropdown elegant
-  - Vehicle history management în storage service cu funcții add/remove 
-  - Quick vehicle switch în bottom navigation cu buton dedicat pentru schimbarea vehiculului
-  - Auto-storage și retrieval vehicule recent folosite (ultimele 10)
-- **UI/UX FEATURES**:
-  - Dropdown glassmorphism cu listă vehicule recente
-  - Posibilitate eliminare vehicule din istoric cu buton X
-  - Switch rapid între input manual și selecție din istoric
-  - Button "Adaugă vehicul nou" pentru input manual
-  - Quick switch button în bottom navigation care arată vehiculul curent
-- **BENEFICII**: Utilizatorul poate comuta rapid între vehicule fără să retapeze numerele de înmatriculare
-
-### **CRITICAL FIX: RESUME Status ikRoTrans → UIT (18 Aug 2025) - FINAL**
-- **PROBLEMĂ IDENTIFICATĂ**: RESUME operations (status 2) trimiteau ikRoTrans în loc de UIT real la server
-- **CAUZA**: `window.AndroidGPS.updateStatus(String(courseToUpdate.ikRoTrans), newStatus)` în VehicleScreenProfessional.tsx linia 895
-- **SOLUȚIA APLICATĂ**: 
-  - Înlocuit `courseToUpdate.ikRoTrans` cu `courseToUpdate.uit` în updateStatus call
-  - BackgroundGPSService.java deja avea fix-ul pentru sendStatusUpdateToServer cu realUit extraction
-  - Enhanced logging pentru verificare: ikRoTrans → realUit mapping în Android service
-- **REZULTAT FINAL**: TOATE status updates (START/PAUSE/RESUME/STOP) trimit acum UIT real la server
-- **VERIFICARE**: LogCat va arăta "ikRoTrans: 133376 → realUIT: 0L8N331085130163" pentru debugging
+```

@@ -233,7 +233,7 @@ const performVehicleCoursesRequest = async (
               arrival_time: null,
               description: course.denumireDeclarant,
               status: 1,
-              uit: course.UIT,
+              uit: course.UIT || course.uit || `UIT_${course.ikRoTrans}`, // Fallback pentru cazuri când UIT lipsește
               ikRoTrans: course.ikRoTrans,
               codDeclarant: course.codDeclarant,
               denumireDeclarant: course.denumireDeclarant,

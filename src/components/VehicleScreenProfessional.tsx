@@ -876,7 +876,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
           
           // Send status update to server doar pentru STATUS 2 (START) - ORDINEA CORECTĂ A PARAMETRILOR
-          await updateCourseStatus(String(courseToUpdate.ikRoTrans), newStatus, token, vehicleNumber);
+          await updateCourseStatus(courseToUpdate.uit, newStatus, token, vehicleNumber); // FIXED: folosește UIT real
           console.log(`✅ Status ${newStatus} (START) trimis cu succes la server pentru UIT ${courseToUpdate.uit}`);
         }
         
