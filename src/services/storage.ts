@@ -80,12 +80,10 @@ export const getVehicleNumberHistory = async (): Promise<string[]> => {
   }
 };
 
-
-
 export const removeVehicleNumberFromHistory = async (vehicleNumber: string): Promise<void> => {
   try {
     const history = await getVehicleNumberHistory();
-    const updatedHistory = history.filter(num => num !== vehicleNumber);
+    const updatedHistory = history.filter(v => v !== vehicleNumber);
     await Preferences.set({ key: VEHICLE_HISTORY_KEY, value: JSON.stringify(updatedHistory) });
   } catch (error) {
     console.error('Error removing vehicle number from history:', error);

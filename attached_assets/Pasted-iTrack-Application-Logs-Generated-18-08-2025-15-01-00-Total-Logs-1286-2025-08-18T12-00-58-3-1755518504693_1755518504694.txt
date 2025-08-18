@@ -1,0 +1,858 @@
+iTrack Application Logs
+Generated: 18.08.2025, 15:01:00
+Total Logs: 1286
+
+[2025-08-18T12:00:58.308Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T12:00:58.305Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T12:00:33.510Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T12:00:32.667Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T12:00:32.647Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T12:00:27.548Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T12:00:27.526Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T12:00:23.510Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T12:00:22.668Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T12:00:22.646Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T12:00:17.551Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T12:00:17.526Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T12:00:13.508Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T12:00:12.666Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T12:00:12.647Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T12:00:07.550Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T12:00:07.526Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T12:00:03.510Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T12:00:02.655Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T12:00:02.644Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:57.544Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:57.528Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:53.507Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:59:52.639Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:52.618Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:47.551Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:47.530Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:43.506Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:59:42.666Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:42.652Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:37.547Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:37.526Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:32.728Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:59:32.123Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:32.114Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:27.128Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:27.120Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:22.729Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:59:22.127Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:22.121Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:17.119Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:17.113Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:12.728Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:59:12.119Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:12.114Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:10.431Z] INFO (APP): Acțiune cursă finalizată: 133376
+[2025-08-18T11:59:10.429Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-18T11:59:10.427Z] INFO (API): Course 0L8N331085130163 status updated successfully to 2
+[2025-08-18T11:59:10.426Z] INFO (APP): ✅ Cursa 0L8N331085130163 status actualizat la 2 cu succes
+[2025-08-18T11:59:10.423Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE COMPLETED ===
+[2025-08-18T11:59:10.422Z] INFO (APP): ✅ Rezultat Android updateStatus: SUCCESS: BACKGROUND GPS status ACTIVE for 133376
+[2025-08-18T11:59:10.418Z] INFO (APP): 📊 UIT: 0L8N331085130163, Status: 2
+[2025-08-18T11:59:10.417Z] INFO (APP): 🔧 updateStatus method disponibil: true
+[2025-08-18T11:59:10.415Z] INFO (APP): 🔧 AndroidGPS disponibil: true
+[2025-08-18T11:59:10.413Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE START ===
+[2025-08-18T11:59:10.411Z] INFO (APP): ✅ Status 2 (START) trimis cu succes la server pentru UIT 0L8N331085130163
+[2025-08-18T11:59:10.387Z] INFO (APP): 📱 Serviciul GPS Android actualizat: SUCCESS: BACKGROUND GPS status ACTIVE for 133376
+[2025-08-18T11:59:10.381Z] INFO (APP): 🎯 STATUS 2 TRIMIS CU SUCCES PENTRU UIT 133376
+[2025-08-18T11:59:10.379Z] INFO (APP): 📊 Response headers: [object Object]
+[2025-08-18T11:59:10.376Z] INFO (APP): 📋 Tip răspuns pentru STATUS 2: string
+[2025-08-18T11:59:10.373Z] INFO (APP): 📊 Răspuns server complet: 
+[2025-08-18T11:59:10.370Z] INFO (APP): ✅ Actualizarea statusului pe server cu succes: 200
+[2025-08-18T11:59:09.991Z] INFO (APP): 🌐 URL API de bază: https://www.euscagency.com/etsm_prod/platforme/transport/apk/ (configurație centralizată)
+[2025-08-18T11:59:09.988Z] INFO (APP): 📋 gps.php = actualizări status | vehicul.php = doar interogări curse
+[2025-08-18T11:59:09.970Z] INFO (APP): 🎯 SELECTARE ENDPOINT: TOATE actualizările de status → gps.php
+[2025-08-18T11:59:09.963Z] INFO (APP): 📤 Toate câmpurile completate ca BackgroundGPSService + headers identice pentru răspuns 200: {
+  "uit": "133376",
+  "numar_inmatriculare": "TM39ECC",
+  "lat": 44.2582865,
+  "lng": 28.6173863,
+  "viteza": 0,
+  "directie": 0,
+  "altitudine": 55,
+  "hdop": 19,
+  "gsm_signal": 4,
+  "baterie": "12%",
+  "status": 2,
+  "timestamp": "2025-08-18 14:59:09"
+}
+[2025-08-18T11:59:09.961Z] INFO (APP): 📤 === STRUCTURA COMPLETĂ CA GPS PENTRU STATUS 2 ===
+[2025-08-18T11:59:09.905Z] INFO (APP): 📍 GPS reale obținute pentru status 2: 44.2582865, 28.6173863
+[2025-08-18T11:59:07.111Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:07.106Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:59:06.304Z] INFO (APP): 🎯 IMPORTANT: Serverul cere coordonate GPS reale pentru răspuns 200!
+[2025-08-18T11:59:06.301Z] INFO (APP): 🚛 Numărul Vehiculului: TM39ECC
+[2025-08-18T11:59:06.300Z] INFO (APP): 🔑 Lungime Token: 136
+[2025-08-18T11:59:06.298Z] INFO (APP): 📋 Status Nou: 2 (2=ACTIV, 3=PAUZA, 4=STOP)
+[2025-08-18T11:59:06.297Z] INFO (APP): 📊 UIT: 133376
+[2025-08-18T11:59:06.295Z] INFO (APP): 🌐 === TRIMITERE ACTUALIZARE STATUS ===
+[2025-08-18T11:59:06.294Z] INFO (APP): 🚛 Numărul vehiculului pentru actualizare status: "TM39ECC"
+[2025-08-18T11:59:06.292Z] INFO (APP): 📊 UIT: 0L8N331085130163, Status: 2 (2=ACTIV)
+[2025-08-18T11:59:06.290Z] INFO (APP): 🔄 === TRIMITERE STATUS 2 (START) LA SERVER ===
+[2025-08-18T11:59:06.289Z] INFO (APP): ⚡ EFICIENT: Folosim doar Android BackgroundGPSService pentru TOATE cursele
+[2025-08-18T11:59:06.287Z] INFO (APP): ⚡ MULTI-UIT: Serviciul Android va transmite pentru toate cursele active
+[2025-08-18T11:59:06.284Z] INFO (APP): 📱 UIT nou adăugat la serviciul Android: SUCCESS: BACKGROUND GPS started for 133376
+[2025-08-18T11:59:06.282Z] INFO (APP): 📊 GPS service va urmări toate cursele active cu același set de coordonate
+[2025-08-18T11:59:06.280Z] INFO (APP): 🔥 BackgroundGPSService Result: SUCCESS: BACKGROUND GPS started for 133376
+[2025-08-18T11:59:06.271Z] INFO (APP): 🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS
+[2025-08-18T11:59:06.270Z] INFO (APP): 📋 IMPORTANT: BackgroundGPSService acceptă MULTIPLE curse - se adaugă la lista activă
+[2025-08-18T11:59:06.269Z] INFO (APP): ✅ AndroidGPS.startGPS disponibil - pornesc BackgroundGPSService
+[2025-08-18T11:59:06.267Z] INFO (APP): 📱 Verificare interfață AndroidGPS: [object Object]
+[2025-08-18T11:59:06.265Z] INFO (APP): 🚀 === APELARE SERVICIU GPS ANDROID ===
+[2025-08-18T11:59:06.262Z] INFO (APP): 📋 Cursă 2 adăugată - adaug UIT-ul la serviciul Android care rulează
+[2025-08-18T11:59:06.258Z] INFO (APP): 📋 Curse active: 2
+[2025-08-18T11:59:06.248Z] INFO (APP): 📊 Continuing from: 0.00km, 0min
+[2025-08-18T11:59:06.242Z] INFO (APP): ▶️ Resumed analytics tracking for course: 133376
+[2025-08-18T11:59:06.089Z] INFO (APP): ▶️ RESUME: Cursa era deja în activeCourses - reactivez analytics
+[2025-08-18T11:59:06.087Z] INFO (APP): 🚀 PORNIRE/RESUME GPS: Status 2 (ACTIV) - adaug cursa la lista activă
+[2025-08-18T11:59:06.085Z] INFO (APP): 📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat
+[2025-08-18T11:59:06.083Z] INFO (APP): 📞 Se apelează direct Android GPS cu UIT: 0L8N331085130163
+[2025-08-18T11:59:06.081Z] INFO (APP): 🎯 ANDROID NATIVE: BackgroundGPSService cu GPS nativ și precizie maximă
+[2025-08-18T11:59:06.078Z] INFO (APP): ✅ Permisiuni GPS verificate și acordate
+[2025-08-18T11:59:06.075Z] INFO (APP): 📋 Permisiuni GPS actuale: [object Object]
+[2025-08-18T11:59:05.873Z] INFO (APP): 🔍 === VERIFICARE PERMISIUNI GPS ===
+[2025-08-18T11:59:05.871Z] INFO (APP): 🚛 VehicleNumber pentru status update: "TM39ECC" (length: 7)
+[2025-08-18T11:59:05.869Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-18T11:59:05.862Z] INFO (APP): UIT REAL: 0L8N331085130163, Vehicul: TM39ECC
+[2025-08-18T11:59:05.860Z] INFO (APP): Cursă: 133376, Status: 3 → 2
+[2025-08-18T11:59:05.858Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-18T11:59:05.856Z] INFO (APP): 💾 Status 2 salvat pentru UIT 0L8N331085130163
+[2025-08-18T11:59:05.854Z] INFO (APP): 🔄 Status actualizat în activeCourses pentru ikRoTrans 133376 (UIT: 0L8N331085130163): 2
+[2025-08-18T11:59:05.851Z] INFO (APP): Se procesează acțiunea pentru cursa: 133376
+[2025-08-18T11:59:02.844Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:59:02.541Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:59:02.521Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:57.123Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:57.115Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:52.819Z] INFO (APP): ✅ Auto-refresh: 2 courses updated (preserved statuses)
+[2025-08-18T11:58:52.818Z] INFO (APP): 🔄 Auto-refresh: Preserving status 2 for UIT 6C7V511585130172
+[2025-08-18T11:58:52.815Z] INFO (APP): 🔄 Auto-refresh: Preserving status 3 for UIT 0L8N331085130163
+[2025-08-18T11:58:52.808Z] INFO (API): Request completed for TM39ECC - all locks cleared
+[2025-08-18T11:58:52.806Z] INFO (APP): Request completed - locks cleared
+[2025-08-18T11:58:52.790Z] INFO (API): Processed 2 courses for TM39ECC
+[2025-08-18T11:58:52.788Z] INFO (APP): Processed 2 courses successfully
+[2025-08-18T11:58:52.785Z] INFO (APP): Processing course data
+[2025-08-18T11:58:52.783Z] INFO (APP): Found 2 courses for vehicle TM39ECC
+[2025-08-18T11:58:52.781Z] INFO (API): API response: status=200, data={"status":"success","count":2,"data":[{"ikRoTrans":133376,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"0L8N331085130163","dataTransport":"2025-08-13","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Pestalozzi nr. 3-5 nr. -, Timisoara, Jud. Timi?","JudetStop":"TM","denumireLocStop":"TIMISOARA"},{"ikRoTrans":133378,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"6C7V511585130172","dataTransport":"2025-08-13","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Sulina nr. 11 nr. -, Timisoara, Jud. Timi?","JudetStop":"TM","denumireLocStop":"TIMISOARA"}]}
+[2025-08-18T11:58:52.779Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 2,
+  "data": [
+    {
+      "ikRoTrans": 133376,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "0L8N331085130163",
+      "dataTransport": "2025-08-13",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Pestalozzi nr. 3-5 nr. -, Timisoara, Jud. Timi?",
+      "JudetStop": "TM",
+      "denumireLocStop": "TIMISOARA"
+    },
+    {
+      "ikRoTrans": 133378,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "6C7V511585130172",
+      "dataTransport": "2025-08-13",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Sulina nr. 11 nr. -, Timisoara, Jud. Timi?",
+      "JudetStop": "TM",
+      "denumireLocStop": "TIMISOARA"
+    }
+  ]
+}
+[2025-08-18T11:58:52.777Z] INFO (APP): API Response Status: 200
+[2025-08-18T11:58:52.775Z] INFO (APP): Data length: No data
+[2025-08-18T11:58:52.727Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:58:52.467Z] INFO (API): Loading courses for vehicle TM39ECC
+[2025-08-18T11:58:52.462Z] INFO (APP): [14:58:52] Auto-refresh starting (Android background)...
+[2025-08-18T11:58:52.118Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:52.113Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:47.111Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:47.108Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:42.729Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:58:42.125Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:42.119Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:37.122Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:37.117Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:32.729Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:58:32.121Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:32.115Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:27.127Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:27.119Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:22.729Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:58:22.127Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:22.121Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:17.123Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:17.116Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:12.728Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:58:12.129Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:12.120Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:07.133Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:07.114Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:04.468Z] INFO (APP): Acțiune cursă finalizată: 133376
+[2025-08-18T11:58:04.467Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-18T11:58:04.465Z] INFO (API): Course 0L8N331085130163 status updated successfully to 3
+[2025-08-18T11:58:04.464Z] INFO (APP): ✅ Cursa 0L8N331085130163 status actualizat la 3 cu succes
+[2025-08-18T11:58:04.463Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE COMPLETED ===
+[2025-08-18T11:58:04.461Z] INFO (APP): ✅ Rezultat Android updateStatus: SUCCESS: BACKGROUND GPS status PAUSE for 133376
+[2025-08-18T11:58:04.456Z] INFO (APP): 📡 Endpoint: gps.php - ar trebui să primească răspuns 200
+[2025-08-18T11:58:04.455Z] INFO (APP): 🎯 === CRITICĂ === Status 3 va fi trimis la server de serviciul Android!
+[2025-08-18T11:58:04.454Z] INFO (APP): 📊 UIT: 0L8N331085130163, Status: 3
+[2025-08-18T11:58:04.453Z] INFO (APP): 🔧 updateStatus method disponibil: true
+[2025-08-18T11:58:04.452Z] INFO (APP): 🔧 AndroidGPS disponibil: true
+[2025-08-18T11:58:04.450Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE START ===
+[2025-08-18T11:58:04.449Z] INFO (APP): 🎯 Serviciul Android va trimite la gps.php cu răspuns 200 garantat
+[2025-08-18T11:58:04.448Z] INFO (APP): 📊 UIT: 0L8N331085130163, Status: 3 (3=PAUZA, 4=STOP)
+[2025-08-18T11:58:04.447Z] INFO (APP): 🔄 === STATUS 3 TRIMIS DE SERVICIUL ANDROID ===
+[2025-08-18T11:58:04.444Z] INFO (APP): ⏸️ Analytics paused pentru UIT: 0L8N331085130163
+[2025-08-18T11:58:04.438Z] INFO (APP): 📊 Current stats: 0.00km, 0min, 0.0km/h
+[2025-08-18T11:58:04.435Z] INFO (APP): ⏸️ Paused analytics tracking for course: 133376
+[2025-08-18T11:58:04.143Z] INFO (APP): 📋 Curse active rămân: 2 (inclusiv 0L8N331085130163 în pauză)
+[2025-08-18T11:58:04.142Z] INFO (APP): 📋 PAUSE: Cursa nu se elimină din activeCourses - doar se pune în pauză
+[2025-08-18T11:58:04.141Z] INFO (APP): ⏸️ PAUSE STATUS: Status 3 - cursa rămâne în listă dar inactivă
+[2025-08-18T11:58:04.140Z] INFO (APP): 📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat
+[2025-08-18T11:58:04.138Z] INFO (APP): 📞 Se apelează direct Android GPS cu UIT: 0L8N331085130163
+[2025-08-18T11:58:04.137Z] INFO (APP): 🎯 ANDROID NATIVE: BackgroundGPSService cu GPS nativ și precizie maximă
+[2025-08-18T11:58:04.136Z] INFO (APP): 🚛 VehicleNumber pentru status update: "TM39ECC" (length: 7)
+[2025-08-18T11:58:04.135Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-18T11:58:04.133Z] INFO (APP): UIT REAL: 0L8N331085130163, Vehicul: TM39ECC
+[2025-08-18T11:58:04.132Z] INFO (APP): Cursă: 133376, Status: 2 → 3
+[2025-08-18T11:58:04.130Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-18T11:58:04.127Z] INFO (APP): 💾 Status 3 salvat pentru UIT 0L8N331085130163
+[2025-08-18T11:58:04.126Z] INFO (APP): 🔄 Status actualizat în activeCourses pentru ikRoTrans 133376 (UIT: 0L8N331085130163): 3
+[2025-08-18T11:58:04.124Z] INFO (APP): Se procesează acțiunea pentru cursa: 133376
+[2025-08-18T11:58:02.731Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:58:02.121Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:58:02.120Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:58:01.400Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:57:07.694Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:57:07.679Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:56:07.703Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:56:07.680Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:55:07.650Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:55:07.633Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:55:02.665Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:55:02.645Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:57.544Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:57.530Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:53.510Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:54:52.670Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:52.647Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:47.554Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:47.531Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:43.508Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:54:42.620Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:42.612Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:37.553Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:37.530Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:33.511Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:54:32.666Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:32.640Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:27.547Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:27.527Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:23.510Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:54:22.669Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:22.642Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:17.551Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:17.532Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:13.509Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:54:12.671Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:12.647Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:07.554Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:07.530Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:54:02.728Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:54:02.115Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:54:02.110Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:53:57.118Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:53:57.113Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:53:53.217Z] INFO (APP): ✅ Auto-refresh: 2 courses updated (preserved statuses)
+[2025-08-18T11:53:53.215Z] INFO (APP): 🔄 Auto-refresh: Preserving status 2 for UIT 6C7V511585130172
+[2025-08-18T11:53:53.212Z] INFO (APP): 🔄 Auto-refresh: Preserving status 2 for UIT 0L8N331085130163
+[2025-08-18T11:53:53.207Z] INFO (API): Request completed for TM39ECC - all locks cleared
+[2025-08-18T11:53:53.204Z] INFO (APP): Request completed - locks cleared
+[2025-08-18T11:53:53.177Z] INFO (API): Processed 2 courses for TM39ECC
+[2025-08-18T11:53:53.176Z] INFO (APP): Processed 2 courses successfully
+[2025-08-18T11:53:53.174Z] INFO (APP): Processing course data
+[2025-08-18T11:53:53.171Z] INFO (APP): Found 2 courses for vehicle TM39ECC
+[2025-08-18T11:53:53.168Z] INFO (API): API response: status=200, data={"status":"success","count":2,"data":[{"ikRoTrans":133376,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"0L8N331085130163","dataTransport":"2025-08-13","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Pestalozzi nr. 3-5 nr. -, Timisoara, Jud. Timi?","JudetStop":"TM","denumireLocStop":"TIMISOARA"},{"ikRoTrans":133378,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"6C7V511585130172","dataTransport":"2025-08-13","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Sulina nr. 11 nr. -, Timisoara, Jud. Timi?","JudetStop":"TM","denumireLocStop":"TIMISOARA"}]}
+[2025-08-18T11:53:53.166Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 2,
+  "data": [
+    {
+      "ikRoTrans": 133376,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "0L8N331085130163",
+      "dataTransport": "2025-08-13",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Pestalozzi nr. 3-5 nr. -, Timisoara, Jud. Timi?",
+      "JudetStop": "TM",
+      "denumireLocStop": "TIMISOARA"
+    },
+    {
+      "ikRoTrans": 133378,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "6C7V511585130172",
+      "dataTransport": "2025-08-13",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Sulina nr. 11 nr. -, Timisoara, Jud. Timi?",
+      "JudetStop": "TM",
+      "denumireLocStop": "TIMISOARA"
+    }
+  ]
+}
+[2025-08-18T11:53:53.163Z] INFO (APP): API Response Status: 200
+[2025-08-18T11:53:53.158Z] INFO (APP): Data length: No data
+[2025-08-18T11:53:52.728Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:53:52.470Z] INFO (API): Loading courses for vehicle TM39ECC
+[2025-08-18T11:53:52.464Z] INFO (APP): [14:53:52] Auto-refresh starting (Android background)...
+[2025-08-18T11:53:52.125Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:53:52.118Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:53:47.126Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:53:47.119Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:53:42.729Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:53:42.123Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:53:42.117Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:53:37.700Z] INFO (APP): Acțiune cursă finalizată: 133376
+[2025-08-18T11:53:37.699Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-18T11:53:37.697Z] INFO (API): Course 0L8N331085130163 status updated successfully to 2
+[2025-08-18T11:53:37.696Z] INFO (APP): ✅ Cursa 0L8N331085130163 status actualizat la 2 cu succes
+[2025-08-18T11:53:37.695Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE COMPLETED ===
+[2025-08-18T11:53:37.694Z] INFO (APP): ✅ Rezultat Android updateStatus: SUCCESS: BACKGROUND GPS status ACTIVE for 133376
+[2025-08-18T11:53:37.689Z] INFO (APP): 📊 UIT: 0L8N331085130163, Status: 2
+[2025-08-18T11:53:37.688Z] INFO (APP): 🔧 updateStatus method disponibil: true
+[2025-08-18T11:53:37.686Z] INFO (APP): 🔧 AndroidGPS disponibil: true
+[2025-08-18T11:53:37.685Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE START ===
+[2025-08-18T11:53:37.683Z] INFO (APP): ✅ Status 2 (START) trimis cu succes la server pentru UIT 0L8N331085130163
+[2025-08-18T11:53:37.672Z] INFO (APP): 📱 Serviciul GPS Android actualizat: SUCCESS: BACKGROUND GPS status ACTIVE for 133376
+[2025-08-18T11:53:37.667Z] INFO (APP): 🎯 STATUS 2 TRIMIS CU SUCCES PENTRU UIT 133376
+[2025-08-18T11:53:37.666Z] INFO (APP): 📊 Response headers: [object Object]
+[2025-08-18T11:53:37.665Z] INFO (APP): 📋 Tip răspuns pentru STATUS 2: string
+[2025-08-18T11:53:37.664Z] INFO (APP): 📊 Răspuns server complet: 
+[2025-08-18T11:53:37.656Z] INFO (APP): ✅ Actualizarea statusului pe server cu succes: 200
+[2025-08-18T11:53:37.225Z] INFO (APP): 🌐 URL API de bază: https://www.euscagency.com/etsm_prod/platforme/transport/apk/ (configurație centralizată)
+[2025-08-18T11:53:37.224Z] INFO (APP): 📋 gps.php = actualizări status | vehicul.php = doar interogări curse
+[2025-08-18T11:53:37.222Z] INFO (APP): 🎯 SELECTARE ENDPOINT: TOATE actualizările de status → gps.php
+[2025-08-18T11:53:37.221Z] INFO (APP): 📤 Toate câmpurile completate ca BackgroundGPSService + headers identice pentru răspuns 200: {
+  "uit": "133376",
+  "numar_inmatriculare": "TM39ECC",
+  "lat": 44.2583466,
+  "lng": 28.6174635,
+  "viteza": 0,
+  "directie": 0,
+  "altitudine": 55,
+  "hdop": 20,
+  "gsm_signal": 4,
+  "baterie": "12%",
+  "status": 2,
+  "timestamp": "2025-08-18 14:53:37"
+}
+[2025-08-18T11:53:37.218Z] INFO (APP): 📤 === STRUCTURA COMPLETĂ CA GPS PENTRU STATUS 2 ===
+[2025-08-18T11:53:37.168Z] INFO (APP): 📍 GPS reale obținute pentru status 2: 44.2583466, 28.6174635
+[2025-08-18T11:53:37.120Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:53:37.114Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:53:32.954Z] INFO (APP): 🎯 IMPORTANT: Serverul cere coordonate GPS reale pentru răspuns 200!
+[2025-08-18T11:53:32.953Z] INFO (APP): 🚛 Numărul Vehiculului: TM39ECC
+[2025-08-18T11:53:32.949Z] INFO (APP): 🔑 Lungime Token: 136
+[2025-08-18T11:53:32.948Z] INFO (APP): 📋 Status Nou: 2 (2=ACTIV, 3=PAUZA, 4=STOP)
+[2025-08-18T11:53:32.947Z] INFO (APP): 📊 UIT: 133376
+[2025-08-18T11:53:32.945Z] INFO (APP): 🌐 === TRIMITERE ACTUALIZARE STATUS ===
+[2025-08-18T11:53:32.944Z] INFO (APP): 🚛 Numărul vehiculului pentru actualizare status: "TM39ECC"
+[2025-08-18T11:53:32.942Z] INFO (APP): 📊 UIT: 0L8N331085130163, Status: 2 (2=ACTIV)
+[2025-08-18T11:53:32.941Z] INFO (APP): 🔄 === TRIMITERE STATUS 2 (START) LA SERVER ===
+[2025-08-18T11:53:32.940Z] INFO (APP): ⚡ EFICIENT: Folosim doar Android BackgroundGPSService pentru TOATE cursele
+[2025-08-18T11:53:32.939Z] INFO (APP): ⚡ MULTI-UIT: Serviciul Android va transmite pentru toate cursele active
+[2025-08-18T11:53:32.938Z] INFO (APP): 📱 UIT nou adăugat la serviciul Android: SUCCESS: BACKGROUND GPS started for 133376
+[2025-08-18T11:53:32.937Z] INFO (APP): 📊 GPS service va urmări toate cursele active cu același set de coordonate
+[2025-08-18T11:53:32.935Z] INFO (APP): 🔥 BackgroundGPSService Result: SUCCESS: BACKGROUND GPS started for 133376
+[2025-08-18T11:53:32.926Z] INFO (APP): 🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS
+[2025-08-18T11:53:32.925Z] INFO (APP): 📋 IMPORTANT: BackgroundGPSService acceptă MULTIPLE curse - se adaugă la lista activă
+[2025-08-18T11:53:32.923Z] INFO (APP): ✅ AndroidGPS.startGPS disponibil - pornesc BackgroundGPSService
+[2025-08-18T11:53:32.922Z] INFO (APP): 📱 Verificare interfață AndroidGPS: [object Object]
+[2025-08-18T11:53:32.920Z] INFO (APP): 🚀 === APELARE SERVICIU GPS ANDROID ===
+[2025-08-18T11:53:32.919Z] INFO (APP): 📋 Cursă 2 adăugată - adaug UIT-ul la serviciul Android care rulează
+[2025-08-18T11:53:32.916Z] INFO (APP): 📋 Curse active: 2
+[2025-08-18T11:53:32.911Z] INFO (APP): 📊 Started NEW analytics tracking for course: 133376 | UIT: 0L8N331085130163
+[2025-08-18T11:53:32.744Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:53:32.726Z] INFO (APP): 🚀 START NOU: Adaug cursă nouă la activeCourses și pornesc analytics
+[2025-08-18T11:53:32.724Z] INFO (APP): 🚀 PORNIRE/RESUME GPS: Status 2 (ACTIV) - adaug cursa la lista activă
+[2025-08-18T11:53:32.723Z] INFO (APP): 📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat
+[2025-08-18T11:53:32.721Z] INFO (APP): 📞 Se apelează direct Android GPS cu UIT: 0L8N331085130163
+[2025-08-18T11:53:32.720Z] INFO (APP): 🎯 ANDROID NATIVE: BackgroundGPSService cu GPS nativ și precizie maximă
+[2025-08-18T11:53:32.718Z] INFO (APP): ✅ Permisiuni GPS verificate și acordate
+[2025-08-18T11:53:32.716Z] INFO (APP): 📋 Permisiuni GPS actuale: [object Object]
+[2025-08-18T11:53:32.560Z] INFO (APP): 🔍 === VERIFICARE PERMISIUNI GPS ===
+[2025-08-18T11:53:32.559Z] INFO (APP): 🚛 VehicleNumber pentru status update: "TM39ECC" (length: 7)
+[2025-08-18T11:53:32.557Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-18T11:53:32.556Z] INFO (APP): UIT REAL: 0L8N331085130163, Vehicul: TM39ECC
+[2025-08-18T11:53:32.554Z] INFO (APP): Cursă: 133376, Status: 1 → 2
+[2025-08-18T11:53:32.553Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-18T11:53:32.552Z] INFO (APP): 💾 Status 2 salvat pentru UIT 0L8N331085130163
+[2025-08-18T11:53:32.550Z] INFO (APP): Se procesează acțiunea pentru cursa: 133376
+[2025-08-18T11:53:32.115Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:53:32.112Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:53:31.406Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:53:31.400Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:53:07.709Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:53:07.696Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:52:07.694Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:52:07.671Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:51:07.473Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:51:07.461Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:50:47.343Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:50:47.324Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:50:43.301Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:50:42.440Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:50:42.423Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:50:37.345Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:50:37.325Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:50:33.303Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:50:32.443Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:50:32.426Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:50:27.346Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:50:27.326Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:50:23.303Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:50:22.448Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:50:22.430Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:50:17.342Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:50:17.323Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:50:13.301Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:50:12.452Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:50:12.434Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:50:07.344Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:50:07.324Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:50:03.301Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:50:02.413Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:50:02.396Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:57.336Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:57.319Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:53.302Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:49:52.397Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:52.382Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:46.917Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:46.911Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:42.523Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:49:41.912Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:41.907Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:36.909Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:36.904Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:32.523Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:49:31.916Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:31.910Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:26.916Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:26.908Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:24.277Z] INFO (APP): Acțiune cursă finalizată: 133378
+[2025-08-18T11:49:24.276Z] INFO (APP): === ACTUALIZARE STATUS COMPLETĂ ===
+[2025-08-18T11:49:24.275Z] INFO (API): Course 6C7V511585130172 status updated successfully to 2
+[2025-08-18T11:49:24.273Z] INFO (APP): ✅ Cursa 6C7V511585130172 status actualizat la 2 cu succes
+[2025-08-18T11:49:24.272Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE COMPLETED ===
+[2025-08-18T11:49:24.271Z] INFO (APP): ✅ Rezultat Android updateStatus: SUCCESS: BACKGROUND GPS status ACTIVE for 133378
+[2025-08-18T11:49:24.268Z] INFO (APP): 📊 UIT: 6C7V511585130172, Status: 2
+[2025-08-18T11:49:24.266Z] INFO (APP): 🔧 updateStatus method disponibil: true
+[2025-08-18T11:49:24.265Z] INFO (APP): 🔧 AndroidGPS disponibil: true
+[2025-08-18T11:49:24.263Z] INFO (APP): 📱 === ANDROID GPS STATUS UPDATE START ===
+[2025-08-18T11:49:24.260Z] INFO (APP): ✅ Status 2 (START) trimis cu succes la server pentru UIT 6C7V511585130172
+[2025-08-18T11:49:24.244Z] INFO (APP): 📱 Serviciul GPS Android actualizat: SUCCESS: BACKGROUND GPS status ACTIVE for 133378
+[2025-08-18T11:49:24.239Z] INFO (APP): 🎯 STATUS 2 TRIMIS CU SUCCES PENTRU UIT 133378
+[2025-08-18T11:49:24.237Z] INFO (APP): 📊 Response headers: [object Object]
+[2025-08-18T11:49:24.228Z] INFO (APP): 📋 Tip răspuns pentru STATUS 2: string
+[2025-08-18T11:49:24.226Z] INFO (APP): 📊 Răspuns server complet: 
+[2025-08-18T11:49:24.223Z] INFO (APP): ✅ Actualizarea statusului pe server cu succes: 200
+[2025-08-18T11:49:24.037Z] INFO (APP): 🌐 URL API de bază: https://www.euscagency.com/etsm_prod/platforme/transport/apk/ (configurație centralizată)
+[2025-08-18T11:49:24.036Z] INFO (APP): 📋 gps.php = actualizări status | vehicul.php = doar interogări curse
+[2025-08-18T11:49:24.035Z] INFO (APP): 🎯 SELECTARE ENDPOINT: TOATE actualizările de status → gps.php
+[2025-08-18T11:49:24.033Z] INFO (APP): 📤 Toate câmpurile completate ca BackgroundGPSService + headers identice pentru răspuns 200: {
+  "uit": "133378",
+  "numar_inmatriculare": "TM39ECC",
+  "lat": 44.2582847,
+  "lng": 28.6173808,
+  "viteza": 0,
+  "directie": 0,
+  "altitudine": 55,
+  "hdop": 18,
+  "gsm_signal": 4,
+  "baterie": "13%",
+  "status": 2,
+  "timestamp": "2025-08-18 14:49:24"
+}
+[2025-08-18T11:49:24.031Z] INFO (APP): 📤 === STRUCTURA COMPLETĂ CA GPS PENTRU STATUS 2 ===
+[2025-08-18T11:49:23.974Z] INFO (APP): 📍 GPS reale obținute pentru status 2: 44.2582847, 28.6173808
+[2025-08-18T11:49:22.520Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:49:21.907Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:21.903Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:21.049Z] INFO (APP): 🎯 IMPORTANT: Serverul cere coordonate GPS reale pentru răspuns 200!
+[2025-08-18T11:49:21.048Z] INFO (APP): 🚛 Numărul Vehiculului: TM39ECC
+[2025-08-18T11:49:21.048Z] INFO (APP): 🔑 Lungime Token: 136
+[2025-08-18T11:49:21.047Z] INFO (APP): 📋 Status Nou: 2 (2=ACTIV, 3=PAUZA, 4=STOP)
+[2025-08-18T11:49:21.046Z] INFO (APP): 📊 UIT: 133378
+[2025-08-18T11:49:21.044Z] INFO (APP): 🌐 === TRIMITERE ACTUALIZARE STATUS ===
+[2025-08-18T11:49:21.042Z] INFO (APP): 🚛 Numărul vehiculului pentru actualizare status: "TM39ECC"
+[2025-08-18T11:49:21.041Z] INFO (APP): 📊 UIT: 6C7V511585130172, Status: 2 (2=ACTIV)
+[2025-08-18T11:49:21.040Z] INFO (APP): 🔄 === TRIMITERE STATUS 2 (START) LA SERVER ===
+[2025-08-18T11:49:21.038Z] INFO (APP): ⚡ EFICIENT: Folosim doar Android BackgroundGPSService pentru TOATE cursele
+[2025-08-18T11:49:21.037Z] INFO (APP): 📱 Rezultat Serviciu GPS Android: SUCCESS: BACKGROUND GPS started for 133378
+[2025-08-18T11:49:21.036Z] INFO (APP): 📊 GPS service va urmări toate cursele active cu același set de coordonate
+[2025-08-18T11:49:21.034Z] INFO (APP): 🔥 BackgroundGPSService Result: SUCCESS: BACKGROUND GPS started for 133378
+[2025-08-18T11:49:21.020Z] INFO (APP): 🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS
+[2025-08-18T11:49:21.019Z] INFO (APP): 📋 IMPORTANT: BackgroundGPSService acceptă MULTIPLE curse - se adaugă la lista activă
+[2025-08-18T11:49:21.018Z] INFO (APP): ✅ AndroidGPS.startGPS disponibil - pornesc BackgroundGPSService
+[2025-08-18T11:49:21.016Z] INFO (APP): 📱 Verificare interfață AndroidGPS: [object Object]
+[2025-08-18T11:49:21.015Z] INFO (APP): 🚀 === APELARE SERVICIU GPS ANDROID ===
+[2025-08-18T11:49:21.013Z] INFO (APP): 🚀 Prima cursă activă - pornesc serviciul Android GPS
+[2025-08-18T11:49:21.010Z] INFO (APP): 📋 Curse active: 1
+[2025-08-18T11:49:21.005Z] INFO (APP): 📊 Started NEW analytics tracking for course: 133378 | UIT: 6C7V511585130172
+[2025-08-18T11:49:20.859Z] INFO (APP): 🚀 START NOU: Adaug cursă nouă la activeCourses și pornesc analytics
+[2025-08-18T11:49:20.857Z] INFO (APP): 🚀 PORNIRE/RESUME GPS: Status 2 (ACTIV) - adaug cursa la lista activă
+[2025-08-18T11:49:20.855Z] INFO (APP): 📍 GPS NATIV: Coordonate 7 decimale, sub 15m accuracy, background garantat
+[2025-08-18T11:49:20.851Z] INFO (APP): 📞 Se apelează direct Android GPS cu UIT: 6C7V511585130172
+[2025-08-18T11:49:20.850Z] INFO (APP): 🎯 ANDROID NATIVE: BackgroundGPSService cu GPS nativ și precizie maximă
+[2025-08-18T11:49:20.848Z] INFO (APP): ✅ Permisiuni GPS verificate și acordate
+[2025-08-18T11:49:20.846Z] INFO (APP): 📝 Rezultat permisiuni background: [object Object]
+[2025-08-18T11:49:20.805Z] INFO (APP): 🔐 Solicit permisiuni GPS background (coarse)...
+[2025-08-18T11:49:20.803Z] INFO (APP): 📝 Rezultat cerere permisiuni standard: [object Object]
+[2025-08-18T11:49:19.192Z] INFO (APP): 🔐 Solicit permisiuni GPS standard...
+[2025-08-18T11:49:19.191Z] INFO (APP): 📋 Permisiuni GPS actuale: [object Object]
+[2025-08-18T11:49:19.042Z] INFO (APP): 🔍 === VERIFICARE PERMISIUNI GPS ===
+[2025-08-18T11:49:19.040Z] INFO (APP): 🚛 VehicleNumber pentru status update: "TM39ECC" (length: 7)
+[2025-08-18T11:49:19.039Z] INFO (APP): Token disponibil: true, Lungime token: 136
+[2025-08-18T11:49:19.038Z] INFO (APP): UIT REAL: 6C7V511585130172, Vehicul: TM39ECC
+[2025-08-18T11:49:19.037Z] INFO (APP): Cursă: 133378, Status: 1 → 2
+[2025-08-18T11:49:19.036Z] INFO (APP): === ÎNCEPUT ACTUALIZARE STATUS ===
+[2025-08-18T11:49:19.035Z] INFO (APP): 💾 Status 2 salvat pentru UIT 6C7V511585130172
+[2025-08-18T11:49:19.031Z] INFO (APP): Se procesează acțiunea pentru cursa: 133378
+[2025-08-18T11:49:16.916Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:16.908Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:12.523Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:49:11.916Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:11.910Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:06.912Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:06.906Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:49:02.519Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:49:01.903Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:49:01.900Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:56.927Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:56.914Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:52.519Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:48:52.259Z] INFO (APP): === Încărcare finalizată ===
+[2025-08-18T11:48:52.257Z] INFO (APP): 🆕 Găsite 2 curse noi - afișate în partea de sus
+[2025-08-18T11:48:52.254Z] INFO (APP): Încărcare cu succes 2 curse pentru TM39ECC (sortate: noi primul)
+[2025-08-18T11:48:52.253Z] INFO (APP): 🔄 Auto-refresh Android în fundal activat (intervale de 5 min)
+[2025-08-18T11:48:52.251Z] INFO (APP): ✅ Curse încărcate cu succes - se comută la vizualizarea principală cu 2 curse
+[2025-08-18T11:48:52.079Z] INFO (APP): 📡 Network status changed: ONLINE
+[2025-08-18T11:48:52.073Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:52.070Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:51.832Z] INFO (APP): Curse găsite: 2
+[2025-08-18T11:48:51.828Z] INFO (API): Request completed for TM39ECC - all locks cleared
+[2025-08-18T11:48:51.826Z] INFO (APP): Request completed - locks cleared
+[2025-08-18T11:48:51.807Z] INFO (API): Processed 2 courses for TM39ECC
+[2025-08-18T11:48:51.805Z] INFO (APP): Processed 2 courses successfully
+[2025-08-18T11:48:51.803Z] INFO (APP): Processing course data
+[2025-08-18T11:48:51.798Z] INFO (APP): Found 2 courses for vehicle TM39ECC
+[2025-08-18T11:48:51.796Z] INFO (API): API response: status=200, data={"status":"success","count":2,"data":[{"ikRoTrans":133376,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"0L8N331085130163","dataTransport":"2025-08-13","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Pestalozzi nr. 3-5 nr. -, Timisoara, Jud. Timi?","JudetStop":"TM","denumireLocStop":"TIMISOARA"},{"ikRoTrans":133378,"codDeclarant":"14507322","denumireDeclarant":"RE?ELE ELECTRICE ROMANIA S.A.","nrVehicul":"TM39ECC","UIT":"6C7V511585130172","dataTransport":"2025-08-13","Vama":"ADR","BirouVamal":"Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?","Judet":"TM","denumireLocStart":"TIMISOARA","VamaStop":"ADR","BirouVamalStop":"Sulina nr. 11 nr. -, Timisoara, Jud. Timi?","JudetStop":"TM","denumireLocStop":"TIMISOARA"}]}
+[2025-08-18T11:48:51.795Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 2,
+  "data": [
+    {
+      "ikRoTrans": 133376,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "0L8N331085130163",
+      "dataTransport": "2025-08-13",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Pestalozzi nr. 3-5 nr. -, Timisoara, Jud. Timi?",
+      "JudetStop": "TM",
+      "denumireLocStop": "TIMISOARA"
+    },
+    {
+      "ikRoTrans": 133378,
+      "codDeclarant": "14507322",
+      "denumireDeclarant": "RE?ELE ELECTRICE ROMANIA S.A.",
+      "nrVehicul": "TM39ECC",
+      "UIT": "6C7V511585130172",
+      "dataTransport": "2025-08-13",
+      "Vama": "ADR",
+      "BirouVamal": "Calea Aradului , DJ 216, Bifurcatia 4 nr. -, Timisoara, Jud. Timi?",
+      "Judet": "TM",
+      "denumireLocStart": "TIMISOARA",
+      "VamaStop": "ADR",
+      "BirouVamalStop": "Sulina nr. 11 nr. -, Timisoara, Jud. Timi?",
+      "JudetStop": "TM",
+      "denumireLocStop": "TIMISOARA"
+    }
+  ]
+}
+[2025-08-18T11:48:51.793Z] INFO (APP): API Response Status: 200
+[2025-08-18T11:48:51.791Z] INFO (APP): Data length: No data
+[2025-08-18T11:48:51.372Z] INFO (API): Loading courses for vehicle TM39ECC
+[2025-08-18T11:48:50.316Z] INFO (APP): 📡 Network status changed: ONLINE
+[2025-08-18T11:48:50.311Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:50.310Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:50.273Z] INFO (APP): 📝 Vehicle number changed to: TM39ECC
+[2025-08-18T11:48:49.602Z] INFO (APP): 📡 Network status changed: ONLINE
+[2025-08-18T11:48:49.596Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:49.594Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:49.558Z] INFO (APP): 📝 Vehicle number changed to: TM39EC
+[2025-08-18T11:48:49.373Z] INFO (APP): 📡 Network status changed: ONLINE
+[2025-08-18T11:48:49.366Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:49.364Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:49.331Z] INFO (APP): 📝 Vehicle number changed to: TM39E
+[2025-08-18T11:48:48.682Z] INFO (APP): 📡 Network status changed: ONLINE
+[2025-08-18T11:48:48.678Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:48.677Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:48.647Z] INFO (APP): 📝 Vehicle number changed to: TM39
+[2025-08-18T11:48:48.573Z] INFO (APP): 📡 Network status changed: ONLINE
+[2025-08-18T11:48:48.568Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:48.566Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:48.531Z] INFO (APP): 📝 Vehicle number changed to: TM3
+[2025-08-18T11:48:47.922Z] INFO (APP): 📡 Network status changed: ONLINE
+[2025-08-18T11:48:47.916Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:47.914Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:47.874Z] INFO (APP): 📝 Vehicle number changed to: TM
+[2025-08-18T11:48:47.727Z] INFO (APP): 📡 Network status changed: ONLINE
+[2025-08-18T11:48:47.722Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:47.720Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:47.703Z] INFO (APP): 📡 Network status changed: ONLINE
+[2025-08-18T11:48:47.698Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:47.696Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:47.593Z] INFO (APP): 📝 Vehicle number changed to: T
+[2025-08-18T11:48:47.583Z] INFO (APP): 📝 Vehicle number changed to: 
+[2025-08-18T11:48:42.643Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:42.639Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:42.519Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:48:37.650Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:37.641Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:32.645Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:32.638Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:32.520Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:48:27.651Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:27.643Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:23.166Z] INFO (APP): ⚠️ Vehiculul stocat nu are curse disponibile
+[2025-08-18T11:48:23.158Z] INFO (API): Request completed for IL02ADD - all locks cleared
+[2025-08-18T11:48:23.157Z] INFO (APP): Request completed - locks cleared
+[2025-08-18T11:48:23.144Z] INFO (APP): No courses found for vehicle
+[2025-08-18T11:48:23.142Z] INFO (APP): Found 0 courses for vehicle IL02ADD
+[2025-08-18T11:48:23.140Z] INFO (API): API response: status=200, data={"status":"success","count":0,"data":[]}
+[2025-08-18T11:48:23.138Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 0,
+  "data": []
+}
+[2025-08-18T11:48:23.134Z] INFO (APP): API Response Status: 200
+[2025-08-18T11:48:23.131Z] INFO (APP): Data length: No data
+[2025-08-18T11:48:22.924Z] INFO (APP): 📡 Network status changed: ONLINE
+[2025-08-18T11:48:22.915Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:22.913Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:22.614Z] INFO (API): Loading courses for vehicle IL02ADD
+[2025-08-18T11:48:22.613Z] INFO (APP): 🔄 Auto-loading courses pentru vehicul stocat: IL02ADD
+[2025-08-18T11:48:22.611Z] INFO (APP): ✅ Numărul de vehicul stocat încărcat: IL02ADD
+[2025-08-18T11:48:22.598Z] INFO (APP): 🎨 Status bar updated: #0f172a, content: LIGHT
+[2025-08-18T11:48:22.591Z] INFO (APP): 📡 Network status changed: ONLINE
+[2025-08-18T11:48:22.584Z] INFO (APP): 📶 Network type: cellular
+[2025-08-18T11:48:22.581Z] INFO (APP): 🌐 Network status: navigator=true, capacitor=true, final=true
+[2025-08-18T11:48:22.540Z] INFO (APP): 📊 Offline GPS count updated: 0
+[2025-08-18T11:48:22.463Z] INFO (API): CapacitorHttp login successful for +40722222222
+[2025-08-18T11:48:22.461Z] INFO (APP): ✅ CapacitorHttp login successful
+[2025-08-18T11:48:22.027Z] INFO (API): Încercare login direct CapacitorHttp pentru +40722222222
+[2025-08-18T11:48:22.026Z] INFO (APP): Login direct CapacitorHttp pentru: +40722222222
+[2025-08-18T11:48:22.024Z] INFO (APP): Info platformă: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/138.0.7204.179 Mobile Safari/537.36
+[2025-08-18T11:48:22.021Z] INFO (APP): CapacitorHttp disponibil: true
+[2025-08-18T11:48:22.017Z] INFO (APP): Credențiale test detectate - se continuă cu autentificarea la server
+[2025-08-18T11:47:38.150Z] INFO (APP): Nu există token stocat - se afișează login-ul
+[2025-08-18T11:47:38.142Z] INFO (SYSTEM): Logger aplicație inițializat
+[2025-07-19T09:08:45.019Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-19T09:08:44.283Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-19T09:08:44.277Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-19T09:08:43.996Z] INFO (APP): Logged out - cleared local storage
+[2025-07-19T09:08:43.953Z] INFO (APP): Logout completed via AndroidGPS
+[2025-07-19T09:08:43.951Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-07-19T09:08:43.821Z] INFO (APP): ✅ Complete logout finished - all GPS transmissions stopped
+[2025-07-19T09:08:43.768Z] INFO (API): CapacitorHttp logout successful
+[2025-07-19T09:08:43.765Z] INFO (APP): CapacitorHttp logout successful
+[2025-07-19T09:08:43.520Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-19T09:08:43.175Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-19T09:08:42.932Z] INFO (APP): === CapacitorHttp logout ===
+[2025-07-19T09:08:42.931Z] INFO (API): Starting logout process
+[2025-07-19T09:08:42.929Z] INFO (APP): Starting logout process with Bearer token
+[2025-07-19T09:08:42.928Z] INFO (APP): ✅ Guaranteed GPS service cleared
+[2025-07-19T09:08:42.923Z] INFO (GPS): ✅ All guaranteed GPS cleared
+[2025-07-19T09:08:42.921Z] INFO (GPS): 🧹 Clearing all guaranteed GPS courses
+[2025-07-19T09:08:42.913Z] INFO (GPS): 📊 All local GPS data cleared: 0 courses remaining
+[2025-07-19T09:08:42.911Z] INFO (GPS): ✅ AndroidGPS native service cleared: SUCCESS: All GPS data cleared
+[2025-07-19T09:08:42.904Z] INFO (GPS): ✅ Guaranteed GPS service cleared
+[2025-07-19T09:08:42.899Z] INFO (GPS): ✅ All guaranteed GPS cleared
+[2025-07-19T09:08:42.898Z] INFO (GPS): 🧹 Clearing all guaranteed GPS courses
+[2025-07-19T09:08:42.872Z] INFO (GPS): 🧹 LOGOUT: Clearing all GPS data and stopping all transmissions
+[2025-07-19T09:08:42.870Z] INFO (APP): 🔐 Starting complete logout - stopping ALL GPS transmissions...
+[2025-07-19T09:08:41.273Z] INFO (APP): Loaded stored vehicle number: IL02ADD
+[2025-07-19T09:08:40.718Z] INFO (APP): Found stored token - auto login
+[2025-07-19T09:08:40.707Z] INFO (SYSTEM): AppLogger initialized
+[2025-07-17T17:05:33.608Z] INFO (API): Request completed for IL02ADD - all locks cleared
+[2025-07-17T17:05:33.604Z] INFO (APP): Request completed - locks cleared
+[2025-07-17T17:05:33.586Z] INFO (APP): CapacitorHttp: Token expired - continuing with error response
+[2025-07-17T17:05:33.583Z] INFO (APP): Data length: No data
+[2025-07-17T17:05:33.580Z] INFO (APP): Status: 401
+[2025-07-17T17:05:33.574Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-07-17T17:05:32.923Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-07-17T17:05:32.921Z] INFO (API): Loading courses for vehicle IL02ADD
+[2025-07-17T17:05:32.919Z] INFO (APP): Loading courses for vehicle: IL02ADD
+[2025-07-17T17:05:32.917Z] INFO (APP): [20:05:32] Auto-refresh starting (Android background)...
+[2025-07-17T16:59:43.198Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:59:42.206Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:59:42.198Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:59:41.699Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:59:41.268Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:59:22.140Z] INFO (APP): === Loading finished ===
+[2025-07-17T16:59:22.139Z] INFO (APP): ✅ Staying on input screen - no courses found
+[2025-07-17T16:59:22.138Z] INFO (APP): No courses found - staying on vehicle input screen
+[2025-07-17T16:59:22.137Z] INFO (APP): Courses found: 0
+[2025-07-17T16:59:22.134Z] INFO (API): Request completed for IL02ADD - all locks cleared
+[2025-07-17T16:59:22.133Z] INFO (APP): Request completed - locks cleared
+[2025-07-17T16:59:22.119Z] INFO (APP): No courses found for vehicle
+[2025-07-17T16:59:22.119Z] INFO (APP): Found 0 courses for vehicle IL02ADD
+[2025-07-17T16:59:22.116Z] INFO (API): API response: status=200, data={"status":"success","count":0,"data":[]}
+[2025-07-17T16:59:22.115Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 0,
+  "data": []
+}
+[2025-07-17T16:59:22.114Z] INFO (APP): API Response Status: 200
+[2025-07-17T16:59:22.113Z] INFO (APP): Data length: No data
+[2025-07-17T16:59:22.111Z] INFO (APP): Status: 200
+[2025-07-17T16:59:22.109Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-07-17T16:59:21.770Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-07-17T16:59:21.769Z] INFO (API): Loading courses for vehicle IL02ADD
+[2025-07-17T16:59:21.768Z] INFO (APP): Loading courses for vehicle: IL02ADD
+[2025-07-17T16:59:21.766Z] INFO (APP): === DEBUGGING: Loading courses for vehicle: IL02ADD ===
+[2025-07-17T16:59:21.764Z] INFO (APP): === APK DEBUG: Current courses count: 0
+[2025-07-17T16:59:21.763Z] INFO (APP): === APK DEBUG: Current coursesLoaded state: false
+[2025-07-17T16:59:21.761Z] INFO (APP): === APK DEBUG: Token available: true
+[2025-07-17T16:59:21.759Z] INFO (APP): === APK DEBUG: Vehicle number: IL02ADD
+[2025-07-17T16:59:21.757Z] INFO (APP): === APK DEBUG: Starting course loading process ===
+[2025-07-17T16:59:20.639Z] INFO (APP): Loaded stored vehicle number: IL02ADD
+[2025-07-17T16:59:20.618Z] INFO (APP): Token stored successfully
+[2025-07-17T16:59:20.576Z] INFO (APP): Login successful, storing token...
+[2025-07-17T16:59:20.570Z] INFO (API): CapacitorHttp login successful for +40722222222
+[2025-07-17T16:59:20.568Z] INFO (APP): CapacitorHttp login successful
+[2025-07-17T16:59:20.177Z] INFO (APP): Using CapacitorHttp for fast login
+[2025-07-17T16:59:20.177Z] INFO (API): Direct CapacitorHttp login attempt for +40722222222
+[2025-07-17T16:59:20.176Z] INFO (APP): Direct CapacitorHttp login for: +40722222222
+[2025-07-17T16:59:20.174Z] INFO (APP): Platform info: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/138.0.7204.67 Mobile Safari/537.36
+[2025-07-17T16:59:20.173Z] INFO (APP): CapacitorHttp available: true
+[2025-07-17T16:59:20.171Z] INFO (APP): Test credentials detected - proceeding with server authentication
+[2025-07-17T16:59:19.810Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:59:18.800Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:59:18.788Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:59:18.312Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:59:17.830Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:59:13.677Z] INFO (API): Browser login error: Failed to fetch
+[2025-07-17T16:59:12.949Z] INFO (APP): Using CapacitorHttp for fast login
+[2025-07-17T16:59:12.948Z] INFO (API): Direct CapacitorHttp login attempt for +40722222222
+[2025-07-17T16:59:12.946Z] INFO (APP): Direct CapacitorHttp login for: +40722222222
+[2025-07-17T16:59:12.945Z] INFO (APP): Platform info: Mozilla/5.0 (Linux; Android 15; SM-A566B Build/AP3A.240905.015.A2; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/138.0.7204.67 Mobile Safari/537.36
+[2025-07-17T16:59:12.943Z] INFO (APP): CapacitorHttp available: true
+[2025-07-17T16:58:21.572Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:58:20.579Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:58:20.571Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:58:20.070Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:58:19.648Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:58:13.717Z] INFO (APP): Logged out - cleared local storage
+[2025-07-17T16:58:13.672Z] INFO (APP): Logout completed via AndroidGPS
+[2025-07-17T16:58:13.670Z] INFO (APP): Logout completed via CapacitorHttp
+[2025-07-17T16:58:13.547Z] INFO (APP): ✅ Complete logout finished - all GPS transmissions stopped
+[2025-07-17T16:58:13.500Z] INFO (API): CapacitorHttp logout successful
+[2025-07-17T16:58:13.498Z] INFO (APP): CapacitorHttp logout successful
+[2025-07-17T16:58:12.842Z] INFO (APP): === CapacitorHttp logout ===
+[2025-07-17T16:58:12.841Z] INFO (API): Starting logout process
+[2025-07-17T16:58:12.841Z] INFO (APP): Starting logout process with Bearer token
+[2025-07-17T16:58:12.839Z] INFO (APP): ✅ Guaranteed GPS service cleared
+[2025-07-17T16:58:12.834Z] INFO (GPS): ✅ All guaranteed GPS cleared
+[2025-07-17T16:58:12.832Z] INFO (GPS): 🧹 Clearing all guaranteed GPS courses
+[2025-07-17T16:58:12.826Z] INFO (GPS): 📊 All local GPS data cleared: 0 courses remaining
+[2025-07-17T16:58:12.825Z] INFO (GPS): ✅ AndroidGPS native service cleared: SUCCESS: All GPS data cleared
+[2025-07-17T16:58:12.821Z] INFO (GPS): ✅ Guaranteed GPS service cleared
+[2025-07-17T16:58:12.818Z] INFO (GPS): ✅ All guaranteed GPS cleared
+[2025-07-17T16:58:12.817Z] INFO (GPS): 🧹 Clearing all guaranteed GPS courses
+[2025-07-17T16:58:12.790Z] INFO (GPS): 🧹 LOGOUT: Clearing all GPS data and stopping all transmissions
+[2025-07-17T16:58:12.787Z] INFO (APP): 🔐 Starting complete logout - stopping ALL GPS transmissions...
+[2025-07-17T16:58:04.758Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:58:04.365Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:58:04.362Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:58:03.977Z] INFO (APP): === Loading finished ===
+[2025-07-17T16:58:03.976Z] INFO (APP): 🆕 Found 1 new courses - displayed at top
+[2025-07-17T16:58:03.974Z] INFO (APP): Successfully loaded 1 courses for IL02ADD (sorted: new first)
+[2025-07-17T16:58:03.973Z] INFO (APP): 🔄 Android background auto-refresh activated (5 min intervals)
+[2025-07-17T16:58:03.971Z] INFO (APP): ✅ Courses loaded successfully - switching to main view with 1 courses
+[2025-07-17T16:58:03.848Z] INFO (APP): Courses found: 1
+[2025-07-17T16:58:03.831Z] INFO (API): Request completed for IL02ADD - all locks cleared
+[2025-07-17T16:58:03.823Z] INFO (APP): Request completed - locks cleared
+[2025-07-17T16:58:03.795Z] INFO (APP): CapacitorHttp: Token expired - continuing with error response
+[2025-07-17T16:58:03.792Z] INFO (APP): Data length: No data
+[2025-07-17T16:58:03.791Z] INFO (APP): Status: 401
+[2025-07-17T16:58:03.789Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-07-17T16:58:03.253Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:58:03.074Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-07-17T16:58:03.073Z] INFO (API): Loading courses for vehicle IL02ADD
+[2025-07-17T16:58:03.072Z] INFO (APP): Loading courses for vehicle: IL02ADD
+[2025-07-17T16:58:03.070Z] INFO (APP): === DEBUGGING: Loading courses for vehicle: IL02ADD ===
+[2025-07-17T16:58:03.069Z] INFO (APP): === APK DEBUG: Current courses count: 0
+[2025-07-17T16:58:03.068Z] INFO (APP): === APK DEBUG: Current coursesLoaded state: false
+[2025-07-17T16:58:03.067Z] INFO (APP): === APK DEBUG: Token available: true
+[2025-07-17T16:58:03.066Z] INFO (APP): === APK DEBUG: Vehicle number: IL02ADD
+[2025-07-17T16:58:03.065Z] INFO (APP): === APK DEBUG: Starting course loading process ===
+[2025-07-17T16:58:03.044Z] INFO (APP): ✅ AndroidGPS verification PASSED - interface is working
+[2025-07-17T16:58:01.335Z] INFO (APP): Loaded stored vehicle number: IL02ADD
+[2025-07-17T16:58:00.361Z] INFO (APP): Found stored token - auto login
+[2025-07-17T16:58:00.356Z] INFO (SYSTEM): AppLogger initialized
+[2025-07-07T10:16:50.283Z] INFO (API): Request completed for B13NTR - all locks cleared
+[2025-07-07T10:16:50.281Z] INFO (APP): Request completed - locks cleared
+[2025-07-07T10:16:50.232Z] INFO (APP): No courses found for vehicle
+[2025-07-07T10:16:50.229Z] INFO (APP): Found 0 courses for vehicle B13NTR
+[2025-07-07T10:16:50.227Z] INFO (API): API response: status=200, data={"status":"success","count":0,"data":[]}
+[2025-07-07T10:16:50.221Z] INFO (APP): API Response Data: {
+  "status": "success",
+  "count": 0,
+  "data": []
+}
+[2025-07-07T10:16:50.219Z] INFO (APP): API Response Status: 200
+[2025-07-07T10:16:50.215Z] INFO (APP): Data length: No data
+[2025-07-07T10:16:50.212Z] INFO (APP): Status: 200
+[2025-07-07T10:16:50.207Z] INFO (APP): === CapacitorHttp Courses Response ===
+[2025-07-07T10:16:49.930Z] INFO (APP): === TRYING CapacitorHttp for courses ===
+[2025-07-07T10:16:49.903Z] INFO (API): Loading courses for vehicle B13NTR
+[2025-07-07T10:16:49.901Z] INFO (APP): Loading courses for vehicle: B13NTR
+[2025-0

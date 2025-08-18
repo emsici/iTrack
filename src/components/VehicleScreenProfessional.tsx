@@ -1125,42 +1125,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               padding: '40px 30px',
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
             }}>
-              {/* Vehicle Number Input */}
+              {/* Enhanced Multi-Vehicle Input with History */}
               <div style={{ marginBottom: '30px' }}>
-                <input
-                  type="text"
-                  placeholder="Număr de înmatriculare (ex: B123ABC)"
+                <VehicleNumberDropdown
                   value={vehicleNumber}
-                  onChange={(e) => {
-                    const cleanValue = e.target.value
-                      .replace(/[^A-Za-z0-9]/g, "")
-                      .toUpperCase();
-                    setVehicleNumber(cleanValue);
+                  onChange={(newValue: string) => {
+                    setVehicleNumber(newValue);
                     // Clear error when user starts typing
                     if (error) {
                       setError("");
                     }
-                    console.log(`📝 Vehicle number changed to: ${cleanValue}`);
+                    console.log(`📝 Vehicle number changed to: ${newValue}`);
                   }}
-                  onKeyPress={(e) => e.key === "Enter" && handleLoadCourses()}
+                  placeholder="Număr de înmatriculare (ex: B123ABC)"
+                  darkMode={currentTheme === 'dark'}
+                  onKeyPress={(e: React.KeyboardEvent) => e.key === "Enter" && handleLoadCourses()}
                   disabled={loading}
-                  readOnly={false} // Ensure input is always editable when not loading
-                  style={{
-                    width: '100%',
-                    padding: '20px',
-                    background: loading 
-                      ? (currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(148, 163, 184, 0.2)')
-                      : (currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.8)'),
-                    border: currentTheme === 'dark' ? '2px solid rgba(148, 163, 184, 0.2)' : '2px solid rgba(0, 0, 0, 0.1)',
-                    borderRadius: '16px',
-                    color: currentTheme === 'dark' ? '#ffffff' : '#1e293b',
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    textAlign: 'center',
-                    outline: 'none',
-                    letterSpacing: '2px',
-                    textTransform: 'uppercase'
-                  }}
                 />
               </div>
             </div>
@@ -1425,14 +1405,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
               {/* Vehicle Number Dropdown - Centered */}
               <VehicleNumberDropdown
-                currentVehicle={vehicleNumber}
-                currentTheme={currentTheme}
-                onSelectVehicle={async (vehicle) => {
-                  setVehicleNumber(vehicle);
-                  await storeVehicleNumber(vehicle);
-                  setCoursesLoaded(false); // Reload courses for new vehicle
-                }}
-                onChangeNumber={() => setCoursesLoaded(false)}
+                value={vehicleNumber}
+                onChange={setVehicleNumber}
+                placeholder="Număr de înmatriculare (ex: B123ABC)"
+                darkMode={currentTheme === 'dark'}
+                disabled={loading}
               />
 
               {/* GPS Status complet - elimină indicatorul redundant "Online/Offline" */}

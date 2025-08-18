@@ -145,3 +145,18 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
   - Fallback la async GPS doar dacă nu există last known location
 - **REZULTAT**: ScheduledExecutorService execută la fiecare 10 secunde cu transmisie garantată
 - **WORKFLOW CORECT**: Task se termină cu SUCCESS → următorul task la +10s → ciclu continuu
+
+### **Multi-Vehicle Support Implementation (18 Aug 2025) - COMPLETĂ**
+- **FUNCȚIONALITATE NOUĂ**: Implementat sistem complet multi-vehicle cu schimbarea rapidă între mașini
+- **COMPONENTE IMPLEMENTATE**:
+  - VehicleNumberDropdown component modern cu istoric vehicule și dropdown elegant
+  - Vehicle history management în storage service cu funcții add/remove 
+  - Quick vehicle switch în bottom navigation cu buton dedicat pentru schimbarea vehiculului
+  - Auto-storage și retrieval vehicule recent folosite (ultimele 10)
+- **UI/UX FEATURES**:
+  - Dropdown glassmorphism cu listă vehicule recente
+  - Posibilitate eliminare vehicule din istoric cu buton X
+  - Switch rapid între input manual și selecție din istoric
+  - Button "Adaugă vehicul nou" pentru input manual
+  - Quick switch button în bottom navigation care arată vehiculul curent
+- **BENEFICII**: Utilizatorul poate comuta rapid între vehicule fără să retapeze numerele de înmatriculare

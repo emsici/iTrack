@@ -1,23 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getVehicleNumberHistory, removeVehicleNumberFromHistory } from '../services/storage';
-import { Theme } from '../services/themeService';
 
 interface VehicleNumberDropdownProps {
-  currentVehicle: string;
-  currentTheme: Theme;
-  onSelectVehicle: (vehicle: string) => void;
-  onChangeNumber: () => void;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  darkMode?: boolean;
+  onKeyPress?: (e: React.KeyboardEvent) => void;
+  disabled?: boolean;
 }
 
 const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
-  currentVehicle,
-  currentTheme,
-  onSelectVehicle,
-  onChangeNumber
+  value,
+  onChange,
+  placeholder = "Introduceți numărul vehiculului",
+  darkMode = false,
+  onKeyPress,
+  disabled = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [vehicleHistory, setVehicleHistory] = useState<string[]>([]);
+  const [showInput, setShowInput] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -25,7 +30,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
       setVehicleHistory(history);
     };
     loadHistory();
-  }, [currentVehicle]);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -43,18 +48,27 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (showInput && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [showInput]);
+
   const handleVehicleSelect = (vehicle: string) => {
-    onSelectVehicle(vehicle);
+    onChange(vehicle);
     setIsOpen(false);
+    setShowInput(false);
   };
 
-  const handleChangeNumber = () => {
-    onChangeNumber();
-    setIsOpen(false);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const cleanValue = e.target.value
+      .replace(/[^A-Za-z0-9]/g, "")
+      .toUpperCase();
+    onChange(cleanValue);
   };
 
   const handleRemoveVehicle = async (vehicle: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent dropdown close
+    event.stopPropagation();
     try {
       await removeVehicleNumberFromHistory(vehicle);
       const updatedHistory = await getVehicleNumberHistory();
@@ -64,234 +78,235 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
     }
   };
 
+  const filteredHistory = vehicleHistory.filter(v => v !== value);
+
   return (
-    <div ref={dropdownRef} style={{ position: 'relative' }}>
-      {/* Main Vehicle Badge */}
-      <div 
-        onClick={() => setIsOpen(!isOpen)}
-        style={{ 
-          background: currentTheme === 'light' 
-            ? 'rgba(71, 85, 105, 0.08)' 
-            : currentTheme === 'business'
-              ? 'rgba(71, 85, 105, 0.08)' 
-              : 'rgba(255, 255, 255, 0.1)', 
-          border: currentTheme === 'light' 
-            ? '1px solid rgba(71, 85, 105, 0.2)' 
-            : currentTheme === 'business'
-              ? '1px solid rgba(71, 85, 105, 0.2)' 
-              : '1px solid rgba(255, 255, 255, 0.2)', 
-          borderRadius: '12px', 
-          padding: '8px 16px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '8px', 
-          cursor: 'pointer',
-          minWidth: '120px',
-          justifyContent: 'center',
-          transition: 'all 0.2s ease'
-        }}
-      >
-        <i className="fas fa-truck" style={{ color: '#60a5fa', fontSize: '14px' }}></i>
-        <span style={{ 
-          color: currentTheme === 'light' 
-            ? '#1e293b' 
-            : currentTheme === 'business'
-              ? '#1e293b' 
-              : '#ffffff', 
-          fontSize: '14px', 
-          fontWeight: '600',
-          letterSpacing: '0.3px'
-        }}>
-          {currentVehicle}
-        </span>
-        <i 
-          className={`fas fa-chevron-${isOpen ? 'up' : 'down'}`} 
-          style={{ 
-            color: currentTheme === 'light' || currentTheme === 'business' 
-              ? '#64748b' 
-              : '#9ca3af', 
-            fontSize: '10px',
-            transition: 'transform 0.2s ease'
+    <div ref={dropdownRef} style={{ position: 'relative', width: '100%' }}>
+      {/* Main Input */}
+      {showInput || !value ? (
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder={placeholder}
+          value={value}
+          onChange={handleInputChange}
+          onKeyPress={onKeyPress}
+          onBlur={() => {
+            if (!value) {
+              setShowInput(false);
+            }
+          }}
+          disabled={disabled}
+          style={{
+            width: '100%',
+            padding: '20px',
+            background: disabled 
+              ? (darkMode ? 'rgba(30, 41, 59, 0.3)' : 'rgba(148, 163, 184, 0.2)')
+              : (darkMode ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.8)'),
+            border: darkMode ? '2px solid rgba(148, 163, 184, 0.2)' : '2px solid rgba(0, 0, 0, 0.1)',
+            borderRadius: '16px',
+            color: darkMode ? '#ffffff' : '#1e293b',
+            fontSize: '18px',
+            fontWeight: '600',
+            textAlign: 'center',
+            outline: 'none',
+            letterSpacing: '2px',
+            textTransform: 'uppercase',
+            cursor: disabled ? 'not-allowed' : 'text'
           }}
         />
-      </div>
+      ) : (
+        <div
+          onClick={() => filteredHistory.length > 0 ? setIsOpen(!isOpen) : setShowInput(true)}
+          style={{
+            width: '100%',
+            padding: '20px',
+            background: darkMode ? 'rgba(30, 41, 59, 0.6)' : 'rgba(255, 255, 255, 0.8)',
+            border: darkMode ? '2px solid rgba(148, 163, 184, 0.2)' : '2px solid rgba(0, 0, 0, 0.1)',
+            borderRadius: '16px',
+            color: darkMode ? '#ffffff' : '#1e293b',
+            fontSize: '18px',
+            fontWeight: '600',
+            textAlign: 'center',
+            letterSpacing: '2px',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <span style={{ flex: 1 }}>{value}</span>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            {filteredHistory.length > 0 && (
+              <i 
+                className={`fas fa-chevron-${isOpen ? 'up' : 'down'}`}
+                style={{ 
+                  color: darkMode ? '#94a3b8' : '#64748b',
+                  fontSize: '14px',
+                  transition: 'transform 0.3s ease'
+                }}
+              />
+            )}
+            <i 
+              className="fas fa-edit"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowInput(true);
+              }}
+              style={{ 
+                color: darkMode ? '#60a5fa' : '#2563eb',
+                fontSize: '16px',
+                cursor: 'pointer',
+                padding: '4px'
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Dropdown Menu */}
-      {isOpen && (
+      {isOpen && filteredHistory.length > 0 && (
         <div style={{
           position: 'absolute',
           top: '100%',
-          left: '0',
-          right: '0',
-          marginTop: '4px',
-          background: currentTheme === 'dark' 
-            ? 'rgba(30, 41, 59, 0.95)' 
-            : currentTheme === 'light'
-              ? 'rgba(255, 255, 255, 0.95)'
-              : currentTheme === 'business'
-                ? 'rgba(248, 250, 252, 0.95)'
-                : currentTheme === 'nature'
-                  ? 'rgba(6, 95, 70, 0.95)'
-                  : currentTheme === 'night'
-                    ? 'rgba(49, 46, 129, 0.95)'
-                    : currentTheme === 'driver'
-                      ? 'rgba(41, 37, 36, 0.95)'
-                      : 'rgba(30, 41, 59, 0.95)',
-          border: currentTheme === 'dark'
-            ? '1px solid rgba(255, 255, 255, 0.1)'
-            : '1px solid rgba(0, 0, 0, 0.1)',
-          borderRadius: '12px',
-          boxShadow: currentTheme === 'dark'
-            ? '0 8px 25px rgba(0, 0, 0, 0.3)'
-            : '0 8px 25px rgba(0, 0, 0, 0.15)',
+          left: 0,
+          right: 0,
+          marginTop: '8px',
+          background: darkMode 
+            ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
+          backdropFilter: 'blur(20px)',
+          border: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+          borderRadius: '16px',
+          boxShadow: darkMode 
+            ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
+            : '0 8px 32px rgba(0, 0, 0, 0.15)',
           zIndex: 1000,
           maxHeight: '300px',
           overflowY: 'auto'
         }}>
-          {/* Change Number Option */}
-          <div
-            onClick={handleChangeNumber}
-            style={{
-              padding: '12px 16px',
-              cursor: 'pointer',
-              borderBottom: currentTheme === 'dark'
-                ? '1px solid rgba(255, 255, 255, 0.1)'
-                : '1px solid rgba(0, 0, 0, 0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              background: 'transparent',
-              transition: 'background 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = currentTheme === 'dark'
-                ? 'rgba(59, 130, 246, 0.1)'
-                : 'rgba(59, 130, 246, 0.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-            }}
-          >
-            <i className="fas fa-edit" style={{ 
-              color: '#3b82f6', 
-              fontSize: '14px',
-              width: '16px'
-            }}></i>
+          {/* Header */}
+          <div style={{
+            padding: '16px 20px',
+            borderBottom: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px'
+          }}>
+            <i className="fas fa-history" style={{
+              color: darkMode ? '#60a5fa' : '#2563eb',
+              fontSize: '16px'
+            }}/>
             <span style={{
-              color: currentTheme === 'light' || currentTheme === 'business'
-                ? '#1e293b'
-                : '#ffffff',
+              color: darkMode ? '#94a3b8' : '#64748b',
               fontSize: '14px',
               fontWeight: '500'
             }}>
-              Schimbă numărul
+              Vehicule recente
             </span>
           </div>
 
-          {/* Vehicle History */}
-          {vehicleHistory.length > 0 && (
-            <>
-              <div style={{
-                padding: '8px 16px',
-                color: currentTheme === 'light' || currentTheme === 'business'
-                  ? '#64748b'
-                  : '#94a3b8',
-                fontSize: '12px',
-                fontWeight: '600',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
-                Istoric numere
+          {/* Vehicle History List */}
+          {filteredHistory.map((vehicle, index) => (
+            <div
+              key={vehicle}
+              onClick={() => handleVehicleSelect(vehicle)}
+              style={{
+                padding: '16px 20px',
+                cursor: 'pointer',
+                borderBottom: index < filteredHistory.length - 1 
+                  ? (darkMode ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(0, 0, 0, 0.05)')
+                  : 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = darkMode 
+                  ? 'rgba(59, 130, 246, 0.1)' 
+                  : 'rgba(59, 130, 246, 0.05)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <i className="fas fa-truck" style={{
+                  color: darkMode ? '#60a5fa' : '#2563eb',
+                  fontSize: '14px'
+                }}/>
+                <span style={{
+                  color: darkMode ? '#f1f5f9' : '#1e293b',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  letterSpacing: '1px',
+                  textTransform: 'uppercase'
+                }}>
+                  {vehicle}
+                </span>
               </div>
-              {vehicleHistory.map((vehicle, index) => (
-                <div
-                  key={index}
-                  onClick={() => handleVehicleSelect(vehicle)}
-                  style={{
-                    padding: '10px 16px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    background: vehicle === currentVehicle 
-                      ? (currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)')
-                      : 'transparent',
-                    transition: 'background 0.2s ease',
-                    position: 'relative'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (vehicle !== currentVehicle) {
-                      e.currentTarget.style.background = currentTheme === 'dark'
-                        ? 'rgba(255, 255, 255, 0.05)'
-                        : 'rgba(0, 0, 0, 0.03)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (vehicle !== currentVehicle) {
-                      e.currentTarget.style.background = vehicle === currentVehicle 
-                        ? (currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)')
-                        : 'transparent';
-                    }
-                  }}
-                >
-                  <i className="fas fa-truck" style={{ 
-                    color: vehicle === currentVehicle ? '#3b82f6' : '#9ca3af', 
-                    fontSize: '12px',
-                    width: '16px'
-                  }}></i>
-                  <span style={{
-                    color: currentTheme === 'light' || currentTheme === 'business'
-                      ? '#1e293b'
-                      : '#ffffff',
-                    fontSize: '14px',
-                    fontWeight: vehicle === currentVehicle ? '600' : '500',
-                    flex: 1
-                  }}>
-                    {vehicle}
-                  </span>
-                  
-                  {/* Delete Button */}
-                  <button
-                    onClick={(e) => handleRemoveVehicle(vehicle, e)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      padding: '4px',
-                      borderRadius: '4px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: 'background 0.2s ease',
-                      marginLeft: 'auto'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = currentTheme === 'dark'
-                        ? 'rgba(239, 68, 68, 0.2)'
-                        : 'rgba(239, 68, 68, 0.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'none';
-                    }}
-                    title={`Șterge ${vehicle} din istoric`}
-                  >
-                    <i className="fas fa-times" style={{ 
-                      color: '#ef4444', 
-                      fontSize: '12px'
-                    }}></i>
-                  </button>
-                  
-                  {vehicle === currentVehicle && (
-                    <i className="fas fa-check" style={{ 
-                      color: '#3b82f6', 
-                      fontSize: '12px',
-                      marginLeft: '8px'
-                    }}></i>
-                  )}
-                </div>
-              ))}
-            </>
-          )}
+              <i 
+                className="fas fa-times"
+                onClick={(e) => handleRemoveVehicle(vehicle, e)}
+                style={{
+                  color: darkMode ? '#ef4444' : '#dc2626',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  borderRadius: '50%',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = darkMode 
+                    ? 'rgba(239, 68, 68, 0.2)' 
+                    : 'rgba(239, 68, 68, 0.1)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              />
+            </div>
+          ))}
+
+          {/* Add New Vehicle Button */}
+          <div
+            onClick={() => {
+              setShowInput(true);
+              setIsOpen(false);
+            }}
+            style={{
+              padding: '16px 20px',
+              cursor: 'pointer',
+              borderTop: darkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = darkMode 
+                ? 'rgba(34, 197, 94, 0.1)' 
+                : 'rgba(34, 197, 94, 0.05)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
+          >
+            <i className="fas fa-plus" style={{
+              color: darkMode ? '#4ade80' : '#16a34a',
+              fontSize: '14px'
+            }}/>
+            <span style={{
+              color: darkMode ? '#4ade80' : '#16a34a',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}>
+              Adaugă vehicul nou
+            </span>
+          </div>
         </div>
       )}
     </div>
