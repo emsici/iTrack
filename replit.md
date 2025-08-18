@@ -116,3 +116,11 @@ UI Optimization: Eliminated redundant status indicators - unified GPS+Internet s
   - BackgroundGPSService: HashMap key = ikRoTrans, UIT real se trimite la server
   - courseAnalytics: folosește ikRoTrans ca identificator
 - **BENEFICII**: Eliminare conflicte HashMap, consistență totală, tracking multi-cursă fiabil
+
+### **Verificare Exhaustivă Multi-Course ScheduledExecutorService (18 Aug 2025)**
+- **CONFIRMAT FUNCȚIONAL**: ScheduledExecutorService transmite GPS la 10 secunde pentru toate cursele cu status=2
+- **MULTI-COURSE SUPPORT**: HashMap cu ikRoTrans keys suportă 3 curse active + 2 pauză simultan
+- **PAUSE/RESUME WORKFLOW**: status=3 skip transmission, status=2 reactivează GPS transmission automat
+- **TELEFON BLOCAT**: Foreground Service + WakeLock garantează GPS transmission continuă cu ecranul oprit
+- **START SIMULTAN**: 3 curse pornesc simultan fără conflicte - ikRoTrans identificatori unici
+- **BACKGROUND EXECUTION**: WakeLock PARTIAL_WAKE_LOCK + ACQUIRE_CAUSES_WAKEUP bypass Android Doze complet
