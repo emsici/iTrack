@@ -1667,8 +1667,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                             ? '#e0e7ff'  // Violet deschis pentru Night
                             : '#cbd5e1'  // Default pentru Dark
                   }}>
-                    <span>Sincronizare GPS</span>
-                    <span>{offlineGPSCount} coord. în așteptare</span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span className={offlineGPSCount > 0 ? 'sync-pulse' : ''} style={{ fontSize: '12px' }}>
+                        📡
+                      </span>
+                      Sincronizare GPS
+                    </span>
+                    <span style={{ 
+                      fontWeight: '600',
+                      color: offlineGPSCount > 30 ? '#ef4444' : offlineGPSCount > 10 ? '#f59e0b' : '#10b981',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      <span>{offlineGPSCount}</span>
+                      <span style={{ fontSize: '9px', opacity: 0.8 }}>
+                        {offlineGPSCount > 30 ? '⚠️ mult' : offlineGPSCount > 10 ? '⏳ mediu' : '✓ puțin'}
+                      </span>
+                    </span>
                   </div>
                   
                   {/* Progress Bar */}
@@ -1691,9 +1707,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                           : currentTheme === 'driver'
                             ? 'linear-gradient(90deg, #f97316 0%, #ea580c 100%)'
                             : 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
-                      width: '60%', // Simulate progress  
-                      borderRadius: '2px'
-                      // Removed animation for better performance
+                      width: `${Math.min(100, Math.max(15, 100 - (offlineGPSCount * 2)))}%`, // Real progress: starts high, decreases as coords pile up
+                      borderRadius: '2px',
+                      transition: 'width 0.3s ease-in-out'
                     }} />
                   </div>
                 </div>

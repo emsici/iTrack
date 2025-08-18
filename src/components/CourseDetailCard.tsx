@@ -530,6 +530,22 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           transition: all 0.1s ease; /* PAUSE mai rapid */
         }
 
+        /* Animație pentru sincronizare GPS - pulsing effect */
+        .sync-pulse {
+          animation: syncPulse 2s infinite;
+        }
+
+        @keyframes syncPulse {
+          0%, 100% { 
+            opacity: 1; 
+            transform: scale(1);
+          }
+          50% { 
+            opacity: 0.6; 
+            transform: scale(1.1);
+          }
+        }
+
         .btn-resume-compact {
           background: linear-gradient(135deg, #3b82f6, #2563eb);
           color: white;
