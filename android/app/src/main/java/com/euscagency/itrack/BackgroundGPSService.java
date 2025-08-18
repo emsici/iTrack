@@ -167,10 +167,17 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        if (activeCourses.isEmpty() || globalToken == null) {
-            Log.e(TAG, "Cannot start GPS - missing data (Active Courses: " + activeCourses.size() + ", Token: " + (globalToken != null ? "OK" : "NULL") + ")");
+        if (activeCourses.isEmpty()) {
+            Log.e(TAG, "❌ Cannot start GPS - NO ACTIVE COURSES (size: " + activeCourses.size() + ")");
             return;
         }
+        
+        if (globalToken == null) {
+            Log.e(TAG, "❌ Cannot start GPS - NO TOKEN available");
+            return;
+        }
+        
+        Log.e(TAG, "✅ GPS can start - " + activeCourses.size() + " active courses, token available (" + globalToken.length() + " chars)");
         
         // Acquire WakeLock
         if (!wakeLock.isHeld()) {

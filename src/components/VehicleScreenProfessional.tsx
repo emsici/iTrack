@@ -874,7 +874,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             throw new Error(`Numărul vehiculului lipsește pentru actualizarea status ${newStatus}`);
           }
           
-          // Send status update to server doar pentru STATUS 2 (START)
+          // Send status update to server doar pentru STATUS 2 (START) - ORDINEA CORECTĂ A PARAMETRILOR
           await updateCourseStatus(courseToUpdate.uit, newStatus, token, vehicleNumber);
           console.log(`✅ Status ${newStatus} (START) trimis cu succes la server pentru UIT ${courseToUpdate.uit}`);
         }
