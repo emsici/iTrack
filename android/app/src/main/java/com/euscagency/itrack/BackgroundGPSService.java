@@ -200,10 +200,7 @@ public class BackgroundGPSService extends Service {
                         startBackgroundGPS();
                     } else {
                         Log.e(TAG, "⚡ GPS service deja activ - asigur continuitate pentru " + specificUIT);
-                        
-                        // CRITICAL FIX: FORCE IMMEDIATE GPS CYCLE după RESUME
-                        Log.e(TAG, "🚀 FORȚEZ GPS CYCLE IMEDIAT după RESUME pentru verificare status");
-                        performGPSCycle();
+                        Log.e(TAG, "📡 ScheduledExecutorService va include automat cursul resumed în următorul ciclu de 10s");
                         
                         // CRITICAL DEBUG: Verifică toate cursele și statusurile lor
                         Log.e(TAG, "📊 === STATUS CHECK DUPĂ RESUME ===");
@@ -364,20 +361,11 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔧 gpsExecutor null check: " + (gpsExecutor != null));
             Log.e(TAG, "🔧 gpsExecutor shutdown check: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
             
-            // IMMEDIATE TEST: Execute runnable once manually to verify it works
-            Log.e(TAG, "🧪 TESTING: Manual execution of GPS runnable...");
-            try {
-                gpsRunnable.run();
-                Log.e(TAG, "🧪 TESTING: Manual execution SUCCESS!");
-            } catch (Exception testException) {
-                Log.e(TAG, "🧪 TESTING: Manual execution FAILED: " + testException.getMessage());
-                testException.printStackTrace();
-            }
-            
+            // CRITICAL FIX: DOAR ScheduledExecutorService cu interval corect - fără execuții extra
             java.util.concurrent.ScheduledFuture<?> future = gpsExecutor.scheduleAtFixedRate(
                 gpsRunnable, 
-                0, // PRIMA EXECUȚIE IMEDIAT  
-                GPS_INTERVAL_SECONDS, 
+                GPS_INTERVAL_SECONDS, // PRIMA EXECUȚIE DUPĂ 10 SECUNDE (nu imediat)
+                GPS_INTERVAL_SECONDS, // APOI LA FIECARE 10 SECUNDE  
                 TimeUnit.SECONDS
             );
             
@@ -385,44 +373,8 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔧 Is cancelled: " + (future != null ? future.isCancelled() : "N/A"));
             Log.e(TAG, "🔧 Is done: " + (future != null ? future.isDone() : "N/A"));
             
-            // ENHANCED DEBUGGING: Schedule a verification task
-            Log.e(TAG, "🔧 Scheduling verification task in 3 seconds...");
-            gpsExecutor.schedule(new Runnable() {
-                @Override 
-                public void run() {
-                    Log.e(TAG, "🔍 VERIFICATION: ScheduledExecutorService is working!");
-                    Log.e(TAG, "🔍 VERIFICATION: Main future cancelled? " + (future != null ? future.isCancelled() : "NULL"));
-                    Log.e(TAG, "🔍 VERIFICATION: Main future done? " + (future != null ? future.isDone() : "NULL"));
-                    sendLogToJavaScript("🔍 VERIFICATION: Executor alive at 3s mark");
-                }
-            }, 3, TimeUnit.SECONDS);
-            
-            // Immediate test execution after 3 seconds
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(5000); // Wait 5 seconds
-                        Log.e(TAG, "🧪 === 5-SECOND STATUS CHECK ===");
-                        Log.e(TAG, "🧪 isGPSRunning: " + isGPSRunning);
-                        Log.e(TAG, "🧪 Executor shutdown: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
-                        Log.e(TAG, "🧪 Executor terminated: " + (gpsExecutor != null ? gpsExecutor.isTerminated() : "NULL"));
-                        Log.e(TAG, "🧪 Future cancelled: " + (future != null ? future.isCancelled() : "NULL"));
-                        Log.e(TAG, "🧪 Future done: " + (future != null ? future.isDone() : "NULL"));
-                        Log.e(TAG, "🧪 WakeLock held: " + (wakeLock != null ? wakeLock.isHeld() : "NULL"));
-                        sendLogToJavaScript("🧪 5s Status Check - Running: " + isGPSRunning + ", WakeLock: " + (wakeLock != null ? wakeLock.isHeld() : "NULL"));
-                        
-                        // Also schedule check after first GPS cycle
-                        Thread.sleep(8000); // Total 13s wait
-                        Log.e(TAG, "🧪 === 13-SECOND STATUS CHECK ===");
-                        Log.e(TAG, "🧪 Expected: First GPS cycle should be completed by now");
-                        sendLogToJavaScript("🧪 13s check - First GPS cycle should be done");
-                        
-                    } catch (Exception e) {
-                        Log.e(TAG, "🧪 Test thread error: " + e.getMessage());
-                    }
-                }
-            }).start();
+            // MINIMĂ LOGGING: Doar status de pornire, fără execuții extra
+            Log.e(TAG, "✅ GPS ScheduledExecutorService configurat pentru transmisie la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
             
             isGPSRunning = true;
             
