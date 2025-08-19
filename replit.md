@@ -65,7 +65,8 @@ Offline Coordinates Policy: NEVER clear offline coordinates at logout - preserve
 CRITICAL BUG FIXES 19-08-2025: 
 1. DUPLICATE STATUS 3 ELIMINATED: Găsit și rezolvat cauza dublării - funcția updateCourseStatus avea DOUĂ apeluri AndroidGPS.updateStatus (try+catch blocks). Eliminat ambele duplicate calls - GPS logic gestionat EXCLUSIV prin start/stopAndroidGPS functions.
 2. RESUME GPS TRANSMISSION FIX: BackgroundGPSService nu trimitea status update la server pentru RESUME (status 2). Adăugat sendStatusUpdateToServer() în RESUME logic pentru consistență cu PAUSE/STOP actions.
-3. UI POLISH COMPLET: Textul "🔧 Debug" înlocuit cu iconiță elegantă (fas fa-tools), header optimizat cu shadow elegant, butoane 56x56px cu gradient premium, carduri cu border-radius 20px.
-4. LOADING STATES OPTIMIZED: Timeout garantat 500ms pentru loading states, reset state la vehicle switch, ecran input redesignat cu contrast perfect.
+3. RESUME GPS CYCLE FIX: Adăugat performGPSCycle() forțat imediat după RESUME pentru a garanta reluarea immediatǎ a transmisiei GPS la 10 secunde fără întârziere.
+4. UI DISCRET: Footer mare înlocuit cu iconita debug mică și discretă în colțul dreapta jos (24px, transparentă) pentru a nu interfere cu experiența user.
+5. LOADING STATES OPTIMIZED: Timeout garantat 500ms pentru loading states, reset state la vehicle switch.
 
-VERIFICARE COMPLETĂ: Zero duplicate status transmissions, GPS resume funcțional cu transmisie continuă, build final 351.15 kB optimizat pentru deployment Android.
+VERIFICARE COMPLETĂ: Zero duplicate status transmissions, GPS resume cu immediate transmission restart, build final 349.91 kB optimizat pentru deployment Android.
