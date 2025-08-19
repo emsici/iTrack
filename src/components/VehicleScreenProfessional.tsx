@@ -634,18 +634,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       paddingBottom: 'env(safe-area-inset-bottom)',
       color: '#ffffff'
     }}>
-      {/* Header conform design original */}
+      {/* Header optimizat și frumos */}
       <div style={{ 
-        paddingTop: 'env(safe-area-inset-top)', 
-        background: 'rgba(26, 32, 44, 0.95)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        paddingTop: 'max(env(safe-area-inset-top), 20px)', 
+        background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
         position: 'sticky',
         top: 0,
-        zIndex: 100
+        zIndex: 100,
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'
       }}>
         <div style={{ 
-          padding: '16px 20px',
+          padding: '20px 24px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between'
@@ -690,94 +690,96 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           />
         </div>
 
-        {/* Row cu butoane funcționalități */}
+        {/* Row cu butoane funcționalități - design frumos */}
         <div style={{
-          padding: '0 20px 16px',
+          padding: '0 24px 20px',
           display: 'flex',
           justifyContent: 'space-between',
-          gap: '12px'
+          gap: '16px'
         }}>
           {/* Settings */}
           <button 
             onClick={() => setShowSettings(true)}
             style={{
-              width: '48px',
-              height: '48px',
-              background: 'rgba(74, 85, 104, 0.6)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '12px',
+              width: '56px',
+              height: '56px',
+              background: 'linear-gradient(135deg, #4a5568 0%, #2d3748 100%)',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
             }}>
-            <i className="fas fa-cog" style={{ fontSize: '18px', color: '#cbd5e0' }}></i>
+            <i className="fas fa-cog" style={{ fontSize: '20px', color: '#e2e8f0' }}></i>
           </button>
 
           {/* Info */}
           <button 
             onClick={() => setShowAbout(true)}
             style={{
-              width: '48px',
-              height: '48px',
+              width: '56px',
+              height: '56px',
               background: 'linear-gradient(135deg, #4299e1 0%, #3182ce 100%)',
-              border: 'none',
-              borderRadius: '12px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              boxShadow: '0 4px 16px rgba(66, 153, 225, 0.3)'
             }}>
-            <i className="fas fa-info" style={{ fontSize: '18px', color: 'white' }}></i>
+            <i className="fas fa-info" style={{ fontSize: '20px', color: 'white' }}></i>
           </button>
 
           {/* Online indicator */}
           <div style={{
-            width: '48px',
-            height: '48px',
+            width: '56px',
+            height: '56px',
             background: 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)',
-            border: 'none',
-            borderRadius: '12px',
+            border: '2px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '16px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            boxShadow: '0 4px 16px rgba(72, 187, 120, 0.3)'
           }}>
             <div style={{
-              width: '12px',
-              height: '12px',
+              width: '16px',
+              height: '16px',
               background: '#ffffff',
-              borderRadius: '50%'
+              borderRadius: '50%',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
             }}></div>
           </div>
 
-          {/* Stats/Analytics - conform design original */}
+          {/* Stats/Analytics - design frumos */}
           <button 
             onClick={() => setShowStatsModal(true)}
             style={{
-              width: '48px',
-              height: '48px',
-              background: 'rgba(128, 90, 213, 0.6)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '12px',
+              width: '56px',
+              height: '56px',
+              background: 'linear-gradient(135deg, #805ad5 0%, #6b46c1 100%)',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              transition: 'all 0.2s ease'
+              boxShadow: '0 4px 16px rgba(128, 90, 213, 0.3)'
             }}>
-            <i className="fas fa-chart-bar" style={{ fontSize: '18px', color: '#cbd5e0' }}></i>
+            <i className="fas fa-chart-bar" style={{ fontSize: '20px', color: '#e2e8f0' }}></i>
           </button>
         </div>
       </div>
 
-      {/* Grid cu carduri status - conform design original */}
+      {/* Grid cu carduri status - design optimizat și frumos */}
       <div style={{ 
-        padding: '20px',
+        padding: '24px',
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '16px'
+        gap: '20px'
       }}>
         {/* Card TOTAL */}
         <div 
@@ -789,8 +791,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             border: selectedStatusFilter === 'all' 
               ? '2px solid #4299e1' 
               : '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '16px',
-            padding: '20px',
+            borderRadius: '20px',
+            padding: '24px',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             position: 'relative',
@@ -845,8 +847,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             border: selectedStatusFilter === 2 
               ? '2px solid #48bb78' 
               : '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '16px',
-            padding: '20px',
+            borderRadius: '20px',
+            padding: '24px',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             position: 'relative',
@@ -901,8 +903,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             border: selectedStatusFilter === 3 
               ? '2px solid #ed8936' 
               : '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '16px',
-            padding: '20px',
+            borderRadius: '20px',
+            padding: '24px',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             position: 'relative',
@@ -957,8 +959,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             border: selectedStatusFilter === 1 
               ? '2px solid #805ad5' 
               : '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '16px',
-            padding: '20px',
+            borderRadius: '20px',
+            padding: '24px',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             position: 'relative',
@@ -1043,8 +1045,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </p>
         </div>
       ) : (
-        /* Lista de curse conform design original */
-        <div style={{ padding: '0 20px 100px' }}>
+        /* Lista de curse - design optimizat */
+        <div style={{ padding: '0 24px 120px' }}>
           {(selectedStatusFilter === 'all' 
             ? courses 
             : courses.filter(c => c.status === selectedStatusFilter)
@@ -1159,7 +1161,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           : 'linear-gradient(135deg, rgba(248, 250, 252, 0.98) 0%, rgba(241, 245, 249, 0.95) 100%)',
         backdropFilter: 'blur(25px)',
         borderTop: `2px solid ${currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(99, 102, 241, 0.2)'}`,
-        padding: '16px 24px',
+        padding: '20px 28px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
