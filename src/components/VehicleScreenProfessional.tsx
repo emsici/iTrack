@@ -282,7 +282,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
   const [loadingCourses] = useState(new Set<string>());
-  const [offlineGPSCount, setOfflineGPSCount] = useState(0);
+  const [offlineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
@@ -381,7 +381,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`✅ ${response.length} curse încărcate pentru ${vehicleNumber}`);
         
         // Log successful load
-        await logAPI(`Curse încărcate: ${response.length} pentru ${vehicleNumber}`, 'INFO');
+        await logAPI(`Curse încărcate: ${response.length} pentru ${vehicleNumber}`);
       } else {
         setError("Nu au fost găsite curse pentru acest vehicul");
         setCourses([]);
