@@ -173,7 +173,7 @@ import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
 
-// import OfflineSyncMonitor from "./OfflineSyncMonitor"; // UNUSED - offline sync logic în main component
+import OfflineSyncMonitor from "./OfflineSyncMonitor";
 import ToastNotification from "./ToastNotification";
 
 import { useToast } from "../hooks/useToast";
@@ -273,6 +273,26 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
 
   const toast = useToast();
+
+  // Network monitoring pentru offline sync
+  useEffect(() => {
+    const monitorNetwork = async () => {
+      try {
+        const networkStatus = await Network.getStatus();
+        setIsOnline(networkStatus.connected);
+        
+        Network.addListener('networkStatusChange', status => {
+          console.log('🌐 Network status changed:', status.connected ? 'ONLINE' : 'OFFLINE');
+          setIsOnline(status.connected);
+        });
+      } catch (error) {
+        console.error('Network monitoring setup failed:', error);
+        setIsOnline(true); // Default to online
+      }
+    };
+    
+    monitorNetwork();
+  }, []);
 
   // PERFORMANCE OPTIMIZED: Initialize theme and vehicle number with debouncing
   useEffect(() => {
@@ -754,6 +774,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
           </div>
 
+          {/* Offline Sync Monitor */}
+          <div style={{ padding: '0 20px 16px' }}>
+            <OfflineSyncMonitor isOnline={isOnline} />
+          </div>
+
           {/* Lista de Curse */}
           <div style={{ padding: '0 20px 20px' }}>
             <h3 style={{ 
@@ -813,7 +838,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
           </div>
 
-          {/* Settings and About modals */}
+          {/* TOATE MODALURILE */}
           <SettingsModal
             isOpen={showSettings}
             onClose={() => setShowSettings(false)}
@@ -829,6 +854,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             onClose={() => setShowAbout(false)}
             currentTheme={currentTheme === 'dark' ? 'dark' : 'light'}
           />
+
+          <CourseStatsModal
+            isOpen={showStatsModal}
+            onClose={() => setShowStatsModal(false)}
+            courses={courses}
+            vehicleNumber={vehicleNumber}
+            currentTheme={currentTheme}
+          />
+
+          {/* Debug Panel */}
+          {showDebugPage && (
+            <AdminPanel
+              onClose={() => setShowDebugPage(false)}
+              currentTheme={currentTheme}
+            />
+          )}
 
           {/* Toast Notifications */}
           <ToastNotification
