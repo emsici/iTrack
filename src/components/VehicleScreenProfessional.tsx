@@ -5,7 +5,8 @@ import { Network } from '@capacitor/network';
 import { Course } from "../types";
 import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber, clearStoredVehicleNumber } from "../services/storage";
-import { logAPI, logAPIError } from "../services/appLogger";
+import { logAPI } from "../services/appLogger";
+
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
@@ -167,35 +168,35 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
   console.log("📱 SAFE Android Bridge Check:", {
     androidGpsAvailable: !!(window.AndroidGPS),
     startGPSFunction: !!(window.AndroidGPS?.startGPS),
+    courseId: course.id,
     ikRoTrans: course.ikRoTrans,
     realUIT: course.uit,
     vehicleNumber: vehicleNumber
   });
   
   if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-    console.log("✅ SAFE AndroidGPS.startGPS - pornesc BackgroundGPSService");
-    console.log("📋 ATOMIC OPERATION: Multi-course HashMap cu thread safety");
+    console.log("✅ AndroidGPS.startGPS disponibil - pornesc BackgroundGPSService");
+    console.log("📋 IMPORTANT: BackgroundGPSService acceptă MULTIPLE curse - se adaugă la lista activă");
+    console.log("🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS");
     
-    try {
-      const result = window.AndroidGPS.startGPS(
-        String(course.ikRoTrans || course.uit),  // Fallback safety
-        vehicleNumber,
-        course.uit || String(course.ikRoTrans),  // Fallback safety
-        token,
-        2
-      );
-      
-      console.log("🔥 SAFE BackgroundGPSService Result:", result);
-      console.log("📊 THREAD-SAFE: GPS service managing multiple courses atomically");
-      return result;
-    } catch (nativeError) {
-      console.error("❌ NATIVE BRIDGE ERROR:", nativeError);
-      return `ERROR: Native call failed - ${nativeError}`;
-    }
+    // Folosește ikRoTrans ca identificator unic pentru HashMap Android
+    const ikRoTransKey = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
+    
+    const result = window.AndroidGPS.startGPS(
+      ikRoTransKey,              // ikRoTrans ca identificator unic
+      vehicleNumber,
+      course.uit,                // UIT-ul real pentru server
+      token,
+      2
+    );
+    
+    console.log("🔥 BackgroundGPSService Result:", result);
+    console.log("📊 GPS service va urmări toate cursele active cu același set de coordonate");
+    return result;
   } else {
-    console.error("❌ ANDROID BRIDGE UNAVAILABLE!");
-    console.error("🔍 window.AndroidGPS state:", window.AndroidGPS);
-    return "ERROR: AndroidGPS interface not available";
+    console.error("❌ AndroidGPS.startGPS nu este disponibil!");
+    console.error("🔍 window.AndroidGPS:", window.AndroidGPS);
+    return "ERROR: AndroidGPS not available";
   }
 };
 
@@ -222,30 +223,20 @@ const stopAndroidGPS = (course: Course) => {
   });
   
   if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-    console.log("✅ SAFE AndroidGPS.stopGPS - atomic HashMap removal");
-    console.log("📋 THREAD-SAFE: BackgroundGPSService elimină cursa atomic");
+    console.log("✅ AndroidGPS.stopGPS disponibil - opresc BackgroundGPSService pentru cursă");
     
-    try {
-      // Safe identifier fallback
-      const courseIdentifier = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
-      if (!courseIdentifier) {
-        console.error("❌ IDENTIFIER EXTRACTION FAILED");
-        return "ERROR: Cannot extract course identifier";
-      }
-      
-      const result = window.AndroidGPS.stopGPS(courseIdentifier);
-      
-      console.log("🔥 SAFE BackgroundGPSService Stop Result:", result);
-      console.log("📊 ATOMIC: GPS service stopped tracking course safely");
-      return result;
-    } catch (nativeError) {
-      console.error("❌ NATIVE STOP ERROR:", nativeError);
-      return `ERROR: Native stop failed - ${nativeError}`;
-    }
+    // Folosește ikRoTrans ca identificator unic pentru HashMap Android
+    const ikRoTransKey = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
+    
+    const result = window.AndroidGPS.stopGPS(ikRoTransKey);
+    
+    console.log("🔥 BackgroundGPSService Stop Result:", result);
+    console.log("📊 GPS service a oprit urmărirea pentru această cursă specifică");
+    return result;
   } else {
-    console.error("❌ ANDROID BRIDGE STOP UNAVAILABLE!");
-    console.error("🔍 window.AndroidGPS state:", window.AndroidGPS);
-    return "ERROR: AndroidGPS stopGPS interface not available";
+    console.error("❌ AndroidGPS.stopGPS nu este disponibil!");
+    console.error("🔍 window.AndroidGPS:", window.AndroidGPS);
+    return "ERROR: AndroidGPS not available";
   }
 };
 
@@ -329,15 +320,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showDebugPage, setShowDebugPage] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
+  
+  // SENIOR DEVELOPER FIX: Race condition protection și concurrency control
   const [loadingCourses, setLoadingCourses] = useState(new Set<string>());
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const currentVehicleRef = useRef<string>('');
+
+  // Offline GPS count handled by BackgroundGPSService natively
   const [offlineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
-  
-  // SENIOR DEVELOPER FIX: Race condition protection
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const currentVehicleRef = useRef<string>("");
 
   const toast = useToast();
 
@@ -463,104 +456,101 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       } else {
         setError("Nu au fost găsite curse pentru acest vehicul");
         setCourses([]);
-        setCoursesLoaded(false);
-        console.log(`⚠️ Nu au fost găsite curse pentru vehiculul ${vehicleNumber}`);
       }
-    } catch (err: any) {
-      // Don't show error if request was aborted (normal for vehicle switch)
-      if (err.name === 'AbortError') {
-        console.log(`🔧 Request aborted for vehicle switch: ${currentRequest}`);
-        return;
+    } catch (error) {
+      // Only set error if this request is still current
+      if (currentRequest === currentVehicleRef.current) {
+        console.error(`❌ RACE-SAFE: Eroare încărcare curse pentru ${vehicleNumber}:`, error);
+        setError("Eroare la încărcarea curselor. Verifică conexiunea și încearcă din nou.");
+        setCourses([]);
       }
-      
-      console.error('Eroare la încărcarea curselor:', err);
-      setError(err.message || "Eroare la încărcarea curselor");
-      setCourses([]);
-      setCoursesLoaded(false);
-      
-      // Log error
-      await logAPIError(`Eroare încărcare curse pentru ${vehicleNumber}: ${err.message}`);
     } finally {
-      setLoading(false);
-      abortControllerRef.current = null;
+      // Only clear loading if this request is still current
+      if (currentRequest === currentVehicleRef.current) {
+        setLoading(false);
+      }
     }
   };
 
   const handleLogout = async () => {
     try {
-      console.log('🚪 Începe procesul de logout...');
-      
-      // Clear all GPS services before logout
+      // Clear all GPS tracking on logout
       await logoutClearAllGPS();
-      console.log('📱 Serviciul GPS Android curățat la logout');
       
-      // Call API logout
-      await logout(token);
-      console.log('🌐 Logout API executat cu succes');
-      
-      // Clear local storage
+      // Clear stored data
       await clearToken();
-      console.log('🗑️ Token-ul local curățat');
+      await clearStoredVehicleNumber();
       
-      // CRITICĂ: NU curăță numărul vehiculului - păstrează pentru următoarea sesiune
-      // await clearStoredVehicleNumber(); // COMENTAT - păstrează vehiculul
-      console.log('🚛 Numărul vehiculului păstrat pentru următoarea sesiune');
+      // Attempt server logout (non-blocking)
+      try {
+        await logout(token);
+      } catch (logoutError) {
+        console.warn('Server logout failed, continuing with local cleanup:', logoutError);
+      }
       
-      // Call parent logout
       onLogout();
-      console.log('✅ Logout complet finalizat');
-      
     } catch (error) {
-      console.error('Eroare la logout:', error);
-      // Forțează logout-ul local chiar dacă API-ul eșuează
-      await clearToken();
-      onLogout();
+      console.error('Logout error:', error);
+      onLogout(); // Force logout even if there are errors
     }
   };
 
-  // Render vehicle selection screen
-  if (!coursesLoaded && !vehicleNumber) {
+  // Vehicle number input screen
+  if (!coursesLoaded) {
     return (
       <div style={{ 
         minHeight: '100dvh',
         background: currentTheme === 'dark' 
           ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
           : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
         paddingTop: 'env(safe-area-inset-top)',
         paddingBottom: 'env(safe-area-inset-bottom)'
       }}>
-        <div style={{ padding: '20px' }}>
-          <div style={{
+        <div style={{
+          background: currentTheme === 'dark' 
+            ? 'rgba(30, 41, 59, 0.95)' 
+            : 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '16px',
+          padding: '32px',
+          width: '100%',
+          maxWidth: '400px',
+          border: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`,
+          boxShadow: currentTheme === 'dark'
+            ? '0 20px 40px rgba(0, 0, 0, 0.3)'
+            : '0 20px 40px rgba(0, 0, 0, 0.1)'
+        }}>
+          <h2 style={{ 
+            color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b',
             textAlign: 'center',
-            marginBottom: '40px'
+            marginBottom: '24px',
+            fontSize: '24px',
+            fontWeight: '600'
           }}>
-            <h1 style={{
-              color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b',
-              fontSize: '28px',
-              fontWeight: '700',
-              marginBottom: '12px'
-            }}>
-              iTrack GPS
-            </h1>
-            <p style={{
-              color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-              fontSize: '16px',
-              margin: 0
-            }}>
-              Introduceți numărul de înmatriculare
-            </p>
-          </div>
-
+            iTrack GPS
+          </h2>
+          
           <VehicleNumberDropdown
             value={vehicleNumber}
-            onChange={(value) => {
-              console.log('🔄 VehicleNumberDropdown onChange called with:', value);
-              setVehicleNumber(value);
-              setError('');
-            }}
+            onChange={setVehicleNumber}
             darkMode={currentTheme === 'dark'}
-            disabled={loading}
           />
+
+          {vehicleNumber && (
+            <p style={{
+              color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
+              fontSize: '14px',
+              textAlign: 'center',
+              marginTop: '16px',
+              marginBottom: '0'
+            }}>
+              Vehicul selectat: <strong>{vehicleNumber}</strong>
+            </p>
+          )}
 
           {error && (
             <div style={{
@@ -570,7 +560,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               padding: '12px',
               marginTop: '16px',
               color: '#ef4444',
-              fontSize: '14px'
+              fontSize: '14px',
+              textAlign: 'center'
             }}>
               {error}
             </div>
@@ -578,12 +569,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
           <button
             onClick={handleLoadCourses}
-            disabled={loading || !vehicleNumber.trim()}
+            disabled={!vehicleNumber.trim() || loading}
             style={{
               width: '100%',
-              background: loading || !vehicleNumber.trim() 
-                ? 'rgba(100, 116, 139, 0.3)'
-                : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+              background: !vehicleNumber.trim() || loading 
+                ? (currentTheme === 'dark' ? '#374151' : '#d1d5db')
+                : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
@@ -591,7 +582,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               fontSize: '16px',
               fontWeight: '600',
               marginTop: '20px',
-              cursor: loading || !vehicleNumber.trim() ? 'not-allowed' : 'pointer',
+              cursor: !vehicleNumber.trim() || loading ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease'
             }}
           >
@@ -909,7 +900,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 if (courseForGPS) {
                   // PORNIRE GPS: start (1→2) sau resume (3→2)
                   if (newStatus === 2 && (oldStatus === 1 || oldStatus === 3)) {
-                    console.log(`🚀 SAFE GPS START pentru coursă ${courseId} (${oldStatus}→2)`);
+                    console.log(`🚀 SAFE GPS START pentru cursă ${courseId} (${oldStatus}→2)`);
                     startAndroidGPS(courseForGPS, vehicleNumber, token);
                   }
                   
@@ -1038,7 +1029,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       <AboutModal
         isOpen={showAbout}
         onClose={() => setShowAbout(false)}
-        currentTheme={currentTheme === 'dark' ? 'dark' : 'light'}
+        currentTheme={currentTheme}
       />
 
       <CourseStatsModal
@@ -1049,15 +1040,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         currentTheme={currentTheme}
       />
 
-      {/* Debug Panel */}
-      {showDebugPage && (
-        <AdminPanel
-          onClose={() => setShowDebugPage(false)}
-          currentTheme={currentTheme}
-        />
-      )}
+      <AdminPanel
+        show={showDebugPage}
+        onClose={() => setShowDebugPage(false)}
+        currentTheme={currentTheme}
+      />
 
-      {/* Toast Notifications */}
       <ToastNotification
         toasts={toast.toasts}
         onRemove={toast.removeToast}
