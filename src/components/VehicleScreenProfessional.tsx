@@ -476,35 +476,87 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 </div>
               </div>
               
-              {/* Butoane Header */}
-              <div style={{ display: 'flex', gap: '8px' }}>
+              {/* CELE 4 BUTOANE PRINCIPALE DIN HEADER */}
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {/* REFRESH/SYNC */}
                 <button
-                  onClick={() => setShowSettings(true)}
+                  onClick={async () => {
+                    setLoading(true);
+                    try {
+                      const response = await getVehicleCourses(vehicleNumber, token);
+                      setCourses(response || []);
+                      toast.showToast('Curse actualizate', 'success');
+                    } catch (error) {
+                      toast.showToast('Eroare actualizare', 'error');
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  disabled={loading}
                   style={{
-                    background: 'transparent',
-                    border: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.3)' : 'rgba(0, 0, 0, 0.2)'}`,
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    border: 'none',
                     borderRadius: '8px',
-                    padding: '8px 12px',
-                    color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b',
+                    padding: '8px 10px',
+                    color: 'white',
                     cursor: 'pointer',
-                    fontSize: '14px'
+                    fontSize: '16px',
+                    minWidth: '36px',
+                    opacity: loading ? 0.6 : 1
                   }}
                 >
-                  ⚙️ Setări
+                  🔄
                 </button>
+
+                {/* STATISTICI */}
+                <button
+                  onClick={() => setShowStatsModal(true)}
+                  style={{
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 10px',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    minWidth: '36px'
+                  }}
+                >
+                  📊
+                </button>
+
+                {/* DEBUG/LOGURI */}
                 <button
                   onClick={() => setShowDebugPage(true)}
                   style={{
-                    background: 'transparent',
-                    border: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.3)' : 'rgba(0, 0, 0, 0.2)'}`,
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                    border: 'none',
                     borderRadius: '8px',
-                    padding: '8px 12px',
-                    color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b',
+                    padding: '8px 10px',
+                    color: 'white',
                     cursor: 'pointer',
-                    fontSize: '14px'
+                    fontSize: '16px',
+                    minWidth: '36px'
                   }}
                 >
-                  📋 Loguri
+                  📋
+                </button>
+
+                {/* SETĂRI */}
+                <button
+                  onClick={() => setShowSettings(true)}
+                  style={{
+                    background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 10px',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    minWidth: '36px'
+                  }}
+                >
+                  ⚙️
                 </button>
               </div>
             </div>
