@@ -32,7 +32,7 @@ declare global {
 // Urmărirea curselor active - pentru Android BackgroundGPSService (gestionată în serviciul nativ)
 
 // Funcții GPS Android directe - BackgroundGPSService gestionează totul nativ
-const updateCourseStatus = async (courseId: string, courseUit: string, newStatus: number, authToken: string, vehicleNumber: string, currentCourses?: Course[]) => {
+const updateCourseStatus = async (courseId: string, courseUit: string, newStatus: number, authToken: string, vehicleNumber: string) => {
   try {
     // PASUL 1: Actualizează serverul prin API
     console.log(`🌐 === TRIMITERE ACTUALIZARE STATUS ===`);
