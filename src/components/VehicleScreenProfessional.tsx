@@ -1239,7 +1239,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       />
 
       <AdminPanel
-        show={showDebugPage}
+        isOpen={showDebugPage}
         onClose={() => setShowDebugPage(false)}
         currentTheme={currentTheme}
       />

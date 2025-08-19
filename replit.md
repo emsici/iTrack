@@ -41,7 +41,7 @@ SENIOR DEVELOPER PRODUCTION FIXES 19-08-2025: Implementate toate protecțiile ni
 
 CRITICAL CONFLICT FIX 19-08-2025: Identificată și rezolvată vulnerabilitate critică cu courseUit identice. Problemă: .find() returnează doar prima cursă cu UIT identic, cauzând conflicte la curse multiple cu același UIT (aceeași mașină sau mașini diferite). Soluție implementată: CourseDetailCard trimite courseId ȘI courseUit, targeting prin course.id (unic) pentru găsire precisă, courseUit pentru server API, ikRoTrans pentru Android HashMap. Build success (339.80 kB), zero conflicte rezolvate definitiv.
 
-DESIGN CORRECTION 19-08-2025: Design-ul a fost corectat pentru a reflecta exact commit-ul 7ddacab - header simplu cu "Curse Active - {vehicleNumber}", listă directă de curse fără carduri complicate, și iconița de debug settings fixă în colțul din dreapta jos (nu timestamp clickabil). 50 clickuri pe iconiță activează AdminPanel cu badge counter vizibil după 30 clickuri.
+DESIGN RESTORATION 19-08-2025: Design-ul a fost restaurat complet conform mockup-ului original cu toate funcționalitățile: header cu logo iTrack și dropdown VEHICUL, 4 butoane funcționalități (Settings, Info, Online indicator, Stats), grid 2x2 cu carduri status (TOTAL, ACTIV, PAUZĂ, DISPONIBIL), footer cu iconița debug (50 clickuri → AdminPanel). Flow complet: selectare număr înmatriculare → încărcare pagină curse cu design original.
 
 ## System Architecture
 
