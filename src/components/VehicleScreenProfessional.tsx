@@ -447,464 +447,109 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       ) : (
         <>
-          {/* INTERFAȚA COMPLETĂ - Header professional cu gradient */}
-          <div style={{
-            background: currentTheme === 'dark' 
-              ? 'linear-gradient(135deg, #1e293b 0%, #374151 50%, #4b5563 100%)'
-              : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #e2e8f0 100%)',
-            borderBottom: `2px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`,
-            padding: '20px',
-            marginBottom: '20px'
+          {/* Header simplu și curat - design original din 493b7cd */}
+          <div style={{ 
+            paddingTop: 'env(safe-area-inset-top)', 
+            background: currentTheme === 'dark' ? '#1e293b' : '#ffffff',
+            borderBottom: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
           }}>
-            {/* Header Principal */}
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              marginBottom: '16px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  background: 'linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '20px'
-                }}>
-                  <i className="fas fa-truck"></i>
-                </div>
-                <div>
-                  <h1 style={{ 
-                    color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b', 
-                    fontSize: '24px',
-                    margin: 0,
-                    fontWeight: '700'
-                  }}>
-                    {vehicleNumber}
-                  </h1>
-                  <p 
-                    onClick={() => {
-                      setClickCount(prev => {
-                        const newCount = prev + 1;
-                        console.log(`Debug clicks: ${newCount}/50`);
-                        
-                        if (newCount >= 50) {
-                          console.log('🔓 DEBUG MODE ACTIVAT - Deschidere Admin Panel');
-                          setShowDebugPage(true);
-                          setClickCount(0); // Reset counter
-                          toast.showToast('Debug Mode Activat!', 'success');
-                        }
-                        
-                        return newCount;
-                      });
-                    }}
-                    style={{
-                      color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                      fontSize: '14px',
-                      margin: 0,
-                      cursor: 'pointer',
-                      userSelect: 'none'
-                    }}
-                  >
-                    iTrack GPS Professional {clickCount > 0 && clickCount < 50 && (
-                      <span style={{ opacity: 0.5, fontSize: '12px' }}>
-                        ({clickCount}/50)
-                      </span>
-                    )}
-                  </p>
-                </div>
-              </div>
-              
-              {/* CELE 4 BUTOANE PRINCIPALE DIN HEADER */}
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                {/* REFRESH/SYNC */}
-                <button
-                  onClick={async () => {
-                    setLoading(true);
-                    try {
-                      const response = await getVehicleCourses(vehicleNumber, token);
-                      setCourses(response || []);
-                      toast.showToast('Curse actualizate', 'success');
-                    } catch (error) {
-                      toast.showToast('Eroare actualizare', 'error');
-                    } finally {
-                      setLoading(false);
-                    }
-                  }}
-                  disabled={loading}
-                  style={{
-                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '8px 10px',
-                    color: 'white',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    minWidth: '36px',
-                    opacity: loading ? 0.6 : 1
-                  }}
-                >
-                  🔄
-                </button>
-
-                {/* STATISTICI */}
-                <button
-                  onClick={() => setShowStatsModal(true)}
-                  style={{
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '8px 10px',
-                    color: 'white',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    minWidth: '36px'
-                  }}
-                >
-                  📊
-                </button>
-
-                {/* DEBUG/LOGURI */}
-                <button
-                  onClick={() => setShowDebugPage(true)}
-                  style={{
-                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '8px 10px',
-                    color: 'white',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    minWidth: '36px'
-                  }}
-                >
-                  📋
-                </button>
-
-                {/* SETĂRI */}
-                <button
-                  onClick={() => setShowSettings(true)}
-                  style={{
-                    background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '8px 10px',
-                    color: 'white',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    minWidth: '36px'
-                  }}
-                >
-                  ⚙️
-                </button>
-              </div>
-            </div>
-
-            {/* 4 Carduri Status */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
-              gap: '12px',
-              marginBottom: '16px'
-            }}>
-              {/* ACTIV */}
-              <div
-                onClick={() => setSelectedStatusFilter(2)}
-                style={{
-                  background: selectedStatusFilter === 2 
-                    ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
-                    : currentTheme === 'dark' 
-                      ? 'rgba(34, 197, 94, 0.1)' 
-                      : 'rgba(34, 197, 94, 0.05)',
-                  border: selectedStatusFilter === 2 
-                    ? '2px solid #22c55e'
-                    : `1px solid ${currentTheme === 'dark' ? 'rgba(34, 197, 94, 0.3)' : 'rgba(34, 197, 94, 0.2)'}`,
-                  borderRadius: '12px',
-                  padding: '12px',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <div style={{
-                  fontSize: '20px',
-                  marginBottom: '4px',
-                  color: selectedStatusFilter === 2 ? 'white' : '#22c55e'
-                }}>
-                  ▶️
-                </div>
-                <div style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: selectedStatusFilter === 2 
-                    ? 'white' 
-                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b')
-                }}>
-                  ACTIV
-                </div>
-                <div style={{
-                  fontSize: '18px',
-                  fontWeight: '700',
-                  color: selectedStatusFilter === 2 
-                    ? 'white' 
-                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b')
-                }}>
-                  {courses.filter(c => c.status === 2).length}
-                </div>
-              </div>
-
-              {/* PAUZĂ */}
-              <div
-                onClick={() => setSelectedStatusFilter(3)}
-                style={{
-                  background: selectedStatusFilter === 3 
-                    ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
-                    : currentTheme === 'dark' 
-                      ? 'rgba(245, 158, 11, 0.1)' 
-                      : 'rgba(245, 158, 11, 0.05)',
-                  border: selectedStatusFilter === 3 
-                    ? '2px solid #f59e0b'
-                    : `1px solid ${currentTheme === 'dark' ? 'rgba(245, 158, 11, 0.3)' : 'rgba(245, 158, 11, 0.2)'}`,
-                  borderRadius: '12px',
-                  padding: '12px',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <div style={{
-                  fontSize: '20px',
-                  marginBottom: '4px',
-                  color: selectedStatusFilter === 3 ? 'white' : '#f59e0b'
-                }}>
-                  ⏸️
-                </div>
-                <div style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: selectedStatusFilter === 3 
-                    ? 'white' 
-                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b')
-                }}>
-                  PAUZĂ
-                </div>
-                <div style={{
-                  fontSize: '18px',
-                  fontWeight: '700',
-                  color: selectedStatusFilter === 3 
-                    ? 'white' 
-                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b')
-                }}>
-                  {courses.filter(c => c.status === 3).length}
-                </div>
-              </div>
-
-              {/* STOP */}
-              <div
-                onClick={() => setSelectedStatusFilter(4)}
-                style={{
-                  background: selectedStatusFilter === 4 
-                    ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
-                    : currentTheme === 'dark' 
-                      ? 'rgba(239, 68, 68, 0.1)' 
-                      : 'rgba(239, 68, 68, 0.05)',
-                  border: selectedStatusFilter === 4 
-                    ? '2px solid #ef4444'
-                    : `1px solid ${currentTheme === 'dark' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.2)'}`,
-                  borderRadius: '12px',
-                  padding: '12px',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <div style={{
-                  fontSize: '20px',
-                  marginBottom: '4px',
-                  color: selectedStatusFilter === 4 ? 'white' : '#ef4444'
-                }}>
-                  ⏹️
-                </div>
-                <div style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: selectedStatusFilter === 4 
-                    ? 'white' 
-                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b')
-                }}>
-                  STOP
-                </div>
-                <div style={{
-                  fontSize: '18px',
-                  fontWeight: '700',
-                  color: selectedStatusFilter === 4 
-                    ? 'white' 
-                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b')
-                }}>
-                  {courses.filter(c => c.status === 4).length}
-                </div>
-              </div>
-
-              {/* TOATE */}
-              <div
-                onClick={() => setSelectedStatusFilter('all')}
-                style={{
-                  background: selectedStatusFilter === 'all' 
-                    ? 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)'
-                    : currentTheme === 'dark' 
-                      ? 'rgba(99, 102, 241, 0.1)' 
-                      : 'rgba(99, 102, 241, 0.05)',
-                  border: selectedStatusFilter === 'all' 
-                    ? '2px solid #6366f1'
-                    : `1px solid ${currentTheme === 'dark' ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.2)'}`,
-                  borderRadius: '12px',
-                  padding: '12px',
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <div style={{
-                  fontSize: '20px',
-                  marginBottom: '4px',
-                  color: selectedStatusFilter === 'all' ? 'white' : '#6366f1'
-                }}>
-                  📋
-                </div>
-                <div style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: selectedStatusFilter === 'all' 
-                    ? 'white' 
-                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b')
-                }}>
-                  TOATE
-                </div>
-                <div style={{
-                  fontSize: '18px',
-                  fontWeight: '700',
-                  color: selectedStatusFilter === 'all' 
-                    ? 'white' 
-                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b')
-                }}>
-                  {courses.length}
-                </div>
-              </div>
+            <div style={{ padding: '20px' }}>
+              <h2 style={{ 
+                color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b',
+                margin: 0,
+                fontSize: '20px',
+                fontWeight: '600'
+              }}>
+                Curse Active - {vehicleNumber}
+              </h2>
             </div>
           </div>
 
           {/* Offline Sync Monitor */}
-          <div style={{ padding: '0 20px 16px' }}>
+          <div style={{ padding: '16px 20px' }}>
             <OfflineSyncMonitor isOnline={isOnline} />
           </div>
 
-          {/* Lista de Curse */}
+          {/* Lista de curse - design simplu din versiunea originală */}
           <div style={{ padding: '0 20px 20px' }}>
-            <h3 style={{ 
-              color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b',
-              marginBottom: '16px',
-              fontSize: '18px',
-              fontWeight: '600'
-            }}>
-              {selectedStatusFilter === 'all' 
-                ? `Toate Cursele (${courses.length})`
-                : `Curse ${selectedStatusFilter === 2 ? 'ACTIVE' : selectedStatusFilter === 3 ? 'ÎN PAUZĂ' : 'OPRITE'} (${courses.filter(c => c.status === selectedStatusFilter).length})`
-              }
-            </h3>
+            {courses.map((course) => (
+              <CourseDetailCard
+                key={course.id}
+                course={course}
+                token={token}
+                onStatusChange={async (courseId, newStatus) => {
+                  try {
+                    await updateCourseStatus(courseId, newStatus, token, vehicleNumber);
+                    setCourses(prev => prev.map(c => 
+                      c.id === courseId ? { ...c, status: newStatus } : c
+                    ));
+                  } catch (error) {
+                    console.error('Error updating course status:', error);
+                  }
+                }}
+                onStartGPS={(course) => {
+                  startAndroidGPS(course, vehicleNumber, token);
+                }}
+                currentTheme={currentTheme}
+              />
+            ))}
             
-            {/* Course cards filtrate */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {(selectedStatusFilter === 'all' 
-                ? courses 
-                : courses.filter(c => c.status === selectedStatusFilter)
-              ).map((course) => (
-                <CourseDetailCard
-                  key={course.id}
-                  course={course}
-                  token={token}
-                  onStatusChange={async (courseId, newStatus) => {
-                    try {
-                      await updateCourseStatus(courseId, newStatus, token, vehicleNumber);
-                      // Update local state
-                      setCourses(prev => prev.map(c => 
-                        c.id === courseId ? { ...c, status: newStatus } : c
-                      ));
-                    } catch (error) {
-                      console.error('Error updating course status:', error);
-                    }
-                  }}
-                  onStartGPS={(course) => {
-                    startAndroidGPS(course, vehicleNumber, token);
-                  }}
-                  currentTheme={currentTheme}
-                />
-              ))}
-              
-              {/* Mesaj când nu sunt curse */}
-              {(selectedStatusFilter === 'all' 
-                ? courses.length === 0
-                : courses.filter(c => c.status === selectedStatusFilter).length === 0
-              ) && (
-                <div style={{
-                  textAlign: 'center',
-                  padding: '40px 20px',
-                  color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                  fontSize: '16px'
-                }}>
-                  Nu au fost găsite curse pentru acest filtru
-                </div>
-              )}
-              
-              {/* Debug Footer cu timestamp clickabil */}
+            {courses.length === 0 && (
               <div style={{
                 textAlign: 'center',
-                padding: '20px',
-                borderTop: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
-                marginTop: '20px'
+                padding: '40px 20px',
+                color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
+                fontSize: '16px'
               }}>
-                <p 
-                  onClick={() => {
-                    setClickCount(prev => {
-                      const newCount = prev + 1;
-                      console.log(`Debug clicks on timestamp: ${newCount}/50`);
-                      
-                      if (newCount >= 50) {
-                        console.log('🔓 DEBUG MODE ACTIVAT prin timestamp - Deschidere Admin Panel');
-                        setShowDebugPage(true);
-                        setClickCount(0);
-                        toast.showToast('Debug Mode Activat prin timestamp!', 'success');
-                      }
-                      
-                      return newCount;
-                    });
-                  }}
-                  style={{
-                    color: currentTheme === 'dark' ? '#64748b' : '#94a3b8',
-                    fontSize: '12px',
-                    margin: 0,
-                    cursor: 'pointer',
-                    userSelect: 'none'
-                  }}
-                >
-                  {new Date().toLocaleString('ro-RO', { 
-                    timeZone: 'Europe/Bucharest',
-                    day: '2-digit',
-                    month: '2-digit', 
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                  })} {clickCount > 0 && clickCount < 50 && (
-                    <span style={{ opacity: 0.7 }}>
-                      {clickCount}/50
-                    </span>
-                  )}
-                </p>
+                Nu au fost găsite curse pentru acest vehicul
               </div>
+            )}
+            
+            {/* Footer cu timestamp clickabil pentru debug (50 clickuri) */}
+            <div style={{
+              textAlign: 'center',
+              padding: '20px',
+              borderTop: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+              marginTop: '20px'
+            }}>
+              <p 
+                onClick={() => {
+                  setClickCount(prev => {
+                    const newCount = prev + 1;
+                    console.log(`Debug clicks: ${newCount}/50`);
+                    
+                    if (newCount >= 50) {
+                      console.log('Debug Mode Activat - AdminPanel');
+                      setShowDebugPage(true);
+                      setClickCount(0);
+                      toast.showToast('Debug Mode Activat!', 'success');
+                    }
+                    
+                    return newCount;
+                  });
+                }}
+                style={{
+                  color: currentTheme === 'dark' ? '#64748b' : '#94a3b8',
+                  fontSize: '12px',
+                  margin: 0,
+                  cursor: 'pointer',
+                  userSelect: 'none'
+                }}
+              >
+                {new Date().toLocaleString('ro-RO', { 
+                  timeZone: 'Europe/Bucharest',
+                  day: '2-digit',
+                  month: '2-digit', 
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit'
+                })} {clickCount > 0 && clickCount < 50 && (
+                  <span style={{ opacity: 0.7, fontSize: '10px' }}>
+                    ({clickCount}/50)
+                  </span>
+                )}
+              </p>
             </div>
           </div>
 
