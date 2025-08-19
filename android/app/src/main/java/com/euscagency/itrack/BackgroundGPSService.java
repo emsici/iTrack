@@ -141,8 +141,12 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "   Vehicle: " + globalVehicle);
             Log.e(TAG, "   Status: " + courseStatus);
             
+            // CRITICAL FIX: VERIFICARE UIT REAL - dacă realUit este null, folosește uitId
+            String validRealUit = (realUit != null && !realUit.trim().isEmpty()) ? realUit : uitId;
+            Log.e(TAG, "🔧 CRITICAL UIT VALIDATION: realUit='" + realUit + "' → validRealUit='" + validRealUit + "'");
+            
             // Adaugă cursa la lista activă cu key unic (vehicul + ikRoTrans), păstrează toate datele
-            activeCourses.put(uniqueKey, new CourseData(uitId, courseStatus, realUit, globalVehicle));
+            activeCourses.put(uniqueKey, new CourseData(uitId, courseStatus, validRealUit, globalVehicle));
             Log.e(TAG, "📋 Total curse active: " + activeCourses.size());
             
             // Start foreground notification IMMEDIATELY  
