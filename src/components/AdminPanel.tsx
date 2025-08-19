@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getAppLogs, clearAppLogs, AppLog } from '../services/appLogger';
 
 interface AdminPanelProps {
+  isOpen: boolean;
   onLogout?: () => void;
   onClose?: () => void;
   vehicleNumber?: string;
@@ -11,10 +12,9 @@ interface AdminPanelProps {
 }
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ 
+  isOpen,
   onLogout, 
   onClose, 
-  vehicleNumber, 
-  courses = [], 
   currentTheme = 'dark', 
   isInline = false 
 }) => {
@@ -132,6 +132,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
       default: return '#374151';
     }
   };
+
+  // Nu afișa panelul dacă nu este deschis
+  if (!isOpen) {
+    return null;
+  }
 
 
 

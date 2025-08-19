@@ -35,11 +35,8 @@ const App: React.FC = () => {
         if (storedToken) {
           console.log('Token stocat găsit - login automat');
           setToken(storedToken);
-          if (storedToken.startsWith('ADMIN_DEBUG_TOKEN')) {
-            setCurrentScreen('admin');
-          } else {
-            setCurrentScreen('vehicle');
-          }
+          // ALWAYS go to vehicle screen for normal users - AdminPanel is accessible via 50 clicks
+          setCurrentScreen('vehicle');
         } else {
           console.log('Nu există token stocat - se afișează login-ul');
         }
@@ -54,21 +51,15 @@ const App: React.FC = () => {
   const handleLogin = async (authToken: string, isAdmin: boolean = false) => {
     // Login successful, storing token
     try {
-      if (isAdmin || authToken === 'ADMIN_TOKEN' || authToken.startsWith('ADMIN_DEBUG_TOKEN')) {
-        setPreviousToken(token); // Store current session
-        setToken(authToken);
-        setCurrentScreen('admin');
-      } else {
-        await storeToken(authToken);
-        // Token stored successfully
-        setToken(authToken);
-        setCurrentScreen('vehicle');
-      }
+      // ALWAYS store token and go to vehicle screen - AdminPanel via 50 clicks only
+      await storeToken(authToken);
+      setToken(authToken);
+      setCurrentScreen('vehicle');
     } catch (error) {
       console.error("Eșec la stocarea token-ului:", error);
-      // Continue anyway
+      // Continue anyway - always go to vehicle screen
       setToken(authToken);
-      setCurrentScreen(isAdmin || authToken.startsWith('ADMIN_DEBUG_TOKEN') ? 'admin' : 'vehicle');
+      setCurrentScreen('vehicle');
     }
   };
 
@@ -136,7 +127,7 @@ const App: React.FC = () => {
         <VehicleScreen token={token} onLogout={handleLogout} />
       )}
       {currentScreen === 'admin' && (
-        <AdminPanel onLogout={handleLogout} onClose={handleAdminClose} />
+        <AdminPanel isOpen={true} onLogout={handleLogout} onClose={handleAdminClose} />
       )}
     </div>
   );
