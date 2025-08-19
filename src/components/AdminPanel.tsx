@@ -5,8 +5,6 @@ interface AdminPanelProps {
   isOpen: boolean;
   onLogout?: () => void;
   onClose?: () => void;
-  vehicleNumber?: string;
-  courses?: any[];
   currentTheme?: string;
   isInline?: boolean;
 }
