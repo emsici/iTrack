@@ -173,6 +173,34 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
   }
 };
 
+const stopAndroidGPS = (course: Course) => {
+  console.log("🛑 === OPRIRE GPS PENTRU CURSĂ ===");
+  console.log("📱 Verificare interfață AndroidGPS:", {
+    available: !!(window.AndroidGPS),
+    stopGPS: !!(window.AndroidGPS?.stopGPS),
+    courseId: course.id,
+    ikRoTrans: course.ikRoTrans,
+    uit: course.uit
+  });
+  
+  if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
+    console.log("✅ AndroidGPS.stopGPS disponibil - opresc GPS pentru cursă");
+    console.log("📋 IMPORTANT: BackgroundGPSService va elimina cursa din urmărire");
+    
+    // Folosim ikRoTrans ca identificator pentru Android HashMap
+    const courseIdentifier = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
+    const result = window.AndroidGPS.stopGPS(courseIdentifier);
+    
+    console.log("🔥 BackgroundGPSService Stop Result:", result);
+    console.log("📊 GPS service va înceta urmărirea acestei curse");
+    return result;
+  } else {
+    console.error("❌ AndroidGPS.stopGPS nu este disponibil!");
+    console.error("🔍 window.AndroidGPS:", window.AndroidGPS);
+    return "ERROR: AndroidGPS stopGPS not available";
+  }
+};
+
 const logoutClearAllGPS = async () => {
   if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
     return window.AndroidGPS.clearAllOnLogout();
@@ -759,18 +787,33 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             course={course}
             onStatusUpdate={async (courseId, courseUit, newStatus) => {
               try {
+                // Găsește cursa pentru GPS handling
+                const courseForGPS = courses.find(c => c.id === courseId);
+                const oldStatus = courseForGPS?.status;
+                
+                console.log(`🔄 SCHIMBARE STATUS: ${oldStatus} → ${newStatus} pentru courseId: ${courseId}`);
+                
                 await updateCourseStatus(courseId, courseUit, newStatus, token, vehicleNumber, courses);
                 setCourses(prev => prev.map(c => 
                   c.id === courseId ? { ...c, status: newStatus } : c
                 ));
                 
-                // Start GPS pentru course ACTIVE (status 2)
-                if (newStatus === 2) {
-                  const courseToStart = courses.find(c => c.id === courseId);
-                  if (courseToStart) {
-                    startAndroidGPS(courseToStart, vehicleNumber, token);
+                // GPS HANDLING COMPLET pentru toate tranzițiile
+                if (courseForGPS) {
+                  // PORNIRE GPS: start (1→2) sau resume (3→2)
+                  if (newStatus === 2 && (oldStatus === 1 || oldStatus === 3)) {
+                    console.log(`🚀 PORNIRE GPS pentru coursă ${courseId} (${oldStatus}→2)`);
+                    startAndroidGPS(courseForGPS, vehicleNumber, token);
+                  }
+                  
+                  // OPRIRE GPS: pause (2→3), stop din activ (2→4), sau stop din pauză (3→4)
+                  else if ((newStatus === 3 && oldStatus === 2) || 
+                           (newStatus === 4 && (oldStatus === 2 || oldStatus === 3))) {
+                    console.log(`🛑 OPRIRE GPS pentru coursă ${courseId} (${oldStatus}→${newStatus})`);
+                    stopAndroidGPS(courseForGPS);
                   }
                 }
+                
               } catch (error) {
                 console.error('Error updating course status:', error);
                 toast.error('Eroare actualizare status', 'Nu s-a putut actualiza statusul');
