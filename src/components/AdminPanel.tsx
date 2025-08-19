@@ -16,6 +16,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
   currentTheme = 'dark', 
   isInline = false 
 }) => {
+  // Use currentTheme for conditional styling
+  const isDarkTheme = currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night';
   const [logs, setLogs] = useState<AppLog[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<AppLog[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -140,12 +142,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
 
   // Inline styles for embedded debug panel
   const containerStyle = isInline ? {
-    backgroundColor: 'transparent',
+    backgroundColor: isDarkTheme ? 'rgba(15, 23, 42, 0.8)' : 'rgba(248, 250, 252, 0.9)',
     fontFamily: 'monospace',
     fontSize: '12px',
     maxHeight: '400px',
     overflowY: 'auto' as const,
-    padding: '0'
+    padding: '15px',
+    borderRadius: '12px',
+    border: `1px solid ${isDarkTheme ? 'rgba(148, 163, 184, 0.2)' : 'rgba(203, 213, 225, 0.3)'}`,
+    color: isDarkTheme ? '#e2e8f0' : '#1e293b'
   } : {
     position: 'fixed' as const,
     top: 0,

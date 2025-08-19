@@ -1136,6 +1136,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               }
             </div>
           )}
+          
+          {/* Debug panel inline sub lista de curse */}
+          {showDebugPage && (
+            <div style={{ 
+              margin: '20px 0',
+              borderTop: '2px solid rgba(66, 153, 225, 0.3)',
+              paddingTop: '20px'
+            }}>
+              <AdminPanel
+                isOpen={true}
+                onClose={() => setShowDebugPage(false)}
+                currentTheme={currentTheme}
+                isInline={true}
+              />
+            </div>
+          )}
         </div>
       )}
 
@@ -1228,12 +1244,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         onClose={() => setShowStatsModal(false)}
         courses={courses}
         vehicleNumber={vehicleNumber}
-        currentTheme={currentTheme}
-      />
-
-      <AdminPanel
-        isOpen={showDebugPage}
-        onClose={() => setShowDebugPage(false)}
         currentTheme={currentTheme}
       />
 
