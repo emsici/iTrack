@@ -418,6 +418,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
       setError("Te rog să introduci un număr de înmatriculare valid");
+      setLoading(false);
       return;
     }
 
@@ -432,43 +433,48 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
     setLoading(true);
     setError("");
+    console.log(`🔍 ÎNCEPUT ÎNCĂRCARE: ${vehicleNumber}`);
     
     try {
-      console.log(`🔍 RACE-SAFE: Încărcarea curselor pentru vehiculul: ${vehicleNumber}`);
       const response = await getVehicleCourses(vehicleNumber, token);
       
       // CRITICAL: Validate that vehicle hasn't changed during API call
       if (currentRequest !== currentVehicleRef.current) {
         console.log(`🚫 RACE PREVENTED: Vehicle changed during API call (${currentRequest} → ${currentVehicleRef.current})`);
+        setLoading(false);
         return; // Abandon this response
       }
       
-      if (response && Array.isArray(response)) {
+      if (response && Array.isArray(response) && response.length > 0) {
         setCourses(response);
         setCoursesLoaded(true);
         
         // Store valid vehicle number pentru următoarea sesiune
         await storeVehicleNumber(vehicleNumber);
-        console.log(`✅ RACE-SAFE: ${response.length} curse încărcate pentru ${vehicleNumber}`);
+        console.log(`✅ SUCCESS: ${response.length} curse încărcate pentru ${vehicleNumber}`);
         
         // Log successful load
         await logAPI(`Curse încărcate: ${response.length} pentru ${vehicleNumber}`);
       } else {
+        console.log(`⚠️ Nu s-au găsit curse pentru ${vehicleNumber}`);
         setError("Nu au fost găsite curse pentru acest vehicul");
         setCourses([]);
+        setCoursesLoaded(false);
       }
     } catch (error) {
       // Only set error if this request is still current
       if (currentRequest === currentVehicleRef.current) {
-        console.error(`❌ RACE-SAFE: Eroare încărcare curse pentru ${vehicleNumber}:`, error);
+        console.error(`❌ EROARE încărcare curse pentru ${vehicleNumber}:`, error);
         setError("Eroare la încărcarea curselor. Verifică conexiunea și încearcă din nou.");
         setCourses([]);
+        setCoursesLoaded(false);
       }
     } finally {
-      // Only clear loading if this request is still current
-      if (currentRequest === currentVehicleRef.current) {
+      // GUARANTEED loading stop
+      setTimeout(() => {
         setLoading(false);
-      }
+        console.log(`🏁 LOADING STOP pentru ${currentRequest}`);
+      }, 500);
     }
   };
 
@@ -495,44 +501,50 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  // Vehicle number input screen
+  // Vehicle number input screen - design optimizat
   if (!coursesLoaded) {
     return (
       <div style={{ 
         minHeight: '100dvh',
-        background: currentTheme === 'dark' 
-          ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-          : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px',
-        paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)'
+        padding: '24px',
+        paddingTop: 'max(env(safe-area-inset-top), 40px)',
+        paddingBottom: 'max(env(safe-area-inset-bottom), 40px)'
       }}>
         <div style={{
-          background: currentTheme === 'dark' 
-            ? 'rgba(30, 41, 59, 0.95)' 
-            : 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '16px',
-          padding: '32px',
+          background: 'rgba(45, 55, 72, 0.98)',
+          backdropFilter: 'blur(25px)',
+          borderRadius: '24px',
+          padding: '40px',
           width: '100%',
-          maxWidth: '400px',
-          border: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`,
-          boxShadow: currentTheme === 'dark'
-            ? '0 20px 40px rgba(0, 0, 0, 0.3)'
-            : '0 20px 40px rgba(0, 0, 0, 0.1)'
+          maxWidth: '420px',
+          border: '2px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.4)'
         }}>
-          <h2 style={{ 
-            color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b',
-            textAlign: 'center',
-            marginBottom: '24px',
-            fontSize: '24px',
-            fontWeight: '600'
+          <h2 style={{
+            fontSize: '32px',
+            fontWeight: '800',
+            marginBottom: '16px',
+            background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            color: 'transparent',
+            textAlign: 'center'
           }}>
             iTrack GPS
           </h2>
+          <p style={{
+            color: '#e2e8f0',
+            textAlign: 'center',
+            marginBottom: '32px',
+            fontSize: '16px',
+            opacity: 0.8
+          }}>
+            Selectează vehiculul pentru a începe
+          </p>
           
           <VehicleNumberDropdown
             value={vehicleNumber}
@@ -542,26 +554,31 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
           {vehicleNumber && (
             <p style={{
-              color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-              fontSize: '14px',
+              color: '#94a3b8',
+              fontSize: '15px',
               textAlign: 'center',
-              marginTop: '16px',
-              marginBottom: '0'
+              marginTop: '20px',
+              marginBottom: '0',
+              background: 'rgba(59, 130, 246, 0.1)',
+              padding: '12px',
+              borderRadius: '12px',
+              border: '1px solid rgba(59, 130, 246, 0.2)'
             }}>
-              Vehicul selectat: <strong>{vehicleNumber}</strong>
+              Vehicul selectat: <strong style={{ color: '#60a5fa' }}>{vehicleNumber}</strong>
             </p>
           )}
 
           {error && (
             <div style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '8px',
-              padding: '12px',
-              marginTop: '16px',
-              color: '#ef4444',
-              fontSize: '14px',
-              textAlign: 'center'
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '2px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: '16px',
+              padding: '16px',
+              marginTop: '20px',
+              color: '#fca5a5',
+              fontSize: '15px',
+              textAlign: 'center',
+              fontWeight: '500'
             }}>
               {error}
             </div>
@@ -573,17 +590,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             style={{
               width: '100%',
               background: !vehicleNumber.trim() || loading 
-                ? (currentTheme === 'dark' ? '#374151' : '#d1d5db')
-                : 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                ? '#4a5568'
+                : 'linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)',
               color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              padding: '16px',
-              fontSize: '16px',
-              fontWeight: '600',
-              marginTop: '20px',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
+              padding: '18px',
+              fontSize: '18px',
+              fontWeight: '700',
+              marginTop: '24px',
               cursor: !vehicleNumber.trim() || loading ? 'not-allowed' : 'pointer',
-              transition: 'all 0.3s ease'
+              boxShadow: !vehicleNumber.trim() || loading ? 'none' : '0 8px 24px rgba(59, 130, 246, 0.3)'
             }}
           >
             {loading ? (
@@ -608,15 +625,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             style={{
               width: '100%',
               background: 'transparent',
-              color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-              border: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.3)' : 'rgba(100, 116, 139, 0.3)'}`,
-              borderRadius: '12px',
+              color: '#94a3b8',
+              border: '2px solid rgba(148, 163, 184, 0.3)',
+              borderRadius: '16px',
               padding: '16px',
               fontSize: '16px',
               fontWeight: '600',
-              marginTop: '12px',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
+              marginTop: '16px',
+              cursor: 'pointer'
             }}
           >
             Deconectare
@@ -678,13 +694,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           {/* Dropdown vehicul - afișează numărul selectat */}
           <VehicleNumberDropdown 
             currentVehicle={vehicleNumber}
-            onVehicleSelect={(number) => {
+            onVehicleSelect={async (number) => {
+              console.log(`🔄 Vehicul selectat: ${number}`);
               setVehicleNumber(number);
               setCoursesLoaded(false);
               setCourses([]);
               setError('');
-              // Încarcă cursele pentru noul vehicul
-              handleLoadCourses();
+              setLoading(false); // Reset loading state
+              
+              // Delay mic pentru UI update, apoi încarcă cursele
+              setTimeout(() => {
+                handleLoadCourses();
+              }, 100);
             }}
             theme="header"
           />
