@@ -31,7 +31,7 @@ declare global {
 // Urmărirea curselor active - pentru Android BackgroundGPSService (gestionată în serviciul nativ)
 
 // Funcții GPS Android directe - BackgroundGPSService gestionează totul nativ
-const updateCourseStatus = async (courseUit: string, newStatus: number, authToken: string, vehicleNumber: string) => {
+const updateCourseStatus = async (courseUit: string, newStatus: number, authToken: string, vehicleNumber: string, currentCourses?: Course[]) => {
   try {
     // PASUL 1: Actualizează serverul prin API
     console.log(`🌐 === TRIMITERE ACTUALIZARE STATUS ===`);
@@ -107,10 +107,14 @@ const updateCourseStatus = async (courseUit: string, newStatus: number, authToke
     console.log(`📊 Response headers:`, response.headers);
     console.log(`🎯 STATUS ${newStatus} TRIMIS CU SUCCES PENTRU UIT ${courseUit}`);
     
-    // PASUL 2: Actualizează serviciul GPS Android
+    // PASUL 2: Actualizează serviciul GPS Android 
+    // CRITICAL: Folosește ikRoTrans ca identificator pentru HashMap (același ca la startGPS)
+    const targetCourse = currentCourses?.find(c => c.uit === courseUit);
+    const courseIdentifier = targetCourse?.ikRoTrans ? String(targetCourse.ikRoTrans) : courseUit;
+    
     if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-      const androidResult = window.AndroidGPS.updateStatus(courseUit, newStatus, vehicleNumber);
-      console.log(`📱 Serviciul GPS Android actualizat: ${androidResult}`);
+      const androidResult = window.AndroidGPS.updateStatus(courseIdentifier, newStatus, vehicleNumber);
+      console.log(`📱 Serviciul GPS Android actualizat cu identificator ${courseIdentifier}: ${androidResult}`);
       return androidResult;
     }
     
@@ -120,9 +124,13 @@ const updateCourseStatus = async (courseUit: string, newStatus: number, authToke
     console.error(`❌ Actualizarea statusului a eșuat pentru ${courseUit}:`, error);
     
     // Încearcă totuși serviciul Android chiar dacă serverul eșuează
+    // CRITICAL: Folosește același identificator ca la startGPS
+    const targetCourse = currentCourses?.find(c => c.uit === courseUit);
+    const courseIdentifier = targetCourse?.ikRoTrans ? String(targetCourse.ikRoTrans) : courseUit;
+    
     if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-      const androidResult = window.AndroidGPS.updateStatus(courseUit, newStatus, vehicleNumber);
-      console.log(`📱 Serviciul GPS Android actualizat (offline): ${androidResult}`);
+      const androidResult = window.AndroidGPS.updateStatus(courseIdentifier, newStatus, vehicleNumber);
+      console.log(`📱 Serviciul GPS Android actualizat (offline) cu identificator ${courseIdentifier}: ${androidResult}`);
       return androidResult;
     }
     
@@ -750,7 +758,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             course={course}
             onStatusUpdate={async (courseUit, newStatus) => {
               try {
-                await updateCourseStatus(courseUit, newStatus, token, vehicleNumber);
+                await updateCourseStatus(courseUit, newStatus, token, vehicleNumber, courses);
                 setCourses(prev => prev.map(c => 
                   c.uit === courseUit ? { ...c, status: newStatus } : c
                 ));
