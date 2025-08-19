@@ -369,8 +369,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </h1>
             
             <VehicleNumberDropdown
-              onVehicleSelect={async (selectedVehicle) => {
-                console.log('Vehicle selected:', selectedVehicle);
+              value={vehicleNumber}
+              onChange={async (selectedVehicle) => {
+                console.log('🚛 Vehicle selected/added:', selectedVehicle);
                 setVehicleNumber(selectedVehicle);
                 setLoading(true);
                 setError("");
@@ -381,16 +382,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     setCourses(response);
                     setCoursesLoaded(true);
                     await storeVehicleNumber(selectedVehicle);
+                    console.log('✅ Vehicle courses loaded successfully:', response.length);
                   }
                 } catch (error) {
-                  console.error('Error loading courses:', error);
+                  console.error('❌ Error loading courses:', error);
                   setError("Eroare încărcare curse");
                 } finally {
                   setLoading(false);
                 }
               }}
-              currentTheme={currentTheme}
-              loading={loading}
+              darkMode={currentTheme === 'dark'}
+              disabled={loading}
             />
             
             {error && (

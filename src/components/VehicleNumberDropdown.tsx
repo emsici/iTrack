@@ -68,11 +68,21 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
   };
 
   const handleInputConfirm = () => {
+    console.log('🔄 handleInputConfirm called - inputValue:', inputValue.trim());
+    console.log('🔄 onChange function available:', typeof onChange);
+    
     if (inputValue.trim()) {
+      console.log('✅ Calling onChange with value:', inputValue.trim());
       onChange(inputValue.trim());
+      
+      console.log('✅ Closing input page and clearing state');
       setShowInputPage(false);
       setInputValue('');
       setIsOpen(false);
+      
+      console.log('✅ Vehicle number successfully added!');
+    } else {
+      console.log('❌ Input value is empty, not submitting');
     }
   };
 
