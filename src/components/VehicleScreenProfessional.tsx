@@ -752,13 +752,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}></div>
           </div>
 
-          {/* Stats/Analytics */}
+          {/* Logout cu confirmare */}
           <button 
-            onClick={() => setShowStatsModal(true)}
+            onClick={() => {
+              if (window.confirm('Sigur vrei să te deconectezi?')) {
+                handleLogout();
+              }
+            }}
             style={{
               width: '48px',
               height: '48px',
-              background: 'rgba(128, 90, 213, 0.6)',
+              background: 'rgba(239, 68, 68, 0.6)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: '12px',
               display: 'flex',
@@ -767,7 +771,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               cursor: 'pointer',
               transition: 'all 0.2s ease'
             }}>
-            <i className="fas fa-chart-bar" style={{ fontSize: '18px', color: '#cbd5e0' }}></i>
+            <i className="fas fa-sign-out-alt" style={{ fontSize: '18px', color: '#cbd5e0' }}></i>
           </button>
         </div>
       </div>
