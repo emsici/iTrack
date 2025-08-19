@@ -50,6 +50,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
   // Removed getStatusColor - using CSS classes instead
 
   const handleAction = (action: string) => {
+    // CRITICAL FIX: Prevent double submission immediately
+    if (isLoading) {
+      console.log(`🚫 DOUBLE CLICK PREVENTION: Action ${action} blocked - update in progress for course ${course.id}`);
+      return;
+    }
+    
     let newStatus: number;
     
     switch (action) {
@@ -69,6 +75,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         return;
     }
     
+    console.log(`🎯 SINGLE ACTION: ${action} triggered for course ${course.id} → status ${newStatus}`);
     onStatusUpdate(course.id, course.uit, newStatus, action);
   };
 

@@ -684,7 +684,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               setCourses([]);
               setError('');
               // Încarcă cursele pentru noul vehicul
-              loadCourses(number, token);
+              handleLoadCourses();
             }}
             theme="header"
           />
