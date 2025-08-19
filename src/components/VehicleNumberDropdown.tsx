@@ -184,13 +184,13 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
             
             .input-container {
               background: ${darkMode 
-                ? 'rgba(30, 41, 59, 0.8)' 
-                : 'rgba(255, 255, 255, 0.95)'
+                ? 'rgba(30, 41, 59, 0.95)' 
+                : 'rgba(255, 255, 255, 0.98)'
               };
-              backdrop-filter: blur(10px);
-              border: 1px solid ${darkMode 
-                ? 'rgba(148, 163, 184, 0.2)' 
-                : 'rgba(203, 213, 225, 0.4)'
+              backdrop-filter: blur(15px);
+              border: 2px solid ${darkMode 
+                ? 'rgba(148, 163, 184, 0.3)' 
+                : 'rgba(59, 130, 246, 0.2)'
               };
               border-radius: 24px;
               padding: 40px;

@@ -165,9 +165,25 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     <div className={`course-card-compact ${showDetails ? 'expanded' : ''}`}>
       <style>{`
         .course-card-compact {
-          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.98)'};
+          background: ${
+            currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 
+            currentTheme === 'light' ? 'rgba(255, 255, 255, 0.98)' :
+            currentTheme === 'business' ? 'rgba(248, 250, 252, 0.95)' :
+            currentTheme === 'driver' ? 'rgba(28, 25, 23, 0.85)' :
+            currentTheme === 'nature' ? 'rgba(6, 78, 59, 0.85)' :
+            currentTheme === 'night' ? 'rgba(30, 27, 75, 0.85)' :
+            'rgba(255, 255, 255, 0.98)'
+          };
           /* ELIMINAT backdrop-filter pentru ZERO lag la scroll - păstrează design-ul cu opacitate mărită */
-          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(148, 163, 184, 0.2)'};
+          border: ${
+            currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : 
+            currentTheme === 'light' ? '1px solid rgba(148, 163, 184, 0.2)' :
+            currentTheme === 'business' ? '1px solid rgba(59, 130, 246, 0.2)' :
+            currentTheme === 'driver' ? '1px solid rgba(249, 115, 22, 0.3)' :
+            currentTheme === 'nature' ? '1px solid rgba(16, 185, 129, 0.3)' :
+            currentTheme === 'night' ? '1px solid rgba(139, 92, 246, 0.3)' :
+            '1px solid rgba(148, 163, 184, 0.2)'
+          };
           border-radius: 12px;
           padding: 16px 20px;
           margin: 0 auto 16px auto;
@@ -213,13 +229,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .uit-priority {
-          color: ${currentTheme === 'light' 
-            ? '#000000'  /* BLACK text for Light theme */
-            : currentTheme === 'business'
-              ? '#000000'  /* BLACK text for Business theme */
-              : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
-                : '#ffffff'  /* White text for Dark theme only */
+          color: ${
+            currentTheme === 'dark' ? '#ffffff' :
+            currentTheme === 'light' ? '#000000' :
+            currentTheme === 'business' ? '#1e293b' :
+            currentTheme === 'driver' ? '#ffffff' :
+            currentTheme === 'nature' ? '#ffffff' :
+            currentTheme === 'night' ? '#ffffff' :
+            '#ffffff'
           };
           font-size: 1rem;
           font-weight: 600;
@@ -227,11 +244,32 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .toggle-details-btn {
-          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(241, 245, 249, 0.9)'};
-          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(148, 163, 184, 0.25)'};
-          color: ${currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'night'
-            ? '#ffffff'  /* WHITE text for Dark/Driver/Night themes only */
-            : '#000000'  /* BLACK text for Light/Business/Nature themes */
+          background: ${
+            currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' :
+            currentTheme === 'light' ? 'rgba(241, 245, 249, 0.9)' :
+            currentTheme === 'business' ? 'rgba(59, 130, 246, 0.1)' :
+            currentTheme === 'driver' ? 'rgba(249, 115, 22, 0.2)' :
+            currentTheme === 'nature' ? 'rgba(16, 185, 129, 0.2)' :
+            currentTheme === 'night' ? 'rgba(139, 92, 246, 0.2)' :
+            'rgba(241, 245, 249, 0.9)'
+          };
+          border: ${
+            currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' :
+            currentTheme === 'light' ? '1px solid rgba(148, 163, 184, 0.25)' :
+            currentTheme === 'business' ? '1px solid rgba(59, 130, 246, 0.3)' :
+            currentTheme === 'driver' ? '1px solid rgba(249, 115, 22, 0.4)' :
+            currentTheme === 'nature' ? '1px solid rgba(16, 185, 129, 0.4)' :
+            currentTheme === 'night' ? '1px solid rgba(139, 92, 246, 0.4)' :
+            '1px solid rgba(148, 163, 184, 0.25)'
+          };
+          color: ${
+            currentTheme === 'dark' ? '#ffffff' :
+            currentTheme === 'light' ? '#000000' :
+            currentTheme === 'business' ? '#1e293b' :
+            currentTheme === 'driver' ? '#ffffff' :
+            currentTheme === 'nature' ? '#ffffff' :
+            currentTheme === 'night' ? '#ffffff' :
+            '#000000'
           };
           padding: 8px 16px;
           border-radius: 8px;
