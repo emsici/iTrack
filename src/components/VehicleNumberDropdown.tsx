@@ -369,7 +369,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
               className="button-secondary"
               type="button"
             >
-              ✕ Anulează
+              ✕
             </button>
             
             {/* CONFIRMĂ - în DREAPTA (submit) */}
@@ -385,7 +385,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
               className="button-primary"
               type="submit"
             >
-              ✓ Confirmă
+              ✓
             </button>
           </div>
 

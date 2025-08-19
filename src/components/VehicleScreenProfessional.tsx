@@ -371,23 +371,39 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <VehicleNumberDropdown
               value={vehicleNumber}
               onChange={async (selectedVehicle) => {
-                console.log('🚛 Vehicle selected/added:', selectedVehicle);
+                console.log('🚛 ===== VEHICUL SELECTAT/ADĂUGAT =====');
+                console.log('🚛 Numărul vehiculului:', selectedVehicle);
+                console.log('🔑 Token disponibil:', !!token);
+                
                 setVehicleNumber(selectedVehicle);
                 setLoading(true);
                 setError("");
                 
                 try {
+                  console.log('🌐 Se apelează API-ul pentru curse...');
                   const response = await getVehicleCourses(selectedVehicle, token);
+                  
+                  console.log('📨 Răspuns API curse:', response);
+                  console.log('📊 Numărul de curse:', response ? response.length : 0);
+                  
                   if (response && response.length > 0) {
+                    console.log('✅ Se setează cursele și se marchează ca încărcate');
                     setCourses(response);
                     setCoursesLoaded(true);
                     await storeVehicleNumber(selectedVehicle);
-                    console.log('✅ Vehicle courses loaded successfully:', response.length);
+                    console.log('✅ Vehicul salvat în storage și curse încărcate cu succes!');
+                  } else {
+                    console.log('⚠️ Nicio cursă găsită pentru vehiculul:', selectedVehicle);
+                    setCourses([]);
+                    setCoursesLoaded(false);
+                    await storeVehicleNumber(selectedVehicle);
+                    setError("Nu au fost găsite curse pentru acest vehicul");
                   }
                 } catch (error) {
-                  console.error('❌ Error loading courses:', error);
-                  setError("Eroare încărcare curse");
+                  console.error('❌ EROARE la încărcarea curselor:', error);
+                  setError("Eroare încărcare curse: " + (error as Error).message);
                 } finally {
+                  console.log('🏁 Se încheie loading-ul');
                   setLoading(false);
                 }
               }}
