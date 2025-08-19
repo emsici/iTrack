@@ -486,12 +486,35 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   }}>
                     {vehicleNumber}
                   </h1>
-                  <p style={{
-                    color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                    fontSize: '14px',
-                    margin: 0
-                  }}>
-                    iTrack GPS Professional
+                  <p 
+                    onClick={() => {
+                      setClickCount(prev => {
+                        const newCount = prev + 1;
+                        console.log(`Debug clicks: ${newCount}/50`);
+                        
+                        if (newCount >= 50) {
+                          console.log('🔓 DEBUG MODE ACTIVAT - Deschidere Admin Panel');
+                          setShowDebugPage(true);
+                          setClickCount(0); // Reset counter
+                          toast.showToast('Debug Mode Activat!', 'success');
+                        }
+                        
+                        return newCount;
+                      });
+                    }}
+                    style={{
+                      color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
+                      fontSize: '14px',
+                      margin: 0,
+                      cursor: 'pointer',
+                      userSelect: 'none'
+                    }}
+                  >
+                    iTrack GPS Professional {clickCount > 0 && clickCount < 50 && (
+                      <span style={{ opacity: 0.5, fontSize: '12px' }}>
+                        ({clickCount}/50)
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -835,6 +858,53 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   Nu au fost găsite curse pentru acest filtru
                 </div>
               )}
+              
+              {/* Debug Footer cu timestamp clickabil */}
+              <div style={{
+                textAlign: 'center',
+                padding: '20px',
+                borderTop: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+                marginTop: '20px'
+              }}>
+                <p 
+                  onClick={() => {
+                    setClickCount(prev => {
+                      const newCount = prev + 1;
+                      console.log(`Debug clicks on timestamp: ${newCount}/50`);
+                      
+                      if (newCount >= 50) {
+                        console.log('🔓 DEBUG MODE ACTIVAT prin timestamp - Deschidere Admin Panel');
+                        setShowDebugPage(true);
+                        setClickCount(0);
+                        toast.showToast('Debug Mode Activat prin timestamp!', 'success');
+                      }
+                      
+                      return newCount;
+                    });
+                  }}
+                  style={{
+                    color: currentTheme === 'dark' ? '#64748b' : '#94a3b8',
+                    fontSize: '12px',
+                    margin: 0,
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}
+                >
+                  {new Date().toLocaleString('ro-RO', { 
+                    timeZone: 'Europe/Bucharest',
+                    day: '2-digit',
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                  })} {clickCount > 0 && clickCount < 50 && (
+                    <span style={{ opacity: 0.7 }}>
+                      {clickCount}/50
+                    </span>
+                  )}
+                </p>
+              </div>
             </div>
           </div>
 
