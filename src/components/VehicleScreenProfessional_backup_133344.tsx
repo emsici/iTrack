@@ -177,9 +177,21 @@ import { clearToken, storeVehicleNumber, getStoredVehicleNumber, clearStoredVehi
 // BackgroundGPSService handles offline GPS natively - no separate service needed
 import { logAPI, logAPIError } from "../services/appLogger";
 import { courseAnalyticsService } from "../services/courseAnalytics";
+// Analytics imports removed - unused
+import CourseStatsModal from "./CourseStatsModal";
+import CourseDetailCard from "./CourseDetailCard";
+import AdminPanel from "./AdminPanel";
+
+import OfflineSyncMonitor from "./OfflineSyncMonitor";
+import ToastNotification from "./ToastNotification";
+
+import { useToast } from "../hooks/useToast";
+// garanteedGPS eliminat complet - folosim doar BackgroundGPSService
+import SettingsModal from "./SettingsModal";
+import AboutModal from "./AboutModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 // SimpleGPSIndicator removed per user request
-import { THEME_INFO } from "../services/themeService";
+import { themeService, Theme, THEME_INFO } from "../services/themeService";
 
 // Funcții globale pentru senzori reali - utilizate în updateCourseStatus și startGPSForActiveCourses
 const getBatteryLevel = async (): Promise<string> => {
