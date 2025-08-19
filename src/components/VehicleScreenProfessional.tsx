@@ -1155,70 +1155,133 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       )}
 
-      {/* Footer conform design original */}
+      {/* Footer premium cu timestamp și iconița stilizată pentru debug loguri */}
       <div style={{
         position: 'fixed',
         bottom: 'env(safe-area-inset-bottom)',
         left: 0,
         right: 0,
-        background: 'rgba(26, 32, 44, 0.95)',
-        backdropFilter: 'blur(20px)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: '20px',
+        background: currentTheme === 'dark' 
+          ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%)' 
+          : 'linear-gradient(135deg, rgba(248, 250, 252, 0.98) 0%, rgba(241, 245, 249, 0.95) 100%)',
+        backdropFilter: 'blur(25px)',
+        borderTop: `2px solid ${currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(99, 102, 241, 0.2)'}`,
+        padding: '16px 24px',
         display: 'flex',
-        justifyContent: 'center'
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        boxShadow: currentTheme === 'dark' 
+          ? '0 -10px 40px rgba(0, 0, 0, 0.3)' 
+          : '0 -10px 40px rgba(0, 0, 0, 0.1)'
       }}>
+        {/* Timestamp partea stângă */}
+        <div style={{
+          fontSize: '12px',
+          color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
+          fontWeight: '500',
+          letterSpacing: '0.5px'
+        }}>
+          v{new Date().toLocaleDateString('ro-RO')}
+        </div>
+
+        {/* Iconița debug centrală - stilizată premium */}
         <div
           onClick={() => {
             setClickCount(prev => {
               const newCount = prev + 1;
-              console.log(`Debug clicks pe iconiță footer: ${newCount}/50`);
+              console.log(`🔧 Debug clicks pe iconița footer: ${newCount}/50`);
               
               if (newCount >= 50) {
                 console.log('🔓 DEBUG MODE ACTIVAT prin footer');
                 setShowDebugPage(true);
                 setClickCount(0);
-                toast.success('Debug Mode Activat!', 'Debug panel deschis');
+                toast.success('Debug Mode Activat!', 'Logurile apar sub cursele active');
               }
               
               return newCount;
             });
           }}
           style={{
-            width: '56px',
-            height: '56px',
-            background: 'linear-gradient(135deg, #4299e1 0%, #3182ce 100%)',
-            borderRadius: '50%',
+            width: '48px',
+            height: '48px',
+            background: clickCount >= 30 
+              ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' 
+              : currentTheme === 'dark'
+                ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+                : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+            borderRadius: '14px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 8px 32px rgba(66, 153, 225, 0.3)',
+            boxShadow: clickCount >= 30
+              ? '0 8px 32px rgba(245, 158, 11, 0.4), 0 4px 16px rgba(245, 158, 11, 0.2)'
+              : currentTheme === 'dark'
+                ? '0 8px 32px rgba(59, 130, 246, 0.3), 0 4px 16px rgba(59, 130, 246, 0.1)'
+                : '0 8px 32px rgba(99, 102, 241, 0.3), 0 4px 16px rgba(99, 102, 241, 0.1)',
             position: 'relative',
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: clickCount >= 30 ? 'scale(1.05)' : 'scale(1)',
+            border: clickCount >= 30 
+              ? '2px solid rgba(245, 158, 11, 0.5)' 
+              : '2px solid rgba(255, 255, 255, 0.1)'
           }}
         >
-          <i className="fas fa-ellipsis-v" style={{
-            fontSize: '20px',
-            color: 'white'
+          {/* Iconița principală */}
+          <i className={clickCount >= 30 ? "fas fa-bug" : "fas fa-code"} style={{
+            fontSize: '18px',
+            color: '#ffffff',
+            transition: 'all 0.3s ease'
           }}></i>
-          {clickCount >= 30 && (
+          
+          {/* Badge cu numărul de click-uri */}
+          {clickCount >= 20 && (
             <div style={{
               position: 'absolute',
-              top: '-8px',
-              right: '-8px',
-              background: '#ed8936',
+              top: '-6px',
+              right: '-6px',
+              background: clickCount >= 40 
+                ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)' 
+                : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               color: '#ffffff',
               fontSize: '10px',
-              padding: '2px 5px',
-              borderRadius: '10px',
-              fontWeight: '600',
-              minWidth: '18px',
-              textAlign: 'center'
+              padding: '3px 6px',
+              borderRadius: '8px',
+              fontWeight: '700',
+              minWidth: '20px',
+              textAlign: 'center',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+              border: '1.5px solid rgba(255, 255, 255, 0.3)',
+              animation: clickCount >= 40 ? 'pulse 1s infinite' : 'none'
             }}>
               {clickCount}
             </div>
           )}
+          
+          {/* Indicator progres circular pentru debug */}
+          {clickCount > 0 && clickCount < 50 && (
+            <div style={{
+              position: 'absolute',
+              top: '-2px',
+              left: '-2px',
+              right: '-2px',
+              bottom: '-2px',
+              borderRadius: '16px',
+              background: `conic-gradient(from 0deg, ${clickCount >= 30 ? '#f59e0b' : '#3b82f6'} ${(clickCount / 50) * 360}deg, transparent ${(clickCount / 50) * 360}deg)`,
+              opacity: 0.6,
+              zIndex: -1
+            }}></div>
+          )}
+        </div>
+
+        {/* Status partea dreaptă */}
+        <div style={{
+          fontSize: '12px',
+          color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
+          fontWeight: '500',
+          letterSpacing: '0.5px'
+        }}>
+          {showDebugPage ? '🔧 Debug' : 'iTrack'}
         </div>
       </div>
 
