@@ -1078,7 +1078,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   console.log(`🔄 PROTECTED STATUS UPDATE: ${oldStatus} → ${newStatus} pentru courseId: ${courseId}`);
                   
                   // SINGLE API CALL - NO optimistic update pentru a evita race conditions
-                  await updateCourseStatus(courseId, courseUit, newStatus, token, vehicleNumber, courses);
+                  await updateCourseStatus(courseId, courseUit, newStatus, token, vehicleNumber);
                   console.log(`✅ STATUS UPDATE SUCCESS: ${courseId} → ${newStatus}`);
                   
                   // Update UI DUPĂ success API
