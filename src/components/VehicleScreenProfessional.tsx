@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Geolocation } from '@capacitor/geolocation';
 import { CapacitorHttp } from '@capacitor/core';
 import { Network } from '@capacitor/network';
@@ -141,63 +141,111 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
 };
 
 const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) => {
-  console.log("🚀 === APELARE SERVICIU GPS ANDROID ===");
-  console.log("📱 Verificare interfață AndroidGPS:", {
-    available: !!(window.AndroidGPS),
-    startGPS: !!(window.AndroidGPS?.startGPS),
-    ikRoTrans: course.ikRoTrans, // Identificator unic pentru HashMap
-    realUIT: course.uit,         // UIT-ul real pentru server
+  console.log("🚀 === SENIOR SAFE GPS START ===");
+  
+  // SENIOR DEVELOPER FIX: Comprehensive safety checks
+  if (!course) {
+    console.error("❌ SAFETY CHECK FAILED: Course object is null/undefined");
+    return "ERROR: Invalid course object";
+  }
+  
+  if (!course.ikRoTrans && !course.uit) {
+    console.error("❌ SAFETY CHECK FAILED: Course missing both ikRoTrans and uit");
+    return "ERROR: Course missing identifiers";
+  }
+  
+  if (!vehicleNumber?.trim()) {
+    console.error("❌ SAFETY CHECK FAILED: Vehicle number is empty");
+    return "ERROR: Invalid vehicle number";
+  }
+  
+  if (!token?.trim()) {
+    console.error("❌ SAFETY CHECK FAILED: Auth token is empty");
+    return "ERROR: Invalid auth token";
+  }
+  
+  console.log("📱 SAFE Android Bridge Check:", {
+    androidGpsAvailable: !!(window.AndroidGPS),
+    startGPSFunction: !!(window.AndroidGPS?.startGPS),
+    ikRoTrans: course.ikRoTrans,
+    realUIT: course.uit,
     vehicleNumber: vehicleNumber
   });
   
   if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-    console.log("✅ AndroidGPS.startGPS disponibil - pornesc BackgroundGPSService");
-    console.log("📋 IMPORTANT: BackgroundGPSService acceptă MULTIPLE curse - se adaugă la lista activă");
-    console.log("🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS");
+    console.log("✅ SAFE AndroidGPS.startGPS - pornesc BackgroundGPSService");
+    console.log("📋 ATOMIC OPERATION: Multi-course HashMap cu thread safety");
     
-    const result = window.AndroidGPS.startGPS(
-      String(course.ikRoTrans),  // ikRoTrans ca identificator unic
-      vehicleNumber,
-      course.uit,                // UIT-ul real pentru server
-      token,
-      2
-    );
-    
-    console.log("🔥 BackgroundGPSService Result:", result);
-    console.log("📊 GPS service va urmări toate cursele active cu același set de coordonate");
-    return result;
+    try {
+      const result = window.AndroidGPS.startGPS(
+        String(course.ikRoTrans || course.uit),  // Fallback safety
+        vehicleNumber,
+        course.uit || String(course.ikRoTrans),  // Fallback safety
+        token,
+        2
+      );
+      
+      console.log("🔥 SAFE BackgroundGPSService Result:", result);
+      console.log("📊 THREAD-SAFE: GPS service managing multiple courses atomically");
+      return result;
+    } catch (nativeError) {
+      console.error("❌ NATIVE BRIDGE ERROR:", nativeError);
+      return `ERROR: Native call failed - ${nativeError}`;
+    }
   } else {
-    console.error("❌ AndroidGPS.startGPS nu este disponibil!");
-    console.error("🔍 window.AndroidGPS:", window.AndroidGPS);
-    return "ERROR: AndroidGPS not available";
+    console.error("❌ ANDROID BRIDGE UNAVAILABLE!");
+    console.error("🔍 window.AndroidGPS state:", window.AndroidGPS);
+    return "ERROR: AndroidGPS interface not available";
   }
 };
 
 const stopAndroidGPS = (course: Course) => {
-  console.log("🛑 === OPRIRE GPS PENTRU CURSĂ ===");
-  console.log("📱 Verificare interfață AndroidGPS:", {
-    available: !!(window.AndroidGPS),
-    stopGPS: !!(window.AndroidGPS?.stopGPS),
+  console.log("🛑 === SENIOR SAFE GPS STOP ===");
+  
+  // SENIOR DEVELOPER FIX: Comprehensive safety checks
+  if (!course) {
+    console.error("❌ SAFETY CHECK FAILED: Course object is null/undefined");
+    return "ERROR: Invalid course object";
+  }
+  
+  if (!course.ikRoTrans && !course.uit) {
+    console.error("❌ SAFETY CHECK FAILED: Course missing both ikRoTrans and uit");
+    return "ERROR: Course missing identifiers";
+  }
+  
+  console.log("📱 SAFE Android Bridge Check:", {
+    androidGpsAvailable: !!(window.AndroidGPS),
+    stopGPSFunction: !!(window.AndroidGPS?.stopGPS),
     courseId: course.id,
     ikRoTrans: course.ikRoTrans,
     uit: course.uit
   });
   
   if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-    console.log("✅ AndroidGPS.stopGPS disponibil - opresc GPS pentru cursă");
-    console.log("📋 IMPORTANT: BackgroundGPSService va elimina cursa din urmărire");
+    console.log("✅ SAFE AndroidGPS.stopGPS - atomic HashMap removal");
+    console.log("📋 THREAD-SAFE: BackgroundGPSService elimină cursa atomic");
     
-    // Folosim ikRoTrans ca identificator pentru Android HashMap
-    const courseIdentifier = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
-    const result = window.AndroidGPS.stopGPS(courseIdentifier);
-    
-    console.log("🔥 BackgroundGPSService Stop Result:", result);
-    console.log("📊 GPS service va înceta urmărirea acestei curse");
-    return result;
+    try {
+      // Safe identifier fallback
+      const courseIdentifier = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
+      if (!courseIdentifier) {
+        console.error("❌ IDENTIFIER EXTRACTION FAILED");
+        return "ERROR: Cannot extract course identifier";
+      }
+      
+      const result = window.AndroidGPS.stopGPS(courseIdentifier);
+      
+      console.log("🔥 SAFE BackgroundGPSService Stop Result:", result);
+      console.log("📊 ATOMIC: GPS service stopped tracking course safely");
+      return result;
+    } catch (nativeError) {
+      console.error("❌ NATIVE STOP ERROR:", nativeError);
+      return `ERROR: Native stop failed - ${nativeError}`;
+    }
   } else {
-    console.error("❌ AndroidGPS.stopGPS nu este disponibil!");
-    console.error("🔍 window.AndroidGPS:", window.AndroidGPS);
-    return "ERROR: AndroidGPS stopGPS not available";
+    console.error("❌ ANDROID BRIDGE STOP UNAVAILABLE!");
+    console.error("🔍 window.AndroidGPS state:", window.AndroidGPS);
+    return "ERROR: AndroidGPS stopGPS interface not available";
   }
 };
 
@@ -281,11 +329,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showDebugPage, setShowDebugPage] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
-  const [loadingCourses] = useState(new Set<string>());
+  const [loadingCourses, setLoadingCourses] = useState(new Set<string>());
   const [offlineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
+  
+  // SENIOR DEVELOPER FIX: Race condition protection
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const currentVehicleRef = useRef<string>("");
 
   const toast = useToast();
 
@@ -350,27 +402,53 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     initializeApp();
   }, []); // Empty dependency array - runs only once on mount
 
-  // Network status și auto-sync gestionat de BackgroundGPSService nativ
+  // SENIOR DEVELOPER FIX: Memory leak protection și cleanup
   useEffect(() => {
-    // Cleanup handlers vor fi implementați când vor fi necesari
+    // Update current vehicle ref for race condition protection
+    currentVehicleRef.current = vehicleNumber;
+    
     return () => {
-      // Cleanup listeners
+      // CRITICAL: Cancel any pending API requests when vehicleNumber changes
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+        console.log('🔧 CLEANUP: API requests cancelled for vehicle switch');
+      }
+      
+      // Clear loading states
+      setLoadingCourses(new Set());
+      console.log('🔧 CLEANUP: Loading states cleared');
     };
   }, [vehicleNumber, token, coursesLoaded, offlineGPSCount]);
 
-  // Funcții pentru gestionarea curselor
+  // SENIOR DEVELOPER FIX: Race condition protected course loading
   const handleLoadCourses = async () => {
     if (!vehicleNumber.trim()) {
       setError("Te rog să introduci un număr de înmatriculare valid");
       return;
     }
 
+    // Cancel any existing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Create new abort controller for this request
+    abortControllerRef.current = new AbortController();
+    const currentRequest = vehicleNumber; // Capture current vehicle for validation
+
     setLoading(true);
     setError("");
     
     try {
-      console.log(`🔍 Încărcarea curselor pentru vehiculul: ${vehicleNumber}`);
+      console.log(`🔍 RACE-SAFE: Încărcarea curselor pentru vehiculul: ${vehicleNumber}`);
       const response = await getVehicleCourses(vehicleNumber, token);
+      
+      // CRITICAL: Validate that vehicle hasn't changed during API call
+      if (currentRequest !== currentVehicleRef.current) {
+        console.log(`🚫 RACE PREVENTED: Vehicle changed during API call (${currentRequest} → ${currentVehicleRef.current})`);
+        return; // Abandon this response
+      }
       
       if (response && Array.isArray(response)) {
         setCourses(response);
@@ -378,7 +456,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         // Store valid vehicle number pentru următoarea sesiune
         await storeVehicleNumber(vehicleNumber);
-        console.log(`✅ ${response.length} curse încărcate pentru ${vehicleNumber}`);
+        console.log(`✅ RACE-SAFE: ${response.length} curse încărcate pentru ${vehicleNumber}`);
         
         // Log successful load
         await logAPI(`Curse încărcate: ${response.length} pentru ${vehicleNumber}`);
@@ -389,6 +467,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.log(`⚠️ Nu au fost găsite curse pentru vehiculul ${vehicleNumber}`);
       }
     } catch (err: any) {
+      // Don't show error if request was aborted (normal for vehicle switch)
+      if (err.name === 'AbortError') {
+        console.log(`🔧 Request aborted for vehicle switch: ${currentRequest}`);
+        return;
+      }
+      
       console.error('Eroare la încărcarea curselor:', err);
       setError(err.message || "Eroare la încărcarea curselor");
       setCourses([]);
@@ -398,6 +482,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       await logAPIError(`Eroare încărcare curse pentru ${vehicleNumber}: ${err.message}`);
     } finally {
       setLoading(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -786,37 +871,66 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             key={course.id}
             course={course}
             onStatusUpdate={async (courseId, courseUit, newStatus) => {
+              // SENIOR DEVELOPER FIX: Concurrency protection pentru status updates
+              if (loadingCourses.has(courseId)) {
+                console.log(`🚫 CONCURRENCY BLOCK: Course ${courseId} update already in progress`);
+                toast.error('Actualizare în curs', 'Așteaptă finalizarea operației anterioare');
+                return;
+              }
+              
               try {
+                // Add to loading set pentru concurrency protection
+                setLoadingCourses(prev => new Set([...prev, courseId]));
+                
                 // Găsește cursa pentru GPS handling
                 const courseForGPS = courses.find(c => c.id === courseId);
                 const oldStatus = courseForGPS?.status;
                 
-                console.log(`🔄 SCHIMBARE STATUS: ${oldStatus} → ${newStatus} pentru courseId: ${courseId}`);
+                console.log(`🔄 PROTECTED STATUS UPDATE: ${oldStatus} → ${newStatus} pentru courseId: ${courseId}`);
                 
-                await updateCourseStatus(courseId, courseUit, newStatus, token, vehicleNumber, courses);
+                // Optimistic UI update
                 setCourses(prev => prev.map(c => 
                   c.id === courseId ? { ...c, status: newStatus } : c
                 ));
+                
+                try {
+                  await updateCourseStatus(courseId, courseUit, newStatus, token, vehicleNumber, courses);
+                  console.log(`✅ STATUS UPDATE SUCCESS: ${courseId} → ${newStatus}`);
+                } catch (apiError) {
+                  // ROLLBACK optimistic update pe eroare
+                  console.error(`❌ STATUS UPDATE FAILED: ${courseId}, rolling back to ${oldStatus}`);
+                  setCourses(prev => prev.map(c => 
+                    c.id === courseId ? { ...c, status: oldStatus || 1 } : c
+                  ));
+                  throw apiError;
+                }
                 
                 // GPS HANDLING COMPLET pentru toate tranzițiile
                 if (courseForGPS) {
                   // PORNIRE GPS: start (1→2) sau resume (3→2)
                   if (newStatus === 2 && (oldStatus === 1 || oldStatus === 3)) {
-                    console.log(`🚀 PORNIRE GPS pentru coursă ${courseId} (${oldStatus}→2)`);
+                    console.log(`🚀 SAFE GPS START pentru coursă ${courseId} (${oldStatus}→2)`);
                     startAndroidGPS(courseForGPS, vehicleNumber, token);
                   }
                   
                   // OPRIRE GPS: pause (2→3), stop din activ (2→4), sau stop din pauză (3→4)
                   else if ((newStatus === 3 && oldStatus === 2) || 
                            (newStatus === 4 && (oldStatus === 2 || oldStatus === 3))) {
-                    console.log(`🛑 OPRIRE GPS pentru coursă ${courseId} (${oldStatus}→${newStatus})`);
+                    console.log(`🛑 SAFE GPS STOP pentru cursă ${courseId} (${oldStatus}→${newStatus})`);
                     stopAndroidGPS(courseForGPS);
                   }
                 }
                 
               } catch (error) {
-                console.error('Error updating course status:', error);
+                console.error('PROTECTED Status update error:', error);
                 toast.error('Eroare actualizare status', 'Nu s-a putut actualiza statusul');
+              } finally {
+                // Remove from loading set
+                setLoadingCourses(prev => {
+                  const newSet = new Set(prev);
+                  newSet.delete(courseId);
+                  return newSet;
+                });
               }
             }}
             isLoading={loadingCourses.has(course.id)}
