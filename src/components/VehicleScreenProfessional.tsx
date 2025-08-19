@@ -1220,8 +1220,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 ? '0 8px 32px rgba(59, 130, 246, 0.3), 0 4px 16px rgba(59, 130, 246, 0.1)'
                 : '0 8px 32px rgba(99, 102, 241, 0.3), 0 4px 16px rgba(99, 102, 241, 0.1)',
             position: 'relative',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: clickCount >= 30 ? 'scale(1.05)' : 'scale(1)',
             border: clickCount >= 30 
               ? '2px solid rgba(245, 158, 11, 0.5)' 
               : '2px solid rgba(255, 255, 255, 0.1)'
@@ -1230,8 +1228,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           {/* Iconița principală */}
           <i className={clickCount >= 30 ? "fas fa-bug" : "fas fa-code"} style={{
             fontSize: '18px',
-            color: '#ffffff',
-            transition: 'all 0.3s ease'
+            color: '#ffffff'
           }}></i>
           
           {/* Badge cu numărul de click-uri */}
@@ -1251,27 +1248,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               minWidth: '20px',
               textAlign: 'center',
               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-              border: '1.5px solid rgba(255, 255, 255, 0.3)',
-              animation: clickCount >= 40 ? 'pulse 1s infinite' : 'none'
+              border: '1.5px solid rgba(255, 255, 255, 0.3)'
             }}>
               {clickCount}
             </div>
           )}
           
-          {/* Indicator progres circular pentru debug */}
-          {clickCount > 0 && clickCount < 50 && (
-            <div style={{
-              position: 'absolute',
-              top: '-2px',
-              left: '-2px',
-              right: '-2px',
-              bottom: '-2px',
-              borderRadius: '16px',
-              background: `conic-gradient(from 0deg, ${clickCount >= 30 ? '#f59e0b' : '#3b82f6'} ${(clickCount / 50) * 360}deg, transparent ${(clickCount / 50) * 360}deg)`,
-              opacity: 0.6,
-              zIndex: -1
-            }}></div>
-          )}
+
         </div>
 
         {/* Status partea dreaptă */}
