@@ -69,7 +69,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         return;
     }
     
-    onStatusUpdate(course.id, newStatus, action);
+    onStatusUpdate(course.uit, newStatus, action);
   };
 
   const renderActionButtons = () => {

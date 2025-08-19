@@ -27,6 +27,8 @@ COMPLETE RECONSTRUCTION 19-08-2025: Aplicația iTrack GPS a fost complet reconst
 
 FINAL VERIFICATION 19-08-2025: Verificare completă pas cu pas finalizată cu succes - VehicleScreenProfessional.tsx (939 linii) complet reparat și optimizat. Toate import-urile corectate la începutul fișierului, eliminate variabilele nefolosite, reparați parametrii funcțiilor, zero erori LSP. Toate componentele (7), serviciile (4) și hook-urile verificate și funcționale. Vite build success complet. GPS Android bridge corect implementat, UI logic complete cu badge-uri status și filtrare, storage persistente cu auto-loading. Aplicația este complet funcțională și pregătită pentru APK deployment.
 
+UIT CONSISTENCY FIX 19-08-2025: Corectată consistența completă ikRoTrans vs UIT - CourseDetailCard trimite course.uit (nu course.id), updateCourseStatus primește courseUit, către gps.php se trimite doar UIT-ul real (course.uit), ikRoTrans folosit exclusiv pentru HashMap Android. Fișiere backup eliminate complet din proiect. Build success confirmat după corectări.
+
 DESIGN CORRECTION 19-08-2025: Design-ul a fost corectat pentru a reflecta exact commit-ul 7ddacab - header simplu cu "Curse Active - {vehicleNumber}", listă directă de curse fără carduri complicate, și iconița de debug settings fixă în colțul din dreapta jos (nu timestamp clickabil). 50 clickuri pe iconiță activează AdminPanel cu badge counter vizibil după 30 clickuri.
 
 ## System Architecture

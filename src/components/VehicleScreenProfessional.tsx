@@ -31,11 +31,11 @@ declare global {
 // Urmărirea curselor active - pentru Android BackgroundGPSService (gestionată în serviciul nativ)
 
 // Funcții GPS Android directe - BackgroundGPSService gestionează totul nativ
-const updateCourseStatus = async (courseId: string, newStatus: number, authToken: string, vehicleNumber: string) => {
+const updateCourseStatus = async (courseUit: string, newStatus: number, authToken: string, vehicleNumber: string) => {
   try {
     // PASUL 1: Actualizează serverul prin API
     console.log(`🌐 === TRIMITERE ACTUALIZARE STATUS ===`);
-    console.log(`📊 UIT: ${courseId}`);
+    console.log(`📊 UIT: ${courseUit}`);
     console.log(`📋 Status Nou: ${newStatus} (2=ACTIV, 3=PAUZA, 4=STOP)`);
     console.log(`🔑 Lungime Token: ${authToken?.length || 0}`);
     console.log(`🚛 Numărul Vehiculului: ${vehicleNumber}`);
@@ -65,7 +65,7 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     
     // EXACT ACEEAȘI ORDINE CA BACKGROUNDGPSSERVICE pentru a primi răspuns 200
     const statusUpdateData = {
-      uit: courseId,
+      uit: courseUit,
       numar_inmatriculare: vehicleNumber,
       lat: currentLat,
       lng: currentLng,  
@@ -105,23 +105,23 @@ const updateCourseStatus = async (courseId: string, newStatus: number, authToken
     console.log(`📊 Răspuns server complet:`, response.data);
     console.log(`📋 Tip răspuns pentru STATUS ${newStatus}:`, typeof response.data);
     console.log(`📊 Response headers:`, response.headers);
-    console.log(`🎯 STATUS ${newStatus} TRIMIS CU SUCCES PENTRU UIT ${courseId}`);
+    console.log(`🎯 STATUS ${newStatus} TRIMIS CU SUCCES PENTRU UIT ${courseUit}`);
     
     // PASUL 2: Actualizează serviciul GPS Android
     if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-      const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus, vehicleNumber);
+      const androidResult = window.AndroidGPS.updateStatus(courseUit, newStatus, vehicleNumber);
       console.log(`📱 Serviciul GPS Android actualizat: ${androidResult}`);
       return androidResult;
     }
     
-    return `SUCCES: Status ${newStatus} actualizat pentru ${courseId}`;
+    return `SUCCES: Status ${newStatus} actualizat pentru ${courseUit}`;
     
   } catch (error) {
-    console.error(`❌ Actualizarea statusului a eșuat pentru ${courseId}:`, error);
+    console.error(`❌ Actualizarea statusului a eșuat pentru ${courseUit}:`, error);
     
     // Încearcă totuși serviciul Android chiar dacă serverul eșuează
     if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-      const androidResult = window.AndroidGPS.updateStatus(courseId, newStatus, vehicleNumber);
+      const androidResult = window.AndroidGPS.updateStatus(courseUit, newStatus, vehicleNumber);
       console.log(`📱 Serviciul GPS Android actualizat (offline): ${androidResult}`);
       return androidResult;
     }
@@ -748,16 +748,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           <CourseDetailCard
             key={course.id}
             course={course}
-            onStatusUpdate={async (courseId, newStatus) => {
+            onStatusUpdate={async (courseUit, newStatus) => {
               try {
-                await updateCourseStatus(courseId, newStatus, token, vehicleNumber);
+                await updateCourseStatus(courseUit, newStatus, token, vehicleNumber);
                 setCourses(prev => prev.map(c => 
-                  c.id === courseId ? { ...c, status: newStatus } : c
+                  c.uit === courseUit ? { ...c, status: newStatus } : c
                 ));
                 
                 // Start GPS pentru course ACTIVE (status 2)
                 if (newStatus === 2) {
-                  const courseToStart = courses.find(c => c.id === courseId);
+                  const courseToStart = courses.find(c => c.uit === courseUit);
                   if (courseToStart) {
                     startAndroidGPS(courseToStart, vehicleNumber, token);
                   }
