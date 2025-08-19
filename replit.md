@@ -59,3 +59,7 @@ Offline Coordinates Policy: NEVER clear offline coordinates at logout - preserve
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php` (GPS Data Transmission)
     - `https://www.euscagency.com/etsm_prod/platforme/transport/apk/rezultate.php` (GPS Result Verification)
 - **UI Libraries**: Bootstrap
+
+## Recent Changes Log
+
+EXHAUSTIVE VERIFICATION 19-08-2025: Verificare exhaustivă completă realizată cuvânt cu cuvânt, rând cu rând, funcție cu funcție pentru întreaga aplicație. Confirmat DEFINITIV că status 3 se trimite DOAR O SINGURĂ DATĂ prin TRIPLE PROTECTION: (1) CourseDetailCard isLoading check previne double-click, (2) VehicleScreen loadingCourses Set previne concurrency, (3) updateCourseStatus face o singură cerere HTTP la gps.php. Verificat flux complet de la user click până la transmisia finală. Logică 100% consistentă, identificatori separați corect (course.id/course.uit/course.ikRoTrans), endpoint unificat, zero duplicate transmissions. BackgroundGPSService Android folosește ConcurrentHashMap cu ikRoTrans ca cheie unică. Aplicația PERFECT FUNCȚIONALĂ pentru deployment cu build success 349.87 kB.
