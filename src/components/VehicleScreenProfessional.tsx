@@ -1155,37 +1155,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       )}
 
-      {/* Footer premium cu timestamp și iconița stilizată pentru debug loguri */}
+      {/* Footer discret pentru debug */}
       <div style={{
         position: 'fixed',
-        bottom: '0px',
-        left: 0,
-        right: 0,
+        bottom: '16px',
+        right: '16px',
         zIndex: 1000,
-        background: currentTheme === 'dark' 
-          ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%)' 
-          : 'linear-gradient(135deg, rgba(248, 250, 252, 0.98) 0%, rgba(241, 245, 249, 0.95) 100%)',
-        backdropFilter: 'blur(25px)',
-        borderTop: `2px solid ${currentTheme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(99, 102, 241, 0.2)'}`,
-        padding: '20px 28px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: currentTheme === 'dark' 
-          ? '0 -10px 40px rgba(0, 0, 0, 0.3)' 
-          : '0 -10px 40px rgba(0, 0, 0, 0.1)'
+        background: 'transparent',
+        padding: '0'
       }}>
-        {/* Timestamp partea stângă */}
-        <div style={{
-          fontSize: '12px',
-          color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-          fontWeight: '500',
-          letterSpacing: '0.5px'
-        }}>
-          v{new Date().toLocaleDateString('ro-RO')}
-        </div>
-
-        {/* Iconița debug centrală - stilizată premium */}
+        {/* Iconița debug mică și discretă */}
         <div
           onClick={() => {
             setClickCount(prev => {
@@ -1201,55 +1180,41 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             });
           }}
           style={{
-            width: '32px',
-            height: '32px',
+            width: '24px',
+            height: '24px',
             background: clickCount >= 30 
-              ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' 
-              : currentTheme === 'dark'
-                ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
-                : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-            borderRadius: '14px',
+              ? 'rgba(245, 158, 11, 0.8)' 
+              : 'rgba(100, 116, 139, 0.6)',
+            borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: clickCount >= 30
-              ? '0 8px 32px rgba(245, 158, 11, 0.4), 0 4px 16px rgba(245, 158, 11, 0.2)'
-              : currentTheme === 'dark'
-                ? '0 8px 32px rgba(59, 130, 246, 0.3), 0 4px 16px rgba(59, 130, 246, 0.1)'
-                : '0 8px 32px rgba(99, 102, 241, 0.3), 0 4px 16px rgba(99, 102, 241, 0.1)',
             position: 'relative',
-            border: clickCount >= 30 
-              ? '2px solid rgba(245, 158, 11, 0.5)' 
-              : '2px solid rgba(255, 255, 255, 0.1)'
+            opacity: 0.7
           }}
         >
-          {/* Iconița principală */}
-          <i className={clickCount >= 30 ? "fas fa-bug" : "fas fa-code"} style={{
-            fontSize: '12px',
+          <i className="fas fa-bug" style={{
+            fontSize: '8px',
             color: '#ffffff'
           }}></i>
           
-          {/* Badge cu numărul de click-uri */}
-          {clickCount >= 20 && (
+          {/* Badge discret */}
+          {clickCount >= 40 && (
             <div style={{
               position: 'absolute',
-              top: '-6px',
-              right: '-6px',
-              background: clickCount >= 40 
-                ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)' 
-                : 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              top: '-3px',
+              right: '-3px',
+              background: '#dc2626',
               color: '#ffffff',
-              fontSize: '10px',
-              padding: '3px 6px',
-              borderRadius: '8px',
+              fontSize: '8px',
+              padding: '1px 3px',
+              borderRadius: '50%',
               fontWeight: '700',
-              minWidth: '20px',
-              textAlign: 'center',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-              border: '1.5px solid rgba(255, 255, 255, 0.3)'
+              minWidth: '12px',
+              textAlign: 'center'
             }}>
-              {clickCount}
+              !
             </div>
           )}
           

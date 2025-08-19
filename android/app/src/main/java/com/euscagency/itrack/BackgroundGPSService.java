@@ -197,6 +197,10 @@ public class BackgroundGPSService extends Service {
                     } else {
                         Log.e(TAG, "⚡ GPS service deja activ - asigur continuitate pentru " + specificUIT);
                         
+                        // CRITICAL FIX: FORCE IMMEDIATE GPS CYCLE după RESUME
+                        Log.e(TAG, "🚀 FORȚEZ GPS CYCLE IMEDIAT după RESUME pentru verificare status");
+                        performGPSCycle();
+                        
                         // CRITICAL DEBUG: Verifică toate cursele și statusurile lor
                         Log.e(TAG, "📊 === STATUS CHECK DUPĂ RESUME ===");
                         int activeCount = 0;
