@@ -181,18 +181,31 @@ public class BackgroundGPSService extends Service {
                 
                 if (newStatus == 2) { // ACTIVE/RESUME
                     courseData.status = 2;
-                    Log.e(TAG, "RESUME: UIT " + specificUIT + " reactivat");
+                    Log.e(TAG, "RESUME: UIT " + specificUIT + " reactivat cu STATUS 2");
+                    
+                    // CRITICAL DEBUG: Verifică status după setare
+                    Log.e(TAG, "🔍 VERIFY: courseData.status după resume = " + courseData.status);
                     
                     // CRITICAL FIX: Trimite status update la server pentru RESUME
                     sendStatusUpdateToServer(newStatus, uniqueKeyForUpdate);
                     Log.e(TAG, "📤 STATUS 2 (RESUME) trimis la server pentru " + specificUIT);
                     
-                    // Pornește GPS dacă nu rulează
+                    // CRITICAL FIX: GPS trebuie să continue pentru cursa resumed
                     if (!isGPSRunning) {
                         Log.e(TAG, "🚀 Starting GPS service pentru RESUME");
                         startBackgroundGPS();
                     } else {
-                        Log.e(TAG, "⚡ GPS service deja activ - va continua pentru " + specificUIT);
+                        Log.e(TAG, "⚡ GPS service deja activ - asigur continuitate pentru " + specificUIT);
+                        
+                        // CRITICAL DEBUG: Verifică toate cursele și statusurile lor
+                        Log.e(TAG, "📊 === STATUS CHECK DUPĂ RESUME ===");
+                        int activeCount = 0;
+                        for (java.util.Map.Entry<String, CourseData> debugEntry : activeCourses.entrySet()) {
+                            CourseData debugCourse = debugEntry.getValue();
+                            Log.e(TAG, "📋 Course: " + debugEntry.getKey() + " → Status: " + debugCourse.status);
+                            if (debugCourse.status == 2) activeCount++;
+                        }
+                        Log.e(TAG, "📊 Total ACTIVE courses după resume: " + activeCount + "/" + activeCourses.size());
                     }
                 } else if (newStatus == 3) { // PAUSE
                     courseData.status = 3;

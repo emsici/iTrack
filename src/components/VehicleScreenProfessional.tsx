@@ -1255,14 +1255,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
         </div>
 
-        {/* Status partea dreaptă */}
+        {/* Status partea dreaptă cu iconiță */}
         <div style={{
           fontSize: '12px',
           color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
           fontWeight: '500',
-          letterSpacing: '0.5px'
+          letterSpacing: '0.5px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
         }}>
-          {showDebugPage ? '🔧 Debug' : 'iTrack'}
+          {showDebugPage ? (
+            <>
+              <i className="fas fa-tools" style={{ fontSize: '10px' }}></i>
+              <span>Debug</span>
+            </>
+          ) : (
+            'iTrack'
+          )}
         </div>
       </div>
 
