@@ -530,10 +530,31 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             Selectează vehiculul pentru a începe
           </p>
           
-          <VehicleNumberDropdown
+          <input
+            type="text"
             value={vehicleNumber}
-            onChange={setVehicleNumber}
-            darkMode={currentTheme === 'dark'}
+            onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+            placeholder="ex: IL02ABC"
+            style={{
+              width: '100%',
+              background: 'rgba(74, 85, 104, 0.3)',
+              border: '2px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '16px',
+              padding: '18px 20px',
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#ffffff',
+              textAlign: 'center',
+              outline: 'none'
+            }}
+            onFocus={(e) => {
+              e.target.style.border = '2px solid #3b82f6';
+              e.target.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.border = '2px solid rgba(255, 255, 255, 0.2)';
+              e.target.style.boxShadow = 'none';
+            }}
           />
 
           {vehicleNumber && (
