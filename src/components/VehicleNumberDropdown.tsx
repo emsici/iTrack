@@ -2,13 +2,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { getVehicleNumberHistory, removeVehicleNumberFromHistory } from '../services/storage';
 
 interface VehicleNumberDropdownProps {
-  value: string;
-  onChange: (value: string) => void;
+  value?: string;
+  onChange?: (value: string) => void;
   placeholder?: string;
   darkMode?: boolean;
   onKeyPress?: (e: React.KeyboardEvent) => void;
   disabled?: boolean;
   onNavigateToInput?: () => void; // Callback pentru navigare la pagina de input
+  // Noi props pentru header usage
+  currentVehicle?: string;
+  onVehicleSelect?: (vehicle: string) => void;
+  theme?: 'default' | 'header';
 }
 
 const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
@@ -16,7 +20,11 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
   onChange,
   darkMode = false,
   disabled = false,
-  onNavigateToInput
+  onNavigateToInput,
+  // Noi props
+  currentVehicle,
+  onVehicleSelect,
+  theme = 'default'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [vehicleHistory, setVehicleHistory] = useState<string[]>([]);
@@ -56,7 +64,12 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
   }, [showInputPage]);
 
   const handleVehicleSelect = (vehicle: string) => {
-    onChange(vehicle);
+    // Header theme folosește onVehicleSelect, default theme folosește onChange
+    if (theme === 'header' && onVehicleSelect) {
+      onVehicleSelect(vehicle);
+    } else if (onChange) {
+      onChange(vehicle);
+    }
     setIsOpen(false);
   };
 
@@ -72,8 +85,14 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
     console.log('🔄 onChange function available:', typeof onChange);
     
     if (inputValue.trim()) {
-      console.log('✅ Calling onChange with value:', inputValue.trim());
-      onChange(inputValue.trim());
+      console.log('✅ Calling callback with value:', inputValue.trim());
+      
+      // Header theme folosește onVehicleSelect, default theme folosește onChange
+      if (theme === 'header' && onVehicleSelect) {
+        onVehicleSelect(inputValue.trim());
+      } else if (onChange) {
+        onChange(inputValue.trim());
+      }
       
       console.log('✅ Closing input page and clearing state');
       setShowInputPage(false);
@@ -106,7 +125,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
     }
   };
 
-  const filteredHistory = vehicleHistory.filter(v => v !== value);
+  const filteredHistory = vehicleHistory.filter(v => v !== (value || currentVehicle));
 
   if (showInputPage) {
     return (
@@ -404,6 +423,126 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
     );
   }
 
+  // Header theme - doar dropdown styling fără input pagina
+  if (theme === 'header') {
+    return (
+      <div ref={dropdownRef} style={{ position: 'relative' }}>
+        {/* Header dropdown button */}
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            background: 'rgba(74, 85, 104, 0.3)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            padding: '8px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <span style={{ fontSize: '14px', color: '#cbd5e0' }}>
+            {currentVehicle || 'VEHICUL'}
+          </span>
+          <i className="fas fa-chevron-down" style={{ 
+            fontSize: '12px', 
+            color: '#cbd5e0',
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.2s ease'
+          }}></i>
+        </div>
+
+        {/* Dropdown menu pentru header */}
+        {isOpen && (
+          <div style={{
+            position: 'absolute',
+            top: '100%',
+            right: 0,
+            minWidth: '200px',
+            background: 'rgba(30, 41, 59, 0.95)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '12px',
+            marginTop: '8px',
+            zIndex: 1000,
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+            overflow: 'hidden'
+          }}>
+            {/* Istoric vehicule */}
+            {filteredHistory.length > 0 && (
+              <>
+                <div style={{
+                  padding: '12px 16px',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                  fontSize: '12px',
+                  color: '#94a3b8',
+                  fontWeight: '600',
+                  textTransform: 'uppercase'
+                }}>
+                  Istoric
+                </div>
+                {filteredHistory.slice(0, 5).map((vehicle) => (
+                  <div
+                    key={vehicle}
+                    onClick={() => handleVehicleSelect(vehicle)}
+                    style={{
+                      padding: '12px 16px',
+                      color: '#cbd5e0',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      transition: 'all 0.2s ease',
+                      fontSize: '14px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <span>{vehicle}</span>
+                    <i className="fas fa-arrow-right" style={{ fontSize: '10px', opacity: 0.5 }}></i>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* Adaugă nou */}
+            <div style={{
+              padding: '12px 16px',
+              borderTop: filteredHistory.length > 0 ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+              color: '#4ade80',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              transition: 'all 0.2s ease'
+            }}
+            onClick={() => {
+              setIsOpen(false);
+              setShowInputPage(true);
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(74, 222, 128, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}>
+              <i className="fas fa-plus" style={{ fontSize: '12px' }}></i>
+              Adaugă vehicul nou
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Default theme
   return (
     <div ref={dropdownRef} style={{ position: 'relative', width: '100%', maxWidth: '200px', minWidth: '160px' }}>
       {/* Compact Display Button */}

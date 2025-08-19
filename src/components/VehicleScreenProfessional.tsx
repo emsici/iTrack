@@ -675,26 +675,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </span>
           </div>
 
-          {/* Dropdown vehicul */}
-          <div style={{
-            background: 'rgba(74, 85, 104, 0.3)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
-            padding: '8px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            cursor: 'pointer'
-          }}
-          onClick={() => {
-            setCoursesLoaded(false);
-            setCourses([]);
-            setVehicleNumber('');
-            setError('');
-          }}>
-            <span style={{ fontSize: '14px', color: '#cbd5e0' }}>VEHICUL</span>
-            <i className="fas fa-chevron-down" style={{ fontSize: '12px', color: '#cbd5e0' }}></i>
-          </div>
+          {/* Dropdown vehicul - afișează numărul selectat */}
+          <VehicleNumberDropdown 
+            currentVehicle={vehicleNumber}
+            onVehicleSelect={(number) => {
+              setVehicleNumber(number);
+              setCoursesLoaded(false);
+              setCourses([]);
+              setError('');
+              // Încarcă cursele pentru noul vehicul
+              loadCourses(number, token);
+            }}
+            theme="header"
+          />
         </div>
 
         {/* Row cu butoane funcționalități */}
