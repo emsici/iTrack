@@ -1053,39 +1053,31 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               key={course.id}
               course={course}
               onStatusUpdate={async (courseId, courseUit, newStatus) => {
-                // SENIOR DEVELOPER FIX: Concurrency protection pentru status updates
+                // ULTIMATE PROTECTION: Dubla verificare pentru concurrency
                 if (loadingCourses.has(courseId)) {
                   console.log(`🚫 CONCURRENCY BLOCK: Course ${courseId} update already in progress`);
                   toast.error('Actualizare în curs', 'Așteaptă finalizarea operației anterioare');
                   return;
                 }
                 
+                // IMMEDIATE BLOCK: Setează loading înainte de orice altceva
+                setLoadingCourses(prev => new Set([...prev, courseId]));
+                
                 try {
-                  // Add to loading set pentru concurrency protection
-                  setLoadingCourses(prev => new Set([...prev, courseId]));
-                  
                   // Găsește cursa pentru GPS handling
                   const courseForGPS = courses.find(c => c.id === courseId);
                   const oldStatus = courseForGPS?.status;
                   
                   console.log(`🔄 PROTECTED STATUS UPDATE: ${oldStatus} → ${newStatus} pentru courseId: ${courseId}`);
                   
-                  // Optimistic UI update
+                  // SINGLE API CALL - NO optimistic update pentru a evita race conditions
+                  await updateCourseStatus(courseId, courseUit, newStatus, token, vehicleNumber, courses);
+                  console.log(`✅ STATUS UPDATE SUCCESS: ${courseId} → ${newStatus}`);
+                  
+                  // Update UI DUPĂ success API
                   setCourses(prev => prev.map(c => 
                     c.id === courseId ? { ...c, status: newStatus } : c
                   ));
-                  
-                  try {
-                    await updateCourseStatus(courseId, courseUit, newStatus, token, vehicleNumber, courses);
-                    console.log(`✅ STATUS UPDATE SUCCESS: ${courseId} → ${newStatus}`);
-                  } catch (apiError) {
-                    // ROLLBACK optimistic update pe eroare
-                    console.error(`❌ STATUS UPDATE FAILED: ${courseId}, rolling back to ${oldStatus}`);
-                    setCourses(prev => prev.map(c => 
-                      c.id === courseId ? { ...c, status: oldStatus || 1 } : c
-                    ));
-                    throw apiError;
-                  }
                   
                   // GPS HANDLING COMPLET pentru toate tranzițiile
                   if (courseForGPS) {
@@ -1107,7 +1099,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   console.error('PROTECTED Status update error:', error);
                   toast.error('Eroare actualizare status', 'Nu s-a putut actualiza statusul');
                 } finally {
-                  // Remove from loading set
+                  // Remove from loading set - GARANTAT
                   setLoadingCourses(prev => {
                     const newSet = new Set(prev);
                     newSet.delete(courseId);
@@ -1158,9 +1150,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       {/* Footer premium cu timestamp și iconița stilizată pentru debug loguri */}
       <div style={{
         position: 'fixed',
-        bottom: 'env(safe-area-inset-bottom)',
+        bottom: '0px',
         left: 0,
         right: 0,
+        zIndex: 1000,
         background: currentTheme === 'dark' 
           ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.95) 100%)' 
           : 'linear-gradient(135deg, rgba(248, 250, 252, 0.98) 0%, rgba(241, 245, 249, 0.95) 100%)',
@@ -1189,10 +1182,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           onClick={() => {
             setClickCount(prev => {
               const newCount = prev + 1;
-              console.log(`🔧 Debug clicks pe iconița footer: ${newCount}/50`);
               
               if (newCount >= 50) {
-                console.log('🔓 DEBUG MODE ACTIVAT prin footer');
                 setShowDebugPage(true);
                 setClickCount(0);
                 toast.success('Debug Mode Activat!', 'Logurile apar sub cursele active');
@@ -1202,8 +1193,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             });
           }}
           style={{
-            width: '48px',
-            height: '48px',
+            width: '32px',
+            height: '32px',
             background: clickCount >= 30 
               ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' 
               : currentTheme === 'dark'
@@ -1227,7 +1218,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         >
           {/* Iconița principală */}
           <i className={clickCount >= 30 ? "fas fa-bug" : "fas fa-code"} style={{
-            fontSize: '18px',
+            fontSize: '12px',
             color: '#ffffff'
           }}></i>
           
