@@ -28,33 +28,6 @@ interface VehicleScreenProps {
   onLogout: () => void;
 }
 
-// Funcții pentru senzori reali
-const getBatteryLevel = async (): Promise<string> => {
-  try {
-    if ('getBattery' in navigator) {
-      const battery = await (navigator as any).getBattery();
-      return `${Math.round(battery.level * 100)}%`;
-    }
-    return "75%";
-  } catch {
-    return "75%";
-  }
-};
-
-const getNetworkSignal = async (): Promise<number> => {
-  try {
-    const networkStatus = await Network.getStatus();
-    if (!networkStatus.connected) return 0;
-    
-    const connectionType = networkStatus.connectionType;
-    if (connectionType === 'wifi') return 0;
-    if (connectionType === 'cellular') return 3;
-    return 2;
-  } catch (error) {
-    return 2;
-  }
-};
-
 const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [courses, setCourses] = useState<Course[]>([]);
@@ -130,56 +103,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  // Course status update
+  // Course status update function
   const updateCourseStatus = async (courseId: string, newStatus: number) => {
     try {
       console.log(`Actualizare status pentru cursă ${courseId}: ${newStatus}`);
-      
-      // Get real GPS coordinates
-      let currentLat = 0, currentLng = 0, currentAlt = 0, currentAcc = 0, currentSpeed = 0, currentHeading = 0;
-      
-      try {
-        const position = await Geolocation.getCurrentPosition({
-          enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 30000
-        });
-        
-        currentLat = position.coords.latitude;
-        currentLng = position.coords.longitude;
-        currentAlt = position.coords.altitude || 0;
-        currentAcc = position.coords.accuracy || 0;
-        currentSpeed = position.coords.speed || 0;
-        currentHeading = position.coords.heading || 0;
-      } catch (gpsError) {
-        console.log('Nu s-au putut obține coordonate GPS pentru status');
-      }
-      
-      const statusUpdateData = {
-        uit: courseId,
-        numar_inmatriculare: vehicleNumber,
-        lat: currentLat,
-        lng: currentLng,
-        viteza: Math.round(currentSpeed * 3.6),
-        directie: Math.round(currentHeading),
-        altitudine: Math.round(currentAlt),
-        hdop: Math.round(currentAcc),
-        gsm_signal: await getNetworkSignal(),
-        baterie: await getBatteryLevel(),
-        status: newStatus,
-        timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
-      };
-      
-      const response = await CapacitorHttp.post({
-        url: `${API_BASE_URL}gps.php`,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/json",
-          "User-Agent": "iTrack-StatusUpdate/1.0"
-        },
-        data: statusUpdateData
-      });
       
       // Update Android GPS service
       if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
@@ -518,6 +445,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       />
     </div>
   );
-}
+};
 
 export default VehicleScreen;
