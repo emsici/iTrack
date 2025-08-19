@@ -447,21 +447,219 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       ) : (
         <>
-          {/* Header simplu și curat - design original din 493b7cd */}
+          {/* Header cu posibilitatea schimbării vehiculului */}
           <div style={{ 
             paddingTop: 'env(safe-area-inset-top)', 
             background: currentTheme === 'dark' ? '#1e293b' : '#ffffff',
             borderBottom: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
           }}>
             <div style={{ padding: '20px' }}>
-              <h2 style={{ 
-                color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b',
-                margin: 0,
-                fontSize: '20px',
-                fontWeight: '600'
-              }}>
-                Curse Active - {vehicleNumber}
-              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h2 
+                  onClick={() => {
+                    // Click pe header resetează la selectarea vehiculului
+                    setCoursesLoaded(false);
+                    setCourses([]);
+                    setVehicleNumber('');
+                    setError('');
+                  }}
+                  style={{ 
+                    color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b',
+                    margin: 0,
+                    fontSize: '20px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}
+                >
+                  Curse Active - {vehicleNumber}
+                </h2>
+                <button
+                  onClick={() => {
+                    setCoursesLoaded(false);
+                    setCourses([]);
+                    setVehicleNumber('');
+                    setError('');
+                  }}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    padding: '4px 8px',
+                    borderRadius: '4px'
+                  }}
+                  title="Schimbă vehicul"
+                >
+                  <i className="fas fa-exchange-alt"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Badge-uri status sub header */}
+          <div style={{ 
+            padding: '16px 20px', 
+            background: currentTheme === 'dark' ? '#1e293b' : '#ffffff',
+            borderBottom: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
+          }}>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(4, 1fr)', 
+              gap: '8px'
+            }}>
+              {/* ACTIV */}
+              <div
+                onClick={() => setSelectedStatusFilter(2)}
+                style={{
+                  background: selectedStatusFilter === 2 
+                    ? '#22c55e'
+                    : currentTheme === 'dark' 
+                      ? 'rgba(34, 197, 94, 0.1)' 
+                      : 'rgba(34, 197, 94, 0.05)',
+                  border: `1px solid ${selectedStatusFilter === 2 ? '#22c55e' : 'rgba(34, 197, 94, 0.3)'}`,
+                  borderRadius: '8px',
+                  padding: '8px',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: selectedStatusFilter === 2 
+                    ? 'white' 
+                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b'),
+                  marginBottom: '2px'
+                }}>
+                  ACTIV
+                </div>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  color: selectedStatusFilter === 2 
+                    ? 'white' 
+                    : '#22c55e'
+                }}>
+                  {courses.filter(c => c.status === 2).length}
+                </div>
+              </div>
+
+              {/* PAUZĂ */}
+              <div
+                onClick={() => setSelectedStatusFilter(3)}
+                style={{
+                  background: selectedStatusFilter === 3 
+                    ? '#f59e0b'
+                    : currentTheme === 'dark' 
+                      ? 'rgba(245, 158, 11, 0.1)' 
+                      : 'rgba(245, 158, 11, 0.05)',
+                  border: `1px solid ${selectedStatusFilter === 3 ? '#f59e0b' : 'rgba(245, 158, 11, 0.3)'}`,
+                  borderRadius: '8px',
+                  padding: '8px',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: selectedStatusFilter === 3 
+                    ? 'white' 
+                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b'),
+                  marginBottom: '2px'
+                }}>
+                  PAUZĂ
+                </div>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  color: selectedStatusFilter === 3 
+                    ? 'white' 
+                    : '#f59e0b'
+                }}>
+                  {courses.filter(c => c.status === 3).length}
+                </div>
+              </div>
+
+              {/* STOP */}
+              <div
+                onClick={() => setSelectedStatusFilter(4)}
+                style={{
+                  background: selectedStatusFilter === 4 
+                    ? '#ef4444'
+                    : currentTheme === 'dark' 
+                      ? 'rgba(239, 68, 68, 0.1)' 
+                      : 'rgba(239, 68, 68, 0.05)',
+                  border: `1px solid ${selectedStatusFilter === 4 ? '#ef4444' : 'rgba(239, 68, 68, 0.3)'}`,
+                  borderRadius: '8px',
+                  padding: '8px',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: selectedStatusFilter === 4 
+                    ? 'white' 
+                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b'),
+                  marginBottom: '2px'
+                }}>
+                  STOP
+                </div>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  color: selectedStatusFilter === 4 
+                    ? 'white' 
+                    : '#ef4444'
+                }}>
+                  {courses.filter(c => c.status === 4).length}
+                </div>
+              </div>
+
+              {/* TOATE */}
+              <div
+                onClick={() => setSelectedStatusFilter('all')}
+                style={{
+                  background: selectedStatusFilter === 'all' 
+                    ? '#6366f1'
+                    : currentTheme === 'dark' 
+                      ? 'rgba(99, 102, 241, 0.1)' 
+                      : 'rgba(99, 102, 241, 0.05)',
+                  border: `1px solid ${selectedStatusFilter === 'all' ? '#6366f1' : 'rgba(99, 102, 241, 0.3)'}`,
+                  borderRadius: '8px',
+                  padding: '8px',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: selectedStatusFilter === 'all' 
+                    ? 'white' 
+                    : (currentTheme === 'dark' ? '#f1f5f9' : '#1e293b'),
+                  marginBottom: '2px'
+                }}>
+                  TOATE
+                </div>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  color: selectedStatusFilter === 'all' 
+                    ? 'white' 
+                    : '#6366f1'
+                }}>
+                  {courses.length}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -470,9 +668,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <OfflineSyncMonitor isOnline={isOnline} />
           </div>
 
-          {/* Lista de curse - design simplu din versiunea originală */}
+          {/* Lista de curse filtrate */}
           <div style={{ padding: '0 20px 20px' }}>
-            {courses.map((course) => (
+            {/* Afișează cursele filtrate conform selecției */}
+            {(selectedStatusFilter === 'all' 
+              ? courses 
+              : courses.filter(c => c.status === selectedStatusFilter)
+            ).map((course) => (
               <CourseDetailCard
                 key={course.id}
                 course={course}
@@ -494,14 +696,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               />
             ))}
             
-            {courses.length === 0 && (
+            {/* Mesaj când nu sunt curse pentru filtru */}
+            {(selectedStatusFilter === 'all' 
+              ? courses.length === 0
+              : courses.filter(c => c.status === selectedStatusFilter).length === 0
+            ) && (
               <div style={{
                 textAlign: 'center',
                 padding: '40px 20px',
                 color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
                 fontSize: '16px'
               }}>
-                Nu au fost găsite curse pentru acest vehicul
+                {courses.length === 0 
+                  ? 'Nu au fost găsite curse pentru acest vehicul'
+                  : `Nu sunt curse ${selectedStatusFilter === 2 ? 'ACTIVE' : selectedStatusFilter === 3 ? 'ÎN PAUZĂ' : 'OPRITE'}`
+                }
               </div>
             )}
             
