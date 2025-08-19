@@ -182,8 +182,17 @@ public class BackgroundGPSService extends Service {
                 if (newStatus == 2) { // ACTIVE/RESUME
                     courseData.status = 2;
                     Log.e(TAG, "RESUME: UIT " + specificUIT + " reactivat");
+                    
+                    // CRITICAL FIX: Trimite status update la server pentru RESUME
+                    sendStatusUpdateToServer(newStatus, uniqueKeyForUpdate);
+                    Log.e(TAG, "📤 STATUS 2 (RESUME) trimis la server pentru " + specificUIT);
+                    
+                    // Pornește GPS dacă nu rulează
                     if (!isGPSRunning) {
+                        Log.e(TAG, "🚀 Starting GPS service pentru RESUME");
                         startBackgroundGPS();
+                    } else {
+                        Log.e(TAG, "⚡ GPS service deja activ - va continua pentru " + specificUIT);
                     }
                 } else if (newStatus == 3) { // PAUSE
                     courseData.status = 3;

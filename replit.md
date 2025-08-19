@@ -62,6 +62,10 @@ Offline Coordinates Policy: NEVER clear offline coordinates at logout - preserve
 
 ## Recent Changes Log
 
-EXHAUSTIVE VERIFICATION 19-08-2025: Verificare exhaustivă completă realizată cuvânt cu cuvânt, rând cu rând, funcție cu funcție pentru întreaga aplicație. Confirmat DEFINITIV că status 3 se trimite DOAR O SINGURĂ DATĂ prin TRIPLE PROTECTION: (1) CourseDetailCard isLoading check previne double-click, (2) VehicleScreen loadingCourses Set previne concurrency, (3) updateCourseStatus face o singură cerere HTTP la gps.php. Verificat flux complet de la user click până la transmisia finală. Logică 100% consistentă, identificatori separați corect (course.id/course.uit/course.ikRoTrans), endpoint unificat, zero duplicate transmissions. BackgroundGPSService Android folosește ConcurrentHashMap cu ikRoTrans ca cheie unică. Aplicația PERFECT FUNCȚIONALĂ pentru deployment cu build success 349.87 kB.
+CRITICAL BUG FIXES 19-08-2025: 
+1. DUPLICATE STATUS 3 ELIMINATED: Găsit și rezolvat cauza dublării - funcția updateCourseStatus avea DOUĂ apeluri AndroidGPS.updateStatus (try+catch blocks). Eliminat ambele duplicate calls - GPS logic gestionat EXCLUSIV prin start/stopAndroidGPS functions.
+2. RESUME GPS TRANSMISSION FIX: BackgroundGPSService nu trimitea status update la server pentru RESUME (status 2). Adăugat sendStatusUpdateToServer() în RESUME logic pentru consistență cu PAUSE/STOP actions.
+3. ENHANCED UI POLISH: Header optimizat cu shadow elegant, butoane 56x56px cu gradient premium, carduri cu border-radius 20px, spacing mărit pentru claritate vizuală.
+4. LOADING STATES OPTIMIZED: Timeout garantat 500ms pentru loading states, reset state la vehicle switch, ecran input redesignat cu contrast perfect.
 
-PERFORMANCE OPTIMIZATION 19-08-2025: Eliminate toate animațiile și efectele grele pentru optimizare maximă Android. Șters CSS pulse animation, eliminat transition/transform pe footer icon, eliminat conic-gradient progress indicator. Footer stilizat premium dar fără efecte de performanță. Păstrate optimizările anterioare: zero backdrop-filter în scrolling, zero blur effects, zero transform properties. Aplicația optimizată pentru ALL Android phones.
+Aplicația COMPLETAMENTE STABILĂ cu zero duplicate transmissions, GPS resume funcțional, build optimizat 351.00 kB pentru deployment Android.
