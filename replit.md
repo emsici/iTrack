@@ -25,6 +25,8 @@ OFFLINE GPS VERIFICATION: Sistemul offline GPS este complet funcțional - salvar
 BUILD FIX 18-08-2025: Problemele TypeScript/build în VehicleScreenProfessional.tsx au fost rezolvate - fișierul simplificat cu 65 linii funcționează perfect în Replit (vite build success). Fișierul backup cu 2367 linii avea probleme de sintaxă și a fost eliminat.
 COMPLETE RECONSTRUCTION 19-08-2025: Aplicația iTrack GPS a fost complet reconstituită și verificată exhaustiv. VehicleScreenProfessional.tsx reconstituit cu toate funcționalitățile complete (473 linii), BackgroundGPSService Android perfect funcțional (1298 linii), toate serviciile și componentele verificate pas cu pas. Build success, API endpoints în PROD (etsm_prod), integrary completă Android-JavaScript bridge, multi-vehicle și multi-course support cu ikRoTrans unique keys, status transmission corect, offline GPS functional. Total 19 fișiere TypeScript/Java verificate, 7280+ linii de cod analizate și confirmate funcționale.
 
+DESIGN CORRECTION 19-08-2025: Design-ul a fost corectat pentru a reflecta exact commit-ul 7ddacab - header simplu cu "Curse Active - {vehicleNumber}", listă directă de curse fără carduri complicate, și iconița de debug settings fixă în colțul din dreapta jos (nu timestamp clickabil). 50 clickuri pe iconiță activează AdminPanel cu badge counter vizibil după 30 clickuri.
+
 ## System Architecture
 
 ### Frontend

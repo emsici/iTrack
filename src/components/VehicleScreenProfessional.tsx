@@ -505,21 +505,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </div>
             )}
             
-            {/* Footer cu timestamp clickabil pentru debug (50 clickuri) */}
+            {/* Iconiță debug sub curse - design original 7ddacab */}
             <div style={{
-              textAlign: 'center',
-              padding: '20px',
-              borderTop: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
-              marginTop: '20px'
+              position: 'fixed',
+              bottom: '20px',
+              right: '20px',
+              zIndex: 1000
             }}>
-              <p 
+              <div
                 onClick={() => {
                   setClickCount(prev => {
                     const newCount = prev + 1;
-                    console.log(`Debug clicks: ${newCount}/50`);
+                    console.log(`Debug clicks pe iconiță: ${newCount}/50`);
                     
                     if (newCount >= 50) {
-                      console.log('Debug Mode Activat - AdminPanel');
+                      console.log('🔓 DEBUG MODE ACTIVAT prin iconiță');
                       setShowDebugPage(true);
                       setClickCount(0);
                       toast.showToast('Debug Mode Activat!', 'success');
@@ -529,27 +529,45 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   });
                 }}
                 style={{
-                  color: currentTheme === 'dark' ? '#64748b' : '#94a3b8',
-                  fontSize: '12px',
-                  margin: 0,
+                  position: 'relative',
+                  width: '48px',
+                  height: '48px',
+                  background: currentTheme === 'dark' 
+                    ? 'rgba(30, 41, 59, 0.9)' 
+                    : 'rgba(255, 255, 255, 0.9)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   cursor: 'pointer',
-                  userSelect: 'none'
+                  border: `1px solid ${currentTheme === 'dark' ? 'rgba(148, 163, 184, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`,
+                  backdropFilter: 'blur(10px)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  transition: 'all 0.2s ease'
                 }}
               >
-                {new Date().toLocaleString('ro-RO', { 
-                  timeZone: 'Europe/Bucharest',
-                  day: '2-digit',
-                  month: '2-digit', 
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit'
-                })} {clickCount > 0 && clickCount < 50 && (
-                  <span style={{ opacity: 0.7, fontSize: '10px' }}>
-                    ({clickCount}/50)
-                  </span>
+                <i className="fas fa-cog" style={{
+                  fontSize: '16px',
+                  color: currentTheme === 'dark' ? '#94a3b8' : '#64748b'
+                }}></i>
+                {clickCount >= 30 && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '-8px',
+                    right: '-8px',
+                    background: '#f59e0b',
+                    color: '#ffffff',
+                    fontSize: '10px',
+                    padding: '2px 5px',
+                    borderRadius: '10px',
+                    fontWeight: '600',
+                    minWidth: '20px',
+                    textAlign: 'center'
+                  }}>
+                    {clickCount}
+                  </div>
                 )}
-              </p>
+              </div>
             </div>
           </div>
 
