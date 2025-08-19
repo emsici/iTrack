@@ -5,7 +5,7 @@ import RouteMapModal from './RouteMapModal';
 
 interface CourseDetailCardProps {
   course: Course;
-  onStatusUpdate: (courseId: string, newStatus: number, action?: string) => void;
+  onStatusUpdate: (courseId: string, courseUit: string, newStatus: number, action?: string) => void;
   isLoading: boolean;
   currentTheme?: string;
 }
@@ -69,7 +69,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         return;
     }
     
-    onStatusUpdate(course.uit, newStatus, action);
+    onStatusUpdate(course.id, course.uit, newStatus, action);
   };
 
   const renderActionButtons = () => {
