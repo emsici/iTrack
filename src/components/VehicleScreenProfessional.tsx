@@ -103,40 +103,24 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       data: statusUpdateData
     });
     
-    console.log(`✅ Actualizarea statusului pe server cu succes: ${response.status}`);
-    console.log(`📊 Răspuns server complet:`, response.data);
-    console.log(`📋 Tip răspuns pentru STATUS ${newStatus}:`, typeof response.data);
-    console.log(`📊 Response headers:`, response.headers);
-    console.log(`🎯 STATUS ${newStatus} TRIMIS CU SUCCES PENTRU UIT ${courseUit}`);
+    console.log(`✅ STATUS ${newStatus} TRIMIS CU SUCCES LA SERVER: ${response.status}`);
+    console.log(`📊 Răspuns server:`, response.data);
+    console.log(`🎯 SUCCES COMPLET pentru UIT ${courseUit} - Nu se mai trimite nimic!`);
     
-    // PASUL 2: Actualizează serviciul GPS Android 
-    // CRITICAL: Folosește courseId pentru găsire UNICĂ, apoi ikRoTrans pentru HashMap
-    const targetCourse = currentCourses?.find(c => c.id === courseId);
-    const courseIdentifier = targetCourse?.ikRoTrans ? String(targetCourse.ikRoTrans) : courseUit;
-    
-    if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-      const androidResult = window.AndroidGPS.updateStatus(courseIdentifier, newStatus, vehicleNumber);
-      console.log(`📱 Serviciul GPS Android actualizat cu identificator ${courseIdentifier}: ${androidResult}`);
-      return androidResult;
-    }
+    // CRITICAL FIX: NU TRIMITE ANDROID UPDATE AICI - se făcea DUPLICATE!
+    // AndroidGPS update se face DOAR în funcțiile GPS start/stop din onStatusUpdate
+    console.log(`🚫 SKIP Android update - se gestionează în onStatusUpdate GPS logic`);
     
     return `SUCCES: Status ${newStatus} actualizat pentru ${courseUit}`;
     
   } catch (error) {
-    console.error(`❌ Actualizarea statusului a eșuat pentru ${courseUit}:`, error);
+    console.error(`❌ EROARE SERVER pentru status ${newStatus} - UIT ${courseUit}:`, error);
     
-    // Încearcă totuși serviciul Android chiar dacă serverul eșuează
-    // CRITICAL: Folosește courseId pentru găsire UNICĂ, apoi ikRoTrans pentru HashMap
-    const targetCourse = currentCourses?.find(c => c.id === courseId);
-    const courseIdentifier = targetCourse?.ikRoTrans ? String(targetCourse.ikRoTrans) : courseUit;
+    // CRITICAL FIX: NU TRIMITE ANDROID UPDATE AICI - cauza DUPLICATE!
+    // Serviciul Android se gestionează prin GPS start/stop logic DOAR
+    console.log(`🚫 SKIP Android fallback - evit duplicate status transmission`);
     
-    if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-      const androidResult = window.AndroidGPS.updateStatus(courseIdentifier, newStatus, vehicleNumber);
-      console.log(`📱 Serviciul GPS Android actualizat (offline) cu identificator ${courseIdentifier}: ${androidResult}`);
-      return androidResult;
-    }
-    
-    console.warn('Interfața AndroidGPS nu este disponibilă - mod browser');
+    console.warn('Server update failed - aplicația va continua cu UI update local');
     throw error;
   }
 };
