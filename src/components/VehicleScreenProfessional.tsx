@@ -1167,16 +1167,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       )}
 
-      {/* Footer discret pentru debug */}
+      {/* Debug icon repositionat - departe de bara sistem */}
       <div style={{
         position: 'fixed',
-        bottom: '16px',
-        right: '16px',
+        bottom: '80px', // Mult mai sus de bara sistem Android
+        left: '20px',   // În stânga, nu în dreapta
         zIndex: 1000,
         background: 'transparent',
         padding: '0'
       }}>
-        {/* Iconița debug mică și discretă */}
+        {/* Debug icon mai mare și mai accesibil */}
         <div
           onClick={() => {
             setClickCount(prev => {
@@ -1192,22 +1192,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             });
           }}
           style={{
-            width: '24px',
-            height: '24px',
+            width: '36px',      // Mai mare pentru touch mai ușor
+            height: '36px',
             background: clickCount >= 30 
-              ? 'rgba(245, 158, 11, 0.8)' 
-              : 'rgba(100, 116, 139, 0.6)',
+              ? 'rgba(245, 158, 11, 0.9)' 
+              : 'rgba(100, 116, 139, 0.7)',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
             position: 'relative',
-            opacity: 0.7
+            opacity: 0.8,
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)', // Shadow pentru vizibilitate
+            border: '2px solid rgba(255, 255, 255, 0.2)'
           }}
         >
           <i className="fas fa-bug" style={{
-            fontSize: '8px',
+            fontSize: '14px',  // Icon mai mare
             color: '#ffffff'
           }}></i>
           
@@ -1228,28 +1230,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
               !
             </div>
-          )}
-          
-
-        </div>
-
-        {/* Status partea dreaptă cu iconiță */}
-        <div style={{
-          fontSize: '12px',
-          color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-          fontWeight: '500',
-          letterSpacing: '0.5px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px'
-        }}>
-          {showDebugPage ? (
-            <>
-              <i className="fas fa-tools" style={{ fontSize: '10px' }}></i>
-              <span>Debug</span>
-            </>
-          ) : (
-            'iTrack'
           )}
         </div>
       </div>
