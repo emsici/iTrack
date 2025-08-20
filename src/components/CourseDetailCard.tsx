@@ -442,7 +442,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .details-grid-enhanced {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          grid-template-columns: 1fr;
           gap: 16px;
           margin-bottom: 16px;
         }
@@ -473,9 +473,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .detail-item-enhanced {
           display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 6px 0;
+          flex-direction: column;
+          gap: 4px;
+          padding: 8px 0;
           border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(203, 213, 225, 0.2)'};
         }
 
@@ -492,8 +492,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
                 : '#94a3b8'  /* Gray text for Dark theme only */
           };
-          font-size: 0.8rem;
-          font-weight: 500;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 2px;
         }
 
         .detail-value-enhanced {
@@ -505,9 +508,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
                 : '#e2e8f0'  /* Light text for Dark theme only */
           };
-          font-size: 0.85rem;
-          font-weight: 500;
-          text-align: right;
+          font-size: 14px;
+          font-weight: 600;
+          word-wrap: break-word;
+          word-break: break-word;
+          line-height: 1.3;
         }
 
         .course-actions-enhanced {
