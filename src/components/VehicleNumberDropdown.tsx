@@ -189,7 +189,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
         justifyContent: 'flex-start',
         zIndex: 1000,
         padding: '20px',
-        paddingTop: '60px', // Mult redus din 20px + safe-area
+        paddingTop: '30px', // MICȘORAT SUPLIMENTAR din 60px la 30px
         paddingBottom: '20px',
         minHeight: '100vh',
         overflowY: 'auto'
@@ -239,7 +239,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
               width: 100%;
               position: relative;
               overflow: hidden;
-              margin-top: 20px;
+              margin-top: 10px;
             }
             
             .input-container::before {
