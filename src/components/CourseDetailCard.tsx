@@ -491,6 +491,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           align-items: flex-start;
           width: 100%;
           box-sizing: border-box;
+          /* CRITICAL FIX pentru text overlap */
+          overflow: hidden;
+          position: relative;
+          clear: both;
+          min-height: 60px;
         }
 
         .detail-item-enhanced:last-child {
@@ -527,11 +532,18 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           word-wrap: break-word;
           word-break: break-word;
           overflow-wrap: break-word;
-          line-height: 1.5;
+          line-height: 1.6;
           width: 100%;
           max-width: 100%;
           white-space: normal;
           margin-top: 4px;
+          /* CRITICAL FIX pentru text overlap */
+          display: block;
+          clear: both;
+          box-sizing: border-box;
+          padding-right: 8px;
+          z-index: 1;
+          position: relative;
         }
 
         .course-actions-enhanced {
