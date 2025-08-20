@@ -143,9 +143,9 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
-        padding: '40px 20px',
-        paddingTop: 'max(40px, env(safe-area-inset-top))',
-        paddingBottom: 'max(40px, env(safe-area-inset-bottom))',
+        padding: '20px', // Redus pentru Android
+        paddingTop: 'max(20px, env(safe-area-inset-top))', // Mult mai mic pentru Android
+        paddingBottom: 'max(20px, env(safe-area-inset-bottom))',
         minHeight: '100vh'
       }}>
         {/* Decorative Background Elements */}

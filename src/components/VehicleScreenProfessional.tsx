@@ -496,8 +496,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '24px',
-        paddingTop: 'max(env(safe-area-inset-top), 40px)',
-        paddingBottom: 'max(env(safe-area-inset-bottom), 40px)'
+        paddingTop: 'max(env(safe-area-inset-top), 20px)', // Redus pentru Android
+        paddingBottom: 'max(env(safe-area-inset-bottom), 20px)'
       }}>
         <div style={{
           background: 'rgba(45, 55, 72, 0.98)',
