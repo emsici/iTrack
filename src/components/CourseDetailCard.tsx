@@ -318,11 +318,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .preview-row {
           display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
+          flex-direction: column;
+          gap: 4px;
           padding: 8px 0;
           border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(203, 213, 225, 0.3)'};
-          min-height: 24px;
+          min-height: 40px;
+          width: 100%;
         }
 
         .preview-row:last-child {
@@ -340,10 +341,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           };
           font-size: 0.75rem;
           font-weight: 600;
-          min-width: 90px;
-          flex-shrink: 0;
           text-transform: uppercase;
           letter-spacing: 0.5px;
+          margin-bottom: 2px;
+          width: 100%;
         }
 
         .preview-value {
@@ -357,11 +358,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           };
           font-size: 0.9rem;
           font-weight: 600;
-          text-align: right;
-          flex: 1;
-          margin-left: 8px;
+          text-align: left;
           word-break: break-word;
-          line-height: 1.3;
+          line-height: 1.4;
+          width: 100%;
+          margin-top: 2px;
         }
         
         /* Enhanced visibility for destination (Sosire) */
@@ -441,8 +442,8 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .details-grid-enhanced {
-          display: grid;
-          grid-template-columns: 1fr;
+          display: flex;
+          flex-direction: column;
           gap: 16px;
           margin-bottom: 16px;
         }
@@ -474,9 +475,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .detail-item-enhanced {
           display: flex;
           flex-direction: column;
-          gap: 4px;
-          padding: 8px 0;
+          gap: 6px;
+          padding: 12px 0;
           border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(203, 213, 225, 0.2)'};
+          align-items: flex-start;
+          width: 100%;
         }
 
         .detail-item-enhanced:last-child {
