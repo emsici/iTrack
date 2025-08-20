@@ -491,7 +491,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     return (
       <div style={{ 
         minHeight: '100dvh',
-        background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
+        background: themeColors.bg,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -628,19 +628,217 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     );
   }
 
+  // Funcție pentru obținerea culorilor temei curente
+  const getThemeColors = () => {
+    const themes: Record<string, {bg: string, text: string, headerBg: string, border: string}> = {
+      dark: {
+        bg: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
+        text: '#ffffff',
+        headerBg: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      light: {
+        bg: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        text: '#1e293b',
+        headerBg: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)',
+        border: 'rgba(0, 0, 0, 0.1)'
+      },
+      business: {
+        bg: 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%)',
+        text: '#ffffff',
+        headerBg: 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      driver: {
+        bg: 'linear-gradient(135deg, #065f46 0%, #047857 100%)',
+        text: '#ffffff',
+        headerBg: 'linear-gradient(135deg, #065f46 0%, #047857 100%)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      nature: {
+        bg: 'linear-gradient(135deg, #166534 0%, #15803d 100%)',
+        text: '#ffffff',
+        headerBg: 'linear-gradient(135deg, #166534 0%, #15803d 100%)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      night: {
+        bg: 'linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%)',
+        text: '#ffffff',
+        headerBg: 'linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      }
+    };
+    return themes[currentTheme] || themes.dark;
+  };
+
+  const themeColors = getThemeColors();
+
+  // Vehicle number input screen - design optimizat cu teme
+  if (!coursesLoaded) {
+    return (
+      <div style={{ 
+        minHeight: '100dvh',
+        background: themeColors.bg,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+        paddingTop: 'max(env(safe-area-inset-top), 20px)',
+        paddingBottom: 'max(env(safe-area-inset-bottom), 20px)'
+      }}>
+        <div style={{
+          background: currentTheme === 'light' ? 'rgba(255, 255, 255, 0.98)' : 'rgba(45, 55, 72, 0.98)',
+          backdropFilter: 'blur(25px)',
+          borderRadius: '24px',
+          padding: '40px',
+          width: '100%',
+          maxWidth: '420px',
+          border: `2px solid ${themeColors.border}`,
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.4)'
+        }}>
+          <h2 style={{
+            fontSize: '32px',
+            fontWeight: '800',
+            marginBottom: '16px',
+            background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            color: 'transparent',
+            textAlign: 'center'
+          }}>
+            iTrack GPS
+          </h2>
+          <p style={{
+            color: themeColors.text === '#ffffff' ? '#e2e8f0' : '#64748b',
+            textAlign: 'center',
+            marginBottom: '32px',
+            fontSize: '16px',
+            opacity: 0.8
+          }}>
+            Selectează vehiculul pentru a începe
+          </p>
+          
+          <VehicleNumberDropdown
+            value={vehicleNumber}
+            onChange={setVehicleNumber}
+            darkMode={currentTheme === 'dark'}
+            placeholder="ex: IL02ABC"
+          />
+
+          {vehicleNumber && (
+            <p style={{
+              color: themeColors.text === '#ffffff' ? '#94a3b8' : '#64748b',
+              fontSize: '15px',
+              textAlign: 'center',
+              marginTop: '20px',
+              marginBottom: '0',
+              background: 'rgba(59, 130, 246, 0.1)',
+              padding: '12px',
+              borderRadius: '12px',
+              border: '1px solid rgba(59, 130, 246, 0.2)'
+            }}>
+              Vehicul selectat: <strong style={{ color: '#60a5fa' }}>{vehicleNumber}</strong>
+            </p>
+          )}
+
+          {error && (
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.15)',
+              border: '2px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: '16px',
+              padding: '16px',
+              marginTop: '20px',
+              color: '#fca5a5',
+              fontSize: '15px',
+              textAlign: 'center',
+              fontWeight: '500'
+            }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            onClick={handleLoadCourses}
+            disabled={!vehicleNumber.trim() || loading}
+            style={{
+              width: '100%',
+              background: !vehicleNumber.trim() || loading 
+                ? 'rgba(74, 85, 104, 0.5)' 
+                : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '16px',
+              padding: '18px',
+              fontSize: '18px',
+              fontWeight: '700',
+              marginTop: '24px',
+              cursor: !vehicleNumber.trim() || loading ? 'not-allowed' : 'pointer',
+              opacity: !vehicleNumber.trim() || loading ? 0.6 : 1,
+              transition: 'all 0.3s ease',
+              boxShadow: !vehicleNumber.trim() || loading 
+                ? 'none' 
+                : '0 12px 24px rgba(59, 130, 246, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px'
+            }}
+          >
+            {loading ? (
+              <>
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  borderTop: '2px solid white',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }}></div>
+                Se încarcă...
+              </>
+            ) : (
+              <>
+                <i className="fas fa-search"></i>
+                Încarcă cursele
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              width: '100%',
+              background: 'transparent',
+              color: themeColors.text === '#ffffff' ? '#94a3b8' : '#64748b',
+              border: `2px solid ${themeColors.border}`,
+              borderRadius: '16px',
+              padding: '16px',
+              fontSize: '16px',
+              fontWeight: '600',
+              marginTop: '16px',
+              cursor: 'pointer'
+            }}
+          >
+            Deconectare
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Main courses interface - Design conform poza originală
   return (
     <div style={{ 
       minHeight: '100dvh',
-      background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
+      background: themeColors.bg,
       paddingBottom: 'env(safe-area-inset-bottom)',
-      color: '#ffffff'
+      color: themeColors.text
     }}>
       {/* Header optimizat și frumos */}
       <div style={{ 
         paddingTop: 'max(env(safe-area-inset-top), 20px)', 
-        background: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+        background: themeColors.headerBg,
+        borderBottom: `1px solid ${themeColors.border}`,
         position: 'sticky',
         top: 0,
         zIndex: 100,
@@ -671,7 +869,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <span style={{
               fontSize: '18px',
               fontWeight: '600',
-              color: '#ffffff'
+              color: themeColors.text
             }}>
               iTrack
             </span>
