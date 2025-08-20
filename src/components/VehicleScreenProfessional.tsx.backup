@@ -673,6 +673,50 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     );
   }
 
+  // Funcție pentru obținerea culorilor temei curente
+  const getThemeColors = () => {
+    const themes: Record<string, {bg: string, text: string, headerBg: string, border: string}> = {
+      dark: {
+        bg: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
+        text: '#ffffff',
+        headerBg: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      light: {
+        bg: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        text: '#1e293b',
+        headerBg: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)',
+        border: 'rgba(0, 0, 0, 0.1)'
+      },
+      business: {
+        bg: 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%)',
+        text: '#ffffff',
+        headerBg: 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      driver: {
+        bg: 'linear-gradient(135deg, #065f46 0%, #047857 100%)',
+        text: '#ffffff',
+        headerBg: 'linear-gradient(135deg, #065f46 0%, #047857 100%)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      nature: {
+        bg: 'linear-gradient(135deg, #166534 0%, #15803d 100%)',
+        text: '#ffffff',
+        headerBg: 'linear-gradient(135deg, #166534 0%, #15803d 100%)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      night: {
+        bg: 'linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%)',
+        text: '#ffffff',
+        headerBg: 'linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      }
+    };
+    return themes[currentTheme] || themes.dark;
+  };
+
+  const themeColors = getThemeColors();
 
   // Vehicle number input screen - design optimizat cu teme
   if (!coursesLoaded) {
