@@ -186,12 +186,13 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         zIndex: 1000,
-        padding: '20px', // Redus pentru Android
-        paddingTop: 'max(20px, env(safe-area-inset-top))', // Mult mai mic pentru Android
-        paddingBottom: 'max(20px, env(safe-area-inset-bottom))',
-        minHeight: '100vh'
+        padding: '20px',
+        paddingTop: '60px', // Mult redus din 20px + safe-area
+        paddingBottom: '20px',
+        minHeight: '100vh',
+        overflowY: 'auto'
       }}>
         {/* Decorative Background Elements */}
         <div style={{
@@ -231,13 +232,14 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
               background: ${themeColors.cardBg};
               backdrop-filter: blur(15px);
               border: 2px solid ${themeColors.border};
-              border-radius: 24px;
-              padding: 40px;
-              box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-              max-width: 400px;
+              border-radius: 20px;
+              padding: 32px 24px;
+              box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.4);
+              max-width: 380px;
               width: 100%;
               position: relative;
               overflow: hidden;
+              margin-top: 20px;
             }
             
             .input-container::before {
@@ -252,19 +254,19 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
 
             .vehicle-input {
               width: 100%;
-              padding: 20px 24px;
+              padding: 16px 20px;
               background: ${currentTheme === 'light' ? 'rgba(248, 250, 252, 0.8)' : 'rgba(15, 23, 42, 0.6)'};
               border: 2px solid ${themeColors.border};
-              border-radius: 16px;
+              border-radius: 12px;
               color: ${themeColors.text};
-              fontSize: 18px;
+              fontSize: 16px;
               fontWeight: 600;
               textAlign: center;
               outline: none;
               letterSpacing: 2px;
               textTransform: uppercase;
               transition: all 0.3s ease;
-              margin-bottom: 32px;
+              margin-bottom: 24px;
             }
 
             .vehicle-input:focus {
@@ -340,48 +342,38 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
           {/* Header with Icon */}
           <div style={{
             textAlign: 'center',
-            marginBottom: '32px'
+            marginBottom: '20px'
           }}>
             <div style={{
-              width: '80px',
-              height: '80px',
-              background: darkMode 
-                ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
-                : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+              width: '60px',
+              height: '60px',
+              background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 20px',
-              fontSize: '32px',
+              margin: '0 auto 16px',
+              fontSize: '24px',
               color: '#ffffff',
-              boxShadow: darkMode 
-                ? '0 8px 32px rgba(34, 197, 94, 0.3)'
-                : '0 8px 32px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 6px 24px rgba(34, 197, 94, 0.3)'
             }}>
               🚗
             </div>
             
             <h2 style={{
-              color: darkMode ? '#ffffff' : '#1e293b',
-              fontSize: '28px',
+              color: themeColors.text,
+              fontSize: '22px',
               fontWeight: '700',
               margin: 0,
-              textAlign: 'center',
-              background: darkMode 
-                ? 'linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%)'
-                : 'linear-gradient(135deg, #1e293b 0%, #475569 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
+              textAlign: 'center'
             }}>
               Adaugă Vehicul Nou
             </h2>
             
             <p style={{
-              color: darkMode ? 'rgba(148, 163, 184, 0.8)' : 'rgba(100, 116, 139, 0.8)',
-              fontSize: '14px',
-              margin: '12px 0 0',
+              color: currentTheme === 'light' ? 'rgba(100, 116, 139, 0.8)' : 'rgba(148, 163, 184, 0.8)',
+              fontSize: '13px',
+              margin: '8px 0 0',
               fontWeight: '500'
             }}>
               Introdu numărul de înmatriculare
