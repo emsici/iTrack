@@ -309,21 +309,24 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .course-preview {
-          margin-bottom: 12px;
+          margin-bottom: 16px;
           background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(248, 250, 252, 0.8)'};
-          border-radius: 8px;
-          padding: 12px;
+          border-radius: 12px;
+          padding: 16px;
           border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(203, 213, 225, 0.4)'};
+          width: 100%;
+          box-sizing: border-box;
         }
 
         .preview-row {
           display: flex;
           flex-direction: column;
-          gap: 4px;
-          padding: 8px 0;
+          gap: 8px;
+          padding: 12px 0;
           border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(203, 213, 225, 0.3)'};
-          min-height: 40px;
+          min-height: 50px;
           width: 100%;
+          align-items: flex-start;
         }
 
         .preview-row:last-child {
@@ -356,13 +359,17 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
                 : '#e2e8f0'  /* Light text for Dark theme only */
           };
-          font-size: 0.9rem;
+          font-size: 0.85rem;
           font-weight: 600;
           text-align: left;
           word-break: break-word;
-          line-height: 1.4;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          line-height: 1.5;
           width: 100%;
-          margin-top: 2px;
+          margin-top: 4px;
+          white-space: normal;
+          max-width: 100%;
         }
         
         /* Enhanced visibility for destination (Sosire) */
@@ -452,7 +459,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.8)'};
           border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(203, 213, 225, 0.3)'};
           border-radius: 12px;
-          padding: 16px;
+          padding: 20px;
+          width: 100%;
+          box-sizing: border-box;
+          margin-bottom: 8px;
         }
 
         .section-title-enhanced {
@@ -475,11 +485,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .detail-item-enhanced {
           display: flex;
           flex-direction: column;
-          gap: 6px;
-          padding: 12px 0;
+          gap: 8px;
+          padding: 16px 0;
           border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(203, 213, 225, 0.2)'};
           align-items: flex-start;
           width: 100%;
+          box-sizing: border-box;
         }
 
         .detail-item-enhanced:last-child {
@@ -511,11 +522,16 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
                 ? '#000000'  /* BLACK text for Driver/Nature/Night themes */
                 : '#e2e8f0'  /* Light text for Dark theme only */
           };
-          font-size: 14px;
+          font-size: 13px;
           font-weight: 600;
           word-wrap: break-word;
           word-break: break-word;
-          line-height: 1.3;
+          overflow-wrap: break-word;
+          line-height: 1.5;
+          width: 100%;
+          max-width: 100%;
+          white-space: normal;
+          margin-top: 4px;
         }
 
         .course-actions-enhanced {
