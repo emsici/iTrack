@@ -780,12 +780,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       </div>
 
-      {/* Grid cu carduri status - design optimizat și frumos */}
+      {/* Grid cu carduri status - design modern și profesional */}
       <div style={{ 
-        padding: '24px',
+        padding: '16px 20px',
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '20px'
+        gap: '12px'
       }}>
         {/* Card TOTAL */}
         <div 
@@ -797,8 +797,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             border: selectedStatusFilter === 'all' 
               ? '2px solid #4299e1' 
               : '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '20px',
-            padding: '24px',
+            borderRadius: '16px',
+            padding: '16px',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             position: 'relative',
@@ -834,7 +834,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               </span>
             </div>
             <div style={{
-              fontSize: '32px',
+              fontSize: '28px',
               fontWeight: '700',
               color: selectedStatusFilter === 'all' ? 'white' : '#ffffff'
             }}>
@@ -853,8 +853,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             border: selectedStatusFilter === 2 
               ? '2px solid #48bb78' 
               : '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '20px',
-            padding: '24px',
+            borderRadius: '16px',
+            padding: '16px',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             position: 'relative',
@@ -909,8 +909,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             border: selectedStatusFilter === 3 
               ? '2px solid #ed8936' 
               : '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '20px',
-            padding: '24px',
+            borderRadius: '16px',
+            padding: '16px',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             position: 'relative',
@@ -965,8 +965,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             border: selectedStatusFilter === 1 
               ? '2px solid #805ad5' 
               : '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '20px',
-            padding: '24px',
+            borderRadius: '16px',
+            padding: '16px',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
             position: 'relative',
@@ -1051,8 +1051,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           </p>
         </div>
       ) : (
-        /* Lista de curse - design optimizat */
-        <div style={{ padding: '0 24px 120px' }}>
+        /* Lista de curse - design compact și modern */
+        <div style={{ padding: '0 20px 100px' }}>
           {(selectedStatusFilter === 'all' 
             ? courses 
             : courses.filter(c => c.status === selectedStatusFilter)
