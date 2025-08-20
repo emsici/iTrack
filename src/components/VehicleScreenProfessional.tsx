@@ -808,35 +808,38 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              marginBottom: '12px'
+              gap: '10px',
+              marginBottom: '8px'
             }}>
               <div style={{
-                width: '32px',
-                height: '32px',
-                background: selectedStatusFilter === 'all' ? 'rgba(255, 255, 255, 0.2)' : '#4299e1',
-                borderRadius: '8px',
+                width: '24px',
+                height: '24px',
+                background: selectedStatusFilter === 'all' ? 'rgba(255, 255, 255, 0.3)' : '#4299e1',
+                borderRadius: '6px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
                 <i className="fas fa-list" style={{ 
-                  fontSize: '16px', 
-                  color: selectedStatusFilter === 'all' ? 'white' : 'white'
+                  fontSize: '12px', 
+                  color: 'white'
                 }}></i>
               </div>
               <span style={{
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: '600',
-                color: selectedStatusFilter === 'all' ? 'white' : '#cbd5e0'
+                color: selectedStatusFilter === 'all' ? 'white' : '#cbd5e0',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
                 TOTAL
               </span>
             </div>
             <div style={{
-              fontSize: '28px',
+              fontSize: '24px',
               fontWeight: '700',
-              color: selectedStatusFilter === 'all' ? 'white' : '#ffffff'
+              color: selectedStatusFilter === 'all' ? 'white' : '#ffffff',
+              lineHeight: '1.2'
             }}>
               {courses.length}
             </div>
@@ -864,35 +867,38 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              marginBottom: '12px'
+              gap: '10px',
+              marginBottom: '8px'
             }}>
               <div style={{
-                width: '32px',
-                height: '32px',
-                background: selectedStatusFilter === 2 ? 'rgba(255, 255, 255, 0.2)' : '#48bb78',
-                borderRadius: '8px',
+                width: '24px',
+                height: '24px',
+                background: selectedStatusFilter === 2 ? 'rgba(255, 255, 255, 0.3)' : '#48bb78',
+                borderRadius: '6px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
                 <i className="fas fa-play" style={{ 
-                  fontSize: '16px', 
+                  fontSize: '12px', 
                   color: 'white'
                 }}></i>
               </div>
               <span style={{
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: '600',
-                color: selectedStatusFilter === 2 ? 'white' : '#cbd5e0'
+                color: selectedStatusFilter === 2 ? 'white' : '#cbd5e0',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
                 ACTIV
               </span>
             </div>
             <div style={{
-              fontSize: '32px',
+              fontSize: '24px',
               fontWeight: '700',
-              color: selectedStatusFilter === 2 ? 'white' : '#ffffff'
+              color: selectedStatusFilter === 2 ? 'white' : '#ffffff',
+              lineHeight: '1.2'
             }}>
               {courses.filter(c => c.status === 2).length}
             </div>
@@ -920,35 +926,38 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              marginBottom: '12px'
+              gap: '10px',
+              marginBottom: '8px'
             }}>
               <div style={{
-                width: '32px',
-                height: '32px',
-                background: selectedStatusFilter === 3 ? 'rgba(255, 255, 255, 0.2)' : '#ed8936',
-                borderRadius: '8px',
+                width: '24px',
+                height: '24px',
+                background: selectedStatusFilter === 3 ? 'rgba(255, 255, 255, 0.3)' : '#ed8936',
+                borderRadius: '6px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
                 <i className="fas fa-pause" style={{ 
-                  fontSize: '16px', 
+                  fontSize: '12px', 
                   color: 'white'
                 }}></i>
               </div>
               <span style={{
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: '600',
-                color: selectedStatusFilter === 3 ? 'white' : '#cbd5e0'
+                color: selectedStatusFilter === 3 ? 'white' : '#cbd5e0',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
                 PAUZĂ
               </span>
             </div>
             <div style={{
-              fontSize: '32px',
+              fontSize: '24px',
               fontWeight: '700',
-              color: selectedStatusFilter === 3 ? 'white' : '#ffffff'
+              color: selectedStatusFilter === 3 ? 'white' : '#ffffff',
+              lineHeight: '1.2'
             }}>
               {courses.filter(c => c.status === 3).length}
             </div>
@@ -976,35 +985,38 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              marginBottom: '12px'
+              gap: '10px',
+              marginBottom: '8px'
             }}>
               <div style={{
-                width: '32px',
-                height: '32px',
-                background: selectedStatusFilter === 1 ? 'rgba(255, 255, 255, 0.2)' : '#805ad5',
-                borderRadius: '8px',
+                width: '24px',
+                height: '24px',
+                background: selectedStatusFilter === 1 ? 'rgba(255, 255, 255, 0.3)' : '#805ad5',
+                borderRadius: '6px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
                 <i className="fas fa-circle" style={{ 
-                  fontSize: '16px', 
+                  fontSize: '12px', 
                   color: 'white'
                 }}></i>
               </div>
               <span style={{
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: '600',
-                color: selectedStatusFilter === 1 ? 'white' : '#cbd5e0'
+                color: selectedStatusFilter === 1 ? 'white' : '#cbd5e0',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
                 DISPONIBIL
               </span>
             </div>
             <div style={{
-              fontSize: '32px',
+              fontSize: '24px',
               fontWeight: '700',
-              color: selectedStatusFilter === 1 ? 'white' : '#ffffff'
+              color: selectedStatusFilter === 1 ? 'white' : '#ffffff',
+              lineHeight: '1.2'
             }}>
               {courses.filter(c => c.status === 1).length}
             </div>
