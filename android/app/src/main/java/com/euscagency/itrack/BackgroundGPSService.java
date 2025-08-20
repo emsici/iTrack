@@ -279,6 +279,17 @@ public class BackgroundGPSService extends Service {
         
         Log.e(TAG, "✅ GPS can start - " + activeCourses.size() + " active courses, token available (" + globalToken.length() + " chars)");
         
+        // CRITICAL FIX: Reinițializează httpThreadPool dacă a fost oprit sau e null
+        if (httpThreadPool == null || httpThreadPool.isShutdown()) {
+            httpThreadPool = new java.util.concurrent.ThreadPoolExecutor(
+                1, // Core threads
+                3, // Max threads  
+                60L, java.util.concurrent.TimeUnit.SECONDS, // Keep alive time
+                new java.util.concurrent.LinkedBlockingQueue<Runnable>() // Queue
+            );
+            Log.e(TAG, "🔧 HTTP ThreadPool reinițializat pentru transmisiile GPS");
+        }
+        
         // Acquire WakeLock cu timeout pentru prevenirea kill de Android
         if (!wakeLock.isHeld()) {
             wakeLock.acquire(60 * 60 * 1000); // 1 oră timeout

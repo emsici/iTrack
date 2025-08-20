@@ -184,45 +184,8 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
   }
 };
 
-const stopAndroidGPS = (course: Course) => {
-  console.log("🛑 === SENIOR SAFE GPS STOP ===");
-  
-  // SENIOR DEVELOPER FIX: Comprehensive safety checks
-  if (!course) {
-    console.error("❌ SAFETY CHECK FAILED: Course object is null/undefined");
-    return "ERROR: Invalid course object";
-  }
-  
-  if (!course.ikRoTrans && !course.uit) {
-    console.error("❌ SAFETY CHECK FAILED: Course missing both ikRoTrans and uit");
-    return "ERROR: Course missing identifiers";
-  }
-  
-  console.log("📱 SAFE Android Bridge Check:", {
-    androidGpsAvailable: !!(window.AndroidGPS),
-    stopGPSFunction: !!(window.AndroidGPS?.stopGPS),
-    courseId: course.id,
-    ikRoTrans: course.ikRoTrans,
-    uit: course.uit
-  });
-  
-  if (window.AndroidGPS && window.AndroidGPS.stopGPS) {
-    console.log("✅ AndroidGPS.stopGPS disponibil - opresc BackgroundGPSService pentru cursă");
-    
-    // Folosește ikRoTrans ca identificator unic pentru HashMap Android
-    const ikRoTransKey = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
-    
-    const result = window.AndroidGPS.stopGPS(ikRoTransKey);
-    
-    console.log("🔥 BackgroundGPSService Stop Result:", result);
-    console.log("📊 GPS service a oprit urmărirea pentru această cursă specifică");
-    return result;
-  } else {
-    console.error("❌ AndroidGPS.stopGPS nu este disponibil!");
-    console.error("🔍 window.AndroidGPS:", window.AndroidGPS);
-    return "ERROR: AndroidGPS not available";
-  }
-};
+// ELIMINAT stopAndroidGPS - folosim updateStatus pentru multi-course support
+// pentru pauză și stop individual, iar stopGPS doar pentru clearAll la logout
 
 const logoutClearAllGPS = async () => {
   if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
@@ -1184,11 +1147,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       startAndroidGPS(courseForGPS, vehicleNumber, token);
                     }
                     
-                    // OPRIRE GPS: pause (2→3), stop din activ (2→4), sau stop din pauză (3→4)
+                    // ACTUALIZARE STATUS: pause (2→3), stop din activ (2→4), sau stop din pauză (3→4)
                     else if ((newStatus === 3 && oldStatus === 2) || 
                              (newStatus === 4 && (oldStatus === 2 || oldStatus === 3))) {
-                      console.log(`🛑 SAFE GPS STOP pentru cursă ${courseId} (${oldStatus}→${newStatus})`);
-                      stopAndroidGPS(courseForGPS);
+                      console.log(`📊 SAFE STATUS UPDATE pentru cursă ${courseId} (${oldStatus}→${newStatus})`);
+                      
+                      // CRITICAL FIX: Folosește updateStatus în loc de stopGPS pentru multi-course support
+                      if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
+                        const ikRoTransKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
+                        const result = window.AndroidGPS.updateStatus(ikRoTransKey, newStatus, vehicleNumber);
+                        console.log(`✅ Android status update result: ${result}`);
+                      } else {
+                        console.error("❌ AndroidGPS.updateStatus nu este disponibil!");
+                      }
                     }
                   }
                   
