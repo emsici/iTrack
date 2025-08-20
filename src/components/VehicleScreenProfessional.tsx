@@ -314,6 +314,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [offlineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
 
   const toast = useToast();
@@ -777,6 +778,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
             <i className="fas fa-chart-bar" style={{ fontSize: '20px', color: '#e2e8f0' }}></i>
           </button>
+
+          {/* Logout - design cu roșu pentru atenție */}
+          <button 
+            onClick={() => setShowLogoutModal(true)}
+            style={{
+              width: '56px',
+              height: '56px',
+              background: 'linear-gradient(135deg, #e53e3e 0%, #c53030 100%)',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(229, 62, 62, 0.3)'
+            }}>
+            <i className="fas fa-sign-out-alt" style={{ fontSize: '20px', color: 'white' }}></i>
+          </button>
         </div>
       </div>
 
@@ -1149,6 +1168,71 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
           )}
           
+          {/* Debug icon sub lista de curse */}
+          <div style={{
+            padding: '20px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            <div
+              onClick={() => {
+                setClickCount(prev => {
+                  const newCount = prev + 1;
+                  
+                  if (newCount >= 50) {
+                    setShowDebugPage(true);
+                    setClickCount(0);
+                    toast.success('Debug Mode Activat!', 'Logurile apar sub cursele active');
+                  }
+                  
+                  return newCount;
+                });
+              }}
+              style={{
+                width: '44px',
+                height: '44px',
+                background: clickCount >= 30 
+                  ? 'rgba(245, 158, 11, 0.9)' 
+                  : 'rgba(100, 116, 139, 0.7)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                position: 'relative',
+                opacity: 0.8,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                border: '2px solid rgba(255, 255, 255, 0.2)',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <i className="fas fa-bug" style={{
+                fontSize: '16px',
+                color: '#ffffff'
+              }}></i>
+              
+              {/* Badge pentru progres */}
+              {clickCount >= 40 && (
+                <div style={{
+                  position: 'absolute',
+                  top: '-3px',
+                  right: '-3px',
+                  background: '#dc2626',
+                  color: '#ffffff',
+                  fontSize: '8px',
+                  padding: '1px 3px',
+                  borderRadius: '50%',
+                  fontWeight: '700',
+                  minWidth: '12px',
+                  textAlign: 'center'
+                }}>
+                  !
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Debug panel inline sub lista de curse */}
           {showDebugPage && (
             <div style={{ 
@@ -1167,72 +1251,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       )}
 
-      {/* Debug icon repositionat - departe de bara sistem */}
-      <div style={{
-        position: 'fixed',
-        bottom: '80px', // Mult mai sus de bara sistem Android
-        left: '20px',   // În stânga, nu în dreapta
-        zIndex: 1000,
-        background: 'transparent',
-        padding: '0'
-      }}>
-        {/* Debug icon mai mare și mai accesibil */}
-        <div
-          onClick={() => {
-            setClickCount(prev => {
-              const newCount = prev + 1;
-              
-              if (newCount >= 50) {
-                setShowDebugPage(true);
-                setClickCount(0);
-                toast.success('Debug Mode Activat!', 'Logurile apar sub cursele active');
-              }
-              
-              return newCount;
-            });
-          }}
-          style={{
-            width: '36px',      // Mai mare pentru touch mai ușor
-            height: '36px',
-            background: clickCount >= 30 
-              ? 'rgba(245, 158, 11, 0.9)' 
-              : 'rgba(100, 116, 139, 0.7)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            position: 'relative',
-            opacity: 0.8,
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)', // Shadow pentru vizibilitate
-            border: '2px solid rgba(255, 255, 255, 0.2)'
-          }}
-        >
-          <i className="fas fa-bug" style={{
-            fontSize: '14px',  // Icon mai mare
-            color: '#ffffff'
-          }}></i>
-          
-          {/* Badge discret */}
-          {clickCount >= 40 && (
-            <div style={{
-              position: 'absolute',
-              top: '-3px',
-              right: '-3px',
-              background: '#dc2626',
-              color: '#ffffff',
-              fontSize: '8px',
-              padding: '1px 3px',
-              borderRadius: '50%',
-              fontWeight: '700',
-              minWidth: '12px',
-              textAlign: 'center'
-            }}>
-              !
-            </div>
-          )}
-        </div>
-      </div>
+
 
       {/* TOATE MODALURILE */}
       <SettingsModal
@@ -1263,6 +1282,145 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         toasts={toast.toasts}
         onRemove={toast.removeToast}
       />
+
+      {/* Modal Confirmare Logout */}
+      {showLogoutModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)',
+            borderRadius: '20px',
+            padding: '30px',
+            maxWidth: '400px',
+            width: '100%',
+            border: '2px solid rgba(229, 62, 62, 0.3)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+          }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <i className="fas fa-exclamation-triangle" style={{
+                fontSize: '48px',
+                color: '#e53e3e',
+                marginBottom: '16px'
+              }}></i>
+              <h3 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#ffffff',
+                marginBottom: '12px'
+              }}>
+                Confirmare Logout
+              </h3>
+              <p style={{
+                color: '#cbd5e0',
+                fontSize: '16px',
+                lineHeight: '1.5',
+                marginBottom: '0'
+              }}>
+                Ești sigur că vrei să te deconectezi?
+              </p>
+            </div>
+
+            {/* Informații despre ce se pierde */}
+            <div style={{
+              background: 'rgba(229, 62, 62, 0.1)',
+              border: '1px solid rgba(229, 62, 62, 0.3)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '24px'
+            }}>
+              <h4 style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#f56565',
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                Ce se va pierde:
+              </h4>
+              <ul style={{
+                listStyle: 'none',
+                padding: '0',
+                margin: '0',
+                color: '#e2e8f0',
+                fontSize: '14px'
+              }}>
+                <li style={{ marginBottom: '4px' }}>
+                  <i className="fas fa-times" style={{ color: '#f56565', marginRight: '8px', fontSize: '12px' }}></i>
+                  Sesiunea curentă de lucru
+                </li>
+                <li style={{ marginBottom: '4px' }}>
+                  <i className="fas fa-times" style={{ color: '#f56565', marginRight: '8px', fontSize: '12px' }}></i>
+                  Starea de autentificare
+                </li>
+                <li style={{ marginBottom: '4px' }}>
+                  <i className="fas fa-check" style={{ color: '#48bb78', marginRight: '8px', fontSize: '12px' }}></i>
+                  Coordonatele GPS offline rămân salvate
+                </li>
+                <li>
+                  <i className="fas fa-check" style={{ color: '#48bb78', marginRight: '8px', fontSize: '12px' }}></i>
+                  Vehiculul selectat rămâne memorat
+                </li>
+              </ul>
+            </div>
+
+            {/* Butoane */}
+            <div style={{
+              display: 'flex',
+              gap: '12px'
+            }}>
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                style={{
+                  flex: 1,
+                  background: 'rgba(74, 85, 104, 0.3)',
+                  border: '2px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  padding: '12px 20px',
+                  color: '#e2e8f0',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Anulează
+              </button>
+              <button
+                onClick={() => {
+                  setShowLogoutModal(false);
+                  onLogout();
+                }}
+                style={{
+                  flex: 1,
+                  background: 'linear-gradient(135deg, #e53e3e 0%, #c53030 100%)',
+                  border: '2px solid #e53e3e',
+                  borderRadius: '12px',
+                  padding: '12px 20px',
+                  color: 'white',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Deconectează
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
