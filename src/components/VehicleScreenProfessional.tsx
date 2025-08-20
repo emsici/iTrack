@@ -580,6 +580,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             value={vehicleNumber}
             onChange={setVehicleNumber}
             darkMode={currentTheme === 'dark'}
+            currentTheme={currentTheme}
             placeholder="ex: IL02ABC"
           />
 
@@ -736,6 +737,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           {/* Dropdown vehicul - afișează numărul selectat */}
           <VehicleNumberDropdown 
             currentVehicle={vehicleNumber}
+            currentTheme={currentTheme}
             onVehicleSelect={async (number) => {
               console.log(`🔄 Vehicul selectat: ${number}`);
               setVehicleNumber(number);

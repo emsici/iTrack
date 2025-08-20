@@ -13,6 +13,7 @@ interface VehicleNumberDropdownProps {
   currentVehicle?: string;
   onVehicleSelect?: (vehicle: string) => void;
   theme?: 'default' | 'header';
+  currentTheme?: string; // Pentru compatibilitate cu sistemul de teme
 }
 
 const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
@@ -24,7 +25,8 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
   // Noi props
   currentVehicle,
   onVehicleSelect,
-  theme = 'default'
+  theme = 'default',
+  currentTheme = 'dark'
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [vehicleHistory, setVehicleHistory] = useState<string[]>([]);
@@ -127,6 +129,51 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
 
   const filteredHistory = vehicleHistory.filter(v => v !== (value || currentVehicle));
 
+  // Funcție pentru obținerea culorilor temei curente
+  const getThemeColors = () => {
+    const themes: Record<string, {bg: string, text: string, cardBg: string, border: string}> = {
+      dark: {
+        bg: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)',
+        text: '#ffffff',
+        cardBg: 'rgba(45, 55, 72, 0.98)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      light: {
+        bg: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+        text: '#1e293b',
+        cardBg: 'rgba(255, 255, 255, 0.98)',
+        border: 'rgba(0, 0, 0, 0.1)'
+      },
+      business: {
+        bg: 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%)',
+        text: '#ffffff',
+        cardBg: 'rgba(30, 58, 138, 0.98)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      driver: {
+        bg: 'linear-gradient(135deg, #065f46 0%, #047857 100%)',
+        text: '#ffffff',
+        cardBg: 'rgba(6, 95, 70, 0.98)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      nature: {
+        bg: 'linear-gradient(135deg, #166534 0%, #15803d 100%)',
+        text: '#ffffff',
+        cardBg: 'rgba(22, 101, 52, 0.98)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      },
+      night: {
+        bg: 'linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%)',
+        text: '#ffffff',
+        cardBg: 'rgba(76, 29, 149, 0.98)',
+        border: 'rgba(255, 255, 255, 0.2)'
+      }
+    };
+    return themes[currentTheme] || themes.dark;
+  };
+
+  const themeColors = getThemeColors();
+
   if (showInputPage) {
     return (
       <div style={{ 
@@ -135,9 +182,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        background: darkMode 
-          ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #374151 100%)'
-          : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
+        background: themeColors.bg,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -183,21 +228,12 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
             }
             
             .input-container {
-              background: ${darkMode 
-                ? 'rgba(30, 41, 59, 0.95)' 
-                : 'rgba(255, 255, 255, 0.98)'
-              };
+              background: ${themeColors.cardBg};
               backdrop-filter: blur(15px);
-              border: 2px solid ${darkMode 
-                ? 'rgba(148, 163, 184, 0.3)' 
-                : 'rgba(59, 130, 246, 0.2)'
-              };
+              border: 2px solid ${themeColors.border};
               border-radius: 24px;
               padding: 40px;
-              box-shadow: ${darkMode 
-                ? '0 25px 50px -12px rgba(0, 0, 0, 0.4)' 
-                : '0 25px 50px -12px rgba(0, 0, 0, 0.1)'
-              };
+              box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
               max-width: 400px;
               width: 100%;
               position: relative;
@@ -217,16 +253,10 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
             .vehicle-input {
               width: 100%;
               padding: 20px 24px;
-              background: ${darkMode 
-                ? 'rgba(15, 23, 42, 0.6)' 
-                : 'rgba(248, 250, 252, 0.8)'
-              };
-              border: 2px solid ${darkMode 
-                ? 'rgba(148, 163, 184, 0.3)' 
-                : 'rgba(203, 213, 225, 0.5)'
-              };
+              background: ${currentTheme === 'light' ? 'rgba(248, 250, 252, 0.8)' : 'rgba(15, 23, 42, 0.6)'};
+              border: 2px solid ${themeColors.border};
               border-radius: 16px;
-              color: ${darkMode ? '#ffffff' : '#1e293b'};
+              color: ${themeColors.text};
               fontSize: 18px;
               fontWeight: 600;
               textAlign: center;
@@ -239,10 +269,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
 
             .vehicle-input:focus {
               border-color: #22c55e;
-              box-shadow: 0 0 0 4px ${darkMode 
-                ? 'rgba(34, 197, 94, 0.1)' 
-                : 'rgba(34, 197, 94, 0.1)'
-              };
+              box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
               transform: scale(1.02);
             }
 
