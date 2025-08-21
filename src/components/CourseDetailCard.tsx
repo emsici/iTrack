@@ -50,10 +50,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
   const getStatusColor = (status: number) => {
     switch (status) {
-      case 0: return '#10b981'; // Available - verde
-      case 1: return '#3b82f6'; // Active - albastru  
-      case 2: return '#f59e0b'; // Pause - galben
-      case 3: return '#ef4444'; // Stopped - roșu
+      case 1: return '#3b82f6'; // Disponibilă - albastru
+      case 2: return '#10b981'; // În progres - verde  
+      case 3: return '#f59e0b'; // Pauzată - galben
+      case 4: return '#ef4444'; // Finalizată - roșu
       default: return '#6b7280'; // Unknown - gri
     }
   };
@@ -219,6 +219,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           margin-bottom: 12px;
           width: 100%;
           flex-wrap: nowrap;
+          gap: 12px;
         }
 
         .uit-priority {
@@ -438,10 +439,18 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       `}</style>
 
       <div className="course-header-compact">
-        <div className="uit-priority">
-          <strong>UIT: {course.uit}</strong>
+        <div className="uit-priority" style={{ flex: '1', minWidth: '0' }}>
+          <strong style={{ 
+            display: 'block',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            fontSize: '0.95rem'
+          }}>
+            UIT: {course.uit}
+          </strong>
         </div>
-        <span className="status-badge-compact">
+        <span className="status-badge-compact" style={{ flexShrink: '0' }}>
           {getStatusText(course.status)}
         </span>
       </div>
