@@ -14,6 +14,7 @@ import ToastNotification from "./ToastNotification";
 import { useToast } from "../hooks/useToast";
 import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
+import CourseDetailsModal from "./CourseDetailsModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme } from "../services/themeService";
 
@@ -278,6 +279,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
 
   const toast = useToast();
@@ -1112,6 +1115,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <CourseDetailCard
               key={course.id}
               course={course}
+              onDetailsClick={(course) => {
+                setSelectedCourse(course);
+                setShowDetailsModal(true);
+              }}
               onStatusUpdate={async (courseId, courseUit, newStatus) => {
                 // ULTIMATE PROTECTION: Dubla verificare pentru concurrency
                 if (loadingCourses.has(courseId)) {
@@ -1449,6 +1456,19 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* CourseDetailsModal */}
+      {selectedCourse && (
+        <CourseDetailsModal
+          course={selectedCourse}
+          isOpen={showDetailsModal}
+          onClose={() => {
+            setShowDetailsModal(false);
+            setSelectedCourse(null);
+          }}
+          currentTheme={currentTheme}
+        />
       )}
     </div>
   );
