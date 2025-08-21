@@ -67,16 +67,16 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     
     switch (action) {
       case 'start':
-        newStatus = 1; // Available -> Active
+        newStatus = 2; // Available -> Active (CORECT: 2=ACTIV)
         break;
       case 'pause':
-        newStatus = 2; // Active -> Pause
+        newStatus = 3; // Active -> Pause (CORECT: 3=PAUZĂ)
         break;
       case 'resume':
-        newStatus = 1; // Pause -> Active  
+        newStatus = 2; // Pause -> Active (CORECT: 2=ACTIV)
         break;
       case 'finish':
-        newStatus = 3; // Any -> Stopped
+        newStatus = 4; // Any -> Stopped (CORECT: 4=STOP)
         break;
       default:
         return;
@@ -87,7 +87,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
   const renderActionButtons = () => {
     switch (course.status) {
-      case 0: // Available
+      case 1: // Available/Disponibil
         return (
           <button
             className="action-btn-compact btn-start-compact"
@@ -99,7 +99,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           </button>
         );
 
-      case 1: // Active
+      case 2: // Active/În progres
         return (
           <>
             <button
@@ -121,7 +121,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           </>
         );
 
-      case 2: // Paused
+      case 3: // Paused/Pauzat
         return (
           <>
             <button
@@ -143,7 +143,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           </>
         );
 
-      case 3: // Finished
+      case 4: // Finished/Finalizat
       default:
         return (
           <div style={{
