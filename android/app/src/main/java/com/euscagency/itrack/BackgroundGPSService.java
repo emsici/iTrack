@@ -190,9 +190,8 @@ public class BackgroundGPSService extends Service {
                     // CRITICAL DEBUG: Verifică status după setare
                     Log.e(TAG, "🔍 VERIFY: courseData.status după resume = " + courseData.status);
                     
-                    // CRITICAL FIX: Trimite status update la server pentru RESUME
-                    sendStatusUpdateToServer(newStatus, uniqueKeyForUpdate);
-                    Log.e(TAG, "📤 STATUS 2 (RESUME) trimis la server pentru " + specificUIT);
+                    // CRITICAL FIX: NU trimite status la server din Android - JavaScript deja a trimis!
+                    Log.e(TAG, "🚫 SKIP server status update - JavaScript updateCourseStatus already sent status 2 to server pentru " + specificUIT);
                     
                     // CRITICAL FIX: GPS trebuie să continue pentru cursa resumed
                     if (!isGPSRunning) {
@@ -215,7 +214,9 @@ public class BackgroundGPSService extends Service {
                 } else if (newStatus == 3) { // PAUSE
                     courseData.status = 3;
                     Log.e(TAG, "PAUSE: UIT " + specificUIT + " - status setat pe PAUSE (GPS va fi OPRIT pentru această cursă)");
-                    sendStatusUpdateToServer(newStatus, uniqueKeyForUpdate);
+                    
+                    // CRITICAL FIX: NU trimite status la server din Android - JavaScript deja a trimis!
+                    Log.e(TAG, "🚫 SKIP server status update - JavaScript updateCourseStatus already sent status 3 to server");
                     
                     // DEBUG: Verifică dacă status-ul s-a actualizat corect
                     Log.e(TAG, "🔍 VERIFY PAUSE: courseData.status = " + courseData.status + " pentru UIT " + specificUIT);
@@ -237,7 +238,9 @@ public class BackgroundGPSService extends Service {
                         Log.e(TAG, "⚡ GPS continuă pentru " + activeCourseCount + " curse ACTIVE rămase");
                     }
                 } else if (newStatus == 4) { // STOP
-                    sendStatusUpdateToServer(newStatus, uniqueKeyForUpdate);
+                    // CRITICAL FIX: NU trimite status la server din Android - JavaScript deja a trimis!
+                    Log.e(TAG, "🚫 SKIP server status update - JavaScript updateCourseStatus already sent status 4 to server");
+                    
                     activeCourses.remove(uniqueKeyForUpdate);
                     Log.e(TAG, "STOP: UIT " + specificUIT + " eliminat COMPLET din tracking (GPS va fi OPRIT pentru această cursă)");
                     
