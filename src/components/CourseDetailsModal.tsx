@@ -60,6 +60,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           width: 'calc(100% - 40px)',
           maxWidth: '500px',
           maxHeight: 'calc(100vh - 80px)',
+          height: 'fit-content',
           background: currentTheme === 'dark' 
             ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)'
             : currentTheme === 'light'
@@ -84,7 +85,9 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             : '0 8px 32px rgba(0, 0, 0, 0.15)',
           position: 'relative',
           overflowY: 'auto',
-          transform: 'translateZ(0)'
+          overflowX: 'hidden',
+          transform: 'translateZ(0)',
+          WebkitOverflowScrolling: 'touch'
         }}>
         {/* Close Button */}
         <button
@@ -170,11 +173,12 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           </div>
         </div>
 
-        {/* Content Sections */}
+        {/* Content Sections - SCROLL CONTAINER */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px'
+          gap: '20px',
+          paddingBottom: '20px'
         }}>
           
           {/* Transport Information */}
