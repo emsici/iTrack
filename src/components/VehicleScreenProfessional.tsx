@@ -1320,7 +1320,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: 9999,
           background: 'rgba(0, 0, 0, 0.8)',
           display: 'flex',
           alignItems: 'center',
