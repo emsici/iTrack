@@ -70,3 +70,9 @@ CRITICAL BUG FIXES 19-08-2025:
 5. LOADING STATES OPTIMIZED: Timeout garantat 500ms pentru loading states, reset state la vehicle switch.
 
 VERIFICARE COMPLETĂ: Zero duplicate status transmissions, GPS resume cu immediate transmission restart, build final 349.91 kB optimizat pentru deployment Android.
+
+MODAL DETALII CURSĂ 21-08-2025:
+1. IMPLEMENTARE COMPLETĂ CourseDetailsModal: Modal implementat identic cu AboutModal - același positioning, zIndex 999999, background blur, layout responsive.
+2. CONȚINUT COMPLET: 16 informații organizate în secțiuni - Informații Transport (plecare, sosire, județe, declarant, data) și Informații Complete Transport (ikRoTrans, coduri, vama, birou vamal).
+3. DESIGN CONSISTENT: Emoji 🚛, gradient pe temă, close button X, secțiuni cu background subtle, typography identică cu AboutModal.
+4. INTEGRARE PERFECTĂ: Buton "📋 Detalii Complete" în CourseDetailCard, state management corect cu showDetailsModal, funcționare verificată.
