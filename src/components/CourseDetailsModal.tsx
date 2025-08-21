@@ -138,7 +138,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             : '1px solid rgba(0, 0, 0, 0.1)',
           paddingBottom: '20px'
         }}>
-          <div style={{ fontSize: '32px', marginBottom: '12px' }}>📋</div>
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🚛</div>
           <h2 style={{
             fontSize: '24px',
             fontWeight: '700',
@@ -147,7 +147,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
               : '#1a202c',
             margin: '0 0 12px 0'
           }}>
-            Detalii Cursă
+            Detalii Transport
           </h2>
           <div style={{
             display: 'flex',
