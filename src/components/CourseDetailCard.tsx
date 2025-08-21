@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Course } from '../types';
 import { courseAnalyticsService, CourseStatistics } from '../services/courseAnalytics';
 import RouteMapModal from './RouteMapModal';
+import CourseDetailsModal from './CourseDetailsModal';
 
 interface CourseDetailCardProps {
   course: Course;
@@ -17,9 +18,9 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
   currentTheme = 'dark'
 }) => {
   // Each course has independent state using course.id as key
-  const [showDetails, setShowDetails] = useState(false);
   const [courseStats, setCourseStats] = useState<CourseStatistics | null>(null);
   const [showRouteMap, setShowRouteMap] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // Load course statistics when component mounts or course changes
   useEffect(() => {
@@ -767,15 +768,30 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       
       <button 
         className="toggle-details-btn"
-        onClick={() => {
-          setShowDetails(!showDetails);
+        onClick={() => setShowDetailsModal(true)}
+        style={{
+          background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          fontSize: '14px',
+          fontWeight: '600',
+          cursor: 'pointer',
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          transition: 'all 0.2s ease'
         }}
       >
-        <i className={`fas ${showDetails ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
-        {showDetails ? 'Ascunde detalii' : 'Detalii complete'}
+        <i className="fas fa-eye"></i>
+        📋 Detalii Complete
       </button>
 
-      {showDetails && (
+      {/* ELIMINAT vechiul sistem de detalii - înlocuit cu modal frumos */}
+      {false && (
         <div className="course-details-enhanced">
           <div className="details-grid-enhanced">
             <div className="detail-section-enhanced">
@@ -1159,6 +1175,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           </div>
         )}
       </div>
+
+      {/* Course Details Modal */}
+      <CourseDetailsModal
+        course={course}
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        currentTheme={currentTheme}
+      />
 
       {/* Route Map Modal */}
       {showRouteMap && courseStats && (
