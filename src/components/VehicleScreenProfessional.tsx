@@ -1104,7 +1104,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         </div>
       ) : (
         /* Lista de curse - design compact și modern */
-        <div style={{ padding: '0 20px 100px' }}>
+        <div style={{ padding: '60px 20px 100px' }}>
           {(selectedStatusFilter === 'all' 
             ? courses 
             : courses.filter(c => c.status === selectedStatusFilter)
@@ -1320,6 +1320,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           left: 0,
           right: 0,
           bottom: 0,
+          zIndex: 9999,
           background: 'rgba(0, 0, 0, 0.8)',
           display: 'flex',
           alignItems: 'center',

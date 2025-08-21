@@ -163,7 +163,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
 
   return (
-    <div className={`course-card-compact ${showDetails ? 'expanded' : ''}`}>
+    <div className="course-card-compact">
       <style>{`
         .course-card-compact {
           background: ${
@@ -198,7 +198,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           width: 96%;
           max-width: 96%;
           box-sizing: border-box;
-          z-index: ${showDetails ? '999' : '1'};
+          z-index: 1;
           isolation: isolate;
           
           /* ZERO LAG scroll - toate transform-urile eliminate */
@@ -449,7 +449,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(203, 213, 225, 0.4)'};
           /* REMOVED blur effects pentru telefoane vechi - cauza lag */
           position: relative;
-          z-index: ${showDetails ? '1000' : '1'};
+          z-index: 1;
           /* REMOVED heavy box-shadow pentru telefoane vechi */
           boxShadow: 'none';
           margin-bottom: 16px;
