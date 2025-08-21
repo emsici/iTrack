@@ -14,20 +14,6 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
   onClose,
   currentTheme
 }) => {
-  // PREVENT BODY SCROLL când modal e deschis
-  React.useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    
-    // Cleanup la unmount
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
-
   if (!isOpen) return null;
 
   const getStatusColor = (status: number) => {
@@ -67,8 +53,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
         justifyContent: 'center',
         paddingTop: '40px',
         boxSizing: 'border-box'
-      }}
-    >
+      }}>
       <div 
         onClick={(e) => e.stopPropagation()}
         style={{
@@ -100,8 +85,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           position: 'relative',
           overflowY: 'auto',
           transform: 'translateZ(0)'
-        }}
-      >
+        }}>
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -122,8 +106,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'background-color 0.2s ease'
+            justifyContent: 'center'
           }}
         >
           ×
@@ -133,64 +116,80 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
         <div style={{
           textAlign: 'center',
           marginBottom: '30px',
-          borderBottom: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-            ? '1px solid rgba(255, 255, 255, 0.1)'
-            : '1px solid rgba(0, 0, 0, 0.1)',
-          paddingBottom: '20px'
+          paddingTop: '10px'
         }}>
-          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🚛</div>
+          <div style={{
+            fontSize: '48px',
+            marginBottom: '15px'
+          }}>🚛</div>
           <h2 style={{
-            fontSize: '24px',
+            fontSize: '28px',
             fontWeight: '700',
             color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
               ? '#ffffff'
               : '#1a202c',
-            margin: '0 0 12px 0'
+            margin: '0 0 10px 0'
           }}>
             Detalii Transport
           </h2>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '12px',
-            flexWrap: 'wrap'
+          <p style={{
+            fontSize: '16px',
+            color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+              ? '#94a3b8'
+              : '#64748b',
+            margin: '0 0 20px 0',
+            lineHeight: '1.5'
           }}>
-            <div style={{
-              fontSize: '16px',
-              fontWeight: '600',
-              color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                ? '#e2e8f0'
-                : '#4a5568'
-            }}>
-              UIT: {course.uit}
-            </div>
-            <div style={{
-              backgroundColor: getStatusColor(course.status),
-              color: '#ffffff',
-              padding: '6px 16px',
-              borderRadius: '12px',
-              fontSize: '12px',
-              fontWeight: '600',
-              textTransform: 'uppercase'
-            }}>
-              {getStatusText(course.status)}
-            </div>
+            Informații complete despre cursă și transport
+          </p>
+          
+          {/* Status Badge */}
+          <div style={{
+            display: 'inline-block',
+            backgroundColor: getStatusColor(course.status),
+            color: '#ffffff',
+            padding: '8px 16px',
+            borderRadius: '20px',
+            fontSize: '14px',
+            fontWeight: '600',
+            textTransform: 'uppercase',
+            marginBottom: '10px'
+          }}>
+            {getStatusText(course.status)}
+          </div>
+          
+          <div style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+              ? '#e2e8f0'
+              : '#475569',
+            marginTop: '10px'
+          }}>
+            UIT: {course.uit}
           </div>
         </div>
 
-        {/* Content */}
-        <div style={{ display: 'grid', gap: '20px' }}>
-          {/* Informații de bază */}
+        {/* Content Sections */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '20px'
+        }}>
+          
+          {/* Transport Information */}
           <div style={{
             background: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
               ? 'rgba(255, 255, 255, 0.05)'
-              : 'rgba(0, 0, 0, 0.05)',
-            borderRadius: '12px',
-            padding: '20px'
+              : 'rgba(0, 0, 0, 0.03)',
+            borderRadius: '16px',
+            padding: '20px',
+            border: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+              ? '1px solid rgba(255, 255, 255, 0.1)'
+              : '1px solid rgba(0, 0, 0, 0.05)'
           }}>
             <h3 style={{
-              fontSize: '16px',
+              fontSize: '18px',
               fontWeight: '700',
               color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
                 ? '#ffffff'
@@ -198,28 +197,45 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
               margin: '0 0 16px 0',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '10px'
             }}>
-              <i className="fas fa-route"></i>
-              Informații Transport
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '16px'
+              }}>
+                📍
+              </div>
+              Locații Transport
             </h3>
             
-            <div style={{ display: 'grid', gap: '14px' }}>
-              <div>
+            <div style={{
+              display: 'grid',
+              gap: '16px'
+            }}>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px'
+              }}>
                 <div style={{
                   fontSize: '12px',
                   fontWeight: '600',
                   color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
+                    ? '#94a3b8'
+                    : '#64748b',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '4px'
+                  letterSpacing: '0.5px'
                 }}>
-                  PLECARE
+                  Punct de plecare
                 </div>
                 <div style={{
-                  fontSize: '14px',
+                  fontSize: '15px',
                   fontWeight: '600',
                   color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
                     ? '#ffffff'
@@ -230,21 +246,24 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                 </div>
               </div>
 
-              <div>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px'
+              }}>
                 <div style={{
                   fontSize: '12px',
                   fontWeight: '600',
                   color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
+                    ? '#94a3b8'
+                    : '#64748b',
                   textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '4px'
+                  letterSpacing: '0.5px'
                 }}>
-                  SOSIRE
+                  Punct de sosire
                 </div>
                 <div style={{
-                  fontSize: '14px',
+                  fontSize: '15px',
                   fontWeight: '600',
                   color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
                     ? '#ffffff'
@@ -254,28 +273,68 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                   {course.denumireLocStop || course.BirouVamalStop || course.birouVamalStop || (course.vamaStop !== 'Local' ? course.vamaStop : course.VamaStop) || 'Nu este specificată'}
                 </div>
               </div>
+            </div>
+          </div>
 
+          {/* Regional Information */}
+          <div style={{
+            background: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+              ? 'rgba(255, 255, 255, 0.05)'
+              : 'rgba(0, 0, 0, 0.03)',
+            borderRadius: '16px',
+            padding: '20px',
+            border: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+              ? '1px solid rgba(255, 255, 255, 0.1)'
+              : '1px solid rgba(0, 0, 0, 0.05)'
+          }}>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '700',
+              color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                ? '#ffffff'
+                : '#1a202c',
+              margin: '0 0 16px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '16px'
+              }}>
+                🗺️
+              </div>
+              Informații Regionale
+            </h3>
+            
+            <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: '1fr 1fr' }}>
               <div>
                 <div style={{
                   fontSize: '12px',
                   fontWeight: '600',
                   color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
+                    ? '#94a3b8'
+                    : '#64748b',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
-                  marginBottom: '4px'
+                  marginBottom: '6px'
                 }}>
-                  JUDEȚ PLECARE
+                  Județul plecare
                 </div>
                 <div style={{
-                  fontSize: '14px',
+                  fontSize: '15px',
                   fontWeight: '600',
                   color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
                     ? '#ffffff'
                     : '#1a202c'
                 }}>
-                  {course.Judet || course.judet || 'Nu este specificat'}
+                  {course.Judet || course.judet || 'N/A'}
                 </div>
               </div>
 
@@ -284,40 +343,80 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                   fontSize: '12px',
                   fontWeight: '600',
                   color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
+                    ? '#94a3b8'
+                    : '#64748b',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
-                  marginBottom: '4px'
+                  marginBottom: '6px'
                 }}>
-                  JUDEȚ SOSIRE
+                  Județul sosire
                 </div>
                 <div style={{
-                  fontSize: '14px',
+                  fontSize: '15px',
                   fontWeight: '600',
                   color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
                     ? '#ffffff'
                     : '#1a202c'
                 }}>
-                  {course.JudetStop || course.judetStop || 'Nu este specificat'}
+                  {course.JudetStop || course.judetStop || 'N/A'}
                 </div>
               </div>
+            </div>
+          </div>
 
+          {/* Administrative Information */}
+          <div style={{
+            background: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+              ? 'rgba(255, 255, 255, 0.05)'
+              : 'rgba(0, 0, 0, 0.03)',
+            borderRadius: '16px',
+            padding: '20px',
+            border: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+              ? '1px solid rgba(255, 255, 255, 0.1)'
+              : '1px solid rgba(0, 0, 0, 0.05)'
+          }}>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '700',
+              color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                ? '#ffffff'
+                : '#1a202c',
+              margin: '0 0 16px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '16px'
+              }}>
+                📋
+              </div>
+              Informații Administrative
+            </h3>
+            
+            <div style={{ display: 'grid', gap: '16px' }}>
               <div>
                 <div style={{
                   fontSize: '12px',
                   fontWeight: '600',
                   color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
+                    ? '#94a3b8'
+                    : '#64748b',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
-                  marginBottom: '4px'
+                  marginBottom: '6px'
                 }}>
-                  DECLARANT
+                  Declarant
                 </div>
                 <div style={{
-                  fontSize: '14px',
+                  fontSize: '15px',
                   fontWeight: '600',
                   color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
                     ? '#ffffff'
@@ -327,48 +426,77 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                 </div>
               </div>
 
-              <div>
-                <div style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '4px'
-                }}>
-                  DATA TRANSPORT
+              <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: '1fr 1fr' }}>
+                <div>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#94a3b8'
+                      : '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '6px'
+                  }}>
+                    Cod declarant
+                  </div>
+                  <div style={{
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#ffffff'
+                      : '#1a202c'
+                  }}>
+                    {course.codDeclarant || 'N/A'}
+                  </div>
                 </div>
-                <div style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#ffffff'
-                    : '#1a202c'
-                }}>
-                  {course.dataTransport ? 
-                    new Date(course.dataTransport).toLocaleDateString('ro-RO', {
-                      day: '2-digit',
-                      month: '2-digit', 
-                      year: 'numeric'
-                    }) : 'Nu este specificată'
-                  }
+
+                <div>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#94a3b8'
+                      : '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '6px'
+                  }}>
+                    Data transport
+                  </div>
+                  <div style={{
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#ffffff'
+                      : '#1a202c'
+                  }}>
+                    {course.dataTransport ? 
+                      new Date(course.dataTransport).toLocaleDateString('ro-RO', {
+                        day: '2-digit',
+                        month: '2-digit', 
+                        year: 'numeric'
+                      }) : 'N/A'
+                    }
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Informații Complete Transport */}
+          {/* Technical Information */}
           <div style={{
             background: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
               ? 'rgba(255, 255, 255, 0.05)'
-              : 'rgba(0, 0, 0, 0.05)',
-            borderRadius: '12px',
-            padding: '20px'
+              : 'rgba(0, 0, 0, 0.03)',
+            borderRadius: '16px',
+            padding: '20px',
+            border: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+              ? '1px solid rgba(255, 255, 255, 0.1)'
+              : '1px solid rgba(0, 0, 0, 0.05)'
           }}>
             <h3 style={{
-              fontSize: '16px',
+              fontSize: '18px',
               fontWeight: '700',
               color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
                 ? '#ffffff'
@@ -376,207 +504,180 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
               margin: '0 0 16px 0',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '10px'
             }}>
-              <i className="fas fa-info-circle"></i>
-              Informații Complete Transport
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '16px'
+              }}>
+                ⚙️
+              </div>
+              Informații Tehnice
             </h3>
-
+            
             <div style={{ display: 'grid', gap: '12px' }}>
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  ID TRANSPORT (ikRoTrans)
+              <div style={{ display: 'grid', gap: '12px', gridTemplateColumns: '1fr 1fr' }}>
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#94a3b8'
+                      : '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px'
+                  }}>
+                    ID Transport
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#ffffff'
+                      : '#1a202c',
+                    fontFamily: 'monospace'
+                  }}>
+                    {course.ikRoTrans || 'N/A'}
+                  </div>
                 </div>
-                <div style={{
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#ffffff'
-                    : '#1a202c'
-                }}>
-                  {course.ikRoTrans || 'N/A'}
+
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#94a3b8'
+                      : '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px'
+                  }}>
+                    Nr. Vehicul
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#ffffff'
+                      : '#1a202c'
+                  }}>
+                    {course.nrVehicul || 'N/A'}
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  COD DECLARANT
+              <div style={{ display: 'grid', gap: '12px', gridTemplateColumns: '1fr 1fr' }}>
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#94a3b8'
+                      : '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px'
+                  }}>
+                    Vama plecare
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#ffffff'
+                      : '#1a202c'
+                  }}>
+                    {course.vama || course.Vama || 'N/A'}
+                  </div>
                 </div>
-                <div style={{
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#ffffff'
-                    : '#1a202c'
-                }}>
-                  {course.codDeclarant || 'N/A'}
+
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#94a3b8'
+                      : '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px'
+                  }}>
+                    Vama sosire
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#ffffff'
+                      : '#1a202c'
+                  }}>
+                    {course.vamaStop || course.VamaStop || 'N/A'}
+                  </div>
                 </div>
               </div>
 
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  NR. VEHICUL
+              <div style={{ display: 'grid', gap: '12px', gridTemplateColumns: '1fr 1fr' }}>
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#94a3b8'
+                      : '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px'
+                  }}>
+                    Birou vamal plecare
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#ffffff'
+                      : '#1a202c'
+                  }}>
+                    {course.birouVamal || course.BirouVamal || 'N/A'}
+                  </div>
                 </div>
-                <div style={{
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#ffffff'
-                    : '#1a202c'
-                }}>
-                  {course.nrVehicul || 'N/A'}
-                </div>
-              </div>
 
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  VAMA PLECARE
-                </div>
-                <div style={{
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#ffffff'
-                    : '#1a202c'
-                }}>
-                  {course.vama || course.Vama || 'N/A'}
-                </div>
-              </div>
-
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  BIROU VAMAL PLECARE
-                </div>
-                <div style={{
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#ffffff'
-                    : '#1a202c'
-                }}>
-                  {course.birouVamal || course.BirouVamal || 'N/A'}
-                </div>
-              </div>
-
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  VAMA STOP
-                </div>
-                <div style={{
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#ffffff'
-                    : '#1a202c'
-                }}>
-                  {course.vamaStop || course.VamaStop || 'N/A'}
-                </div>
-              </div>
-
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  BIROU VAMAL STOP
-                </div>
-                <div style={{
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#ffffff'
-                    : '#1a202c'
-                }}>
-                  {course.birouVamalStop || course.BirouVamalStop || 'N/A'}
-                </div>
-              </div>
-
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#9ca3af'
-                    : '#6b7280',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  DENUMIRE LOC STOP
-                </div>
-                <div style={{
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                    ? '#ffffff'
-                    : '#1a202c'
-                }}>
-                  {course.denumireLocStop || 'N/A'}
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#94a3b8'
+                      : '#64748b',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px'
+                  }}>
+                    Birou vamal sosire
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+                      ? '#ffffff'
+                      : '#1a202c'
+                  }}>
+                    {course.birouVamalStop || course.BirouVamalStop || 'N/A'}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Bottom spacing */}
+        <div style={{ height: '20px' }}></div>
       </div>
     </div>
   );
