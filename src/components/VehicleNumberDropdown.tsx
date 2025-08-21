@@ -189,7 +189,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
         justifyContent: 'flex-start',
         zIndex: 1000,
         padding: '20px',
-        paddingTop: '10px', // MUTAT MULT MAI SUS pentru a fi vizibil
+        paddingTop: '5px', // MUTAT FOARTE SUS pentru tastatura
         paddingBottom: '20px',
         minHeight: '100vh',
         overflowY: 'auto'
@@ -239,7 +239,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
               width: 100%;
               position: relative;
               overflow: hidden;
-              margin-top: 0px;
+              margin-top: -20px; /* MUTAT MAI SUS pentru tastatura */
             }
             
             .input-container::before {
@@ -266,7 +266,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
               letterSpacing: 2px;
               textTransform: uppercase;
               transition: all 0.3s ease;
-              margin-bottom: 24px;
+              margin-bottom: 16px; /* REDUS pentru spatiu */
             }
 
             .vehicle-input:focus {
@@ -338,31 +338,31 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
           `}
         </style>
         
-        <div className="input-container">
-          {/* Header with Icon */}
+        <div className="input-container" style={{ marginTop: '-40px' }}>
+          {/* Header with Icon - COMPACT pentru tastatura */}
           <div style={{
             textAlign: 'center',
-            marginBottom: '12px'
+            marginBottom: '8px' // REDUS pentru spatiu
           }}>
             <div style={{
-              width: '60px',
-              height: '60px',
+              width: '40px', // REDUS
+              height: '40px', // REDUS
               background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-              borderRadius: '50%',
+              borderRadius: '12px', // REDUS
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 16px',
-              fontSize: '24px',
+              margin: '0 auto 8px', // REDUS
+              fontSize: '18px', // REDUS
               color: '#ffffff',
-              boxShadow: '0 6px 24px rgba(34, 197, 94, 0.3)'
+              boxShadow: '0 4px 16px rgba(34, 197, 94, 0.3)'
             }}>
               🚗
             </div>
             
             <h2 style={{
               color: themeColors.text,
-              fontSize: '22px',
+              fontSize: '18px', // REDUS
               fontWeight: '700',
               margin: 0,
               textAlign: 'center'
@@ -372,8 +372,8 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
             
             <p style={{
               color: currentTheme === 'light' ? 'rgba(100, 116, 139, 0.8)' : 'rgba(148, 163, 184, 0.8)',
-              fontSize: '13px',
-              margin: '8px 0 0',
+              fontSize: '12px', // REDUS
+              margin: '4px 0 0', // REDUS
               fontWeight: '500'
             }}>
               Introdu numărul de înmatriculare
