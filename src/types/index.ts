@@ -32,6 +32,7 @@ export interface Course {
   // API field variants (uppercase)
   Vama?: string;
   VamaStop?: string;
+  UIT?: string; // Uppercase variant for UIT field
 }
 
 export interface GPSPosition {

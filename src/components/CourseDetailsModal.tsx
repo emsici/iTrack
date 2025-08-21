@@ -200,88 +200,118 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           </div>
         </div>
 
-        {/* Content COMPACT ca AboutModal - STRUCTURĂ FEATURES */}
+        {/* SECȚIUNI COMPLETE CU TOATE DETALIILE */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {[
-            { 
-              icon: 'fas fa-map-marker-alt', 
-              title: 'Rută Transport', 
-              desc: `${course.denumireLocStart || course.BirouVamal || course.birouVamal || (course.vama !== 'Local' ? course.vama : course.Vama) || 'Nu este specificat'} → ${course.denumireLocStop || course.BirouVamalStop || course.birouVamalStop || (course.vamaStop !== 'Local' ? course.vamaStop : course.VamaStop) || 'Nu este specificată'}` 
-            },
-            { 
-              icon: 'fas fa-globe', 
-              title: 'Regiune', 
-              desc: `${course.Judet || course.judet || 'N/A'} → ${course.JudetStop || course.judetStop || 'N/A'}` 
-            },
-            { 
-              icon: 'fas fa-user', 
-              title: 'Declarant', 
-              desc: `${course.denumireDeclarant || 'Nu este specificat'} (${course.codDeclarant || 'N/A'})` 
-            },
-            { 
-              icon: 'fas fa-calendar', 
-              title: 'Data Transport', 
-              desc: course.dataTransport ? new Date(course.dataTransport).toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A' 
-            },
-            { 
-              icon: 'fas fa-truck', 
-              title: 'Vehicul', 
-              desc: `${course.nrVehicul || 'N/A'} - ID: ${course.ikRoTrans || 'N/A'}` 
-            },
-            { 
-              icon: 'fas fa-border-style', 
-              title: 'Vame', 
-              desc: `${course.vama || course.Vama || 'N/A'} → ${course.vamaStop || course.VamaStop || 'N/A'}` 
-            }
-          ].map((feature, index) => (
-            <div key={index} style={{
+          
+          {/* SECȚIUNEA 1: Identificare Transport */}
+          <div style={{
+            padding: '16px',
+            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+            borderRadius: '12px',
+            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            marginBottom: '12px'
+          }}>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '700',
+              color: currentTheme === 'dark' ? '#ffffff' : '#000000',
+              margin: '0 0 12px 0',
               display: 'flex',
-              alignItems: 'flex-start',
-              gap: '12px',
-              padding: '12px',
-              background: currentTheme === 'dark' 
-                ? 'rgba(30, 41, 59, 0.5)' 
-                : 'rgba(248, 250, 252, 0.8)',
-              borderRadius: '12px',
-              border: currentTheme === 'dark' 
-                ? '1px solid rgba(255, 255, 255, 0.1)' 
-                : '1px solid rgba(0, 0, 0, 0.1)'
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              <div style={{
-                width: '36px',
-                height: '36px',
-                background: 'linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '16px',
-                flexShrink: 0
-              }}>
-                <i className={feature.icon}></i>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <h4 style={{
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' ? '#ffffff' : '#000000',
-                  margin: '0 0 4px 0'
-                }}>
-                  {feature.title}
-                </h4>
-                <p style={{
-                  fontSize: '12px',
-                  color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                  margin: 0,
-                  lineHeight: '1.4',
-                  wordBreak: 'break-word'
-                }}>
-                  {feature.desc}
-                </p>
-              </div>
+              <i className="fas fa-id-card" style={{ color: '#0ea5e9' }}></i>
+              Identificare Transport
+            </h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '14px' }}>
+              <div><strong>ikRoTrans:</strong> {course.ikRoTrans || 'N/A'}</div>
+              <div><strong>UIT:</strong> {course.UIT || course.uit || 'N/A'}</div>
+              <div><strong>Număr Vehicul:</strong> {course.nrVehicul || 'N/A'}</div>
+              <div><strong>Data Transport:</strong> {course.dataTransport ? new Date(course.dataTransport).toLocaleDateString('ro-RO') : 'N/A'}</div>
             </div>
-          ))}
+          </div>
+
+          {/* SECȚIUNEA 2: Declarant */}
+          <div style={{
+            padding: '16px',
+            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+            borderRadius: '12px',
+            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            marginBottom: '12px'
+          }}>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '700',
+              color: currentTheme === 'dark' ? '#ffffff' : '#000000',
+              margin: '0 0 12px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <i className="fas fa-user-tie" style={{ color: '#0ea5e9' }}></i>
+              Informații Declarant
+            </h3>
+            <div style={{ fontSize: '14px' }}>
+              <div style={{ marginBottom: '8px' }}><strong>Cod Declarant:</strong> {course.codDeclarant || 'N/A'}</div>
+              <div><strong>Denumire Declarant:</strong> {course.denumireDeclarant || 'N/A'}</div>
+            </div>
+          </div>
+
+          {/* SECȚIUNEA 3: Locație Plecare */}
+          <div style={{
+            padding: '16px',
+            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+            borderRadius: '12px',
+            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            marginBottom: '12px'
+          }}>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '700',
+              color: currentTheme === 'dark' ? '#ffffff' : '#000000',
+              margin: '0 0 12px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <i className="fas fa-map-marker-alt" style={{ color: '#10b981' }}></i>
+              Locația de Plecare
+            </h3>
+            <div style={{ fontSize: '14px' }}>
+              <div style={{ marginBottom: '8px' }}><strong>Vamă:</strong> {course.Vama || course.vama || 'N/A'}</div>
+              <div style={{ marginBottom: '8px' }}><strong>Birou Vamal:</strong> {course.BirouVamal || course.birouVamal || 'N/A'}</div>
+              <div style={{ marginBottom: '8px' }}><strong>Județ:</strong> {course.Judet || course.judet || 'N/A'}</div>
+              <div><strong>Denumire Loc Start:</strong> {course.denumireLocStart || 'N/A'}</div>
+            </div>
+          </div>
+
+          {/* SECȚIUNEA 4: Locație Sosire */}
+          <div style={{
+            padding: '16px',
+            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+            borderRadius: '12px',
+            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            marginBottom: '12px'
+          }}>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '700',
+              color: currentTheme === 'dark' ? '#ffffff' : '#000000',
+              margin: '0 0 12px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <i className="fas fa-flag-checkered" style={{ color: '#ef4444' }}></i>
+              Locația de Sosire
+            </h3>
+            <div style={{ fontSize: '14px' }}>
+              <div style={{ marginBottom: '8px' }}><strong>Vamă Stop:</strong> {course.VamaStop || course.vamaStop || 'N/A'}</div>
+              <div style={{ marginBottom: '8px' }}><strong>Birou Vamal Stop:</strong> {course.BirouVamalStop || course.birouVamalStop || 'N/A'}</div>
+              <div style={{ marginBottom: '8px' }}><strong>Județ Stop:</strong> {course.JudetStop || course.judetStop || 'N/A'}</div>
+              <div><strong>Denumire Loc Stop:</strong> {course.denumireLocStop || 'N/A'}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
