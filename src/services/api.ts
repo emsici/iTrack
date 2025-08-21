@@ -204,6 +204,14 @@ const performVehicleCoursesRequest = async (
 
     console.log("API Response Status:", response.status);
     console.log("API Response Data:", JSON.stringify(response.data, null, 2));
+    
+    // DEBUG LOGGING pentru status-uri primite de la server
+    if (response.data?.data?.length > 0) {
+      console.log("🔍 === STATUS ANALYSIS ===");
+      response.data.data.forEach((course: any, index: number) => {
+        console.log(`📋 Course ${index}: ikRoTrans=${course.ikRoTrans}, serverStatus=${course.status || 'UNDEFINED'}, UIT=${course.UIT || course.uit}`);
+      });
+    }
     logAPI(
       `API response: status=${response.status}, data=${JSON.stringify(response.data)}`,
     );
@@ -232,7 +240,7 @@ const performVehicleCoursesRequest = async (
               departure_time: null,
               arrival_time: null,
               description: course.denumireDeclarant,
-              status: 1,
+              status: course.status || 1, // Folosește status-ul de la server sau 1 ca default
               uit: course.UIT || course.uit || `UIT_${course.ikRoTrans}`, // Fallback pentru cazuri când UIT lipsește
               ikRoTrans: course.ikRoTrans,
               codDeclarant: course.codDeclarant,
