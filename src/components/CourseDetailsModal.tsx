@@ -200,429 +200,88 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           </div>
         </div>
 
-        {/* Content cu EXACT aceeași structură ca AboutModal */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '8px',
-          padding: '8px',
-          background: currentTheme === 'dark' 
-            ? 'rgba(30, 41, 59, 0.5)' 
-            : 'rgba(248, 250, 252, 0.8)',
-          borderRadius: '12px',
-          border: currentTheme === 'dark' 
-            ? '1px solid rgba(255, 255, 255, 0.1)' 
-            : '1px solid rgba(0, 0, 0, 0.1)',
-          marginBottom: '16px'
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            width: '40px',
-            height: '40px',
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '18px',
-            flexShrink: 0
-          }}>
-            📍
-          </div>
-          <div style={{ flex: 1 }}>
-            <h3 style={{
-              fontSize: '16px',
-              fontWeight: '600',
-              color: currentTheme === 'dark' ? '#ffffff' : '#000000',
-              margin: '0 0 8px 0'
+        {/* Content COMPACT ca AboutModal - STRUCTURĂ FEATURES */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {[
+            { 
+              icon: 'fas fa-map-marker-alt', 
+              title: 'Rută Transport', 
+              desc: `${course.denumireLocStart || course.BirouVamal || course.birouVamal || (course.vama !== 'Local' ? course.vama : course.Vama) || 'Nu este specificat'} → ${course.denumireLocStop || course.BirouVamalStop || course.birouVamalStop || (course.vamaStop !== 'Local' ? course.vamaStop : course.VamaStop) || 'Nu este specificată'}` 
+            },
+            { 
+              icon: 'fas fa-globe', 
+              title: 'Regiune', 
+              desc: `${course.Judet || course.judet || 'N/A'} → ${course.JudetStop || course.judetStop || 'N/A'}` 
+            },
+            { 
+              icon: 'fas fa-user', 
+              title: 'Declarant', 
+              desc: `${course.denumireDeclarant || 'Nu este specificat'} (${course.codDeclarant || 'N/A'})` 
+            },
+            { 
+              icon: 'fas fa-calendar', 
+              title: 'Data Transport', 
+              desc: course.dataTransport ? new Date(course.dataTransport).toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A' 
+            },
+            { 
+              icon: 'fas fa-truck', 
+              title: 'Vehicul', 
+              desc: `${course.nrVehicul || 'N/A'} - ID: ${course.ikRoTrans || 'N/A'}` 
+            },
+            { 
+              icon: 'fas fa-border-style', 
+              title: 'Vame', 
+              desc: `${course.vama || course.Vama || 'N/A'} → ${course.vamaStop || course.VamaStop || 'N/A'}` 
+            }
+          ].map((feature, index) => (
+            <div key={index} style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              padding: '12px',
+              background: currentTheme === 'dark' 
+                ? 'rgba(30, 41, 59, 0.5)' 
+                : 'rgba(248, 250, 252, 0.8)',
+              borderRadius: '12px',
+              border: currentTheme === 'dark' 
+                ? '1px solid rgba(255, 255, 255, 0.1)' 
+                : '1px solid rgba(0, 0, 0, 0.1)'
             }}>
-              Locații Transport
-            </h3>
-            <div style={{
-              display: 'grid',
-              gap: '8px'
-            }}>
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  PLECARE
-                </div>
-                <div style={{
-                  fontSize: '13px',
-                  color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937',
-                  lineHeight: '1.4'
-                }}>
-                  {course.denumireLocStart || course.BirouVamal || course.birouVamal || (course.vama !== 'Local' ? course.vama : course.Vama) || 'Nu este specificat'}
-                </div>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                background: 'linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '16px',
+                flexShrink: 0
+              }}>
+                <i className={feature.icon}></i>
               </div>
-              <div>
-                <div style={{
-                  fontSize: '11px',
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h4 style={{
+                  fontSize: '14px',
                   fontWeight: '600',
+                  color: currentTheme === 'dark' ? '#ffffff' : '#000000',
+                  margin: '0 0 4px 0'
+                }}>
+                  {feature.title}
+                </h4>
+                <p style={{
+                  fontSize: '12px',
                   color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
+                  margin: 0,
+                  lineHeight: '1.4',
+                  wordBreak: 'break-word'
                 }}>
-                  SOSIRE
-                </div>
-                <div style={{
-                  fontSize: '13px',
-                  color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937',
-                  lineHeight: '1.4'
-                }}>
-                  {course.denumireLocStop || course.BirouVamalStop || course.birouVamalStop || (course.vamaStop !== 'Local' ? course.vamaStop : course.VamaStop) || 'Nu este specificată'}
-                </div>
+                  {feature.desc}
+                </p>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Informații Regionale */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '8px',
-          padding: '8px',
-          background: currentTheme === 'dark' 
-            ? 'rgba(30, 41, 59, 0.5)' 
-            : 'rgba(248, 250, 252, 0.8)',
-          borderRadius: '12px',
-          border: currentTheme === 'dark' 
-            ? '1px solid rgba(255, 255, 255, 0.1)' 
-            : '1px solid rgba(0, 0, 0, 0.1)',
-          marginBottom: '16px'
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-            width: '40px',
-            height: '40px',
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '18px',
-            flexShrink: 0
-          }}>
-            🗺️
-          </div>
-          <div style={{ flex: 1 }}>
-            <h3 style={{
-              fontSize: '16px',
-              fontWeight: '600',
-              color: currentTheme === 'dark' ? '#ffffff' : '#000000',
-              margin: '0 0 8px 0'
-            }}>
-              Informații Regionale
-            </h3>
-            <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: '1fr 1fr' }}>
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  JUDEȚ PLECARE
-                </div>
-                <div style={{
-                  fontSize: '13px',
-                  color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937'
-                }}>
-                  {course.Judet || course.judet || 'N/A'}
-                </div>
-              </div>
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  JUDEȚ SOSIRE
-                </div>
-                <div style={{
-                  fontSize: '13px',
-                  color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937'
-                }}>
-                  {course.JudetStop || course.judetStop || 'N/A'}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Informații Administrative */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '8px',
-          padding: '8px',
-          background: currentTheme === 'dark' 
-            ? 'rgba(30, 41, 59, 0.5)' 
-            : 'rgba(248, 250, 252, 0.8)',
-          borderRadius: '12px',
-          border: currentTheme === 'dark' 
-            ? '1px solid rgba(255, 255, 255, 0.1)' 
-            : '1px solid rgba(0, 0, 0, 0.1)',
-          marginBottom: '16px'
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-            width: '40px',
-            height: '40px',
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '18px',
-            flexShrink: 0
-          }}>
-            📋
-          </div>
-          <div style={{ flex: 1 }}>
-            <h3 style={{
-              fontSize: '16px',
-              fontWeight: '600',
-              color: currentTheme === 'dark' ? '#ffffff' : '#000000',
-              margin: '0 0 8px 0'
-            }}>
-              Informații Administrative
-            </h3>
-            <div style={{ display: 'grid', gap: '8px' }}>
-              <div>
-                <div style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  marginBottom: '2px'
-                }}>
-                  DECLARANT
-                </div>
-                <div style={{
-                  fontSize: '13px',
-                  color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937'
-                }}>
-                  {course.denumireDeclarant || 'Nu este specificat'}
-                </div>
-              </div>
-              <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: '1fr 1fr' }}>
-                <div>
-                  <div style={{
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    marginBottom: '2px'
-                  }}>
-                    COD DECLARANT
-                  </div>
-                  <div style={{
-                    fontSize: '13px',
-                    color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937'
-                  }}>
-                    {course.codDeclarant || 'N/A'}
-                  </div>
-                </div>
-                <div>
-                  <div style={{
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    marginBottom: '2px'
-                  }}>
-                    DATA TRANSPORT
-                  </div>
-                  <div style={{
-                    fontSize: '13px',
-                    color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937'
-                  }}>
-                    {course.dataTransport ? 
-                      new Date(course.dataTransport).toLocaleDateString('ro-RO', {
-                        day: '2-digit',
-                        month: '2-digit', 
-                        year: 'numeric'
-                      }) : 'N/A'
-                    }
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Informații Tehnice */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '8px',
-          padding: '8px',
-          background: currentTheme === 'dark' 
-            ? 'rgba(30, 41, 59, 0.5)' 
-            : 'rgba(248, 250, 252, 0.8)',
-          borderRadius: '12px',
-          border: currentTheme === 'dark' 
-            ? '1px solid rgba(255, 255, 255, 0.1)' 
-            : '1px solid rgba(0, 0, 0, 0.1)'
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-            width: '40px',
-            height: '40px',
-            borderRadius: '10px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '18px',
-            flexShrink: 0
-          }}>
-            ⚙️
-          </div>
-          <div style={{ flex: 1 }}>
-            <h3 style={{
-              fontSize: '16px',
-              fontWeight: '600',
-              color: currentTheme === 'dark' ? '#ffffff' : '#000000',
-              margin: '0 0 8px 0'
-            }}>
-              Informații Tehnice Complete
-            </h3>
-            <div style={{ display: 'grid', gap: '6px' }}>
-              <div style={{ display: 'grid', gap: '6px', gridTemplateColumns: '1fr 1fr' }}>
-                <div>
-                  <div style={{
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    marginBottom: '1px'
-                  }}>
-                    ID TRANSPORT
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937',
-                    fontFamily: 'monospace'
-                  }}>
-                    {course.ikRoTrans || 'N/A'}
-                  </div>
-                </div>
-                <div>
-                  <div style={{
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    marginBottom: '1px'
-                  }}>
-                    NR. VEHICUL
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937'
-                  }}>
-                    {course.nrVehicul || 'N/A'}
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: 'grid', gap: '6px', gridTemplateColumns: '1fr 1fr' }}>
-                <div>
-                  <div style={{
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    marginBottom: '1px'
-                  }}>
-                    VAMA PLECARE
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937'
-                  }}>
-                    {course.vama || course.Vama || 'N/A'}
-                  </div>
-                </div>
-                <div>
-                  <div style={{
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    marginBottom: '1px'
-                  }}>
-                    VAMA SOSIRE
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937'
-                  }}>
-                    {course.vamaStop || course.VamaStop || 'N/A'}
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: 'grid', gap: '6px', gridTemplateColumns: '1fr 1fr' }}>
-                <div>
-                  <div style={{
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    marginBottom: '1px'
-                  }}>
-                    BIROU VAMAL PLECARE
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937'
-                  }}>
-                    {course.birouVamal || course.BirouVamal || 'N/A'}
-                  </div>
-                </div>
-                <div>
-                  <div style={{
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    color: currentTheme === 'dark' ? '#94a3b8' : '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    marginBottom: '1px'
-                  }}>
-                    BIROU VAMAL SOSIRE
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: currentTheme === 'dark' ? '#e2e8f0' : '#1f2937'
-                  }}>
-                    {course.birouVamalStop || course.BirouVamalStop || 'N/A'}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
