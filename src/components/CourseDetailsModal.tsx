@@ -129,13 +129,13 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
         bottom: 0,
         backgroundColor: themeColors.backdrop,
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
-        zIndex: 9999,
-        padding: '20px',
+        zIndex: 1000,
+        padding: '40px 20px 20px 20px',
         backdropFilter: 'blur(4px)',
-        /* PREVENT BODY SCROLL când modal e deschis */
-        overflow: 'hidden'
+        overflowY: 'auto',
+        overflowX: 'hidden'
       }}
       onClick={onClose}
     >
@@ -143,38 +143,42 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
         style={{
           backgroundColor: themeColors.modalBg,
           borderRadius: '16px',
-          maxWidth: '500px',
+          maxWidth: '480px',
           width: '100%',
-          maxHeight: '85vh',
-          overflowY: 'auto',
+          minHeight: 'auto',
+          maxHeight: 'none',
+          overflowY: 'visible',
           overflowX: 'hidden',
           border: `1px solid ${themeColors.border}`,
           boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
-          /* SMOOTH SCROLL ca la Info Aplicație */
-          scrollBehavior: 'smooth',
-          /* WEBKIT SCROLL STYLING */
-          WebkitOverflowScrolling: 'touch'
+          margin: 'auto',
+          position: 'relative'
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* CUSTOM SCROLLBAR STYLING ca la Info Aplicație */}
+        {/* STYLING IDENTIC CU INFO APLICAȚIE */}
         <style>{`
-          /* WEBKIT SCROLLBAR STYLING */
-          div[style*="overflowY: auto"]::-webkit-scrollbar {
+          .modal-content-scroll {
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            overflow-x: hidden;
+          }
+          
+          .modal-content-scroll::-webkit-scrollbar {
             width: 6px;
           }
           
-          div[style*="overflowY: auto"]::-webkit-scrollbar-track {
+          .modal-content-scroll::-webkit-scrollbar-track {
             background: ${currentTheme === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)'};
             border-radius: 3px;
           }
           
-          div[style*="overflowY: auto"]::-webkit-scrollbar-thumb {
+          .modal-content-scroll::-webkit-scrollbar-thumb {
             background: ${currentTheme === 'light' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)'};
             border-radius: 3px;
           }
           
-          div[style*="overflowY: auto"]::-webkit-scrollbar-thumb:hover {
+          .modal-content-scroll::-webkit-scrollbar-thumb:hover {
             background: ${currentTheme === 'light' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.5)'};
           }
         `}</style>
@@ -250,8 +254,8 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           </div>
         </div>
 
-        {/* Content */}
-        <div style={{ padding: '24px' }}>
+        {/* Content cu scroll separat */}
+        <div className="modal-content-scroll" style={{ padding: '24px' }}>
           {/* Informații de bază */}
           <div style={{
             display: 'grid',
