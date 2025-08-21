@@ -234,12 +234,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .uit-priority {
           color: ${
             currentTheme === 'dark' ? '#ffffff' :
-            currentTheme === 'light' ? '#000000' :
+            currentTheme === 'light' ? '#000000' :  /* PURE BLACK pentru Light theme */
             currentTheme === 'business' ? '#1e293b' :
             currentTheme === 'driver' ? '#ffffff' :
             currentTheme === 'nature' ? '#ffffff' :
             currentTheme === 'night' ? '#ffffff' :
-            '#ffffff'
+            '#000000'  /* Default la BLACK în loc de WHITE */
           };
           font-size: 1rem;
           font-weight: 600;
@@ -267,12 +267,12 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           };
           color: ${
             currentTheme === 'dark' ? '#ffffff' :
-            currentTheme === 'light' ? '#000000' :
+            currentTheme === 'light' ? '#000000' :  /* PURE BLACK pentru Light theme */
             currentTheme === 'business' ? '#1e293b' :
             currentTheme === 'driver' ? '#ffffff' :
             currentTheme === 'nature' ? '#ffffff' :
             currentTheme === 'night' ? '#ffffff' :
-            '#000000'
+            '#000000'  /* Default la BLACK */
           };
           padding: 8px 16px;
           border-radius: 8px;
@@ -344,7 +344,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .preview-label {
           color: ${currentTheme === 'light' 
-            ? '#1e293b'  /* Dark text for Light theme */
+            ? '#000000'  /* PURE BLACK pentru Light theme - contrast maxim */
             : currentTheme === 'business'
               ? '#000000'  /* BLACK text for Business theme */
               : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
@@ -513,7 +513,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .detail-label-enhanced {
           color: ${currentTheme === 'light' 
-            ? '#1e293b'  /* Dark text for Light theme */
+            ? '#000000'  /* PURE BLACK pentru Light theme - contrast maxim */
             : currentTheme === 'business'
               ? '#000000'  /* BLACK text for Business theme */
               : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
