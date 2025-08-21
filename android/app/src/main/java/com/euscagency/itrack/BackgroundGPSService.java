@@ -214,8 +214,11 @@ public class BackgroundGPSService extends Service {
                     }
                 } else if (newStatus == 3) { // PAUSE
                     courseData.status = 3;
-                    Log.e(TAG, "PAUSE: UIT " + specificUIT + " - status setat pe PAUSE");
+                    Log.e(TAG, "PAUSE: UIT " + specificUIT + " - status setat pe PAUSE (GPS va fi OPRIT pentru această cursă)");
                     sendStatusUpdateToServer(newStatus, uniqueKeyForUpdate);
+                    
+                    // DEBUG: Verifică dacă status-ul s-a actualizat corect
+                    Log.e(TAG, "🔍 VERIFY PAUSE: courseData.status = " + courseData.status + " pentru UIT " + specificUIT);
                     
                     // CRITICAL: Verifică dacă mai există curse active după PAUSE
                     int activeCourseCount = 0;
@@ -737,6 +740,7 @@ public class BackgroundGPSService extends Service {
                 
                 // Doar cursele ACTIVE (status 2) pot transmite GPS data
                 if (courseData.status != 2) {
+                    Log.e(TAG, "⚠️ SKIPPING transmission pentru UIT " + courseData.realUit + " - Status: " + courseData.status + " (nu este ACTIVE)");
                     continue; // Skip GPS transmission pentru PAUSE/STOP
                 }
                 
