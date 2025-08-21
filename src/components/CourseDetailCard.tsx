@@ -167,7 +167,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .course-card-compact {
           background: ${
             currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 
-            currentTheme === 'light' ? 'rgba(255, 255, 255, 0.98)' :
+            currentTheme === 'light' ? 'rgba(255, 255, 255, 0.98)' :  /* CONTRAST OK - alb pentru light */
             currentTheme === 'business' ? 'rgba(248, 250, 252, 0.95)' :
             currentTheme === 'driver' ? 'rgba(28, 25, 23, 0.85)' :
             currentTheme === 'nature' ? 'rgba(6, 78, 59, 0.85)' :
@@ -177,7 +177,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           /* ELIMINAT backdrop-filter pentru ZERO lag la scroll - păstrează design-ul cu opacitate mărită */
           border: ${
             currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : 
-            currentTheme === 'light' ? '1px solid rgba(148, 163, 184, 0.2)' :
+            currentTheme === 'light' ? '1px solid rgba(100, 116, 139, 0.3)' :  /* CONTRAST FIX: border mai vizibil */
             currentTheme === 'business' ? '1px solid rgba(59, 130, 246, 0.2)' :
             currentTheme === 'driver' ? '1px solid rgba(249, 115, 22, 0.3)' :
             currentTheme === 'nature' ? '1px solid rgba(16, 185, 129, 0.3)' :
@@ -189,7 +189,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           margin: 0 auto 16px auto;
           overflow: visible;
           transition: transform 0.2s ease, box-shadow 0.2s ease;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+          box-shadow: ${currentTheme === 'light' 
+            ? '0 4px 16px rgba(0, 0, 0, 0.1)'  /* CONTRAST FIX: shadow mai ușor pentru light theme */
+            : '0 4px 16px rgba(0, 0, 0, 0.2)'
+          };
           position: relative;
           width: 96%;
           max-width: 96%;
@@ -246,21 +249,21 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         .toggle-details-btn {
           background: ${
             currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' :
-            currentTheme === 'light' ? 'rgba(241, 245, 249, 0.9)' :
+            currentTheme === 'light' ? 'rgba(226, 232, 240, 0.9)' :  /* CONTRAST FIX: background mai închis pentru light */
             currentTheme === 'business' ? 'rgba(59, 130, 246, 0.1)' :
             currentTheme === 'driver' ? 'rgba(249, 115, 22, 0.2)' :
             currentTheme === 'nature' ? 'rgba(16, 185, 129, 0.2)' :
             currentTheme === 'night' ? 'rgba(139, 92, 246, 0.2)' :
-            'rgba(241, 245, 249, 0.9)'
+            'rgba(226, 232, 240, 0.9)'
           };
           border: ${
             currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' :
-            currentTheme === 'light' ? '1px solid rgba(148, 163, 184, 0.25)' :
+            currentTheme === 'light' ? '1px solid rgba(100, 116, 139, 0.4)' :  /* CONTRAST FIX: border mai vizibil pentru light */
             currentTheme === 'business' ? '1px solid rgba(59, 130, 246, 0.3)' :
             currentTheme === 'driver' ? '1px solid rgba(249, 115, 22, 0.4)' :
             currentTheme === 'nature' ? '1px solid rgba(16, 185, 129, 0.4)' :
             currentTheme === 'night' ? '1px solid rgba(139, 92, 246, 0.4)' :
-            '1px solid rgba(148, 163, 184, 0.25)'
+            '1px solid rgba(100, 116, 139, 0.4)'
           };
           color: ${
             currentTheme === 'dark' ? '#ffffff' :
@@ -286,10 +289,10 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .toggle-details-btn:hover {
-          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(226, 232, 240, 0.9)'};
+          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(203, 213, 225, 1.0)'};  /* CONTRAST FIX: hover mai vizibil */
           color: ${currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'night'
             ? '#ffffff'  /* WHITE text for Dark/Driver/Night themes only */
-            : '#000000'  /* BLACK text for Light/Business/Nature themes */
+            : '#1e293b'  /* CONTRAST FIX: text mai închis pentru light theme */
           };
           transform: scale(1.02);
         }
@@ -310,10 +313,16 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .course-preview {
           margin-bottom: 16px;
-          background: ${currentTheme === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(248, 250, 252, 0.8)'};
+          background: ${currentTheme === 'dark' 
+            ? 'rgba(255, 255, 255, 0.03)' 
+            : 'rgba(241, 245, 249, 0.9)'  /* CONTRAST FIX: background mai închis pentru light theme */
+          };
           border-radius: 12px;
           padding: 16px;
-          border: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(203, 213, 225, 0.4)'};
+          border: ${currentTheme === 'dark' 
+            ? '1px solid rgba(255, 255, 255, 0.08)' 
+            : '1px solid rgba(148, 163, 184, 0.3)'  /* CONTRAST FIX: border mai vizibil */
+          };
           width: 100%;
           box-sizing: border-box;
         }
@@ -323,7 +332,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           flex-direction: column;
           gap: 8px;
           padding: 12px 0;
-          border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(203, 213, 225, 0.3)'};
+          border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(148, 163, 184, 0.4)'}; /* CONTRAST FIX */
           min-height: 50px;
           width: 100%;
           align-items: flex-start;
@@ -487,7 +496,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           flex-direction: column;
           gap: 8px;
           padding: 16px 0;
-          border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(203, 213, 225, 0.2)'};
+          border-bottom: ${currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.05)' : '1px solid rgba(148, 163, 184, 0.3)'}; /* CONTRAST FIX */
           align-items: flex-start;
           width: 100%;
           box-sizing: border-box;
