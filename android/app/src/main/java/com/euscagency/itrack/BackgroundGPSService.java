@@ -239,12 +239,17 @@ public class BackgroundGPSService extends Service {
                 } else if (newStatus == 4) { // STOP
                     sendStatusUpdateToServer(newStatus, uniqueKeyForUpdate);
                     activeCourses.remove(uniqueKeyForUpdate);
-                    Log.e(TAG, "STOP: UIT " + specificUIT + " eliminat din tracking");
+                    Log.e(TAG, "STOP: UIT " + specificUIT + " eliminat COMPLET din tracking (GPS va fi OPRIT pentru această cursă)");
+                    
+                    // DEBUG: Verifică câte curse mai rămân active
+                    Log.e(TAG, "🔍 VERIFY STOP: Curse rămase: " + activeCourses.size());
                     
                     // Dacă nu mai sunt curse active, oprește GPS complet
                     if (activeCourses.isEmpty()) {
-                        Log.e(TAG, "Nu mai sunt curse active - opresc GPS complet");
+                        Log.e(TAG, "🛑 TOATE cursele STOP - opresc GPS complet!");
                         stopBackgroundGPS();
+                    } else {
+                        Log.e(TAG, "⚡ GPS continuă pentru " + activeCourses.size() + " curse rămase");
                     }
                 }
             } else {
@@ -768,7 +773,9 @@ public class BackgroundGPSService extends Service {
             }
             
             if (coursesTransmitting > 0) {
-                Log.e(TAG, "GPS transmis pentru " + coursesTransmitting + " curse active");
+                Log.e(TAG, "✅ === GPS TRANSMISSION SUMMARY === GPS transmis pentru " + coursesTransmitting + " curse ACTIVE din " + activeCourses.size() + " total");
+            } else {
+                Log.e(TAG, "⚠️ === NO GPS TRANSMISSION === Nicio cursă ACTIVE pentru transmisie (toate în PAUSE/STOP) din " + activeCourses.size() + " total");
             }
             
         } catch (Exception e) {
