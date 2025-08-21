@@ -49,9 +49,9 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
         zIndex: 999999,
         backdropFilter: 'blur(10px)',
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         justifyContent: 'center',
-        paddingTop: '40px',
+        padding: '20px',
         boxSizing: 'border-box'
       }}>
       <div 
@@ -59,7 +59,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
         style={{
           width: 'calc(100% - 40px)',
           maxWidth: '500px',
-          maxHeight: 'calc(100vh - 80px)',
+          maxHeight: 'calc(100vh - 40px)',
           background: currentTheme === 'dark' 
             ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%)'
             : currentTheme === 'light'
