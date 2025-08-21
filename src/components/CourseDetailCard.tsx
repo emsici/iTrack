@@ -7,6 +7,7 @@ import CourseDetailsModal from './CourseDetailsModal';
 interface CourseDetailCardProps {
   course: Course;
   onStatusUpdate: (courseId: string, courseUit: string, newStatus: number, action?: string) => void;
+  onDetailsClick?: (course: Course) => void;
   isLoading: boolean;
   currentTheme?: string;
 }
@@ -14,6 +15,7 @@ interface CourseDetailCardProps {
 const CourseDetailCard: React.FC<CourseDetailCardProps> = ({ 
   course, 
   onStatusUpdate,
+  onDetailsClick,
   isLoading,
   currentTheme = 'dark'
 }) => {
@@ -495,7 +497,13 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       {/* BUTON FRUMOS PENTRU MODAL */}
       <button 
         className="details-button"
-        onClick={() => setShowDetailsModal(true)}
+        onClick={() => {
+          if (onDetailsClick) {
+            onDetailsClick(course);
+          } else {
+            setShowDetailsModal(true);
+          }
+        }}
       >
         <i className="fas fa-info-circle"></i>
         📋 Detalii Complete
