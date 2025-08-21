@@ -341,6 +341,208 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                 }
               </div>
             </div>
+
+            {/* SECȚIUNE INFORMAȚII COMPLETE TRANSPORT */}
+            <div style={{
+              borderTop: `1px solid ${themeColors.border}`,
+              paddingTop: '16px',
+              marginTop: '16px'
+            }}>
+              <div style={{
+                fontSize: '14px',
+                fontWeight: '700',
+                color: themeColors.text,
+                marginBottom: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <i className="fas fa-info-circle"></i>
+                Informații Complete Transport
+              </div>
+
+              <div style={{ display: 'grid', gap: '12px' }}>
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: themeColors.subText,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '2px'
+                  }}>
+                    ID TRANSPORT (ikRoTrans)
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: themeColors.text
+                  }}>
+                    {course.ikRoTrans || 'N/A'}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: themeColors.subText,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '2px'
+                  }}>
+                    COD DECLARANT
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: themeColors.text
+                  }}>
+                    {course.codDeclarant || 'N/A'}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: themeColors.subText,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '2px'
+                  }}>
+                    NR. VEHICUL
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: themeColors.text
+                  }}>
+                    {course.nrVehicul || 'N/A'}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: themeColors.subText,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '2px'
+                  }}>
+                    VAMA PLECARE
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: themeColors.text
+                  }}>
+                    {course.vama || course.Vama || 'N/A'}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: themeColors.subText,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '2px'
+                  }}>
+                    BIROU VAMAL PLECARE
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: themeColors.text
+                  }}>
+                    {course.birouVamal || course.BirouVamal || 'N/A'}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: themeColors.subText,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '2px'
+                  }}>
+                    DENUMIRE LOC START
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: themeColors.text
+                  }}>
+                    {course.denumireLocStart || 'N/A'}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: themeColors.subText,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '2px'
+                  }}>
+                    VAMA STOP
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: themeColors.text
+                  }}>
+                    {course.vamaStop || course.VamaStop || 'N/A'}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: themeColors.subText,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '2px'
+                  }}>
+                    BIROU VAMAL STOP
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: themeColors.text
+                  }}>
+                    {course.birouVamalStop || course.BirouVamalStop || 'N/A'}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: '600',
+                    color: themeColors.subText,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '2px'
+                  }}>
+                    DENUMIRE LOC STOP
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: themeColors.text
+                  }}>
+                    {course.denumireLocStop || 'N/A'}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
