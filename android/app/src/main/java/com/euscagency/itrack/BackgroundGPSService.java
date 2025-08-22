@@ -132,7 +132,10 @@ public class BackgroundGPSService extends Service {
             int courseStatus = intent.getIntExtra("status", 2); // Default ACTIVE
             
             // CRITICAL: Creează key unic pentru HashMap pentru a evita conflictul între mașini
-            String uniqueKey = globalVehicle + "_" + uitId; // Vehicul + ikRoTrans = key unic
+            // CONFLICT PREVENTION: Adăugăm și token-ul pentru a evita conflictele între utilizatori
+            String deviceId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+            String tokenHash = String.valueOf(Math.abs(globalToken.hashCode())); // Hash token pentru unicitate
+            String uniqueKey = globalVehicle + "_" + uitId + "_" + deviceId.substring(0, Math.min(8, deviceId.length())) + "_" + tokenHash.substring(0, Math.min(8, tokenHash.length())); // Vehicul + UIT + Device + Token = key COMPLET unic
             
             Log.e(TAG, "⚡ MULTI-VEHICLE MULTI-COURSE - Adăugare cursă:");
             Log.e(TAG, "   ikRoTrans original: " + uitId);

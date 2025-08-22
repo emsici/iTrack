@@ -129,7 +129,11 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
   if (window.AndroidGPS && window.AndroidGPS.startGPS) {
     console.log("GPS Android pornit pentru cursă");
     
-    const ikRoTransKey = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
+    // CONFLICT PREVENTION: Identificator complet unic pentru a evita conflictele între utilizatori
+    const baseKey = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
+    // Hash simplu pentru token în JavaScript
+    const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
+    const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`; // UIT + Vehicul + Token = identificator COMPLET unic
     
     const result = window.AndroidGPS.startGPS(
       ikRoTransKey,
