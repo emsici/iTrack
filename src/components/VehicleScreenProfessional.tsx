@@ -91,17 +91,17 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
     
     if (response.status >= 200 && response.status < 300) {
       console.log(`Status actualizat cu succes pentru cursă ${courseId}`);
-      logAPI('Status actualizat', { courseId, newStatus, responseStatus: response.status });
+      logAPI('Status actualizat');
     } else {
       console.error(`Eroare actualizare status ${response.status}:`, response.data);
-      logAPI('Eroare status', { courseId, newStatus, responseStatus: response.status, error: response.data });
+      logAPI('Eroare status');
       throw new Error(`Actualizare status eșuată: ${response.status}`);
     }
     
   } catch (error) {
     console.error(`Eroare actualizare status pentru cursă ${courseId}:`, error);
-    logAPI('Eroare actualizare status', { courseId, newStatus, error: error.message });
-    throw error;
+    logAPI('Eroare actualizare status');
+    throw error as Error;
   }
 };
 
