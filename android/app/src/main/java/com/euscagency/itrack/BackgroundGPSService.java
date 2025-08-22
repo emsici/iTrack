@@ -175,56 +175,35 @@ public class BackgroundGPSService extends Service {
             String specificUIT = intent.getStringExtra("uit");
             String vehicleForUpdate = intent.getStringExtra("vehicle"); // Vehicul pentru status update
             
-            Log.e(TAG, "Status update: " + specificUIT + " → " + newStatus + " (vehicul: " + vehicleForUpdate + ")");
+            Log.i(TAG, "Actualizare status: " + specificUIT + " → " + newStatus);
             
-            // CRITICAL: Construiește key unic pentru găsirea cursei corecte
-            String uniqueKeyForUpdate = vehicleForUpdate + "_" + specificUIT;
-            Log.e(TAG, "🔍 Searching for course with unique key: " + uniqueKeyForUpdate);
+            // CRITICAL: Construiește key unic pentru găsirea cursei corecte  
+            // CRITICAL FIX: Trebuie să folosească ACEEAȘI logică ca la start pentru conflict prevention
+            String deviceId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+            String tokenHash = String.valueOf(Math.abs(globalToken.hashCode()));
+            String uniqueKeyForUpdate = vehicleForUpdate + "_" + specificUIT + "_" + deviceId.substring(0, Math.min(8, deviceId.length())) + "_" + tokenHash.substring(0, Math.min(8, tokenHash.length()));
+            Log.i(TAG, "Căutare cursă: " + uniqueKeyForUpdate);
             
             CourseData courseData = activeCourses.get(uniqueKeyForUpdate);
             if (courseData != null) {
                 int oldStatus = courseData.status;
-                Log.e(TAG, "Updating course status: " + oldStatus + " → " + newStatus + " pentru UIT: " + specificUIT);
+                Log.i(TAG, "Status: " + oldStatus + " → " + newStatus + " pentru " + specificUIT);
                 
                 if (newStatus == 2) { // ACTIVE/RESUME
                     courseData.status = 2;
-                    Log.e(TAG, "RESUME: UIT " + specificUIT + " reactivat cu STATUS 2");
+                    Log.i(TAG, "GPS reactivat pentru " + specificUIT);
                     
-                    // CRITICAL DEBUG: Verifică status după setare
-                    Log.e(TAG, "🔍 VERIFY: courseData.status după resume = " + courseData.status);
-                    
-                    // CRITICAL FIX: NU trimite status la server din Android - JavaScript deja a trimis!
-                    Log.e(TAG, "🚫 SKIP server status update - JavaScript updateCourseStatus already sent status 2 to server pentru " + specificUIT);
-                    
-                    // CRITICAL FIX: GPS trebuie să continue pentru cursa resumed
                     if (!isGPSRunning) {
-                        Log.e(TAG, "🚀 Starting GPS service pentru RESUME");
+                        Log.i(TAG, "Pornesc GPS pentru resume");
                         startBackgroundGPS();
                     } else {
-                        Log.e(TAG, "⚡ GPS service deja activ - asigur continuitate pentru " + specificUIT);
-                        Log.e(TAG, "📡 ScheduledExecutorService va include automat cursul resumed în următorul ciclu de 10s");
-                        
-                        // CRITICAL DEBUG: Verifică toate cursele și statusurile lor
-                        Log.e(TAG, "📊 === STATUS CHECK DUPĂ RESUME ===");
-                        int activeCount = 0;
-                        for (java.util.Map.Entry<String, CourseData> debugEntry : activeCourses.entrySet()) {
-                            CourseData debugCourse = debugEntry.getValue();
-                            Log.e(TAG, "📋 Course: " + debugEntry.getKey() + " → Status: " + debugCourse.status);
-                            if (debugCourse.status == 2) activeCount++;
-                        }
-                        Log.e(TAG, "📊 Total ACTIVE courses după resume: " + activeCount + "/" + activeCourses.size());
+                        Log.i(TAG, "GPS deja activ - continuă pentru " + specificUIT);
                     }
                 } else if (newStatus == 3) { // PAUSE
                     courseData.status = 3;
-                    Log.e(TAG, "PAUSE: UIT " + specificUIT + " - status setat pe PAUSE (GPS va fi OPRIT pentru această cursă)");
+                    Log.i(TAG, "GPS în pauză pentru " + specificUIT);
                     
-                    // CRITICAL FIX: NU trimite status la server din Android - JavaScript deja a trimis!
-                    Log.e(TAG, "🚫 SKIP server status update - JavaScript updateCourseStatus already sent status 3 to server");
-                    
-                    // DEBUG: Verifică dacă status-ul s-a actualizat corect
-                    Log.e(TAG, "🔍 VERIFY PAUSE: courseData.status = " + courseData.status + " pentru UIT " + specificUIT);
-                    
-                    // CRITICAL: Verifică dacă mai există curse active după PAUSE
+                    // Verifică dacă mai există curse active
                     int activeCourseCount = 0;
                     for (CourseData course : activeCourses.values()) {
                         if (course.status == 2) {
@@ -232,13 +211,11 @@ public class BackgroundGPSService extends Service {
                         }
                     }
                     
-                    Log.e(TAG, "📊 După PAUSE - curse ACTIVE rămase: " + activeCourseCount + "/" + activeCourses.size());
-                    
                     if (activeCourseCount == 0) {
-                        Log.e(TAG, "🛑 TOATE cursele în PAUSE - opresc GPS complet!");
+                        Log.i(TAG, "Toate cursele în pauză - opresc GPS");
                         stopBackgroundGPS();
                     } else {
-                        Log.e(TAG, "⚡ GPS continuă pentru " + activeCourseCount + " curse ACTIVE rămase");
+                        Log.i(TAG, "GPS continuă pentru " + activeCourseCount + " curse active");
                     }
                 } else if (newStatus == 4) { // STOP
                     // CRITICAL FIX: NU trimite status la server din Android - JavaScript deja a trimis!
