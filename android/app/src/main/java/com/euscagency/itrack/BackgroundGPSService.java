@@ -683,8 +683,8 @@ public class BackgroundGPSService extends Service {
                 
                 // Pregătește datele GPS pentru această cursă
                 org.json.JSONObject gpsData = new org.json.JSONObject();
-                gpsData.put("uit", courseData.realUit);
-                gpsData.put("numar_inmatriculare", courseData.vehicleNumber);
+                gpsData.put("uit", courseData.realUit); // UIT real pentru server
+                gpsData.put("numar_inmatriculare", courseData.vehicleNumber); // Numărul vehiculului
                 gpsData.put("lat", location.getLatitude());
                 gpsData.put("lng", location.getLongitude());
                 gpsData.put("viteza", (int) (location.getSpeed() * 3.6));
@@ -696,6 +696,7 @@ public class BackgroundGPSService extends Service {
                 gpsData.put("status", courseData.status);
                 gpsData.put("timestamp", timestamp);
                 
+                // CRITICAL: Transmite folosind unique key pentru identificare locală, dar UIT real pentru server
                 transmitSingleCourseGPS(gpsData, uniqueKey, courseData.realUit);
             }
             
