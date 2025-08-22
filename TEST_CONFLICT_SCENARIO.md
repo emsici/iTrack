@@ -1,8 +1,8 @@
-# TEST CONFLICT SCENARIO - Doi șoferi, același vehicul
+# TEST CONFLICT SCENARIO - Doi numere de telefon (login), același vehicul
 
 ## Scenariul de test:
-- **Șofer 1:** Telefon Samsung, login cu cont A, vehicul AB123CD, cursă UIT 456789
-- **Șofer 2:** Telefon Huawei, login cu cont B, vehicul AB123CD, cursă UIT 456789
+- **Număr telefon 1:** 0721234567 (cont A), pe orice device, vehicul AB123CD, cursă UIT 456789
+- **Număr telefon 2:** 0723456789 (cont B), pe orice device, vehicul AB123CD, cursă UIT 456789
 
 ## Identificatori generați:
 
