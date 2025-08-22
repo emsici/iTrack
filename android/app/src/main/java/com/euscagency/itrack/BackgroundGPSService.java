@@ -616,36 +616,36 @@ public class BackgroundGPSService extends Service {
         }
         
         try {
-            // SYNC GPS SOLUTION: Get last known location IMMEDIATELY like dummy test worked
-            Log.e(TAG, "🔍 Getting IMMEDIATE GPS location (like dummy test)...");
+            // CRITICAL FIX: FORCE REAL-TIME GPS - NO cached/last known locations!
+            Log.e(TAG, "🎯 === FORCING REAL-TIME GPS COORDINATES ===");
+            Log.e(TAG, "🚫 SKIPPING getLastKnownLocation - causes OLD CACHED coordinates!");
+            Log.e(TAG, "📡 Requesting FRESH GPS coordinates from sensors...");
             
-            Location lastKnownLocation = getLastKnownLocation();
-            if (lastKnownLocation != null) {
-                Log.e(TAG, "✅ === IMMEDIATE GPS LOCATION ===");
-                Log.e(TAG, "📍 Coordinates: " + lastKnownLocation.getLatitude() + ", " + lastKnownLocation.getLongitude());
-                Log.e(TAG, "📐 Accuracy: " + lastKnownLocation.getAccuracy() + "m");
-                Log.e(TAG, "🕐 Age: " + (System.currentTimeMillis() - lastKnownLocation.getTime()) + "ms");
-                
-                sendLogToJavaScript("✅ IMMEDIATE GPS: " + lastKnownLocation.getLatitude() + ", " + lastKnownLocation.getLongitude());
-                
-                // IMMEDIATE TRANSMISSION like dummy test
-                transmitGPSDataToAllActiveCourses(lastKnownLocation);
-                
-                Log.e(TAG, "✅ === GPS CYCLE COMPLETED SUCCESSFULLY ===");
-                sendLogToJavaScript("✅ GPS cycle transmission completed");
-                return;
-            }
-            
-            // FALLBACK: Async GPS only if no last known location
-            Log.e(TAG, "⚠️ No last known location - trying async GPS...");
+            // DIRECT REAL-TIME GPS REQUEST - no cached data
             LocationListener listener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
                     try {
-                        Log.e(TAG, "✅ === ASYNC GPS LOCATION RECEIVED ===");
-                        Log.e(TAG, "📍 Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
+                        // VERIFICĂ VECHIMEA COORDONATELOR
+                        long locationAge = System.currentTimeMillis() - location.getTime();
                         
-                        sendLogToJavaScript("✅ ASYNC GPS: " + location.getLatitude() + ", " + location.getLongitude());
+                        Log.e(TAG, "🎯 === REAL-TIME GPS LOCATION RECEIVED ===");
+                        Log.e(TAG, "📍 FRESH Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
+                        Log.e(TAG, "📐 Accuracy: " + location.getAccuracy() + "m");
+                        Log.e(TAG, "🕐 Location Age: " + locationAge + "ms (FRESH=" + (locationAge < 30000) + ")");
+                        Log.e(TAG, "🛰️ Provider: " + location.getProvider());
+                        Log.e(TAG, "⚡ Speed: " + (location.getSpeed() * 3.6) + " km/h");
+                        
+                        sendLogToJavaScript("🎯 REAL-TIME GPS: " + location.getLatitude() + ", " + location.getLongitude() + " (Age: " + (locationAge/1000) + "s)");
+                        
+                        // CRITICAL: Verifică dacă coordonatele sunt REALE sau CACHED
+                        if (locationAge > 120000) { // 2 minute = prea vechi
+                            Log.e(TAG, "⚠️ WARNING: GPS coordinates sunt vechi (" + (locationAge/1000) + "s) - poate fi cached!");
+                            sendLogToJavaScript("⚠️ GPS coordinates may be CACHED - age: " + (locationAge/1000) + "s");
+                        } else {
+                            Log.e(TAG, "✅ GPS coordinates sunt FRESH și REAL-TIME!");
+                            sendLogToJavaScript("✅ GPS coordinates are REAL-TIME and FRESH!");
+                        }
                         
                         locationManager.removeUpdates(this);
                         transmitGPSDataToAllActiveCourses(location);
@@ -682,33 +682,33 @@ public class BackgroundGPSService extends Service {
                             (networkEnabled ? LocationManager.NETWORK_PROVIDER : null);
             
             if (provider != null) {
-                Log.e(TAG, "📡 Using provider: " + provider);
-                sendLogToJavaScript("📡 Using GPS provider: " + provider);
-                locationManager.requestLocationUpdates(provider, 0, 0, listener);
-                Log.e(TAG, "🛰️ GPS request sent to " + provider);
-                sendLogToJavaScript("🛰️ GPS request sent to " + provider);
+                Log.e(TAG, "🎯 Using REAL-TIME provider: " + provider);
+                sendLogToJavaScript("🎯 Using REAL-TIME GPS provider: " + provider);
                 
-                // Get last known location as immediate fallback
-                try {
-                    Location lastKnown = locationManager.getLastKnownLocation(provider);
-                    if (lastKnown != null) {
-                        Log.e(TAG, "📍 Last known location available: " + lastKnown.getLatitude() + ", " + lastKnown.getLongitude());
-                        // Dar totuși așteaptă locația proaspătă
-                    } else {
-                        Log.e(TAG, "📍 No last known location");
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Last known location error: " + e.getMessage());
-                }
+                // CRITICAL: Request FRESH coordinates with high accuracy
+                locationManager.requestLocationUpdates(
+                    provider, 
+                    0,    // minTime = 0 - get IMMEDIATE updates
+                    0,    // minDistance = 0 - get ALL position changes  
+                    listener
+                );
                 
-                // Simple timeout without handler complications
+                Log.e(TAG, "⚡ REAL-TIME GPS request sent to " + provider + " (NO cached data!)");
+                sendLogToJavaScript("⚡ REAL-TIME GPS request sent - waiting for FRESH coordinates...");
+                
+                // CRITICAL FIX: NU folosi lastKnownLocation - sunt coordonate VECHI!
+                Log.e(TAG, "🚫 SKIPPING lastKnownLocation check - causes OLD/CACHED coordinates!");
+                Log.e(TAG, "⏳ Waiting for REAL-TIME GPS response within 10 seconds...");
+                
+                // LONGER timeout for REAL-TIME GPS
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            Thread.sleep(8000);
+                            Thread.sleep(12000); // 12 seconds for real GPS fix
                             locationManager.removeUpdates(listener);
-                            Log.e(TAG, "⏰ GPS timeout after 8 seconds");
+                            Log.e(TAG, "⏰ REAL-TIME GPS timeout after 12 seconds - no fresh coordinates received");
+                            sendLogToJavaScript("⏰ GPS timeout - GPS may be disabled or no satellite signal");
                         } catch (Exception e) {
                             Log.e(TAG, "❌ Timeout error: " + e.getMessage());
                         }
