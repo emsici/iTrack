@@ -551,38 +551,29 @@ public class BackgroundGPSService extends Service {
     
     private void performGPSCycle() {
         String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-        Log.e(TAG, "🔄 === GPS CYCLE START [" + currentTime + "] ===");
-        Log.e(TAG, "📊 Active Courses: " + activeCourses.size() + ", Token: " + (globalToken != null ? "OK (" + globalToken.length() + " chars)" : "NULL"));
-        Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning + ", ScheduledExecutor: " + (gpsExecutor != null && !gpsExecutor.isShutdown()));
-        Log.e(TAG, "🔧 Service is ALIVE and EXECUTING at " + currentTime);
+        Log.i(TAG, "GPS ciclu început - " + activeCourses.size() + " curse");
         
-        // CRITICAL: Auto-restart mechanism în caz că ScheduledExecutorService este compromis
+        // Verifică dacă serviciul funcționează corect
         if (gpsExecutor == null || gpsExecutor.isShutdown()) {
-            Log.e(TAG, "🚨 CRITICA: ScheduledExecutorService este NULL sau SHUTDOWN - RESTART FORȚAT!");
-            sendLogToJavaScript("🚨 RESTART FORȚAT ScheduledExecutorService la " + currentTime);
-            
-            // Forțează restart complet
+            Log.e(TAG, "GPS service compromis - restart");
+            sendLogToJavaScript("GPS restart necesar");
             isGPSRunning = false;
             startBackgroundGPS();
             return;
         }
         
-        // Send Android log to JavaScript for debugging  
-        sendLogToJavaScript("🔄 GPS CYCLE EXECUTING [" + currentTime + "] - Active Courses: " + activeCourses.size());
+        sendLogToJavaScript("GPS ciclu activ - " + activeCourses.size() + " curse");
         
         if (activeCourses.isEmpty()) {
-            Log.e(TAG, "❌ GPS cycle skipped - NO ACTIVE COURSES (size: " + activeCourses.size() + ")");
-            sendLogToJavaScript("❌ GPS cycle skipped - no active courses");
             return;
         }
         
         if (globalToken == null) {
-            Log.e(TAG, "❌ GPS cycle skipped - NO TOKEN available");
-            sendLogToJavaScript("❌ GPS cycle skipped - missing token");
+            sendLogToJavaScript("Eroare: Token lipsă");
             return;
         }
         
-        // VERIFICĂ dacă există cel puțin o cursă cu status 2 (ACTIVE) înainte de a continua
+        // Numără cursele active
         int activeCourseCount = 0;
         for (CourseData course : activeCourses.values()) {
             if (course.status == 2) {
@@ -591,131 +582,90 @@ public class BackgroundGPSService extends Service {
         }
         
         if (activeCourseCount == 0) {
-            Log.e(TAG, "⚠️ GPS cycle SKIPPED - No ACTIVE courses (toate sunt PAUSE/STOP)");
-            Log.e(TAG, "📊 Total courses: " + activeCourses.size() + ", Active courses: " + activeCourseCount);
-            sendLogToJavaScript("⚠️ GPS cycle SKIPPED - toate cursele sunt în PAUSE");
-            return;
+            return; // Nu există curse active
         }
         
-        Log.e(TAG, "✅ GPS cycle PROCEEDING - " + activeCourseCount + " active courses din " + activeCourses.size() + " total");
-        sendLogToJavaScript("✅ GPS cycle PROCEEDING - " + activeCourseCount + " curse ACTIVE");
+        Log.i(TAG, "GPS transmitere pentru " + activeCourseCount + " curse active");
+        sendLogToJavaScript("GPS transmitere - " + activeCourseCount + " curse active");
         
-        // Direct GPS reading - no dummy data
-        Log.e(TAG, "🔄 Reading REAL GPS sensors now...");
-        sendLogToJavaScript("🔄 Reading REAL GPS sensors...");
-        
-        // Check permissions
+        // Verifică permisiuni
         boolean fineLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         boolean coarseLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         
-        Log.e(TAG, "📍 Permissions - Fine: " + fineLocationPermission + ", Coarse: " + coarseLocationPermission);
-        
         if (!fineLocationPermission && !coarseLocationPermission) {
-            Log.e(TAG, "❌ No GPS permission - stopping cycle");
+            Log.e(TAG, "Permisiuni GPS lipsă");
             return;
         }
         
         try {
-            // CRITICAL FIX: FORCE REAL-TIME GPS - NO cached/last known locations!
-            Log.e(TAG, "🎯 === FORCING REAL-TIME GPS COORDINATES ===");
-            Log.e(TAG, "🚫 SKIPPING getLastKnownLocation - causes OLD CACHED coordinates!");
-            Log.e(TAG, "📡 Requesting FRESH GPS coordinates from sensors...");
-            
-            // DIRECT REAL-TIME GPS REQUEST - no cached data
+            // Solicitare poziție GPS în timp real
             LocationListener listener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
                     try {
-                        // VERIFICĂ VECHIMEA COORDONATELOR
                         long locationAge = System.currentTimeMillis() - location.getTime();
                         
-                        Log.e(TAG, "🎯 === REAL-TIME GPS LOCATION RECEIVED ===");
-                        Log.e(TAG, "📍 FRESH Coordinates: " + location.getLatitude() + ", " + location.getLongitude());
-                        Log.e(TAG, "📐 Accuracy: " + location.getAccuracy() + "m");
-                        Log.e(TAG, "🕐 Location Age: " + locationAge + "ms (FRESH=" + (locationAge < 30000) + ")");
-                        Log.e(TAG, "🛰️ Provider: " + location.getProvider());
-                        Log.e(TAG, "⚡ Speed: " + (location.getSpeed() * 3.6) + " km/h");
+                        Log.i(TAG, "GPS primit: " + location.getLatitude() + ", " + location.getLongitude() + " (precizie: " + (int)location.getAccuracy() + "m)");
+                        sendLogToJavaScript("GPS: " + location.getLatitude() + ", " + location.getLongitude());
                         
-                        sendLogToJavaScript("🎯 REAL-TIME GPS: " + location.getLatitude() + ", " + location.getLongitude() + " (Age: " + (locationAge/1000) + "s)");
-                        
-                        // CRITICAL: Verifică dacă coordonatele sunt REALE sau CACHED
-                        if (locationAge > 120000) { // 2 minute = prea vechi
-                            Log.e(TAG, "⚠️ WARNING: GPS coordinates sunt vechi (" + (locationAge/1000) + "s) - poate fi cached!");
-                            sendLogToJavaScript("⚠️ GPS coordinates may be CACHED - age: " + (locationAge/1000) + "s");
-                        } else {
-                            Log.e(TAG, "✅ GPS coordinates sunt FRESH și REAL-TIME!");
-                            sendLogToJavaScript("✅ GPS coordinates are REAL-TIME and FRESH!");
+                        // Verifică dacă coordonatele sunt proaspete
+                        if (locationAge > 120000) {
+                            sendLogToJavaScript("Atenție: GPS vechi (" + (locationAge/1000) + "s)");
                         }
                         
                         locationManager.removeUpdates(this);
                         transmitGPSDataToAllActiveCourses(location);
                     } catch (Exception e) {
-                        Log.e(TAG, "❌ Location processing error: " + e.getMessage());
-                        e.printStackTrace();
+                        Log.e(TAG, "Eroare procesare GPS: " + e.getMessage());
                     }
                 }
                 
                 @Override
                 public void onProviderEnabled(String provider) {
-                    Log.e(TAG, "🟢 Provider enabled: " + provider);
+                    Log.i(TAG, "GPS activat: " + provider);
                 }
                 
                 @Override
                 public void onProviderDisabled(String provider) {
-                    Log.e(TAG, "🔴 Provider disabled: " + provider);
+                    Log.w(TAG, "GPS dezactivat: " + provider);
                 }
                 
                 @Override
                 public void onStatusChanged(String provider, int status, android.os.Bundle extras) {
-                    Log.e(TAG, "🔄 Provider status change: " + provider + " status: " + status);
+                    // Log minimal pentru status changes
                 }
             };
             
-            // Check GPS provider status
+            // Verifică provideri disponibili
             boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
             
-            Log.e(TAG, "🛰️ GPS Enabled: " + gpsEnabled + ", Network Enabled: " + networkEnabled);
-            
-            // Try GPS first, then network as fallback
             String provider = gpsEnabled ? LocationManager.GPS_PROVIDER : 
                             (networkEnabled ? LocationManager.NETWORK_PROVIDER : null);
             
             if (provider != null) {
-                Log.e(TAG, "🎯 Using REAL-TIME provider: " + provider);
-                sendLogToJavaScript("🎯 Using REAL-TIME GPS provider: " + provider);
+                Log.i(TAG, "Folosesc provider: " + provider);
+                sendLogToJavaScript("GPS activ - provider: " + provider);
                 
-                // CRITICAL: Request FRESH coordinates with high accuracy
-                locationManager.requestLocationUpdates(
-                    provider, 
-                    0,    // minTime = 0 - get IMMEDIATE updates
-                    0,    // minDistance = 0 - get ALL position changes  
-                    listener
-                );
+                // Solicitare poziție în timp real
+                locationManager.requestLocationUpdates(provider, 0, 0, listener);
                 
-                Log.e(TAG, "⚡ REAL-TIME GPS request sent to " + provider + " (NO cached data!)");
-                sendLogToJavaScript("⚡ REAL-TIME GPS request sent - waiting for FRESH coordinates...");
-                
-                // CRITICAL FIX: NU folosi lastKnownLocation - sunt coordonate VECHI!
-                Log.e(TAG, "🚫 SKIPPING lastKnownLocation check - causes OLD/CACHED coordinates!");
-                Log.e(TAG, "⏳ Waiting for REAL-TIME GPS response within 10 seconds...");
-                
-                // LONGER timeout for REAL-TIME GPS
+                // Timeout pentru GPS
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            Thread.sleep(12000); // 12 seconds for real GPS fix
+                            Thread.sleep(12000);
                             locationManager.removeUpdates(listener);
-                            Log.e(TAG, "⏰ REAL-TIME GPS timeout after 12 seconds - no fresh coordinates received");
-                            sendLogToJavaScript("⏰ GPS timeout - GPS may be disabled or no satellite signal");
+                            sendLogToJavaScript("GPS timeout - verifică semnalul");
                         } catch (Exception e) {
-                            Log.e(TAG, "❌ Timeout error: " + e.getMessage());
+                            Log.e(TAG, "Eroare timeout: " + e.getMessage());
                         }
                     }
                 }).start();
             } else {
-                Log.e(TAG, "❌ No location providers available - GPS and Network both disabled");
+                Log.e(TAG, "GPS indisponibil");
+                sendLogToJavaScript("GPS indisponibil");
             }
             
         } catch (Exception e) {
@@ -726,20 +676,18 @@ public class BackgroundGPSService extends Service {
     
     private void transmitGPSDataToAllActiveCourses(Location location) {
         try {
-            Log.e(TAG, "📤 === PREPARING GPS TRANSMISSION FOR ALL ACTIVE COURSES ===");
-            Log.e(TAG, "📊 Total active courses: " + activeCourses.size());
+            Log.i(TAG, "Pregătesc transmisia GPS pentru " + activeCourses.size() + " curse");
             
-            // Romania timestamp - calculat o singură dată pentru toate cursele
+            // Timestamp România
             java.util.TimeZone romaniaTimeZone = java.util.TimeZone.getTimeZone("Europe/Bucharest");
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.setTimeZone(romaniaTimeZone);
             String timestamp = sdf.format(new java.util.Date());
             
-            // Senzori reali - calculați o singură dată pentru toate cursele
+            // Senzori
             int networkSignal = getNetworkSignal();
             String batteryLevel = getBatteryLevel();
             
-            // Transmite GPS DOAR pentru cursele ACTIVE (status 2)
             int coursesTransmitting = 0;
             
             for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
@@ -748,59 +696,47 @@ public class BackgroundGPSService extends Service {
                 
                 // Doar cursele ACTIVE (status 2) pot transmite GPS data
                 if (courseData.status != 2) {
-                    Log.e(TAG, "⚠️ SKIPPING transmission pentru UIT " + courseData.realUit + " - Status: " + courseData.status + " (nu este ACTIVE)");
-                    continue; // Skip GPS transmission pentru PAUSE/STOP
+                    continue; // Skip pentru curse în pauză/oprire
                 }
                 
                 coursesTransmitting++;
                 
-                String originalUitId = courseData.courseId;
-                
-                // Create GPS data JSON pentru această cursă
+                // Pregătește datele GPS pentru această cursă
                 org.json.JSONObject gpsData = new org.json.JSONObject();
-                gpsData.put("uit", courseData.realUit); // UIT REAL pentru server, NU ikRoTrans
-                gpsData.put("numar_inmatriculare", courseData.vehicleNumber); // Vehicul specific pentru cursă
+                gpsData.put("uit", courseData.realUit);
+                gpsData.put("numar_inmatriculare", courseData.vehicleNumber);
                 gpsData.put("lat", location.getLatitude());
                 gpsData.put("lng", location.getLongitude());
-                gpsData.put("viteza", (int) (location.getSpeed() * 3.6)); // m/s to km/h
+                gpsData.put("viteza", (int) (location.getSpeed() * 3.6));
                 gpsData.put("directie", (int) location.getBearing());
                 gpsData.put("altitudine", (int) location.getAltitude());
                 gpsData.put("hdop", (int) location.getAccuracy());
                 gpsData.put("gsm_signal", networkSignal);
                 gpsData.put("baterie", batteryLevel);
-                gpsData.put("status", courseData.status); // Status real al cursei (doar status 2 ajunge aici)
+                gpsData.put("status", courseData.status);
                 gpsData.put("timestamp", timestamp);
                 
-                // Call direct HTTP transmission pentru această cursă
                 transmitSingleCourseGPS(gpsData, uniqueKey, courseData.realUit);
             }
             
             if (coursesTransmitting > 0) {
-                Log.e(TAG, "✅ === GPS TRANSMISSION SUMMARY === GPS transmis pentru " + coursesTransmitting + " curse ACTIVE din " + activeCourses.size() + " total");
-            } else {
-                Log.e(TAG, "⚠️ === NO GPS TRANSMISSION === Nicio cursă ACTIVE pentru transmisie (toate în PAUSE/STOP) din " + activeCourses.size() + " total");
+                Log.i(TAG, "GPS transmis pentru " + coursesTransmitting + " curse din " + activeCourses.size() + " total");
+                sendLogToJavaScript("GPS transmis - " + coursesTransmitting + " curse");
             }
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ Multi-course GPS transmission preparation error: " + e.getMessage());
-            e.printStackTrace();
+            Log.e(TAG, "Eroare transmisie GPS: " + e.getMessage());
         }
     }
     
     private void transmitSingleCourseGPS(org.json.JSONObject gpsData, String uniqueKey, String realUit) {
         try {
             String gpsDataJson = gpsData.toString();
-            Log.e(TAG, "🌐 === STARTING HTTP TRANSMISSION PENTRU unique key " + uniqueKey + " (server UIT: " + realUit + ") ===");
-            Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
-            Log.e(TAG, "🔑 Token length: " + (globalToken != null ? globalToken.length() : "NULL"));
             
-            // CRITICAL: Use thread pool pentru rate limiting - max 3 HTTP connections simultan
             httpThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        Log.e(TAG, "📡 HTTP thread started pentru unique key " + uniqueKey + " (server UIT: " + realUit + ")");
-                        
                         java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
                         javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");
@@ -809,63 +745,38 @@ public class BackgroundGPSService extends Service {
                         conn.setRequestProperty("Accept", "application/json");
                         conn.setRequestProperty("User-Agent", "iTrack-BackgroundGPS/1.0");
                         conn.setDoOutput(true);
-                        conn.setConnectTimeout(15000); // 15 seconds
-                        conn.setReadTimeout(15000);    // 15 seconds
+                        conn.setConnectTimeout(15000);
+                        conn.setReadTimeout(15000);
                         
-                        Log.e(TAG, "🔗 Connection configured pentru UIT " + realUit + " (unique key: " + uniqueKey + "), sending data...");
-                        
-                        // Send JSON data
+                        // Trimite datele JSON
                         try (java.io.OutputStream os = conn.getOutputStream()) {
                             byte[] input = gpsDataJson.getBytes("utf-8");
                             os.write(input, 0, input.length);
-                            Log.e(TAG, "📤 Data sent pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + input.length + " bytes");
                         }
                         
                         int responseCode = conn.getResponseCode();
-                        String responseMessage = conn.getResponseMessage();
-                        
-                        Log.e(TAG, "📡 === HTTP RESPONSE PENTRU UIT " + realUit + " (unique key: " + uniqueKey + ") ===");
-                        Log.e(TAG, "📊 Response Code: " + responseCode);
-                        Log.e(TAG, "📝 Response Message: " + responseMessage);
-                        
-                        // Read response body for debugging
-                        try {
-                            java.io.InputStream is = (responseCode >= 200 && responseCode < 300) ? 
-                                conn.getInputStream() : conn.getErrorStream();
-                            if (is != null) {
-                                java.util.Scanner scanner = new java.util.Scanner(is).useDelimiter("\\A");
-                                String responseBody = scanner.hasNext() ? scanner.next() : "";
-                                Log.e(TAG, "📄 Response Body pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + responseBody);
-                            }
-                        } catch (Exception e) {
-                            Log.e(TAG, "⚠️ Could not read response body pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + e.getMessage());
-                        }
                         
                         if (responseCode >= 200 && responseCode < 300) {
-                            Log.e(TAG, "✅ === GPS TRANSMISSION SUCCESS PENTRU UIT " + realUit + " (unique key: " + uniqueKey + ") ===");
+                            Log.i(TAG, "GPS trimis cu succes pentru " + realUit);
                         } else {
-                            Log.e(TAG, "❌ === GPS TRANSMISSION FAILED PENTRU UIT " + realUit + " (unique key: " + uniqueKey + ") ===");
+                            Log.w(TAG, "GPS eșuat pentru " + realUit + " - cod: " + responseCode);
                         }
                         
                     } catch (Exception e) {
-                        Log.e(TAG, "❌ Native HTTP GPS error pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + e.getMessage());
-                        Log.e(TAG, "💾 Salvez coordonata offline pentru UIT " + realUit + " (unique key: " + uniqueKey + ")");
+                        Log.e(TAG, "Eroare transmisie GPS pentru " + realUit + ": " + e.getMessage());
                         
-                        // Salvează coordonata offline când transmisia eșuează
+                        // Salvează offline
                         try {
                             sendOfflineGPSToJavaScript(gpsDataJson);
                         } catch (Exception offlineError) {
-                            Log.e(TAG, "❌ Eroare salvare offline pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + offlineError.getMessage());
+                            Log.e(TAG, "Eroare salvare offline: " + offlineError.getMessage());
                         }
-                        
-                        e.printStackTrace();
                     }
                 }
             });
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ GPS transmission error pentru UIT " + realUit + " (unique key: " + uniqueKey + "): " + e.getMessage());
-            e.printStackTrace();
+            Log.e(TAG, "Eroare executare GPS pentru " + realUit + ": " + e.getMessage());
         }
     }
     

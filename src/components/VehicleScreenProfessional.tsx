@@ -35,16 +35,9 @@ declare global {
 // Funcții GPS Android directe - BackgroundGPSService gestionează totul nativ
 const updateCourseStatus = async (courseId: string, courseUit: string, newStatus: number, authToken: string, vehicleNumber: string) => {
   try {
-    // PASUL 1: Actualizează serverul prin API
-    console.log(`🌐 === TRIMITERE ACTUALIZARE STATUS ===`);
-    console.log(`📊 Course ID (unic): ${courseId}`);
-    console.log(`📊 UIT (server): ${courseUit}`);
-    console.log(`📋 Status Nou: ${newStatus} (2=ACTIV, 3=PAUZA, 4=STOP)`);
-    console.log(`🔑 Lungime Token: ${authToken?.length || 0}`);
-    console.log(`🚛 Numărul Vehiculului: ${vehicleNumber}`);
-    console.log(`🎯 IMPORTANT: Serverul cere coordonate GPS reale pentru răspuns 200!`);
+    console.log(`Actualizez status cursă ${courseId} la ${newStatus}`);
     
-    // Obține coordonate GPS reale pentru status update
+    // Obține coordonate GPS pentru status update
     let currentLat = 0, currentLng = 0, currentAlt = 0, currentAcc = 0, currentSpeed = 0, currentHeading = 0;
     
     try {
@@ -61,127 +54,96 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       currentSpeed = position.coords.speed || 0;
       currentHeading = position.coords.heading || 0;
       
-      console.log(`📍 GPS reale obținute pentru status ${newStatus}: ${currentLat}, ${currentLng}`);
+      console.log(`GPS obținut: ${currentLat}, ${currentLng}`);
     } catch (gpsError) {
-      console.log(`⚠️ Nu s-au putut obține coordonate GPS pentru status ${newStatus}, folosesc valori default`);
+      console.log('GPS indisponibil, folosesc coordonate default');
     }
     
-    // EXACT ACEEAȘI ORDINE CA BACKGROUNDGPSSERVICE pentru a primi răspuns 200
     const statusUpdateData = {
       uit: courseUit,
       numar_inmatriculare: vehicleNumber,
       lat: currentLat,
       lng: currentLng,  
-      viteza: Math.round(currentSpeed * 3.6), // m/s to km/h ca în BackgroundGPSService
+      viteza: Math.round(currentSpeed * 3.6),
       directie: Math.round(currentHeading),
       altitudine: Math.round(currentAlt),
       hdop: Math.round(currentAcc),
       gsm_signal: await getNetworkSignal(),
-      baterie: await getBatteryLevel(),  // Baterie reală din device
+      baterie: await getBatteryLevel(),
       status: newStatus,
       timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
     };
     
-    console.log(`📤 === STRUCTURA COMPLETĂ CA GPS PENTRU STATUS ${newStatus} ===`);
-    console.log(`📤 Toate câmpurile completate ca BackgroundGPSService + headers identice pentru răspuns 200:`, JSON.stringify(statusUpdateData, null, 2));
-    
-    // CORECTARE CRITICĂ: TOATE actualizările de status merg la gps.php (vehicul.php doar pentru interogări curse)
-    // Folosește API_BASE_URL centralizat din configurație (detectează automat etsm_prod vs etsm3)
     const endpoint = `${API_BASE_URL}gps.php`;
-    
-    console.log(`🎯 SELECTARE ENDPOINT: TOATE actualizările de status → gps.php`);
-    console.log(`📋 gps.php = actualizări status | vehicul.php = doar interogări curse`);
-    console.log(`🌐 URL API de bază: ${API_BASE_URL} (configurație centralizată)`);
     
     const response = await CapacitorHttp.post({
       url: endpoint,
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${authToken}`,
-        "Accept": "application/json",
-        "User-Agent": "iTrack-StatusUpdate/1.0"
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken}`,
+        'Accept': 'application/json',
+        'User-Agent': 'iTrack-VehicleScreen/1.0'
       },
       data: statusUpdateData
     });
     
-    console.log(`✅ STATUS ${newStatus} TRIMIS CU SUCCES LA SERVER: ${response.status}`);
-    console.log(`📊 Răspuns server:`, response.data);
-    console.log(`🎯 SUCCES COMPLET pentru UIT ${courseUit} - Nu se mai trimite nimic!`);
+    console.log(`Status server: ${response.status}`);
     
-    // CRITICAL FIX: NU TRIMITE ANDROID UPDATE AICI - se făcea DUPLICATE!
-    // AndroidGPS update se face DOAR în funcțiile GPS start/stop din onStatusUpdate
-    console.log(`🚫 SKIP Android update - se gestionează în onStatusUpdate GPS logic`);
-    
-    return `SUCCES: Status ${newStatus} actualizat pentru ${courseUit}`;
+    if (response.status >= 200 && response.status < 300) {
+      console.log(`Status actualizat cu succes pentru cursă ${courseId}`);
+      logAPI('Status actualizat', { courseId, newStatus, responseStatus: response.status });
+    } else {
+      console.error(`Eroare actualizare status ${response.status}:`, response.data);
+      logAPI('Eroare status', { courseId, newStatus, responseStatus: response.status, error: response.data });
+      throw new Error(`Actualizare status eșuată: ${response.status}`);
+    }
     
   } catch (error) {
-    console.error(`❌ EROARE SERVER pentru status ${newStatus} - UIT ${courseUit}:`, error);
-    
-    // CRITICAL FIX: NU TRIMITE ANDROID UPDATE AICI - cauza DUPLICATE!
-    // Serviciul Android se gestionează prin GPS start/stop logic DOAR
-    console.log(`🚫 SKIP Android fallback - evit duplicate status transmission`);
-    
-    console.warn('Server update failed - aplicația va continua cu UI update local');
+    console.error(`Eroare actualizare status pentru cursă ${courseId}:`, error);
+    logAPI('Eroare actualizare status', { courseId, newStatus, error: error.message });
     throw error;
   }
 };
 
 const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) => {
-  console.log("🚀 === SENIOR SAFE GPS START ===");
-  
-  // SENIOR DEVELOPER FIX: Comprehensive safety checks
   if (!course) {
-    console.error("❌ SAFETY CHECK FAILED: Course object is null/undefined");
-    return "ERROR: Invalid course object";
+    console.error("Cursă invalidă pentru GPS");
+    return "Eroare: Cursă invalidă";
   }
   
   if (!course.ikRoTrans && !course.uit) {
-    console.error("❌ SAFETY CHECK FAILED: Course missing both ikRoTrans and uit");
-    return "ERROR: Course missing identifiers";
+    console.error("Cursă fără identificatori pentru GPS");
+    return "Eroare: Identificatori lipsă";
   }
   
   if (!vehicleNumber?.trim()) {
-    console.error("❌ SAFETY CHECK FAILED: Vehicle number is empty");
-    return "ERROR: Invalid vehicle number";
+    console.error("Numărul vehiculului lipsește pentru GPS");
+    return "Eroare: Vehicul invalid";
   }
   
   if (!token?.trim()) {
-    console.error("❌ SAFETY CHECK FAILED: Auth token is empty");
-    return "ERROR: Invalid auth token";
+    console.error("Token lipsă pentru GPS");
+    return "Eroare: Token invalid";
   }
   
-  console.log("📱 SAFE Android Bridge Check:", {
-    androidGpsAvailable: !!(window.AndroidGPS),
-    startGPSFunction: !!(window.AndroidGPS?.startGPS),
-    courseId: course.id,
-    ikRoTrans: course.ikRoTrans,
-    realUIT: course.uit,
-    vehicleNumber: vehicleNumber
-  });
-  
   if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-    console.log("✅ AndroidGPS.startGPS disponibil - pornesc BackgroundGPSService");
-    console.log("📋 IMPORTANT: BackgroundGPSService acceptă MULTIPLE curse - se adaugă la lista activă");
-    console.log("🔄 Fiecare cursă ACTIVĂ (status 2) va fi urmărită simultan cu același GPS");
+    console.log("GPS Android pornit pentru cursă");
     
-    // Folosește ikRoTrans ca identificator unic pentru HashMap Android
     const ikRoTransKey = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
     
     const result = window.AndroidGPS.startGPS(
-      ikRoTransKey,              // ikRoTrans ca identificator unic
+      ikRoTransKey,
       vehicleNumber,
-      course.uit,                // UIT-ul real pentru server
+      course.uit,
       token,
       2
     );
     
-    console.log("🔥 BackgroundGPSService Result:", result);
-    console.log("📊 GPS service va urmări toate cursele active cu același set de coordonate");
+    console.log("GPS service rezultat:", result);
     return result;
   } else {
-    console.error("❌ AndroidGPS.startGPS nu este disponibil!");
-    console.error("🔍 window.AndroidGPS:", window.AndroidGPS);
-    return "ERROR: AndroidGPS not available";
+    console.error("AndroidGPS indisponibil");
+    return "Eroare: AndroidGPS indisponibil";
   }
 };
 
@@ -1135,51 +1097,41 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   const courseForGPS = courses.find(c => c.id === courseId);
                   const oldStatus = courseForGPS?.status;
                   
-                  console.log(`🔄 === COMPLETE STATUS FLOW TEST === PROTECTED STATUS UPDATE: ${oldStatus} → ${newStatus} pentru courseId: ${courseId}`);
-                  console.log(`📋 Course UIT: ${courseUit}, ikRoTrans: ${courseForGPS?.ikRoTrans}, Vehicle: ${vehicleNumber}`);
+                  console.log(`Actualizare status: ${oldStatus} → ${newStatus} pentru cursă ${courseId}`);
                   
-                  // SINGLE API CALL - NO optimistic update pentru a evita race conditions
+                  // Actualizează serverul
                   await updateCourseStatus(courseId, courseUit, newStatus, token, vehicleNumber);
-                  console.log(`✅ STATUS UPDATE SUCCESS: ${courseId} → ${newStatus}`);
                   
-                  // Update UI DUPĂ success API
+                  // Actualizează interfața
                   setCourses(prev => prev.map(c => 
                     c.id === courseId ? { ...c, status: newStatus } : c
                   ));
                   
-                  // GPS HANDLING COMPLET pentru toate tranzițiile
+                  // Gestionează GPS-ul
                   if (courseForGPS) {
-                    // PORNIRE GPS: start (1→2) sau resume (3→2)
+                    // Pornire GPS: start sau resume
                     if (newStatus === 2 && (oldStatus === 1 || oldStatus === 3)) {
-                      console.log(`🚀 === GPS START VERIFIED === pentru cursă ${courseId} (${oldStatus}→2)`);
-                      console.log(`📍 GPS va începe transmiterea coordonatelor pentru UIT: ${courseUit}`);
+                      console.log(`GPS pornit pentru cursă ${courseId}`);
                       startAndroidGPS(courseForGPS, vehicleNumber, token);
                     }
                     
-                    // ACTUALIZARE STATUS: pause (2→3), stop din activ (2→4), sau stop din pauză (3→4)
+                    // Oprire GPS: pause sau stop
                     else if ((newStatus === 3 && oldStatus === 2) || 
                              (newStatus === 4 && (oldStatus === 2 || oldStatus === 3))) {
                       const actionType = newStatus === 3 ? 'PAUSE' : 'STOP';
-                      console.log(`⏸️ === GPS ${actionType} VERIFIED === pentru cursă ${courseId} (${oldStatus}→${newStatus})`);
-                      console.log(`🛑 GPS va OPRI transmiterea coordonatelor pentru UIT: ${courseUit}`);
+                      console.log(`GPS ${actionType.toLowerCase()} pentru cursă ${courseId}`);
                       
-                      // CRITICAL FIX: Folosește updateStatus în loc de stopGPS pentru multi-course support
                       if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
                         const ikRoTransKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
-                        const result = window.AndroidGPS.updateStatus(ikRoTransKey, newStatus, vehicleNumber);
-                        console.log(`✅ Android ${actionType} status update result: ${result}`);
-                        console.log(`🔍 VERIFICĂ LOGS-URI: Cursă UIT ${courseUit} trebuie să OPREASCĂ transmisia GPS!`);
-                      } else {
-                        console.error("❌ AndroidGPS.updateStatus nu este disponibil!");
+                        window.AndroidGPS.updateStatus(ikRoTransKey, newStatus, vehicleNumber);
                       }
                     }
                   }
                   
                 } catch (error) {
-                  console.error('PROTECTED Status update error:', error);
+                  console.error('Eroare actualizare status:', error);
                   toast.error('Eroare actualizare status', 'Nu s-a putut actualiza statusul');
                 } finally {
-                  // Remove from loading set - GARANTAT
                   setLoadingCourses(prev => {
                     const newSet = new Set(prev);
                     newSet.delete(courseId);
