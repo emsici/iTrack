@@ -37,7 +37,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
         const pauses: GPSPoint[] = [];
         let slowPoints: GPSPoint[] = [];
         
-        stats.gpsPoints.forEach((point, index) => {
+        stats.gpsPoints.forEach((point) => {
           if (point.speed < 5) { // Sub 5 km/h
             slowPoints.push(point);
           } else {
