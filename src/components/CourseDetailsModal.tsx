@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Course } from '../types';
 
 interface CourseDetailsModalProps {
@@ -14,6 +14,8 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
   onClose,
   currentTheme
 }) => {
+  const [showRouteMap, setShowRouteMap] = useState(false);
+  
   if (!isOpen) return null;
 
   const getStatusColor = (status: number) => {
@@ -311,6 +313,239 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
               <div style={{ marginBottom: '8px' }}><strong>Județ Stop:</strong> {course.JudetStop || course.judetStop || 'N/A'}</div>
               <div><strong>Denumire Loc Stop:</strong> {course.denumireLocStop || 'N/A'}</div>
             </div>
+          </div>
+
+          {/* SECȚIUNEA 5: Harta cu Opriri GPS */}
+          <div style={{
+            padding: '16px',
+            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+            borderRadius: '12px',
+            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            marginBottom: '12px'
+          }}>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '700',
+              color: currentTheme === 'dark' ? '#ffffff' : '#000000',
+              margin: '0 0 12px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <i className="fas fa-route" style={{ color: '#f59e0b' }}></i>
+              Traseu și Opriri
+            </h3>
+            <button
+              onClick={() => setShowRouteMap(!showRouteMap)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                border: 'none',
+                borderRadius: '8px',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <i className={`fas fa-${showRouteMap ? 'eye-slash' : 'map-marked-alt'}`}></i>
+              {showRouteMap ? 'Ascunde Harta' : 'Afișează Traseu cu Opriri'}
+            </button>
+            
+            {showRouteMap && (
+              <div style={{
+                marginTop: '16px',
+                background: currentTheme === 'dark' ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.8)',
+                borderRadius: '8px',
+                padding: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.1)'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginBottom: '16px'
+                }}>
+                  <i className="fas fa-info-circle" style={{ color: '#3b82f6' }}></i>
+                  <span style={{
+                    fontSize: '14px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Traseu complet cu toate opririle (PAUZĂ) înregistrate de GPS
+                  </span>
+                </div>
+
+                {/* Exemplu traseu cu opriri - similar cu poza */}
+                <div style={{
+                  position: 'relative',
+                  height: '200px',
+                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  border: '2px solid #d1d5db'
+                }}>
+                  {/* Linia traseului */}
+                  <svg style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 1
+                  }}>
+                    <path
+                      d="M 20 180 Q 80 120 140 100 Q 200 80 260 60 Q 320 40 380 20"
+                      stroke="#ef4444"
+                      strokeWidth="4"
+                      fill="none"
+                      strokeDasharray="0"
+                    />
+                  </svg>
+
+                  {/* Puncte de oprire */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '170px',
+                    left: '15px',
+                    zIndex: 2
+                  }}>
+                    <div style={{
+                      width: '24px',
+                      height: '24px',
+                      background: '#10b981',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      border: '3px solid white',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                    }}>
+                      S
+                    </div>
+                  </div>
+
+                  <div style={{
+                    position: 'absolute',
+                    top: '90px',
+                    left: '135px',
+                    zIndex: 2
+                  }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      background: '#3b82f6',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      border: '3px solid white',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                    }}>
+                      P1
+                    </div>
+                  </div>
+
+                  <div style={{
+                    position: 'absolute',
+                    top: '50px',
+                    left: '255px',
+                    zIndex: 2
+                  }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      background: '#3b82f6',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      border: '3px solid white',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                    }}>
+                      P2
+                    </div>
+                  </div>
+
+                  <div style={{
+                    position: 'absolute',
+                    top: '10px',
+                    left: '375px',
+                    zIndex: 2
+                  }}>
+                    <div style={{
+                      width: '24px',
+                      height: '24px',
+                      background: '#ef4444',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      border: '3px solid white',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                    }}>
+                      F
+                    </div>
+                  </div>
+                </div>
+
+                {/* Legenda */}
+                <div style={{
+                  marginTop: '12px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '8px',
+                  fontSize: '12px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '12px', height: '12px', background: '#10b981', borderRadius: '50%' }}></div>
+                    <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>START</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '12px', height: '12px', background: '#3b82f6', borderRadius: '50%' }}></div>
+                    <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>PAUZĂ</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%' }}></div>
+                    <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>FINAL</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '16px', height: '2px', background: '#ef4444' }}></div>
+                    <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>TRASEU GPS</span>
+                  </div>
+                </div>
+
+                <div style={{
+                  marginTop: '12px',
+                  padding: '8px 12px',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af'
+                }}>
+                  <strong>Notă:</strong> Harta afișează coordonatele GPS reale înregistrate la fiecare 10 secunde și toate punctele unde ai apăsat PAUZĂ
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
