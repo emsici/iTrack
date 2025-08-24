@@ -90,6 +90,12 @@ BULLET-PROOF ENTERPRISE GRADE FIXES 24-08-2025:
 4. ANDROID PERMISSIONS ENTERPRISE: ACCESS_BACKGROUND_LOCATION present, foregroundServiceType="location" configurat corect, FOREGROUND_SERVICE_LOCATION permission pentru Android 12+, REQUEST_IGNORE_BATTERY_OPTIMIZATIONS pentru fleet vehicles.
 5. PRODUCTION MONITORING: Health monitor cu auto-recovery, offline queue status tracking, coordonate GPS salvate automat la network failures, retransmisie automată la revenirea rețelei.
 
+TRADUCERE COMPLETĂ ROMÂNĂ 24-08-2025:
+1. LOGS ANDROID JAVA: Toate Log.e traduse în română pentru BackgroundGPSService.java - TAG schimbat la "GPS_Fundal", mesaje log complete în română.
+2. CONSOLE LOGS TYPESCRIPT: Traduse console.log și console.error din VehicleScreenProfessional.tsx și LoginScreen.tsx în română pentru consistență.
+3. SECURITY FIX MAJOR: Eliminat coordonate hardcodate (0,0) din updateCourseStatus - aplicația eșuează sigur când GPS indisponibil în loc să trimită date false.
+4. COMENTARII JAVA: Traducere parțială comentarii din BackgroundGPSService.java în română pentru standardizare.
+
 CRITICAL BUG FIXES RESOLVED 19-08-2025: 
 1. DUPLICATE STATUS 3 ELIMINATED: Găsit și rezolvat cauza dublării - funcția updateCourseStatus avea DOUĂ apeluri AndroidGPS.updateStatus (try+catch blocks). Eliminat ambele duplicate calls - GPS logic gestionat EXCLUSIV prin start/stopAndroidGPS functions.
 2. RESUME GPS TRANSMISSION FIX: BackgroundGPSService nu trimitea status update la server pentru RESUME (status 2). Adăugat sendStatusUpdateToServer() în RESUME logic pentru consistență cu PAUSE/STOP actions.

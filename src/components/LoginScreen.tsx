@@ -21,7 +21,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         const savedTheme = localStorage.getItem('itrack_theme') || 'dark';
         setCurrentTheme(savedTheme as any);
       } catch (error) {
-        console.log('Using default theme on login');
+        console.log('Folosesc tema implicită la logare');
       }
     };
     loadTheme();

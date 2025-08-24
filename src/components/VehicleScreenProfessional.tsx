@@ -63,8 +63,8 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       
       console.log(`GPS obținut: ${gpsData.lat}, ${gpsData.lng}`);
     } catch (gpsError) {
-      console.error('GPS INDISPONIBIL - status update respins pentru protejarea datelor reale');
-      throw new Error('Status update imposibil - GPS necesar pentru coordonate reale');
+      console.error('GPS INDISPONIBIL - actualizare status respinsă pentru protejarea datelor reale');
+      throw new Error('Actualizare status imposibilă - GPS necesar pentru coordonate reale');
     }
     
     const statusUpdateData = {
@@ -151,7 +151,7 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
       2
     );
     
-    console.log("GPS service rezultat:", result);
+    console.log("Rezultat serviciu GPS:", result);
     return result;
   } else {
     console.error("AndroidGPS indisponibil");

@@ -28,7 +28,7 @@ import android.app.Notification;
  * Folosește ScheduledExecutorService în loc de Handler pentru mai multă stabilitate
  */
 public class BackgroundGPSService extends Service {
-    private static final String TAG = "BackgroundGPS";
+    private static final String TAG = "GPS_Fundal";
     private static final long GPS_INTERVAL_SECONDS = 10;
     private static final int NOTIFICATION_ID = 2002;
     private static final String CHANNEL_ID = "BackgroundGPSChannel";
@@ -131,7 +131,7 @@ public class BackgroundGPSService extends Service {
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
         
-        Log.e(TAG, "✅ BackgroundGPS Service Ready");
+        Log.e(TAG, "✅ Serviciul GPS de Fundal este Gata");
     }
     
     // Initialize HTTP Thread Pool pentru rate limiting - max 3 connections simultan
@@ -154,7 +154,7 @@ public class BackgroundGPSService extends Service {
     
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e(TAG, "onStartCommand called with action: " + (intent != null ? intent.getAction() : "null"));
+        Log.e(TAG, "onStartCommand apelat cu acțiune: " + (intent != null ? intent.getAction() : "null"));
         
         if (intent != null && "START_BACKGROUND_GPS".equals(intent.getAction())) {
             String uitId = intent.getStringExtra("uit"); // ikRoTrans ca identificator HashMap
@@ -186,7 +186,7 @@ public class BackgroundGPSService extends Service {
             
             // Start foreground notification IMMEDIATELY  
             startForeground(1, createNotification());
-            Log.e(TAG, "📱 Foreground service persistent notification created");
+            Log.e(TAG, "📱 Notificare serviciu fundal persistentă creată");
             
             if (courseStatus == 2) {
                 if (!isGPSRunning.get()) {
@@ -300,7 +300,7 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        Log.e(TAG, "✅ GPS can start - " + activeCourses.size() + " active courses, token available (" + globalToken.length() + " chars)");
+        Log.e(TAG, "✅ GPS poate porni - " + activeCourses.size() + " curse active, token disponibil (" + globalToken.length() + " caractere)");
         
         // CRITICAL FIX: Reinițializează httpThreadPool dacă a fost oprit sau e null
         if (httpThreadPool == null || httpThreadPool.isShutdown()) {
@@ -862,11 +862,11 @@ public class BackgroundGPSService extends Service {
     // DEPRECATED - păstrat pentru compatibilitate
     private void callJavaScriptBridge(String gpsDataJson) {
         try {
-            Log.e(TAG, "🌐 === STARTING HTTP TRANSMISSION ===");
+            Log.e(TAG, "🌐 === ÎNCEPE TRANSMISIA HTTP ===");
             Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
-            Log.e(TAG, "🔑 Token length: " + (globalToken != null ? globalToken.length() : "NULL"));
+            Log.e(TAG, "🔑 Lungime token: " + (globalToken != null ? globalToken.length() : "NULL"));
             
-            // Make HTTP request on background thread
+            // Efectuează cererea HTTP pe thread de fundal
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -890,7 +890,7 @@ public class BackgroundGPSService extends Service {
                         try (java.io.OutputStream os = conn.getOutputStream()) {
                             byte[] input = gpsDataJson.getBytes("utf-8");
                             os.write(input, 0, input.length);
-                            Log.e(TAG, "📤 Data sent: " + input.length + " bytes");
+            Log.e(TAG, "📤 Date trimise: " + input.length + " bytes");
                         }
                         
                         int responseCode = conn.getResponseCode();
@@ -1047,7 +1047,7 @@ public class BackgroundGPSService extends Service {
                         try (java.io.OutputStream os = conn.getOutputStream()) {
                             byte[] input = statusDataJson.getBytes("utf-8");
                             os.write(input, 0, input.length);
-                            Log.e(TAG, "📤 Status data sent: " + input.length + " bytes");
+            Log.e(TAG, "📤 Date status trimise: " + input.length + " bytes");
                         }
                         
                         int responseCode = conn.getResponseCode();
@@ -1117,9 +1117,9 @@ public class BackgroundGPSService extends Service {
                 offlineArray.put(newCoord);
                 
                 prefs.edit().putString("offline_coordinates", offlineArray.toString()).apply();
-                Log.e(TAG, "✅ FALLBACK: GPS salvat în SharedPreferences (total: " + offlineArray.length() + ")");
+                Log.e(TAG, "✅ REZERVĂ: GPS salvat în SharedPreferences (total: " + offlineArray.length() + ")");
             } catch (Exception fallbackError) {
-                Log.e(TAG, "❌ FALLBACK failed: " + fallbackError.getMessage());
+                Log.e(TAG, "❌ REZERVĂ eșuată: " + fallbackError.getMessage());
             }
         }
     }
@@ -1187,7 +1187,7 @@ public class BackgroundGPSService extends Service {
             
             return 2; // Unknown connection type
         } catch (Exception e) {
-            Log.e(TAG, "❌ Network signal detection error: " + e.getMessage());
+            Log.e(TAG, "❌ Eroare detectare semnal rețea: " + e.getMessage());
             return 1; // Error fallback
         }
     }
@@ -1208,16 +1208,16 @@ public class BackgroundGPSService extends Service {
             try {
                 gpsLocation = locationManager.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER);
             } catch (SecurityException e) {
-                Log.e(TAG, "❌ No GPS permission for last known location");
+                Log.e(TAG, "❌ Fără permisiune GPS pentru ultima locație cunoscută");
             }
             
             try {
                 networkLocation = locationManager.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER);
             } catch (SecurityException e) {
-                Log.e(TAG, "❌ No Network permission for last known location");
+                Log.e(TAG, "❌ Fără permisiune Network pentru ultima locație cunoscută");
             }
             
-            // Return the most recent location
+            // Returnează cea mai recentă locație
             if (gpsLocation != null && networkLocation != null) {
                 return gpsLocation.getTime() > networkLocation.getTime() ? gpsLocation : networkLocation;
             } else if (gpsLocation != null) {
@@ -1227,7 +1227,7 @@ public class BackgroundGPSService extends Service {
             }
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ Last known location error: " + e.getMessage());
+            Log.e(TAG, "❌ Eroare ultima locație cunoscută: " + e.getMessage());
             return null;
         }
     }
@@ -1281,9 +1281,9 @@ public class BackgroundGPSService extends Service {
                     @Override public void onProviderDisabled(String provider) {}
                     @Override public void onStatusChanged(String provider, int status, android.os.Bundle extras) {}
                 });
-                Log.e(TAG, "🛑 LocationManager updates cleaned up");
+                Log.e(TAG, "🛑 Update-uri LocationManager curățate");
             } catch (SecurityException e) {
-                Log.e(TAG, "🛑 LocationManager cleanup error: " + e.getMessage());
+                Log.e(TAG, "🛑 Eroare curățare LocationManager: " + e.getMessage());
             }
         }
         
