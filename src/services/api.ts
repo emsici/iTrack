@@ -479,6 +479,82 @@ export const logout = async (token: string): Promise<boolean> => {
   }
 };
 
+// CRITICAL NEW API: Load GPS results for a specific course from server
+export const getCourseGPSResults = async (
+  courseId: string, // ikRoTrans
+  vehicleNumber: string,
+  token: string
+): Promise<any> => {
+  try {
+    const timestamp = Date.now();
+    const urlWithCacheBuster = `${API_BASE_URL}rezultate.php?uit=${encodeURIComponent(courseId)}&nr=${encodeURIComponent(vehicleNumber)}&t=${timestamp}`;
+    
+    logAPI(`Loading GPS results for course ${courseId} vehicle ${vehicleNumber}`);
+    
+    const capacitorResponse = await CapacitorHttp.get({
+      url: urlWithCacheBuster,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "User-Agent": "iTrack-Native/1.0",
+      },
+    });
+
+    console.log("GPS Results Response Status:", capacitorResponse.status);
+    console.log("GPS Results Response Data:", JSON.stringify(capacitorResponse.data, null, 2));
+    
+    logAPI(`GPS results response: status=${capacitorResponse.status}, data=${JSON.stringify(capacitorResponse.data)}`);
+
+    if (capacitorResponse.status === 401) {
+      console.log("GPS Results: Token expired");
+      return { status: "error", error: "TOKEN_EXPIRED" };
+    }
+
+    if (capacitorResponse.status === 200) {
+      const responseData = capacitorResponse.data;
+
+      // Handle API format: {"status":"success","count":X,"data":[GPS points]}
+      if (responseData.status === "success" && Array.isArray(responseData.data)) {
+        console.log(`Found ${responseData.data.length} GPS points for course ${courseId}`);
+
+        // Transform GPS points to expected format
+        const transformedPoints = responseData.data.map((point: any) => ({
+          lat: parseFloat(point.lat || point.latitude || 0),
+          lng: parseFloat(point.lng || point.longitude || 0),
+          timestamp: point.timestamp || point.data_time || new Date().toISOString(),
+          speed: parseFloat(point.viteza || point.speed || 0),
+          accuracy: parseFloat(point.hdop || point.accuracy || 0),
+          bearing: parseFloat(point.directie || point.bearing || 0),
+          altitude: parseFloat(point.altitudine || point.altitude || 0),
+          isManualPause: false // Server data doesn't have this flag
+        }));
+
+        return {
+          status: "success",
+          gpsPoints: transformedPoints,
+          totalPoints: responseData.data.length,
+          rawData: responseData.data
+        };
+      } else {
+        console.log("GPS Results: No data or invalid format");
+        return {
+          status: "success",
+          gpsPoints: [],
+          totalPoints: 0,
+          rawData: []
+        };
+      }
+    } else {
+      console.error("GPS Results: Server error:", capacitorResponse.status);
+      return { status: "error", error: "SERVER_ERROR", statusCode: capacitorResponse.status };
+    }
+  } catch (error) {
+    console.error("GPS Results API error:", error);
+    logAPI(`GPS results error: ${error}`);
+    return { status: "error", error: "NETWORK_ERROR" };
+  }
+};
+
 export const sendGPSData = async (
   gpsData: GPSData,
   token: string,
