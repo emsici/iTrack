@@ -34,16 +34,17 @@ Android Studio + SDK 34
 Git
 ```
 
-### **2. Instalare Dependințe**
+### **2. Instalare Dependințe și Build**
 ```bash
 # Clone repository
-git clone (https://github.com/emsici/iTrack/
+git clone https://github.com/emsici/iTrack/
 cd itrack-gps
 
-# Install dependencies
-npm install
+# OPȚIUNEA 1: Build automat complet (RECOMANDATĂ)
+./build.bat
 
-# Setup Android
+# OPȚIUNEA 2: Setup manual
+npm install
 npx cap add android
 npx cap sync
 ```
@@ -108,6 +109,15 @@ npx cap run android
 ## ⚡ **PORNIRE RAPIDĂ DEZVOLTARE**
 
 ### **Setup Local Development**
+
+#### **Metoda Rapidă (Recomandată)**
+```batch
+# Script automat pentru build complet Android
+./build.bat
+# Include: npm install → vite build → cap sync → Android Studio
+```
+
+#### **Metoda Manuală Pas cu Pas**
 ```bash
 # 1. Instalare dependințe
 npm install
@@ -164,9 +174,21 @@ npx cap run android
 
 ## 🚀 **DEPLOYMENT ȘI DISTRIBUȚIE**
 
-### **Build Android APK**
+### **Build Android APK - Metoda Rapidă**
+```batch
+# METODA RECOMANDATĂ: Script automat complet
+./build.bat
+
+# Script-ul execută automat:
+# ✓ npm install (dependințe)
+# ✓ npx vite build (compilare)
+# ✓ npx cap sync android (sincronizare)
+# ✓ npx cap open android (deschidere Android Studio)
+```
+
+### **Build Android APK - Metoda Manuală**
 ```bash
-# Build complet pentru release
+# Build complet manual pentru release
 npm run build
 npx cap sync android
 cd android && ./gradlew assembleRelease
@@ -184,8 +206,9 @@ const API_CONFIG = {
 ```
 
 ### **Deployment Workflows**
-- **APK Build**: Workflow automat cu Gradle
-- **Development Server**: Vite dev server cu hot reload
+- **APK Build Automat**: `build.bat` - Script Windows complet (npm install → build → sync → Android Studio)
+- **APK Build Manual**: Workflow manual cu Gradle pentru control detaliat
+- **Development Server**: Vite dev server cu hot reload pe port 5000
 - **Testing**: Unit tests cu Jest + React Testing Library (în dezvoltare)
 
 ---

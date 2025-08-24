@@ -12,6 +12,8 @@ Comentarii cod: Toate comentariile TREBUIE să fie în limba română.
 Fișiere backup: Eliminare fișiere backup inutile.
 Performanță UI: Eliminare animații grele care pot afecta performanța pe dispozitive Android.
 Politica Coordonate Offline: NICIODATĂ nu șterge coordonatele offline la logout - păstrează continuitatea traseului între sesiuni pentru a evita segmentele lipsă.
+Build Android preferat: Folosește build.bat ca metodă principală pentru build complet Android (npm install → vite build → cap sync → Android Studio).
+Securitate GPS: ZERO TOLERANCE pentru coordonate false - doar coordonate reale de la senzorii Android nativi sunt permise în transmisie.
 
 ## System Architecture
 
@@ -95,6 +97,15 @@ Politica Coordonate Offline: NICIODATĂ nu șterge coordonatele offline la logou
 - `VERIFICARE_*.md`: Documentații tehnice specifice pentru testare și validare
 
 ## Jurnalul Modificărilor Recente
+
+**24-08-2025 - VERIFICARE COMPLETĂ SECURITATE GPS:**
+✅ Audit complet securitate sistem transmisie GPS efectuat
+✅ Reparat vulnerabilitate critică în BackgroundGPSService.java (coordonate 0,0)
+✅ Adăugat validări de securitate ZERO TOLERANCE în toate punctele de transmisie
+✅ Securizat sistemul offline GPS împotriva coordonatelor invalide în offlineGPS.ts
+✅ Toate cele 5 puncte critice de transmisie GPS protejate complet
+✅ README.md actualizat cu build.bat ca metodă principală recomandată pentru Android build
+✅ Sistem GPS complet securizat pentru producție cu integritate garantată a datelor
 
 **24-08-2025 - ACTUALIZARE COMPLETĂ DOCUMENTAȚIE:**
 ✅ Toate fișierele .md adaptate la structura reală aplicației iTrack
