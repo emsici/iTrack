@@ -26,7 +26,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
     if (isOpen && showRouteMap && !courseStats) {
       loadCourseGPSData();
     }
-  }, [isOpen, showRouteMap, course.id]);
+  }, [isOpen, showRouteMap, course.id, course.status]); // CRITICAL FIX: Adaugă course.status pentru refresh la schimbarea status-ului
   
   const loadCourseGPSData = async () => {
     setLoading(true);
@@ -76,7 +76,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
     if (isOpen) {
       loadCourseGPSData();
     }
-  }, [isOpen, course.id]);
+  }, [isOpen, course.id, course.status]); // CRITICAL FIX: Adaugă course.status pentru refresh la schimbarea status-ului
   
   if (!isOpen) return null;
 
