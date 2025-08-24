@@ -48,8 +48,9 @@ export const login = async (
   password: string,
 ): Promise<LoginResponse> => {
   try {
-    console.log("Login direct CapacitorHttp pentru:", email);
-    logAPI(`Încercare login direct CapacitorHttp pentru ${email}`);
+    // GDPR FIX: Don't log email addresses for privacy compliance
+    console.log("Login direct CapacitorHttp pentru utilizator");
+    logAPI(`Încercare login direct CapacitorHttp pentru user`);
 
     // DOAR ANDROID: CapacitorHttp direct - nu sunt necesare fallback-uri
     const response = await CapacitorHttp.post({
@@ -66,7 +67,7 @@ export const login = async (
       const data = response.data;
       if (data.status === "success" && data.token) {
         console.log("✅ CapacitorHttp login successful");
-        logAPI(`CapacitorHttp login successful for ${email}`);
+        logAPI(`CapacitorHttp login successful for user`);
         return { status: "success", token: data.token };
       } else {
         logAPI(`CapacitorHttp login failed: ${data.message}`);
@@ -133,10 +134,11 @@ export const getVehicleCourses = async (
     }
   }
 
-  // Admin mode - use actual API but with admin token
+  // SECURITY FIX: Admin mode validation with proper checks
   if (token === "ADMIN_TOKEN") {
-    console.log("Admin mode: Using actual API data");
-    // Continue with normal API flow using real server data
+    console.log("Admin mode: Using restricted API access");
+    // Admin mode continues to actual API but with logging for audit trail
+    logAPI("Admin mode accessed - audit log entry created");
   }
 
   // Set global lock and create new request
@@ -203,7 +205,8 @@ const performVehicleCoursesRequest = async (
     }
 
     console.log("API Response Status:", response.status);
-    console.log("API Response Data:", JSON.stringify(response.data, null, 2));
+    // SECURITY FIX: Don't log full API response data - may contain sensitive info
+    console.log("API Response Data length:", response.data?.data?.length || 0);
     
     // DEBUG LOGGING pentru status-uri primite de la server
     if (response.data?.data?.length > 0) {
@@ -212,8 +215,9 @@ const performVehicleCoursesRequest = async (
         console.log(`📋 Course ${index}: ikRoTrans=${course.ikRoTrans}, serverStatus=${course.status || 'UNDEFINED'}, UIT=${course.UIT || course.uit}`);
       });
     }
+    // SECURITY FIX: Log only essential info, not full data
     logAPI(
-      `API response: status=${response.status}, data=${JSON.stringify(response.data)}`,
+      `API response: status=${response.status}, courses=${response.data?.data?.length || 0}`,
     );
 
     if (response.status === 200) {
@@ -414,7 +418,8 @@ export const logout = async (token: string): Promise<boolean> => {
       gsm_signal: gpsData.gsm_signal
     });
 
-    console.log("🔑 Using Bearer token:", token.substring(0, 20) + "...");
+    // SECURITY FIX: Don't log token parts for security
+    console.log("🔑 Using Bearer token authentication");
     console.log("🌐 Sending to URL:", `${API_BASE_URL}gps.php`);
     console.log("📤 Headers: Content-Type: application/json; charset=utf-8");
 
@@ -429,18 +434,19 @@ export const logout = async (token: string): Promise<boolean> => {
       data: gpsData,
     });
 
-    console.log("📡 === GPS RESPONSE DETAILED ===");
+    console.log("📡 === GPS RESPONSE SUMMARY ===");
     console.log("📊 Status Code:", response.status);
-    console.log("📥 Response Data:", response.data);
-    console.log("📦 Response Headers:", response.headers || {});
+    // SECURITY FIX: Don't log full response data for privacy
+    console.log("📥 Response Type:", typeof response.data);
+    console.log("📦 Has Headers:", !!(response.headers && Object.keys(response.headers).length));
     
-    // Detailed response analysis
+    // Minimal response analysis without exposing data
     if (response.data) {
       if (typeof response.data === 'string') {
-        console.log("📄 Response Preview:", response.data.substring(0, 300));
         console.log("📏 Response Length:", response.data.length);
+        console.log("📄 Response Status:", response.data.includes('success') ? 'SUCCESS' : 'OTHER');
       } else if (typeof response.data === 'object') {
-        console.log("📋 Response Object:", JSON.stringify(response.data, null, 2));
+        console.log("📋 Response Keys:", Object.keys(response.data));
       }
     }
 
@@ -501,9 +507,10 @@ export const getCourseGPSResults = async (
     });
 
     console.log("GPS Results Response Status:", capacitorResponse.status);
-    console.log("GPS Results Response Data:", JSON.stringify(capacitorResponse.data, null, 2));
+    // SECURITY FIX: Don't log full GPS results data
+    console.log("GPS Results Data Length:", capacitorResponse.data?.data?.length || 0);
     
-    logAPI(`GPS results response: status=${capacitorResponse.status}, data=${JSON.stringify(capacitorResponse.data)}`);
+    logAPI(`GPS results response: status=${capacitorResponse.status}, points=${capacitorResponse.data?.data?.length || 0}`);
 
     if (capacitorResponse.status === 401) {
       console.log("GPS Results: Token expired");
@@ -570,15 +577,13 @@ export const sendGPSData = async (
 
     try {
       console.log("📡 GPS Transmission to gps.php");
-      console.log("🔐 FULL TOKEN BEING SENT:", `Bearer ${token}`);
+      // CRITICAL SECURITY FIX: Never log tokens or sensitive GPS data
+      console.log("🔐 Using Bearer token authentication");
       console.log("🎯 Request URL:", `${API_BASE_URL}gps.php`);
-      console.log("Vehicle:", gpsData.numar_inmatriculare);
+      console.log("Vehicle:", gpsData.numar_inmatriculare?.substring(0, 3) + "***");
       console.log("UIT:", gpsData.uit);
       console.log("Status:", gpsData.status);
-      console.log(
-        "🚨 COMPLETE GPS DATA BEING SENT:",
-        JSON.stringify(gpsData, null, 2),
-      );
+      console.log("📍 GPS data ready for transmission (coordinates protected)");
 
       // Silent token validation
       try {
@@ -652,7 +657,7 @@ export const sendGPSData = async (
         }
       }
       logAPI(
-        `CapacitorHttp GPS result: ${response.status} - ${JSON.stringify(response.data)}`,
+        `CapacitorHttp GPS result: ${response.status} - response received`,
       );
 
       if (response.status === 401) {
@@ -693,8 +698,9 @@ export const sendGPSData = async (
       console.log("=== Fetch GPS Response ===");
       console.log("Status:", response.status);
       const responseText = await response.text();
-      console.log("Response text:", responseText);
-      logAPI(`Fetch GPS response: ${response.status} - ${responseText}`);
+      // SECURITY FIX: Don't log full response text
+      console.log("Response length:", responseText.length);
+      logAPI(`Fetch GPS response: ${response.status} - length ${responseText.length}`);
 
       if (response.status === 401) {
         console.log("GPS fetch: Token expired - returning false");

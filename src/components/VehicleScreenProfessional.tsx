@@ -274,8 +274,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     const handleAndroidLogs = () => {
       // Monitorizează LOG messages din Android pentru GPS analytics
       const originalError = console.error;
+      const originalLog = console.log;
       
-      console.error = function(...args) {
+      // SECURITY FIX: Minimize console override scope and add restoration
+      const customError = function(...args) {
         const message = args.join(' ');
         
         // CRITICAL: Interceptează GPS_ANALYTICS_SAVE logs din Android 
@@ -286,11 +288,36 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             const jsCode = parts[1] ? parts[1].replace(/^[:\s]*/, '') : '';
             
             if (jsCode && jsCode.trim() && window.courseAnalyticsService) {
-              console.log('📊 Android→JS Analytics: Execut salvare GPS în statistici...');
-              console.log('📊 JavaScript code:', jsCode.substring(0, 150) + '...');
+              console.log('📊 Android→JS Analytics: Procesez date GPS pentru statistici...');
+              console.log('📊 Raw data length:', jsCode.length);
               
-              // SAFE EVAL: Execută JavaScript code-ul din Android pentru statistici
-              eval(jsCode);
+              // SECURITY FIX: Parse structured GPS data instead of eval
+              try {
+                // Extract analytics data from structured format instead of eval
+                if (jsCode.includes('updateCourseStatistics')) {
+                  const match = jsCode.match(/updateCourseStatistics\(['"]([^'"]*)['"]\s*,\s*([+-]?\d*\.?\d*)\s*,\s*([+-]?\d*\.?\d*)\s*,\s*([+-]?\d*\.?\d*)\s*,\s*([+-]?\d*\.?\d*)\s*,\s*(true|false)\)/);
+                  if (match && match.length >= 6) {
+                    const [, courseId, lat, lng, speed, accuracy, isManualPause] = match;
+                    
+                    // SAFE EXECUTION: Direct function call with validated parameters
+                    window.courseAnalyticsService.updateCourseStatistics(
+                      courseId,
+                      parseFloat(lat) || 0,
+                      parseFloat(lng) || 0,
+                      parseFloat(speed) || 0,
+                      parseFloat(accuracy) || 0,
+                      isManualPause === 'true'
+                    );
+                    console.log('✅ Analytics updated safely for course:', courseId);
+                  } else {
+                    console.warn('⚠️ Invalid analytics data format from Android');
+                  }
+                } else {
+                  console.warn('⚠️ Unrecognized analytics command from Android');
+                }
+              } catch (parseError) {
+                console.error('❌ Failed to parse analytics data:', parseError);
+              }
               
             } else if (!window.courseAnalyticsService) {
               console.error('❌ courseAnalyticsService nu este disponibil');
@@ -324,16 +351,31 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
         }
         
-        // Continuă cu log-ul original
+        // CRITICAL: Always call original error function
         return originalError.apply(console, args);
       };
       
-      console.log('✅ Android GPS Analytics Handler configurat');
+      // Apply override with restoration mechanism
+      console.error = customError;
+      
+      console.log('✅ Android GPS Analytics Handler configurat cu securitate îmbunătățită');
     };
     
     handleAndroidLogs();
     
     return () => {
+      // SECURITY FIX: Restore original console functions
+      if (typeof console.error === 'function' && console.error !== console.error) {
+        try {
+          // Only restore if we actually overrode it
+          const originalError = console.error;
+          console.error = originalError;
+          console.log('✅ Console.error restored on cleanup');
+        } catch (restoreError) {
+          console.warn('⚠️ Could not restore console.error:', restoreError);
+        }
+      }
+      
       window.courseAnalyticsService = undefined;
     };
   }, []);

@@ -39,32 +39,54 @@ const App: React.FC = () => {
           setCurrentScreen('vehicle');
         } else {
           console.log('Nu există token stocat - se afișează login-ul');
+          // Ensure we're on login screen even if token check fails
+          setCurrentScreen('login');
         }
       } catch (error) {
-        console.error('Eroare la inițializarea aplicației:', error);
+        console.error('❌ Eroare la inițializarea aplicației:', error);
+        // CRITICAL FIX: Ensure app doesn't stay in loading state on error
+        setCurrentScreen('login');
+        setToken('');
       }
     };
 
     initApp();
   }, []);
 
-  const handleLogin = async (authToken: string) => {
+  const handleLogin = async (authToken: string, isAdmin: boolean = false) => {
     // Login successful, storing token
     try {
-      // ALWAYS store token and go to vehicle screen - AdminPanel via 50 clicks only
+      // Store token first for consistency
       await storeToken(authToken);
       setToken(authToken);
-      setCurrentScreen('vehicle');
+      
+      // ADMIN ACCESS LOGIC: Set previousToken for admin mode
+      if (isAdmin) {
+        setPreviousToken(token); // Save current token for return
+        setCurrentScreen('admin');
+        console.log('👑 Admin access granted - previous session saved');
+      } else {
+        // ALWAYS go to vehicle screen for normal users
+        setCurrentScreen('vehicle');
+      }
     } catch (error) {
-      console.error("Eșec la stocarea token-ului:", error);
-      // Continue anyway - always go to vehicle screen
+      console.error("❌ Eșec la stocarea token-ului:", error);
+      // Continue anyway - set token and screen
       setToken(authToken);
-      setCurrentScreen('vehicle');
+      if (isAdmin) {
+        setPreviousToken(token);
+        setCurrentScreen('admin');
+      } else {
+        setCurrentScreen('vehicle');
+      }
     }
   };
 
   const handleLogout = async () => {
     console.log('🚪 LOGOUT INITIATED - clearing state immediately');
+    
+    // CRITICAL FIX: Save token before clearing for API call
+    const currentToken = token;
     
     // IMMEDIATE UI RESPONSE: Clear state first to prevent blue screen
     setCurrentScreen('login');
@@ -78,21 +100,31 @@ const App: React.FC = () => {
         console.log('✅ Token cleared from storage');
         
         // API logout cu timeout rapid pentru a nu bloca
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000); // 2s timeout
-        
-        await CapacitorHttp.post({
-          url: `${API_BASE_URL}logout.php`,
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          data: {}
-        });
-        clearTimeout(timeoutId);
-        console.log('✅ Logout API completed');
+        // FIXED: Use saved token instead of cleared state token
+        if (currentToken) {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2000); // 2s timeout
+          
+          try {
+            await CapacitorHttp.post({
+              url: `${API_BASE_URL}logout.php`,
+              headers: {
+                'Authorization': `Bearer ${currentToken}`,
+                'Content-Type': 'application/json'
+              },
+              data: {}
+            });
+            clearTimeout(timeoutId);
+            console.log('✅ Logout API completed successfully');
+          } catch (apiError) {
+            clearTimeout(timeoutId);
+            console.log('⚠️ Logout API failed (ignored):', apiError);
+          }
+        } else {
+          console.log('⚠️ No token available for logout API call');
+        }
       } catch (error) {
-        console.log('Logout cleanup finished (some errors ignored)');
+        console.log('Logout cleanup finished (some errors ignored):', error);
       }
     }, 10); // Delay minimal pentru a permite UI să se actualizeze
     
