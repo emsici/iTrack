@@ -12,6 +12,7 @@ import android.location.Location;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.Granularity;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.Priority;
@@ -160,7 +161,7 @@ public class BackgroundGPSService extends Service {
                 .setMinUpdateIntervalMillis(GPS_INTERVAL_SECONDS * 1000)
                 .setMaxUpdateAgeMillis(GPS_INTERVAL_SECONDS * 2 * 1000) // Accept locații cu max 20s vechime
                 .setMaxUpdateDelayMillis(GPS_INTERVAL_SECONDS * 1000 + 5000) // Delay maxim 15s
-                .setGranularity(LocationRequest.GRANULARITY_FINE)
+                .setGranularity(Granularity.GRANULARITY_FINE)
                 .setWaitForAccurateLocation(false) // Nu aștepta locații foarte precise - preferă viteza
                 .build();
         
