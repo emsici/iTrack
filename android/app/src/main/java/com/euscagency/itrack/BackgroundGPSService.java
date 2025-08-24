@@ -233,21 +233,22 @@ public class BackgroundGPSService extends Service {
                     }
                 } else if (newStatus == 3) { // PAUSE
                     courseData.status = 3;
-                    Log.i(TAG, "GPS în pauză pentru " + specificUIT);
+                    Log.i(TAG, "GPS în pauză pentru " + specificUIT + " - continuă înregistrarea pentru traseu complet");
                     
-                    // Verifică dacă mai există curse active
-                    int activeCourseCount = 0;
+                    // CRITICAL FIX: NU oprește GPS-ul la pauză - continuă înregistrarea pentru harta completă
+                    // Verifică dacă mai există curse care înregistrează (ACTIVE sau PAUSE)
+                    int recordingCourseCount = 0;
                     for (CourseData course : activeCourses.values()) {
-                        if (course.status == 2) {
-                            activeCourseCount++;
+                        if (course.status == 2 || course.status == 3) { // ACTIVE sau PAUSE = înregistrare GPS
+                            recordingCourseCount++;
                         }
                     }
                     
-                    if (activeCourseCount == 0) {
-                        Log.i(TAG, "Toate cursele în pauză - opresc GPS");
+                    if (recordingCourseCount == 0) {
+                        Log.i(TAG, "Toate cursele oprite complet - opresc GPS");
                         stopBackgroundGPS();
                     } else {
-                        Log.i(TAG, "GPS continuă pentru " + activeCourseCount + " curse active");
+                        Log.i(TAG, "GPS continuă pentru " + recordingCourseCount + " curse (active + pauze) - traseu complet pentru hartă");
                     }
                 } else if (newStatus == 4) { // STOP
                     // CRITICAL FIX: NU trimite status la server din Android - JavaScript deja a trimis!
@@ -741,10 +742,11 @@ public class BackgroundGPSService extends Service {
                 String uniqueKey = entry.getKey();
                 CourseData courseData = entry.getValue();
                 
-                // Doar cursele ACTIVE (status 2) pot transmite GPS data
-                if (courseData.status != 2) {
-                    continue; // Skip pentru curse în pauză/oprire
+                // CRITICAL FIX: Cursele în PAUZĂ (status 3) trebuie să înregistreze GPS pentru harta, dar nu pentru analytics activ
+                if (courseData.status == 4) {
+                    continue; // Skip DOAR pentru curse OPRITE complet (status 4)
                 }
+                // Status 2 (ACTIVE) și Status 3 (PAUSE) înregistrează GPS pentru traseu complet pe hartă
                 
                 coursesTransmitting++;
                 
@@ -814,13 +816,17 @@ public class BackgroundGPSService extends Service {
                                 double lng = gpsData.getDouble("lng");
                                 double speed = gpsData.getDouble("viteza"); // km/h
                                 double accuracy = gpsData.getDouble("hdop");
+                                int currentStatus = gpsData.getInt("status");
+                                
+                                // IMPORTANT: Marchează ca pauză manuală dacă status = 3 pentru analytics
+                                boolean isManualPause = (currentStatus == 3);
                                 
                                 // Call analytics update prin bridge log pentru JavaScript capture
                                 String analyticsCall = "window.courseAnalyticsService && window.courseAnalyticsService.updateCourseStatistics('" + uniqueKey + "', " + 
-                                    lat + ", " + lng + ", " + speed + ", " + accuracy + ", false);";
+                                    lat + ", " + lng + ", " + speed + ", " + accuracy + ", " + isManualPause + ");";
                                     
                                 Log.e("JS_ANALYTICS_BRIDGE", analyticsCall);
-                                Log.i(TAG, "✅ Analytics bridge called for course: " + uniqueKey);
+                                Log.i(TAG, "✅ Analytics bridge called for course: " + uniqueKey + " (status=" + currentStatus + ", pause=" + isManualPause + ")");
                                 
                             } catch (Exception analyticsError) {
                                 Log.e(TAG, "❌ Analytics update failed: " + analyticsError.getMessage());
