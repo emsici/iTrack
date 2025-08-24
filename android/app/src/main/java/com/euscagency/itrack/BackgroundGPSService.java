@@ -233,22 +233,21 @@ public class BackgroundGPSService extends Service {
                     }
                 } else if (newStatus == 3) { // PAUSE
                     courseData.status = 3;
-                    Log.i(TAG, "GPS în pauză pentru " + specificUIT + " - continuă înregistrarea pentru traseu complet");
+                    Log.i(TAG, "GPS în pauză pentru " + specificUIT + " - NU mai transmite la server");
                     
-                    // CRITICAL FIX: NU oprește GPS-ul la pauză - continuă înregistrarea pentru harta completă
-                    // Verifică dacă mai există curse care înregistrează (ACTIVE sau PAUSE)
-                    int recordingCourseCount = 0;
+                    // Verifică dacă mai există curse ACTIVE (doar status 2)
+                    int activeCourseCount = 0;
                     for (CourseData course : activeCourses.values()) {
-                        if (course.status == 2 || course.status == 3) { // ACTIVE sau PAUSE = înregistrare GPS
-                            recordingCourseCount++;
+                        if (course.status == 2) { // DOAR ACTIVE = transmisie GPS
+                            activeCourseCount++;
                         }
                     }
                     
-                    if (recordingCourseCount == 0) {
-                        Log.i(TAG, "Toate cursele oprite complet - opresc GPS");
+                    if (activeCourseCount == 0) {
+                        Log.i(TAG, "Toate cursele în pauză/oprite - opresc GPS complet");
                         stopBackgroundGPS();
                     } else {
-                        Log.i(TAG, "GPS continuă pentru " + recordingCourseCount + " curse (active + pauze) - traseu complet pentru hartă");
+                        Log.i(TAG, "GPS continuă pentru " + activeCourseCount + " curse ACTIVE - transmisie la server");
                     }
                 } else if (newStatus == 4) { // STOP
                     // CRITICAL FIX: NU trimite status la server din Android - JavaScript deja a trimis!
@@ -742,11 +741,11 @@ public class BackgroundGPSService extends Service {
                 String uniqueKey = entry.getKey();
                 CourseData courseData = entry.getValue();
                 
-                // CRITICAL FIX: Cursele în PAUZĂ (status 3) trebuie să înregistreze GPS pentru harta, dar nu pentru analytics activ
-                if (courseData.status == 4) {
-                    continue; // Skip DOAR pentru curse OPRITE complet (status 4)
+                // REVERT TO ORIGINAL: Doar cursele ACTIVE (status 2) transmit GPS la server
+                if (courseData.status != 2) {
+                    continue; // Skip pentru curse în pauză/oprire - DOAR status 2 transmite la server
                 }
-                // Status 2 (ACTIVE) și Status 3 (PAUSE) înregistrează GPS pentru traseu complet pe hartă
+                // DOAR Status 2 (ACTIVE) transmite GPS la server pentru vizualizare pe hartă
                 
                 coursesTransmitting++;
                 
@@ -818,8 +817,8 @@ public class BackgroundGPSService extends Service {
                                 double accuracy = gpsData.getDouble("hdop");
                                 int currentStatus = gpsData.getInt("status");
                                 
-                                // IMPORTANT: Marchează ca pauză manuală dacă status = 3 pentru analytics
-                                boolean isManualPause = (currentStatus == 3);
+                                // IMPORTANT: Aceste coordonate sunt trimise DOAR pentru status 2 (ACTIVE)
+                                boolean isManualPause = false; // Nu avem pauze în datele trimise la server
                                 
                                 // Call analytics update prin bridge log pentru JavaScript capture
                                 String analyticsCall = "window.courseAnalyticsService && window.courseAnalyticsService.updateCourseStatistics('" + uniqueKey + "', " + 
