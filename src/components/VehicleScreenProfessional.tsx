@@ -17,6 +17,7 @@ import AboutModal from "./AboutModal";
 import CourseDetailsModal from "./CourseDetailsModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme } from "../services/themeService";
+import { courseAnalyticsService } from "../services/courseAnalytics";
 
 // Interfață TypeScript pentru AndroidGPS bridge
 declare global {
@@ -30,6 +31,7 @@ declare global {
       // Handler pentru mesaje GPS din serviciul Android
       onGPSMessage?: (message: string) => void;
     };
+    courseAnalyticsService?: any;
   }
 }
 
@@ -254,6 +256,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [gpsStatus, setGpsStatus] = useState<'active' | 'inactive' | 'unknown'>('unknown');
 
   const toast = useToast();
+
+  // EXPUNE courseAnalyticsService la global window pentru Android bridge
+  useEffect(() => {
+    window.courseAnalyticsService = courseAnalyticsService;
+    console.log('✅ courseAnalyticsService exposed to window for Android bridge');
+    
+    return () => {
+      window.courseAnalyticsService = undefined;
+    };
+  }, []);
 
   // GPS MESSAGE HANDLER pentru alertele din serviciul Android
   useEffect(() => {

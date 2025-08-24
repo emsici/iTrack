@@ -146,13 +146,30 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
       case 4: // Finished/Finalizat
       default:
         return (
-          <div style={{
-            color: currentTheme === 'light' ? '#6b7280' : '#9ca3af',
-            fontSize: '12px',
-            fontStyle: 'italic',
-            textAlign: 'center'
-          }}>
-            Cursă finalizată
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{
+              color: currentTheme === 'light' ? '#6b7280' : '#9ca3af',
+              fontSize: '12px',
+              fontStyle: 'italic',
+              textAlign: 'center'
+            }}>
+              Cursă finalizată
+            </div>
+            {courseStats && courseStats.gpsPoints && courseStats.gpsPoints.length > 0 && (
+              <button
+                className="action-btn-compact"
+                onClick={() => setShowRouteMap(true)}
+                style={{
+                  background: 'linear-gradient(135deg, #059669, #047857)',
+                  color: 'white',
+                  fontSize: '0.85rem',
+                  fontWeight: '600'
+                }}
+              >
+                <i className="fas fa-map-marked-alt"></i>
+                🗺️ Vezi Traseu ({courseStats.gpsPoints.length} puncte)
+              </button>
+            )}
           </div>
         );
     }

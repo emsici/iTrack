@@ -771,6 +771,26 @@ public class BackgroundGPSService extends Service {
                         
                         if (responseCode >= 200 && responseCode < 300) {
                             Log.i(TAG, "GPS trimis cu succes pentru " + realUit);
+                            
+                            // CRITICAL: Actualizează analytics cu coordonatele GPS pentru harta
+                            try {
+                                // Extract GPS data for analytics
+                                double lat = gpsData.getDouble("lat");
+                                double lng = gpsData.getDouble("lng");
+                                double speed = gpsData.getDouble("viteza"); // km/h
+                                double accuracy = gpsData.getDouble("hdop");
+                                
+                                // Call analytics update prin JavaScript bridge
+                                String analyticsCall = "if (window.courseAnalyticsService && window.courseAnalyticsService.updateCourseStatistics) { " +
+                                    "window.courseAnalyticsService.updateCourseStatistics('" + uniqueKey + "', " + 
+                                    lat + ", " + lng + ", " + speed + ", " + accuracy + ", false); }";
+                                    
+                                callJavaScriptFunction(analyticsCall);
+                                Log.i(TAG, "✅ Analytics updated for course: " + uniqueKey);
+                                
+                            } catch (Exception analyticsError) {
+                                Log.e(TAG, "❌ Analytics update failed: " + analyticsError.getMessage());
+                            }
                         } else {
                             Log.w(TAG, "GPS eșuat pentru " + realUit + " - cod: " + responseCode);
                         }
