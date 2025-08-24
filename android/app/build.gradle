@@ -3,6 +3,13 @@ apply plugin: 'com.android.application'
 android {
     namespace "com.euscagency.itrack"
     compileSdk rootProject.ext.compileSdkVersion
+    
+    // CRITICAL FIX: Java 17 compatibility pentru build success
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    
     defaultConfig {
         applicationId "com.euscagency.itrack"
         minSdkVersion rootProject.ext.minSdkVersion

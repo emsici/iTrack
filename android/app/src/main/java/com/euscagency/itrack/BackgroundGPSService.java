@@ -160,7 +160,7 @@ public class BackgroundGPSService extends Service {
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, GPS_INTERVAL_SECONDS * 1000)
                 .setMinUpdateIntervalMillis(GPS_INTERVAL_SECONDS * 1000)
                 .setMaxUpdateAgeMillis(GPS_INTERVAL_SECONDS * 2 * 1000) // Accept locații cu max 20s vechime
-                .setMaxUpdateDelayMillis(GPS_INTERVAL_SECONDS * 1000 + 5000) // Delay maxim 15s
+                .setMaxUpdateDelayMillis(2000) // CRITICAL FIX: Max 2s delay pentru precizie timing
                 .setGranularity(Granularity.GRANULARITY_FINE)
                 .setWaitForAccurateLocation(false) // Nu aștepta locații foarte precise - preferă viteza
                 .build();
@@ -419,15 +419,16 @@ public class BackgroundGPSService extends Service {
         
         Log.e(TAG, "✅ GPS can start - " + activeCourses.size() + " active courses, token available (" + globalToken.length() + " chars)");
         
-        // CRITICAL FIX: Reinițializează httpThreadPool dacă a fost oprit sau e null
+        // CRITICAL FIX: Reinițializează httpThreadPool cu SAME config ca initial pentru a preveni OOM
         if (httpThreadPool == null || httpThreadPool.isShutdown()) {
             httpThreadPool = new java.util.concurrent.ThreadPoolExecutor(
                 1, // Core threads
                 3, // Max threads  
                 60L, java.util.concurrent.TimeUnit.SECONDS, // Keep alive time
-                new java.util.concurrent.LinkedBlockingQueue<Runnable>() // Queue
+                new java.util.concurrent.LinkedBlockingQueue<Runnable>(1000), // LIMITED queue de 1000 pentru a preveni OOM
+                new java.util.concurrent.ThreadPoolExecutor.DiscardOldestPolicy() // Drop old tasks dacă queue e plin
             );
-            Log.e(TAG, "🔧 HTTP ThreadPool reinițializat pentru transmisiile GPS");
+            Log.e(TAG, "🔧 HTTP ThreadPool reinițializat cu queue limitat la 1000 pentru memory safety");
         }
         
         // Acquire WakeLock cu timeout pentru prevenirea kill de Android
@@ -448,8 +449,8 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "🔧 Scheduling cycles every " + GPS_INTERVAL_SECONDS + "s");
         
         try {
-            Log.e(TAG, "🚀 PORNIRE ScheduledExecutorService - prima execuție ACUM, apoi la fiecare " + GPS_INTERVAL_SECONDS + "s");
-            sendLogToJavaScript("🚀 PORNIRE ScheduledExecutorService GPS - prima transmisie ACUM");
+            Log.e(TAG, "🚀 PORNIRE ScheduledExecutorService - prima execuție IMEDIAT, apoi EXACT " + GPS_INTERVAL_SECONDS + "s după completare");
+            sendLogToJavaScript("🚀 PORNIRE ScheduledExecutorService GPS - prima transmisie IMEDIAT");
             
             // Create a runnable that MUST be executed
             Runnable gpsRunnable = new Runnable() {
@@ -505,10 +506,11 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔧 gpsExecutor shutdown check: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
             
             // CRITICAL FIX: DOAR ScheduledExecutorService cu interval corect - fără execuții extra
-            java.util.concurrent.ScheduledFuture<?> future = gpsExecutor.scheduleAtFixedRate(
+            // CRITICAL FIX: scheduleWithFixedDelay pentru interval EXACT - nu permite catch-up
+            java.util.concurrent.ScheduledFuture<?> future = gpsExecutor.scheduleWithFixedDelay(
                 gpsRunnable, 
-                GPS_INTERVAL_SECONDS, // PRIMA EXECUȚIE DUPĂ 10 SECUNDE (nu imediat)
-                GPS_INTERVAL_SECONDS, // APOI LA FIECARE 10 SECUNDE  
+                0, // PRIMA EXECUȚIE IMEDIAT pentru transmisie instantanee
+                GPS_INTERVAL_SECONDS, // APOI EXACT 10s DUPĂ FIECARE COMPLETARE
                 TimeUnit.SECONDS
             );
             
