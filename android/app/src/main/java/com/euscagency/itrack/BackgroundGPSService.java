@@ -624,17 +624,17 @@ public class BackgroundGPSService extends Service {
                         float accuracy = location.getAccuracy();
                         String provider = location.getProvider();
                         
-                        // DOAR GPS NATIV - criteriu unic de precizie înaltă
-                        boolean isHighPrecision = accuracy <= 10; // GPS sub 10m = acceptabil
+                        // RELAXAT: Criteriu de precizie mai permisiv pentru transmisii mai frecvente
+                        boolean isHighPrecision = accuracy <= 25; // GPS sub 25m = acceptabil (relaxat pentru funcționare normală)
                         
                         Log.i(TAG, "🎯 GPS primit: " + location.getLatitude() + ", " + location.getLongitude() + 
                               " (precizie: " + (int)accuracy + "m, provider: " + provider + 
                               ", high-precision: " + isHighPrecision + ")");
                               
                         if (isHighPrecision) {
-                            sendLogToJavaScript("✅ GPS HIGH-PRECISION: " + (int)accuracy + "m (" + provider + ")");
+                            sendLogToJavaScript("✅ GPS ACCEPTED: " + (int)accuracy + "m (" + provider + ") - transmit coordonate");
                         } else {
-                            sendLogToJavaScript("⚠️ GPS LOW-PRECISION: " + (int)accuracy + "m (" + provider + ") - aștept precizie mai bună");
+                            sendLogToJavaScript("⚠️ GPS LOW-PRECISION: " + (int)accuracy + "m (" + provider + ") - prea imprecis (>25m), aștept mai bună");
                             // NU oprește ascultarea - continuă să aștepte precizie mai bună
                             return;
                         }
