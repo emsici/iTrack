@@ -1229,24 +1229,15 @@ public class BackgroundGPSService extends Service {
             org.json.JSONObject statusData = new org.json.JSONObject();
             statusData.put("uit", realUit); // FIXED: Trimite realUit la server, NU ikRoTrans
             statusData.put("numar_inmatriculare", courseData.vehicleNumber); // Vehicul specific pentru cursă
-            // Obține coordonate GPS reale pentru status update
-            Location lastLocation = getLastKnownLocation();
-            if (lastLocation != null) {
-                statusData.put("lat", lastLocation.getLatitude());
-                statusData.put("lng", lastLocation.getLongitude());
-                statusData.put("viteza", (int) (lastLocation.getSpeed() * 3.6));
-                statusData.put("directie", (int) lastLocation.getBearing());
-                statusData.put("altitudine", (int) lastLocation.getAltitude());
-                statusData.put("hdop", (int) lastLocation.getAccuracy());
-            } else {
-                // Fallback doar dacă nu avem GPS
-                statusData.put("lat", 0);
-                statusData.put("lng", 0);
-                statusData.put("viteza", 0);
-                statusData.put("directie", 0);
-                statusData.put("altitudine", 0);
-                statusData.put("hdop", 0);
-            }
+            // SENIOR ARCHITECT FIX: Status update nu necesită coordonate GPS precise
+            // Cursele GPS active vor transmite oricum coordonatele la 10 secunde
+            // Pentru status update (PAUSE/STOP) folosim placeholder values - mai eficient și mai simplu
+            statusData.put("lat", 0);
+            statusData.put("lng", 0);
+            statusData.put("viteza", 0);
+            statusData.put("directie", 0);
+            statusData.put("altitudine", 0);
+            statusData.put("hdop", 0);
             statusData.put("gsm_signal", getNetworkSignal());
             statusData.put("baterie", getBatteryLevel());
             statusData.put("status", newStatus); // PAUSE (3) sau STOP (4)
