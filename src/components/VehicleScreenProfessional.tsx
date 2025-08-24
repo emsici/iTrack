@@ -18,6 +18,8 @@ import CourseDetailsModal from "./CourseDetailsModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme } from "../services/themeService";
 import { courseAnalyticsService } from "../services/courseAnalytics";
+import { backgroundPermissionsService } from "../services/backgroundPermissions";
+import BackgroundPermissionsModal from "./BackgroundPermissionsModal";
 
 // Interfață TypeScript pentru AndroidGPS bridge
 declare global {
@@ -258,6 +260,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showAbout, setShowAbout] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
   const [gpsStatus, setGpsStatus] = useState<'active' | 'inactive' | 'unknown'>('unknown');
@@ -410,6 +413,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
     };
   }, [toast]);
+
+  // Background permissions check on startup
+  useEffect(() => {
+    const checkBackgroundPermissions = async () => {
+      try {
+        await backgroundPermissionsService.initialize();
+        const permissionState = await backgroundPermissionsService.checkAllPermissions();
+        
+        // Afișează modal-ul doar dacă permisiunile lipsesc complet
+        if (!backgroundPermissionsService.isFullyConfigured() && 
+            (permissionState.location.location !== 'granted' || permissionState.backgroundLocation !== 'granted')) {
+          // Delay pentru a permite UI-ul să se încarce complet
+          setTimeout(() => {
+            setShowPermissionsModal(true);
+          }, 2000);
+        }
+      } catch (error) {
+        console.error('❌ Eroare verificare permisiuni background:', error);
+      }
+    };
+    
+    checkBackgroundPermissions();
+  }, []); // Run once on mount
 
   // PERFORMANCE OPTIMIZED: Initialize theme and vehicle number with debouncing
   useEffect(() => {
@@ -895,6 +921,36 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           justifyContent: 'space-between',
           gap: '16px'
         }}>
+          {/* Background Permissions */}
+          <button 
+            onClick={() => setShowPermissionsModal(true)}
+            style={{
+              width: '56px',
+              height: '56px',
+              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+              border: '2px solid rgba(34, 197, 94, 0.3)',
+              borderRadius: '16px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
+              e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
+              e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+            }}
+          >
+            <i className="bi bi-shield-check" style={{
+              fontSize: '20px',
+              color: '#22c55e'
+            }}></i>
+          </button>
+
           {/* Settings */}
           <button 
             onClick={() => setShowSettings(true)}
@@ -1618,6 +1674,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           currentTheme={currentTheme}
         />
       )}
+
+      {/* Background Permissions Modal */}
+      <BackgroundPermissionsModal
+        isOpen={showPermissionsModal}
+        onClose={() => setShowPermissionsModal(false)}
+        onComplete={(success) => {
+          console.log(`🔐 Permisiuni background ${success ? 'configurate' : 'parțial configurate'}`);
+          setShowPermissionsModal(false);
+        }}
+        showInitialPrompt={true}
+      />
     </div>
   );
 };

@@ -35,6 +35,10 @@ public class MainActivity extends BridgeActivity {
         instance = this;
         Log.d(TAG, "✅ MainActivity inițializat - pregătirea interfețelor AndroidGPS");
         
+        // Register PermissionsHelper plugin
+        registerPlugin(PermissionsHelper.class);
+        Log.d(TAG, "🔐 PermissionsHelper plugin înregistrat pentru background location");
+        
         // Setup offline GPS listener pentru capturarea din BackgroundGPSService
         setupOfflineGPSListener();
         
