@@ -271,13 +271,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     console.log('✅ courseAnalyticsService exposed to window for Android bridge');
     
     // CRITICAL NEW: Handler pentru GPS analytics din Android logs  
+    // Store original functions for restoration - moved to useEffect scope
+    const originalError = console.error;
+    
     const handleAndroidLogs = () => {
       // Monitorizează LOG messages din Android pentru GPS analytics
-      const originalError = console.error;
-      const originalLog = console.log;
       
       // SECURITY FIX: Minimize console override scope and add restoration
-      const customError = function(...args) {
+      const customError = function(...args: any[]) {
         const message = args.join(' ');
         
         // CRITICAL: Interceptează GPS_ANALYTICS_SAVE logs din Android 
@@ -364,11 +365,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     handleAndroidLogs();
     
     return () => {
-      // SECURITY FIX: Restore original console functions
-      if (typeof console.error === 'function' && console.error !== console.error) {
+      // CRITICAL FIX: Restore original console functions with proper reference check
+      if (originalError && console.error !== originalError) {
         try {
-          // Only restore if we actually overrode it
-          const originalError = console.error;
           console.error = originalError;
           console.log('✅ Console.error restored on cleanup');
         } catch (restoreError) {

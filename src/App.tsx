@@ -102,11 +102,9 @@ const App: React.FC = () => {
         // API logout cu timeout rapid pentru a nu bloca
         // FIXED: Use saved token instead of cleared state token
         if (currentToken) {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 2000); // 2s timeout
-          
           try {
-            await CapacitorHttp.post({
+            // CRITICAL FIX: Real timeout cu Promise.race (AbortController nu funcționează cu CapacitorHttp)
+            const logoutPromise = CapacitorHttp.post({
               url: `${API_BASE_URL}logout.php`,
               headers: {
                 'Authorization': `Bearer ${currentToken}`,
@@ -114,10 +112,15 @@ const App: React.FC = () => {
               },
               data: {}
             });
-            clearTimeout(timeoutId);
+
+            // Timeout real de 2 secunde cu Promise.race
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Logout timeout')), 2000)
+            );
+
+            await Promise.race([logoutPromise, timeoutPromise]);
             console.log('✅ Logout API completed successfully');
           } catch (apiError) {
-            clearTimeout(timeoutId);
             console.log('⚠️ Logout API failed (ignored):', apiError);
           }
         } else {
