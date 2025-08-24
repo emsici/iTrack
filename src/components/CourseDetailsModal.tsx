@@ -21,7 +21,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
   const [loading, setLoading] = useState(false);
   
   useEffect(() => {
-    if (isOpen && showRouteMap) {
+    if (isOpen && showRouteMap && !courseStats) {
       loadCourseGPSData();
     }
   }, [isOpen, showRouteMap, course.id]);
@@ -62,6 +62,13 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
       setLoading(false);
     }
   };
+
+  // Încarcă statisticile imediat când se deschide modalul pentru a fi disponibile
+  useEffect(() => {
+    if (isOpen) {
+      loadCourseGPSData();
+    }
+  }, [isOpen, course.id]);
   
   if (!isOpen) return null;
 
@@ -362,7 +369,200 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             </div>
           </div>
 
-          {/* SECȚIUNEA 5: Harta cu Opriri GPS */}
+          {/* SECȚIUNEA 5: Statistici Cursă GPS */}
+          <div style={{
+            padding: '16px',
+            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+            borderRadius: '12px',
+            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            marginBottom: '12px'
+          }}>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '700',
+              color: currentTheme === 'dark' ? '#ffffff' : '#000000',
+              margin: '0 0 16px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <i className="fas fa-chart-line" style={{ color: '#10b981' }}></i>
+              Statistici Cursă
+            </h3>
+            
+            {courseStats && courseStats.gpsPoints && courseStats.gpsPoints.length > 0 ? (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '12px',
+                marginBottom: '16px'
+              }}>
+                {/* Distanță totală */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#10b981',
+                    marginBottom: '4px'
+                  }}>
+                    {courseStats.totalDistance.toFixed(1)} km
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Distanță Totală
+                  </div>
+                </div>
+
+                {/* Timp de conducere */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#3b82f6',
+                    marginBottom: '4px'
+                  }}>
+                    {Math.floor(courseStats.drivingTime / 60)}h {Math.round(courseStats.drivingTime % 60)}m
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Timp Conducere
+                  </div>
+                </div>
+
+                {/* Viteză maximă */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#ef4444',
+                    marginBottom: '4px'
+                  }}>
+                    {courseStats.maxSpeed} km/h
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Viteză Maximă
+                  </div>
+                </div>
+
+                {/* Viteză medie */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(245, 158, 11, 0.1)',
+                  border: '1px solid rgba(245, 158, 11, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#f59e0b',
+                    marginBottom: '4px'
+                  }}>
+                    {courseStats.averageSpeed.toFixed(1)} km/h
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Viteză Medie
+                  </div>
+                </div>
+
+                {/* Puncte GPS */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(139, 92, 246, 0.1)',
+                  border: '1px solid rgba(139, 92, 246, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#8b5cf6',
+                    marginBottom: '4px'
+                  }}>
+                    {courseStats.gpsPoints.length}
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Puncte GPS
+                  </div>
+                </div>
+
+                {/* Opriri detectate */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(236, 72, 153, 0.1)',
+                  border: '1px solid rgba(236, 72, 153, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#ec4899',
+                    marginBottom: '4px'
+                  }}>
+                    {pausePoints.length}
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Opriri Detectate
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{
+                textAlign: 'center',
+                padding: '20px',
+                color: currentTheme === 'dark' ? '#cbd5e0' : '#374151',
+                fontSize: '14px'
+              }}>
+                <i className="fas fa-chart-line" style={{ 
+                  fontSize: '24px', 
+                  marginBottom: '8px', 
+                  opacity: 0.5,
+                  color: '#10b981'
+                }}></i>
+                <div>Nu există date GPS pentru această cursă</div>
+                <div style={{ fontSize: '12px', opacity: 0.7, marginTop: '4px' }}>
+                  Pornește GPS-ul pentru a vedea statisticile
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* SECȚIUNEA 6: Harta cu Opriri GPS */}
           <div style={{
             padding: '16px',
             background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
