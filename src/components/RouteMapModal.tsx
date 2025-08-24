@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { CourseStatistics } from '../services/courseAnalytics';
 
 // Import Leaflet dynamically to avoid SSR issues
-let L: any = null;
+let L: typeof import('leaflet') | null = null;
 
 interface RouteMapModalProps {
   isOpen: boolean;
@@ -12,8 +12,8 @@ interface RouteMapModalProps {
 }
 
 const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseData, currentTheme }) => {
-  const mapRef = useRef<any>(null);
-  const mapInstanceRef = useRef<any>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<import('leaflet').Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mapStats, setMapStats] = useState({
@@ -45,7 +45,7 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseDa
       document.head.appendChild(link);
 
       // Fix marker icons
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
         iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',

@@ -50,10 +50,10 @@ class AppLoggerService {
     }
   }
 
-  // PERFORMANCE FIX: Batched saving pentru optimizare performance
-  private logBatch: AppLog[] = [];
-  private flushTimer: any = null;
-  private readonly BATCH_FLUSH_INTERVAL = 5000; // 5 secunde
+  // PERFORMANCE FIX: Batched saving pentru optimizare performance (UNUSED - kept for future implementation)
+  // private logBatch: AppLog[] = [];
+  // private flushTimer: any = null;
+  // private readonly BATCH_FLUSH_INTERVAL = 5000; // 5 secunde
 
   private async saveLogs(): Promise<void> {
     try {
@@ -75,11 +75,6 @@ class AppLoggerService {
         key: this.STORAGE_KEY,
         value: JSON.stringify(this.logs),
       });
-      
-      if (this.flushTimer) {
-        clearTimeout(this.flushTimer);
-        this.flushTimer = null;
-      }
     } catch (error) {
       console.error("Eroare flush batch log-uri:", error);
     }

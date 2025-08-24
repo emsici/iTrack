@@ -31,7 +31,9 @@ declare global {
       // Handler pentru mesaje GPS din serviciul Android
       onGPSMessage?: (message: string) => void;
     };
-    courseAnalyticsService?: any;
+    courseAnalyticsService?: {
+      updateCourseStatistics: (courseId: string, lat: number, lng: number, speed: number, accuracy: number, isManualPause: boolean) => void;
+    };
   }
 }
 
