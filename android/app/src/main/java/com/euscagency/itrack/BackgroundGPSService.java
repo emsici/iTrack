@@ -52,6 +52,11 @@ public class BackgroundGPSService extends Service {
     private String globalVehicle;
     private boolean isGPSRunning = false;
     
+    // MODERN ADDITIONS: Sistem simplu offline queue fără complexitate excesivă
+    private java.util.concurrent.ConcurrentLinkedQueue<String> simpleOfflineQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
+    private java.util.concurrent.ScheduledExecutorService retryExecutor;
+    private boolean isRetryRunning = false;
+    
     // Clasă pentru datele cursei
     private static class CourseData {
         String courseId; // ikRoTrans - identificator unic pentru HashMap
