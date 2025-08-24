@@ -270,29 +270,42 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     window.courseAnalyticsService = courseAnalyticsService;
     console.log('✅ courseAnalyticsService exposed to window for Android bridge');
     
-    // CRITICAL NEW: Handler pentru GPS analytics din Android logs
+    // CRITICAL NEW: Handler pentru GPS analytics din Android logs  
     const handleAndroidLogs = () => {
-      // Monitorizează LOG messages pentru GPS analytics
-      const originalLog = console.log;
+      // Monitorizează LOG messages din Android pentru GPS analytics
       const originalError = console.error;
       
       console.error = function(...args) {
-        // Interceptează GPS_ANALYTICS_SAVE logs din Android
         const message = args.join(' ');
-        if (message.includes('GPS_ANALYTICS_SAVE:')) {
+        
+        // CRITICAL: Interceptează GPS_ANALYTICS_SAVE logs din Android 
+        if (message.includes('GPS_ANALYTICS_SAVE') || message.includes('GPS_ANALYTICS_SAVE:')) {
           try {
-            // Extrage JavaScript code din log
-            const jsCode = message.split('GPS_ANALYTICS_SAVE: ')[1];
-            if (jsCode && window.courseAnalyticsService) {
-              console.log('📊 Execut GPS analytics din Android:', jsCode.substring(0, 100) + '...');
+            // Extrage JavaScript code din log-ul Android
+            const parts = message.split('GPS_ANALYTICS_SAVE');
+            const jsCode = parts[1] ? parts[1].replace(/^[:\s]*/, '') : '';
+            
+            if (jsCode && jsCode.trim() && window.courseAnalyticsService) {
+              console.log('📊 Android→JS Analytics: Execut salvare GPS în statistici...');
+              console.log('📊 JavaScript code:', jsCode.substring(0, 150) + '...');
+              
+              // SAFE EVAL: Execută JavaScript code-ul din Android pentru statistici
               eval(jsCode);
+              
+            } else if (!window.courseAnalyticsService) {
+              console.error('❌ courseAnalyticsService nu este disponibil');
             }
           } catch (evalError) {
-            console.error('❌ Eroare execuție GPS analytics:', evalError);
+            console.error('❌ Eroare execuție GPS analytics din Android:', evalError);
+            console.error('❌ JavaScript Code:', message.substring(0, 200));
           }
         }
+        
+        // Continuă cu log-ul original
         return originalError.apply(console, args);
       };
+      
+      console.log('✅ Android GPS Analytics Handler configurat');
     };
     
     handleAndroidLogs();
