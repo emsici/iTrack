@@ -254,7 +254,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
 
             .vehicle-input {
               width: 100%;
-              padding: 16px 20px;
+              padding: 20px 24px; /* MĂRIT PADDING pentru confort */
               background: ${currentTheme === 'light' ? 'rgba(248, 250, 252, 0.8)' : 'rgba(15, 23, 42, 0.6)'};
               border: 2px solid ${themeColors.border};
               border-radius: 12px;
@@ -266,7 +266,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
               letterSpacing: 2px;
               textTransform: uppercase;
               transition: all 0.3s ease;
-              margin-bottom: 16px; /* REDUS pentru spatiu */
+              margin-bottom: 16px;
             }
 
             .vehicle-input:focus {
