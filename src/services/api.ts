@@ -276,7 +276,7 @@ const performVehicleCoursesRequest = async (
                 VamaStop: course.VamaStop
               };
             })
-            .filter((course) => course !== null); // CRITICAL: Remove null courses
+            .filter((course: any) => course !== null); // CRITICAL: Remove null courses
 
           console.log(
             `Processed ${processedCourses.length} courses successfully`,
