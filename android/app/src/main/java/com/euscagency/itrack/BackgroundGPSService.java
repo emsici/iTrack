@@ -356,6 +356,7 @@ public class BackgroundGPSService extends Service {
                     Log.e(TAG, "🔧 Thread: " + Thread.currentThread().getName());
                     Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning.get());
                     Log.e(TAG, "🔧 activeCourses.size(): " + activeCourses.size());
+                    Log.e(TAG, "🔧 Execution count: " + System.currentTimeMillis());
                     
                     sendLogToJavaScript("⏰ SCHEDULED TASK EXECUTION - " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
                     
@@ -411,7 +412,7 @@ public class BackgroundGPSService extends Service {
             // CRITICAL FIX: DOAR ScheduledExecutorService cu interval corect - fără execuții extra
             java.util.concurrent.ScheduledFuture<?> future = gpsExecutor.scheduleAtFixedRate(
                 gpsRunnable, 
-                GPS_INTERVAL_SECONDS, // PRIMA EXECUȚIE DUPĂ 10 SECUNDE (nu imediat)
+                0, // PRIMA EXECUȚIE IMEDIAT (nu după 10 secunde)
                 GPS_INTERVAL_SECONDS, // APOI LA FIECARE 10 SECUNDE  
                 TimeUnit.SECONDS
             );
@@ -579,7 +580,14 @@ public class BackgroundGPSService extends Service {
     
     private void performGPSCycle() {
         String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-        Log.i(TAG, "GPS ciclu început - " + activeCourses.size() + " curse");
+        Log.e(TAG, "🔥 GPS CYCLE START - " + currentTime);
+        Log.e(TAG, "🔥 Active courses count: " + activeCourses.size());
+        
+        // Log fiecare cursă activă pentru debugging
+        for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+            CourseData course = entry.getValue();
+            Log.e(TAG, "🔥 Course: " + entry.getKey() + " | Status: " + course.status + " | Vehicle: " + course.vehicleNumber);
+        }
         
         // Verifică dacă serviciul funcționează corect
         if (gpsExecutor == null || gpsExecutor.isShutdown()) {
@@ -738,9 +746,9 @@ public class BackgroundGPSService extends Service {
         try {
             Log.i(TAG, "Pregătesc transmisia GPS pentru " + activeCourses.size() + " curse");
             
-            // UTC Timestamp - consistent across all layers
+            // ROMANIA TIMEZONE: UTC+3 pentru România - conform preferințelor utilizatorului
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            sdf.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
             String timestamp = sdf.format(new java.util.Date());
             
             // Senzori
@@ -753,11 +761,16 @@ public class BackgroundGPSService extends Service {
                 String uniqueKey = entry.getKey();
                 CourseData courseData = entry.getValue();
                 
+                Log.e(TAG, "🔥 Processing course: " + uniqueKey + " with status: " + courseData.status);
+                
                 // REVERT TO ORIGINAL: Doar cursele ACTIVE (status 2) transmit GPS la server
                 if (courseData.status != 2) {
+                    Log.e(TAG, "🔥 SKIP course " + uniqueKey + " - status " + courseData.status + " (not active)");
                     continue; // Skip pentru curse în pauză/oprire - DOAR status 2 transmite la server
                 }
                 // DOAR Status 2 (ACTIVE) transmite GPS la server pentru vizualizare pe hartă
+                
+                Log.e(TAG, "🔥 WILL TRANSMIT GPS for course: " + uniqueKey + " (status 2 - ACTIVE)");
                 
                 coursesTransmitting++;
                 
@@ -1019,9 +1032,9 @@ public class BackgroundGPSService extends Service {
             statusData.put("baterie", getBatteryLevel());
             statusData.put("status", newStatus); // PAUSE (3) sau STOP (4)
             
-            // UTC Timestamp - consistent across all layers
+            // ROMANIA TIMEZONE: UTC+3 pentru România - conform preferințelor utilizatorului
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
+            sdf.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
             String timestamp = sdf.format(new java.util.Date());
             statusData.put("timestamp", timestamp);
             
