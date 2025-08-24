@@ -38,10 +38,16 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
         let slowPoints: GPSPoint[] = [];
         
         stats.gpsPoints.forEach((point) => {
-          if (point.speed < 5) { // Sub 5 km/h
+          // Adaugă pauze manuale
+          if (point.isManualPause) {
+            pauses.push(point);
+          }
+          
+          // Detectează opriri automate (viteză sub 2 km/h)
+          if (point.speed < 2) { // Sub 2 km/h
             slowPoints.push(point);
           } else {
-            // Dacă am avut mai mult de 3 puncte lente consecutive, e o pauză
+            // Dacă am avut mai mult de 3 puncte lente consecutive, e o oprire automată
             if (slowPoints.length >= 3) {
               pauses.push(slowPoints[Math.floor(slowPoints.length / 2)]); // Punctul din mijloc
             }
@@ -517,7 +523,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                   </div>
                 </div>
 
-                {/* Opriri detectate */}
+                {/* Pauze manuale */}
                 <div style={{
                   padding: '12px',
                   background: 'rgba(236, 72, 153, 0.1)',
@@ -531,7 +537,31 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                     color: '#ec4899',
                     marginBottom: '4px'
                   }}>
-                    {pausePoints.length}
+                    {courseStats.manualPauses || 0}
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Pauze Manuale
+                  </div>
+                </div>
+
+                {/* Opriri auto-detectate */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  border: '1px solid rgba(34, 197, 94, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#22c55e',
+                    marginBottom: '4px'
+                  }}>
+                    {courseStats.autoPauses || 0}
                   </div>
                   <div style={{
                     fontSize: '12px',
@@ -699,9 +729,10 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                             </div>
                           )}
 
-                          {/* Punctele de oprire reale */}
+                          {/* Punctele de oprire reale - diferite culori pentru manual vs auto */}
                           {pausePoints.map((pause, index) => {
                             const position = calculatePointPosition(pause, courseStats.gpsPoints);
+                            const isManual = pause.isManualPause;
                             return (
                               <div
                                 key={index}
@@ -716,7 +747,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                                 <div style={{
                                   width: '32px',
                                   height: '32px',
-                                  background: '#3b82f6',
+                                  background: isManual ? '#ec4899' : '#22c55e', // Roz pentru manual, verde pentru auto
                                   borderRadius: '50%',
                                   display: 'flex',
                                   alignItems: 'center',
@@ -727,7 +758,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                                   border: '3px solid white',
                                   boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
                                 }}>
-                                  {index + 1}
+                                  {isManual ? 'P' : index + 1}
                                 </div>
                               </div>
                             );
@@ -833,8 +864,12 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                             <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>START</span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <div style={{ width: '12px', height: '12px', background: '#3b82f6', borderRadius: '50%' }}></div>
-                            <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>OPRIRI</span>
+                            <div style={{ width: '12px', height: '12px', background: '#ec4899', borderRadius: '50%' }}></div>
+                            <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>PAUZĂ MANUALĂ</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '12px', height: '12px', background: '#22c55e', borderRadius: '50%' }}></div>
+                            <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>OPRIRE AUTO</span>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <div style={{ width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%' }}></div>
@@ -869,7 +904,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                       fontSize: '12px',
                       color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af'
                     }}>
-                      <strong>Notă:</strong> Harta afișează coordonatele GPS reale din cursă și toate opririle detectate automat când viteza a fost sub 5 km/h pentru mai mult de 30 secunde (3+ puncte consecutive)
+                      <strong>Notă:</strong> Harta afișează coordonatele GPS reale din cursă cu două tipuri de opriri: Pauze Manuale (P - roz) când apeși butonul PAUZĂ și Opriri Auto (numere - verde) când viteza a fost sub 2 km/h pentru 30+ secunde
                     </div>
                   </>
                 )}

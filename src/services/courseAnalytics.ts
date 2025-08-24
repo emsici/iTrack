@@ -11,6 +11,7 @@ export interface GPSPoint {
   timestamp: string;
   speed: number; // km/h
   accuracy: number;
+  isManualPause?: boolean; // true dacă a fost apăsat butonul PAUZĂ manual
 }
 
 export interface CourseStatistics {
@@ -25,6 +26,8 @@ export interface CourseStatistics {
   maxSpeed: number; // km/h
   totalStops: number;
   stopDuration: number; // minutes
+  manualPauses: number; // numărul de pauze manuale (butonul PAUZĂ)
+  autoPauses: number; // numărul de opriri auto-detectate
   // Removed fuel estimate - too variable for trucks without real data
   gpsPoints: GPSPoint[];
   isActive: boolean;
@@ -34,7 +37,7 @@ export interface CourseStatistics {
 class CourseAnalyticsService {
   private readonly STORAGE_KEY_PREFIX = 'course_analytics_';
   // Removed fuel consumption - too variable for trucks without real data
-  private readonly MIN_SPEED_THRESHOLD = 5; // km/h - below this is considered stopped
+  private readonly MIN_SPEED_THRESHOLD = 2; // km/h - below this is considered stopped
   private readonly MIN_DISTANCE_THRESHOLD = 0.01; // km - minimum distance to count
 
   /**
@@ -63,6 +66,8 @@ class CourseAnalyticsService {
         maxSpeed: 0,
         totalStops: 0,
         stopDuration: 0,
+        manualPauses: 0,
+        autoPauses: 0,
         // Removed fuel estimate field
         gpsPoints: [],
         isActive: true,
@@ -84,7 +89,8 @@ class CourseAnalyticsService {
     lat: number, 
     lng: number, 
     speed: number, 
-    accuracy: number
+    accuracy: number,
+    isManualPause: boolean = false
   ): Promise<CourseStatistics | null> {
     try {
       const analytics = await this.getCourseAnalytics(courseId);
@@ -97,7 +103,8 @@ class CourseAnalyticsService {
         lng,
         timestamp: new Date().toISOString(),
         speed,
-        accuracy
+        accuracy,
+        isManualPause
       };
 
       // Add new GPS point
@@ -125,6 +132,9 @@ class CourseAnalyticsService {
 
       // Calculate driving time and stops
       this.updateTimeStatistics(analytics);
+      
+      // Count manual pauses and auto pauses
+      this.updatePauseStatistics(analytics);
 
       // Calculate average speed
       if (analytics.drivingTime > 0) {
@@ -286,6 +296,42 @@ class CourseAnalyticsService {
     } catch (error) {
       console.error('❌ Error saving course analytics:', error);
     }
+  }
+
+  /**
+   * Update pause statistics - diferențiază între pauze manuale și auto-detectate
+   */
+  private updatePauseStatistics(analytics: CourseStatistics): void {
+    let manualPauses = 0;
+    let autoPauses = 0;
+    let slowPoints: GPSPoint[] = [];
+    
+    analytics.gpsPoints.forEach((point) => {
+      // Contează pauze manuale
+      if (point.isManualPause) {
+        manualPauses++;
+      }
+      
+      // Detectează opriri automate (viteză sub 2 km/h)
+      if (point.speed < this.MIN_SPEED_THRESHOLD) {
+        slowPoints.push(point);
+      } else {
+        // Dacă am avut mai mult de 3 puncte lente consecutive, e o oprire automată
+        if (slowPoints.length >= 3) {
+          autoPauses++;
+        }
+        slowPoints = [];
+      }
+    });
+    
+    // Verifică și ultimele puncte
+    if (slowPoints.length >= 3) {
+      autoPauses++;
+    }
+    
+    analytics.manualPauses = manualPauses;
+    analytics.autoPauses = autoPauses;
+    analytics.totalStops = manualPauses + autoPauses;
   }
 
   /**

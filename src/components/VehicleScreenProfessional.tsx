@@ -1125,6 +1125,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       const actionType = newStatus === 3 ? 'PAUSE' : 'STOP';
                       console.log(`GPS ${actionType.toLowerCase()} pentru cursă ${courseId}`);
                       
+                      // ADAUGĂ PUNCT GPS CU FLAG MANUAL PENTRU PAUZĂ
+                      if (newStatus === 3 && window.AndroidGPS && window.AndroidGPS.markManualPause) {
+                        const ikRoTransKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
+                        window.AndroidGPS.markManualPause(ikRoTransKey);
+                      }
+                      
                       if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
                         const ikRoTransKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
                         window.AndroidGPS.updateStatus(ikRoTransKey, newStatus, vehicleNumber);
