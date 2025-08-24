@@ -95,6 +95,7 @@ Securitate GPS: ZERO TOLERANCE pentru coordonate false - doar coordonate reale d
 - `changelog.md`: Istoric modificări și versiuni aplicație
 - `TEST_CONFLICT_SCENARIO.md`: Scenarii testare conflicte multi-user
 - `VERIFICARE_*.md`: Documentații tehnice specifice pentru testare și validare
+- `FLUXUL_COMPLET_GPS_CAP_COADA.md`: Documentație tehnică completă - fluxul GPS de la satelit la server
 
 ## Jurnalul Modificărilor Recente
 
