@@ -834,7 +834,13 @@ public class BackgroundGPSService extends Service {
                         
                         // OFFLINE QUEUE: Salvează coordonatele pentru retry automat
                         try {
-                            addToOfflineQueue(gpsData, timestamp);
+                            // Recreate timestamp for offline queue
+                            java.util.TimeZone romaniaTimeZone = java.util.TimeZone.getTimeZone("Europe/Bucharest");
+                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            sdf.setTimeZone(romaniaTimeZone);
+                            String offlineTimestamp = sdf.format(new java.util.Date());
+                            
+                            addToOfflineQueue(gpsData, offlineTimestamp);
                             Log.e(TAG, "💾 GPS coordinate saved to offline queue for retry");
                         } catch (Exception offlineError) {
                             Log.e(TAG, "Eroare salvare offline queue: " + offlineError.getMessage());
