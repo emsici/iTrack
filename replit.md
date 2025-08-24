@@ -109,12 +109,13 @@ Securitate GPS: ZERO TOLERANCE pentru coordonate false - doar coordonate reale d
 ✅ Sistem GPS complet securizat pentru producție cu integritate garantată a datelor
 
 **24-08-2025 - FIX CRITICAL REGRESSION GPS TRANSMISIA REPETITIVĂ:**
-✅ IDENTIFICAT ROOT CAUSE: AtomicBoolean vs boolean simplu cauzează timing issues în ScheduledExecutorService
+✅ IDENTIFICAT ROOT CAUSE: AtomicBoolean vs boolean simplu + status cursă diferit de 2
 ✅ COMPARAT cu commit funcțional 3c57f36ab1b8364936458193907a1e63e7a1a514 - boolean simplu era folosit
 ✅ REPARAT boolean regression: Revert de la AtomicBoolean la boolean isGPSRunning = false
-✅ TIMEZONE CONSISTENCY reparat: Europe/Bucharest aplicat la TOATE log-urile (nu doar GPS timestamp)
+✅ FORȚARE STATUS=2: JavaScript forțează status=2 ACTIV pentru toate cursele GPS pornite
+✅ GPS DOAR NATIV: Eliminat Network fallback pentru precizie maximă (doar LocationManager.GPS_PROVIDER)
 ✅ PRIMA EXECUȚIE imediat: scheduleAtFixedRate cu delay 0 pentru start instant
-✅ GPS va transmite: Prima dată imediat, apoi la fiecare 10 secunde cu ora României corectă
+✅ GPS va transmite: Prima dată imediat, apoi la fiecare 10 secunde cu coordonate precise GPS native
 
 **24-08-2025 - AUDIT SENIOR EXHAUSTIV COMPLET FINAL - FIECARE LITERĂ, CUVÂNT, RÂND:**
 ✅ AUDIT COMPLET SENIOR ARCHITECT: 30 fișiere (25 TS/TSX + 5 Java), 9,542+ linii cod verificate exhaustiv

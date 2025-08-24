@@ -676,12 +676,10 @@ public class BackgroundGPSService extends Service {
                 }
             };
             
-            // Verifică provideri disponibili
+            // DOAR GPS NATIV pentru precizie maximă (conform preferințelor utilizatorului)
             boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
             
-            String provider = gpsEnabled ? LocationManager.GPS_PROVIDER : 
-                            (networkEnabled ? LocationManager.NETWORK_PROVIDER : null);
+            String provider = gpsEnabled ? LocationManager.GPS_PROVIDER : null;
             
             if (provider != null) {
                 Log.i(TAG, "Folosesc provider: " + provider);
@@ -704,8 +702,8 @@ public class BackgroundGPSService extends Service {
                     }
                 }).start();
             } else {
-                Log.e(TAG, "Provideri GPS indisponibili");
-                sendLogToJavaScript("GPS indisponibil - activează în setări");
+                Log.e(TAG, "GPS NATIV dezactivat - activează GPS în setări");
+                sendLogToJavaScript("❌ GPS dezactivat - activează GPS în setări pentru precizie maximă");
             }
 
             
