@@ -51,7 +51,7 @@ public class BackgroundGPSService extends Service {
     private java.util.concurrent.ThreadPoolExecutor httpThreadPool;
     private String globalVehicle;
     
-    // GPS Running State: boolean simplu - commit 3c57f36ab1b8364936458193907a1e63e7a1a514 care funcționa
+    // GPS Running State: boolean simplu - REVERT la commit funcțional 3c57f36ab1b8364936458193907a1e63e7a1a514
     private boolean isGPSRunning = false;
     
     // OFFLINE QUEUE: Sistem pentru persistența GPS când nu e rețea
@@ -589,18 +589,9 @@ public class BackgroundGPSService extends Service {
     }
     
     private void performGPSCycle() {
-        // ROMANIA TIMEZONE pentru performGPSCycle - consistency
-        java.text.SimpleDateFormat gpsTimeFormat = new java.text.SimpleDateFormat("HH:mm:ss");
-        gpsTimeFormat.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
-        String currentTime = gpsTimeFormat.format(new java.util.Date());
-        Log.e(TAG, "🔥 GPS CYCLE START - " + currentTime);
-        Log.e(TAG, "🔥 Active courses count: " + activeCourses.size());
-        
-        // Log fiecare cursă activă pentru debugging
-        for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-            CourseData course = entry.getValue();
-            Log.e(TAG, "🔥 Course: " + entry.getKey() + " | Status: " + course.status + " | Vehicle: " + course.vehicleNumber);
-        }
+        String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
+        Log.i(TAG, "GPS ciclu început - " + activeCourses.size() + " curse");
+
         
         // Verifică dacă serviciul funcționează corect
         if (gpsExecutor == null || gpsExecutor.isShutdown()) {
@@ -614,12 +605,10 @@ public class BackgroundGPSService extends Service {
         sendLogToJavaScript("GPS ciclu activ - " + activeCourses.size() + " curse");
         
         if (activeCourses.isEmpty()) {
-            Log.e(TAG, "🔥 SKIP GPS CYCLE - No active courses, but task will continue running");
             return;
         }
         
         if (globalToken == null) {
-            Log.e(TAG, "🔥 SKIP GPS CYCLE - No token, but task will continue running");
             sendLogToJavaScript("Eroare: Token lipsă");
             return;
         }
