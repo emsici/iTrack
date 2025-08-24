@@ -75,7 +75,7 @@ class OfflineGPSService {
       if (sharedPrefsData.value) {
         const androidCoords = JSON.parse(sharedPrefsData.value);
         if (androidCoords.length > 0) {
-          console.log(`🔄 Recuperez ${androidCoords.length} coordonate din Android SharedPreferences fallback`);
+          console.log(`🔄 Recuperez ${androidCoords.length} coordonate din Android SharedPreferences rezervă`);
           
           // Convertește și integrează în sistemul principal
           const existingCoords = await this.getOfflineCoordinates();

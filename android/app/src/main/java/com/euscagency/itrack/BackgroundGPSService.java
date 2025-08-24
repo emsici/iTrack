@@ -199,7 +199,7 @@ public class BackgroundGPSService extends Service {
                     sendLogToJavaScript("⚡ UIT nou adăugat la ScheduledExecutorService existent: " + uitId);
                 }
             } else {
-                Log.e(TAG, "GPS not started - course status is " + courseStatus + " (not ACTIVE)");
+                Log.e(TAG, "GPS neporni - statusul cursei este " + courseStatus + " (nu ACTIV)");
             }
             
         } else if (intent != null && "UPDATE_COURSE_STATUS".equals(intent.getAction())) {
@@ -296,7 +296,7 @@ public class BackgroundGPSService extends Service {
         }
         
         if (globalToken == null) {
-            Log.e(TAG, "❌ Cannot start GPS - NO TOKEN available");
+            Log.e(TAG, "❌ Nu pot porni GPS - NICIUN TOKEN disponibil");
             return;
         }
         
@@ -886,7 +886,7 @@ public class BackgroundGPSService extends Service {
                         
                         Log.e(TAG, "🔗 Connection configured, sending data...");
                         
-                        // Send JSON data
+                        // Trimite datele JSON
                         try (java.io.OutputStream os = conn.getOutputStream()) {
                             byte[] input = gpsDataJson.getBytes("utf-8");
                             os.write(input, 0, input.length);
@@ -1043,7 +1043,7 @@ public class BackgroundGPSService extends Service {
                         
                         Log.e(TAG, "🔗 Status connection configured, sending data...");
                         
-                        // Send JSON data
+                        // Trimite datele JSON status
                         try (java.io.OutputStream os = conn.getOutputStream()) {
                             byte[] input = statusDataJson.getBytes("utf-8");
                             os.write(input, 0, input.length);
