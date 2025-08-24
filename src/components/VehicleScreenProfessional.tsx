@@ -75,11 +75,11 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       viteza: Math.round(gpsData.speed * 3.6),
       directie: Math.round(gpsData.heading),
       altitudine: Math.round(gpsData.alt),
-      hdop: Math.round(gpsData.acc),
+      accuracy_m: Math.round(gpsData.acc), // Renamed from hdop - represents GPS accuracy in meters
       gsm_signal: await getNetworkSignal(),
       baterie: await getBatteryLevel(),
       status: newStatus,
-      timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
+      timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
     };
     
     const endpoint = `${API_BASE_URL}gps.php`;

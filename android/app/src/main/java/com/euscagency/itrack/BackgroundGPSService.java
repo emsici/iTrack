@@ -725,10 +725,9 @@ public class BackgroundGPSService extends Service {
         try {
             Log.i(TAG, "Pregătesc transmisia GPS pentru " + activeCourses.size() + " curse");
             
-            // Timestamp România
-            java.util.TimeZone romaniaTimeZone = java.util.TimeZone.getTimeZone("Europe/Bucharest");
+            // UTC Timestamp - consistent across all layers
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.setTimeZone(romaniaTimeZone);
+            sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
             String timestamp = sdf.format(new java.util.Date());
             
             // Senzori
@@ -773,7 +772,7 @@ public class BackgroundGPSService extends Service {
                 gpsData.put("viteza", (int) (location.getSpeed() * 3.6));
                 gpsData.put("directie", (int) location.getBearing());
                 gpsData.put("altitudine", (int) location.getAltitude());
-                gpsData.put("hdop", (int) location.getAccuracy());
+                gpsData.put("accuracy_m", (int) location.getAccuracy()); // GPS accuracy in meters (not HDOP)
                 gpsData.put("gsm_signal", networkSignal);
                 gpsData.put("baterie", batteryLevel);
                 gpsData.put("status", courseData.status);
@@ -996,7 +995,7 @@ public class BackgroundGPSService extends Service {
                 statusData.put("viteza", (int) (lastLocation.getSpeed() * 3.6));
                 statusData.put("directie", (int) lastLocation.getBearing());
                 statusData.put("altitudine", (int) lastLocation.getAltitude());
-                statusData.put("hdop", (int) lastLocation.getAccuracy());
+                statusData.put("accuracy_m", (int) lastLocation.getAccuracy()); // GPS accuracy in meters
             } else {
                 // SECURITY: REFUZĂ transmisia cu coordonate false - ANULEAZĂ status update
                 Log.e(TAG, "🚫 SECURITY ABORT: GPS invalid sau (0,0) - REFUZ transmisia status update");
@@ -1007,10 +1006,9 @@ public class BackgroundGPSService extends Service {
             statusData.put("baterie", getBatteryLevel());
             statusData.put("status", newStatus); // PAUSE (3) sau STOP (4)
             
-            // Romania timestamp
-            java.util.TimeZone romaniaTimeZone = java.util.TimeZone.getTimeZone("Europe/Bucharest");
+            // UTC Timestamp - consistent across all layers
             java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.setTimeZone(romaniaTimeZone);
+            sdf.setTimeZone(java.util.TimeZone.getTimeZone("UTC"));
             String timestamp = sdf.format(new java.util.Date());
             statusData.put("timestamp", timestamp);
             
