@@ -45,7 +45,7 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseDa
       document.head.appendChild(link);
 
       // Fix marker icons
-      delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
         iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
@@ -95,7 +95,7 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseDa
 
     // Create polyline for route
     const routeCoords = sampledPoints.map(point => [point.lat, point.lng]);
-    const polyline = L.polyline(routeCoords, {
+    const polyline = L.polyline(routeCoords as [number, number][], {
       color: '#3b82f6',
       weight: 4,
       opacity: 0.8
@@ -190,7 +190,7 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseDa
         mapInstanceRef.current.setView([point.lat, point.lng], 15);
         
         // Add temporary marker for current position
-        if (currentIndex > 0) {
+        if (currentIndex > 0 && L) {
           L.marker([point.lat, point.lng], {
             icon: L.divIcon({
               html: '<div style="background: #8b5cf6; color: white; border-radius: 50%; width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; font-size: 10px;">•</div>',
