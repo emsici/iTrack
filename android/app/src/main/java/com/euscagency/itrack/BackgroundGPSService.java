@@ -349,10 +349,15 @@ public class BackgroundGPSService extends Service {
                         Log.i(TAG, "GPS deja activ - continuă pentru " + specificUIT);
                     }
                 } else if (newStatus == 3) { // PAUSE
+                    // CRITICAL FIX: Update status IMEDIAT pentru a preveni race conditions
                     courseData.status = 3;
-                    Log.i(TAG, "GPS în pauză pentru " + specificUIT);
+                    Log.e(TAG, "🚫 GPS PAUSE pentru " + specificUIT + " - status updatat la 3 IMEDIAT");
                     
-                    // Verifică dacă mai există curse active
+                    // CRITICAL: Oprește transmisia IMEDIAT - nu aștepta verificarea
+                    Log.e(TAG, "🛑 OPRESC GPS IMEDIAT la PAUSE - nu verific alte curse");
+                    stopBackgroundGPS();
+                    
+                    // APOI verifică dacă trebuie repornit pentru alte curse active
                     int activeCourseCount = 0;
                     for (CourseData course : activeCourses.values()) {
                         if (course.status == 2) {
@@ -360,28 +365,43 @@ public class BackgroundGPSService extends Service {
                         }
                     }
                     
-                    if (activeCourseCount == 0) {
-                        Log.i(TAG, "Toate cursele în pauză - opresc GPS");
-                        stopBackgroundGPS();
+                    if (activeCourseCount > 0) {
+                        Log.e(TAG, "⚡ REPORNESC GPS pentru " + activeCourseCount + " curse active rămase");
+                        startBackgroundGPS();
                     } else {
-                        Log.i(TAG, "GPS continuă pentru " + activeCourseCount + " curse active");
+                        Log.e(TAG, "✅ GPS OPRIT - toate cursele în pauză sau stop");
                     }
                 } else if (newStatus == 4) { // STOP
                     // CRITICAL FIX: NU trimite status la server din Android - JavaScript deja a trimis!
                     Log.e(TAG, "🚫 SKIP server status update - JavaScript updateCourseStatus already sent status 4 to server");
                     
+                    // CRITICAL: OPREȘTE GPS IMEDIAT înainte de a elimina cursa
+                    Log.e(TAG, "🛑 OPRESC GPS IMEDIAT la STOP pentru a preveni transmisia finală");
+                    stopBackgroundGPS();
+                    
                     activeCourses.remove(uniqueKeyForUpdate);
-                    Log.e(TAG, "STOP: UIT " + specificUIT + " eliminat COMPLET din tracking (GPS va fi OPRIT pentru această cursă)");
+                    Log.e(TAG, "🗑️ STOP: UIT " + specificUIT + " eliminat COMPLET din tracking");
                     
                     // DEBUG: Verifică câte curse mai rămân active
                     Log.e(TAG, "🔍 VERIFY STOP: Curse rămase: " + activeCourses.size());
                     
-                    // Dacă nu mai sunt curse active, oprește GPS complet
-                    if (activeCourses.isEmpty()) {
-                        Log.e(TAG, "🛑 TOATE cursele STOP - opresc GPS complet!");
-                        stopBackgroundGPS();
+                    // APOI verifică dacă trebuie repornit pentru alte curse
+                    if (!activeCourses.isEmpty()) {
+                        int activeCourseCount = 0;
+                        for (CourseData course : activeCourses.values()) {
+                            if (course.status == 2) {
+                                activeCourseCount++;
+                            }
+                        }
+                        
+                        if (activeCourseCount > 0) {
+                            Log.e(TAG, "⚡ REPORNESC GPS pentru " + activeCourseCount + " curse active rămase");
+                            startBackgroundGPS();
+                        } else {
+                            Log.e(TAG, "✅ GPS OPRIT DEFINITIV - nu mai sunt curse active");
+                        }
                     } else {
-                        Log.e(TAG, "⚡ GPS continuă pentru " + activeCourses.size() + " curse rămase");
+                        Log.e(TAG, "✅ GPS OPRIT DEFINITIV - HashMap gol");
                     }
                 }
             } else {
@@ -543,6 +563,7 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "🛑 Current isGPSRunning: " + isGPSRunning);
         Log.e(TAG, "🛑 Active courses: " + activeCourses.size());
         
+        // CRITICAL: Setează flag IMEDIAT pentru a preveni noi transmisii
         isGPSRunning = false;
         
         if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
