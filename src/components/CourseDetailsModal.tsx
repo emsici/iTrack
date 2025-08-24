@@ -80,20 +80,20 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
 
   const getStatusColor = (status: number) => {
     switch (status) {
-      case 0: return '#10b981';
-      case 1: return '#3b82f6';
-      case 2: return '#f59e0b';
-      case 3: return '#ef4444';
+      case 1: return '#3b82f6'; // Disponibilă - albastru
+      case 2: return '#10b981'; // În progres - verde
+      case 3: return '#f59e0b'; // Pauzată - galben
+      case 4: return '#ef4444'; // Finalizată - roșu
       default: return '#6b7280';
     }
   };
 
   const getStatusText = (status: number) => {
     switch (status) {
-      case 0: return 'Disponibil';
-      case 1: return 'Activ';
-      case 2: return 'Pauză';
-      case 3: return 'Oprit';
+      case 1: return 'Disponibilă';
+      case 2: return 'În progres';
+      case 3: return 'Pauzată';
+      case 4: return 'Finalizată';
       default: return 'Necunoscut';
     }
   };

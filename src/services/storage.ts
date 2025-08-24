@@ -64,7 +64,14 @@ export const getStoredVehicleNumber = async (): Promise<string | null> => {
   }
 };
 
-
+export const clearStoredVehicleNumber = async (): Promise<void> => {
+  try {
+    await Preferences.remove({ key: VEHICLE_NUMBER_KEY });
+  } catch (error) {
+    console.error('Error clearing stored vehicle number:', error);
+    throw error;
+  }
+};
 
 // Vehicle number history functions for dropdown
 export const getVehicleNumberHistory = async (): Promise<string[]> => {
@@ -73,18 +80,18 @@ export const getVehicleNumberHistory = async (): Promise<string[]> => {
     if (result.value) {
       const history = JSON.parse(result.value);
       // CRITICĂ: Filtrează numerele invalide din istoric (inclusiv IL02ADD)
-      const validHistory = history.filter((v: string) => 
-        v && 
-        v.trim() && 
-        v.trim() !== 'IL02ADD' && 
-        v.trim() !== 'undefined' && 
-        v.trim() !== 'null' &&
-        v.trim().length > 2
+      const validHistory = history.filter((num: string) => 
+        num && 
+        num.trim() && 
+        num.trim() !== 'IL02ADD' && 
+        num.trim() !== 'undefined' && 
+        num.trim() !== 'null' &&
+        num.trim().length > 2
       );
       
       // Dacă istoricul s-a schimbat, salvează varianta curățată
       if (validHistory.length !== history.length) {
-        console.log(`🗑️ Număre invalide eliminate din istoric: ${history.length - validHistory.length}`);
+        console.log(`Număre invalide eliminate din istoric: ${history.length - validHistory.length}`);
         await Preferences.set({ key: VEHICLE_HISTORY_KEY, value: JSON.stringify(validHistory) });
       }
       
@@ -100,20 +107,13 @@ export const getVehicleNumberHistory = async (): Promise<string[]> => {
 export const removeVehicleNumberFromHistory = async (vehicleNumber: string): Promise<void> => {
   try {
     const history = await getVehicleNumberHistory();
-    const updatedHistory = history.filter(v => v !== vehicleNumber);
-    await Preferences.set({ key: VEHICLE_HISTORY_KEY, value: JSON.stringify(updatedHistory) });
+    const updatedHistory = history.filter(num => num !== vehicleNumber);
+    await Preferences.set({ 
+      key: VEHICLE_HISTORY_KEY, 
+      value: JSON.stringify(updatedHistory) 
+    });
   } catch (error) {
     console.error('Error removing vehicle number from history:', error);
-    throw error;
-  }
-};
-
-export const clearStoredVehicleNumber = async (): Promise<void> => {
-  try {
-    await Preferences.remove({ key: VEHICLE_NUMBER_KEY });
-    console.log('🗑️ Numărul vehiculului șters din storage');
-  } catch (error) {
-    console.error('Error clearing stored vehicle number:', error);
     throw error;
   }
 };
