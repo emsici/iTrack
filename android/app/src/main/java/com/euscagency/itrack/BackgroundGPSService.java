@@ -352,13 +352,19 @@ public class BackgroundGPSService extends Service {
                 @Override
                 public void run() {
                     Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION START ===");
-                    Log.e(TAG, "🕐 Current time: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
+                    // ROMANIA TIMEZONE pentru logs - consistency cu GPS data
+                    java.text.SimpleDateFormat logTimeFormat = new java.text.SimpleDateFormat("HH:mm:ss");
+                    logTimeFormat.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
+                    Log.e(TAG, "🕐 Current time (România): " + logTimeFormat.format(new java.util.Date()));
                     Log.e(TAG, "🔧 Thread: " + Thread.currentThread().getName());
                     Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning);
                     Log.e(TAG, "🔧 activeCourses.size(): " + activeCourses.size());
                     Log.e(TAG, "🔧 Execution count: " + System.currentTimeMillis());
                     
-                    sendLogToJavaScript("⏰ SCHEDULED TASK EXECUTION - " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
+                    // ROMANIA TIMEZONE pentru JavaScript logs - consistency
+                    java.text.SimpleDateFormat jsLogTimeFormat = new java.text.SimpleDateFormat("HH:mm:ss");
+                    jsLogTimeFormat.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
+                    sendLogToJavaScript("⏰ SCHEDULED TASK EXECUTION - " + jsLogTimeFormat.format(new java.util.Date()));
                     
                     try {
                         performGPSCycle();
@@ -512,7 +518,10 @@ public class BackgroundGPSService extends Service {
                 @Override
                 public void run() {
                     try {
-                        String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
+                        // ROMANIA TIMEZONE pentru health monitor - consistency
+                        java.text.SimpleDateFormat healthTimeFormat = new java.text.SimpleDateFormat("HH:mm:ss");
+                        healthTimeFormat.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
+                        String currentTime = healthTimeFormat.format(new java.util.Date());
                         long currentTimeMs = System.currentTimeMillis();
                         long timeSinceLastGPS = currentTimeMs - lastGPSCycleTime;
                         
@@ -580,7 +589,10 @@ public class BackgroundGPSService extends Service {
     }
     
     private void performGPSCycle() {
-        String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
+        // ROMANIA TIMEZONE pentru performGPSCycle - consistency
+        java.text.SimpleDateFormat gpsTimeFormat = new java.text.SimpleDateFormat("HH:mm:ss");
+        gpsTimeFormat.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
+        String currentTime = gpsTimeFormat.format(new java.util.Date());
         Log.e(TAG, "🔥 GPS CYCLE START - " + currentTime);
         Log.e(TAG, "🔥 Active courses count: " + activeCourses.size());
         
