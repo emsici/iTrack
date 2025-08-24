@@ -585,8 +585,29 @@ public class BackgroundGPSService extends Service {
                     try {
                         long locationAge = System.currentTimeMillis() - location.getTime();
                         
-                        Log.i(TAG, "GPS primit: " + location.getLatitude() + ", " + location.getLongitude() + " (precizie: " + (int)location.getAccuracy() + "m)");
-                        sendLogToJavaScript("GPS: " + location.getLatitude() + ", " + location.getLongitude());
+                        // FILTRARE PENTRU PRECIZIE MAXIMĂ
+                        float accuracy = location.getAccuracy();
+                        String provider = location.getProvider();
+                        
+                        // CRITERII DE ACCEPTARE PENTRU PRECIZIE ÎNALTĂ
+                        boolean isHighPrecision = false;
+                        if (provider != null && provider.equals(LocationManager.GPS_PROVIDER)) {
+                            isHighPrecision = accuracy <= 10; // GPS sub 10m = acceptabil
+                        } else {
+                            isHighPrecision = accuracy <= 50; // Network sub 50m = acceptabil
+                        }
+                        
+                        Log.i(TAG, "🎯 GPS primit: " + location.getLatitude() + ", " + location.getLongitude() + 
+                              " (precizie: " + (int)accuracy + "m, provider: " + provider + 
+                              ", high-precision: " + isHighPrecision + ")");
+                              
+                        if (isHighPrecision) {
+                            sendLogToJavaScript("✅ GPS HIGH-PRECISION: " + (int)accuracy + "m (" + provider + ")");
+                        } else {
+                            sendLogToJavaScript("⚠️ GPS LOW-PRECISION: " + (int)accuracy + "m (" + provider + ") - aștept precizie mai bună");
+                            // NU oprește ascultarea - continuă să aștepte precizie mai bună
+                            return;
+                        }
                         
                         // Verifică dacă coordonatele sunt proaspete
                         if (locationAge > 120000) {
@@ -616,10 +637,11 @@ public class BackgroundGPSService extends Service {
                 }
             };
             
-            // Verifică provideri disponibili
+            // Verifică provideri disponibili - PRIORITATE GPS pentru precizie maximă
             boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             boolean networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
             
+            // FOLOSEȘTE ÎNTOTDEAUNA GPS pentru precizie maximă (3-5m vs 50-200m pentru network)
             String provider = gpsEnabled ? LocationManager.GPS_PROVIDER : 
                             (networkEnabled ? LocationManager.NETWORK_PROVIDER : null);
             
@@ -627,17 +649,45 @@ public class BackgroundGPSService extends Service {
                 Log.i(TAG, "Folosesc provider: " + provider);
                 sendLogToJavaScript("GPS activ - provider: " + provider);
                 
-                // Solicitare poziție în timp real
-                locationManager.requestLocationUpdates(provider, 0, 0, listener);
+                // OPTIMIZĂRI PENTRU PRECIZIE MAXIMĂ GPS
+                if (provider.equals(LocationManager.GPS_PROVIDER)) {
+                    // GPS NATIV - precizie maximă cu parametri optimizați
+                    locationManager.requestLocationUpdates(
+                        LocationManager.GPS_PROVIDER, 
+                        1000,  // 1 secundă interval minim pentru refresh rapid
+                        0,     // 0 metri distanță minimă - orice mișcare
+                        listener
+                    );
+                    
+                    // BACKUP: Solicită și poziția cunoscută cea mai recentă pentru feedback instant
+                    Location lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    if (lastKnown != null) {
+                        long locationAge = System.currentTimeMillis() - lastKnown.getTime();
+                        if (locationAge < 30000) { // Sub 30 secunde = fresh
+                            Log.i(TAG, "🎯 GPS CACHED de înaltă precizie disponibil (vârstă: " + (locationAge/1000) + "s)");
+                            sendLogToJavaScript("GPS cached high-precision: " + lastKnown.getAccuracy() + "m");
+                        }
+                    }
+                } else {
+                    // NETWORK fallback cu parametri standard
+                    locationManager.requestLocationUpdates(provider, 0, 0, listener);
+                }
                 
-                // Timeout pentru GPS
+                // TIMEOUT OPTIMIZAT PENTRU PRECIZIE
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            Thread.sleep(12000);
+                            if (provider.equals(LocationManager.GPS_PROVIDER)) {
+                                // GPS NATIV: Timeout mai lung pentru a aștepta precizie maximă
+                                Thread.sleep(20000); // 20 secunde pentru GPS de înaltă precizie
+                                sendLogToJavaScript("GPS timeout după 20s - folosesc cea mai bună poziție disponibilă");
+                            } else {
+                                // NETWORK: Timeout standard
+                                Thread.sleep(8000); // 8 secunde pentru network
+                                sendLogToJavaScript("Network timeout după 8s");
+                            }
                             locationManager.removeUpdates(listener);
-                            sendLogToJavaScript("GPS timeout - verifică semnalul");
                         } catch (Exception e) {
                             Log.e(TAG, "Eroare timeout: " + e.getMessage());
                         }

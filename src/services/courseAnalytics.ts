@@ -38,7 +38,8 @@ class CourseAnalyticsService {
   private readonly STORAGE_KEY_PREFIX = 'course_analytics_';
   // Removed fuel consumption - too variable for trucks without real data
   private readonly MIN_SPEED_THRESHOLD = 2; // km/h - below this is considered stopped
-  private readonly MIN_DISTANCE_THRESHOLD = 0.01; // km - minimum distance to count
+  private readonly MIN_DISTANCE_THRESHOLD = 0.005; // km - minimum distance to count (5 metri pentru precizie înaltă)
+  private readonly HIGH_PRECISION_ACCURACY = 10; // metri - sub 10m considerăm high precision
 
   /**
    * Start tracking analytics for a course
@@ -107,6 +108,16 @@ class CourseAnalyticsService {
         isManualPause
       };
 
+      // FILTRU DE PRECIZIE - acceptă doar puncte de înaltă calitate
+      const isHighPrecision = accuracy <= this.HIGH_PRECISION_ACCURACY;
+      
+      if (!isHighPrecision) {
+        console.log(`⚠️ LOW-PRECISION GPS respins: ${accuracy}m precizie (>10m)`);
+        return analytics; // Nu procesează puncte de precizie scăzută
+      }
+      
+      console.log(`✅ HIGH-PRECISION GPS acceptat: ${accuracy}m precizie`);
+
       // Add new GPS point
       analytics.gpsPoints.push(newPoint);
       analytics.lastUpdateTime = new Date().toISOString();
@@ -119,8 +130,8 @@ class CourseAnalyticsService {
           lat, lng
         );
 
-        // Only add distance if it's significant and accuracy is good
-        if (distance >= this.MIN_DISTANCE_THRESHOLD && accuracy <= 50) {
+        // Only add distance if it's significant (5m minim pentru high precision)
+        if (distance >= this.MIN_DISTANCE_THRESHOLD) {
           analytics.totalDistance += distance;
         }
       }
