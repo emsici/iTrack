@@ -301,6 +301,29 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
         }
         
+        // CRITICAL FIX: Interceptează OFFLINE_GPS_SAVE logs din Android
+        else if (message.includes('OFFLINE_GPS_SAVE') || message.includes('OFFLINE_GPS_SAVE:')) {
+          try {
+            // Extrage JSON GPS data din log-ul Android
+            const parts = message.split('OFFLINE_GPS_SAVE');
+            const gpsDataJson = parts[1] ? parts[1].replace(/^[:\s]*/, '') : '';
+            
+            if (gpsDataJson && gpsDataJson.trim() && (window as any).saveOfflineGPS) {
+              console.log('💾 Android→JS Offline: Salvez GPS offline...');
+              
+              // Parse și salvează GPS data offline
+              const gpsData = JSON.parse(gpsDataJson);
+              (window as any).saveOfflineGPS(gpsData);
+              
+            } else if (!(window as any).saveOfflineGPS) {
+              console.error('❌ saveOfflineGPS nu este disponibil');
+            }
+          } catch (offlineError) {
+            console.error('❌ Eroare execuție GPS offline din Android:', offlineError);
+            console.error('❌ GPS Data:', message.substring(0, 200));
+          }
+        }
+        
         // Continuă cu log-ul original
         return originalError.apply(console, args);
       };
