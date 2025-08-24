@@ -37,7 +37,7 @@ Git
 ### **2. Instalare Dependințe**
 ```bash
 # Clone repository
-git clone <repo-url> itrack-gps
+git clone (https://github.com/emsici/iTrack/
 cd itrack-gps
 
 # Install dependencies

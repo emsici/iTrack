@@ -749,12 +749,27 @@ public class BackgroundGPSService extends Service {
                 
                 coursesTransmitting++;
                 
-                // Pregătește datele GPS pentru această cursă
+                // CRITICAL SECURITY VALIDATION: Verifică coordonate GPS înainte de transmisie
+                double lat = location.getLatitude();
+                double lng = location.getLongitude();
+                
+                // ZERO TOLERANCE pentru coordonate false sau (0,0)
+                if (lat == 0.0 && lng == 0.0) {
+                    Log.e(TAG, "🚫 SECURITY ABORT: Coordonate (0,0) detectate - REFUZ transmisia pentru cursă " + courseData.realUit);
+                    continue; // Skip această cursă pentru a proteja integritatea datelor
+                }
+                
+                if (Double.isNaN(lat) || Double.isNaN(lng) || Double.isInfinite(lat) || Double.isInfinite(lng)) {
+                    Log.e(TAG, "🚫 SECURITY ABORT: Coordonate invalide (NaN/Infinite) detectate - REFUZ transmisia pentru cursă " + courseData.realUit);
+                    continue; // Skip această cursă pentru a proteja integritatea datelor
+                }
+                
+                // Pregătește datele GPS pentru această cursă - DOAR coordonate validate
                 org.json.JSONObject gpsData = new org.json.JSONObject();
                 gpsData.put("uit", courseData.realUit); // UIT real pentru server
                 gpsData.put("numar_inmatriculare", courseData.vehicleNumber); // Numărul vehiculului
-                gpsData.put("lat", location.getLatitude());
-                gpsData.put("lng", location.getLongitude());
+                gpsData.put("lat", lat); // DOAR coordonate GPS validate
+                gpsData.put("lng", lng); // DOAR coordonate GPS validate
                 gpsData.put("viteza", (int) (location.getSpeed() * 3.6));
                 gpsData.put("directie", (int) location.getBearing());
                 gpsData.put("altitudine", (int) location.getAltitude());
@@ -972,9 +987,10 @@ public class BackgroundGPSService extends Service {
             org.json.JSONObject statusData = new org.json.JSONObject();
             statusData.put("uit", realUit); // FIXED: Trimite realUit la server, NU ikRoTrans
             statusData.put("numar_inmatriculare", courseData.vehicleNumber); // Vehicul specific pentru cursă
-            // Obține coordonate GPS reale pentru status update
+            // CRITICAL SECURITY FIX: ZERO TOLERANCE pentru coordonate false
             Location lastLocation = getLastKnownLocation();
-            if (lastLocation != null) {
+            if (lastLocation != null && lastLocation.getLatitude() != 0.0 && lastLocation.getLongitude() != 0.0) {
+                // DOAR coordonate GPS reale și valide
                 statusData.put("lat", lastLocation.getLatitude());
                 statusData.put("lng", lastLocation.getLongitude());
                 statusData.put("viteza", (int) (lastLocation.getSpeed() * 3.6));
@@ -982,13 +998,10 @@ public class BackgroundGPSService extends Service {
                 statusData.put("altitudine", (int) lastLocation.getAltitude());
                 statusData.put("hdop", (int) lastLocation.getAccuracy());
             } else {
-                // Fallback doar dacă nu avem GPS
-                statusData.put("lat", 0);
-                statusData.put("lng", 0);
-                statusData.put("viteza", 0);
-                statusData.put("directie", 0);
-                statusData.put("altitudine", 0);
-                statusData.put("hdop", 0);
+                // SECURITY: REFUZĂ transmisia cu coordonate false - ANULEAZĂ status update
+                Log.e(TAG, "🚫 SECURITY ABORT: GPS invalid sau (0,0) - REFUZ transmisia status update");
+                Log.e(TAG, "🛡️ PROTECȚIE SECURITATE: Nu trimit NICIODATĂ coordonate false la server");
+                return; // OPREȘTE COMPLET transmisia pentru a proteja integritatea datelor
             }
             statusData.put("gsm_signal", getNetworkSignal());
             statusData.put("baterie", getBatteryLevel());
