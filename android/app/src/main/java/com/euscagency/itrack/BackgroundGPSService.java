@@ -1049,8 +1049,11 @@ public class BackgroundGPSService extends Service {
                 // CRITICAL: Transmite folosind unique key pentru identificare locală, dar UIT real pentru server
                 transmitSingleCourseGPS(gpsData, uniqueKey, courseData.realUit);
                 
-                // Salvează offline coordonatele și pentru JavaScript bridge
+                // CRITICAL FIX: Salvează coordonatele și pentru statistici locale
                 sendOfflineGPSToJavaScript(gpsData.toString());
+                
+                // CRITICAL NEW: Salvează în courseAnalyticsService pentru statistici
+                saveGPSToAnalyticsService(gpsData, uniqueKey, courseData.realUit);
             }
             
             if (coursesTransmitting > 0) {
@@ -1354,6 +1357,45 @@ public class BackgroundGPSService extends Service {
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Status HTTP bridge call failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    // CRITICAL NEW: Salvează GPS data în courseAnalyticsService pentru statistici
+    private void saveGPSToAnalyticsService(org.json.JSONObject gpsData, String uniqueKey, String realUit) {
+        try {
+            // Bridge către JavaScript pentru salvarea statisticilor
+            String gpsDataString = gpsData.toString().replace("\"", "\\\"");
+            String jsCall = String.format(
+                "if (window.courseAnalyticsService && window.courseAnalyticsService.updateCourseStatistics) {" +
+                    "try {" +
+                        "const gpsData = JSON.parse(\"%s\");" +
+                        "window.courseAnalyticsService.updateCourseStatistics(" +
+                            "\"%s\", " +          // courseId (realUit)
+                            "gpsData.lat, " +
+                            "gpsData.lng, " +
+                            "(gpsData.viteza || 0), " +
+                            "(gpsData.hdop || 0), " +
+                            "false" +             // isManualPause = false for regular GPS
+                        ").then(function(stats) {" +
+                            "console.log('📊 GPS salvat în statistici pentru cursă: %s, puncte total: ' + (stats ? stats.gpsPoints.length : 'N/A'));" +
+                        "}).catch(function(err) {" +
+                            "console.error('❌ Eroare salvare GPS statistici:', err);" +
+                        "});" +
+                    "} catch(parseError) {" +
+                        "console.error('❌ Eroare parsare GPS pentru statistici:', parseError);" +
+                    "}" +
+                "} else {" +
+                    "console.error('❌ courseAnalyticsService nu este disponibil pentru statistici');" +
+                "}",
+                gpsDataString, realUit, realUit
+            );
+            
+            Log.i(TAG, "📊 Pregătesc GPS pentru courseAnalyticsService statistici: " + realUit);
+            Log.e("GPS_ANALYTICS_SAVE", jsCall); // Log pentru captura JavaScript
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Eroare pregătire GPS statistici: " + e.getMessage());
             e.printStackTrace();
         }
     }

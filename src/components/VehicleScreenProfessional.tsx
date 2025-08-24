@@ -270,6 +270,33 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     window.courseAnalyticsService = courseAnalyticsService;
     console.log('✅ courseAnalyticsService exposed to window for Android bridge');
     
+    // CRITICAL NEW: Handler pentru GPS analytics din Android logs
+    const handleAndroidLogs = () => {
+      // Monitorizează LOG messages pentru GPS analytics
+      const originalLog = console.log;
+      const originalError = console.error;
+      
+      console.error = function(...args) {
+        // Interceptează GPS_ANALYTICS_SAVE logs din Android
+        const message = args.join(' ');
+        if (message.includes('GPS_ANALYTICS_SAVE:')) {
+          try {
+            // Extrage JavaScript code din log
+            const jsCode = message.split('GPS_ANALYTICS_SAVE: ')[1];
+            if (jsCode && window.courseAnalyticsService) {
+              console.log('📊 Execut GPS analytics din Android:', jsCode.substring(0, 100) + '...');
+              eval(jsCode);
+            }
+          } catch (evalError) {
+            console.error('❌ Eroare execuție GPS analytics:', evalError);
+          }
+        }
+        return originalError.apply(console, args);
+      };
+    };
+    
+    handleAndroidLogs();
+    
     return () => {
       window.courseAnalyticsService = undefined;
     };
