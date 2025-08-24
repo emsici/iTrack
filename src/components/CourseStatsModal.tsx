@@ -335,7 +335,7 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
                     <div style={{ fontSize: '24px', fontWeight: '700', color: currentTheme === 'light' || currentTheme === 'business' ? '#000000' : '#1e293b', marginBottom: '4px' }}>
                       {totalStats.totalStops}
                     </div>
-                    <div style={{ fontSize: '14px', color: currentTheme === 'light' || currentTheme === 'business' ? '#1e293b' : '#64748b', fontWeight: '500' }}>Opriri Totale</div>
+                    <div style={{ fontSize: '14px', color: currentTheme === 'light' || currentTheme === 'business' ? '#1e293b' : '#64748b', fontWeight: '500' }}>Opriri Detectate</div>
                   </div>
                   
                   <div style={{
@@ -534,7 +534,7 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
                                 </div>
                                 
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                                  <span style={{ color: '#64748b', fontWeight: '500' }}>Număr opriri:</span>
+                                  <span style={{ color: '#64748b', fontWeight: '500' }}>Opriri detectate:</span>
                                   <span style={{ color: '#1e293b', fontWeight: '600' }}>{stats.totalStops}</span>
                                 </div>
                                 

@@ -670,7 +670,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                         fontSize: '14px',
                         color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
                       }}>
-                        Traseu GPS real cu {pausePoints.length} opriri înregistrate
+                        Traseu real: {pausePoints.length} opriri detectate
                       </span>
                     </div>
 
@@ -936,7 +936,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                       fontSize: '12px',
                       color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af'
                     }}>
-                      <strong>Notă:</strong> Harta afișează coordonatele GPS reale din cursă cu două tipuri de opriri: Pauze Manuale (P - roz) când apeși butonul PAUZĂ și Opriri Auto (numere - verde) când viteza a fost sub 2 km/h pentru 30+ secunde
+                      <strong>Explicație:</strong> Harta arată doar traseul când cursa era pornită. Opriri detectate = locuri unde te-ai oprit în timpul transportului (viteza sub 2 km/h)
                     </div>
                   </>
                 )}
