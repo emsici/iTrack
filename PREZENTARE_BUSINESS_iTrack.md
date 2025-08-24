@@ -1,15 +1,15 @@
-# iTrack GPS v1807.99 - Prezentare Tehnică Business
+# iTrack GPS - Prezentare Tehnică Business
 
 ## 🎯 Scurtă Prezentare Executivă
 
-**iTrack GPS** este o aplicație enterprise de urmărire GPS dezvoltată special pentru companiile de transport din România, oferind tracking în timp real cu precisie GPS nativă Android și sistem robust offline. Aplicația combină tehnologii web moderne (React 19.1.0) cu servicii GPS native pentru performance și fiabilitate maximă.
+**iTrack GPS** este o aplicație enterprise de urmărire GPS dezvoltată special pentru companiile de transport din România, oferind tracking în timp real cu precisie GPS nativă Android și sistem robust offline. Aplicația combină tehnologii web moderne (React 18.3.1 + TypeScript) cu servicii GPS native pentru performance și fiabilitate maximă.
 
 ### Propunerea de Valoare Unică
-- **Tracking GPS nativ**: Serviciu Android dedicat cu interval exact de 5 secunde
-- **Redundanță garantată**: 3 servicii GPS paralele pentru transmisie 100% sigură
-- **Offline robus**: Cache inteligent până la 10,000 coordonate cu sync automat
-- **Design enterprise**: 6 teme profesionale pentru branding corporatist
-- **Performance optimizat**: Conceput pentru telefoane Android de toate nivelurile
+- **Tracking GPS nativ**: Serviciu Android BackgroundGPSService cu interval exact de 10 secunde
+- **Arhitectură enterprise**: React + Capacitor + Java native pentru stabilitate maximă
+- **Offline inteligent**: Cache coordonate GPS cu sincronizare automată batch
+- **Design profesional**: Teme multiple cu glassmorphism effects pentru branding corporatist
+- **Performance optimizat**: Universal pentru toate telefoanele Android
 
 ---
 
@@ -19,20 +19,20 @@
 
 #### 1. **Frontend Layer (React/TypeScript)**
 ```
-src/main.tsx → src/App.tsx → 14 componente specializate
+src/main.tsx → src/App.tsx → 17 componente specializate
 ```
-- **React 19.1.0** cu TypeScript pentru siguranță tipurilor
-- **Vite 6.3.5** pentru build rapid și development server
-- **Bootstrap 5.3.6** pentru UI consistency
-- **CSS cu 3,651 linii** pentru 6 teme complete
+- **React 18.3.1** cu TypeScript pentru type safety complet
+- **Vite 6.3.5** pentru build rapid și hot reload
+- **Bootstrap 5.3.3** pentru UI consistency și responsive design
+- **CSS personalizat** cu glassmorphism effects pentru 6 teme
 
-#### 2. **Service Layer (12 servicii specializate)**
-- **API Service**: Comunicare centralizată cu backend extern
-- **DirectAndroid GPS**: Bridge JavaScript-Android pentru GPS nativ
-- **Guaranteed GPS**: Serviciu backup 100% garantat cu interval JavaScript
-- **Theme Service**: Management 6 teme cu persistență automată
-- **Offline GPS**: Cache inteligent cu batch sync la revenirea online
-- **Shared Timestamp**: Sincronizare perfectă între toate serviciile GPS
+#### 2. **Service Layer (6 servicii core)**
+- **api.ts**: Comunicare centralizată cu backend PHP prin CapacitorHttp
+- **storage.ts**: Persistență date locale cu Capacitor Preferences
+- **offlineGPS.ts**: Management coordonate offline cu batch synchronization
+- **courseAnalytics.ts**: Analiză statistici curse cu formula Haversine
+- **appLogger.ts**: Logging aplicație cu categorii (GPS, API, APP, ERROR)
+- **themeService.ts**: Management teme cu persistență automată
 
 #### 3. **Native Bridge Layer (Capacitor)**
 - **WebView Interface**: `window.AndroidGPS` pentru comunicare bidirectionala
@@ -40,10 +40,11 @@ src/main.tsx → src/App.tsx → 14 componente specializate
 - **Cross-platform**: Suport Android primar + iOS potential
 
 #### 4. **Android Native Layer (Java)**
-- **OptimalGPSService.java** (594 linii): Serviciu GPS cu AlarmManager exact 5000ms
-- **MainActivity.java** (247 linii): Bridge WebView cu retry logic
-- **Foreground Service**: Tracking continuu chiar și în deep sleep
-- **WakeLock**: Prevenire oprire sistem Android
+- **BackgroundGPSService.java**: Serviciu GPS persistent cu ScheduledExecutorService la 10 secunde
+- **MainActivity.java**: Bridge WebView pentru comunicare React-Android
+- **Foreground Service**: Tracking continuu cu notificare persistentă
+- **WakeLock**: Prevenire deep sleep pentru tracking garantat
+- **Multi-Course Support**: HashMap pentru gestionarea simultană a mai multor curse
 
 #### 5. **External API Integration**
 - **Environment flexibil**: PROD/TEST cu switching la nivel de cod
@@ -55,18 +56,25 @@ src/main.tsx → src/App.tsx → 14 componente specializate
 
 ## 📊 ANALIZĂ COMPLETĂ COMPONENTE
 
-### Componenta Principală: VehicleScreenProfessional.tsx
-**2,847 linii de cod - cea mai complexă componentă**
+### Componente Principale React (src/components/):
 
-#### State Management (15 state-uri):
+#### VehicleScreenProfessional.tsx - Componenta Centrală
+**State Management:**
 ```typescript
-const [coursesLoaded, setCoursesLoaded] = useState(false);
+const [courses, setCourses] = useState<Course[]>([]);
+const [vehicleNumber, setVehicleNumber] = useState<string>('');
+const [authToken, setAuthToken] = useState<string>('');
 const [isOnline, setIsOnline] = useState(() => window.navigator.onLine);
-const [offlineGPSCount, setOfflineGPSCount] = useState(0);
-const [selectedStatusFilter, setSelectedStatusFilter] = useState<number | 'all'>('all');
+const [gpsStatus, setGpsStatus] = useState<'active' | 'inactive'>('inactive');
 const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
-const [clickCount, setClickCount] = useState(0); // Pentru debug panel
 ```
+
+#### Componentele Complementare:
+- **LoginScreen.tsx**: Autentificare securizată cu management JWT
+- **CourseDetailsModal.tsx**: Modal detaliat informații cursă completă
+- **CourseStatsModal.tsx**: Statistici cursă cu formula Haversine
+- **RouteMapModal.tsx**: Vizualizare traseu cu Leaflet maps
+- **OfflineSyncMonitor.tsx**: Monitor progres sincronizare offline
 
 #### Funcții Business-Critical:
 

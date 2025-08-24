@@ -78,8 +78,29 @@ Politica Coordonate Offline: NICIODATĂ nu șterge coordonatele offline la logou
 - `openid-client`
 
 ### API Endpoints Backend
-- `https://www.euscagency.com/etsm_prod/platforme/transport/apk/login.php`
-- `https://www.euscagency.com/etsm_prod/platforme/transport/apk/logout.php`
-- `https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php`
-- `https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php`
-- `https://www.euscagency.com/etsm_prod/platforme/transport/apk/rezultate.php`
+- `https://www.euscagency.com/etsm_prod/platforme/transport/apk/login.php` - Autentificare
+- `https://www.euscagency.com/etsm_prod/platforme/transport/apk/logout.php` - Logout
+- `https://www.euscagency.com/etsm_prod/platforme/transport/apk/vehicul.php` - Management curse
+- `https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php` - Transmisie date GPS
+- `https://www.euscagency.com/etsm_prod/platforme/transport/apk/rezultate.php` - Verificare rezultate GPS
+
+## Documentație Suplimentară
+- `STRUCTURA_COMPLETA_iTrack.md`: Structura completă proiect cu toate fișierele și arhitectura detaliată
+- `ANALIZA_TEHNICA_COMPLETA_iTrack.md`: Analiză tehnică exhaustivă și scenarii testare
+- `PREZENTARE_BUSINESS_iTrack.md`: Prezentare business pentru stakeholderi și investitori
+- `PREZENTARE_CLIENTI_iTrack.md`: Prezentare pentru clienții finali și utilizatori
+- `POVESTEA_iTrack.md`: Narațiunea dezvoltării aplicației cu exemple de utilizare
+- `changelog.md`: Istoric modificări și versiuni aplicație
+- `TEST_CONFLICT_SCENARIO.md`: Scenarii testare conflicte multi-user
+- `VERIFICARE_*.md`: Documentații tehnice specifice pentru testare și validare
+
+## Jurnalul Modificărilor Recente
+
+**24-08-2025 - ACTUALIZARE COMPLETĂ DOCUMENTAȚIE:**
+✅ Toate fișierele .md adaptate la structura reală aplicației iTrack
+✅ STRUCTURA_COMPLETA_iTrack.md creat cu arhitectura completă
+✅ Componentele React reale documentate (17 componente + 6 servicii)
+✅ Dependințe exacte din package.json documentate cu versiuni
+✅ Arhitectura Android nativă cu BackgroundGPSService.java detaliată
+✅ API endpoints backend PHP cu descrieri funcționale
+✅ Consistență completă între toate documentațiile

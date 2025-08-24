@@ -16,11 +16,11 @@
 
 ## 🏗️ ARHITECTURA SISTEMULUI
 
-### Dimensiuni Codebase
-- **Frontend React/TypeScript**: 11,321 linii
-- **Backend Android Java**: 1,746 linii  
-- **Total sistem**: ~13,067 linii production code
-- **Fișiere configurare**: 15+ fișiere setup
+### Dimensiuni Codebase Reale
+- **Frontend React/TypeScript**: ~5,000+ linii în 17 componente
+- **Android Native Java**: BackgroundGPSService + MainActivity
+- **Servicii TypeScript**: 6 servicii core specializate
+- **Fișiere configurare**: package.json, capacitor.config.ts, tsconfig.json, vite.config.ts
 
 ### Pattern-uri Arhitecturale Implementate
 ```
@@ -36,13 +36,14 @@
 
 ## ⚡ CONCURRENCY & THREAD SAFETY
 
-### Android Native Implementation
+### Android Native Implementation Reală
 ```java
-// BackgroundGPSService.java - Thread Safety Garantată
-ConcurrentHashMap<String, CourseData> activeCourses  ✅
-ScheduledExecutorService gpsExecutor               ✅  
-ThreadPoolExecutor httpThreadPool                  ✅
-PowerManager.WakeLock pentru continuous operation   ✅
+// BackgroundGPSService.java - Thread Safety & Concurrency
+private static final ConcurrentHashMap<String, CourseData> activeCourses = new ConcurrentHashMap<>();
+private static ScheduledExecutorService gpsExecutor;
+private static ThreadPoolExecutor httpThreadPool;
+private static PowerManager.WakeLock wakeLock;
+private static final AtomicBoolean isGPSRunning = new AtomicBoolean(false);
 ```
 
 ### React Frontend Concurrency

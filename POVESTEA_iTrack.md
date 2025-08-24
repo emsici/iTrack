@@ -57,20 +57,20 @@ iTrack îi prezintă curselor organizat și profesional:
 
 Ionel apasă "PORNEȘTE" pe prima cursă. În această clipă se întâmplă magia tehnologică:
 
-### ⚡ Activarea Instantanee a GPS-ului Nativ
+### ⚡ Activarea Serviciului GPS Enterprise
 
 **🔧 În spatele scenei, iTrack:**
-1. **Activează serviciul Android nativ** BackgroundGPSService
-2. **Solicită permisiuni GPS** de înaltă precizie
-3. **Exclude aplicația din optimizarea bateriei** Android
-4. **Pornește WakeLock** pentru funcționare continuă
-5. **Inițializează ScheduledExecutorService** pentru transmisie la 10 secunde
+1. **Activează BackgroundGPSService.java** - serviciul GPS nativ persistent
+2. **Solicită permisiuni GPS** de înaltă precizie cu ACCESS_FINE_LOCATION
+3. **Exclude din battery optimization** pentru tracking continuu
+4. **Pornește WakeLock** cu PowerManager pentru prevenire deep sleep
+5. **Inițializează ScheduledExecutorService** cu interval exact 10 secunde
 
-**📡 Configurări Avansate:**
-- **Precizie GPS**: 3-8 metri (doar GPS nativ, fără Network)
-- **Interval transmisie**: 10 secunde exact
-- **Foreground Service**: Prioritate maximă Android
-- **Multi-course support**: Poate rula mai multe curse simultan
+**📡 Implementare Tehnică Avansată:**
+- **GPS Provider**: Exclusiv LocationManager.GPS_PROVIDER pentru precizie maximă
+- **Thread Safety**: ConcurrentHashMap pentru multi-course support
+- **Foreground Service**: Notificare persistentă cu IMPORTANCE_HIGH
+- **HTTP Transmission**: ThreadPoolExecutor pentru rate limiting
 
 *GPS-ul pulsează verde în header. "GPS ON - Transmisie activă"*
 
