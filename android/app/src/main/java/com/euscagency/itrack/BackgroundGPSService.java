@@ -815,7 +815,7 @@ public class BackgroundGPSService extends Service {
                 gpsData.put("viteza", (int) (location.getSpeed() * 3.6));
                 gpsData.put("directie", (int) location.getBearing());
                 gpsData.put("altitudine", (int) location.getAltitude());
-                gpsData.put("accuracy_m", (int) location.getAccuracy()); // GPS accuracy in meters (not HDOP)
+                gpsData.put("hdop", (int) location.getAccuracy()); // GPS accuracy in meters (using hdop field name for server compatibility)
                 gpsData.put("gsm_signal", networkSignal);
                 gpsData.put("baterie", batteryLevel);
                 gpsData.put("status", courseData.status);
@@ -871,7 +871,7 @@ public class BackgroundGPSService extends Service {
                                 double lat = gpsData.getDouble("lat");
                                 double lng = gpsData.getDouble("lng");
                                 double speed = gpsData.getDouble("viteza"); // km/h
-                                double accuracy = gpsData.getDouble("accuracy_m");
+                                double accuracy = gpsData.getDouble("hdop");
                                 int currentStatus = gpsData.getInt("status");
                                 
                                 // IMPORTANT: Aceste coordonate sunt trimise DOAR pentru status 2 (ACTIVE)
@@ -1038,7 +1038,7 @@ public class BackgroundGPSService extends Service {
                 statusData.put("viteza", (int) (lastLocation.getSpeed() * 3.6));
                 statusData.put("directie", (int) lastLocation.getBearing());
                 statusData.put("altitudine", (int) lastLocation.getAltitude());
-                statusData.put("accuracy_m", (int) lastLocation.getAccuracy()); // GPS accuracy in meters
+                statusData.put("hdop", (int) lastLocation.getAccuracy()); // GPS accuracy in meters (using hdop field name for server compatibility)
             } else {
                 // SECURITY: REFUZĂ transmisia cu coordonate false - ANULEAZĂ status update
                 Log.e(TAG, "🚫 SECURITY ABORT: GPS invalid sau (0,0) - REFUZ transmisia status update");

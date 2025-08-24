@@ -37,7 +37,7 @@ export interface GPSData {
   numar_inmatriculare: string;
   uit: string;
   status: number;
-  accuracy_m: number; // GPS accuracy in meters (renamed from hdop for clarity)
+  hdop: number; // GPS accuracy in meters (HDOP field name for server compatibility)
   gsm_signal: number;
 }
 
@@ -410,7 +410,7 @@ export const logout = async (token: string): Promise<boolean> => {
       directie: gpsData.directie,
       altitudine: gpsData.altitudine,
       baterie: gpsData.baterie,
-      accuracy_m: gpsData.accuracy_m || gpsData.hdop || 0, // Support both old and new field names
+      hdop: gpsData.hdop || gpsData.accuracy_m || 0, // GPS accuracy in meters
       gsm_signal: gpsData.gsm_signal
     });
 

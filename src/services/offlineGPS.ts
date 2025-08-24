@@ -16,7 +16,7 @@ export interface OfflineGPSCoordinate {
   viteza: number;
   directie: number;
   altitudine: number;
-  accuracy_m: number; // GPS accuracy in meters (renamed from hdop)
+  hdop: number; // GPS accuracy in meters (using hdop field name for server compatibility)
   gsm_signal: number;
   baterie: number;
   status: number;
@@ -98,7 +98,7 @@ class OfflineGPSService {
               viteza: androidCoord.viteza || 0,
               directie: androidCoord.directie || 0,
               altitudine: androidCoord.altitudine || 0,
-              accuracy_m: androidCoord.accuracy_m || androidCoord.hdop || 0, // Support both old and new field names
+              hdop: androidCoord.hdop || androidCoord.accuracy_m || 0, // GPS accuracy in meters
               gsm_signal: androidCoord.gsm_signal || 0,
               baterie: androidCoord.baterie || '0%',
               status: androidCoord.status || 2,
@@ -148,7 +148,7 @@ class OfflineGPSService {
         viteza: gpsData.viteza,
         directie: gpsData.directie,
         altitudine: gpsData.altitudine,
-        accuracy_m: gpsData.accuracy_m || gpsData.hdop || 0, // Support both old and new field names
+        hdop: gpsData.hdop || gpsData.accuracy_m || 0, // GPS accuracy in meters
         gsm_signal: gpsData.gsm_signal,
         baterie: gpsData.baterie,
         status: gpsData.status,
@@ -320,7 +320,7 @@ class OfflineGPSService {
           viteza: coord.viteza,
           directie: coord.directie,
           altitudine: coord.altitudine,
-          accuracy_m: coord.accuracy_m, // GPS accuracy in meters
+          hdop: coord.hdop, // GPS accuracy in meters
           gsm_signal: coord.gsm_signal,
           baterie: coord.baterie,
           status: coord.status,
