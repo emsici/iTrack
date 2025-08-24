@@ -1519,48 +1519,6 @@ public class BackgroundGPSService extends Service {
             .build();
     }
     
-    @Override
-    public void onDestroy() {
-        Log.e(TAG, "🛑 === BACKGROUND GPS SERVICE DESTROY CALLED ===");
-        
-        // FORCE cleanup complet pentru restart curat
-        isGPSRunning = false;
-        activeCourses.clear();
-        globalToken = null;
-        globalVehicle = null;
-        
-        // Stop ScheduledExecutorService complet
-        if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
-            gpsExecutor.shutdownNow(); // Force immediate shutdown
-            gpsExecutor = null;
-            Log.e(TAG, "🛑 ScheduledExecutorService FORCE SHUTDOWN");
-        }
-        
-        // Release WakeLock
-        if (wakeLock != null && wakeLock.isHeld()) {
-            wakeLock.release();
-            Log.e(TAG, "🛑 WakeLock force released");
-        }
-        
-        // Stop retry system
-        if (retryExecutor != null && !retryExecutor.isShutdown()) {
-            retryExecutor.shutdownNow();
-            retryExecutor = null;
-            isRetryRunning = false;
-            Log.e(TAG, "🛑 Retry system stopped");
-        }
-        
-        // Stop background thread
-        if (backgroundThread != null) {
-            backgroundThread.quitSafely();
-            backgroundThread = null;
-            Log.e(TAG, "🛑 Background thread stopped");
-        }
-        
-        super.onDestroy();
-        Log.e(TAG, "🛑 BackgroundGPS Service completely destroyed and cleaned up");
-    }
-    
     // MODERN ADDITION: Sistem retry pentru coordonate offline cu retry logic
     private void startOfflineRetrySystem() {
         if (isRetryRunning && retryExecutor != null && !retryExecutor.isShutdown()) {
