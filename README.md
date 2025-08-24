@@ -1,6 +1,25 @@
-# iTrack GPS v1807.99 - Aplicație Enterprise de Fleet Management
+# iTrack GPS - Aplicație Enterprise de Fleet Management
 
 > **Aplicație profesională de monitorizare GPS pentru gestionarea flotei, cu focus pe capacități native Android și urmărire GPS de înaltă performanță în timp real**
+
+## 📚 **DOCUMENTAȚIE COMPLETĂ**
+
+**🔗 Link-uri Rapide către Documentații:**
+
+- **[📋 Structura Completă Proiect](./STRUCTURA_COMPLETA_iTrack.md)** - Arhitectura detaliată și maparea tuturor fișierelor
+- **[🔍 Analiză Tehnică Exhaustivă](./ANALIZA_TEHNICA_COMPLETA_iTrack.md)** - Raport tehnic complet și scenarii testare
+- **[💼 Prezentare Business](./PREZENTARE_BUSINESS_iTrack.md)** - Documentație pentru stakeholderi și investitori
+- **[👥 Prezentare Clienți](./PREZENTARE_CLIENTI_iTrack.md)** - Ghid utilizare pentru clienții finali
+- **[📖 Povestea Aplicației](./POVESTEA_iTrack.md)** - Narațiunea dezvoltării cu exemple practice
+- **[⚙️ Arhitectura Sistemului](./replit.md)** - Configurații tehnice și preferințe dezvoltare
+- **[📝 Istoric Modificări](./changelog.md)** - Jurnalul versiunilor și actualizărilor
+
+**🧪 Documentații Testare și Validare:**
+- **[⚔️ Scenarii Conflict Multi-User](./TEST_CONFLICT_SCENARIO.md)** - Testare situații concurente
+- **[📞 Verificare Login](./VERIFICARE_NUMERE_TELEFON_LOGIN.md)** - Validare autentificare
+- **[👤 Transmisie Dual Șofer](./VERIFICARE_TRANSMISIE_DUAL_SOFER.md)** - Testare multi-user
+- **[🗺️ Trasee GPS](./VERIFICARE_TRASEU_PE_STRAZI.md)** - Validare tracking pe străzi reale
+- **[🛣️ Exemplu Traseu Real](./EXEMPLU_TRASEU_REAL.md)** - Demonstrații practice
 
 ---
 
