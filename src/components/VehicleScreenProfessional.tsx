@@ -42,8 +42,8 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
   try {
     console.log(`Actualizez status cursă ${courseId} la ${newStatus}`);
     
-    // Obține coordonate GPS pentru status update
-    let currentLat = 0, currentLng = 0, currentAlt = 0, currentAcc = 0, currentSpeed = 0, currentHeading = 0;
+    // CRITICAL: Obține coordonate GPS REALE sau eșuează complet - ZERO TOLERANCE pentru date false
+    let gpsData = null;
     
     try {
       const position = await Geolocation.getCurrentPosition({
@@ -52,27 +52,30 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
         maximumAge: 30000
       });
       
-      currentLat = position.coords.latitude;
-      currentLng = position.coords.longitude;
-      currentAlt = position.coords.altitude || 0;
-      currentAcc = position.coords.accuracy || 0;
-      currentSpeed = position.coords.speed || 0;
-      currentHeading = position.coords.heading || 0;
+      gpsData = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        alt: position.coords.altitude || 0,
+        acc: position.coords.accuracy || 0,
+        speed: position.coords.speed || 0,
+        heading: position.coords.heading || 0
+      };
       
-      console.log(`GPS obținut: ${currentLat}, ${currentLng}`);
+      console.log(`GPS obținut: ${gpsData.lat}, ${gpsData.lng}`);
     } catch (gpsError) {
-      console.log('GPS indisponibil, folosesc coordonate default');
+      console.error('GPS INDISPONIBIL - status update respins pentru protejarea datelor reale');
+      throw new Error('Status update imposibil - GPS necesar pentru coordonate reale');
     }
     
     const statusUpdateData = {
       uit: courseUit,
       numar_inmatriculare: vehicleNumber,
-      lat: currentLat,
-      lng: currentLng,  
-      viteza: Math.round(currentSpeed * 3.6),
-      directie: Math.round(currentHeading),
-      altitudine: Math.round(currentAlt),
-      hdop: Math.round(currentAcc),
+      lat: gpsData.lat,  // DOAR coordonate GPS reale
+      lng: gpsData.lng,  // DOAR coordonate GPS reale
+      viteza: Math.round(gpsData.speed * 3.6),
+      directie: Math.round(gpsData.heading),
+      altitudine: Math.round(gpsData.alt),
+      hdop: Math.round(gpsData.acc),
       gsm_signal: await getNetworkSignal(),
       baterie: await getBatteryLevel(),
       status: newStatus,
