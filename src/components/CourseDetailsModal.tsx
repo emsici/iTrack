@@ -537,7 +537,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                     fontSize: '12px',
                     color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
                   }}>
-                    Opriri Detectate
+                    Opriri Auto-Detectate
                   </div>
                 </div>
               </div>
@@ -869,7 +869,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                       fontSize: '12px',
                       color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af'
                     }}>
-                      <strong>Notă:</strong> Harta afișează coordonatele GPS reale din cursă și toate opririle detectate automat (viteză sub 5 km/h)
+                      <strong>Notă:</strong> Harta afișează coordonatele GPS reale din cursă și toate opririle detectate automat când viteza a fost sub 5 km/h pentru mai mult de 30 secunde (3+ puncte consecutive)
                     </div>
                   </>
                 )}
