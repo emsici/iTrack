@@ -77,7 +77,7 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       viteza: Math.round(gpsData.speed * 3.6),
       directie: Math.round(gpsData.heading),
       altitudine: Math.round(gpsData.alt),
-      accuracy_m: Math.round(gpsData.acc), // Renamed from hdop - represents GPS accuracy in meters
+      hdop: Math.round(gpsData.acc), // GPS accuracy in meters (using hdop field name for server compatibility)
       gsm_signal: await getNetworkSignal(),
       baterie: await getBatteryLevel(),
       status: newStatus,
