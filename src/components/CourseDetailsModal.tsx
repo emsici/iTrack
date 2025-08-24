@@ -670,7 +670,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                         fontSize: '14px',
                         color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
                       }}>
-                        Traseu real: {pausePoints.length} opriri detectate
+                        Traseu: {pausePoints.length} opriri detectate
                       </span>
                     </div>
 
@@ -715,7 +715,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                           overflow: 'hidden',
                           border: '2px solid #d1d5db'
                         }}>
-                          {/* Linia traseului - calculată din coordonatele reale */}
+                          {/* Linia traseului - calculată din coordonatele GPS */}
                           <svg style={{
                             position: 'absolute',
                             top: 0,
@@ -909,7 +909,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <div style={{ width: '16px', height: '2px', background: '#ef4444' }}></div>
-                            <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>TRASEU REAL</span>
+                            <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>TRASEU</span>
                           </div>
                         </div>
                       </>
@@ -936,7 +936,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                       fontSize: '12px',
                       color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af'
                     }}>
-                      <strong>Explicație:</strong> Harta arată doar traseul când cursa era pornită. Opriri detectate = locuri unde te-ai oprit în timpul transportului (viteza sub 2 km/h)
+                      <strong>Explicație:</strong> Harta arată traseul când cursa era pornită. Opriri detectate = locuri unde te-ai oprit în timpul transportului (viteza sub 2 km/h)
                     </div>
                   </>
                 )}
@@ -959,7 +959,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
   );
 };
 
-// Funcții helper pentru generarea traseului din coordonate GPS reale
+// Funcții helper pentru generarea traseului din coordonate GPS
 const generatePathFromGPSPoints = (gpsPoints: GPSPoint[]): string => {
   if (gpsPoints.length < 2) return '';
   
