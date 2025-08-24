@@ -48,7 +48,7 @@ const App: React.FC = () => {
     initApp();
   }, []);
 
-  const handleLogin = async (authToken: string, isAdmin: boolean = false) => {
+  const handleLogin = async (authToken: string) => {
     // Login successful, storing token
     try {
       // ALWAYS store token and go to vehicle screen - AdminPanel via 50 clicks only
