@@ -57,7 +57,7 @@ public class BackgroundGPSService extends Service {
     // OFFLINE QUEUE: Sistem pentru persistența GPS când nu e rețea
     private java.util.concurrent.ConcurrentLinkedQueue<OfflineGPSData> offlineQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
     private java.util.concurrent.ScheduledExecutorService retryExecutor;
-    private java.util.concurrent.atomic.AtomicBoolean isRetryRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
+    private boolean isRetryRunning = false;
     private static final int MAX_OFFLINE_QUEUE_SIZE = 1000; // Maxim 1000 coordonate offline
     private static final int RETRY_INITIAL_DELAY = 30; // Prima încercare după 30s
     private static final int RETRY_MAX_DELAY = 300; // Maxim 5 minute între încercări
@@ -1405,7 +1405,7 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🛑 Clearing offline queue: " + offlineQueue.size() + " pending GPS coordinates");
             offlineQueue.clear();
         }
-        isRetryRunning.set(false);
+        isRetryRunning = false;
         
         // WAKELOCK CRITICAL CLEANUP - previne battery drain
         if (wakeLock != null && wakeLock.isHeld()) {
@@ -1446,7 +1446,7 @@ public class BackgroundGPSService extends Service {
             }
             
             retryExecutor = Executors.newSingleThreadScheduledExecutor();
-            isRetryRunning.set(true);
+            isRetryRunning = true;
             
             Log.e(TAG, "📡 === OFFLINE RETRY SYSTEM STARTED ===");
             sendLogToJavaScript("📡 Offline retry system started - va retrimite coordonatele eșuate");
