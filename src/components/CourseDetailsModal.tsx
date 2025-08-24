@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Course } from '../types';
+import { courseAnalyticsService, CourseStatistics, GPSPoint } from '../services/courseAnalytics';
 
 interface CourseDetailsModalProps {
   course: Course;
@@ -15,6 +16,52 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
   currentTheme
 }) => {
   const [showRouteMap, setShowRouteMap] = useState(false);
+  const [courseStats, setCourseStats] = useState<CourseStatistics | null>(null);
+  const [pausePoints, setPausePoints] = useState<GPSPoint[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  useEffect(() => {
+    if (isOpen && showRouteMap) {
+      loadCourseGPSData();
+    }
+  }, [isOpen, showRouteMap, course.id]);
+  
+  const loadCourseGPSData = async () => {
+    setLoading(true);
+    try {
+      const stats = await courseAnalyticsService.getCourseAnalytics(course.id);
+      setCourseStats(stats);
+      
+      if (stats && stats.gpsPoints) {
+        // Identifică punctele de pauză (viteza foarte mică și mai multe puncte consecutive)
+        const pauses: GPSPoint[] = [];
+        let slowPoints: GPSPoint[] = [];
+        
+        stats.gpsPoints.forEach((point, index) => {
+          if (point.speed < 5) { // Sub 5 km/h
+            slowPoints.push(point);
+          } else {
+            // Dacă am avut mai mult de 3 puncte lente consecutive, e o pauză
+            if (slowPoints.length >= 3) {
+              pauses.push(slowPoints[Math.floor(slowPoints.length / 2)]); // Punctul din mijloc
+            }
+            slowPoints = [];
+          }
+        });
+        
+        // Verifică și ultimele puncte
+        if (slowPoints.length >= 3) {
+          pauses.push(slowPoints[Math.floor(slowPoints.length / 2)]);
+        }
+        
+        setPausePoints(pauses);
+      }
+    } catch (error) {
+      console.error('Eroare încărcare date GPS:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   if (!isOpen) return null;
 
@@ -355,7 +402,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
               }}
             >
               <i className={`fas fa-${showRouteMap ? 'eye-slash' : 'map-marked-alt'}`}></i>
-              {showRouteMap ? 'Ascunde Harta' : 'Afișează Traseu cu Opriri'}
+              {showRouteMap ? 'Ascunde Harta' : `Afișează Traseu cu Opriri ${pausePoints.length > 0 ? `(${pausePoints.length})` : ''}`}
             </button>
             
             {showRouteMap && (
@@ -366,184 +413,266 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                 padding: '16px',
                 border: '1px solid rgba(255, 255, 255, 0.1)'
               }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  marginBottom: '16px'
-                }}>
-                  <i className="fas fa-info-circle" style={{ color: '#3b82f6' }}></i>
-                  <span style={{
-                    fontSize: '14px',
+                {loading ? (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '12px',
+                    padding: '40px',
                     color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
                   }}>
-                    Traseu complet cu toate opririle (PAUZĂ) înregistrate de GPS
-                  </span>
-                </div>
-
-                {/* Exemplu traseu cu opriri - similar cu poza */}
-                <div style={{
-                  position: 'relative',
-                  height: '200px',
-                  background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  border: '2px solid #d1d5db'
-                }}>
-                  {/* Linia traseului */}
-                  <svg style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    zIndex: 1
-                  }}>
-                    <path
-                      d="M 20 180 Q 80 120 140 100 Q 200 80 260 60 Q 320 40 380 20"
-                      stroke="#ef4444"
-                      strokeWidth="4"
-                      fill="none"
-                      strokeDasharray="0"
-                    />
-                  </svg>
-
-                  {/* Puncte de oprire */}
-                  <div style={{
-                    position: 'absolute',
-                    top: '170px',
-                    left: '15px',
-                    zIndex: 2
-                  }}>
+                    <i className="fas fa-spinner fa-spin" style={{ fontSize: '20px' }}></i>
+                    <span>Încărcare date GPS...</span>
+                  </div>
+                ) : (
+                  <>
                     <div style={{
-                      width: '24px',
-                      height: '24px',
-                      background: '#10b981',
-                      borderRadius: '50%',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      border: '3px solid white',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                      gap: '12px',
+                      marginBottom: '16px'
                     }}>
-                      S
+                      <i className="fas fa-info-circle" style={{ color: '#3b82f6' }}></i>
+                      <span style={{
+                        fontSize: '14px',
+                        color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                      }}>
+                        Traseu GPS real cu {pausePoints.length} opriri înregistrate
+                      </span>
                     </div>
-                  </div>
 
-                  <div style={{
-                    position: 'absolute',
-                    top: '90px',
-                    left: '135px',
-                    zIndex: 2
-                  }}>
+                    {courseStats && courseStats.gpsPoints && courseStats.gpsPoints.length > 0 ? (
+                      <>
+                        {/* Harta dinamică cu opriri reale */}
+                        <div style={{
+                          position: 'relative',
+                          height: '300px',
+                          background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          border: '2px solid #d1d5db'
+                        }}>
+                          {/* Linia traseului - calculată din coordonatele reale */}
+                          <svg style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            zIndex: 1
+                          }}>
+                            <path
+                              d={generatePathFromGPSPoints(courseStats.gpsPoints)}
+                              stroke="#ef4444"
+                              strokeWidth="3"
+                              fill="none"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+
+                          {/* Punctul de start */}
+                          {courseStats.gpsPoints.length > 0 && (
+                            <div style={{
+                              position: 'absolute',
+                              top: '10px',
+                              left: '10px',
+                              zIndex: 2
+                            }}>
+                              <div style={{
+                                width: '28px',
+                                height: '28px',
+                                background: '#10b981',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                border: '3px solid white',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                              }}>
+                                S
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Punctele de oprire reale */}
+                          {pausePoints.map((pause, index) => {
+                            const position = calculatePointPosition(pause, courseStats.gpsPoints);
+                            return (
+                              <div
+                                key={index}
+                                style={{
+                                  position: 'absolute',
+                                  top: `${position.y}%`,
+                                  left: `${position.x}%`,
+                                  transform: 'translate(-50%, -50%)',
+                                  zIndex: 3
+                                }}
+                              >
+                                <div style={{
+                                  width: '32px',
+                                  height: '32px',
+                                  background: '#3b82f6',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  color: 'white',
+                                  fontSize: '10px',
+                                  fontWeight: 'bold',
+                                  border: '3px solid white',
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                                }}>
+                                  {index + 1}
+                                </div>
+                              </div>
+                            );
+                          })}
+
+                          {/* Punctul final */}
+                          {courseStats.gpsPoints.length > 0 && (
+                            <div style={{
+                              position: 'absolute',
+                              bottom: '10px',
+                              right: '10px',
+                              zIndex: 2
+                            }}>
+                              <div style={{
+                                width: '28px',
+                                height: '28px',
+                                background: '#ef4444',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                border: '3px solid white',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                              }}>
+                                F
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Statistici GPS */}
+                        <div style={{
+                          marginTop: '16px',
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: '12px',
+                          fontSize: '12px'
+                        }}>
+                          <div style={{
+                            padding: '8px 12px',
+                            background: 'rgba(16, 185, 129, 0.1)',
+                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                            borderRadius: '6px',
+                            textAlign: 'center'
+                          }}>
+                            <div style={{ fontWeight: 'bold', color: '#10b981' }}>Puncte GPS</div>
+                            <div style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>
+                              {courseStats.gpsPoints.length}
+                            </div>
+                          </div>
+                          <div style={{
+                            padding: '8px 12px',
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            borderRadius: '6px',
+                            textAlign: 'center'
+                          }}>
+                            <div style={{ fontWeight: 'bold', color: '#3b82f6' }}>Opriri</div>
+                            <div style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>
+                              {pausePoints.length}
+                            </div>
+                          </div>
+                          <div style={{
+                            padding: '8px 12px',
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            borderRadius: '6px',
+                            textAlign: 'center'
+                          }}>
+                            <div style={{ fontWeight: 'bold', color: '#ef4444' }}>Distanță</div>
+                            <div style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>
+                              {courseStats.totalDistance.toFixed(1)} km
+                            </div>
+                          </div>
+                          <div style={{
+                            padding: '8px 12px',
+                            background: 'rgba(245, 158, 11, 0.1)',
+                            border: '1px solid rgba(245, 158, 11, 0.3)',
+                            borderRadius: '6px',
+                            textAlign: 'center'
+                          }}>
+                            <div style={{ fontWeight: 'bold', color: '#f59e0b' }}>Viteză Max</div>
+                            <div style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>
+                              {courseStats.maxSpeed} km/h
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Legenda */}
+                        <div style={{
+                          marginTop: '12px',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          flexWrap: 'wrap',
+                          gap: '8px',
+                          fontSize: '12px'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '12px', height: '12px', background: '#10b981', borderRadius: '50%' }}></div>
+                            <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>START</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '12px', height: '12px', background: '#3b82f6', borderRadius: '50%' }}></div>
+                            <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>OPRIRI</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%' }}></div>
+                            <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>FINAL</span>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '16px', height: '2px', background: '#ef4444' }}></div>
+                            <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>TRASEU REAL</span>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{
+                        textAlign: 'center',
+                        padding: '40px',
+                        color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                      }}>
+                        <i className="fas fa-map-marked-alt" style={{ fontSize: '32px', marginBottom: '12px', opacity: 0.5 }}></i>
+                        <div>Nu există date GPS pentru această cursă</div>
+                        <div style={{ fontSize: '12px', opacity: 0.7, marginTop: '8px' }}>
+                          Pornește GPS-ul pentru a înregistra traseul
+                        </div>
+                      </div>
+                    )}
+
                     <div style={{
-                      width: '32px',
-                      height: '32px',
-                      background: '#3b82f6',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
+                      marginTop: '12px',
+                      padding: '8px 12px',
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      borderRadius: '6px',
                       fontSize: '12px',
-                      fontWeight: 'bold',
-                      border: '3px solid white',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                      color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af'
                     }}>
-                      P1
+                      <strong>Notă:</strong> Harta afișează coordonatele GPS reale din cursă și toate opririle detectate automat (viteză sub 5 km/h)
                     </div>
-                  </div>
-
-                  <div style={{
-                    position: 'absolute',
-                    top: '50px',
-                    left: '255px',
-                    zIndex: 2
-                  }}>
-                    <div style={{
-                      width: '32px',
-                      height: '32px',
-                      background: '#3b82f6',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      border: '3px solid white',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-                    }}>
-                      P2
-                    </div>
-                  </div>
-
-                  <div style={{
-                    position: 'absolute',
-                    top: '10px',
-                    left: '375px',
-                    zIndex: 2
-                  }}>
-                    <div style={{
-                      width: '24px',
-                      height: '24px',
-                      background: '#ef4444',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      border: '3px solid white',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-                    }}>
-                      F
-                    </div>
-                  </div>
-                </div>
-
-                {/* Legenda */}
-                <div style={{
-                  marginTop: '12px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '8px',
-                  fontSize: '12px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ width: '12px', height: '12px', background: '#10b981', borderRadius: '50%' }}></div>
-                    <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>START</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ width: '12px', height: '12px', background: '#3b82f6', borderRadius: '50%' }}></div>
-                    <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>PAUZĂ</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%' }}></div>
-                    <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>FINAL</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ width: '16px', height: '2px', background: '#ef4444' }}></div>
-                    <span style={{ color: currentTheme === 'dark' ? '#cbd5e0' : '#374151' }}>TRASEU GPS</span>
-                  </div>
-                </div>
-
-                <div style={{
-                  marginTop: '12px',
-                  padding: '8px 12px',
-                  background: 'rgba(59, 130, 246, 0.1)',
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  color: currentTheme === 'dark' ? '#93c5fd' : '#1e40af'
-                }}>
-                  <strong>Notă:</strong> Harta afișează coordonatele GPS reale înregistrate la fiecare 10 secunde și toate punctele unde ai apăsat PAUZĂ
-                </div>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -551,6 +680,72 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
       </div>
     </div>
   );
+};
+
+// Funcții helper pentru generarea traseului din coordonate GPS reale
+const generatePathFromGPSPoints = (gpsPoints: GPSPoint[]): string => {
+  if (gpsPoints.length < 2) return '';
+  
+  // Calculează bounding box pentru normalizare
+  const lats = gpsPoints.map(p => p.lat);
+  const lngs = gpsPoints.map(p => p.lng);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+  
+  // Evită diviziunea cu zero
+  const latRange = Math.max(maxLat - minLat, 0.001);
+  const lngRange = Math.max(maxLng - minLng, 0.001);
+  
+  // Convertește coordonatele GPS în poziții pe hartă (cu padding de 5%)
+  const points = gpsPoints.map(point => {
+    const x = 5 + ((point.lng - minLng) / lngRange) * 90; // 5% padding pe fiecare parte
+    const y = 5 + ((maxLat - point.lat) / latRange) * 90; // Y inversat pentru SVG
+    return { x: x * 4, y: y * 3 }; // Scale pentru dimensiunea hărții (400x300)
+  });
+  
+  // Generează path SVG
+  let path = `M ${points[0].x} ${points[0].y}`;
+  
+  for (let i = 1; i < points.length; i++) {
+    if (i === 1) {
+      path += ` L ${points[i].x} ${points[i].y}`;
+    } else {
+      // Folosește curbe smooth pentru un traseu mai natural
+      const prevPoint = points[i - 1];
+      const currentPoint = points[i];
+      const cp1x = prevPoint.x + (currentPoint.x - prevPoint.x) * 0.5;
+      const cp1y = prevPoint.y;
+      const cp2x = currentPoint.x - (currentPoint.x - prevPoint.x) * 0.5;
+      const cp2y = currentPoint.y;
+      
+      path += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${currentPoint.x} ${currentPoint.y}`;
+    }
+  }
+  
+  return path;
+};
+
+const calculatePointPosition = (targetPoint: GPSPoint, allPoints: GPSPoint[]) => {
+  if (allPoints.length === 0) return { x: 50, y: 50 };
+  
+  // Calculează bounding box
+  const lats = allPoints.map(p => p.lat);
+  const lngs = allPoints.map(p => p.lng);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+  
+  const latRange = Math.max(maxLat - minLat, 0.001);
+  const lngRange = Math.max(maxLng - minLng, 0.001);
+  
+  // Convertește coordonata targetPoint în poziție pe hartă
+  const x = 5 + ((targetPoint.lng - minLng) / lngRange) * 90;
+  const y = 5 + ((maxLat - targetPoint.lat) / latRange) * 90;
+  
+  return { x, y };
 };
 
 export default CourseDetailsModal;
