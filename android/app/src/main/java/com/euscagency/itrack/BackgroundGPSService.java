@@ -34,19 +34,6 @@ public class BackgroundGPSService extends Service {
     private static final String CHANNEL_ID = "BackgroundGPSChannel";
     
     private LocationManager locationManager;
-    
-    // SENZORI INTERNI: Pentru coordonate din accelerometru, giroscop, magnetometru
-    private android.hardware.SensorManager sensorManager;
-    private android.hardware.Sensor accelerometer;
-    private android.hardware.Sensor magnetometer;
-    private android.hardware.Sensor gyroscope;
-    
-    // Date curente din senzori
-    private float[] accelerometerData = new float[3];
-    private float[] magnetometerData = new float[3];
-    private float[] gyroscopeData = new float[3];
-    private double calculatedLatitude = 0.0;
-    private double calculatedLongitude = 0.0;
     private PowerManager.WakeLock wakeLock;
     private ScheduledExecutorService gpsExecutor;
     private HandlerThread backgroundThread;
@@ -119,9 +106,6 @@ public class BackgroundGPSService extends Service {
         
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
-        // Inițializare senzori interni pentru coordonate calculate
-        initializeSensors();
-        
         // WakeLock pentru fundal garantat - HIGH PRIORITY pentru Android Doze bypass
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(
@@ -138,123 +122,6 @@ public class BackgroundGPSService extends Service {
         startForeground(NOTIFICATION_ID, createNotification());
         
         Log.e(TAG, "✅ BackgroundGPS Service Ready");
-    }
-    
-    private void initializeSensors() {
-        Log.e(TAG, "🔧 Inițializez senzori interni pentru coordonate");
-        
-        sensorManager = (android.hardware.SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        
-        if (sensorManager != null) {
-            accelerometer = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER);
-            magnetometer = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_MAGNETIC_FIELD);
-            gyroscope = sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_GYROSCOPE);
-            
-            Log.e(TAG, "Senzori disponibili:");
-            Log.e(TAG, "- Accelerometru: " + (accelerometer != null ? "DA" : "NU"));
-            Log.e(TAG, "- Magnetometru: " + (magnetometer != null ? "DA" : "NU"));  
-            Log.e(TAG, "- Giroscop: " + (gyroscope != null ? "DA" : "NU"));
-            
-            startSensorListening();
-        } else {
-            Log.e(TAG, "❌ SensorManager indisponibil");
-        }
-    }
-    
-    private void startSensorListening() {
-        android.hardware.SensorEventListener sensorListener = new android.hardware.SensorEventListener() {
-            @Override
-            public void onSensorChanged(android.hardware.SensorEvent event) {
-                try {
-                    switch (event.sensor.getType()) {
-                        case android.hardware.Sensor.TYPE_ACCELEROMETER:
-                            accelerometerData = event.values.clone();
-                            break;
-                        case android.hardware.Sensor.TYPE_MAGNETIC_FIELD:
-                            magnetometerData = event.values.clone();
-                            break;
-                        case android.hardware.Sensor.TYPE_GYROSCOPE:
-                            gyroscopeData = event.values.clone();
-                            break;
-                    }
-                    
-                    // Calculează coordonate pe baza datelor din senzori
-                    calculateCoordinatesFromSensors();
-                    
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Eroare procesare senzor: " + e.getMessage());
-                }
-            }
-            
-            @Override
-            public void onAccuracyChanged(android.hardware.Sensor sensor, int accuracy) {
-                Log.i(TAG, "Precizie senzor " + sensor.getType() + ": " + accuracy);
-            }
-        };
-        
-        // Înregistrează listener-ii pentru fiecare senzor
-        if (accelerometer != null) {
-            sensorManager.registerListener(sensorListener, accelerometer, android.hardware.SensorManager.SENSOR_DELAY_NORMAL);
-        }
-        if (magnetometer != null) {
-            sensorManager.registerListener(sensorListener, magnetometer, android.hardware.SensorManager.SENSOR_DELAY_NORMAL);
-        }
-        if (gyroscope != null) {
-            sensorManager.registerListener(sensorListener, gyroscope, android.hardware.SensorManager.SENSOR_DELAY_NORMAL);
-        }
-        
-        Log.e(TAG, "✅ Senzori interni activați pentru coordonate");
-    }
-    
-    private void calculateCoordinatesFromSensors() {
-        try {
-            // Calculează orientarea pe baza magnetometrului și accelerometrului
-            float[] rotationMatrix = new float[9];
-            float[] orientationValues = new float[3];
-            
-            boolean success = android.hardware.SensorManager.getRotationMatrix(
-                rotationMatrix, null, accelerometerData, magnetometerData);
-                
-            if (success) {
-                android.hardware.SensorManager.getOrientation(rotationMatrix, orientationValues);
-                
-                // Convertește orientarea în coordonate simulate
-                // Azimuth (orientationValues[0]) - rotația în jurul axei Z
-                // Pitch (orientationValues[1]) - rotația în jurul axei X  
-                // Roll (orientationValues[2]) - rotația în jurul axei Y
-                
-                double azimuth = Math.toDegrees(orientationValues[0]);
-                double pitch = Math.toDegrees(orientationValues[1]);
-                double roll = Math.toDegrees(orientationValues[2]);
-                
-                // Simulează coordonate pe baza orientării și accelerației
-                double accelerationMagnitude = Math.sqrt(
-                    accelerometerData[0] * accelerometerData[0] +
-                    accelerometerData[1] * accelerometerData[1] +
-                    accelerometerData[2] * accelerometerData[2]
-                );
-                
-                // Algoritm simplu pentru coordonate din senzori (nu GPS real)
-                calculatedLatitude = 44.4268 + (pitch * 0.001) + (roll * 0.0005); // București ca bază
-                calculatedLongitude = 26.1025 + (azimuth * 0.001) + (accelerationMagnitude * 0.0001);
-                
-                // Adaugă variație pe baza giroscopului pentru mișcare
-                if (gyroscopeData != null && gyroscopeData.length >= 3) {
-                    double gyroVariation = (gyroscopeData[0] + gyroscopeData[1] + gyroscopeData[2]) * 0.0001;
-                    calculatedLatitude += gyroVariation;
-                    calculatedLongitude += gyroVariation * 1.2;
-                }
-                
-                Log.d(TAG, String.format("Coordonate calculate: %.6f, %.6f (din senzori)", 
-                    calculatedLatitude, calculatedLongitude));
-            }
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Eroare calculare coordonate din senzori: " + e.getMessage());
-            // Fallback la coordonate fixe
-            calculatedLatitude = 44.4268;
-            calculatedLongitude = 26.1025;
-        }
     }
     
     // Initialize HTTP Thread Pool pentru rate limiting - max 3 connections simultan
@@ -774,7 +641,7 @@ public class BackgroundGPSService extends Service {
                 }
             };
             
-            // GPS PROFESIONAL pentru precizie maximă
+            // DOAR GPS NATIV pentru precizie maximă (conform preferințelor utilizatorului)
             boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             
             String provider = gpsEnabled ? LocationManager.GPS_PROVIDER : null;
@@ -800,76 +667,13 @@ public class BackgroundGPSService extends Service {
                     }
                 }).start();
             } else {
-                Log.e(TAG, "GPS dezactivat - activează GPS în setări");
-                sendLogToJavaScript("❌ GPS dezactivat - activează GPS în setări pentru tracking profesional");
+                Log.e(TAG, "GPS NATIV dezactivat - activează GPS în setări");
+                sendLogToJavaScript("❌ GPS dezactivat - activează GPS în setări pentru precizie maximă");
             }
             
         } catch (Exception e) {
             Log.e(TAG, "❌ GPS cycle error: " + e.getMessage());
             e.printStackTrace();
-        }
-    }
-    
-    private Location createLocationFromSensors() {
-        try {
-            Location sensorLocation = new Location("SenzoriInterni");
-            
-            // Folosește coordonatele calculate din senzori
-            sensorLocation.setLatitude(calculatedLatitude);
-            sensorLocation.setLongitude(calculatedLongitude);
-            
-            // Calculează viteza pe baza accelerometrului
-            if (accelerometerData != null && accelerometerData.length >= 3) {
-                double totalAcceleration = Math.sqrt(
-                    accelerometerData[0] * accelerometerData[0] +
-                    accelerometerData[1] * accelerometerData[1] +
-                    accelerometerData[2] * accelerometerData[2]
-                );
-                
-                // Convertește accelerația în viteză aproximativă (m/s)
-                float estimatedSpeed = (float) Math.max(0, (totalAcceleration - 9.8) * 2); // Scade gravitația
-                sensorLocation.setSpeed(estimatedSpeed);
-            } else {
-                sensorLocation.setSpeed(0.0f);
-            }
-            
-            // Calculează direcția pe baza magnetometrului
-            if (magnetometerData != null && magnetometerData.length >= 3 && accelerometerData != null) {
-                float[] rotationMatrix = new float[9];
-                float[] orientationValues = new float[3];
-                
-                boolean success = android.hardware.SensorManager.getRotationMatrix(
-                    rotationMatrix, null, accelerometerData, magnetometerData);
-                
-                if (success) {
-                    android.hardware.SensorManager.getOrientation(rotationMatrix, orientationValues);
-                    float bearing = (float) Math.toDegrees(orientationValues[0]);
-                    if (bearing < 0) bearing += 360; // Normalizează la 0-360 grade
-                    sensorLocation.setBearing(bearing);
-                } else {
-                    sensorLocation.setBearing(0.0f);
-                }
-            } else {
-                sensorLocation.setBearing(0.0f);
-            }
-            
-            // Setează alte proprietăți
-            sensorLocation.setTime(System.currentTimeMillis());
-            sensorLocation.setAccuracy(50.0f); // Precizie estimată pentru senzori (50m)
-            
-            // Altitudine simplă pe baza accelerometrului Z
-            if (accelerometerData != null && accelerometerData.length >= 3) {
-                float estimatedAltitude = 100.0f + (accelerometerData[2] * 10); // București ~100m + variație
-                sensorLocation.setAltitude(estimatedAltitude);
-            } else {
-                sensorLocation.setAltitude(100.0);
-            }
-            
-            return sensorLocation;
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Eroare creare Location din senzori: " + e.getMessage());
-            return null;
         }
     }
     
@@ -1380,7 +1184,7 @@ public class BackgroundGPSService extends Service {
     private Notification createNotification() {
         return new Notification.Builder(this, CHANNEL_ID)
             .setContentTitle("iTrack GPS Active")
-            .setContentText("Tracking GPS profesional la 10 secunde")
+            .setContentText("Transmisie coordonate la 10 secunde")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setOngoing(true)
             .setPriority(Notification.PRIORITY_HIGH)
@@ -1418,12 +1222,6 @@ public class BackgroundGPSService extends Service {
             retryExecutor = null;
             isRetryRunning = false;
             Log.e(TAG, "🛑 Retry system stopped");
-        }
-        
-        // Stop senzori interni
-        if (sensorManager != null) {
-            sensorManager.unregisterListener(null);
-            Log.e(TAG, "🛑 Senzori interni dezactivați");
         }
         
         // Stop background thread
