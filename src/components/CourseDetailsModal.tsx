@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Course } from '../types';
 import { courseAnalyticsService, CourseStatistics, GPSPoint } from '../services/courseAnalytics';
+import RouteMapModal from './RouteMapModal';
 
 interface CourseDetailsModalProps {
   course: Course;
@@ -16,6 +17,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
   currentTheme
 }) => {
   const [showRouteMap, setShowRouteMap] = useState(false);
+  const [showFullScreenMap, setShowFullScreenMap] = useState(false);
   const [courseStats, setCourseStats] = useState<CourseStatistics | null>(null);
   const [pausePoints, setPausePoints] = useState<GPSPoint[]>([]);
   const [loading, setLoading] = useState(false);
@@ -674,6 +676,36 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
 
                     {courseStats && courseStats.gpsPoints && courseStats.gpsPoints.length > 0 ? (
                       <>
+                        {/* Butoane pentru hărți */}
+                        <div style={{ 
+                          display: 'flex', 
+                          gap: '8px', 
+                          marginBottom: '16px',
+                          flexWrap: 'wrap'
+                        }}>
+                          <button
+                            onClick={() => setShowFullScreenMap(true)}
+                            style={{
+                              flex: '1',
+                              padding: '8px 12px',
+                              background: 'linear-gradient(135deg, #059669, #047857)',
+                              border: 'none',
+                              borderRadius: '6px',
+                              color: 'white',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <i className="fas fa-external-link-alt"></i>
+                            Hartă Leaflet Interactivă
+                          </button>
+                        </div>
+
                         {/* Harta dinamică cu opriri reale */}
                         <div style={{
                           position: 'relative',
@@ -913,6 +945,16 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Route Map Modal Full Screen */}
+      {showFullScreenMap && courseStats && (
+        <RouteMapModal
+          isOpen={showFullScreenMap}
+          onClose={() => setShowFullScreenMap(false)}
+          courseData={courseStats}
+          currentTheme={currentTheme}
+        />
+      )}
     </div>
   );
 };
