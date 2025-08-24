@@ -26,6 +26,9 @@ declare global {
       stopGPS: (courseId: string) => string;
       updateStatus: (courseId: string, status: number, vehicleNumber: string) => string;
       clearAllOnLogout: () => string;
+      markManualPause: (ikRoTrans: string) => string;
+      // Handler pentru mesaje GPS din serviciul Android
+      onGPSMessage?: (message: string) => void;
     };
   }
 }
@@ -248,8 +251,42 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
+  const [gpsStatus, setGpsStatus] = useState<'active' | 'inactive' | 'unknown'>('unknown');
 
   const toast = useToast();
+
+  // GPS MESSAGE HANDLER pentru alertele din serviciul Android
+  useEffect(() => {
+    // Setup handler pentru mesajele GPS din Android
+    if (window.AndroidGPS) {
+      window.AndroidGPS.onGPSMessage = (message: string) => {
+        console.log('GPS Message din Android:', message);
+        
+        if (message.includes('GPS dezactivat') || message.includes('GPS DEZACTIVAT')) {
+          setGpsStatus('inactive');
+          toast.error(
+            'GPS Dezactivat', 
+            'Activează GPS în setări pentru tracking de înaltă precizie'
+          );
+        } else if (message.includes('GPS NATIV activ') || message.includes('GPS HIGH-PRECISION')) {
+          setGpsStatus('active');
+          if (message.includes('GPS NATIV activ')) {
+            toast.success('GPS Activ', 'Tracking de înaltă precizie pornit (3-8 metri)');
+          }
+        } else if (message.includes('GPS indisponibil')) {
+          setGpsStatus('inactive');
+          toast.warning('GPS Indisponibil', 'Verifică setările și semnalul GPS');
+        }
+      };
+    }
+
+    return () => {
+      // Cleanup handler
+      if (window.AndroidGPS) {
+        window.AndroidGPS.onGPSMessage = undefined;
+      }
+    };
+  }, [toast]);
 
   // PERFORMANCE OPTIMIZED: Initialize theme and vehicle number with debouncing
   useEffect(() => {
@@ -625,6 +662,16 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       paddingBottom: 'env(safe-area-inset-bottom)',
       color: themeColors.text
     }}>
+      {/* Animație CSS pentru indicator GPS */}
+      <style>
+        {`
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+          }
+        `}
+      </style>
+
       {/* Header optimizat și frumos */}
       <div style={{ 
         paddingTop: 'max(env(safe-area-inset-top), 20px)', 
@@ -641,7 +688,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          {/* Logo și titlu */}
+          {/* Logo și titlu cu indicator GPS */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
               width: '32px',
@@ -664,6 +711,37 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
               iTrack
             </span>
+            
+            {/* Indicator status GPS */}
+            {gpsStatus !== 'unknown' && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 8px',
+                borderRadius: '12px',
+                background: gpsStatus === 'active' 
+                  ? 'rgba(34, 197, 94, 0.15)' 
+                  : 'rgba(239, 68, 68, 0.15)',
+                border: `1px solid ${gpsStatus === 'active' ? '#22c55e' : '#ef4444'}`
+              }}>
+                <div style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: gpsStatus === 'active' ? '#22c55e' : '#ef4444',
+                  animation: gpsStatus === 'active' ? 'pulse 2s infinite' : 'none'
+                }}></div>
+                <span style={{
+                  fontSize: '10px',
+                  fontWeight: '600',
+                  color: gpsStatus === 'active' ? '#22c55e' : '#ef4444',
+                  textTransform: 'uppercase'
+                }}>
+                  GPS {gpsStatus === 'active' ? 'ON' : 'OFF'}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Dropdown vehicul - afișează numărul selectat */}

@@ -1063,8 +1063,12 @@ public class BackgroundGPSService extends Service {
             // Send log via Android system log with special tag for JS capture
             Log.e("JS_BRIDGE_LOG", "[Android GPS]: " + message);
             
+            // ADAUGĂ HANDLER PENTRU ALERTELE GPS către UI
+            String alertCode = "if (window.AndroidGPS && window.AndroidGPS.onGPSMessage) { window.AndroidGPS.onGPSMessage('" + message.replace("'", "\\'") + "'); }";
+            callJavaScriptFunction(alertCode); // Trimite către handler-ul de alerte
+            
             // Also send to system log for debugging
-            Log.e(TAG, "JS Log: " + message);
+            Log.e(TAG, "JS Log + Alert: " + message);
         } catch (Exception e) {
             Log.e(TAG, "Failed to send log to JS: " + e.getMessage());
         }
