@@ -735,26 +735,77 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        // FOLOSIM SENZORII INTERNI în loc de GPS sateliți
         try {
-            Log.i(TAG, "Colectez coordonate din senzori interni telefonului");
-            sendLogToJavaScript("Coordonate din senzori telefonului");
-            
-            // Creează obiect Location sintetic cu datele din senzori
-            Location sensorLocation = createLocationFromSensors();
-            
-            if (sensorLocation != null) {
-                Log.i(TAG, "Coordonate calculate din senzori: " + sensorLocation.getLatitude() + ", " + sensorLocation.getLongitude());
-                sendLogToJavaScript("Senzori: " + String.format("%.6f, %.6f", sensorLocation.getLatitude(), sensorLocation.getLongitude()));
+            // Solicitare poziție GPS în timp real
+            LocationListener listener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    try {
+                        long locationAge = System.currentTimeMillis() - location.getTime();
+                        
+                        Log.i(TAG, "GPS primit: " + location.getLatitude() + ", " + location.getLongitude() + " (precizie: " + (int)location.getAccuracy() + "m)");
+                        sendLogToJavaScript("GPS: " + location.getLatitude() + ", " + location.getLongitude());
+                        
+                        // Verifică dacă coordonatele sunt proaspete
+                        if (locationAge > 120000) {
+                            sendLogToJavaScript("Atenție: GPS vechi (" + (locationAge/1000) + "s)");
+                        }
+                        
+                        locationManager.removeUpdates(this);
+                        transmitGPSDataToAllActiveCourses(location);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Eroare procesare GPS: " + e.getMessage());
+                    }
+                }
                 
-                transmitGPSDataToAllActiveCourses(sensorLocation);
+                @Override
+                public void onProviderEnabled(String provider) {
+                    Log.i(TAG, "GPS activat: " + provider);
+                }
+                
+                @Override
+                public void onProviderDisabled(String provider) {
+                    Log.w(TAG, "GPS dezactivat: " + provider);
+                }
+                
+                @Override
+                public void onStatusChanged(String provider, int status, android.os.Bundle extras) {
+                    // Log minimal pentru status changes
+                }
+            };
+            
+            // GPS PROFESIONAL pentru precizie maximă
+            boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            
+            String provider = gpsEnabled ? LocationManager.GPS_PROVIDER : null;
+            
+            if (provider != null) {
+                Log.i(TAG, "Folosesc provider: " + provider);
+                sendLogToJavaScript("GPS activ - provider: " + provider);
+                
+                // Solicitare poziție în timp real
+                locationManager.requestLocationUpdates(provider, 0, 0, listener);
+                
+                // Timeout pentru GPS
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(12000);
+                            locationManager.removeUpdates(listener);
+                            sendLogToJavaScript("GPS timeout - verifică semnalul");
+                        } catch (Exception e) {
+                            Log.e(TAG, "Eroare timeout: " + e.getMessage());
+                        }
+                    }
+                }).start();
             } else {
-                Log.e(TAG, "❌ Nu pot calcula coordonate din senzori");
-                sendLogToJavaScript("❌ Eroare calcul coordonate din senzori");
+                Log.e(TAG, "GPS dezactivat - activează GPS în setări");
+                sendLogToJavaScript("❌ GPS dezactivat - activează GPS în setări pentru tracking profesional");
             }
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ Eroare citire senzori: " + e.getMessage());
+            Log.e(TAG, "❌ GPS cycle error: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -1329,7 +1380,7 @@ public class BackgroundGPSService extends Service {
     private Notification createNotification() {
         return new Notification.Builder(this, CHANNEL_ID)
             .setContentTitle("iTrack GPS Active")
-            .setContentText("Coordonate din senzori la 10 secunde")
+            .setContentText("Tracking GPS profesional la 10 secunde")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setOngoing(true)
             .setPriority(Notification.PRIORITY_HIGH)
