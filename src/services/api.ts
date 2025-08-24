@@ -134,12 +134,9 @@ export const getVehicleCourses = async (
     }
   }
 
-  // SECURITY FIX: Admin mode validation with proper checks
-  if (token === "ADMIN_TOKEN") {
-    console.log("Admin mode: Using restricted API access");
-    // Admin mode continues to actual API but with logging for audit trail
-    logAPI("Admin mode accessed - audit log entry created");
-  }
+  // SECURITY FIX: Admin mode completely removed from client-side validation
+  // Admin privileges must be validated server-side only via JWT token claims
+  // Client-side admin tokens are a critical security vulnerability
 
   // Set global lock and create new request
   requestInProgress = true;

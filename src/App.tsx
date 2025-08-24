@@ -18,9 +18,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const initApp = async () => {
-      // Set loading to false immediately to show login faster
-      setIsLoading(false);
-      
       try {
         // CRITICAL: Initialize GPS bridge for Android service communication
         // GPS operations handled by Capacitor Plugin
@@ -47,6 +44,9 @@ const App: React.FC = () => {
         // CRITICAL FIX: Ensure app doesn't stay in loading state on error
         setCurrentScreen('login');
         setToken('');
+      } finally {
+        // SENIOR FIX: Always clear loading state regardless of success/failure
+        setIsLoading(false);
       }
     };
 

@@ -9,10 +9,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:requestLegacyExternalStorage="true"
-        android:largeHeap="true"
         android:hardwareAccelerated="true"
-        android:persistent="true"
-        android:usesCleartextTraffic="true"
+        android:usesCleartextTraffic="false"
         android:networkSecurityConfig="@xml/network_security_config"
         android:debuggable="false">
 

@@ -254,7 +254,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const currentVehicleRef = useRef<string>('');
 
   // Offline GPS count handled by BackgroundGPSService natively
-  const [offlineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -490,7 +489,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       setLoadingCourses(new Set());
       console.log('🔧 CLEANUP: Loading states cleared');
     };
-  }, [vehicleNumber, token, coursesLoaded, offlineGPSCount]);
+  }, [vehicleNumber, token]);
 
   // SENIOR DEVELOPER FIX: Race condition protected course loading
   const handleLoadCourses = async () => {
