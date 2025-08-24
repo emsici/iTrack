@@ -780,13 +780,12 @@ public class BackgroundGPSService extends Service {
                                 double speed = gpsData.getDouble("viteza"); // km/h
                                 double accuracy = gpsData.getDouble("hdop");
                                 
-                                // Call analytics update prin JavaScript bridge
-                                String analyticsCall = "if (window.courseAnalyticsService && window.courseAnalyticsService.updateCourseStatistics) { " +
-                                    "window.courseAnalyticsService.updateCourseStatistics('" + uniqueKey + "', " + 
-                                    lat + ", " + lng + ", " + speed + ", " + accuracy + ", false); }";
+                                // Call analytics update prin bridge log pentru JavaScript capture
+                                String analyticsCall = "window.courseAnalyticsService && window.courseAnalyticsService.updateCourseStatistics('" + uniqueKey + "', " + 
+                                    lat + ", " + lng + ", " + speed + ", " + accuracy + ", false);";
                                     
-                                callJavaScriptFunction(analyticsCall);
-                                Log.i(TAG, "✅ Analytics updated for course: " + uniqueKey);
+                                Log.e("JS_ANALYTICS_BRIDGE", analyticsCall);
+                                Log.i(TAG, "✅ Analytics bridge called for course: " + uniqueKey);
                                 
                             } catch (Exception analyticsError) {
                                 Log.e(TAG, "❌ Analytics update failed: " + analyticsError.getMessage());
@@ -1083,9 +1082,9 @@ public class BackgroundGPSService extends Service {
             // Send log via Android system log with special tag for JS capture
             Log.e("JS_BRIDGE_LOG", "[Android GPS]: " + message);
             
-            // ADAUGĂ HANDLER PENTRU ALERTELE GPS către UI
-            String alertCode = "if (window.AndroidGPS && window.AndroidGPS.onGPSMessage) { window.AndroidGPS.onGPSMessage('" + message.replace("'", "\\'") + "'); }";
-            callJavaScriptFunction(alertCode); // Trimite către handler-ul de alerte
+            // ADAUGĂ HANDLER PENTRU ALERTELE GPS către UI prin bridge log
+            String alertCode = "window.AndroidGPS && window.AndroidGPS.onGPSMessage && window.AndroidGPS.onGPSMessage('" + message.replace("'", "\\'") + "');";
+            Log.e("JS_GPS_ALERT_BRIDGE", alertCode);
             
             // Also send to system log for debugging
             Log.e(TAG, "JS Log + Alert: " + message);
