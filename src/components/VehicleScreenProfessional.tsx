@@ -891,26 +891,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <i className="fas fa-info" style={{ fontSize: '20px', color: 'white' }}></i>
           </button>
 
-          {/* Online indicator */}
-          <div style={{
-            width: '56px',
-            height: '56px',
-            background: 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)',
-            border: '2px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 16px rgba(72, 187, 120, 0.3)'
-          }}>
-            <div style={{
-              width: '16px',
-              height: '16px',
-              background: '#ffffff',
-              borderRadius: '50%',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
-            }}></div>
-          </div>
 
           {/* Stats/Analytics - design frumos */}
           <button 
