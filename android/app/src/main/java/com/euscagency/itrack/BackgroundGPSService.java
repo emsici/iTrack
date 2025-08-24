@@ -62,25 +62,38 @@ public class BackgroundGPSService extends Service {
     private static final int RETRY_INITIAL_DELAY = 30; // Prima încercare după 30s
     private static final int RETRY_MAX_DELAY = 300; // Maxim 5 minute între încercări
     
-    // Clasă pentru datele GPS offline
+    // CRITICAL FIX: Clasă îmbunătățită pentru datele GPS offline cu identificatori expliciți
     private static class OfflineGPSData {
         final org.json.JSONObject gpsData;
         final String timestamp;
         final int retryCount;
         final long createdAt;
+        // SECURITY FIX: Identificatori expliciți pentru protecția integrității datelor
+        final String courseId;     // ikRoTrans - identificator local unic
+        final String realUit;      // UIT real pentru server
+        final String vehicleNumber; // Numărul vehiculului
+        final String token;        // Token pentru autentificare (hash)
         
-        OfflineGPSData(org.json.JSONObject data, String time) {
+        OfflineGPSData(org.json.JSONObject data, String time, String courseId, String realUit, String vehicleNumber, String token) {
             this.gpsData = data;
             this.timestamp = time;
             this.retryCount = 0;
             this.createdAt = System.currentTimeMillis();
+            this.courseId = courseId;
+            this.realUit = realUit;
+            this.vehicleNumber = vehicleNumber;
+            this.token = token;
         }
         
-        OfflineGPSData(org.json.JSONObject data, String time, int retries) {
+        OfflineGPSData(org.json.JSONObject data, String time, int retries, String courseId, String realUit, String vehicleNumber, String token) {
             this.gpsData = data;
             this.timestamp = time;
             this.retryCount = retries;
             this.createdAt = System.currentTimeMillis();
+            this.courseId = courseId;
+            this.realUit = realUit;
+            this.vehicleNumber = vehicleNumber;
+            this.token = token;
         }
     }
     
@@ -828,7 +841,7 @@ public class BackgroundGPSService extends Service {
                                 double lat = gpsData.getDouble("lat");
                                 double lng = gpsData.getDouble("lng");
                                 double speed = gpsData.getDouble("viteza"); // km/h
-                                double accuracy = gpsData.getDouble("hdop");
+                                double accuracy = gpsData.getDouble("accuracy_m");
                                 int currentStatus = gpsData.getInt("status");
                                 
                                 // IMPORTANT: Aceste coordonate sunt trimise DOAR pentru status 2 (ACTIVE)
@@ -859,7 +872,7 @@ public class BackgroundGPSService extends Service {
                             sdf.setTimeZone(romaniaTimeZone);
                             String offlineTimestamp = sdf.format(new java.util.Date());
                             
-                            addToOfflineQueue(gpsData, offlineTimestamp);
+                            addToOfflineQueue(gpsData, offlineTimestamp, uniqueKey, realUit);
                             Log.e(TAG, "💾 GPS coordinate saved to offline queue for retry");
                         } catch (Exception offlineError) {
                             Log.e(TAG, "Eroare salvare offline queue: " + offlineError.getMessage());
@@ -1424,8 +1437,8 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    // OFFLINE QUEUE: Adaugă coordonate GPS în coada pentru retry
-    private void addToOfflineQueue(org.json.JSONObject gpsData, String timestamp) {
+    // CRITICAL FIX: Adaugă coordonate GPS cu identificatori expliciți pentru integritate maximă
+    private void addToOfflineQueue(org.json.JSONObject gpsData, String timestamp, String uniqueKey, String realUit) {
         try {
             // MEMORY PROTECTION: Limitează mărimea cozii pentru a evita memory leaks
             if (offlineQueue.size() >= MAX_OFFLINE_QUEUE_SIZE) {
@@ -1436,14 +1449,24 @@ public class BackgroundGPSService extends Service {
                 }
             }
             
-            OfflineGPSData offlineData = new OfflineGPSData(gpsData, timestamp);
+            // SECURITY: Extract identificatori din activeCourses pentru a garanta consistența
+            CourseData courseData = activeCourses.get(uniqueKey);
+            String courseId = courseData != null ? courseData.courseId : uniqueKey;
+            String vehicleNumber = courseData != null ? courseData.vehicleNumber : "UNKNOWN";
+            String tokenHash = globalToken != null ? String.valueOf(globalToken.hashCode()) : "NO_TOKEN";
+            
+            // CRITICAL: Creează OfflineGPSData cu TOATE identificatorii expliciți
+            OfflineGPSData offlineData = new OfflineGPSData(gpsData, timestamp, courseId, realUit, vehicleNumber, tokenHash);
             offlineQueue.offer(offlineData);
             
-            Log.e(TAG, "💾 GPS coordinate added to offline queue. Total: " + offlineQueue.size());
-            sendLogToJavaScript("💾 GPS offline queue: " + offlineQueue.size() + " coordonate");
+            Log.e(TAG, "💾 GPS coordinate added to offline queue with identifiers:");
+            Log.e(TAG, "   Course: " + courseId + " → Real UIT: " + realUit);
+            Log.e(TAG, "   Vehicle: " + vehicleNumber + " | Total offline: " + offlineQueue.size());
+            sendLogToJavaScript("💾 GPS offline secure: " + offlineQueue.size() + " coordonate cu identificatori");
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error adding to offline queue: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -1496,7 +1519,11 @@ public class BackgroundGPSService extends Service {
                         OfflineGPSData retryData = new OfflineGPSData(
                             offlineData.gpsData, 
                             offlineData.timestamp, 
-                            offlineData.retryCount + 1
+                            offlineData.retryCount + 1,
+                            offlineData.courseId,
+                            offlineData.realUit,
+                            offlineData.vehicleNumber,
+                            offlineData.token
                         );
                         offlineQueue.offer(retryData);
                         Log.e(TAG, "🔄 GPS retry failed - requeue with count: " + retryData.retryCount);
