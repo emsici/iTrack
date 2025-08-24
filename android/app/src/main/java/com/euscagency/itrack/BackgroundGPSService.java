@@ -51,8 +51,8 @@ public class BackgroundGPSService extends Service {
     private java.util.concurrent.ThreadPoolExecutor httpThreadPool;
     private String globalVehicle;
     
-    // THREAD SAFETY: AtomicBoolean pentru isGPSRunning state thread-safe
-    private java.util.concurrent.atomic.AtomicBoolean isGPSRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
+    // GPS Running State: boolean simplu - commit 3c57f36ab1b8364936458193907a1e63e7a1a514 care funcționa
+    private boolean isGPSRunning = false;
     
     // OFFLINE QUEUE: Sistem pentru persistența GPS când nu e rețea
     private java.util.concurrent.ConcurrentLinkedQueue<OfflineGPSData> offlineQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
@@ -202,7 +202,7 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "📱 Notificare serviciu fundal persistentă creată");
             
             if (courseStatus == 2) {
-                if (!isGPSRunning.get()) {
+                if (!isGPSRunning) {
                     Log.e(TAG, "🚀 PORNIRE GPS pentru prima cursă activă - start ScheduledExecutorService");
                     startBackgroundGPS();
                 } else {
@@ -238,7 +238,7 @@ public class BackgroundGPSService extends Service {
                     courseData.status = 2;
                     Log.i(TAG, "GPS reactivat pentru " + specificUIT);
                     
-                    if (!isGPSRunning.get()) {
+                    if (!isGPSRunning) {
                         Log.i(TAG, "Pornesc GPS pentru resume");
                         startBackgroundGPS();
                     } else {
@@ -293,14 +293,14 @@ public class BackgroundGPSService extends Service {
     }
     
     private void startBackgroundGPS() {
-        Log.e(TAG, "startBackgroundGPS called, isGPSRunning: " + isGPSRunning.get());
+        Log.e(TAG, "startBackgroundGPS called, isGPSRunning: " + isGPSRunning);
         
-        if (isGPSRunning.get() && gpsExecutor != null && !gpsExecutor.isShutdown()) {
+        if (isGPSRunning && gpsExecutor != null && !gpsExecutor.isShutdown()) {
             Log.e(TAG, "GPS already running and ScheduledExecutorService active, skipping");
             return;
-        } else if (isGPSRunning.get()) {
+        } else if (isGPSRunning) {
             Log.e(TAG, "⚠️ isGPSRunning=true dar ScheduledExecutorService nu există - RESETEZ isGPSRunning");
-            isGPSRunning.set(false);
+            isGPSRunning = false;
         }
         
         if (activeCourses.isEmpty()) {
@@ -354,7 +354,7 @@ public class BackgroundGPSService extends Service {
                     Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION START ===");
                     Log.e(TAG, "🕐 Current time: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
                     Log.e(TAG, "🔧 Thread: " + Thread.currentThread().getName());
-                    Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning.get());
+                    Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning);
                     Log.e(TAG, "🔧 activeCourses.size(): " + activeCourses.size());
                     Log.e(TAG, "🔧 Execution count: " + System.currentTimeMillis());
                     
@@ -392,7 +392,7 @@ public class BackgroundGPSService extends Service {
                             Log.e(TAG, "🔄 Încercare recovery după eroare critică...");
                             if (gpsExecutor == null || gpsExecutor.isShutdown()) {
                                 Log.e(TAG, "🚨 ScheduledExecutorService compromis - RESTART COMPLET!");
-                                isGPSRunning.set(false);
+                                isGPSRunning = false;
                                 startBackgroundGPS();
                             }
                         } catch (Exception recoveryError) {
@@ -425,7 +425,7 @@ public class BackgroundGPSService extends Service {
             // MINIMĂ LOGGING: Doar status de pornire, fără execuții extra
             Log.e(TAG, "✅ GPS ScheduledExecutorService configurat pentru transmisie la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
             
-            isGPSRunning.set(true);
+            isGPSRunning = true;
             
             // CRITICAL: Start health monitoring system pentru auto-recovery
             startHealthMonitor();
@@ -444,10 +444,10 @@ public class BackgroundGPSService extends Service {
     
     private void stopBackgroundGPS() {
         Log.e(TAG, "🛑 === STOP BACKGROUND GPS CALLED ===");
-        Log.e(TAG, "🛑 Current isGPSRunning: " + isGPSRunning.get());
+        Log.e(TAG, "🛑 Current isGPSRunning: " + isGPSRunning);
         Log.e(TAG, "🛑 Active courses: " + activeCourses.size());
         
-        isGPSRunning.set(false);
+        isGPSRunning = false;
         
         if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
             Log.e(TAG, "🛑 Shutting down ScheduledExecutorService...");
@@ -519,14 +519,14 @@ public class BackgroundGPSService extends Service {
                         Log.e(TAG, "🩺 === HEALTH CHECK [" + currentTime + "] ===");
                         Log.e(TAG, "🩺 Time since last GPS: " + (timeSinceLastGPS / 1000) + "s");
                         Log.e(TAG, "🩺 GPS Expected every: " + GPS_INTERVAL_SECONDS + "s");
-                        Log.e(TAG, "🩺 isGPSRunning: " + isGPSRunning.get());
+                        Log.e(TAG, "🩺 isGPSRunning: " + isGPSRunning);
                         Log.e(TAG, "🩺 ScheduledExecutor alive: " + (gpsExecutor != null && !gpsExecutor.isShutdown()));
                         Log.e(TAG, "🩺 Active courses: " + activeCourses.size());
                         
                         // CRITICAL: Dacă GPS nu a fost executat în ultimele 3 intervale
                         long maxAllowedGap = GPS_INTERVAL_SECONDS * 3 * 1000; // 30 secunde pentru 10s interval
                         
-                        if (timeSinceLastGPS > maxAllowedGap && isGPSRunning.get() && !activeCourses.isEmpty()) {
+                        if (timeSinceLastGPS > maxAllowedGap && isGPSRunning && !activeCourses.isEmpty()) {
                             Log.e(TAG, "🚨 === HEALTH CHECK FAILURE DETECTED ===");
                             Log.e(TAG, "🚨 GPS nu a rulat în ultimele " + (timeSinceLastGPS / 1000) + " secunde!");
                             Log.e(TAG, "🚨 FORȚEZ RESTART COMPLET ScheduledExecutorService!");
@@ -534,7 +534,7 @@ public class BackgroundGPSService extends Service {
                             sendLogToJavaScript("🚨 GPS BLOCAT! Ultimul GPS acum " + (timeSinceLastGPS / 1000) + "s - RESTART FORȚAT");
                             
                             // RECOVERY ACTION: Restart complet GPS service
-                            isGPSRunning.set(false);
+                            isGPSRunning = false;
                             if (gpsExecutor != null) {
                                 gpsExecutor.shutdown();
                                 gpsExecutor = null;
@@ -594,7 +594,7 @@ public class BackgroundGPSService extends Service {
         if (gpsExecutor == null || gpsExecutor.isShutdown()) {
             Log.e(TAG, "GPS service compromis - restart");
             sendLogToJavaScript("GPS restart necesar");
-            isGPSRunning.set(false);
+            isGPSRunning = false;
             startBackgroundGPS();
             return;
         }
@@ -1311,7 +1311,7 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "🛑 === BACKGROUND GPS SERVICE DESTROY CALLED ===");
         
         // THREAD SAFETY: AtomicBoolean update
-        isGPSRunning.set(false);
+        isGPSRunning = false;
         
         // CRITICAL: LocationManager cleanup pentru a preveni memory leaks
         if (locationManager != null) {
