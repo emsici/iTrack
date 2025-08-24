@@ -383,6 +383,7 @@ public class BackgroundGPSService extends Service {
                         
                     } catch (Exception e) {
                         Log.e(TAG, "❌ EROARE CRITICĂ în GPS cycle: " + e.getMessage());
+                        Log.e(TAG, "🔥 ERROR în GPS cycle, dar ScheduledExecutorService VA CONTINUA să ruleze");
                         sendLogToJavaScript("❌ EROARE CRITICĂ GPS: " + e.getMessage());
                         e.printStackTrace();
                         
@@ -601,10 +602,12 @@ public class BackgroundGPSService extends Service {
         sendLogToJavaScript("GPS ciclu activ - " + activeCourses.size() + " curse");
         
         if (activeCourses.isEmpty()) {
+            Log.e(TAG, "🔥 SKIP GPS CYCLE - No active courses, but task will continue running");
             return;
         }
         
         if (globalToken == null) {
+            Log.e(TAG, "🔥 SKIP GPS CYCLE - No token, but task will continue running");
             sendLogToJavaScript("Eroare: Token lipsă");
             return;
         }
@@ -618,6 +621,7 @@ public class BackgroundGPSService extends Service {
         }
         
         if (activeCourseCount == 0) {
+            Log.e(TAG, "🔥 SKIP GPS CYCLE - No courses with status 2 (ACTIVE), but task will continue running");
             return; // Nu există curse active
         }
         
@@ -629,7 +633,7 @@ public class BackgroundGPSService extends Service {
         boolean coarseLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         
         if (!fineLocationPermission && !coarseLocationPermission) {
-            Log.e(TAG, "Permisiuni GPS lipsă");
+            Log.e(TAG, "🔥 SKIP GPS CYCLE - No location permissions, but task will continue running");
             return;
         }
         
@@ -692,6 +696,7 @@ public class BackgroundGPSService extends Service {
             boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             
             if (!gpsEnabled) {
+                Log.e(TAG, "🔥 SKIP GPS CYCLE - GPS provider disabled, but task will continue running");
                 Log.e(TAG, "GPS NATIV DEZACTIVAT - activează GPS pentru precizie maximă!");
                 sendLogToJavaScript("❌ GPS dezactivat - activează GPS în setări pentru tracking de înaltă precizie");
                 return;
