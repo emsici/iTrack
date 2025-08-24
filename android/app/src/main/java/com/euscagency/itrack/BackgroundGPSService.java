@@ -6,9 +6,15 @@ import android.os.IBinder;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.location.LocationManager;
-import android.location.LocationListener;
 import android.location.Location;
+
+// Google Play Services FusedLocationProviderClient - precizie și eficiență GPS optimă
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.Priority;
 import android.content.Context;
 import android.os.PowerManager;
 import android.app.NotificationChannel;
@@ -33,7 +39,9 @@ public class BackgroundGPSService extends Service {
     private static final int NOTIFICATION_ID = 2002;
     private static final String CHANNEL_ID = "BackgroundGPSChannel";
     
-    private LocationManager locationManager;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
     private PowerManager.WakeLock wakeLock;
     private ScheduledExecutorService gpsExecutor;
     private HandlerThread backgroundThread;
@@ -104,7 +112,10 @@ public class BackgroundGPSService extends Service {
         // Initialize HTTP Thread Pool pentru rate limiting
         initializeHttpThreadPool();
         
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // Inițializare FusedLocationProviderClient pentru precizie și eficiență GPS optimă
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        setupLocationRequest();
+        setupLocationCallback();
         
         // WakeLock pentru fundal garantat - HIGH PRIORITY pentru Android Doze bypass
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -122,6 +133,49 @@ public class BackgroundGPSService extends Service {
         startForeground(NOTIFICATION_ID, createNotification());
         
         Log.e(TAG, "✅ BackgroundGPS Service Ready");
+    }
+    
+    /**
+     * Configurează LocationRequest pentru FusedLocationProviderClient
+     * Optimizat pentru tracking vehicule comerciale cu precizie înaltă
+     */
+    private void setupLocationRequest() {
+        locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, GPS_INTERVAL_SECONDS * 1000)
+                .setMinUpdateIntervalMillis(GPS_INTERVAL_SECONDS * 1000)
+                .setMaxUpdateAgeMillis(GPS_INTERVAL_SECONDS * 2 * 1000) // Accept locații cu max 20s vechime
+                .setMaxUpdateDelayMillis(GPS_INTERVAL_SECONDS * 1000 + 5000) // Delay maxim 15s
+                .setGranularity(LocationRequest.GRANULARITY_FINE)
+                .setWaitForAccurateLocation(false) // Nu aștepta locații foarte precise - preferă viteza
+                .build();
+        
+        Log.e(TAG, "📍 LocationRequest configurat: HIGH_ACCURACY, interval " + GPS_INTERVAL_SECONDS + "s");
+    }
+    
+    /**
+     * Configurează LocationCallback pentru primirea locațiilor GPS
+     * Integrează cu sistemul existent de threading și error handling
+     */
+    private void setupLocationCallback() {
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    Log.e(TAG, "❌ LocationResult null");
+                    return;
+                }
+                
+                Location location = locationResult.getLastLocation();
+                if (location == null) {
+                    Log.e(TAG, "❌ Location null în LocationResult");
+                    return;
+                }
+                
+                // Procesează locația pe background thread pentru a nu bloca callback-ul
+                backgroundHandler.post(() -> processLocationUpdate(location));
+            }
+        };
+        
+        Log.e(TAG, "📍 LocationCallback configurat pentru FusedLocationProviderClient");
     }
     
     // Initialize HTTP Thread Pool pentru rate limiting - max 3 connections simultan
@@ -554,9 +608,13 @@ public class BackgroundGPSService extends Service {
         }
     }
     
+    /**
+     * FusedLocationProviderClient GPS cycle - mult mai eficient decât LocationManager
+     * Folosește Google Play Services pentru precizie optimă și eficiență energetică
+     */
     private void performGPSCycle() {
         String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-        Log.i(TAG, "GPS ciclu început - " + activeCourses.size() + " curse");
+        Log.i(TAG, "🔥 FUSED GPS ciclu început - " + activeCourses.size() + " curse");
         
         // Verifică dacă serviciul funcționează corect
         if (gpsExecutor == null || gpsExecutor.isShutdown()) {
@@ -567,9 +625,10 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        sendLogToJavaScript("GPS ciclu activ - " + activeCourses.size() + " curse");
+        sendLogToJavaScript("🔥 FUSED GPS ciclu activ - " + activeCourses.size() + " curse");
         
         if (activeCourses.isEmpty()) {
+            Log.w(TAG, "Nu există curse active pentru GPS");
             return;
         }
         
@@ -587,99 +646,125 @@ public class BackgroundGPSService extends Service {
         }
         
         if (activeCourseCount == 0) {
+            Log.i(TAG, "Nu există curse active (status 2) pentru GPS");
             return; // Nu există curse active
         }
         
-        Log.i(TAG, "GPS transmitere pentru " + activeCourseCount + " curse active");
-        sendLogToJavaScript("GPS transmitere - " + activeCourseCount + " curse active");
+        Log.i(TAG, "🔥 FUSED GPS transmitere pentru " + activeCourseCount + " curse active");
+        sendLogToJavaScript("🔥 FUSED GPS transmitere - " + activeCourseCount + " curse active");
         
         // Verifică permisiuni
         boolean fineLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         boolean coarseLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         
         if (!fineLocationPermission && !coarseLocationPermission) {
-            Log.e(TAG, "Permisiuni GPS lipsă");
+            Log.e(TAG, "❌ Permisiuni GPS lipsă pentru FusedLocationProviderClient");
+            sendLogToJavaScript("❌ Permisiuni GPS lipsă - verifică setările aplicației");
             return;
         }
         
         try {
-            // Solicitare poziție GPS în timp real
-            LocationListener listener = new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    try {
-                        long locationAge = System.currentTimeMillis() - location.getTime();
+            // Folosește FusedLocationProviderClient pentru precizie optimă
+            Log.i(TAG, "📍 Solicitare locație cu FusedLocationProviderClient...");
+            
+            // Încearcă să obții locația curentă cu timeout
+            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener(location -> {
+                    if (location != null) {
+                        Log.i(TAG, "✅ FusedGPS SUCCESS: " + location.getLatitude() + ", " + location.getLongitude() + 
+                             " (precizie: " + Math.round(location.getAccuracy()) + "m, viteză: " + Math.round(location.getSpeed() * 3.6) + "km/h)");
+                        sendLogToJavaScript("✅ FUSED GPS: " + location.getLatitude() + ", " + location.getLongitude() + " (" + Math.round(location.getAccuracy()) + "m)");
                         
-                        Log.i(TAG, "GPS primit: " + location.getLatitude() + ", " + location.getLongitude() + " (precizie: " + (int)location.getAccuracy() + "m)");
-                        sendLogToJavaScript("GPS: " + location.getLatitude() + ", " + location.getLongitude());
-                        
-                        // Verifică dacă coordonatele sunt proaspete
-                        if (locationAge > 120000) {
-                            sendLogToJavaScript("Atenție: GPS vechi (" + (locationAge/1000) + "s)");
-                        }
-                        
-                        locationManager.removeUpdates(this);
-                        transmitGPSDataToAllActiveCourses(location);
-                    } catch (Exception e) {
-                        Log.e(TAG, "Eroare procesare GPS: " + e.getMessage());
+                        // Procesează locația pe background thread
+                        backgroundHandler.post(() -> processLocationUpdate(location));
+                    } else {
+                        Log.w(TAG, "⚠️ FusedGPS location null - încerc fallback last known location");
+                        tryFallbackLocation();
                     }
-                }
-                
-                @Override
-                public void onProviderEnabled(String provider) {
-                    Log.i(TAG, "GPS activat: " + provider);
-                }
-                
-                @Override
-                public void onProviderDisabled(String provider) {
-                    Log.w(TAG, "GPS dezactivat: " + provider);
-                }
-                
-                @Override
-                public void onStatusChanged(String provider, int status, android.os.Bundle extras) {
-                    // Log minimal pentru status changes
-                }
-            };
-            
-            // DOAR GPS NATIV pentru precizie maximă (conform preferințelor utilizatorului)
-            boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            
-            String provider = gpsEnabled ? LocationManager.GPS_PROVIDER : null;
-            
-            if (provider != null) {
-                Log.i(TAG, "Folosesc provider: " + provider);
-                sendLogToJavaScript("GPS activ - provider: " + provider);
-                
-                // Solicitare poziție în timp real
-                locationManager.requestLocationUpdates(provider, 0, 0, listener);
-                
-                // Timeout pentru GPS
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Thread.sleep(12000);
-                            locationManager.removeUpdates(listener);
-                            sendLogToJavaScript("GPS timeout - verifică semnalul");
-                        } catch (Exception e) {
-                            Log.e(TAG, "Eroare timeout: " + e.getMessage());
-                        }
-                    }
-                }).start();
-            } else {
-                Log.e(TAG, "GPS NATIV dezactivat - activează GPS în setări");
-                sendLogToJavaScript("❌ GPS dezactivat - activează GPS în setări pentru precizie maximă");
-            }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "❌ FusedGPS FAILED: " + e.getMessage());
+                    sendLogToJavaScript("❌ FusedGPS error: " + e.getMessage());
+                    
+                    // Fallback la last known location
+                    tryFallbackLocation();
+                });
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ GPS cycle error: " + e.getMessage());
+            Log.e(TAG, "❌ FusedGPS cycle exception: " + e.getMessage());
+            sendLogToJavaScript("❌ FusedGPS exception: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Fallback la last known location
+            tryFallbackLocation();
+        }
+    }
+    
+    /**
+     * Încearcă să obțină locația folosind getLastLocation ca fallback
+     */
+    private void tryFallbackLocation() {
+        try {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && 
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            
+            Log.i(TAG, "🔄 Fallback: încercare getLastLocation...");
+            
+            fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(location -> {
+                    if (location != null) {
+                        long locationAge = System.currentTimeMillis() - location.getTime();
+                        
+                        if (locationAge < 300000) { // Max 5 minute vechime
+                            Log.i(TAG, "✅ FALLBACK GPS SUCCESS: " + location.getLatitude() + ", " + location.getLongitude() + 
+                                 " (precizie: " + Math.round(location.getAccuracy()) + "m, vârstă: " + (locationAge/1000) + "s)");
+                            sendLogToJavaScript("✅ FALLBACK GPS (" + (locationAge/1000) + "s): " + location.getLatitude() + ", " + location.getLongitude());
+                            
+                            // Procesează locația pe background thread
+                            backgroundHandler.post(() -> processLocationUpdate(location));
+                        } else {
+                            Log.w(TAG, "⚠️ Last known location prea veche: " + (locationAge/1000) + "s");
+                            sendLogToJavaScript("⚠️ GPS location prea veche (" + (locationAge/1000) + "s) - verifică semnalul GPS");
+                        }
+                    } else {
+                        Log.e(TAG, "❌ FALLBACK: Nu există locație cunoscută");
+                        sendLogToJavaScript("❌ Nu există locație GPS - verifică dacă GPS-ul este activat");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "❌ FALLBACK getLastLocation failed: " + e.getMessage());
+                    sendLogToJavaScript("❌ GPS complet indisponibil: " + e.getMessage());
+                });
+                
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Fallback location exception: " + e.getMessage());
             e.printStackTrace();
         }
     }
     
-    private void transmitGPSDataToAllActiveCourses(Location location) {
+    /**
+     * Procesează locația primită de la FusedLocationProviderClient
+     * Înlocuiește transmitGPSDataToAllActiveCourses din implementarea veche
+     */
+    private void processLocationUpdate(Location location) {
         try {
-            Log.i(TAG, "Pregătesc transmisia GPS pentru " + activeCourses.size() + " curse");
+            Log.i(TAG, "📡 Procesez locație pentru " + activeCourses.size() + " curse");
+            
+            // CRITICAL SECURITY VALIDATION: Respinge coordonatele (0,0) sau invalide
+            if (location.getLatitude() == 0.0 && location.getLongitude() == 0.0) {
+                Log.e(TAG, "🚫 SECURITY: Coordonate (0,0) respinse - locație invalidă");
+                sendLogToJavaScript("🚫 SECURITY: Coordonate GPS invalide respinse");
+                return;
+            }
+            
+            if (Double.isNaN(location.getLatitude()) || Double.isNaN(location.getLongitude()) || 
+                !Double.isFinite(location.getLatitude()) || !Double.isFinite(location.getLongitude())) {
+                Log.e(TAG, "🚫 SECURITY: Coordonate NaN sau infinite respinse");
+                sendLogToJavaScript("🚫 SECURITY: Coordonate GPS corupte respinse");
+                return;
+            }
             
             // Timestamp România
             java.util.TimeZone romaniaTimeZone = java.util.TimeZone.getTimeZone("Europe/Bucharest");
@@ -710,10 +795,10 @@ public class BackgroundGPSService extends Service {
                 gpsData.put("numar_inmatriculare", courseData.vehicleNumber); // Numărul vehiculului
                 gpsData.put("lat", location.getLatitude());
                 gpsData.put("lng", location.getLongitude());
-                gpsData.put("viteza", (int) (location.getSpeed() * 3.6));
-                gpsData.put("directie", (int) location.getBearing());
-                gpsData.put("altitudine", (int) location.getAltitude());
-                gpsData.put("hdop", (int) location.getAccuracy());
+                gpsData.put("viteza", Math.round(location.getSpeed() * 3.6)); // m/s -> km/h
+                gpsData.put("directie", Math.round(location.getBearing()));
+                gpsData.put("altitudine", Math.round(location.getAltitude()));
+                gpsData.put("hdop", Math.round(location.getAccuracy())); // Accuracy în metri
                 gpsData.put("gsm_signal", networkSignal);
                 gpsData.put("baterie", batteryLevel);
                 gpsData.put("status", courseData.status);
@@ -721,17 +806,24 @@ public class BackgroundGPSService extends Service {
                 
                 // CRITICAL: Transmite folosind unique key pentru identificare locală, dar UIT real pentru server
                 transmitSingleCourseGPS(gpsData, uniqueKey, courseData.realUit);
+                
+                // Salvează offline coordonatele și pentru JavaScript bridge
+                sendOfflineGPSToJavaScript(gpsData.toString());
             }
             
             if (coursesTransmitting > 0) {
-                Log.i(TAG, "GPS transmis pentru " + coursesTransmitting + " curse din " + activeCourses.size() + " total");
-                sendLogToJavaScript("GPS transmis - " + coursesTransmitting + " curse");
+                Log.i(TAG, "✅ FUSED GPS transmis pentru " + coursesTransmitting + " curse din " + activeCourses.size() + " total");
+                sendLogToJavaScript("✅ FUSED GPS transmis - " + coursesTransmitting + " curse (" + Math.round(location.getAccuracy()) + "m precizie)");
             }
             
         } catch (Exception e) {
-            Log.e(TAG, "Eroare transmisie GPS: " + e.getMessage());
+            Log.e(TAG, "❌ Eroare procesare locație FUSED GPS: " + e.getMessage());
+            sendLogToJavaScript("❌ Eroare procesare GPS: " + e.getMessage());
+            e.printStackTrace();
         }
     }
+    
+    // Metoda transmitGPSDataToAllActiveCourses() eliminată - înlocuită cu processLocationUpdate() pentru FusedLocationProviderClient
     
     private void transmitSingleCourseGPS(org.json.JSONObject gpsData, String uniqueKey, String realUit) {
         try {
@@ -1121,45 +1213,7 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    private Location getLastKnownLocation() {
-        try {
-            android.location.LocationManager locationManager = 
-                (android.location.LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            
-            if (locationManager == null) {
-                return null;
-            }
-            
-            // Try GPS first, then Network
-            Location gpsLocation = null;
-            Location networkLocation = null;
-            
-            try {
-                gpsLocation = locationManager.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER);
-            } catch (SecurityException e) {
-                Log.e(TAG, "❌ No GPS permission for last known location");
-            }
-            
-            try {
-                networkLocation = locationManager.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER);
-            } catch (SecurityException e) {
-                Log.e(TAG, "❌ No Network permission for last known location");
-            }
-            
-            // Return the most recent location
-            if (gpsLocation != null && networkLocation != null) {
-                return gpsLocation.getTime() > networkLocation.getTime() ? gpsLocation : networkLocation;
-            } else if (gpsLocation != null) {
-                return gpsLocation;
-            } else {
-                return networkLocation;
-            }
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Last known location error: " + e.getMessage());
-            return null;
-        }
-    }
+    // Metoda getLastKnownLocation() eliminată - înlocuită cu FusedLocationProviderClient.getLastLocation() în tryFallbackLocation()
     
     @Override
     public IBinder onBind(Intent intent) {
