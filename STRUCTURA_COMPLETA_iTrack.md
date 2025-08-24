@@ -12,8 +12,7 @@ iTrack/
 ├── src/                       # Codul sursă React/TypeScript
 ├── dist/                      # Build output pentru producție
 ├── node_modules/              # Dependințe npm
-├── attached_assets/           # Asset-uri atașate
-└── documentație/              # Fișiere documentație
+└── fișiere_documentație.md    # Fișiere documentație în root
 ```
 
 ---
@@ -117,25 +116,20 @@ src/
 
 ## 📄 DOCUMENTAȚIE COMPLETĂ
 
-### Documentații Business și Tehnice
+### Documentații Business și Tehnice (Root Directory)
 ```
 ├── ANALIZA_TEHNICA_COMPLETA_iTrack.md    # Analiză tehnică exhaustivă
 ├── PREZENTARE_BUSINESS_iTrack.md         # Prezentare business pentru stakeholderi
 ├── PREZENTARE_CLIENTI_iTrack.md          # Prezentare pentru clienții finali
 ├── POVESTEA_iTrack.md                    # Narațiune dezvoltare aplicație
-└── STRUCTURA_COMPLETA_iTrack.md          # Acest fișier - structura completă
+├── STRUCTURA_COMPLETA_iTrack.md          # Acest fișier - structura completă
+├── README.md                             # Documentație generală cu link-uri
+├── replit.md                             # Arhitectura sistemului și preferințe
+├── changelog.md                          # Istoric modificări versiuni
+└── TEST_CONFLICT_SCENARIO.md             # Scenarii testare conflicte
 ```
 
-### Documentații Tehnice Specifice
-```
-├── README.md                             # Documentație generală proiect
-├── changelog.md                          # Istoric modificări versiuni
-├── TEST_CONFLICT_SCENARIO.md             # Scenarii testare conflicte
-├── VERIFICARE_NUMERE_TELEFON_LOGIN.md    # Testare autentificare
-├── VERIFICARE_TRANSMISIE_DUAL_SOFER.md   # Testare multi-user
-├── VERIFICARE_TRASEU_PE_STRAZI.md        # Validare trasee GPS
-└── EXEMPLU_TRASEU_REAL.md                # Exemple trasee reale
-```
+**📝 Note:** Toate fișierele de documentație sunt în directorul root pentru acces direct.
 
 ---
 

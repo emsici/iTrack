@@ -16,10 +16,8 @@
 
 **🧪 Documentații Testare și Validare:**
 - **[⚔️ Scenarii Conflict Multi-User](./TEST_CONFLICT_SCENARIO.md)** - Testare situații concurente
-- **[📞 Verificare Login](./VERIFICARE_NUMERE_TELEFON_LOGIN.md)** - Validare autentificare
-- **[👤 Transmisie Dual Șofer](./VERIFICARE_TRANSMISIE_DUAL_SOFER.md)** - Testare multi-user
-- **[🗺️ Trasee GPS](./VERIFICARE_TRASEU_PE_STRAZI.md)** - Validare tracking pe străzi reale
-- **[🛣️ Exemplu Traseu Real](./EXEMPLU_TRASEU_REAL.md)** - Demonstrații practice
+
+*📝 Notă: Fișierele VERIFICARE_*.md și EXEMPLU_*.md vor fi adăugate în viitor pentru documentarea detaliată a testelor.*
 
 ---
 
