@@ -97,10 +97,17 @@ class BackgroundPermissionsService {
       // Pe Android, verifică prin Capacitor plugin
       if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
         try {
-          const result = await (window as any).CapacitorCustomPlugin.PermissionsHelper.checkBackgroundLocation();
-          return result.status;
+          // Accesare prin Capacitor bridge pentru PermissionsHelper  
+          const { CapacitorCustomPlugin } = (window as any);
+          const PermissionsHelper = CapacitorCustomPlugin?.PermissionsHelper;
+          if (PermissionsHelper) {
+            const result = await PermissionsHelper.checkBackgroundLocation();
+            return result.status;
+          } else {
+            console.log('PermissionsHelper plugin nu e înregistrat');
+          }
         } catch (error) {
-          console.log('Plugin PermissionsHelper nu e disponibil, folosesc fallback');
+          console.log('Plugin PermissionsHelper nu e disponibil, folosesc fallback:', error);
         }
       }
       
@@ -120,10 +127,17 @@ class BackgroundPermissionsService {
     try {
       if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
         try {
-          const result = await (window as any).CapacitorCustomPlugin.PermissionsHelper.isIgnoringBatteryOptimizations();
-          return result.isIgnoring ? 'whitelisted' : 'not-whitelisted';
+          // Accesare prin Capacitor bridge pentru PermissionsHelper  
+          const { CapacitorCustomPlugin } = (window as any);
+          const PermissionsHelper = CapacitorCustomPlugin?.PermissionsHelper;
+          if (PermissionsHelper) {
+            const result = await PermissionsHelper.isIgnoringBatteryOptimizations();
+            return result.isIgnoring ? 'whitelisted' : 'not-whitelisted';
+          } else {
+            console.log('PermissionsHelper plugin nu e înregistrat');
+          }
         } catch (error) {
-          console.log('Plugin pentru battery optimization nu e disponibil');
+          console.log('Plugin pentru battery optimization nu e disponibil:', error);
         }
       }
       return 'unknown';
@@ -181,9 +195,16 @@ class BackgroundPermissionsService {
       // Pentru Android, folosește Capacitor plugin pentru background location
       if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
         try {
-          const result = await (window as any).CapacitorCustomPlugin.PermissionsHelper.requestBackgroundLocation();
-          console.log('🌅 Rezultat background location:', result);
-          return result.status === 'granted';
+          // Accesare prin Capacitor bridge pentru PermissionsHelper  
+          const { CapacitorCustomPlugin } = (window as any);
+          const PermissionsHelper = CapacitorCustomPlugin?.PermissionsHelper;
+          if (PermissionsHelper) {
+            const result = await PermissionsHelper.requestBackgroundLocation();
+            console.log('🌅 Rezultat background location:', result);
+            return result.status === 'granted';
+          } else {
+            console.log('PermissionsHelper plugin nu e înregistrat');
+          }
         } catch (error) {
           console.log('Plugin indisponibil pentru background location:', error);
         }
@@ -204,9 +225,16 @@ class BackgroundPermissionsService {
     try {
       if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
         try {
-          const result = await (window as any).CapacitorCustomPlugin.PermissionsHelper.requestIgnoreBatteryOptimizations();
-          console.log('🔋 Rezultat battery optimization:', result);
-          return result.success || false;
+          // Accesare prin Capacitor bridge pentru PermissionsHelper  
+          const { CapacitorCustomPlugin } = (window as any);
+          const PermissionsHelper = CapacitorCustomPlugin?.PermissionsHelper;
+          if (PermissionsHelper) {
+            const result = await PermissionsHelper.requestIgnoreBatteryOptimizations();
+            console.log('🔋 Rezultat battery optimization:', result);
+            return result.success || false;
+          } else {
+            console.log('PermissionsHelper plugin nu e înregistrat');
+          }
         } catch (error) {
           console.log('Plugin pentru battery optimization nu e disponibil:', error);
         }
