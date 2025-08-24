@@ -143,12 +143,14 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
     const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
     const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`; // UIT + Vehicul + Token = identificator COMPLET unic
     
+    // CRITICAL FIX: Trimite status-ul REAL al cursei pentru consistență completă
+    const gpsStatus = course.status || 2; // Status real al cursei (2=ACTIVE dacă lipsește)
     const result = window.AndroidGPS.startGPS(
       ikRoTransKey,
       vehicleNumber,
       course.uit,
       token,
-      2
+      gpsStatus
     );
     
     console.log("Rezultat serviciu GPS:", result);
