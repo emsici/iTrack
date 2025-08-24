@@ -32,6 +32,14 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseDa
     }
   }, [isOpen]);
 
+  // CRITICAL FIX: Re-initialize hartă when courseData changes (GPS points loaded)
+  useEffect(() => {
+    if (isOpen && L && courseData.gpsPoints.length > 0) {
+      console.log(`🗺️ Re-initialize hartă cu ${courseData.gpsPoints.length} puncte GPS`);
+      initializeMap();
+    }
+  }, [courseData.gpsPoints.length]);
+
   const loadLeaflet = async () => {
     try {
       // Dynamically import Leaflet

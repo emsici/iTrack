@@ -22,16 +22,19 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
   const [pausePoints, setPausePoints] = useState<GPSPoint[]>([]);
   const [loading, setLoading] = useState(false);
   
+  // CRITICAL FIX: Încarcă GPS data imediat la deschiderea modalului, nu doar când se click pe hartă
   useEffect(() => {
-    if (isOpen && showRouteMap && !courseStats) {
+    if (isOpen && !courseStats) {
       loadCourseGPSData();
     }
-  }, [isOpen, showRouteMap, course.id, course.status]); // CRITICAL FIX: Adaugă course.status pentru refresh la schimbarea status-ului
+  }, [isOpen, course.id, course.status]); // CRITICAL FIX: Adaugă course.status pentru refresh la schimbarea status-ului
   
   const loadCourseGPSData = async () => {
     setLoading(true);
     try {
+      console.log(`🗺️ Încarcă GPS data pentru cursă: ${course.id}`);
       const stats = await courseAnalyticsService.getCourseAnalytics(course.id);
+      console.log(`📍 GPS punkte găsite: ${stats?.gpsPoints?.length || 0}`);
       setCourseStats(stats);
       
       if (stats && stats.gpsPoints) {
