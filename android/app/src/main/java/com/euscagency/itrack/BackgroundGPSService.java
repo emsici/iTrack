@@ -395,10 +395,10 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔧 gpsExecutor null check: " + (gpsExecutor != null));
             Log.e(TAG, "🔧 gpsExecutor shutdown check: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
             
-            // CRITICAL FIX: DOAR ScheduledExecutorService cu interval corect - prima execuție IMEDIAT
+            // CRITICAL FIX: DOAR ScheduledExecutorService cu interval corect - fără execuții extra
             java.util.concurrent.ScheduledFuture<?> future = gpsExecutor.scheduleAtFixedRate(
                 gpsRunnable, 
-                0, // PRIMA EXECUȚIE IMEDIAT (în loc de 10 secunde)
+                GPS_INTERVAL_SECONDS, // PRIMA EXECUȚIE DUPĂ 10 SECUNDE (nu imediat)
                 GPS_INTERVAL_SECONDS, // APOI LA FIECARE 10 SECUNDE  
                 TimeUnit.SECONDS
             );
@@ -413,7 +413,7 @@ public class BackgroundGPSService extends Service {
             isGPSRunning.set(true);
             
             // CRITICAL: Start health monitoring system pentru auto-recovery
-            startHealthMonitor();
+            // startHealthMonitor(); // DISABLED pentru debugging GPS transmission
             
             // OFFLINE QUEUE: Start retry system pentru coordonate GPS offline
             startOfflineRetrySystem();
@@ -573,7 +573,7 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "GPS service compromis - restart");
             sendLogToJavaScript("GPS restart necesar");
             isGPSRunning.set(false);
-            startBackgroundGPS();
+            // startBackgroundGPS(); // DISABLED pentru debugging - previne restart loops
             return;
         }
         
