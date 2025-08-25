@@ -326,7 +326,8 @@ public class BackgroundGPSService extends Service {
             gpsExecutor.shutdown();
         }
         
-        gpsExecutor = Executors.newSingleThreadScheduledExecutor();
+        // CRITICAL FIX: Multiple threads pentru a preveni blocking
+        gpsExecutor = Executors.newScheduledThreadPool(2);
         Log.e(TAG, "🔧 GPS Executor created: " + (gpsExecutor != null));
         Log.e(TAG, "🔧 Scheduling cycles every " + GPS_INTERVAL_SECONDS + "s");
         
@@ -698,8 +699,8 @@ public class BackgroundGPSService extends Service {
                     @Override
                     public void run() {
                         try {
-                            // GPS NATIV EXCLUSIV: Timeout optimizat pentru precizie maximă
-                            Thread.sleep(20000); // 20 secunde pentru GPS de înaltă precizie
+                            // TIMEOUT REDUS: 8 secunde pentru a nu bloca scheduler-ul
+                            Thread.sleep(8000); // 8 secunde - mai mic decât intervalul de 10s
                             sendLogToJavaScript("GPS timeout după 20s - folosesc cea mai bună poziție disponibilă");
                             locationManager.removeUpdates(listener);
                         } catch (Exception e) {
