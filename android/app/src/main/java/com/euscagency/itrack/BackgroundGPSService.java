@@ -209,7 +209,7 @@ public class BackgroundGPSService extends Service {
             // TOKEN CONSISTENCY FIX: Verifică că token nu s-a schimbat
             if (globalToken == null) {
                 Log.e(TAG, "❌ Nu pot actualiza status - globalToken este null");
-                return;
+                return START_STICKY;
             }
             
             // CRITICAL FIX: ACEEAȘI logică ca la start pentru conflict prevention
