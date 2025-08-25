@@ -75,7 +75,7 @@ public class PermissionsHelper extends Plugin {
             }
             
             // Bridge pentru solicitarea permisiunii background
-            this.bridge.saveCall(call);
+            this.bridge.saveCall(call, "permissions_request");
             ActivityCompat.requestPermissions(activity, 
                 new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 
                 REQUEST_CODE_BACKGROUND_LOCATION);
@@ -120,7 +120,7 @@ public class PermissionsHelper extends Plugin {
                 intent.setData(Uri.parse("package:" + context.getPackageName()));
                 
                 try {
-                    this.bridge.saveCall(call);
+                    this.bridge.saveCall(call, "background_location_request");
                     activity.startActivityForResult(intent, REQUEST_CODE_BATTERY_OPTIMIZATION);
                 } catch (Exception e) {
                     // Fallback la setările generale de baterie
@@ -153,7 +153,7 @@ public class PermissionsHelper extends Plugin {
     protected void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
         super.handleOnActivityResult(requestCode, resultCode, data);
         
-        PluginCall savedCall = bridge.getSavedCall();
+        PluginCall savedCall = bridge.getSavedCall("background_location_request");
         if (savedCall == null) return;
         
         if (requestCode == REQUEST_CODE_BACKGROUND_LOCATION) {
@@ -190,7 +190,7 @@ public class PermissionsHelper extends Plugin {
     protected void handleRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.handleRequestPermissionsResult(requestCode, permissions, grantResults);
         
-        PluginCall savedCall = bridge.getSavedCall();
+        PluginCall savedCall = bridge.getSavedCall("permissions_request");
         if (savedCall == null) return;
         
         if (requestCode == REQUEST_CODE_BACKGROUND_LOCATION) {
