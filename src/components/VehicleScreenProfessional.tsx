@@ -69,6 +69,9 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
     
     // CRITICAL FIX: GARANTEAZĂ trimiterea status-ului la server
     // Trimite direct prin sendGPSData pentru a garanta că ajunge 
+    const realBattery = await getBatteryLevel();
+    const realSignal = await getNetworkSignal();
+    
     const gpsPayload = {
       uit: courseUit,
       numar_inmatriculare: vehicleNumber,
@@ -78,8 +81,8 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       directie: Math.round(gpsData.heading || 0),
       altitudine: Math.round(gpsData.alt || 0),
       hdop: Math.round(gpsData.acc || 0),
-      gsm_signal: 75, // Default signal
-      baterie: 100, // Default battery
+      gsm_signal: parseInt(realSignal.replace('%', '')) || 75, // Real signal or fallback
+      baterie: parseInt(realBattery.replace('%', '')) || 100, // Real battery or fallback
       status: newStatus,
       timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
     };
