@@ -1236,8 +1236,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       
                       // ADAUGĂ PUNCT GPS CU FLAG MANUAL PENTRU PAUZĂ
                       if (newStatus === 3 && window.AndroidGPS && window.AndroidGPS.markManualPause) {
-                        const ikRoTransKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
-                        window.AndroidGPS.markManualPause(ikRoTransKey);
+                        // CRITICAL FIX: Folosește course.uit consistent cu realUit din HashMap
+                        window.AndroidGPS.markManualPause(courseForGPS.uit);
                       }
                       
                       if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
