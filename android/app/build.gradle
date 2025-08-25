@@ -54,6 +54,9 @@ dependencies {
     
     // Volley pentru HTTP requests - biblioteca oficială Google
     implementation 'com.android.volley:volley:1.2.1'
+    
+    // FUSION GPS: Google Play Services pentru triangulare inteligentă
+    implementation 'com.google.android.gms:play-services-location:21.3.0'
 }
 
 apply from: 'capacitor.build.gradle'
