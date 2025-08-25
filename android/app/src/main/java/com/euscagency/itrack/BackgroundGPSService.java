@@ -279,19 +279,20 @@ public class BackgroundGPSService extends Service {
         return START_STICKY;
     }
     
+    // SIMPLIFICAT: Handler în loc de ScheduledExecutorService
+    private android.os.Handler gpsHandler;
+    private Runnable gpsRunnable;
+    
     private void startBackgroundGPS() {
         Log.e(TAG, "startBackgroundGPS called, isGPSRunning: " + isGPSRunning.get());
         
-        if (isGPSRunning.get() && gpsExecutor != null && !gpsExecutor.isShutdown()) {
-            Log.e(TAG, "GPS already running and ScheduledExecutorService active, skipping");
+        if (isGPSRunning.get()) {
+            Log.e(TAG, "GPS already running, skipping");
             return;
-        } else if (isGPSRunning.get()) {
-            Log.e(TAG, "⚠️ isGPSRunning=true dar ScheduledExecutorService nu există - RESETEZ isGPSRunning");
-            isGPSRunning.set(false);
         }
         
         if (activeCourses.isEmpty()) {
-            Log.e(TAG, "❌ Cannot start GPS - NO ACTIVE COURSES (size: " + activeCourses.size() + ")");
+            Log.e(TAG, "❌ Cannot start GPS - NO ACTIVE COURSES");
             return;
         }
         
@@ -300,124 +301,52 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        Log.e(TAG, "✅ GPS poate porni - " + activeCourses.size() + " curse active, token disponibil (" + globalToken.length() + " caractere)");
-        
-        // CRITICAL FIX: Reinițializează httpThreadPool dacă a fost oprit sau e null
+        // Reinițializează httpThreadPool dacă necesar
         if (httpThreadPool == null || httpThreadPool.isShutdown()) {
             httpThreadPool = new java.util.concurrent.ThreadPoolExecutor(
-                1, // Core threads
-                3, // Max threads  
-                60L, java.util.concurrent.TimeUnit.SECONDS, // Keep alive time
-                new java.util.concurrent.LinkedBlockingQueue<Runnable>() // Queue
+                1, 3, 60L, java.util.concurrent.TimeUnit.SECONDS, 
+                new java.util.concurrent.LinkedBlockingQueue<Runnable>()
             );
-            Log.e(TAG, "🔧 HTTP ThreadPool reinițializat pentru transmisiile GPS");
         }
         
-        // Acquire WakeLock cu timeout pentru prevenirea kill de Android
-        if (!wakeLock.isHeld()) {
-            wakeLock.acquire(60 * 60 * 1000); // 1 oră timeout
-            Log.e(TAG, "WakeLock acquired cu timeout 1 oră");
-            sendLogToJavaScript("WakeLock acquired - serviciul va rula continuu");
+        // WakeLock
+        if (wakeLock != null && !wakeLock.isHeld()) {
+            wakeLock.acquire(60 * 60 * 1000);
+            Log.e(TAG, "WakeLock acquired");
         }
         
-        // Start ScheduledExecutorService - IMPORTANT: Check dacă există deja
-        if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
-            Log.e(TAG, "⚠️ ScheduledExecutorService există deja - va fi reinitialized");
-            gpsExecutor.shutdown();
-        }
-        
-        // CRITICAL FIX: Multiple threads pentru a preveni blocking
-        gpsExecutor = Executors.newScheduledThreadPool(2);
-        Log.e(TAG, "🔧 GPS Executor created: " + (gpsExecutor != null));
-        Log.e(TAG, "🔧 Scheduling cycles every " + GPS_INTERVAL_SECONDS + "s");
-        
-        try {
-            Log.e(TAG, "🚀 PORNIRE ScheduledExecutorService - prima execuție ACUM, apoi la fiecare " + GPS_INTERVAL_SECONDS + "s");
-            sendLogToJavaScript("🚀 PORNIRE ScheduledExecutorService GPS - prima transmisie ACUM");
-            
-            // Create a runnable that MUST be executed
-            Runnable gpsRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    // CRITICAL FIX: TOT codul în try-catch pentru a preveni oprirea scheduler-ului
-                    try {
-                        Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION START ===");
-                        Log.e(TAG, "🕐 Current time: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                        Log.e(TAG, "🔧 Thread: " + Thread.currentThread().getName());
-                        Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning.get());
-                        Log.e(TAG, "🔧 activeCourses.size(): " + activeCourses.size());
-                        
-                        sendLogToJavaScript("⏰ SCHEDULED TASK EXECUTION - " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                        
-                        performGPSCycle();
-                        
-                        // Update health monitoring timestamp
-                        lastGPSCycleTime = System.currentTimeMillis();
-                        
-                        Log.e(TAG, "✅ GPS cycle completed successfully");
-                        sendLogToJavaScript("✅ GPS cycle completed");
-                        
-                        // CRITICAL: WakeLock status check - NU mai reînnoiește agresiv
-                        if (wakeLock != null && !wakeLock.isHeld()) {
-                            // Doar dacă s-a eliberat, reîl dobândește
-                            Log.e(TAG, "🚨 WakeLock a fost eliberat - redobândire forțată!");
-                            wakeLock.acquire(60 * 60 * 1000);
-                            sendLogToJavaScript("🚨 WakeLock redobândit forțat");
-                        }
-                        // SKIP periodic renewal - poate cauza instabilitate
-                        
-                        Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION END ===");
-                        
-                    } catch (Throwable t) {
-                        // CRITICAL: Prinde ORICE throwable pentru a preveni oprirea scheduler-ului
-                        Log.e(TAG, "❌ THROWABLE în scheduled task: " + t.getMessage());
-                        t.printStackTrace();
-                        
-                        // SAFE sendLogToJavaScript cu propria protecție
-                        try {
-                            sendLogToJavaScript("❌ Eroare în GPS cycle: " + t.getMessage());
-                        } catch (Exception logError) {
-                            Log.e(TAG, "❌ Eroare și la logging: " + logError.getMessage());
-                        }
+        // EFICIENT: Handler simplu cu postDelayed
+        gpsHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+        gpsRunnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Log.e(TAG, "🔄 GPS cycle - " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
+                    performGPSCycle();
+                    
+                    // Program următoarea execuție dacă GPS încă rulează
+                    if (isGPSRunning.get()) {
+                        gpsHandler.postDelayed(this, GPS_INTERVAL_SECONDS * 1000);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "GPS cycle error: " + e.getMessage());
+                    // Continuă programarea chiar și la eroare
+                    if (isGPSRunning.get()) {
+                        gpsHandler.postDelayed(this, GPS_INTERVAL_SECONDS * 1000);
                     }
                 }
-            };
-            
-            Log.e(TAG, "🔧 About to call scheduleAtFixedRate...");
-            Log.e(TAG, "🔧 GPS_INTERVAL_SECONDS = " + GPS_INTERVAL_SECONDS);
-            Log.e(TAG, "🔧 gpsExecutor null check: " + (gpsExecutor != null));
-            Log.e(TAG, "🔧 gpsExecutor shutdown check: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
-            
-            // CRITICAL FIX: DOAR ScheduledExecutorService cu interval corect - fără execuții extra
-            java.util.concurrent.ScheduledFuture<?> future = gpsExecutor.scheduleAtFixedRate(
-                gpsRunnable, 
-                0, // PRIMA EXECUȚIE IMEDIAT
-                GPS_INTERVAL_SECONDS, // APOI LA FIECARE 10 SECUNDE  
-                TimeUnit.SECONDS
-            );
-            
-            Log.e(TAG, "🔧 ScheduledFuture created: " + (future != null));
-            Log.e(TAG, "🔧 Is cancelled: " + (future != null ? future.isCancelled() : "N/A"));
-            Log.e(TAG, "🔧 Is done: " + (future != null ? future.isDone() : "N/A"));
-            
-            // MINIMĂ LOGGING: Doar status de pornire, fără execuții extra
-            Log.e(TAG, "✅ GPS ScheduledExecutorService configurat pentru transmisie la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
-            
-            isGPSRunning.set(true);
-            
-            // CRITICAL: Start health monitoring system pentru auto-recovery
-            // startHealthMonitor(); // DISABLED - poate cauza restart interference
-            
-            // OFFLINE QUEUE: Start retry system pentru coordonate GPS offline
-            startOfflineRetrySystem();
-            
-            Log.e(TAG, "✅ GPS Service STARTED successfully cu ScheduledExecutorService + Health Monitor");
-            sendLogToJavaScript("✅ GPS Service STARTED - va transmite coordonate la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
-        } catch (Exception e) {
-            Log.e(TAG, "❌ EROARE CRITICĂ la pornirea ScheduledExecutorService: " + e.getMessage());
-            sendLogToJavaScript("❌ EROARE CRITICĂ ScheduledExecutorService: " + e.getMessage());
-            e.printStackTrace();
-        }
+            }
+        };
+        
+        isGPSRunning.set(true);
+        
+        // Pornește imediat
+        gpsHandler.post(gpsRunnable);
+        
+        startOfflineRetrySystem();
+        
+        Log.e(TAG, "✅ GPS Service STARTED cu Handler - transmisie la " + GPS_INTERVAL_SECONDS + "s");
+        sendLogToJavaScript("✅ GPS STARTED - Handler la " + GPS_INTERVAL_SECONDS + "s");
     }
     
     private void stopBackgroundGPS() {
