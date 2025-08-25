@@ -334,6 +334,8 @@ public class BackgroundGPSService extends Service {
             Log.i(TAG, "Căutare cursă: " + uniqueKeyForUpdate);
             
             CourseData courseData = activeCourses.get(uniqueKeyForUpdate);
+            Log.e(TAG, "🔍 DEBUG: Căutare cursă în HashMap cu key: " + uniqueKeyForUpdate);
+            Log.e(TAG, "🔍 DEBUG: HashMap conține " + activeCourses.size() + " curse: " + activeCourses.keySet());
             if (courseData != null) {
                 int oldStatus = courseData.status;
                 Log.i(TAG, "Status: " + oldStatus + " → " + newStatus + " pentru " + specificUIT);
@@ -405,7 +407,18 @@ public class BackgroundGPSService extends Service {
                     }
                 }
             } else {
-                Log.e(TAG, "UIT " + specificUIT + " cu unique key " + uniqueKeyForUpdate + " nu găsit în HashMap");
+                Log.e(TAG, "❌ CRITICAL: UPDATE FAILED - Nu găsesc cursă cu key: " + uniqueKeyForUpdate);
+                Log.e(TAG, "❌ CRITICAL: GPS va continua cu statusul vechi pentru " + specificUIT + "!");
+                Log.e(TAG, "🔍 DEBUG: vehicleForUpdate=" + vehicleForUpdate + ", specificUIT=" + specificUIT);
+                
+                // CRITICAL: Încearcă să găsească cursele cu UIT similar în HashMap
+                for (String existingKey : activeCourses.keySet()) {
+                    if (existingKey.contains(specificUIT)) {
+                        Log.e(TAG, "🔍 GĂSIT SIMILAR: " + existingKey + " conține " + specificUIT);
+                        CourseData similarCourse = activeCourses.get(existingKey);
+                        Log.e(TAG, "🔍 SIMILAR STATUS: " + similarCourse.status + " pentru key " + existingKey);
+                    }
+                }
             }
             
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {
