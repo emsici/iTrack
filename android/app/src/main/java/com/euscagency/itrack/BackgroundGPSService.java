@@ -8,6 +8,11 @@ import android.os.Looper;
 import android.util.Log;
 import android.location.LocationManager;
 import android.location.LocationListener;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
 import android.location.Location;
 import android.content.Context;
 import android.os.PowerManager;
@@ -34,6 +39,10 @@ public class BackgroundGPSService extends Service {
     private static final String CHANNEL_ID = "BackgroundGPSChannel";
     
     private LocationManager locationManager;
+    // FUSION GPS: Google Play Services - triangulare inteligentă 
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
     private PowerManager.WakeLock wakeLock;
     private ScheduledExecutorService gpsExecutor;
     private HandlerThread backgroundThread;
@@ -115,6 +124,9 @@ public class BackgroundGPSService extends Service {
         initializeHttpThreadPool();
         
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        
+        // FUSION GPS: Inițializare Google Play Services Location
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         
         // WakeLock pentru fundal garantat - HIGH PRIORITY pentru Android Doze bypass
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -340,13 +352,13 @@ public class BackgroundGPSService extends Service {
         
         isGPSRunning.set(true);
         
-        // Pornește imediat
-        gpsHandler.post(gpsRunnable);
+        // PORNIRE FUSION GPS în loc de Handler manual
+        startFusionGPS();
         
         startOfflineRetrySystem();
         
-        Log.e(TAG, "✅ GPS Service STARTED cu Handler - transmisie la " + GPS_INTERVAL_SECONDS + "s");
-        sendLogToJavaScript("✅ GPS STARTED - Handler la " + GPS_INTERVAL_SECONDS + "s");
+        Log.e(TAG, "✅ GPS Service STARTED cu FUSION GPS - triangulare automată la " + GPS_INTERVAL_SECONDS + "s");
+        sendLogToJavaScript("✅ FUSION GPS STARTED - triangulare automată");
     }
     
     private void stopBackgroundGPS() {
@@ -356,13 +368,13 @@ public class BackgroundGPSService extends Service {
         
         isGPSRunning.set(false);
         
-        if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
-            Log.e(TAG, "🛑 Shutting down ScheduledExecutorService...");
-            gpsExecutor.shutdown();
-            Log.e(TAG, "🛑 ScheduledExecutorService stopped");
-            sendLogToJavaScript("🛑 GPS Service stopped - ScheduledExecutorService shutdown");
-        } else {
-            Log.e(TAG, "🛑 ScheduledExecutorService was already shutdown or null");
+        // OPRIRE: Fusion GPS
+        stopFusionGPS();
+        
+        // OPRIRE: Handler dacă există
+        if (gpsHandler != null && gpsRunnable != null) {
+            gpsHandler.removeCallbacks(gpsRunnable);
+            Log.e(TAG, "🛑 GPS Handler stopped");
         }
         
         if (wakeLock != null && wakeLock.isHeld()) {
@@ -486,105 +498,61 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    private void performGPSCycle() {
-        String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-        Log.i(TAG, "GPS ciclu început - " + activeCourses.size() + " curse");
-        
-        // Verifică dacă serviciul funcționează corect
-        if (gpsExecutor == null || gpsExecutor.isShutdown()) {
-            Log.e(TAG, "GPS service compromis - restart");
-            sendLogToJavaScript("GPS restart necesar");
-            isGPSRunning.set(false);
-            // startBackgroundGPS(); // DISABLED - poate cauza infinite loop
-            return;
-        }
-        
-        sendLogToJavaScript("GPS ciclu activ - " + activeCourses.size() + " curse");
-        
-        if (activeCourses.isEmpty()) {
-            return;
-        }
-        
-        if (globalToken == null) {
-            sendLogToJavaScript("Eroare: Token lipsă");
-            return;
-        }
-        
-        // Numără cursele active cu logging detaliat
-        int activeCourseCount = 0;
-        Log.e(TAG, "🔍 VERIFICARE CURSE în activeCourses HashMap:");
-        for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-            String key = entry.getKey();
-            CourseData course = entry.getValue();
-            Log.e(TAG, "🔍   Key: " + key);
-            Log.e(TAG, "🔍   UIT: " + course.uit + " | Status: " + course.status + " | Vehicle: " + course.vehicleNumber);
-            
-            if (course.status == 2) {
-                activeCourseCount++;
-                Log.e(TAG, "✅   CURSĂ ACTIVĂ găsită: " + course.uit);
-            } else {
-                Log.e(TAG, "❌   Cursă INACTIVĂ: status " + course.status);
-            }
-        }
-        
-        Log.e(TAG, "📊 REZULTAT: " + activeCourseCount + " curse ACTIVE din " + activeCourses.size() + " total");
-        
-        if (activeCourseCount == 0) {
-            Log.e(TAG, "❌ NU există curse cu status ACTIVE (2) - SKIP transmisie dar scheduler continuă");
-            sendLogToJavaScript("❌ NU există curse ACTIVE - scheduler continuă în așteptare");
-            return; // Nu există curse active
-        }
-        
-        Log.i(TAG, "GPS transmitere pentru " + activeCourseCount + " curse active");
-        sendLogToJavaScript("GPS transmitere - " + activeCourseCount + " curse active");
+    private void startFusionGPS() {
+        Log.e(TAG, "🚀 PORNIRE FUSION GPS cu triangulare inteligentă");
         
         // Verifică permisiuni
-        boolean fineLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        boolean coarseLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        
-        if (!fineLocationPermission && !coarseLocationPermission) {
-            Log.e(TAG, "Permisiuni GPS lipsă");
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "❌ Permisiuni GPS lipsă pentru Fusion GPS");
             return;
         }
         
-        try {
-            // SIMPLIFICAT: Folosește direct getLastKnownLocation - fără async listeners
-            boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        // FUSION GPS: Configurație optimizată pentru tracking vehicule
+        locationRequest = LocationRequest.create()
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY) // GPS + WiFi + cellular triangulare
+            .setInterval(GPS_INTERVAL_SECONDS * 1000) // 10 secunde
+            .setFastestInterval(5000) // Minim 5 secunde între updates
+            .setSmallestDisplacement(0f); // Orice mișcare (pentru vehicule oprite)
             
-            if (!gpsEnabled) {
-                Log.e(TAG, "GPS NATIV DEZACTIVAT - activează GPS pentru precizie maximă!");
-                sendLogToJavaScript("❌ GPS dezactivat - activează GPS în setări pentru tracking de înaltă precizie");
-                return;
-            }
-            
-            Log.i(TAG, "GPS NATIV ACTIV pentru precizie maximă");
-            sendLogToJavaScript("GPS NATIV activ - solicită poziție");
-            
-            // DIRECT: Folosește poziția cunoscută cea mai recentă
-            Location lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (lastKnown != null) {
-                long locationAge = System.currentTimeMillis() - lastKnown.getTime();
-                float accuracy = lastKnown.getAccuracy();
+        // FUSION GPS: Callback inteligent cu auto-retry
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) return;
                 
-                Log.i(TAG, "🎯 GPS direct: " + lastKnown.getLatitude() + ", " + lastKnown.getLongitude() + 
-                      " (precizie: " + (int)accuracy + "m, vârstă: " + (locationAge/1000) + "s)");
-                      
-                // Acceptă GPS dacă e fresh (sub 60s) și decent accuracy (sub 50m)  
-                if (locationAge < 60000 && accuracy < 50) {
-                    sendLogToJavaScript("✅ GPS folosit: " + (int)accuracy + "m (vârstă: " + (locationAge/1000) + "s)");
-                    transmitGPSDataToAllActiveCourses(lastKnown);
-                } else {
-                    sendLogToJavaScript("⚠️ GPS prea vechi sau imprecis: " + (int)accuracy + "m (" + (locationAge/1000) + "s)");
+                for (Location location : locationResult.getLocations()) {
+                    if (location != null) {
+                        Log.e(TAG, "🎯 FUSION GPS: " + location.getLatitude() + ", " + location.getLongitude() + 
+                              " (precizie: " + (int)location.getAccuracy() + "m, provider: " + location.getProvider() + ")");
+                        
+                        // Verifică curse active
+                        int activeCourseCount = 0;
+                        for (CourseData course : activeCourses.values()) {
+                            if (course.status == 2) activeCourseCount++;
+                        }
+                        
+                        if (activeCourseCount > 0) {
+                            Log.e(TAG, "📡 FUSION GPS transmite pentru " + activeCourseCount + " curse ACTIVE");
+                            transmitGPSDataToAllActiveCourses(location);
+                        } else {
+                            Log.e(TAG, "⏸️ FUSION GPS: Nu sunt curse ACTIVE - skip transmisie");
+                        }
+                    }
                 }
-            } else {
-                Log.e(TAG, "Nicio poziție GPS disponibilă");
-                sendLogToJavaScript("❌ Nicio poziție GPS disponibilă");
             }
-
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ GPS cycle error: " + e.getMessage());
-            e.printStackTrace();
+        };
+        
+        // PORNIRE: Fusion GPS cu update-uri automate continue
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, android.os.Looper.getMainLooper());
+        
+        Log.e(TAG, "✅ FUSION GPS PORNIT - triangulare automată GPS+WiFi+Cellular la " + GPS_INTERVAL_SECONDS + "s");
+        sendLogToJavaScript("✅ FUSION GPS activ - triangulare inteligentă la " + GPS_INTERVAL_SECONDS + "s");
+    }
+    
+    private void stopFusionGPS() {
+        if (fusedLocationClient != null && locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+            Log.e(TAG, "🛑 FUSION GPS oprit");
         }
     }
     
