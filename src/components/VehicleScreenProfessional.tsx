@@ -1241,8 +1241,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       }
                       
                       if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-                        const ikRoTransKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
-                        window.AndroidGPS.updateStatus(ikRoTransKey, newStatus, vehicleNumber);
+                        // CRITICAL FIX: Trimite întotdeauna course.uit pentru UPDATE (consistent cu realUit din HashMap)
+                        window.AndroidGPS.updateStatus(courseForGPS.uit, newStatus, vehicleNumber);
                       }
                     }
                   }
