@@ -48,8 +48,8 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
     try {
       const position = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 30000
+        timeout: 10000, // Creștem timeout pentru GPS adevărat
+        maximumAge: 5000 // Reducem age pentru coordonate mai fresh
       });
       
       gpsData = {

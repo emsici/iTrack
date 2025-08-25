@@ -379,12 +379,16 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        // FUSION GPS: Configurație optimizată pentru tracking vehicule
+        // FUSION GPS: Configurație PREMIUM pentru tracking REAL vehicule
         locationRequest = LocationRequest.create()
-            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY) // GPS + WiFi + cellular triangulare
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY) // GPS satellite priority
             .setInterval(GPS_INTERVAL_SECONDS * 1000) // 10 secunde
-            .setFastestInterval(5000) // Minim 5 secunde între updates
-            .setSmallestDisplacement(0f); // Orice mișcare (pentru vehicule oprite)
+            .setFastestInterval(3000) // Minim 3 secunde pentru răspuns rapid
+            .setSmallestDisplacement(0f) // Orice mișcare (pentru vehicule oprite)
+            .setMaxWaitTime(GPS_INTERVAL_SECONDS * 1000); // Wait time pentru batch GPS
+            
+        // ENTERPRISE: Request GPS satellite explicit
+        Log.e(TAG, "🛰️ GPS REQUEST: Satellite priority, 10s interval, 3s fastest, no displacement filter");
             
         // FUSION GPS: Callback inteligent cu auto-retry
         locationCallback = new LocationCallback() {
@@ -394,8 +398,29 @@ public class BackgroundGPSService extends Service {
                 
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
-                        Log.e(TAG, "🎯 FUSION GPS: " + location.getLatitude() + ", " + location.getLongitude() + 
-                              " (precizie: " + (int)location.getAccuracy() + "m, provider: " + location.getProvider() + ")");
+                        // CRITICAL DEBUG: Verifică calitatea GPS-ului
+                        float accuracy = location.getAccuracy();
+                        String provider = location.getProvider();
+                        long age = System.currentTimeMillis() - location.getTime();
+                        boolean hasSpeed = location.hasSpeed();
+                        boolean hasBearing = location.hasBearing();
+                        
+                        Log.e(TAG, "🎯 GPS DEBUG: lat=" + location.getLatitude() + ", lng=" + location.getLongitude());
+                        Log.e(TAG, "📍 GPS CALITATE: precizie=" + (int)accuracy + "m, provider=" + provider + ", age=" + age + "ms");
+                        Log.e(TAG, "🚗 GPS SENZORI: viteza=" + hasSpeed + ", directie=" + hasBearing);
+                        
+                        // QUALITY CHECK: Respinge GPS cu precizie slabă
+                        if (accuracy > 100.0f) {
+                            Log.w(TAG, "⚠️ GPS PRECIZIE SLABĂ: " + (int)accuracy + "m - posibil WiFi/cellular în loc de satellite");
+                        }
+                        
+                        if (age > 30000) { // Mai vechi de 30s
+                            Log.w(TAG, "⚠️ GPS VECHI: " + age + "ms - posibil coordonate cached");
+                        }
+                        
+                        if (!"gps".equals(provider)) {
+                            Log.w(TAG, "⚠️ GPS NU E SATELLITE: provider=" + provider + " (nu 'gps')");
+                        }
                         
                         // Verifică curse active
                         int activeCourseCount = 0;
