@@ -395,10 +395,10 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔧 gpsExecutor null check: " + (gpsExecutor != null));
             Log.e(TAG, "🔧 gpsExecutor shutdown check: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
             
-            // CRITICAL FIX: Prima execuție IMEDIATĂ pentru feedback instant, apoi la fiecare 10 secunde
+            // CRITICAL FIX: DOAR ScheduledExecutorService cu interval corect - fără execuții extra
             java.util.concurrent.ScheduledFuture<?> future = gpsExecutor.scheduleAtFixedRate(
                 gpsRunnable, 
-                0, // PRIMA EXECUȚIE IMEDIAT pentru feedback instant
+                GPS_INTERVAL_SECONDS, // PRIMA EXECUȚIE DUPĂ 10 SECUNDE (nu imediat)
                 GPS_INTERVAL_SECONDS, // APOI LA FIECARE 10 SECUNDE  
                 TimeUnit.SECONDS
             );
@@ -696,10 +696,6 @@ public class BackgroundGPSService extends Service {
                     if (locationAge < 30000) { // Sub 30 secunde = fresh
                         Log.i(TAG, "🎯 GPS CACHED de înaltă precizie disponibil (vârstă: " + (locationAge/1000) + "s)");
                         sendLogToJavaScript("GPS cached high-precision: " + lastKnown.getAccuracy() + "m");
-                        
-                        // CRITICAL FIX: Folosește coordonatele cached pentru continuitate
-                        // Aceasta garantează transmisia la fiecare 10s chiar și când GPS-ul nu primește fix nou
-                        transmitGPSDataToAllActiveCourses(lastKnown);
                     }
                 }
                 
@@ -708,9 +704,9 @@ public class BackgroundGPSService extends Service {
                     @Override
                     public void run() {
                         try {
-                            // GPS TIMEOUT OPTIMIZAT: 5 secunde pentru GPS fix rapid în ciclul de 10s
-                            Thread.sleep(5000); // 5 secunde - rapid și nu blochează următorul ciclu
-                            sendLogToJavaScript("GPS timeout după 5s - cleanup listener");
+                            // GPS NATIV EXCLUSIV: Timeout optimizat pentru precizie maximă
+                            Thread.sleep(20000); // 20 secunde pentru GPS de înaltă precizie
+                            sendLogToJavaScript("GPS timeout după 20s - folosesc cea mai bună poziție disponibilă");
                             locationManager.removeUpdates(listener);
                         } catch (Exception e) {
                             Log.e(TAG, "Eroare timeout: " + e.getMessage());
