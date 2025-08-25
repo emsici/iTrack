@@ -375,13 +375,9 @@ public class BackgroundGPSService extends Service {
                         Log.e(TAG, "✅ GPS cycle completed successfully");
                         sendLogToJavaScript("✅ GPS cycle completed");
                         
-                        // CRITICAL: Reînnoiește WakeLock la fiecare 30 de minute pentru prevenirea kill
-                        if (wakeLock != null && wakeLock.isHeld()) {
-                            wakeLock.release();
-                            wakeLock.acquire(60 * 60 * 1000); // Re-acquire pentru încă 1 oră
-                            Log.e(TAG, "🔄 WakeLock renewed pentru continuare garantată");
-                        } else if (wakeLock != null) {
-                            // WakeLock a fost eliberat - reîl dobândește
+                        // CRITICAL: Check WakeLock fără renewal la fiecare ciclu pentru stabilitate
+                        if (wakeLock != null && !wakeLock.isHeld()) {
+                            // Doar redobândește dacă a fost eliberat
                             Log.e(TAG, "🚨 WakeLock a fost eliberat - redobândire forțată!");
                             wakeLock.acquire(60 * 60 * 1000);
                             sendLogToJavaScript("🚨 WakeLock redobândit forțat");
@@ -433,14 +429,14 @@ public class BackgroundGPSService extends Service {
             
             isGPSRunning = true;
             
-            // CRITICAL: Start health monitoring system pentru auto-recovery
-            startHealthMonitor();
-            
             // OFFLINE QUEUE: Start retry system pentru coordonate GPS offline
             startOfflineRetrySystem();
             
+            // CRITICAL: Health Monitor TEMPORAR DEZACTIVAT pentru debug ScheduledExecutorService
+            // startHealthMonitor();
+            
             Log.e(TAG, "✅ GPS Service STARTED successfully cu ScheduledExecutorService + Health Monitor");
-            sendLogToJavaScript("✅ GPS Service STARTED - va transmite coordonate la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
+            sendLogToJavaScript("✅ GPS Service STARTED - va transmite coordonate la fiecare " + GPS_INTERVAL_SECONDS + " secunde (Health Monitor DEZACTIVAT pentru debug)");
         } catch (Exception e) {
             Log.e(TAG, "❌ EROARE CRITICĂ la pornirea ScheduledExecutorService: " + e.getMessage());
             sendLogToJavaScript("❌ EROARE CRITICĂ ScheduledExecutorService: " + e.getMessage());
@@ -532,8 +528,8 @@ public class BackgroundGPSService extends Service {
                         Log.e(TAG, "🩺 ScheduledExecutor alive: " + (gpsExecutor != null && !gpsExecutor.isShutdown()));
                         Log.e(TAG, "🩺 Active courses: " + activeCourses.size());
                         
-                        // CRITICAL: Dacă GPS nu a fost executat în ultimele 3 intervale
-                        long maxAllowedGap = GPS_INTERVAL_SECONDS * 3 * 1000; // 30 secunde pentru 10s interval
+                        // CRITICAL: Toleranță mai mare - dacă GPS nu a fost executat în ultimele 10 intervale (100s)
+                        long maxAllowedGap = GPS_INTERVAL_SECONDS * 10 * 1000; // 100 secunde pentru 10s interval
                         
                         if (timeSinceLastGPS > maxAllowedGap && isGPSRunning && !activeCourses.isEmpty()) {
                             Log.e(TAG, "🚨 === HEALTH CHECK FAILURE DETECTED ===");
@@ -577,7 +573,7 @@ public class BackgroundGPSService extends Service {
                         e.printStackTrace();
                     }
                 }
-            }, 60, 60, TimeUnit.SECONDS); // Check la fiecare 60 de secunde
+            }, 120, 120, TimeUnit.SECONDS); // Check la fiecare 2 minute pentru a reduce interferența
             
             Log.e(TAG, "🩺 Health Monitor planificat cu succes");
             
