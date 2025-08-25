@@ -17,6 +17,7 @@ import AboutModal from "./AboutModal";
 import CourseDetailsModal from "./CourseDetailsModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme } from "../services/themeService";
+import { courseAnalyticsService } from "../services/courseAnalytics";
 
 // Interfață TypeScript pentru AndroidGPS bridge
 declare global {
@@ -26,6 +27,12 @@ declare global {
       stopGPS: (courseId: string) => string;
       updateStatus: (courseId: string, status: number, vehicleNumber: string) => string;
       clearAllOnLogout: () => string;
+      markManualPause: (ikRoTrans: string) => string;
+      // Handler pentru mesaje GPS din serviciul Android
+      onGPSMessage?: (message: string) => void;
+    };
+    courseAnalyticsService?: {
+      updateCourseStatistics: (courseId: string, lat: number, lng: number, speed: number, accuracy: number, isManualPause: boolean) => void;
     };
   }
 }
@@ -37,8 +44,8 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
   try {
     console.log(`Actualizez status cursă ${courseId} la ${newStatus}`);
     
-    // Obține coordonate GPS pentru status update
-    let currentLat = 0, currentLng = 0, currentAlt = 0, currentAcc = 0, currentSpeed = 0, currentHeading = 0;
+    // CRITICAL: Obține coordonate GPS REALE sau eșuează complet - ZERO TOLERANCE pentru date false
+    let gpsData = null;
     
     try {
       const position = await Geolocation.getCurrentPosition({
@@ -47,31 +54,34 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
         maximumAge: 30000
       });
       
-      currentLat = position.coords.latitude;
-      currentLng = position.coords.longitude;
-      currentAlt = position.coords.altitude || 0;
-      currentAcc = position.coords.accuracy || 0;
-      currentSpeed = position.coords.speed || 0;
-      currentHeading = position.coords.heading || 0;
+      gpsData = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        alt: position.coords.altitude || 0,
+        acc: position.coords.accuracy || 0,
+        speed: position.coords.speed || 0,
+        heading: position.coords.heading || 0
+      };
       
-      console.log(`GPS obținut: ${currentLat}, ${currentLng}`);
-    } catch (error) {
-      console.log('GPS indisponibil, folosesc coordonate default');
+      console.log(`GPS obținut: ${gpsData.lat}, ${gpsData.lng}`);
+    } catch (gpsError) {
+      console.error('GPS INDISPONIBIL - actualizare status respinsă pentru protejarea datelor reale');
+      throw new Error('Actualizare status imposibilă - GPS necesar pentru coordonate reale');
     }
     
     const statusUpdateData = {
       uit: courseUit,
       numar_inmatriculare: vehicleNumber,
-      lat: currentLat,
-      lng: currentLng,  
-      viteza: Math.round(currentSpeed * 3.6),
-      directie: Math.round(currentHeading),
-      altitudine: Math.round(currentAlt),
-      hdop: Math.round(currentAcc),
+      lat: gpsData.lat,  // DOAR coordonate GPS reale
+      lng: gpsData.lng,  // DOAR coordonate GPS reale
+      viteza: Math.round(gpsData.speed * 3.6),
+      directie: Math.round(gpsData.heading),
+      altitudine: Math.round(gpsData.alt),
+      hdop: Math.round(gpsData.acc), // GPS accuracy in meters (using hdop field name for server compatibility)
       gsm_signal: await getNetworkSignal(),
       baterie: await getBatteryLevel(),
       status: newStatus,
-      timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
+      timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
     };
     
     const endpoint = `${API_BASE_URL}gps.php`;
@@ -135,12 +145,14 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
     const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
     const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`; // UIT + Vehicul + Token = identificator COMPLET unic
     
+    // CRITICAL FIX: Trimite status-ul REAL al cursei pentru consistență completă
+    const gpsStatus = course.status || 2; // Status real al cursei (2=ACTIVE dacă lipsește)
     const result = window.AndroidGPS.startGPS(
       ikRoTransKey,
       vehicleNumber,
       course.uit,
       token,
-      2
+      gpsStatus
     );
     
     console.log("Rezultat serviciu GPS:", result);

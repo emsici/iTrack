@@ -16,7 +16,7 @@ export interface OfflineGPSCoordinate {
   viteza: number;
   directie: number;
   altitudine: number;
-  hdop: number;
+  hdop: number; // GPS accuracy in meters (using hdop field name for server compatibility)
   gsm_signal: number;
   baterie: number;
   status: number;
@@ -75,21 +75,30 @@ class OfflineGPSService {
       if (sharedPrefsData.value) {
         const androidCoords = JSON.parse(sharedPrefsData.value);
         if (androidCoords.length > 0) {
-          console.log(`🔄 Recuperez ${androidCoords.length} coordonate din Android SharedPreferences fallback`);
+          console.log(`🔄 Recuperez ${androidCoords.length} coordonate din Android SharedPreferences rezervă`);
           
-          // Convertește și integrează în sistemul principal
+          // Convertește și integrează în sistemul principal cu VALIDARE DE SECURITATE
           const existingCoords = await this.getOfflineCoordinates();
           for (const androidCoord of androidCoords) {
+            // CRITICAL SECURITY VALIDATION: Respinge coordonatele (0,0) sau invalide din Android SharedPreferences
+            if (!androidCoord.lat || !androidCoord.lng || 
+                (androidCoord.lat === 0 && androidCoord.lng === 0) ||
+                isNaN(androidCoord.lat) || isNaN(androidCoord.lng) ||
+                !isFinite(androidCoord.lat) || !isFinite(androidCoord.lng)) {
+              console.error(`🚫 SECURITY SKIP: Coordonată Android SharedPreferences invalidă respinsă: lat=${androidCoord.lat}, lng=${androidCoord.lng}`);
+              continue; // Skip această coordonată invalidă
+            }
+
             const convertedCoord: OfflineGPSCoordinate = {
               id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
               uit: androidCoord.uit || '',
               numar_inmatriculare: androidCoord.numar_inmatriculare || '',
-              lat: androidCoord.lat || 0,
-              lng: androidCoord.lng || 0,
+              lat: androidCoord.lat, // DOAR coordonate validate
+              lng: androidCoord.lng, // DOAR coordonate validate  
               viteza: androidCoord.viteza || 0,
               directie: androidCoord.directie || 0,
               altitudine: androidCoord.altitudine || 0,
-              hdop: androidCoord.hdop || 0,
+              hdop: androidCoord.hdop || androidCoord.accuracy_m || 0, // GPS accuracy in meters
               gsm_signal: androidCoord.gsm_signal || 0,
               baterie: androidCoord.baterie || '0%',
               status: androidCoord.status || 2,
@@ -121,16 +130,25 @@ class OfflineGPSService {
   // Salvează coordonate GPS când transmisia eșuează
   async saveOfflineCoordinate(gpsData: any): Promise<void> {
     try {
+      // CRITICAL SECURITY VALIDATION: Verifică coordonatele înainte de salvare offline
+      if (!gpsData.lat || !gpsData.lng || 
+          (gpsData.lat === 0 && gpsData.lng === 0) ||
+          isNaN(gpsData.lat) || isNaN(gpsData.lng) ||
+          !isFinite(gpsData.lat) || !isFinite(gpsData.lng)) {
+        console.error(`🚫 SECURITY ABORT: Nu salvez coordonate offline invalide: lat=${gpsData.lat}, lng=${gpsData.lng}`);
+        return; // REFUZĂ salvarea coordonatelor false
+      }
+
       const coordinate: OfflineGPSCoordinate = {
         id: Date.now().toString(),
         uit: gpsData.uit,
         numar_inmatriculare: gpsData.numar_inmatriculare,
-        lat: gpsData.lat,
-        lng: gpsData.lng,
+        lat: gpsData.lat, // DOAR coordonate validate
+        lng: gpsData.lng, // DOAR coordonate validate
         viteza: gpsData.viteza,
         directie: gpsData.directie,
         altitudine: gpsData.altitudine,
-        hdop: gpsData.hdop,
+        hdop: gpsData.hdop || gpsData.accuracy_m || 0, // GPS accuracy in meters
         gsm_signal: gpsData.gsm_signal,
         baterie: gpsData.baterie,
         status: gpsData.status,
@@ -263,6 +281,17 @@ class OfflineGPSService {
   // Transmite o coordonată individual
   private async transmitCoordinate(coord: OfflineGPSCoordinate, authToken?: string): Promise<boolean> {
     try {
+      // CRITICAL SECURITY VALIDATION: Verifică coordonatele înainte de transmisie
+      if (coord.lat === 0 && coord.lng === 0) {
+        console.error(`🚫 SECURITY ABORT: Coordonată offline (0,0) respinsă: ${coord.id}`);
+        return false; // Nu transmite coordonate false
+      }
+
+      if (isNaN(coord.lat) || isNaN(coord.lng) || !isFinite(coord.lat) || !isFinite(coord.lng)) {
+        console.error(`🚫 SECURITY ABORT: Coordonată offline invalidă (NaN/Infinite) respinsă: ${coord.id}`);
+        return false; // Nu transmite coordonate invalide
+      }
+
       // Folosește token-ul din parametru sau încearcă să obții din storage
       let token = authToken;
       if (!token) {
@@ -291,7 +320,7 @@ class OfflineGPSService {
           viteza: coord.viteza,
           directie: coord.directie,
           altitudine: coord.altitudine,
-          hdop: coord.hdop,
+          hdop: coord.hdop, // GPS accuracy in meters
           gsm_signal: coord.gsm_signal,
           baterie: coord.baterie,
           status: coord.status,
