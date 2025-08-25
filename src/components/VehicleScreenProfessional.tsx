@@ -3,7 +3,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { CapacitorHttp } from '@capacitor/core';
 import { Network } from '@capacitor/network';
 import { Course } from "../types";
-import { getVehicleCourses, logout, API_BASE_URL } from "../services/api";
+import { getVehicleCourses, logout, API_BASE_URL, sendGPSData } from "../services/api";
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber, clearStoredVehicleNumber } from "../services/storage";
 import { logAPI } from "../services/appLogger";
 
