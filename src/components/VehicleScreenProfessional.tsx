@@ -71,15 +71,17 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       throw new Error('Actualizare status imposibilă - GPS necesar pentru coordonate reale');
     }
     
+    // CRITICAL FIX: Nu include coordonate pentru PAUSE (3) și STOP (4) 
     const statusUpdateData = {
       uit: courseUit,
       numar_inmatriculare: vehicleNumber,
-      lat: gpsData.lat,  // DOAR coordonate GPS reale
-      lng: gpsData.lng,  // DOAR coordonate GPS reale
-      viteza: Math.round(gpsData.speed * 3.6),
-      directie: Math.round(gpsData.heading),
-      altitudine: Math.round(gpsData.alt),
-      hdop: Math.round(gpsData.acc), // GPS accuracy in meters (using hdop field name for server compatibility)
+      // CRITICAL: Doar pentru ACTIVE (status 2) includem coordonate GPS reale
+      lat: newStatus === 2 ? gpsData.lat : 0,
+      lng: newStatus === 2 ? gpsData.lng : 0,
+      viteza: newStatus === 2 ? Math.round(gpsData.speed * 3.6) : 0,
+      directie: newStatus === 2 ? Math.round(gpsData.heading) : 0,
+      altitudine: newStatus === 2 ? Math.round(gpsData.alt) : 0,
+      hdop: newStatus === 2 ? Math.round(gpsData.acc) : 0,
       gsm_signal: await getNetworkSignal(),
       baterie: await getBatteryLevel(),
       status: newStatus,

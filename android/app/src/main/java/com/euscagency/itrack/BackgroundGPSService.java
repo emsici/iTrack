@@ -1153,6 +1153,15 @@ public class BackgroundGPSService extends Service {
                 @Override
                 public void run() {
                     try {
+                        // CRITICAL GUARD: Verifică status chiar înainte de transmisie HTTP
+                        CourseData currentCourseData = activeCourses.get(uniqueKey);
+                        if (currentCourseData == null || currentCourseData.status != 2 || !isGPSRunning) {
+                            Log.e(TAG, "🚫 ABORT HTTP: Cursă " + realUit + " nu mai este ACTIVĂ (status=" + 
+                                (currentCourseData != null ? currentCourseData.status : "NULL") + 
+                                ", isGPSRunning=" + isGPSRunning + ")");
+                            return; // ABORT transmisia HTTP
+                        }
+                        
                         java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
                         javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");
