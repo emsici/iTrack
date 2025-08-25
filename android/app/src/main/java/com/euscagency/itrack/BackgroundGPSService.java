@@ -22,7 +22,7 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
-import java.util.concurrent.Executors;
+// ELIMINAT: import java.util.concurrent.Executors - folosit doar pentru httpThreadPool basic
 // ELIMINAT: ScheduledExecutorService, HandlerThread - FusedLocationProviderClient face totul automat
 import java.util.concurrent.TimeUnit;
 import android.app.Notification;
@@ -567,99 +567,7 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    // DEPRECATED - păstrat pentru compatibilitate
-    private void callJavaScriptBridge(String gpsDataJson) {
-        try {
-            Log.e(TAG, "🌐 === ÎNCEPE TRANSMISIA HTTP ===");
-            Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
-            Log.e(TAG, "🔑 Lungime token: " + (globalToken != null ? globalToken.length() : "NULL"));
-            
-            // Efectuează cererea HTTP pe thread de fundal
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Log.e(TAG, "📡 HTTP thread started");
-                        
-                        java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
-                        javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
-                        conn.setRequestMethod("POST");
-                        conn.setRequestProperty("Content-Type", "application/json");
-                        conn.setRequestProperty("Authorization", "Bearer " + globalToken);
-                        conn.setRequestProperty("Accept", "application/json");
-                        conn.setRequestProperty("User-Agent", "iTrack-BackgroundGPS/1.0");
-                        conn.setDoOutput(true);
-                        conn.setConnectTimeout(15000); // 15 seconds
-                        conn.setReadTimeout(15000);    // 15 seconds
-                        
-                        Log.e(TAG, "🔗 Connection configured, sending data...");
-                        
-                        // Send JSON data
-                        try (java.io.OutputStream os = conn.getOutputStream()) {
-                            byte[] input = gpsDataJson.getBytes("utf-8");
-                            os.write(input, 0, input.length);
-            Log.e(TAG, "📤 Date trimise: " + input.length + " bytes");
-                        }
-                        
-                        int responseCode = conn.getResponseCode();
-                        String responseMessage = conn.getResponseMessage();
-                        
-                        Log.e(TAG, "📡 === HTTP RESPONSE ===");
-                        Log.e(TAG, "📊 Response Code: " + responseCode);
-                        Log.e(TAG, "📝 Response Message: " + responseMessage);
-                        
-                        // Read response body for debugging
-                        try {
-                            java.io.InputStream is = (responseCode >= 200 && responseCode < 300) ? 
-                                conn.getInputStream() : conn.getErrorStream();
-                            if (is != null) {
-                                java.util.Scanner scanner = new java.util.Scanner(is).useDelimiter("\\A");
-                                String responseBody = scanner.hasNext() ? scanner.next() : "";
-                                Log.e(TAG, "📄 Response Body: " + responseBody);
-                            }
-                        } catch (Exception e) {
-                            Log.e(TAG, "⚠️ Could not read response body: " + e.getMessage());
-                        }
-                        
-                        if (responseCode >= 200 && responseCode < 300) {
-                            Log.e(TAG, "✅ === GPS TRANSMISSION SUCCESS ===");
-                        } else {
-                            Log.e(TAG, "❌ === GPS TRANSMISSION FAILED ===");
-                        }
-                        
-                    } catch (Exception e) {
-                        Log.e(TAG, "❌ GPS transmission failed: " + e.getMessage());
-                        Log.e(TAG, "💾 Salvez offline pentru retry");
-                        
-                        // Determină tipul de eroare pentru logging mai bun
-                        String errorType = "UNKNOWN";
-                        if (e instanceof java.net.UnknownHostException) {
-                            errorType = "NO_INTERNET";
-                        } else if (e instanceof java.net.ConnectException) {
-                            errorType = "CONNECTION_REFUSED"; 
-                        } else if (e instanceof java.net.SocketTimeoutException) {
-                            errorType = "TIMEOUT";
-                        } else if (e instanceof javax.net.ssl.SSLException) {
-                            errorType = "SSL_ERROR";
-                        }
-                        
-                        Log.e(TAG, "Tip eroare: " + errorType + " - coordonata se salvează offline");
-                        
-                        // Salvează coordonata offline când transmisia eșuează (inclusiv telefon blocat + fără net)
-                        try {
-                            sendOfflineGPSToJavaScript(gpsDataJson);
-                        } catch (Exception offlineError) {
-                            Log.e(TAG, "❌ Eroare salvare offline: " + offlineError.getMessage());
-                        }
-                    }
-                }
-            }).start();
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Bridge call failed: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+    // ELIMINAT: callJavaScriptBridge - funcție DEPRECATED, transmitSingleCourseGPS face totul
     
     private void sendStatusUpdateToServer(int newStatus, String uniqueKey) {
         try {
@@ -797,40 +705,7 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    private void sendOfflineGPSToJavaScript(String gpsDataJson) {
-        try {
-            Log.e(TAG, "💾 Salvare GPS offline (inclusiv telefon blocat + fără internet)");
-            
-            // CRITICĂ: Salvarea offline funcționează și când telefonul este blocat
-            // deoarece BackgroundGPSService rulează în foreground cu WakeLock
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                String script = "if (window.saveOfflineGPS) { window.saveOfflineGPS(" + gpsDataJson + "); }";
-                
-                // Log special pentru capturare JavaScript - funcționează și cu ecranul blocat
-                Log.e("OFFLINE_GPS_SAVE", gpsDataJson);
-                Log.e(TAG, "📱 Bridge JavaScript apelat pentru salvare offline (ecran blocat OK)");
-            }
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Eroare salvare GPS offline: " + e.getMessage());
-            // FALLBACK: Salvează direct în SharedPreferences dacă JavaScript bridge eșuează
-            try {
-                android.content.SharedPreferences prefs = getSharedPreferences("itrack_offline_gps", MODE_PRIVATE);
-                String existingData = prefs.getString("offline_coordinates", "[]");
-                
-                // Adaugă coordonata nouă la lista existentă
-                org.json.JSONArray offlineArray = new org.json.JSONArray(existingData);
-                org.json.JSONObject newCoord = new org.json.JSONObject(gpsDataJson);
-                newCoord.put("saved_timestamp", System.currentTimeMillis());
-                offlineArray.put(newCoord);
-                
-                prefs.edit().putString("offline_coordinates", offlineArray.toString()).apply();
-                Log.e(TAG, "✅ REZERVĂ: GPS salvat în SharedPreferences (total: " + offlineArray.length() + ")");
-            } catch (Exception fallbackError) {
-                Log.e(TAG, "❌ REZERVĂ eșuată: " + fallbackError.getMessage());
-            }
-        }
-    }
+    // ELIMINAT: sendOfflineGPSToJavaScript - avem offline queue nativ mai eficient
     
     private void sendLogToJavaScript(String message) {
         try {
