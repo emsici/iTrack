@@ -1357,22 +1357,24 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 color: '#ffffff'
               }}></i>
               
-              {/* Badge pentru progres */}
-              {clickCount >= 40 && (
+              {/* Badge cu numărul de click-uri după 30+ */}
+              {clickCount >= 30 && (
                 <div style={{
                   position: 'absolute',
                   top: '-3px',
                   right: '-3px',
-                  background: '#dc2626',
+                  background: clickCount >= 45 ? '#dc2626' : '#f59e0b',
                   color: '#ffffff',
                   fontSize: '8px',
-                  padding: '1px 3px',
-                  borderRadius: '50%',
+                  padding: '2px 4px',
+                  borderRadius: '10px',
                   fontWeight: '700',
-                  minWidth: '12px',
-                  textAlign: 'center'
+                  minWidth: '16px',
+                  textAlign: 'center',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
                 }}>
-                  !
+                  {clickCount}
                 </div>
               )}
             </div>
