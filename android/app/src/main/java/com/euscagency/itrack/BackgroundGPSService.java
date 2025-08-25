@@ -244,8 +244,8 @@ public class BackgroundGPSService extends Service {
                     }
                     
                     if (activeCourseCount == 0) {
-                        Log.i(TAG, "Toate cursele în pauză/oprite - opresc GPS complet");
-                        stopBackgroundGPS();
+                        Log.i(TAG, "Toate cursele în pauză - GPS continuă dar NU transmite la server");
+                        // NU opresc GPS - las serviciul să ruleze pentru reactivare rapidă
                     } else {
                         Log.i(TAG, "GPS continuă pentru " + activeCourseCount + " curse ACTIVE - transmisie la server");
                     }
@@ -259,10 +259,10 @@ public class BackgroundGPSService extends Service {
                     // DEBUG: Verifică câte curse mai rămân active
                     Log.e(TAG, "🔍 VERIFY STOP: Curse rămase: " + activeCourses.size());
                     
-                    // Dacă nu mai sunt curse active, oprește GPS complet
+                    // Dacă nu mai sunt curse active, GPS continuă în fundal pentru reactivare rapidă
                     if (activeCourses.isEmpty()) {
-                        Log.e(TAG, "🛑 TOATE cursele STOP - opresc GPS complet!");
-                        stopBackgroundGPS();
+                        Log.e(TAG, "🛑 TOATE cursele STOP - GPS continuă în fundal pentru reactivare rapidă");
+                        // NU opresc GPS automat - doar la logout explicit
                     } else {
                         Log.e(TAG, "⚡ GPS continuă pentru " + activeCourses.size() + " curse rămase");
                     }
