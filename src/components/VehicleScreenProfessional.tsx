@@ -299,6 +299,37 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       window.AndroidGPS.onGPSMessage = (message: string) => {
         console.log('GPS Message din Android:', message);
         
+        // CRITICAL GPS→MAP: Interceptează coordonatele GPS pentru hartă
+        if (message.startsWith('GPS_ANALYTICS:')) {
+          try {
+            const gpsDataStr = message.replace('GPS_ANALYTICS:', '');
+            const gpsData = JSON.parse(gpsDataStr);
+            
+            // Găsește cursa activă pentru acest UIT și adaugă coordonatele pentru hartă
+            const activeUit = gpsData.uit;
+            console.log(`📍 GPS→HARTA: Primesc coordonate pentru ${activeUit} - (${gpsData.lat}, ${gpsData.lng})`);
+            
+            // Caută cursa în lista de curse active
+            const activeCourse = courses.find((course: Course) => course.uit === activeUit);
+            if (activeCourse) {
+              // Adaugă coordonatele în courseAnalyticsService pentru vizualizare pe hartă
+              courseAnalyticsService.updateCourseStatistics(
+                activeCourse.id,
+                gpsData.lat,
+                gpsData.lng,
+                gpsData.viteza / 3.6, // Convert km/h to m/s for consistency
+                gpsData.hdop,
+                false // not manual pause
+              );
+              console.log(`✅ GPS→HARTA: Coordonate salvate pentru cursa ${activeCourse.id}`);
+            } else {
+              console.warn(`⚠️ GPS→HARTA: Nu găsesc cursa activă pentru UIT ${activeUit}`);
+            }
+          } catch (e) {
+            console.error('❌ Eroare GPS→Analytics parsing:', e);
+          }
+        }
+        
         if (message.includes('GPS dezactivat') || message.includes('GPS DEZACTIVAT')) {
           setGpsStatus('inactive');
           toast.error(

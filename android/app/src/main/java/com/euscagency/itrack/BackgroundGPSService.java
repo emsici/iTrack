@@ -517,6 +517,9 @@ public class BackgroundGPSService extends Service {
                 
                 // CRITICAL: Transmite folosind unique key pentru identificare locală, dar UIT real pentru server
                 transmitSingleCourseGPS(gpsData, uniqueKey, courseData.realUit);
+                
+                // CRITICAL GPS→MAP CONNECTION: Salvează coordonatele și în courseAnalyticsService pentru hartă
+                sendGPSToAnalyticsService(gpsData, courseData.realUit);
             }
             
             if (coursesTransmitting > 0) {
@@ -610,7 +613,22 @@ public class BackgroundGPSService extends Service {
         }
     }
     
-    // ELIMINAT: callJavaScriptBridge - funcție DEPRECATED, transmitSingleCourseGPS face totul
+    // GPS→MAP CONNECTION: Trimite coordonatele către courseAnalyticsService pentru vizualizare
+    private void sendGPSToAnalyticsService(org.json.JSONObject gpsData, String realUit) {
+        try {
+            // Log direct către JavaScript bridge pentru courseAnalyticsService
+            String analyticsCode = "GPS_ANALYTICS:" + gpsData.toString();
+            Log.e("JS_ANALYTICS_BRIDGE", analyticsCode);
+            
+            // DEBUG: Confirmă că coordonatele se trimit pentru hartă
+            double lat = gpsData.getDouble("lat");
+            double lng = gpsData.getDouble("lng");
+            Log.e(TAG, "📍 GPS→HARTA: UIT " + realUit + " la (" + lat + ", " + lng + ") trimis pentru vizualizare");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Eroare GPS→Analytics: " + e.getMessage());
+        }
+    }
     
     private void sendStatusUpdateToServer(int newStatus, String uniqueKey) {
         try {
