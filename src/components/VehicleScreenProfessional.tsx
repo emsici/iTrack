@@ -18,8 +18,6 @@ import CourseDetailsModal from "./CourseDetailsModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme } from "../services/themeService";
 import { courseAnalyticsService } from "../services/courseAnalytics";
-import { backgroundPermissionsService } from "../services/backgroundPermissions";
-import BackgroundPermissionsModal from "./BackgroundPermissionsModal";
 
 // Interfață TypeScript pentru AndroidGPS bridge
 declare global {
@@ -33,9 +31,7 @@ declare global {
       // Handler pentru mesaje GPS din serviciul Android
       onGPSMessage?: (message: string) => void;
     };
-    courseAnalyticsService?: {
-      updateCourseStatistics: (courseId: string, lat: number, lng: number, speed: number, accuracy: number, isManualPause: boolean) => void;
-    };
+    courseAnalyticsService?: any;
   }
 }
 
@@ -44,7 +40,7 @@ declare global {
 // Funcții GPS Android directe - BackgroundGPSService gestionează totul nativ
 const updateCourseStatus = async (courseId: string, courseUit: string, newStatus: number, authToken: string, vehicleNumber: string) => {
   try {
-    console.log(`Status ${newStatus} schimbat pentru identificator ${courseId}`);
+    console.log(`Actualizez status cursă ${courseId} la ${newStatus}`);
     
     // CRITICAL: Obține coordonate GPS REALE sau eșuează complet - ZERO TOLERANCE pentru date false
     let gpsData = null;
@@ -71,21 +67,19 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       throw new Error('Actualizare status imposibilă - GPS necesar pentru coordonate reale');
     }
     
-    // CRITICAL FIX: Nu include coordonate pentru PAUSE (3) și STOP (4) 
     const statusUpdateData = {
       uit: courseUit,
       numar_inmatriculare: vehicleNumber,
-      // CRITICAL: Doar pentru ACTIVE (status 2) includem coordonate GPS reale
-      lat: newStatus === 2 ? gpsData.lat : 0,
-      lng: newStatus === 2 ? gpsData.lng : 0,
-      viteza: newStatus === 2 ? Math.round(gpsData.speed * 3.6) : 0,
-      directie: newStatus === 2 ? Math.round(gpsData.heading) : 0,
-      altitudine: newStatus === 2 ? Math.round(gpsData.alt) : 0,
-      hdop: newStatus === 2 ? Math.round(gpsData.acc) : 0,
+      lat: gpsData.lat,  // DOAR coordonate GPS reale
+      lng: gpsData.lng,  // DOAR coordonate GPS reale
+      viteza: Math.round(gpsData.speed * 3.6),
+      directie: Math.round(gpsData.heading),
+      altitudine: Math.round(gpsData.alt),
+      hdop: Math.round(gpsData.acc),
       gsm_signal: await getNetworkSignal(),
       baterie: await getBatteryLevel(),
       status: newStatus,
-      timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
+      timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
     };
     
     const endpoint = `${API_BASE_URL}gps.php`;
@@ -104,8 +98,8 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
     console.log(`Status server: ${response.status}`);
     
     if (response.status >= 200 && response.status < 300) {
-      console.log(`Status ${newStatus} confirmat server pentru identificator ${courseId}`);
-      logAPI(`Status actualizat pentru ID ${courseId} → status ${newStatus}`);
+      console.log(`Status actualizat cu succes pentru cursă ${courseId}`);
+      logAPI('Status actualizat');
     } else {
       console.error(`Eroare actualizare status ${response.status}:`, response.data);
       logAPI('Eroare status');
@@ -149,15 +143,12 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
     const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
     const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`; // UIT + Vehicul + Token = identificator COMPLET unic
     
-    // CRITICAL SAFETY: NU FORȚA status=2 - respectă statusul actual din course
-    // GPS pornește pentru diverse statusuri (2=ACTIVE, poate și pentru monitorizare)
-    const gpsStatus = course.status; // RESPECTĂ statusul ACTUAL din server - NU forța ACTIVE
     const result = window.AndroidGPS.startGPS(
       ikRoTransKey,
       vehicleNumber,
       course.uit,
       token,
-      gpsStatus
+      2
     );
     
     console.log("Rezultat serviciu GPS:", result);
@@ -258,11 +249,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const currentVehicleRef = useRef<string>('');
 
   // Offline GPS count handled by BackgroundGPSService natively
+  const [offlineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
   const [gpsStatus, setGpsStatus] = useState<'active' | 'inactive' | 'unknown'>('unknown');
@@ -274,111 +265,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     window.courseAnalyticsService = courseAnalyticsService;
     console.log('✅ courseAnalyticsService exposed to window for Android bridge');
     
-    // CRITICAL NEW: Handler pentru GPS analytics din Android logs  
-    // Store original functions for restoration - moved to useEffect scope
-    const originalError = console.error;
-    
-    const handleAndroidLogs = () => {
-      // Monitorizează LOG messages din Android pentru GPS analytics
-      
-      // SECURITY FIX: Minimize console override scope and add restoration
-      const customError = function(...args: any[]) {
-        const message = args.join(' ');
-        
-        // CRITICAL: Interceptează GPS_ANALYTICS_SAVE logs din Android 
-        if (message.includes('GPS_ANALYTICS_SAVE') || message.includes('GPS_ANALYTICS_SAVE:')) {
-          try {
-            // Extrage JavaScript code din log-ul Android
-            const parts = message.split('GPS_ANALYTICS_SAVE');
-            const jsCode = parts[1] ? parts[1].replace(/^[:\s]*/, '') : '';
-            
-            if (jsCode && jsCode.trim() && window.courseAnalyticsService) {
-              console.log('📊 Android→JS Analytics: Procesez date GPS pentru statistici...');
-              console.log('📊 Raw data length:', jsCode.length);
-              
-              // SECURITY FIX: Parse structured GPS data instead of eval
-              try {
-                // Extract analytics data from structured format instead of eval
-                if (jsCode.includes('updateCourseStatistics')) {
-                  const match = jsCode.match(/updateCourseStatistics\(['"]([^'"]*)['"]\s*,\s*([+-]?\d*\.?\d*)\s*,\s*([+-]?\d*\.?\d*)\s*,\s*([+-]?\d*\.?\d*)\s*,\s*([+-]?\d*\.?\d*)\s*,\s*(true|false)\)/);
-                  if (match && match.length >= 6) {
-                    const [, courseId, lat, lng, speed, accuracy, isManualPause] = match;
-                    
-                    // SAFE EXECUTION: Direct function call with validated parameters
-                    window.courseAnalyticsService.updateCourseStatistics(
-                      courseId,
-                      parseFloat(lat) || 0,
-                      parseFloat(lng) || 0,
-                      parseFloat(speed) || 0,
-                      parseFloat(accuracy) || 0,
-                      isManualPause === 'true'
-                    );
-                    console.log('✅ Analytics updated safely for course:', courseId);
-                  } else {
-                    console.warn('⚠️ Invalid analytics data format from Android');
-                  }
-                } else {
-                  console.warn('⚠️ Unrecognized analytics command from Android');
-                }
-              } catch (parseError) {
-                console.error('❌ Failed to parse analytics data:', parseError);
-              }
-              
-            } else if (!window.courseAnalyticsService) {
-              console.error('❌ courseAnalyticsService nu este disponibil');
-            }
-          } catch (evalError) {
-            console.error('❌ Eroare execuție GPS analytics din Android:', evalError);
-            console.error('❌ JavaScript Code:', message.substring(0, 200));
-          }
-        }
-        
-        // CRITICAL FIX: Interceptează OFFLINE_GPS_SAVE logs din Android
-        else if (message.includes('OFFLINE_GPS_SAVE') || message.includes('OFFLINE_GPS_SAVE:')) {
-          try {
-            // Extrage JSON GPS data din log-ul Android
-            const parts = message.split('OFFLINE_GPS_SAVE');
-            const gpsDataJson = parts[1] ? parts[1].replace(/^[:\s]*/, '') : '';
-            
-            if (gpsDataJson && gpsDataJson.trim() && (window as any).saveOfflineGPS) {
-              console.log('💾 Android→JS Offline: Salvez GPS offline...');
-              
-              // Parse și salvează GPS data offline
-              const gpsData = JSON.parse(gpsDataJson);
-              (window as any).saveOfflineGPS(gpsData);
-              
-            } else if (!(window as any).saveOfflineGPS) {
-              console.error('❌ saveOfflineGPS nu este disponibil');
-            }
-          } catch (offlineError) {
-            console.error('❌ Eroare execuție GPS offline din Android:', offlineError);
-            console.error('❌ GPS Data:', message.substring(0, 200));
-          }
-        }
-        
-        // CRITICAL: Always call original error function
-        return originalError.apply(console, args);
-      };
-      
-      // Apply override with restoration mechanism
-      console.error = customError;
-      
-      console.log('✅ Android GPS Analytics Handler configurat cu securitate îmbunătățită');
-    };
-    
-    handleAndroidLogs();
-    
     return () => {
-      // CRITICAL FIX: Restore original console functions with proper reference check
-      if (originalError && console.error !== originalError) {
-        try {
-          console.error = originalError;
-          console.log('✅ Console.error restored on cleanup');
-        } catch (restoreError) {
-          console.warn('⚠️ Could not restore console.error:', restoreError);
-        }
-      }
-      
       window.courseAnalyticsService = undefined;
     };
   }, []);
@@ -415,41 +302,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
     };
   }, [toast]);
-
-  // Background permissions check on startup
-  useEffect(() => {
-    const checkBackgroundPermissions = async () => {
-      try {
-        await backgroundPermissionsService.initialize();
-        const permissionState = await backgroundPermissionsService.checkAllPermissions();
-        
-        // CRITICAL FIX: Afișează modal-ul ÎNTOTDEAUNA la primul start pentru verificare completa
-        console.log('🔐 Permisiuni verificate:', {
-          isFullyConfigured: backgroundPermissionsService.isFullyConfigured(),
-          locationStatus: permissionState.location.location,
-          backgroundStatus: permissionState.backgroundLocation,
-          batteryOptimization: permissionState.batteryOptimization
-        });
-        
-        // Forțează afișarea modal-ului dacă ORICE permisiune lipsește
-        if (permissionState.location.location !== 'granted' || 
-            permissionState.backgroundLocation !== 'granted' ||
-            permissionState.batteryOptimization !== 'whitelisted') {
-          console.log('🚨 PERMISIUNI INCOMPLETE - afișez modal configurare');
-          // Delay pentru a permite UI-ul să se încarce complet
-          setTimeout(() => {
-            setShowPermissionsModal(true);
-          }, 2000);
-        } else {
-          console.log('✅ Toate permisiunile sunt configurate corect');
-        }
-      } catch (error) {
-        console.error('❌ Eroare verificare permisiuni background:', error);
-      }
-    };
-    
-    checkBackgroundPermissions();
-  }, []); // Run once on mount
 
   // PERFORMANCE OPTIMIZED: Initialize theme and vehicle number with debouncing
   useEffect(() => {
@@ -529,7 +381,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       setLoadingCourses(new Set());
       console.log('🔧 CLEANUP: Loading states cleared');
     };
-  }, [vehicleNumber, token]);
+  }, [vehicleNumber, token, coursesLoaded, offlineGPSCount]);
 
   // SENIOR DEVELOPER FIX: Race condition protected course loading
   const handleLoadCourses = async () => {
@@ -935,39 +787,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           justifyContent: 'space-between',
           gap: '16px'
         }}>
-          {/* Background Permissions - Forțează testare */}
-          <button 
-            onClick={() => {
-              console.log('🔧 FORȚAT - deschid modal permisiuni pentru testare');
-              setShowPermissionsModal(true);
-            }}
-            style={{
-              width: '56px',
-              height: '56px',
-              backgroundColor: 'rgba(34, 197, 94, 0.1)',
-              border: '2px solid rgba(34, 197, 94, 0.3)',
-              borderRadius: '16px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.2)';
-              e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.5)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
-              e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.3)';
-            }}
-          >
-            <i className="bi bi-shield-check" style={{
-              fontSize: '20px',
-              color: '#22c55e'
-            }}></i>
-          </button>
-
           {/* Settings */}
           <button 
             onClick={() => setShowSettings(true)}
@@ -1004,6 +823,26 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <i className="fas fa-info" style={{ fontSize: '20px', color: 'white' }}></i>
           </button>
 
+          {/* Online indicator */}
+          <div style={{
+            width: '56px',
+            height: '56px',
+            background: 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)',
+            border: '2px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 16px rgba(72, 187, 120, 0.3)'
+          }}>
+            <div style={{
+              width: '16px',
+              height: '16px',
+              background: '#ffffff',
+              borderRadius: '50%',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
+            }}></div>
+          </div>
 
           {/* Stats/Analytics - design frumos */}
           <button 
@@ -1355,7 +1194,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   const courseForGPS = courses.find(c => c.id === courseId);
                   const oldStatus = courseForGPS?.status;
                   
-                  console.log(`Status ${oldStatus} → ${newStatus} schimbat pentru identificator local ${courseId}`);
+                  console.log(`Actualizare status: ${oldStatus} → ${newStatus} pentru cursă ${courseId}`);
                   
                   // Actualizează serverul
                   await updateCourseStatus(courseId, courseUit, newStatus, token, vehicleNumber);
@@ -1691,17 +1530,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           currentTheme={currentTheme}
         />
       )}
-
-      {/* Background Permissions Modal */}
-      <BackgroundPermissionsModal
-        isOpen={showPermissionsModal}
-        onClose={() => setShowPermissionsModal(false)}
-        onComplete={(success) => {
-          console.log(`🔐 Permisiuni background ${success ? 'configurate' : 'parțial configurate'}`);
-          setShowPermissionsModal(false);
-        }}
-        showInitialPrompt={true}
-      />
     </div>
   );
 };

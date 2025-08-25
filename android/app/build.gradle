@@ -3,13 +3,6 @@ apply plugin: 'com.android.application'
 android {
     namespace "com.euscagency.itrack"
     compileSdk rootProject.ext.compileSdkVersion
-    
-    // CRITICAL FIX: Java 17 compatibility pentru build success
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-    
     defaultConfig {
         applicationId "com.euscagency.itrack"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -61,9 +54,6 @@ dependencies {
     
     // Volley pentru HTTP requests - biblioteca oficială Google
     implementation 'com.android.volley:volley:1.2.1'
-    
-    // Google Play Services pentru FusedLocationProviderClient - precizie și eficiență GPS optimă
-    implementation 'com.google.android.gms:play-services-location:21.2.0'
 }
 
 apply from: 'capacitor.build.gradle'

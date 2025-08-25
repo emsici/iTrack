@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { CourseStatistics } from '../services/courseAnalytics';
 
 // Import Leaflet dynamically to avoid SSR issues
-let L: typeof import('leaflet') | null = null;
+let L: any = null;
 
 interface RouteMapModalProps {
   isOpen: boolean;
@@ -12,8 +12,8 @@ interface RouteMapModalProps {
 }
 
 const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseData, currentTheme }) => {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<import('leaflet').Map | null>(null);
+  const mapRef = useRef<any>(null);
+  const mapInstanceRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mapStats, setMapStats] = useState({
@@ -31,14 +31,6 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseDa
       loadLeaflet();
     }
   }, [isOpen]);
-
-  // CRITICAL FIX: Re-initialize hartă when courseData changes (GPS points loaded)
-  useEffect(() => {
-    if (isOpen && L && courseData.gpsPoints.length > 0) {
-      console.log(`🗺️ Re-initialize hartă cu ${courseData.gpsPoints.length} puncte GPS`);
-      initializeMap();
-    }
-  }, [courseData.gpsPoints.length]);
 
   const loadLeaflet = async () => {
     try {
@@ -103,7 +95,7 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseDa
 
     // Create polyline for route
     const routeCoords = sampledPoints.map(point => [point.lat, point.lng]);
-    const polyline = L.polyline(routeCoords as [number, number][], {
+    const polyline = L.polyline(routeCoords, {
       color: '#3b82f6',
       weight: 4,
       opacity: 0.8
@@ -198,7 +190,7 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseDa
         mapInstanceRef.current.setView([point.lat, point.lng], 15);
         
         // Add temporary marker for current position
-        if (currentIndex > 0 && L) {
+        if (currentIndex > 0) {
           L.marker([point.lat, point.lng], {
             icon: L.divIcon({
               html: '<div style="background: #8b5cf6; color: white; border-radius: 50%; width: 15px; height: 15px; display: flex; align-items: center; justify-content: center; font-size: 10px;">•</div>',

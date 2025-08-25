@@ -22,19 +22,16 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
   const [pausePoints, setPausePoints] = useState<GPSPoint[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // CRITICAL FIX: Încarcă GPS data imediat la deschiderea modalului, nu doar când se click pe hartă
   useEffect(() => {
-    if (isOpen && !courseStats) {
+    if (isOpen && showRouteMap && !courseStats) {
       loadCourseGPSData();
     }
-  }, [isOpen, course.id, course.status]); // CRITICAL FIX: Adaugă course.status pentru refresh la schimbarea status-ului
+  }, [isOpen, showRouteMap, course.id, course.status]); // CRITICAL FIX: Adaugă course.status pentru refresh la schimbarea status-ului
   
   const loadCourseGPSData = async () => {
     setLoading(true);
     try {
-      console.log(`🗺️ Încarcă GPS data pentru cursă: ${course.id}`);
       const stats = await courseAnalyticsService.getCourseAnalytics(course.id);
-      console.log(`📍 GPS punkte găsite: ${stats?.gpsPoints?.length || 0}`);
       setCourseStats(stats);
       
       if (stats && stats.gpsPoints) {
@@ -48,8 +45,8 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             pauses.push(point);
           }
           
-          // CONSISTENCY FIX: Folosește același threshold ca în courseAnalytics.ts
-          if (point.speed < 2) { // MIN_SPEED_THRESHOLD = 2 km/h (consistent cu courseAnalytics.ts)
+          // Detectează opriri automate (viteză sub 2 km/h)
+          if (point.speed < 2) { // Sub 2 km/h
             slowPoints.push(point);
           } else {
             // Dacă am avut mai mult de 3 puncte lente consecutive, e o oprire automată

@@ -26,10 +26,8 @@ class AppLoggerService {
       // Încarcă logurile existente din stocare
       await this.loadLogs();
 
-      // PRODUCTION FIX: Interceptează console doar în development
-      if (process.env.NODE_ENV !== 'production') {
-        this.interceptConsole();
-      }
+      // Suprascrie metodele console pentru a captura logurile
+      this.interceptConsole();
 
       this.initialized = true;
       this.log("INFO", "Logger aplicație inițializat", "SYSTEM");
@@ -50,21 +48,7 @@ class AppLoggerService {
     }
   }
 
-  // PERFORMANCE FIX: Batched saving pentru optimizare performance (UNUSED - kept for future implementation)
-  // private logBatch: AppLog[] = [];
-  // private flushTimer: any = null;
-  // private readonly BATCH_FLUSH_INTERVAL = 5000; // 5 secunde
-
   private async saveLogs(): Promise<void> {
-    try {
-      // Pentru compatibilitate cu codul existent - salvează imediat
-      await this.flushBatch();
-    } catch (error) {
-      console.error("Eroare salvare log-uri în stocare:", error);
-    }
-  }
-
-  private async flushBatch(): Promise<void> {
     try {
       // Păstrează doar logurile cele mai recente
       if (this.logs.length > this.MAX_LOGS) {
@@ -76,7 +60,7 @@ class AppLoggerService {
         value: JSON.stringify(this.logs),
       });
     } catch (error) {
-      console.error("Eroare flush batch log-uri:", error);
+      console.error("Eroare salvare log-uri în stocare:", error);
     }
   }
 

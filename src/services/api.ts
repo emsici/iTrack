@@ -21,7 +21,7 @@ let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null =
 let requestInProgress = false;
 
 export interface LoginResponse {
-  status: string;
+  status?: string;
   token?: string;
   error?: string;
 }
@@ -37,7 +37,7 @@ export interface GPSData {
   numar_inmatriculare: string;
   uit: string;
   status: number;
-  hdop: number; // GPS accuracy in meters (HDOP field name for server compatibility)
+  hdop: number;
   gsm_signal: number;
 }
 
@@ -48,9 +48,8 @@ export const login = async (
   password: string,
 ): Promise<LoginResponse> => {
   try {
-    // GDPR FIX: Don't log email addresses for privacy compliance
-    console.log("Login direct CapacitorHttp pentru utilizator");
-    logAPI(`Încercare login direct CapacitorHttp pentru user`);
+    console.log("Login direct CapacitorHttp pentru:", email);
+    logAPI(`Încercare login direct CapacitorHttp pentru ${email}`);
 
     // DOAR ANDROID: CapacitorHttp direct - nu sunt necesare fallback-uri
     const response = await CapacitorHttp.post({
@@ -67,7 +66,7 @@ export const login = async (
       const data = response.data;
       if (data.status === "success" && data.token) {
         console.log("✅ CapacitorHttp login successful");
-        logAPI(`CapacitorHttp login successful for user`);
+        logAPI(`CapacitorHttp login successful for ${email}`);
         return { status: "success", token: data.token };
       } else {
         logAPI(`CapacitorHttp login failed: ${data.message}`);
@@ -134,9 +133,11 @@ export const getVehicleCourses = async (
     }
   }
 
-  // SECURITY FIX: Admin mode completely removed from client-side validation
-  // Admin privileges must be validated server-side only via JWT token claims
-  // Client-side admin tokens are a critical security vulnerability
+  // Admin mode - use actual API but with admin token
+  if (token === "ADMIN_TOKEN") {
+    console.log("Admin mode: Using actual API data");
+    // Continue with normal API flow using real server data
+  }
 
   // Set global lock and create new request
   requestInProgress = true;
@@ -202,8 +203,7 @@ const performVehicleCoursesRequest = async (
     }
 
     console.log("API Response Status:", response.status);
-    // SECURITY FIX: Don't log full API response data - may contain sensitive info
-    console.log("API Response Data length:", response.data?.data?.length || 0);
+    console.log("API Response Data:", JSON.stringify(response.data, null, 2));
     
     // DEBUG LOGGING pentru status-uri primite de la server
     if (response.data?.data?.length > 0) {
@@ -212,9 +212,8 @@ const performVehicleCoursesRequest = async (
         console.log(`📋 Course ${index}: ikRoTrans=${course.ikRoTrans}, serverStatus=${course.status || 'UNDEFINED'}, UIT=${course.UIT || course.uit}`);
       });
     }
-    // SECURITY FIX: Log only essential info, not full data
     logAPI(
-      `API response: status=${response.status}, courses=${response.data?.data?.length || 0}`,
+      `API response: status=${response.status}, data=${JSON.stringify(response.data)}`,
     );
 
     if (response.status === 200) {
@@ -232,52 +231,37 @@ const performVehicleCoursesRequest = async (
         if (responseData.data.length > 0) {
           console.log("Processing course data");
           const processedCourses = responseData.data.map(
-            (course: any, index: number) => {
-              // CRITICAL NULL SAFETY: Verifică că course nu este null/undefined
-              if (!course || typeof course !== 'object') {
-                console.warn(`Course ${index} is invalid:`, course);
-                return null;
-              }
-
-              // REQUIRED FIELD VALIDATION: ikRoTrans este obligatoriu
-              if (!course.ikRoTrans) {
-                console.warn(`Course ${index} missing ikRoTrans:`, course);
-                return null;
-              }
-
-              return {
-                id: course.ikRoTrans.toString(),
-                name: `Transport ${course.ikRoTrans}`,
-                departure_location: course.Vama || "Punct plecare",
-                destination_location:
-                  course.VamaStop || course.denumireLocStop || "Destinație",
-                departure_time: null,
-                arrival_time: null,
-                description: course.denumireDeclarant || "Transport profesional",
-                status: course.status || 1, // Folosește status-ul de la server sau 1 ca default
-                uit: course.UIT || course.uit || `UIT_${course.ikRoTrans}`, // Fallback pentru cazuri când UIT lipsește
-                ikRoTrans: course.ikRoTrans,
-                codDeclarant: course.codDeclarant,
-                denumireDeclarant: course.denumireDeclarant,
-                nrVehicul: course.nrVehicul,
-                dataTransport: course.dataTransport,
-                vama: course.Vama,
-                birouVamal: course.BirouVamal,
-                judet: course.Judet,
-                denumireLocStart: course.denumireLocStart,
-                denumireLocStop: course.denumireLocStop,
-                vamaStop: course.VamaStop,
-                birouVamalStop: course.BirouVamalStop,
-                judetStop: course.JudetStop,
-                BirouVamal: course.BirouVamal,
-                BirouVamalStop: course.BirouVamalStop,
-                Judet: course.Judet,
-                JudetStop: course.JudetStop,
-                Vama: course.Vama,
-                VamaStop: course.VamaStop
-              };
-            })
-            .filter((course: any) => course !== null); // CRITICAL: Remove null courses
+            (course: any, index: number) => ({
+              id: course.ikRoTrans?.toString() || `course_${index}`,
+              name: `Transport ${course.ikRoTrans}`,
+              departure_location: course.Vama || "Punct plecare",
+              destination_location:
+                course.VamaStop || course.denumireLocStop || "Destinație",
+              departure_time: null,
+              arrival_time: null,
+              description: course.denumireDeclarant,
+              status: course.status || 1, // Folosește status-ul de la server sau 1 ca default
+              uit: course.UIT || course.uit || `UIT_${course.ikRoTrans}`, // Fallback pentru cazuri când UIT lipsește
+              ikRoTrans: course.ikRoTrans,
+              codDeclarant: course.codDeclarant,
+              denumireDeclarant: course.denumireDeclarant,
+              nrVehicul: course.nrVehicul,
+              dataTransport: course.dataTransport,
+              vama: course.Vama,
+              birouVamal: course.BirouVamal,
+              judet: course.Judet,
+              denumireLocStart: course.denumireLocStart,
+              vamaStop: course.VamaStop,
+              birouVamalStop: course.BirouVamalStop,
+              judetStop: course.JudetStop,
+              BirouVamal: course.BirouVamal,
+              BirouVamalStop: course.BirouVamalStop,
+              Judet: course.Judet,
+              JudetStop: course.JudetStop,
+              Vama: course.Vama,
+              VamaStop: course.VamaStop,
+            }),
+          );
 
           console.log(
             `Processed ${processedCourses.length} courses successfully`,
@@ -362,41 +346,14 @@ export const logout = async (token: string): Promise<boolean> => {
       return false;
     }
 
-    // CRITICAL NULL SAFETY: Handle both string (from Android) and object (from JS) input
+    // Handle both string (from Android) and object (from JS) input
     let gpsData;
-    if (!gpsDataInput) {
-      console.error("❌ GPS transmission failed: gpsDataInput is null or undefined");
-      return false;
-    }
-    
     if (typeof gpsDataInput === 'string') {
-      try {
-        gpsData = JSON.parse(gpsDataInput);
-        console.log("📱 ANDROID BRIDGE → GPS data received as JSON string");
-      } catch (parseError) {
-        console.error("❌ GPS transmission failed: Invalid JSON string from Android", parseError);
-        return false;
-      }
+      gpsData = JSON.parse(gpsDataInput);
+      console.log("📱 ANDROID BRIDGE → GPS data received as JSON string");
     } else {
       gpsData = gpsDataInput;
       console.log("🌐 JAVASCRIPT → GPS data received as object");
-    }
-
-    // CRITICAL VALIDATION: Verifică structura GPS data
-    if (!gpsData || typeof gpsData !== 'object') {
-      console.error("❌ GPS transmission failed: Invalid GPS data structure");
-      return false;
-    }
-
-    // REQUIRED FIELDS VALIDATION
-    if (!gpsData.uit || !gpsData.lat || !gpsData.lng || !gpsData.numar_inmatriculare) {
-      console.error("❌ GPS transmission failed: Missing required fields", {
-        has_uit: !!gpsData.uit,
-        has_lat: !!gpsData.lat,
-        has_lng: !!gpsData.lng,
-        has_vehicle: !!gpsData.numar_inmatriculare
-      });
-      return false;
     }
 
     console.log("🚀 === UNIFIED GPS TRANSMISSION ===");
@@ -411,12 +368,11 @@ export const logout = async (token: string): Promise<boolean> => {
       directie: gpsData.directie,
       altitudine: gpsData.altitudine,
       baterie: gpsData.baterie,
-      hdop: gpsData.hdop || gpsData.accuracy_m || 0, // GPS accuracy in meters
+      hdop: gpsData.hdop,
       gsm_signal: gpsData.gsm_signal
     });
 
-    // SECURITY FIX: Don't log token parts for security
-    console.log("🔑 Using Bearer token authentication");
+    console.log("🔑 Using Bearer token:", token.substring(0, 20) + "...");
     console.log("🌐 Sending to URL:", `${API_BASE_URL}gps.php`);
     console.log("📤 Headers: Content-Type: application/json; charset=utf-8");
 
@@ -431,19 +387,18 @@ export const logout = async (token: string): Promise<boolean> => {
       data: gpsData,
     });
 
-    console.log("📡 === GPS RESPONSE SUMMARY ===");
+    console.log("📡 === GPS RESPONSE DETAILED ===");
     console.log("📊 Status Code:", response.status);
-    // SECURITY FIX: Don't log full response data for privacy
-    console.log("📥 Response Type:", typeof response.data);
-    console.log("📦 Has Headers:", !!(response.headers && Object.keys(response.headers).length));
+    console.log("📥 Response Data:", response.data);
+    console.log("📦 Response Headers:", response.headers || {});
     
-    // Minimal response analysis without exposing data
+    // Detailed response analysis
     if (response.data) {
       if (typeof response.data === 'string') {
+        console.log("📄 Response Preview:", response.data.substring(0, 300));
         console.log("📏 Response Length:", response.data.length);
-        console.log("📄 Response Status:", response.data.includes('success') ? 'SUCCESS' : 'OTHER');
       } else if (typeof response.data === 'object') {
-        console.log("📋 Response Keys:", Object.keys(response.data));
+        console.log("📋 Response Object:", JSON.stringify(response.data, null, 2));
       }
     }
 
@@ -482,83 +437,6 @@ export const logout = async (token: string): Promise<boolean> => {
   }
 };
 
-// CRITICAL NEW API: Load GPS results for a specific course from server
-export const getCourseGPSResults = async (
-  courseId: string, // ikRoTrans
-  vehicleNumber: string,
-  token: string
-): Promise<any> => {
-  try {
-    const timestamp = Date.now();
-    const urlWithCacheBuster = `${API_BASE_URL}rezultate.php?uit=${encodeURIComponent(courseId)}&nr=${encodeURIComponent(vehicleNumber)}&t=${timestamp}`;
-    
-    logAPI(`Loading GPS results for course ${courseId} vehicle ${vehicleNumber}`);
-    
-    const capacitorResponse = await CapacitorHttp.get({
-      url: urlWithCacheBuster,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-        "User-Agent": "iTrack-Native/1.0",
-      },
-    });
-
-    console.log("GPS Results Response Status:", capacitorResponse.status);
-    // SECURITY FIX: Don't log full GPS results data
-    console.log("GPS Results Data Length:", capacitorResponse.data?.data?.length || 0);
-    
-    logAPI(`GPS results response: status=${capacitorResponse.status}, points=${capacitorResponse.data?.data?.length || 0}`);
-
-    if (capacitorResponse.status === 401) {
-      console.log("GPS Results: Token expired");
-      return { status: "error", error: "TOKEN_EXPIRED" };
-    }
-
-    if (capacitorResponse.status === 200) {
-      const responseData = capacitorResponse.data;
-
-      // Handle API format: {"status":"success","count":X,"data":[GPS points]}
-      if (responseData.status === "success" && Array.isArray(responseData.data)) {
-        console.log(`Found ${responseData.data.length} GPS points for course ${courseId}`);
-
-        // Transform GPS points to expected format
-        const transformedPoints = responseData.data.map((point: any) => ({
-          lat: parseFloat(point.lat || point.latitude || 0),
-          lng: parseFloat(point.lng || point.longitude || 0),
-          timestamp: point.timestamp || point.data_time || new Date().toISOString(),
-          speed: parseFloat(point.viteza || point.speed || 0),
-          accuracy: parseFloat(point.hdop || point.accuracy || 0),
-          bearing: parseFloat(point.directie || point.bearing || 0),
-          altitude: parseFloat(point.altitudine || point.altitude || 0),
-          isManualPause: false // Server data doesn't have this flag
-        }));
-
-        return {
-          status: "success",
-          gpsPoints: transformedPoints,
-          totalPoints: responseData.data.length,
-          rawData: responseData.data
-        };
-      } else {
-        console.log("GPS Results: No data or invalid format");
-        return {
-          status: "success",
-          gpsPoints: [],
-          totalPoints: 0,
-          rawData: []
-        };
-      }
-    } else {
-      console.error("GPS Results: Server error:", capacitorResponse.status);
-      return { status: "error", error: "SERVER_ERROR", statusCode: capacitorResponse.status };
-    }
-  } catch (error) {
-    console.error("GPS Results API error:", error);
-    logAPI(`GPS results error: ${error}`);
-    return { status: "error", error: "NETWORK_ERROR" };
-  }
-};
-
 export const sendGPSData = async (
   gpsData: GPSData,
   token: string,
@@ -574,13 +452,15 @@ export const sendGPSData = async (
 
     try {
       console.log("📡 GPS Transmission to gps.php");
-      // CRITICAL SECURITY FIX: Never log tokens or sensitive GPS data
-      console.log("🔐 Using Bearer token authentication");
+      console.log("🔐 FULL TOKEN BEING SENT:", `Bearer ${token}`);
       console.log("🎯 Request URL:", `${API_BASE_URL}gps.php`);
-      console.log("Vehicle:", gpsData.numar_inmatriculare?.substring(0, 3) + "***");
+      console.log("Vehicle:", gpsData.numar_inmatriculare);
       console.log("UIT:", gpsData.uit);
       console.log("Status:", gpsData.status);
-      console.log("📍 GPS data ready for transmission (coordinates protected)");
+      console.log(
+        "🚨 COMPLETE GPS DATA BEING SENT:",
+        JSON.stringify(gpsData, null, 2),
+      );
 
       // Silent token validation
       try {
@@ -654,7 +534,7 @@ export const sendGPSData = async (
         }
       }
       logAPI(
-        `CapacitorHttp GPS result: ${response.status} - response received`,
+        `CapacitorHttp GPS result: ${response.status} - ${JSON.stringify(response.data)}`,
       );
 
       if (response.status === 401) {
@@ -695,9 +575,8 @@ export const sendGPSData = async (
       console.log("=== Fetch GPS Response ===");
       console.log("Status:", response.status);
       const responseText = await response.text();
-      // SECURITY FIX: Don't log full response text
-      console.log("Response length:", responseText.length);
-      logAPI(`Fetch GPS response: ${response.status} - length ${responseText.length}`);
+      console.log("Response text:", responseText);
+      logAPI(`Fetch GPS response: ${response.status} - ${responseText}`);
 
       if (response.status === 401) {
         console.log("GPS fetch: Token expired - returning false");

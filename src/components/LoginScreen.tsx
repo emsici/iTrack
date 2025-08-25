@@ -63,9 +63,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       } else {
         setError(response.error || "Date de conectare incorecte");
       }
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Eroare la conectare";
-      setError(errorMessage);
+    } catch (err: any) {
+      setError(err.message || "Eroare la conectare");
     } finally {
       setLoading(false);
     }
