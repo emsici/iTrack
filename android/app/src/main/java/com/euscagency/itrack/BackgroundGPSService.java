@@ -890,10 +890,23 @@ public class BackgroundGPSService extends Service {
         
         // Verifică dacă serviciul funcționează corect
         if (gpsExecutor == null || gpsExecutor.isShutdown()) {
-            Log.e(TAG, "GPS service compromis - restart");
-            sendLogToJavaScript("GPS restart necesar");
-            isGPSRunning = false;
-            startBackgroundGPS();
+            // CRITICAL SAFETY: Verifică dacă există curse ACTIVE înainte de restart
+            int activeCourseCount = 0;
+            for (CourseData course : activeCourses.values()) {
+                if (course.status == 2) {
+                    activeCourseCount++;
+                }
+            }
+            
+            if (activeCourseCount > 0) {
+                Log.e(TAG, "GPS service compromis - restart pentru " + activeCourseCount + " curse ACTIVE");
+                sendLogToJavaScript("GPS restart necesar pentru curse ACTIVE");
+                isGPSRunning = false;
+                startBackgroundGPS();
+            } else {
+                Log.e(TAG, "🚫 GPS service compromis dar NU restart - toate cursele în PAUSE/STOP");
+                sendLogToJavaScript("🚫 GPS restart skipped - curse în PAUSE/STOP");
+            }
             return;
         }
         
