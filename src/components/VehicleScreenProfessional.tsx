@@ -423,13 +423,25 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         await backgroundPermissionsService.initialize();
         const permissionState = await backgroundPermissionsService.checkAllPermissions();
         
-        // Afișează modal-ul doar dacă permisiunile lipsesc complet
-        if (!backgroundPermissionsService.isFullyConfigured() && 
-            (permissionState.location.location !== 'granted' || permissionState.backgroundLocation !== 'granted')) {
+        // CRITICAL FIX: Afișează modal-ul ÎNTOTDEAUNA la primul start pentru verificare completa
+        console.log('🔐 Permisiuni verificate:', {
+          isFullyConfigured: backgroundPermissionsService.isFullyConfigured(),
+          locationStatus: permissionState.location.location,
+          backgroundStatus: permissionState.backgroundLocation,
+          batteryOptimization: permissionState.batteryOptimization
+        });
+        
+        // Forțează afișarea modal-ului dacă ORICE permisiune lipsește
+        if (permissionState.location.location !== 'granted' || 
+            permissionState.backgroundLocation !== 'granted' ||
+            permissionState.batteryOptimization !== 'whitelisted') {
+          console.log('🚨 PERMISIUNI INCOMPLETE - afișez modal configurare');
           // Delay pentru a permite UI-ul să se încarce complet
           setTimeout(() => {
             setShowPermissionsModal(true);
           }, 2000);
+        } else {
+          console.log('✅ Toate permisiunile sunt configurate corect');
         }
       } catch (error) {
         console.error('❌ Eroare verificare permisiuni background:', error);
@@ -923,9 +935,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           justifyContent: 'space-between',
           gap: '16px'
         }}>
-          {/* Background Permissions */}
+          {/* Background Permissions - Forțează testare */}
           <button 
-            onClick={() => setShowPermissionsModal(true)}
+            onClick={() => {
+              console.log('🔧 FORȚAT - deschid modal permisiuni pentru testare');
+              setShowPermissionsModal(true);
+            }}
             style={{
               width: '56px',
               height: '56px',
