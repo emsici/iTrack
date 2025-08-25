@@ -883,8 +883,10 @@ public class BackgroundGPSService extends Service {
     }
     
     /**
-     * COMPLETELY REWRITTEN: FusedLocationProviderClient GPS cycle cu continuous location updates
-     * Folosește requestLocationUpdates pentru eficiență optimă în loc de getCurrentLocation repetat
+     * CRITICAL FIX: Ștefan aici e problema - getCurrentLocation e ASINCRON!
+     * ScheduledExecutorService apelează asta la 10s, dar getCurrentLocation dă răspuns după 1-3s
+     * Deci GPS se trimite doar o dată la 10s în loc de continuu!
+     * SOLUȚIA: Verificăm doar dacă location updates sunt active
      */
     private void performGPSCycle() {
         String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
@@ -937,89 +939,18 @@ public class BackgroundGPSService extends Service {
             return; // Nu există curse active
         }
         
-        Log.i(TAG, "🔥 FUSED GPS transmitere pentru " + activeCourseCount + " curse active");
-        sendLogToJavaScript("🔥 FUSED GPS transmitere - " + activeCourseCount + " curse active");
+        Log.i(TAG, "🔥 HEALTH CHECK - location updates sunt " + (isLocationUpdatesActive ? "ACTIVE" : "INACTIVE"));
+        sendLogToJavaScript("🔥 GPS HEALTH CHECK - " + activeCourseCount + " curse active, location updates: " + (isLocationUpdatesActive ? "ON" : "OFF"));
         
-        // CRITICAL: Verifică disponibilitatea Google Play Services
-        if (fusedLocationClient == null) {
-            Log.e(TAG, "❌ FusedLocationProviderClient indisponibil - Google Play Services lipsă");
-            sendLogToJavaScript("❌ Google Play Services indisponibile - folosesc fallback");
-            useFallbackLocationMethod();
-            return;
-        }
-        
-        // Verifică permisiuni
-        boolean fineLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        boolean coarseLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-        
-        if (!fineLocationPermission && !coarseLocationPermission) {
-            Log.e(TAG, "❌ Permisiuni GPS lipsă pentru FusedLocationProviderClient");
-            sendLogToJavaScript("❌ Permisiuni GPS lipsă - verifică setările aplicației");
-            return;
-        }
-        
-        try {
-            // LOGIC CHANGE: În loc să apelez getCurrentLocation la fiecare 10s, 
-            // încerc să obțin o locație acum și dacă nu reușesc, încerc fallback
-            Log.i(TAG, "📍 Solicitare locație cu FusedLocationProviderClient + timeout...");
-            
-            // Create cancellation token cu timeout de 8 secunde
-            cancellationTokenSource = new CancellationTokenSource();
-            CancellationToken cancellationToken = cancellationTokenSource.getToken();
-            
-            // Timeout handler - anulează request după 8 secunde
-            backgroundHandler.postDelayed(() -> {
-                if (cancellationTokenSource != null && !cancellationToken.isCancellationRequested()) {
-                    Log.w(TAG, "⏰ FusedGPS timeout after 8s - cancelling și încerc fallback");
-                    cancellationTokenSource.cancel();
-                    tryFallbackLocation();
-                }
-            }, 8000);
-            
-            // Încearcă să obții locația curentă cu timeout
-            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, cancellationToken)
-                .addOnSuccessListener(location -> {
-                    // Clear timeout handler
-                    if (cancellationTokenSource != null) {
-                        cancellationTokenSource = null;
-                    }
-                    
-                    if (location != null) {
-                        Log.i(TAG, "✅ FusedGPS SUCCESS: " + location.getLatitude() + ", " + location.getLongitude() + 
-                             " (precizie: " + Math.round(location.getAccuracy()) + "m, viteză: " + Math.round(location.getSpeed() * 3.6) + "km/h)");
-                        sendLogToJavaScript("✅ FUSED GPS: " + location.getLatitude() + ", " + location.getLongitude() + " (" + Math.round(location.getAccuracy()) + "m)");
-                        
-                        // Procesează locația pe background thread
-                        backgroundHandler.post(() -> processLocationUpdate(location));
-                    } else {
-                        Log.w(TAG, "⚠️ FusedGPS location null - încerc fallback last known location");
-                        tryFallbackLocation();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    // Clear timeout handler
-                    if (cancellationTokenSource != null) {
-                        cancellationTokenSource = null;
-                    }
-                    
-                    Log.e(TAG, "❌ FusedGPS FAILED: " + e.getMessage());
-                    sendLogToJavaScript("❌ FusedGPS error: " + e.getMessage());
-                    
-                    // Fallback la last known location
-                    tryFallbackLocation();
-                })
-                .addOnCanceledListener(() -> {
-                    Log.w(TAG, "⏰ FusedGPS request cancelled (timeout)");
-                    // Fallback va fi apelat de timeout handler
-                });
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ FusedGPS cycle exception: " + e.getMessage());
-            sendLogToJavaScript("❌ FusedGPS exception: " + e.getMessage());
-            e.printStackTrace();
-            
-            // Fallback la last known location
-            tryFallbackLocation();
+        // CRITICAL FIX: În loc de getCurrentLocation(), verificăm doar dacă location updates sunt active
+        // Location updates vor trimite coordonatele automat prin LocationCallback
+        if (!isLocationUpdatesActive) {
+            Log.e(TAG, "⚠️ Location updates INACTIVE - repornesc...");
+            sendLogToJavaScript("⚠️ Location updates inactive - repornesc pentru GPS continuu");
+            startContinuousLocationUpdates();
+        } else {
+            Log.i(TAG, "✅ Location updates ACTIVE - GPS va trimite automat prin callback");
+            sendLogToJavaScript("✅ GPS continuu active prin location updates");
         }
     }
     
