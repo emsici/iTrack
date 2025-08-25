@@ -1236,13 +1236,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       
                       // ADAUGĂ PUNCT GPS CU FLAG MANUAL PENTRU PAUZĂ
                       if (newStatus === 3 && window.AndroidGPS && window.AndroidGPS.markManualPause) {
-                        // CRITICAL FIX: Folosește course.uit consistent cu realUit din HashMap
-                        window.AndroidGPS.markManualPause(courseForGPS.uit);
+                        // CRITICAL FIX: Folosește ikRoTransKey consistent cu courseId din HashMap
+                        const ikRoTransKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
+                        window.AndroidGPS.markManualPause(ikRoTransKey);
                       }
                       
                       if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-                        // CRITICAL FIX: Trimite întotdeauna course.uit pentru UPDATE (consistent cu realUit din HashMap)
-                        window.AndroidGPS.updateStatus(courseForGPS.uit, newStatus, vehicleNumber);
+                        // CRITICAL FIX: Trimite ikRoTransKey pentru UPDATE (consistent cu courseId din HashMap)
+                        const ikRoTransKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
+                        window.AndroidGPS.updateStatus(ikRoTransKey, newStatus, vehicleNumber);
                       }
                     }
                   }

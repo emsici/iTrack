@@ -227,14 +227,17 @@ public class BackgroundGPSService extends Service {
                 return START_STICKY;
             }
             
-            // SIMPLE FIX: Caută direct după UIT în loc de unique key complex
+            // CRITICAL FIX: Caută după courseId (uitId) pentru consistență cu frontend  
             CourseData courseData = null;
             String foundKey = null;
             
             for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-                if (entry.getValue().realUit.equals(specificUIT)) {
-                    courseData = entry.getValue();
+                CourseData course = entry.getValue();
+                // FIXED: Search după courseId (ikRoTransKey) pentru consistency cu frontend updateStatus
+                if (course.courseId.equals(specificUIT) || course.realUit.equals(specificUIT)) {
+                    courseData = course;
                     foundKey = entry.getKey();
+                    Log.e(TAG, "✅ GĂSIT: courseId=" + course.courseId + " realUit=" + course.realUit + " pentru specificUIT=" + specificUIT);
                     break;
                 }
             }
