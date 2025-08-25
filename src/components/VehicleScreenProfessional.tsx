@@ -1236,14 +1236,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       
                       // ADAUGĂ PUNCT GPS CU FLAG MANUAL PENTRU PAUZĂ
                       if (newStatus === 3 && window.AndroidGPS && window.AndroidGPS.markManualPause) {
-                        // CRITICAL FIX: Folosește ikRoTransKey consistent cu courseId din HashMap
-                        const ikRoTransKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
+                        // CRITICAL FIX: Folosește EXACT aceeași logică ca la START GPS
+                        const baseKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
+                        const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
+                        const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`;
                         window.AndroidGPS.markManualPause(ikRoTransKey);
                       }
                       
                       if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-                        // CRITICAL FIX: Trimite ikRoTransKey pentru UPDATE (consistent cu courseId din HashMap)
-                        const ikRoTransKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
+                        // CRITICAL FIX: Folosește EXACT aceeași logică ca la START GPS
+                        const baseKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
+                        const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
+                        const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`;
                         window.AndroidGPS.updateStatus(ikRoTransKey, newStatus, vehicleNumber);
                       }
                     }
