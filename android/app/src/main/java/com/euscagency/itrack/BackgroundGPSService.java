@@ -481,22 +481,15 @@ public class BackgroundGPSService extends Service {
                 // CRITICAL DEBUG: Verifică status-ul fiecărei curse ÎNAINTE de transmisie
                 Log.e(TAG, "🔍 VERIFY BEFORE TRANSMIT: UIT=" + courseData.realUit + " status=" + courseData.status + " key=" + uniqueKey);
                 
-                // CRITICAL FIX: EXPLICIT status check - DOAR status 2 poate transmite
-                if (courseData.status == 3) {
-                    Log.e(TAG, "🔶 PAUSE DETECTED: UIT " + courseData.realUit + " are status 3 - NU TRANSMITE LA SERVER");
-                    continue; // PAUSE - nu transmite
-                }
-                if (courseData.status == 4) {
-                    Log.e(TAG, "🛑 STOP DETECTED: UIT " + courseData.realUit + " are status 4 - NU TRANSMITE LA SERVER");
-                    continue; // STOP - nu transmite
-                }
+                // SIMPLE & CLEAR: DOAR status 2 (ACTIVE) transmite GPS la server
                 if (courseData.status != 2) {
-                    Log.e(TAG, "❌ STATUS INVALID: UIT " + courseData.realUit + " are status " + courseData.status + " - NU TRANSMITE");
-                    continue; // Orice alt status în afară de 2 - nu transmite
+                    String statusName = courseData.status == 3 ? "PAUSE" : courseData.status == 4 ? "STOP" : "INVALID";
+                    Log.e(TAG, "⏸️ SKIP TRANSMIT: UIT " + courseData.realUit + " are status " + courseData.status + " (" + statusName + ") - NU TRANSMITE");
+                    continue; // Skip pentru orice status în afară de ACTIVE (2)
                 }
                 
                 // DOAR Status 2 (ACTIVE) ajunge aici
-                Log.e(TAG, "✅ TRANSMIT CONFIRMED: UIT " + courseData.realUit + " status 2 ACTIVE - TRIMIT LA SERVER");
+                Log.e(TAG, "✅ TRANSMIT: UIT " + courseData.realUit + " status 2 ACTIVE - TRIMIT LA SERVER");
                 
                 coursesTransmitting++;
                 
