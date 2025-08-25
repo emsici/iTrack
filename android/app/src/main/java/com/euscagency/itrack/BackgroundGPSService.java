@@ -23,14 +23,13 @@ import androidx.core.app.NotificationCompat;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+// ELIMINAT: ScheduledExecutorService, HandlerThread - FusedLocationProviderClient face totul automat
 import java.util.concurrent.TimeUnit;
-import android.os.HandlerThread;
 import android.app.Notification;
 
 /**
- * SERVICIU GPS DE FUNDAL - Mai eficient pentru transmisia continuă GPS
- * Folosește ScheduledExecutorService în loc de Handler pentru mai multă stabilitate
+ * SERVICIU GPS DE FUNDAL - FusedLocationProviderClient pentru triangulare inteligentă
+ * Google Play Services gestionează totul automat - GPS + WiFi + Cellular 
  */
 public class BackgroundGPSService extends Service {
     private static final String TAG = "GPS_Fundal";
@@ -44,17 +43,13 @@ public class BackgroundGPSService extends Service {
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
     private PowerManager.WakeLock wakeLock;
-    private ScheduledExecutorService gpsExecutor;
-    private HandlerThread backgroundThread;
-    private Handler backgroundHandler;
+    // ELIMINAT: ScheduledExecutorService, HandlerThread - FusedLocationProviderClient face totul automat
     
     // MULTI-UIT SUPPORT: Thread-safe Map pentru toate cursele active simultan - CRITICAL pentru multi-threading
     private java.util.Map<String, CourseData> activeCourses = new java.util.concurrent.ConcurrentHashMap<>();
     private String globalToken;
     
-    // HEALTH MONITORING: Pentru monitorizarea continuă a serviciului
-    private java.util.concurrent.ScheduledExecutorService healthMonitor;
-    private long lastGPSCycleTime = 0;
+    // ELIMINAT: Health Monitor, lastGPSCycleTime - FusedLocationProviderClient e automat robust
     
     // RATE LIMITING: Thread pool pentru HTTP transmissions pentru a evita server overloading
     private java.util.concurrent.ThreadPoolExecutor httpThreadPool;
@@ -135,10 +130,7 @@ public class BackgroundGPSService extends Service {
             "iTrack:BackgroundGPS:Critical"
         );
         
-        // Thread de fundal pentru operații GPS
-        backgroundThread = new HandlerThread("BackgroundGPSThread");
-        backgroundThread.start();
-        backgroundHandler = new Handler(backgroundThread.getLooper());
+        // ELIMINAT: HandlerThread - FusedLocationProviderClient gestionează propriul thread
         
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
@@ -291,9 +283,7 @@ public class BackgroundGPSService extends Service {
         return START_STICKY;
     }
     
-    // SIMPLIFICAT: Handler în loc de ScheduledExecutorService
-    private android.os.Handler gpsHandler;
-    private Runnable gpsRunnable;
+    // ELIMINAT: Handler manual - FusedLocationProviderClient face callback-uri automate
     
     private void startBackgroundGPS() {
         Log.e(TAG, "startBackgroundGPS called, isGPSRunning: " + isGPSRunning.get());
@@ -327,38 +317,16 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "WakeLock acquired");
         }
         
-        // EFICIENT: Handler simplu cu postDelayed
-        gpsHandler = new android.os.Handler(android.os.Looper.getMainLooper());
-        gpsRunnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Log.e(TAG, "🔄 GPS cycle - " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                    performGPSCycle();
-                    
-                    // Program următoarea execuție dacă GPS încă rulează
-                    if (isGPSRunning.get()) {
-                        gpsHandler.postDelayed(this, GPS_INTERVAL_SECONDS * 1000);
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "GPS cycle error: " + e.getMessage());
-                    // Continuă programarea chiar și la eroare
-                    if (isGPSRunning.get()) {
-                        gpsHandler.postDelayed(this, GPS_INTERVAL_SECONDS * 1000);
-                    }
-                }
-            }
-        };
+        // ELIMINAT: Handler manual - FusedLocationProviderClient apelează LocationCallback automat
         
         isGPSRunning.set(true);
         
-        // PORNIRE FUSION GPS în loc de Handler manual
+        // SIMPLU: Doar Fusion GPS - Google face totul automat!
         startFusionGPS();
-        
         startOfflineRetrySystem();
         
-        Log.e(TAG, "✅ GPS Service STARTED cu FUSION GPS - triangulare automată la " + GPS_INTERVAL_SECONDS + "s");
-        sendLogToJavaScript("✅ FUSION GPS STARTED - triangulare automată");
+        Log.e(TAG, "✅ FUSION GPS PORNIT - Google gestionează totul automat la " + GPS_INTERVAL_SECONDS + "s");
+        sendLogToJavaScript("✅ FUSION GPS - Google triangulare automată");
     }
     
     private void stopBackgroundGPS() {
@@ -371,11 +339,7 @@ public class BackgroundGPSService extends Service {
         // OPRIRE: Fusion GPS
         stopFusionGPS();
         
-        // OPRIRE: Handler dacă există
-        if (gpsHandler != null && gpsRunnable != null) {
-            gpsHandler.removeCallbacks(gpsRunnable);
-            Log.e(TAG, "🛑 GPS Handler stopped");
-        }
+        // ELIMINAT: Handler cleanup - nu mai avem Handler manual
         
         if (wakeLock != null && wakeLock.isHeld()) {
             wakeLock.release();
@@ -385,11 +349,7 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🛑 WakeLock was already released or null");
         }
         
-        // Stop health monitor
-        if (healthMonitor != null && !healthMonitor.isShutdown()) {
-            healthMonitor.shutdown();
-            Log.e(TAG, "🛑 Health Monitor stopped");
-        }
+        // ELIMINAT: Health Monitor - FusedLocationProviderClient e robust automat
         
         // Stop HTTP Thread Pool pentru a evita memory leaks
         if (httpThreadPool != null && !httpThreadPool.isShutdown()) {
@@ -405,98 +365,11 @@ public class BackgroundGPSService extends Service {
             }
         }
         
-        // IMPORTANT: Clear executor reference pentru restart curat
-        gpsExecutor = null;
-        healthMonitor = null;
-        lastGPSCycleTime = 0;
-        Log.e(TAG, "🛑 GPS Service completely stopped and ready for clean restart");
+        // SIMPLU: Fusion GPS oprit - gata!
+        Log.e(TAG, "🛑 FUSION GPS Service oprit complet");
     }
     
-    private void startHealthMonitor() {
-        try {
-            // Oprește health monitor existent dacă rulează
-            if (healthMonitor != null && !healthMonitor.isShutdown()) {
-                healthMonitor.shutdown();
-                Log.e(TAG, "🩺 Health Monitor existent oprit pentru restart");
-            }
-            
-            healthMonitor = Executors.newSingleThreadScheduledExecutor();
-            lastGPSCycleTime = System.currentTimeMillis(); // Initialize cu timpul curent
-            
-            Log.e(TAG, "🩺 === HEALTH MONITOR PORNIT ===");
-            sendLogToJavaScript("🩺 Health Monitor pornit - va verifica GPS la fiecare 60s");
-            
-            // Health check la fiecare 60 de secunde
-            healthMonitor.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-                        long currentTimeMs = System.currentTimeMillis();
-                        long timeSinceLastGPS = currentTimeMs - lastGPSCycleTime;
-                        
-                        Log.e(TAG, "🩺 === HEALTH CHECK [" + currentTime + "] ===");
-                        Log.e(TAG, "🩺 Time since last GPS: " + (timeSinceLastGPS / 1000) + "s");
-                        Log.e(TAG, "🩺 GPS Expected every: " + GPS_INTERVAL_SECONDS + "s");
-                        Log.e(TAG, "🩺 isGPSRunning: " + isGPSRunning.get());
-                        Log.e(TAG, "🩺 ScheduledExecutor alive: " + (gpsExecutor != null && !gpsExecutor.isShutdown()));
-                        Log.e(TAG, "🩺 Active courses: " + activeCourses.size());
-                        
-                        // CRITICAL: Dacă GPS nu a fost executat în ultimele 3 intervale
-                        long maxAllowedGap = GPS_INTERVAL_SECONDS * 3 * 1000; // 30 secunde pentru 10s interval
-                        
-                        if (timeSinceLastGPS > maxAllowedGap && isGPSRunning.get() && !activeCourses.isEmpty()) {
-                            Log.e(TAG, "🚨 === HEALTH CHECK FAILURE DETECTED ===");
-                            Log.e(TAG, "🚨 GPS nu a rulat în ultimele " + (timeSinceLastGPS / 1000) + " secunde!");
-                            Log.e(TAG, "🚨 FORȚEZ RESTART COMPLET ScheduledExecutorService!");
-                            
-                            sendLogToJavaScript("🚨 GPS BLOCAT! Ultimul GPS acum " + (timeSinceLastGPS / 1000) + "s - RESTART FORȚAT");
-                            
-                            // RECOVERY ACTION: Restart complet GPS service
-                            isGPSRunning.set(false);
-                            if (gpsExecutor != null) {
-                                gpsExecutor.shutdown();
-                                gpsExecutor = null;
-                            }
-                            
-                            // Restart în 2 secunde pentru a evita conflictele
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        Thread.sleep(2000);
-                                        Log.e(TAG, "🔄 HEALTH RECOVERY: Restart GPS service...");
-                                        startBackgroundGPS();
-                                        sendLogToJavaScript("🔄 GPS Service RESTARTAT de Health Monitor");
-                                    } catch (Exception e) {
-                                        Log.e(TAG, "❌ Health recovery error: " + e.getMessage());
-                                    }
-                                }
-                            }).start();
-                            
-                        } else {
-                            Log.e(TAG, "✅ Health check PASSED - GPS service healthy");
-                            if (timeSinceLastGPS <= GPS_INTERVAL_SECONDS * 1000 + 5000) { // +5s tolerance
-                                sendLogToJavaScript("✅ GPS service healthy - ultimul GPS acum " + (timeSinceLastGPS / 1000) + "s");
-                            }
-                        }
-                        
-                    } catch (Exception e) {
-                        Log.e(TAG, "❌ Health Monitor error: " + e.getMessage());
-                        sendLogToJavaScript("❌ Health Monitor error: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                }
-            }, 60, 60, TimeUnit.SECONDS); // Check la fiecare 60 de secunde
-            
-            Log.e(TAG, "🩺 Health Monitor planificat cu succes");
-            
-        } catch (Exception e) {
-            Log.e(TAG, "❌ EROARE la pornirea Health Monitor: " + e.getMessage());
-            sendLogToJavaScript("❌ Health Monitor FAILED: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+    // ELIMINAT: Health Monitor - FusedLocationProviderClient e automat robust și nu se oprește
     
     private void startFusionGPS() {
         Log.e(TAG, "🚀 PORNIRE FUSION GPS cu triangulare inteligentă");
@@ -1195,18 +1068,7 @@ public class BackgroundGPSService extends Service {
         }
         wakeLock = null;
         
-        // BACKGROUND THREAD CLEANUP
-        if (backgroundThread != null) {
-            backgroundThread.quitSafely();
-            try {
-                backgroundThread.join(1000); // Wait max 1 second
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                Log.e(TAG, "🛑 Background thread join interrupted");
-            }
-            backgroundThread = null;
-            Log.e(TAG, "🛑 Background thread stopped safely");
-        }
+        // ELIMINAT: HandlerThread cleanup - FusedLocationProviderClient gestionează propriul thread
         
         // MEMORY CLEANUP
         activeCourses.clear();
