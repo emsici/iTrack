@@ -63,7 +63,9 @@ public class BackgroundGPSService extends Service {
     
     // HEALTH MONITORING: Pentru monitorizarea continuă a serviciului
     private java.util.concurrent.ScheduledExecutorService healthMonitor;
-    private volatile long lastGPSCycleTime = 0; // THREAD SAFETY: volatile pentru accesare din health monitor
+    // OPTIMIZARE: Eliminat gpsExecutor - redundant cu LocationCallback
+    // private java.util.concurrent.ScheduledExecutorService gpsExecutor; // NU MAI E NECESAR
+    private volatile long lastLocationUpdateTime = 0; // OPTIMIZAT: Track LocationCallback activity
     
     // RATE LIMITING: Thread pool pentru HTTP transmissions pentru a evita server overloading
     private java.util.concurrent.ThreadPoolExecutor httpThreadPool;
@@ -206,6 +208,9 @@ public class BackgroundGPSService extends Service {
                 
                 Log.i(TAG, "✅ Location CURRENT (" + locationAgeSeconds + "s) din " + provider + " (precizie: " + accuracy + "m): " + location.getLatitude() + ", " + location.getLongitude());
                 sendLogToJavaScript("✅ GPS CURRENT (" + locationAgeSeconds + "s) sursa:" + provider + " precizie:" + accuracy + "m: " + location.getLatitude() + ", " + location.getLongitude());
+                
+                // OPTIMIZARE: Update timestamp pentru Simple Health Monitor
+                lastLocationUpdateTime = System.currentTimeMillis();
                 
                 // Procesează locația pe background thread pentru a nu bloca callback-ul
                 backgroundHandler.post(() -> processLocationUpdate(location));
@@ -551,117 +556,21 @@ public class BackgroundGPSService extends Service {
             sendLogToJavaScript("WakeLock acquired - serviciul va rula continuu");
         }
         
-        // Start ScheduledExecutorService - IMPORTANT: Check dacă există deja
-        if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
-            Log.e(TAG, "⚠️ ScheduledExecutorService există deja - va fi reinitialized");
-            gpsExecutor.shutdown();
-        }
+        // OPTIMIZARE MAXIMĂ: ELIMINĂ ScheduledExecutorService - REDUNDANT cu LocationCallback
+        // LocationCallback face transmisia automată - nu mai avem nevoie de executor separat
+        isGPSRunning = true;
         
-        gpsExecutor = Executors.newSingleThreadScheduledExecutor();
-        Log.e(TAG, "🔧 GPS Executor created: " + (gpsExecutor != null));
-        Log.e(TAG, "🔧 Scheduling cycles every " + GPS_INTERVAL_SECONDS + "s");
+        // Start location updates direct - MULT mai eficient
+        startContinuousLocationUpdates();
         
-        try {
-            Log.e(TAG, "🚀 PORNIRE ScheduledExecutorService - prima execuție IMEDIAT, apoi EXACT " + GPS_INTERVAL_SECONDS + "s după completare");
-            sendLogToJavaScript("🚀 PORNIRE ScheduledExecutorService GPS - prima transmisie IMEDIAT");
-            
-            // Create a runnable that MUST be executed
-            Runnable gpsRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION START ===");
-                    Log.e(TAG, "🕐 Current time: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                    Log.e(TAG, "🔧 Thread: " + Thread.currentThread().getName());
-                    Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning);
-                    Log.e(TAG, "🔧 activeCourses.size(): " + activeCourses.size());
-                    
-                    sendLogToJavaScript("⏰ SCHEDULED TASK EXECUTION - " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                    
-                    try {
-                        performGPSCycle();
-                        
-                        // Update health monitoring timestamp
-                        lastGPSCycleTime = System.currentTimeMillis();
-                        
-                        Log.e(TAG, "✅ GPS cycle completed successfully");
-                        sendLogToJavaScript("✅ GPS cycle completed");
-                        
-                        // PERFORMANCE FIX: Eliminat WakeLock renewal la fiecare ciclu - overhead masiv
-                        // FusedLocationProviderClient + Foreground Service sunt suficiente pentru GPS 24/7
-                        // WakeLock se menține pe durata întregii sesiuni GPS
-                        
-                    } catch (Exception e) {
-                        Log.e(TAG, "❌ EROARE CRITICĂ în GPS cycle: " + e.getMessage());
-                        sendLogToJavaScript("❌ EROARE CRITICĂ GPS: " + e.getMessage());
-                        e.printStackTrace();
-                        
-                        // CRITICAL: În caz de eroare critică, încearcă recovery DOAR dacă există curse ACTIVE
-                        try {
-                            Log.e(TAG, "🔄 Încercare recovery după eroare critică...");
-                            if (gpsExecutor == null || gpsExecutor.isShutdown()) {
-                                // CRITICAL SAFETY: Verifică dacă există curse ACTIVE înainte de restart
-                                int activeCourseCount = 0;
-                                for (CourseData course : activeCourses.values()) {
-                                    if (course.status == 2) {
-                                        activeCourseCount++;
-                                    }
-                                }
-                                
-                                if (activeCourseCount > 0) {
-                                    Log.e(TAG, "🚨 ScheduledExecutorService compromis - RESTART COMPLET pentru " + activeCourseCount + " curse ACTIVE!");
-                                    isGPSRunning = false;
-                                    startBackgroundGPS();
-                                } else {
-                                    Log.e(TAG, "🚫 RECOVERY SKIPPED - nu există curse ACTIVE (toate în PAUSE/STOP)");
-                                    sendLogToJavaScript("🚫 Recovery skipped - toate cursele în PAUSE/STOP");
-                                }
-                            }
-                        } catch (Exception recoveryError) {
-                            Log.e(TAG, "❌ Recovery failed: " + recoveryError.getMessage());
-                            sendLogToJavaScript("❌ Recovery failed: " + recoveryError.getMessage());
-                        }
-                    }
-                    
-                    Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION END ===");
-                }
-            };
-            
-            Log.e(TAG, "🔧 About to call scheduleAtFixedRate...");
-            Log.e(TAG, "🔧 GPS_INTERVAL_SECONDS = " + GPS_INTERVAL_SECONDS);
-            Log.e(TAG, "🔧 gpsExecutor null check: " + (gpsExecutor != null));
-            Log.e(TAG, "🔧 gpsExecutor shutdown check: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
-            
-            // CRITICAL FIX: DOAR ScheduledExecutorService cu interval corect - fără execuții extra
-            // CRITICAL FIX: scheduleWithFixedDelay pentru interval EXACT - nu permite catch-up
-            java.util.concurrent.ScheduledFuture<?> future = gpsExecutor.scheduleWithFixedDelay(
-                gpsRunnable, 
-                0, // PRIMA EXECUȚIE IMEDIAT pentru transmisie instantanee
-                GPS_INTERVAL_SECONDS, // APOI EXACT 10s DUPĂ FIECARE COMPLETARE
-                TimeUnit.SECONDS
-            );
-            
-            Log.e(TAG, "🔧 ScheduledFuture created: " + (future != null));
-            Log.e(TAG, "🔧 Is cancelled: " + (future != null ? future.isCancelled() : "N/A"));
-            Log.e(TAG, "🔧 Is done: " + (future != null ? future.isDone() : "N/A"));
-            
-            // MINIMĂ LOGGING: Doar status de pornire, fără execuții extra
-            Log.e(TAG, "✅ GPS ScheduledExecutorService configurat pentru transmisie la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
-            
-            isGPSRunning = true;
-            
-            // MODERN ADDITION: Start sistem retry offline
-            startOfflineRetrySystem();
-            
-            // CRITICAL: Start health monitoring system pentru auto-recovery
-            startHealthMonitor();
-            
-            Log.e(TAG, "✅ GPS Service STARTED successfully cu ScheduledExecutorService + Health Monitor");
-            sendLogToJavaScript("✅ GPS Service STARTED - va transmite coordonate la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
-        } catch (Exception e) {
-            Log.e(TAG, "❌ EROARE CRITICĂ la pornirea ScheduledExecutorService: " + e.getMessage());
-            sendLogToJavaScript("❌ EROARE CRITICĂ ScheduledExecutorService: " + e.getMessage());
-            e.printStackTrace();
-        }
+        // Start sistem retry offline
+        startOfflineRetrySystem();
+        
+        // SIMPLIFIED Health Monitor - doar backup pentru recovery
+        startSimpleHealthMonitor();
+        
+        Log.e(TAG, "✅ GPS Service OPTIMIZAT - transmisie DOAR prin LocationCallback (elimină redundanța)");
+        sendLogToJavaScript("✅ GPS Service OPTIMIZAT pornit - transmisie eficientă prin LocationCallback");
     }
     
     /**
@@ -712,13 +621,15 @@ public class BackgroundGPSService extends Service {
         // CRITICAL: Setează flag IMEDIAT pentru a preveni noi transmisii
         isGPSRunning = false;
         
-        if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
-            Log.e(TAG, "🛑 Shutting down ScheduledExecutorService...");
-            gpsExecutor.shutdown();
-            Log.e(TAG, "🛑 ScheduledExecutorService stopped");
-            sendLogToJavaScript("🛑 GPS Service stopped - ScheduledExecutorService shutdown");
+        // OPTIMIZARE: Stop location updates în loc de ScheduledExecutorService
+        if (fusedLocationClient != null && isLocationUpdatesActive) {
+            Log.e(TAG, "🛑 Stopping location updates...");
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+            isLocationUpdatesActive = false;
+            Log.e(TAG, "🛑 Location updates stopped");
+            sendLogToJavaScript("🛑 GPS Service stopped - Location updates removed");
         } else {
-            Log.e(TAG, "🛑 ScheduledExecutorService was already shutdown or null");
+            Log.e(TAG, "🛑 Location updates already stopped or null");
         }
         
         if (wakeLock != null && wakeLock.isHeld()) {
@@ -802,178 +713,56 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "🛑 GPS Service completely stopped cu cleanup complet și ready for clean restart");
     }
     
-    private void startHealthMonitor() {
+    /**
+     * OPTIMIZARE MAXIMĂ: Health Monitor simplu - doar backup pentru LocationCallback
+     */
+    private void startSimpleHealthMonitor() {
         try {
-            // Oprește health monitor existent dacă rulează
             if (healthMonitor != null && !healthMonitor.isShutdown()) {
                 healthMonitor.shutdown();
-                Log.e(TAG, "🩺 Health Monitor existent oprit pentru restart");
             }
             
             healthMonitor = Executors.newSingleThreadScheduledExecutor();
-            lastGPSCycleTime = System.currentTimeMillis(); // Initialize cu timpul curent
+            lastLocationUpdateTime = System.currentTimeMillis(); // Track LocationCallback activity
             
-            Log.e(TAG, "🩺 === HEALTH MONITOR PORNIT ===");
-            sendLogToJavaScript("🩺 Health Monitor pornit - va verifica GPS la fiecare 60s");
-            
-            // Health check la fiecare 60 de secunde
+            // Simplified health check la fiecare 2 minute
             healthMonitor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-                        long currentTimeMs = System.currentTimeMillis();
-                        long timeSinceLastGPS = currentTimeMs - lastGPSCycleTime;
+                        long currentTime = System.currentTimeMillis();
+                        long timeSinceLastLocation = currentTime - lastLocationUpdateTime;
                         
-                        Log.e(TAG, "🩺 === HEALTH CHECK [" + currentTime + "] ===");
-                        Log.e(TAG, "🩺 Time since last GPS: " + (timeSinceLastGPS / 1000) + "s");
-                        Log.e(TAG, "🩺 GPS Expected every: " + GPS_INTERVAL_SECONDS + "s");
-                        Log.e(TAG, "🩺 isGPSRunning: " + isGPSRunning);
-                        Log.e(TAG, "🩺 ScheduledExecutor alive: " + (gpsExecutor != null && !gpsExecutor.isShutdown()));
-                        Log.e(TAG, "🩺 Active courses: " + activeCourses.size());
-                        
-                        // CRITICAL: Dacă GPS nu a fost executat în ultimele 3 intervale
-                        long maxAllowedGap = GPS_INTERVAL_SECONDS * 3 * 1000; // 30 secunde pentru 10s interval
-                        
-                        if (timeSinceLastGPS > maxAllowedGap && isGPSRunning && !activeCourses.isEmpty()) {
-                            Log.e(TAG, "🚨 === HEALTH CHECK FAILURE DETECTED ===");
-                            Log.e(TAG, "🚨 GPS nu a rulat în ultimele " + (timeSinceLastGPS / 1000) + " secunde!");
-                            Log.e(TAG, "🚨 FORȚEZ RESTART COMPLET ScheduledExecutorService!");
+                        // Verifică doar dacă LocationCallback este blocat
+                        if (timeSinceLastLocation > 60000 && isGPSRunning && !activeCourses.isEmpty()) { // 60s
+                            Log.w(TAG, "🚨 LocationCallback blocat " + (timeSinceLastLocation/1000) + "s - restart");
+                            sendLogToJavaScript("🚨 GPS LocationCallback blocat - restart");
                             
-                            sendLogToJavaScript("🚨 GPS BLOCAT! Ultimul GPS acum " + (timeSinceLastGPS / 1000) + "s - RESTART FORȚAT");
-                            
-                            // RECOVERY ACTION: Restart complet GPS service
-                            isGPSRunning = false;
-                            if (gpsExecutor != null) {
-                                gpsExecutor.shutdown();
-                                gpsExecutor = null;
+                            // Simple restart: stop și start location updates
+                            if (fusedLocationClient != null && isLocationUpdatesActive) {
+                                fusedLocationClient.removeLocationUpdates(locationCallback);
+                                isLocationUpdatesActive = false;
                             }
                             
-                            // CRITICAL SAFETY: Verifică dacă există curse ACTIVE înainte de restart
-                            int activeCourseCount = 0;
-                            for (CourseData course : activeCourses.values()) {
-                                if (course.status == 2) {
-                                    activeCourseCount++;
-                                }
-                            }
-                            
-                            if (activeCourseCount > 0) {
-                                // JAVA FIX: Variabilă final pentru inner class
-                                final int finalCount = activeCourseCount;
-                                // Restart în 2 secunde pentru a evita conflictele
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            Thread.sleep(2000);
-                                            Log.e(TAG, "🔄 HEALTH RECOVERY: Restart GPS service pentru " + finalCount + " curse ACTIVE...");
-                                            startBackgroundGPS();
-                                            sendLogToJavaScript("🔄 GPS Service RESTARTAT de Health Monitor pentru curse ACTIVE");
-                                        } catch (Exception e) {
-                                            Log.e(TAG, "❌ Health recovery error: " + e.getMessage());
-                                        }
-                                    }
-                                }).start();
-                            } else {
-                                Log.e(TAG, "🚫 HEALTH RECOVERY SKIPPED - nu există curse ACTIVE (toate în PAUSE/STOP)");
-                                sendLogToJavaScript("🚫 Health recovery skipped - toate cursele în PAUSE/STOP");
-                            }
-                            
-                        } else {
-                            Log.e(TAG, "✅ Health check PASSED - GPS service healthy");
-                            if (timeSinceLastGPS <= GPS_INTERVAL_SECONDS * 1000 + 5000) { // +5s tolerance
-                                sendLogToJavaScript("✅ GPS service healthy - ultimul GPS acum " + (timeSinceLastGPS / 1000) + "s");
-                            }
+                            // Restart location updates
+                            startContinuousLocationUpdates();
                         }
                         
                     } catch (Exception e) {
-                        Log.e(TAG, "❌ Health Monitor error: " + e.getMessage());
-                        sendLogToJavaScript("❌ Health Monitor error: " + e.getMessage());
-                        e.printStackTrace();
+                        Log.e(TAG, "❌ Simple Health Monitor error: " + e.getMessage());
                     }
                 }
-            }, 60, 60, TimeUnit.SECONDS); // Check la fiecare 60 de secunde
+            }, 120, 120, TimeUnit.SECONDS); // Check la fiecare 2 minute
             
-            Log.e(TAG, "🩺 Health Monitor planificat cu succes");
+            Log.e(TAG, "✅ Simple Health Monitor pornit - verifică LocationCallback la 2min");
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ EROARE la pornirea Health Monitor: " + e.getMessage());
-            sendLogToJavaScript("❌ Health Monitor FAILED: " + e.getMessage());
-            e.printStackTrace();
+            Log.e(TAG, "❌ Simple Health Monitor failed: " + e.getMessage());
         }
     }
     
-    /**
-     * CRITICAL FIX: Ștefan aici e problema - getCurrentLocation e ASINCRON!
-     * ScheduledExecutorService apelează asta la 10s, dar getCurrentLocation dă răspuns după 1-3s
-     * Deci GPS se trimite doar o dată la 10s în loc de continuu!
-     * SOLUȚIA: Verificăm doar dacă location updates sunt active
-     */
-    private void performGPSCycle() {
-        String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-        Log.i(TAG, "🔥 GPS CYCLE #" + System.currentTimeMillis() + " - " + activeCourses.size() + " curse active");
-        
-        // Verifică dacă serviciul funcționează corect
-        if (gpsExecutor == null || gpsExecutor.isShutdown()) {
-            // CRITICAL SAFETY: Verifică dacă există curse ACTIVE înainte de restart
-            int activeCourseCount = 0;
-            for (CourseData course : activeCourses.values()) {
-                if (course.status == 2) {
-                    activeCourseCount++;
-                }
-            }
-            
-            if (activeCourseCount > 0) {
-                Log.e(TAG, "GPS service compromis - restart pentru " + activeCourseCount + " curse ACTIVE");
-                sendLogToJavaScript("GPS restart necesar pentru curse ACTIVE");
-                isGPSRunning = false;
-                startBackgroundGPS();
-            } else {
-                Log.e(TAG, "🚫 GPS service compromis dar NU restart - toate cursele în PAUSE/STOP");
-                sendLogToJavaScript("🚫 GPS restart skipped - curse în PAUSE/STOP");
-            }
-            return;
-        }
-        
-        sendLogToJavaScript("🔥 GPS CYCLE ACTIV #" + (System.currentTimeMillis()/1000) + " - " + activeCourses.size() + " curse");
-        
-        if (activeCourses.isEmpty()) {
-            Log.w(TAG, "Nu există curse active pentru GPS");
-            return;
-        }
-        
-        if (globalToken == null) {
-            sendLogToJavaScript("Eroare: Token lipsă");
-            return;
-        }
-        
-        // Numără cursele active
-        int activeCourseCount = 0;
-        for (CourseData course : activeCourses.values()) {
-            if (course.status == 2) {
-                activeCourseCount++;
-            }
-        }
-        
-        if (activeCourseCount == 0) {
-            Log.i(TAG, "Nu există curse active (status 2) pentru GPS");
-            return; // Nu există curse active
-        }
-        
-        Log.i(TAG, "🔥 HEALTH CHECK - location updates sunt " + (isLocationUpdatesActive ? "ACTIVE" : "INACTIVE"));
-        sendLogToJavaScript("🔥 GPS HEALTH CHECK - " + activeCourseCount + " curse active, location updates: " + (isLocationUpdatesActive ? "ON" : "OFF"));
-        
-        // CRITICAL FIX: În loc de getCurrentLocation(), verificăm doar dacă location updates sunt active
-        // Location updates vor trimite coordonatele automat prin LocationCallback
-        if (!isLocationUpdatesActive) {
-            Log.e(TAG, "⚠️ Location updates INACTIVE - repornesc...");
-            sendLogToJavaScript("⚠️ Location updates inactive - repornesc pentru GPS continuu");
-            startContinuousLocationUpdates();
-        } else {
-            Log.i(TAG, "✅ Location updates ACTIVE - GPS va trimite automat prin callback");
-            sendLogToJavaScript("✅ GPS continuu active prin location updates");
-        }
-    }
+    // OPTIMIZARE: performGPSCycle ELIMINAT - redundant cu LocationCallback
+    // LocationCallback face automat transmisia, nu mai avem nevoie de cycle manual
     
     /**
      * Fallback method când Google Play Services nu sunt disponibile
