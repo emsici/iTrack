@@ -724,7 +724,6 @@ public class BackgroundGPSService extends Service {
         retryExecutor = null;
         httpThreadPool = null;
         cancellationTokenSource = null;
-        lastGPSCycleTime = 0;
         isLocationUpdatesActive = false;
         
         // Clear offline queue cu warning dacă e prea mare
