@@ -269,7 +269,42 @@ public class BackgroundGPSService extends Service {
                     }
                 }
             } else {
-                Log.e(TAG, "UIT " + specificUIT + " cu unique key " + uniqueKeyForUpdate + " nu găsit în HashMap");
+                Log.e(TAG, "❌ CRITICĂ: UIT " + specificUIT + " cu unique key " + uniqueKeyForUpdate + " NU GĂSIT în HashMap!");
+                
+                // DEBUG EXHAUSTIV: Listează TOATE key-urile din HashMap
+                Log.e(TAG, "🔍 DEBUG HashMap - Total curse: " + activeCourses.size());
+                for (String existingKey : activeCourses.keySet()) {
+                    Log.e(TAG, "  💡 Key existent: " + existingKey);
+                }
+                Log.e(TAG, "  🔍 Key căutat: " + uniqueKeyForUpdate);
+                
+                // POSSIBLE FIX: Încearcă să găsească cursa după UIT în loc de key complet
+                CourseData foundCourse = null;
+                String foundKey = null;
+                for (java.util.Map.Entry<String, CourseData> debugEntry : activeCourses.entrySet()) {
+                    if (debugEntry.getValue().realUit.equals(specificUIT)) {
+                        foundCourse = debugEntry.getValue();
+                        foundKey = debugEntry.getKey();
+                        break;
+                    }
+                }
+                
+                if (foundCourse != null) {
+                    Log.e(TAG, "🛠️ FALLBACK FIX: Găsit UIT prin căutare directă - actualizez status");
+                    int oldStatus = foundCourse.status;
+                    if (newStatus == 2) { // ACTIVE/RESUME
+                        foundCourse.status = 2;
+                        Log.i(TAG, "🟢 FALLBACK RESUME: GPS reactivat pentru " + specificUIT);
+                    } else if (newStatus == 3) { // PAUSE
+                        foundCourse.status = 3;
+                        Log.i(TAG, "🔶 FALLBACK PAUSE: GPS pentru " + specificUIT + " - NU mai transmite la server");
+                    } else if (newStatus == 4) { // STOP
+                        activeCourses.remove(foundKey);
+                        Log.e(TAG, "✅ FALLBACK STOP: Cursă " + specificUIT + " eliminată din tracking");
+                    }
+                } else {
+                    Log.e(TAG, "💀 FATAL: UIT " + specificUIT + " COMPLET ABSENT din sistem!");
+                }
             }
             
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {
@@ -443,11 +478,16 @@ public class BackgroundGPSService extends Service {
                 String uniqueKey = entry.getKey();
                 CourseData courseData = entry.getValue();
                 
+                // CRITICAL DEBUG: Verifică status-ul fiecărei curse ÎNAINTE de transmisie
+                Log.e(TAG, "🔍 VERIFY BEFORE TRANSMIT: UIT=" + courseData.realUit + " status=" + courseData.status + " key=" + uniqueKey);
+                
                 // REVERT TO ORIGINAL: Doar cursele ACTIVE (status 2) transmit GPS la server
                 if (courseData.status != 2) {
+                    Log.e(TAG, "⏸️ SKIP TRANSMIT: UIT " + courseData.realUit + " are status " + courseData.status + " (NU e ACTIVE)");
                     continue; // Skip pentru curse în pauză/oprire - DOAR status 2 transmite la server
                 }
                 // DOAR Status 2 (ACTIVE) transmite GPS la server pentru vizualizare pe hartă
+                Log.e(TAG, "✅ WILL TRANSMIT: UIT " + courseData.realUit + " status 2 ACTIVE");
                 
                 coursesTransmitting++;
                 
