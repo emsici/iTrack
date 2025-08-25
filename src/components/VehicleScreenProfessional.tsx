@@ -17,7 +17,6 @@ import AboutModal from "./AboutModal";
 import CourseDetailsModal from "./CourseDetailsModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme } from "../services/themeService";
-import { courseAnalyticsService } from "../services/courseAnalytics";
 
 // Interfață TypeScript pentru AndroidGPS bridge
 declare global {
@@ -27,11 +26,7 @@ declare global {
       stopGPS: (courseId: string) => string;
       updateStatus: (courseId: string, status: number, vehicleNumber: string) => string;
       clearAllOnLogout: () => string;
-      markManualPause: (ikRoTrans: string) => string;
-      // Handler pentru mesaje GPS din serviciul Android
-      onGPSMessage?: (message: string) => void;
     };
-    courseAnalyticsService?: any;
   }
 }
 
@@ -42,8 +37,8 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
   try {
     console.log(`Actualizez status cursă ${courseId} la ${newStatus}`);
     
-    // CRITICAL: Obține coordonate GPS REALE sau eșuează complet - ZERO TOLERANCE pentru date false
-    let gpsData = null;
+    // Obține coordonate GPS pentru status update
+    let currentLat = 0, currentLng = 0, currentAlt = 0, currentAcc = 0, currentSpeed = 0, currentHeading = 0;
     
     try {
       const position = await Geolocation.getCurrentPosition({
@@ -52,30 +47,27 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
         maximumAge: 30000
       });
       
-      gpsData = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-        alt: position.coords.altitude || 0,
-        acc: position.coords.accuracy || 0,
-        speed: position.coords.speed || 0,
-        heading: position.coords.heading || 0
-      };
+      currentLat = position.coords.latitude;
+      currentLng = position.coords.longitude;
+      currentAlt = position.coords.altitude || 0;
+      currentAcc = position.coords.accuracy || 0;
+      currentSpeed = position.coords.speed || 0;
+      currentHeading = position.coords.heading || 0;
       
-      console.log(`GPS obținut: ${gpsData.lat}, ${gpsData.lng}`);
-    } catch (gpsError) {
-      console.error('GPS INDISPONIBIL - actualizare status respinsă pentru protejarea datelor reale');
-      throw new Error('Actualizare status imposibilă - GPS necesar pentru coordonate reale');
+      console.log(`GPS obținut: ${currentLat}, ${currentLng}`);
+    } catch (error) {
+      console.log('GPS indisponibil, folosesc coordonate default');
     }
     
     const statusUpdateData = {
       uit: courseUit,
       numar_inmatriculare: vehicleNumber,
-      lat: gpsData.lat,  // DOAR coordonate GPS reale
-      lng: gpsData.lng,  // DOAR coordonate GPS reale
-      viteza: Math.round(gpsData.speed * 3.6),
-      directie: Math.round(gpsData.heading),
-      altitudine: Math.round(gpsData.alt),
-      hdop: Math.round(gpsData.acc),
+      lat: currentLat,
+      lng: currentLng,  
+      viteza: Math.round(currentSpeed * 3.6),
+      directie: Math.round(currentHeading),
+      altitudine: Math.round(currentAlt),
+      hdop: Math.round(currentAcc),
       gsm_signal: await getNetworkSignal(),
       baterie: await getBatteryLevel(),
       status: newStatus,
