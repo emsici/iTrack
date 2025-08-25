@@ -67,10 +67,31 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       throw new Error('Actualizare status imposibilă - GPS necesar pentru coordonate reale');
     }
     
-    // CRITICAL FIX: ELIMINĂ STATUS UPDATE DUPLICAT
-    // Android service trimite acum status-ul la server prin sendStatusUpdateToServer()
-    // Frontend se ocupă DOAR de UI update - NU mai trimite la server pentru a evita duplicarea
-    console.log(`✅ ELIMINAT STATUS DUPLICAT: Android service trimite status ${newStatus} pentru ${courseUit}`);
+    // CRITICAL FIX: GARANTEAZĂ trimiterea status-ului la server
+    // Trimite direct prin sendGPSData pentru a garanta că ajunge 
+    const gpsPayload = {
+      uit: courseUit,
+      numar_inmatriculare: vehicleNumber,
+      lat: gpsData.lat,
+      lng: gpsData.lng,
+      viteza: Math.round((gpsData.speed || 0) * 3.6), // m/s to km/h
+      directie: Math.round(gpsData.heading || 0),
+      altitudine: Math.round(gpsData.alt || 0),
+      hdop: Math.round(gpsData.acc || 0),
+      gsm_signal: 75, // Default signal
+      baterie: 100, // Default battery
+      status: newStatus,
+      timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
+    };
+    
+    const statusSent = await sendGPSData(gpsPayload, authToken);
+    
+    if (statusSent) {
+      console.log(`✅ STATUS ${newStatus} trimis la server pentru cursă ${courseId}`);
+    } else {
+      console.error(`❌ Eroare trimitere status ${newStatus} la server`);
+      throw new Error('Status update failed to reach server');
+    }
     
   } catch (error) {
     console.error(`Eroare actualizare status pentru cursă ${courseId}:`, error);
