@@ -109,10 +109,13 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
     const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
     const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`; // UIT + Vehicul + Token = identificator COMPLET unic
     
+    // CRITICAL FIX: Trimite baseKey ca fallback pentru server dacă course.uit e null
+    const serverUit = course.uit || baseKey; // baseKey = ikRoTrans sau uit simplu pentru server
+    
     const result = window.AndroidGPS.startGPS(
       ikRoTransKey,
       vehicleNumber,
-      course.uit,
+      serverUit,
       token,
       2
     );
