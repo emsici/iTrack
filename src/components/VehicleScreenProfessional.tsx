@@ -263,6 +263,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [backPressTime, setBackPressTime] = useState(0);
+  const [showBackWarning, setShowBackWarning] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
   const [gpsStatus, setGpsStatus] = useState<'active' | 'inactive' | 'unknown'>('unknown');
@@ -423,16 +425,22 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         await backgroundPermissionsService.initialize();
         const permissionState = await backgroundPermissionsService.checkAllPermissions();
         
-        // Afișează modal-ul doar dacă permisiunile lipsesc complet
-        if (!backgroundPermissionsService.isFullyConfigured() && 
-            (permissionState.location.location !== 'granted' || permissionState.backgroundLocation !== 'granted')) {
+        // CRITICAL FIX: Forțează solicitarea permisiunilor dacă lipsesc
+        if (!backgroundPermissionsService.isFullyConfigured()) {
+          console.log('🔐 FORȚEZ solicitarea permisiunilor background - configurație incompletă');
           // Delay pentru a permite UI-ul să se încarce complet
           setTimeout(() => {
             setShowPermissionsModal(true);
-          }, 2000);
+          }, 1500);
+        } else {
+          console.log('✅ Permisiuni background complet configurate');
         }
       } catch (error) {
         console.error('❌ Eroare verificare permisiuni background:', error);
+        // În caz de eroare, forțează modal pentru siguranță
+        setTimeout(() => {
+          setShowPermissionsModal(true);
+        }, 3000);
       }
     };
     

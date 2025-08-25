@@ -76,7 +76,8 @@ html, body {
   /* ELIMINAT backdrop-filter și gradient pentru ZERO pătrate albe la scroll */
   animation: none;
   padding: 0;
-  padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 90px);
+  /* CRITICAL FIX: Android Safe Area - Extra spațiu pentru navigation */
+  padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 110px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2010,7 +2011,7 @@ html, body {
   100% { transform: rotate(360deg); }
 }
 
-/* Enhanced Professional Bottom Navigation */
+/* Enhanced Professional Bottom Navigation - ANDROID SAFE AREA FIX */
 .bottom-navigation {
   position: fixed;
   bottom: 0;
@@ -2020,11 +2021,14 @@ html, body {
   backdrop-filter: blur(20px);
   border-top: 1px solid rgba(226, 232, 240, 0.6);
   padding: 6px 12px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  /* CRITICAL FIX: Android Safe Area - Mai mult spațiu pentru navigation bar */
+  padding-bottom: max(20px, calc(env(safe-area-inset-bottom, 16px) + 8px));
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+  min-height: 70px; /* Înălțime minimă pentru vizibilitate */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100;
+  z-index: 1000; /* Z-index mai mare pentru overlay */
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
   min-height: 65px;
 }
