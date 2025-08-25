@@ -581,15 +581,28 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        // Numără cursele active
+        // Numără cursele active cu logging detaliat
         int activeCourseCount = 0;
-        for (CourseData course : activeCourses.values()) {
+        Log.e(TAG, "🔍 VERIFICARE CURSE în activeCourses HashMap:");
+        for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+            String key = entry.getKey();
+            CourseData course = entry.getValue();
+            Log.e(TAG, "🔍   Key: " + key);
+            Log.e(TAG, "🔍   UIT: " + course.uit + " | Status: " + course.status + " | Vehicle: " + course.vehicleNumber);
+            
             if (course.status == 2) {
                 activeCourseCount++;
+                Log.e(TAG, "✅   CURSĂ ACTIVĂ găsită: " + course.uit);
+            } else {
+                Log.e(TAG, "❌   Cursă INACTIVĂ: status " + course.status);
             }
         }
         
+        Log.e(TAG, "📊 REZULTAT: " + activeCourseCount + " curse ACTIVE din " + activeCourses.size() + " total");
+        
         if (activeCourseCount == 0) {
+            Log.e(TAG, "❌ NU există curse cu status ACTIVE (2) - SKIP transmisie dar scheduler continuă");
+            sendLogToJavaScript("❌ NU există curse ACTIVE - scheduler continuă în așteptare");
             return; // Nu există curse active
         }
         
