@@ -265,15 +265,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
 
         .status-badge-compact {
           background: ${getStatusColor(course.status)};
-          color: ${
-            currentTheme === 'dark' ? '#ffffff' :
-            currentTheme === 'light' ? '#000000' :
-            currentTheme === 'business' ? '#1e293b' :
-            currentTheme === 'driver' ? '#ffffff' :
-            currentTheme === 'nature' ? '#ffffff' :
-            currentTheme === 'night' ? '#ffffff' :
-            '#000000'
-          };
+          color: #ffffff;
           padding: 4px 12px;
           border-radius: 12px;
           font-size: 0.75rem;
@@ -281,6 +273,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           text-transform: uppercase;
           letter-spacing: 0.5px;
           white-space: nowrap;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .course-preview {
@@ -309,13 +302,14 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .preview-label {
-          color: ${currentTheme === 'light' 
-            ? '#000000'
-            : currentTheme === 'business'
-              ? '#000000'
-              : currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
-                ? '#000000'
-                : '#94a3b8'
+          color: ${
+            currentTheme === 'dark' ? '#ffffff' :
+            currentTheme === 'light' ? '#000000' :
+            currentTheme === 'business' ? '#000000' :
+            currentTheme === 'driver' ? '#ffffff' :
+            currentTheme === 'nature' ? '#ffffff' :
+            currentTheme === 'night' ? '#ffffff' :
+            '#000000'
           };
           font-size: 0.75rem;
           font-weight: 600;
@@ -323,17 +317,22 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           letter-spacing: 0.5px;
           min-width: 100px;
           flex-shrink: 0;
+          text-shadow: ${
+            currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+              ? '0 1px 2px rgba(0, 0, 0, 0.5)'
+              : 'none'
+          };
         }
 
         .preview-value {
           color: ${
-            currentTheme === 'dark' ? '#e2e8f0' :
+            currentTheme === 'dark' ? '#ffffff' :
             currentTheme === 'light' ? '#000000' :
-            currentTheme === 'business' ? '#1e293b' :
+            currentTheme === 'business' ? '#000000' :
             currentTheme === 'driver' ? '#ffffff' :
             currentTheme === 'nature' ? '#ffffff' :
             currentTheme === 'night' ? '#ffffff' :
-            '#1e293b'
+            '#000000'
           };
           font-size: 0.85rem;
           font-weight: 500;
@@ -341,6 +340,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           word-wrap: break-word;
           overflow-wrap: break-word;
           line-height: 1.3;
+          text-shadow: ${
+            currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+              ? '0 1px 2px rgba(0, 0, 0, 0.5)'
+              : 'none'
+          };
         }
 
         .details-button {

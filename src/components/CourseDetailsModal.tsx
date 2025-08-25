@@ -315,7 +315,10 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
               <i className="fas fa-user-tie" style={{ color: '#0ea5e9' }}></i>
               Informații Declarant
             </h3>
-            <div style={{ fontSize: '14px' }}>
+            <div style={{ 
+              fontSize: '14px',
+              color: currentTheme === 'dark' ? '#ffffff' : '#000000'
+            }}>
               <div style={{ marginBottom: '8px' }}><strong>Cod Declarant:</strong> {course.codDeclarant || 'N/A'}</div>
               <div><strong>Denumire Declarant:</strong> {course.denumireDeclarant || 'N/A'}</div>
             </div>
@@ -341,7 +344,10 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
               <i className="fas fa-map-marker-alt" style={{ color: '#10b981' }}></i>
               Locația de Plecare
             </h3>
-            <div style={{ fontSize: '14px' }}>
+            <div style={{ 
+              fontSize: '14px',
+              color: currentTheme === 'dark' ? '#ffffff' : '#000000'
+            }}>
               <div style={{ marginBottom: '8px' }}><strong>Vamă:</strong> {course.Vama || course.vama || 'N/A'}</div>
               <div style={{ marginBottom: '8px' }}><strong>Birou Vamal:</strong> {course.BirouVamal || course.birouVamal || 'N/A'}</div>
               <div style={{ marginBottom: '8px' }}><strong>Județ:</strong> {course.Judet || course.judet || 'N/A'}</div>
@@ -369,7 +375,10 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
               <i className="fas fa-flag-checkered" style={{ color: '#ef4444' }}></i>
               Locația de Sosire
             </h3>
-            <div style={{ fontSize: '14px' }}>
+            <div style={{ 
+              fontSize: '14px',
+              color: currentTheme === 'dark' ? '#ffffff' : '#000000'
+            }}>
               <div style={{ marginBottom: '8px' }}><strong>Vamă Stop:</strong> {course.VamaStop || course.vamaStop || 'N/A'}</div>
               <div style={{ marginBottom: '8px' }}><strong>Birou Vamal Stop:</strong> {course.BirouVamalStop || course.birouVamalStop || 'N/A'}</div>
               <div style={{ marginBottom: '8px' }}><strong>Județ Stop:</strong> {course.JudetStop || course.judetStop || 'N/A'}</div>
