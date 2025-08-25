@@ -575,7 +575,15 @@ public class BackgroundGPSService extends Service {
                         }
                         
                         locationManager.removeUpdates(this);
-                        transmitGPSDataToAllActiveCourses(location);
+                        
+                        // CRITICAL FIX: Transmisia GPS pe thread separat pentru a nu bloca ScheduledExecutorService  
+                        final Location finalLocation = location;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                transmitGPSDataToAllActiveCourses(finalLocation);
+                            }
+                        }).start();
                     } catch (Exception e) {
                         Log.e(TAG, "Eroare procesare GPS: " + e.getMessage());
                     }
@@ -630,19 +638,19 @@ public class BackgroundGPSService extends Service {
                     }
                 }
                 
-                // TIMEOUT OPTIMIZAT PENTRU PRECIZIE - folosesc Handler pentru thread safety
-                backgroundHandler.postDelayed(new Runnable() {
+                // CRITICAL FIX: Timeout DIRECT pe thread separat - nu bloca ScheduledExecutorService
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            // GPS NATIV EXCLUSIV: Timeout optimizat pentru precizie maximă
-                            sendLogToJavaScript("GPS timeout după 20s - folosesc cea mai bună poziție disponibilă");
+                            Thread.sleep(5000); // Doar 5 secunde pentru a nu bloca
+                            Log.e(TAG, "GPS timeout după 5s - cleanup forțat");
                             locationManager.removeUpdates(listener);
                         } catch (Exception e) {
                             Log.e(TAG, "Eroare timeout: " + e.getMessage());
                         }
                     }
-                }, 20000); // 20 secunde pentru GPS de înaltă precizie
+                }).start();
 
             
         } catch (Exception e) {
