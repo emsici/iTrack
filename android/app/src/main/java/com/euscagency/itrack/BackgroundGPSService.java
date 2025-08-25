@@ -604,8 +604,29 @@ public class BackgroundGPSService extends Service {
             fusedLocationClient.requestLocationUpdates(continuousRequest, locationCallback, backgroundHandler.getLooper());
             isLocationUpdatesActive = true;
             
-            Log.e(TAG, "✅ Location updates CONTINUOUS active - va primi locații automat la " + GPS_INTERVAL_SECONDS + "s");
-            sendLogToJavaScript("✅ Location updates CONTINUOUS pornit pentru stabilitate");
+            // GARANȚIE TRANSMISIE IMMEDIATĂ: Obține și transmite prima locație IMEDIAT la start
+            try {
+                Log.e(TAG, "🚀 TRANSMISIE IMEDIATĂ: Obțin prima locație pentru start instant...");
+                fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                    .addOnSuccessListener(location -> {
+                        if (location != null) {
+                            Log.e(TAG, "✅ PRIMA LOCAȚIE OBȚINUTĂ - transmit IMEDIAT la start");
+                            sendLogToJavaScript("✅ GPS START INSTANT - prima coordonată transmisă imediat");
+                            // Transmite prima locație IMEDIAT
+                            backgroundHandler.post(() -> processLocationUpdate(location));
+                        } else {
+                            Log.w(TAG, "⚠️ Prima locație null la start - va fi obținută de LocationCallback");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "⚠️ Prima locație failed la start: " + e.getMessage() + " - va fi obținută de LocationCallback");
+                    });
+            } catch (Exception e) {
+                Log.w(TAG, "⚠️ Eroare prima locație la start: " + e.getMessage() + " - LocationCallback va prelua");
+            }
+            
+            Log.e(TAG, "✅ GPS CONTINUU PORNIT - prima coordonată IMEDIAT + automat la fiecare " + GPS_INTERVAL_SECONDS + "s");
+            sendLogToJavaScript("✅ GPS CONTINUU pornit - prima transmisie IMEDIAT + apoi la fiecare " + GPS_INTERVAL_SECONDS + "s");
             
         } catch (SecurityException e) {
             Log.e(TAG, "❌ Security exception location updates: " + e.getMessage());
