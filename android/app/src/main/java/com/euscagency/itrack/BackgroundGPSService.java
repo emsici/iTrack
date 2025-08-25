@@ -43,9 +43,9 @@ public class BackgroundGPSService extends Service {
     private java.util.Map<String, CourseData> activeCourses = new java.util.concurrent.ConcurrentHashMap<>();
     private String globalToken;
     
-    // HEALTH MONITORING: Pentru monitorizarea continuă a serviciului
-    private java.util.concurrent.ScheduledExecutorService healthMonitor;
-    private long lastGPSCycleTime = 0;
+    // SIMPLIFICAT: Eliminare sistem complex de health monitoring
+    // private java.util.concurrent.ScheduledExecutorService healthMonitor;
+    // private long lastGPSCycleTime = 0;
     
     // RATE LIMITING: Thread pool pentru HTTP transmissions pentru a evita server overloading
     private java.util.concurrent.ThreadPoolExecutor httpThreadPool;
@@ -341,8 +341,8 @@ public class BackgroundGPSService extends Service {
                     try {
                         performGPSCycle();
                         
-                        // Update health monitoring timestamp
-                        lastGPSCycleTime = System.currentTimeMillis();
+                        // SIMPLIFICAT: Eliminare health monitoring timestamp
+                        // lastGPSCycleTime = System.currentTimeMillis();
                         
                         Log.e(TAG, "✅ GPS cycle completed successfully");
                         sendLogToJavaScript("✅ GPS cycle completed");
