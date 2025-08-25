@@ -608,61 +608,7 @@ public class BackgroundGPSService extends Service {
         }
         
         try {
-            // Solicitare poziție GPS în timp real
-            LocationListener listener = new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    try {
-                        long locationAge = System.currentTimeMillis() - location.getTime();
-                        
-                        // FILTRARE PENTRU PRECIZIE MAXIMĂ
-                        float accuracy = location.getAccuracy();
-                        String provider = location.getProvider();
-                        
-                        // DOAR GPS NATIV - criteriu unic de precizie înaltă
-                        boolean isHighPrecision = accuracy <= 10; // GPS sub 10m = acceptabil
-                        
-                        Log.i(TAG, "🎯 GPS primit: " + location.getLatitude() + ", " + location.getLongitude() + 
-                              " (precizie: " + (int)accuracy + "m, provider: " + provider + 
-                              ", high-precision: " + isHighPrecision + ")");
-                              
-                        if (isHighPrecision) {
-                            sendLogToJavaScript("✅ GPS HIGH-PRECISION: " + (int)accuracy + "m (" + provider + ")");
-                        } else {
-                            sendLogToJavaScript("⚠️ GPS LOW-PRECISION: " + (int)accuracy + "m (" + provider + ") - aștept precizie mai bună");
-                            // NU oprește ascultarea - continuă să aștepte precizie mai bună
-                            return;
-                        }
-                        
-                        // Verifică dacă coordonatele sunt proaspete
-                        if (locationAge > 120000) {
-                            sendLogToJavaScript("Atenție: GPS vechi (" + (locationAge/1000) + "s)");
-                        }
-                        
-                        locationManager.removeUpdates(this);
-                        transmitGPSDataToAllActiveCourses(location);
-                    } catch (Exception e) {
-                        Log.e(TAG, "Eroare procesare GPS: " + e.getMessage());
-                    }
-                }
-                
-                @Override
-                public void onProviderEnabled(String provider) {
-                    Log.i(TAG, "GPS activat: " + provider);
-                }
-                
-                @Override
-                public void onProviderDisabled(String provider) {
-                    Log.w(TAG, "GPS dezactivat: " + provider);
-                }
-                
-                @Override
-                public void onStatusChanged(String provider, int status, android.os.Bundle extras) {
-                    // Log minimal pentru status changes
-                }
-            };
-            
-            // DOAR GPS NATIV pentru precizie maximă - nu mai folosim Network fallback
+            // SIMPLIFICAT: Folosește direct getLastKnownLocation - fără async listeners
             boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             
             if (!gpsEnabled) {
@@ -671,43 +617,29 @@ public class BackgroundGPSService extends Service {
                 return;
             }
             
-            String provider = LocationManager.GPS_PROVIDER; // DOAR GPS NATIV
-            
             Log.i(TAG, "GPS NATIV ACTIV pentru precizie maximă");
-            sendLogToJavaScript("GPS NATIV activ - precizie 3-8 metri");
+            sendLogToJavaScript("GPS NATIV activ - solicită poziție");
+            
+            // DIRECT: Folosește poziția cunoscută cea mai recentă
+            Location lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (lastKnown != null) {
+                long locationAge = System.currentTimeMillis() - lastKnown.getTime();
+                float accuracy = lastKnown.getAccuracy();
                 
-                // GPS NATIV EXCLUSIV - precizie maximă cu parametri optimizați
-                locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, 
-                    1000,  // 1 secundă interval minim pentru refresh rapid
-                    0,     // 0 metri distanță minimă - orice mișcare
-                    listener
-                );
-                
-                // BACKUP: Solicită și poziția cunoscută cea mai recentă pentru feedback instant
-                Location lastKnown = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if (lastKnown != null) {
-                    long locationAge = System.currentTimeMillis() - lastKnown.getTime();
-                    if (locationAge < 30000) { // Sub 30 secunde = fresh
-                        Log.i(TAG, "🎯 GPS CACHED de înaltă precizie disponibil (vârstă: " + (locationAge/1000) + "s)");
-                        sendLogToJavaScript("GPS cached high-precision: " + lastKnown.getAccuracy() + "m");
-                    }
+                Log.i(TAG, "🎯 GPS direct: " + lastKnown.getLatitude() + ", " + lastKnown.getLongitude() + 
+                      " (precizie: " + (int)accuracy + "m, vârstă: " + (locationAge/1000) + "s)");
+                      
+                // Acceptă GPS dacă e fresh (sub 60s) și decent accuracy (sub 50m)  
+                if (locationAge < 60000 && accuracy < 50) {
+                    sendLogToJavaScript("✅ GPS folosit: " + (int)accuracy + "m (vârstă: " + (locationAge/1000) + "s)");
+                    transmitGPSDataToAllActiveCourses(lastKnown);
+                } else {
+                    sendLogToJavaScript("⚠️ GPS prea vechi sau imprecis: " + (int)accuracy + "m (" + (locationAge/1000) + "s)");
                 }
-                
-                // TIMEOUT OPTIMIZAT PENTRU PRECIZIE
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            // TIMEOUT REDUS: 8 secunde pentru a nu bloca scheduler-ul
-                            Thread.sleep(8000); // 8 secunde - mai mic decât intervalul de 10s
-                            sendLogToJavaScript("GPS timeout după 20s - folosesc cea mai bună poziție disponibilă");
-                            locationManager.removeUpdates(listener);
-                        } catch (Exception e) {
-                            Log.e(TAG, "Eroare timeout: " + e.getMessage());
-                        }
-                    }
-                }).start();
+            } else {
+                Log.e(TAG, "Nicio poziție GPS disponibilă");
+                sendLogToJavaScript("❌ Nicio poziție GPS disponibilă");
+            }
 
             
         } catch (Exception e) {
