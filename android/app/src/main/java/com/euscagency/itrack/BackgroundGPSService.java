@@ -227,36 +227,22 @@ public class BackgroundGPSService extends Service {
                 return START_STICKY;
             }
             
-            // DEBUG: Afișează toate cursele stocate pentru troubleshooting
-            Log.e(TAG, "🔍 === DEBUG TOATE CURSELE STOCATE ===");
-            Log.e(TAG, "🔎 Caut după specificUIT: '" + specificUIT + "'");
-            for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-                CourseData course = entry.getValue();
-                Log.e(TAG, "📋 HashMap key='" + entry.getKey() + "' courseId='" + course.courseId + "' realUit='" + course.realUit + "'");
-            }
-            Log.e(TAG, "🔍 === END DEBUG ===");
-            
-            // CRITICAL FIX: Caută după courseId (uitId) pentru consistență cu frontend  
+            // SIMPLE SEARCH: Găsește cursa după orice identificator  
             CourseData courseData = null;
             String foundKey = null;
             
+            // FIXED: Caută și după HashMap key pentru maximum compatibility
             for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
                 CourseData course = entry.getValue();
-                // FIXED: Search după courseId (ikRoTransKey) pentru consistency cu frontend updateStatus
-                if (course.courseId.equals(specificUIT) || course.realUit.equals(specificUIT)) {
+                String mapKey = entry.getKey();
+                
+                if (course.courseId.equals(specificUIT) || 
+                    course.realUit.equals(specificUIT) ||
+                    mapKey.contains(specificUIT)) {  // Extra fallback pentru key search
                     courseData = course;
                     foundKey = entry.getKey();
-                    Log.e(TAG, "✅ GĂSIT: courseId=" + course.courseId + " realUit=" + course.realUit + " pentru specificUIT=" + specificUIT);
                     break;
                 }
-            }
-            
-            Log.i(TAG, "Căutare UIT: " + specificUIT + " → " + (courseData != null ? "GĂSIT" : "NU GĂSIT"));
-            if (courseData == null) {
-                Log.e(TAG, "❌ CRITICAL ERROR: Nu găsesc cursa pentru UPDATE status " + newStatus);
-                Log.e(TAG, "❌ Frontend a trimis specificUIT: '" + specificUIT + "'");
-                Log.e(TAG, "❌ Verifică că ikRoTransKey din frontend MATCH cu courseId din Android!");
-                return START_STICKY;
             }
             
             if (courseData != null) {
