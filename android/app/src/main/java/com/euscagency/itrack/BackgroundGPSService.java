@@ -331,12 +331,13 @@ public class BackgroundGPSService extends Service {
             Runnable gpsRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION START ===");
-                    Log.e(TAG, "🔧 Thread: " + Thread.currentThread().getName());
-                    Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning);
-                    Log.e(TAG, "🔧 activeCourses.size(): " + activeCourses.size());
+                    // SIMPLE DEBUG: Execuție cu timestamp
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm:ss");
+                    sdf.setTimeZone(java.util.TimeZone.getTimeZone("Europe/Bucharest"));
+                    String currentTime = sdf.format(new java.util.Date());
                     
-                    sendLogToJavaScript("⏰ SCHEDULED TASK EXECUTION");
+                    Log.e(TAG, "⏰ GPS CYCLE EXECUTION [" + currentTime + "] - Thread: " + Thread.currentThread().getName());
+                    sendLogToJavaScript("⏰ GPS CYCLE [" + currentTime + "]");
                     
                     try {
                         performGPSCycle();
@@ -359,14 +360,9 @@ public class BackgroundGPSService extends Service {
                             sendLogToJavaScript("🚨 WakeLock redobândit forțat");
                         }
                         
-                        // CRITICAL DEBUG: Verifică ScheduledExecutorService health la fiecare ciclu
-                        if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
-                            Log.e(TAG, "🟢 ScheduledExecutorService HEALTHY - va continua la următorul ciclu în " + GPS_INTERVAL_SECONDS + "s");
-                            sendLogToJavaScript("🟢 ScheduledExecutorService HEALTHY - următorul ciclu în " + GPS_INTERVAL_SECONDS + "s");
-                        } else {
-                            Log.e(TAG, "🚨 CRITICAL: ScheduledExecutorService COMPROMIS! - nu va continua ciclurile!");
-                            sendLogToJavaScript("🚨 CRITICAL: ScheduledExecutorService COMPROMIS!");
-                        }
+                        // SIMPLE DEBUG: Confirmă finalizarea și așteaptă următorul ciclu
+                        Log.e(TAG, "✅ GPS CYCLE COMPLETE - ScheduledExecutorService va continua în " + GPS_INTERVAL_SECONDS + "s");
+                        sendLogToJavaScript("✅ CYCLE COMPLETE - următorul în " + GPS_INTERVAL_SECONDS + "s");
                         
                     } catch (Exception e) {
                         Log.e(TAG, "❌ EROARE CRITICĂ în GPS cycle: " + e.getMessage());
@@ -388,7 +384,7 @@ public class BackgroundGPSService extends Service {
                         }
                     }
                     
-                    Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION END ===");
+                    Log.e(TAG, "⏰ GPS CYCLE END - await next in " + GPS_INTERVAL_SECONDS + "s");
                 }
             };
             
@@ -412,35 +408,8 @@ public class BackgroundGPSService extends Service {
             // CRITICAL DEBUG: Stochează ScheduledFuture pentru monitoring continuu
             final java.util.concurrent.ScheduledFuture<?> monitoredFuture = future;
             
-            // CRITICAL DEBUG: Start monitoring thread pentru ScheduledExecutorService health
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 0; i < 6; i++) { // Monitor pentru 60 secunde (6 x 10s)
-                        try {
-                            Thread.sleep(10000); // Așteaptă 10 secunde
-                            if (monitoredFuture != null) {
-                                boolean cancelled = monitoredFuture.isCancelled();
-                                boolean done = monitoredFuture.isDone();
-                                boolean executorShutdown = gpsExecutor == null || gpsExecutor.isShutdown();
-                                
-                                Log.e(TAG, "🔍 MONITOR [" + ((i+1)*10) + "s]: Future cancelled=" + cancelled + 
-                                          ", done=" + done + ", executor shutdown=" + executorShutdown);
-                                sendLogToJavaScript("🔍 ScheduledExecutorService monitor " + ((i+1)*10) + "s: " + 
-                                                  (cancelled ? "CANCELLED" : done ? "DONE" : executorShutdown ? "SHUTDOWN" : "HEALTHY"));
-                                
-                                if (cancelled || done || executorShutdown) {
-                                    Log.e(TAG, "🚨 CRITICAL: ScheduledExecutorService COMPROMIS la " + ((i+1)*10) + "s!");
-                                    sendLogToJavaScript("🚨 ScheduledExecutorService COMPROMIS la " + ((i+1)*10) + "s!");
-                                    break;
-                                }
-                            }
-                        } catch (Exception e) {
-                            Log.e(TAG, "❌ Monitor thread error: " + e.getMessage());
-                        }
-                    }
-                }
-            }).start();
+            // SIMPLE DEBUG: Log doar prima execuție
+            Log.e(TAG, "📊 FIRST EXECUTION: ScheduledExecutorService va executa ACUM, apoi la fiecare " + GPS_INTERVAL_SECONDS + "s");
             
             // MINIMĂ LOGGING: Doar status de pornire, fără execuții extra
             Log.e(TAG, "✅ GPS ScheduledExecutorService configurat pentru transmisie la fiecare " + GPS_INTERVAL_SECONDS + " secunde");
