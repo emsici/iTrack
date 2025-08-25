@@ -339,15 +339,16 @@ public class BackgroundGPSService extends Service {
             Runnable gpsRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION START ===");
-                    Log.e(TAG, "🕐 Current time: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                    Log.e(TAG, "🔧 Thread: " + Thread.currentThread().getName());
-                    Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning.get());
-                    Log.e(TAG, "🔧 activeCourses.size(): " + activeCourses.size());
-                    
-                    sendLogToJavaScript("⏰ SCHEDULED TASK EXECUTION - " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
-                    
+                    // CRITICAL FIX: TOT codul în try-catch pentru a preveni oprirea scheduler-ului
                     try {
+                        Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION START ===");
+                        Log.e(TAG, "🕐 Current time: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
+                        Log.e(TAG, "🔧 Thread: " + Thread.currentThread().getName());
+                        Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning.get());
+                        Log.e(TAG, "🔧 activeCourses.size(): " + activeCourses.size());
+                        
+                        sendLogToJavaScript("⏰ SCHEDULED TASK EXECUTION - " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
+                        
                         performGPSCycle();
                         
                         // Update health monitoring timestamp
@@ -365,23 +366,20 @@ public class BackgroundGPSService extends Service {
                         }
                         // SKIP periodic renewal - poate cauza instabilitate
                         
-                    } catch (Exception e) {
-                        Log.e(TAG, "❌ EROARE CRITICĂ în GPS cycle: " + e.getMessage());
-                        sendLogToJavaScript("❌ EROARE CRITICĂ GPS: " + e.getMessage());
-                        e.printStackTrace();
+                        Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION END ===");
                         
-                        // CRITICAL: În caz de eroare critică, încearcă recovery
+                    } catch (Throwable t) {
+                        // CRITICAL: Prinde ORICE throwable pentru a preveni oprirea scheduler-ului
+                        Log.e(TAG, "❌ THROWABLE în scheduled task: " + t.getMessage());
+                        t.printStackTrace();
+                        
+                        // SAFE sendLogToJavaScript cu propria protecție
                         try {
-                            Log.e(TAG, "🔄 Eroare GPS detectată - SKIP recovery pentru simplificare");
-                            // DISABLED: startBackgroundGPS(); // Previne restart loops
-                            Log.e(TAG, "⚠️ Recovery DISABLED pentru simplificare GPS transmission");
-                        } catch (Exception recoveryError) {
-                            Log.e(TAG, "❌ Recovery failed: " + recoveryError.getMessage());
-                            sendLogToJavaScript("❌ Recovery failed: " + recoveryError.getMessage());
+                            sendLogToJavaScript("❌ Eroare în GPS cycle: " + t.getMessage());
+                        } catch (Exception logError) {
+                            Log.e(TAG, "❌ Eroare și la logging: " + logError.getMessage());
                         }
                     }
-                    
-                    Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION END ===");
                 }
             };
             
