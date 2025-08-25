@@ -3,11 +3,9 @@ package com.euscagency.itrack;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.Handler;
-import android.os.Looper;
+// ELIMINAT: Handler, Looper - FusedLocationProviderClient folosește propriul thread
 import android.util.Log;
-import android.location.LocationManager;
-import android.location.LocationListener;
+// ELIMINAT: LocationManager, LocationListener - înlocuite cu FusedLocationProviderClient
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationRequest;
@@ -22,9 +20,9 @@ import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
-// ELIMINAT: import java.util.concurrent.Executors - folosit doar pentru httpThreadPool basic
+import java.util.concurrent.Executors;
 // ELIMINAT: ScheduledExecutorService, HandlerThread - FusedLocationProviderClient face totul automat
-import java.util.concurrent.TimeUnit;
+// ELIMINAT: TimeUnit - folosit doar în comentarii pentru claritate
 import android.app.Notification;
 
 /**
@@ -37,7 +35,7 @@ public class BackgroundGPSService extends Service {
     private static final int NOTIFICATION_ID = 2002;
     private static final String CHANNEL_ID = "BackgroundGPSChannel";
     
-    private LocationManager locationManager;
+    // ELIMINAT: LocationManager - înlocuit cu FusedLocationProviderClient
     // FUSION GPS: Google Play Services - triangulare inteligentă 
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
@@ -118,16 +116,16 @@ public class BackgroundGPSService extends Service {
         // Initialize HTTP Thread Pool pentru rate limiting
         initializeHttpThreadPool();
         
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        // ELIMINAT: LocationManager inițializare - folosim doar FusedLocationProviderClient
         
         // FUSION GPS: Inițializare Google Play Services Location
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         
-        // WakeLock pentru fundal garantat - HIGH PRIORITY pentru Android Doze bypass
+        // WakeLock pentru deep sleep protection cu Fusion GPS
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(
-            PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, 
-            "iTrack:BackgroundGPS:Critical"
+            PowerManager.PARTIAL_WAKE_LOCK, 
+            "iTrack:FusionGPS:DeepSleep"
         );
         
         // ELIMINAT: HandlerThread - FusedLocationProviderClient gestionează propriul thread
@@ -142,13 +140,7 @@ public class BackgroundGPSService extends Service {
     private void initializeHttpThreadPool() {
         try {
             if (httpThreadPool == null || httpThreadPool.isShutdown()) {
-                httpThreadPool = new java.util.concurrent.ThreadPoolExecutor(
-                    1, // Core threads - minim 1
-                    3, // Max threads - maxim 3 simultan pentru a nu supraîncărca serverul
-                    60L, // Keep alive 60 secunde
-                    java.util.concurrent.TimeUnit.SECONDS,
-                    new java.util.concurrent.LinkedBlockingQueue<Runnable>() // Queue unlimited
-                );
+                httpThreadPool = (java.util.concurrent.ThreadPoolExecutor) Executors.newFixedThreadPool(3);
                 Log.e(TAG, "🔧 HTTP Thread Pool inițializat: max 3 connections simultan");
             }
         } catch (Exception e) {
@@ -188,19 +180,19 @@ public class BackgroundGPSService extends Service {
             activeCourses.put(uniqueKey, new CourseData(uitId, courseStatus, validRealUit, globalVehicle));
             Log.e(TAG, "📋 Total curse active: " + activeCourses.size());
             
-            // Start foreground notification IMMEDIATELY  
-            startForeground(1, createNotification());
-            Log.e(TAG, "📱 Notificare serviciu fundal persistentă creată");
+            // FIXED: Folosește NOTIFICATION_ID consistent (2002)
+            updateNotification();
+            Log.e(TAG, "📱 Notificare serviciu fundal actualizată");
             
             if (courseStatus == 2) {
                 if (!isGPSRunning.get()) {
-                    Log.e(TAG, "🚀 PORNIRE GPS pentru prima cursă activă - start ScheduledExecutorService");
+                    Log.e(TAG, "🚀 PORNIRE FUSION GPS pentru prima cursă activă");
                     startBackgroundGPS();
                 } else {
-                    Log.e(TAG, "⚡ GPS rulează deja - cursă nouă adăugată la tracking existent");
-                    Log.e(TAG, "📋 ScheduledExecutorService va include automat noul UIT în loop-ul existent");
+                    Log.e(TAG, "⚡ FUSION GPS rulează deja - cursă nouă adăugată la tracking existent");
+                    Log.e(TAG, "📋 Fusion GPS va include automat noul UIT în callback-ul existent");
                     Log.e(TAG, "🔄 Nu e nevoie de restart - serviciul transmite pentru TOATE cursele active");
-                    sendLogToJavaScript("⚡ UIT nou adăugat la ScheduledExecutorService existent: " + uitId);
+                    sendLogToJavaScript("⚡ UIT nou adăugat la FUSION GPS existent: " + uitId);
                 }
             } else {
                 Log.e(TAG, "GPS not started - course status is " + courseStatus + " (not ACTIVE)");
@@ -214,7 +206,13 @@ public class BackgroundGPSService extends Service {
             Log.i(TAG, "Actualizare status: " + specificUIT + " → " + newStatus);
             
             // CRITICAL: Construiește key unic pentru găsirea cursei corecte  
-            // CRITICAL FIX: Trebuie să folosească ACEEAȘI logică ca la start pentru conflict prevention
+            // TOKEN CONSISTENCY FIX: Verifică că token nu s-a schimbat
+            if (globalToken == null) {
+                Log.e(TAG, "❌ Nu pot actualiza status - globalToken este null");
+                return;
+            }
+            
+            // CRITICAL FIX: ACEEAȘI logică ca la start pentru conflict prevention
             String deviceId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
             String tokenHash = String.valueOf(Math.abs(globalToken.hashCode()));
             String uniqueKeyForUpdate = vehicleForUpdate + "_" + specificUIT + "_" + deviceId.substring(0, Math.min(8, deviceId.length())) + "_" + tokenHash.substring(0, Math.min(8, tokenHash.length()));
@@ -305,16 +303,13 @@ public class BackgroundGPSService extends Service {
         
         // Reinițializează httpThreadPool dacă necesar
         if (httpThreadPool == null || httpThreadPool.isShutdown()) {
-            httpThreadPool = new java.util.concurrent.ThreadPoolExecutor(
-                1, 3, 60L, java.util.concurrent.TimeUnit.SECONDS, 
-                new java.util.concurrent.LinkedBlockingQueue<Runnable>()
-            );
+            httpThreadPool = (java.util.concurrent.ThreadPoolExecutor) Executors.newFixedThreadPool(3);
         }
         
-        // WakeLock
+        // WAKE LOCK FIXED: Folosește doar pentru deep sleep protection cu Fusion GPS
         if (wakeLock != null && !wakeLock.isHeld()) {
-            wakeLock.acquire(60 * 60 * 1000);
-            Log.e(TAG, "WakeLock acquired");
+            wakeLock.acquire(60 * 60 * 1000); // 1 oră max pentru safety
+            Log.e(TAG, "✅ WakeLock acquired pentru deep sleep protection cu Fusion GPS");
         }
         
         // ELIMINAT: Handler manual - FusedLocationProviderClient apelează LocationCallback automat
@@ -777,40 +772,25 @@ public class BackgroundGPSService extends Service {
     
     private Location getLastKnownLocation() {
         try {
-            android.location.LocationManager locationManager = 
-                (android.location.LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            
-            if (locationManager == null) {
+            // FUSION GPS: Folosește Google's intelligent last known location
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "❌ Fără permisiune pentru Fusion GPS last location");
                 return null;
             }
             
-            // Try GPS first, then Network
-            Location gpsLocation = null;
-            Location networkLocation = null;
+            // SIMPLU: Fusion GPS obține ultima locație inteligent (GPS+WiFi+Cellular)
+            com.google.android.gms.tasks.Task<Location> locationTask = fusedLocationClient.getLastLocation();
             
+            // Sincron - pentru compatibility cu apelurile existente
             try {
-                gpsLocation = locationManager.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER);
-            } catch (SecurityException e) {
-                Log.e(TAG, "❌ Fără permisiune GPS pentru ultima locație cunoscută");
-            }
-            
-            try {
-                networkLocation = locationManager.getLastKnownLocation(android.location.LocationManager.NETWORK_PROVIDER);
-            } catch (SecurityException e) {
-                Log.e(TAG, "❌ Fără permisiune Network pentru ultima locație cunoscută");
-            }
-            
-            // Returnează cea mai recentă locație
-            if (gpsLocation != null && networkLocation != null) {
-                return gpsLocation.getTime() > networkLocation.getTime() ? gpsLocation : networkLocation;
-            } else if (gpsLocation != null) {
-                return gpsLocation;
-            } else {
-                return networkLocation;
+                return com.google.android.gms.tasks.Tasks.await(locationTask, 2, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                Log.e(TAG, "❌ Fusion GPS last location timeout: " + e.getMessage());
+                return null;
             }
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ Eroare ultima locație cunoscută: " + e.getMessage());
+            Log.e(TAG, "❌ Eroare Fusion GPS last location: " + e.getMessage());
             return null;
         }
     }
@@ -854,36 +834,13 @@ public class BackgroundGPSService extends Service {
         // THREAD SAFETY: AtomicBoolean update
         isGPSRunning.set(false);
         
-        // CRITICAL: LocationManager cleanup pentru a preveni memory leaks
-        if (locationManager != null) {
-            try {
-                // Remove toate listener-urile GPS active pentru cleanup complet
-                locationManager.removeUpdates(new LocationListener() {
-                    @Override public void onLocationChanged(Location location) {}
-                    @Override public void onProviderEnabled(String provider) {}
-                    @Override public void onProviderDisabled(String provider) {}
-                    @Override public void onStatusChanged(String provider, int status, android.os.Bundle extras) {}
-                });
-                Log.e(TAG, "🛑 Update-uri LocationManager curățate");
-            } catch (SecurityException e) {
-                Log.e(TAG, "🛑 Eroare curățare LocationManager: " + e.getMessage());
-            }
+        // FUSION GPS CLEANUP: Remove location updates pentru Fusion GPS  
+        if (fusedLocationClient != null && locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+            Log.e(TAG, "🛑 FUSION GPS location updates removed");
         }
         
-        // MEMORY LEAK PREVENTION: Complete executor cleanup
-        if (gpsExecutor != null && !gpsExecutor.isShutdown()) {
-            gpsExecutor.shutdownNow(); // Force immediate shutdown
-            try {
-                if (!gpsExecutor.awaitTermination(3, java.util.concurrent.TimeUnit.SECONDS)) {
-                    Log.e(TAG, "🛑 GPS Executor forced termination");
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                Log.e(TAG, "🛑 GPS Executor termination interrupted");
-            }
-            gpsExecutor = null;
-            Log.e(TAG, "🛑 ScheduledExecutorService FORCE SHUTDOWN");
-        }
+        // ELIMINAT: gpsExecutor cleanup - NU mai există cu Fusion GPS
         
         // HTTP THREAD POOL CLEANUP
         if (httpThreadPool != null && !httpThreadPool.isShutdown()) {
@@ -901,19 +858,7 @@ public class BackgroundGPSService extends Service {
             httpThreadPool = null;
         }
         
-        // HEALTH MONITOR CLEANUP
-        if (healthMonitor != null && !healthMonitor.isShutdown()) {
-            healthMonitor.shutdownNow();
-            try {
-                if (!healthMonitor.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS)) {
-                    Log.e(TAG, "🛑 Health Monitor force terminated");
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                Log.e(TAG, "🛑 Health Monitor interrupted shutdown");
-            }
-            healthMonitor = null;
-        }
+        // ELIMINAT: healthMonitor cleanup - NU mai există cu Fusion GPS
         
         // OFFLINE RETRY SYSTEM CLEANUP
         if (retryExecutor != null && !retryExecutor.isShutdown()) {
@@ -949,7 +894,7 @@ public class BackgroundGPSService extends Service {
         activeCourses.clear();
         globalToken = null;
         globalVehicle = null;
-        locationManager = null;
+        // ELIMINAT: locationManager cleanup - nu mai există
         
         super.onDestroy();
         Log.e(TAG, "🛑 BackgroundGPS Service COMPLETELY DESTROYED - Memory leaks prevented");
@@ -1118,6 +1063,14 @@ public class BackgroundGPSService extends Service {
         } catch (Exception e) {
             Log.e(TAG, "❌ Offline GPS retry exception: " + e.getMessage());
             return false;
+        }
+    }
+    
+    // FIXED: Adaugă updateNotification() pentru consistency cu NOTIFICATION_ID
+    private void updateNotification() {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.notify(NOTIFICATION_ID, createNotification());
         }
     }
 }

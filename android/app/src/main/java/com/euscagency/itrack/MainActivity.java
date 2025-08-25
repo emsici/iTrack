@@ -10,7 +10,6 @@ import com.getcapacitor.BridgeActivity;
 import java.util.ArrayList;
 import com.getcapacitor.Plugin;
 import android.content.ComponentName;
-import android.content.Intent;
 import android.content.Context;
 import android.app.ActivityManager;
 import android.os.Handler;
@@ -24,6 +23,7 @@ import android.content.pm.PackageManager;
 public class MainActivity extends BridgeActivity {
     private static final String TAG = "iTrackMainActivity";
     private static MainActivity instance;
+    private boolean isAndroidGPSAdded = false; // FIXED: Previne multiple addJavascriptInterface
 
     public static MainActivity getInstance() {
         return instance;
@@ -50,10 +50,13 @@ public class MainActivity extends BridgeActivity {
         super.onStart();
         Log.d(TAG, "MainActivity onStart() - programez configurarea interfeței AndroidGPS");
         
-        // Încercări multiple pentru a asigura că WebView este gata
-        new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 500);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 1000);
-        new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 2000);
+        // FIXED: Single initialization pentru a evita multiple addJavascriptInterface
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (!isAndroidGPSAdded) {
+                addAndroidGPSInterface();
+            }
+        }, 1000);
+        // ELIMINAT: Multiple addAndroidGPSInterface calls - folosim isAndroidGPSAdded flag
     }
 
     @Override
@@ -61,9 +64,10 @@ public class MainActivity extends BridgeActivity {
         super.onResume();
         Log.d(TAG, "MainActivity onResume() - asigur disponibilitatea interfeței AndroidGPS");
         
-        // Încercări imediate și întârziate
-        addAndroidGPSInterface();
-        new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 1000);
+        // FIXED: Single addAndroidGPSInterface cu flag protection
+        if (!isAndroidGPSAdded) {
+            addAndroidGPSInterface();
+        }
     }
 
     private void addAndroidGPSInterface() {
@@ -93,6 +97,7 @@ public class MainActivity extends BridgeActivity {
                 });
                 
                 Log.d(TAG, "✅ AndroidGPS interface added successfully");
+                isAndroidGPSAdded = true; // FIXED: Marchează ca adăugat
                 
             } else {
                 Log.e(TAG, "❌ WebView is null - retrying in 1 second");
@@ -101,7 +106,7 @@ public class MainActivity extends BridgeActivity {
         } catch (Exception e) {
             Log.e(TAG, "❌ Error adding AndroidGPS interface: " + e.getMessage(), e);
             // Retry on error
-            new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 2000);
+            // ELIMINAT: Multiple addAndroidGPSInterface calls - folosim isAndroidGPSAdded flag
         }
     }
     
@@ -141,11 +146,11 @@ public class MainActivity extends BridgeActivity {
             
             Log.e(TAG, "Intent prepared with extras - UIT: " + uit + ", Vehicle: " + vehicleNumber);
             
-            Log.e(TAG, "🚀 === STARTING === BackgroundGPSService with ScheduledExecutorService...");
+            Log.e(TAG, "🚀 === STARTING === BackgroundGPSService cu FUSION GPS...");
             Log.e(TAG, "📦 Intent created with action: START_BACKGROUND_GPS");
             Log.e(TAG, "📋 Intent extras: uit=" + uit + ", vehicle=" + vehicleNumber);
-            Log.e(TAG, "⚡ BackgroundGPSService uses ScheduledExecutorService for more stable background GPS");
-            Log.e(TAG, "🔄 GPS will transmit every 10 seconds with phone locked/minimized");
+            Log.e(TAG, "⚡ BackgroundGPSService folosește FUSION GPS pentru triangulare inteligentă");
+            Log.e(TAG, "🔄 FUSION GPS transmite automat la 10 secunde cu telefonul blocat/minimizat");
             
             // Try to start foreground service
             android.content.ComponentName result = startForegroundService(intent);
@@ -250,7 +255,7 @@ public class MainActivity extends BridgeActivity {
     
     @JavascriptInterface
     public String getOfflineGPSCount() {
-        Log.e(TAG, "📊 === SIMPLE GPS === getOfflineGPSCount called");
+        Log.e(TAG, "📊 === FUSION GPS === getOfflineGPSCount called");
         
         try {
             android.content.SharedPreferences prefs = getSharedPreferences("offline_gps", MODE_PRIVATE);
@@ -269,7 +274,7 @@ public class MainActivity extends BridgeActivity {
     
     @JavascriptInterface
     public String syncOfflineGPS() {
-        Log.e(TAG, "🔄 === SIMPLE GPS === syncOfflineGPS called");
+        Log.e(TAG, "🔄 === FUSION GPS === syncOfflineGPS called");
         
         try {
             // BackgroundGPSService handles offline sync automatically
@@ -285,7 +290,7 @@ public class MainActivity extends BridgeActivity {
 
     @JavascriptInterface
     public String getServiceStatus() {
-        Log.e(TAG, "📊 === SIMPLE GPS === getServiceStatus called");
+        Log.e(TAG, "📊 === FUSION GPS === getServiceStatus called");
         
         try {
             // Get basic status from SharedPreferences and service state
@@ -349,5 +354,22 @@ public class MainActivity extends BridgeActivity {
             String jsCode = "if(window.AndroidGPSCallback && window.AndroidGPSCallback.onTransmissionError) { window.AndroidGPSCallback.onTransmissionError(" + httpStatus + "); }";
             getBridge().getWebView().evaluateJavascript(jsCode, null);
         });
+    }
+    
+    // FIXED: Implementează markManualPause pentru compatibility cu frontend
+    @JavascriptInterface
+    public String markManualPause(String ikRoTransKey) {
+        Log.e(TAG, "⏸️ === MARK MANUAL PAUSE === pentru " + ikRoTransKey);
+        
+        try {
+            // Log special pentru analytics bridge capture 
+            Log.e("JS_ANALYTICS_BRIDGE", "window.courseAnalyticsService && window.courseAnalyticsService.markManualPause('" + ikRoTransKey + "');");
+            Log.e(TAG, "✅ Manual pause marked pentru analytics: " + ikRoTransKey);
+            
+            return "Manual pause marked pentru " + ikRoTransKey;
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Eroare mark manual pause: " + e.getMessage());
+            return "Eroare: " + e.getMessage();
+        }
     }
 }
