@@ -205,20 +205,25 @@ public class BackgroundGPSService extends Service {
             
             Log.i(TAG, "Actualizare status: " + specificUIT + " → " + newStatus);
             
-            // CRITICAL: Construiește key unic pentru găsirea cursei corecte  
-            // TOKEN CONSISTENCY FIX: Verifică că token nu s-a schimbat
+            // CRITICAL: Verifică că token nu s-a schimbat
             if (globalToken == null) {
                 Log.e(TAG, "❌ Nu pot actualiza status - globalToken este null");
                 return START_STICKY;
             }
             
-            // CRITICAL FIX: ACEEAȘI logică ca la start pentru conflict prevention
-            String deviceId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-            String tokenHash = String.valueOf(Math.abs(globalToken.hashCode()));
-            String uniqueKeyForUpdate = vehicleForUpdate + "_" + specificUIT + "_" + deviceId.substring(0, Math.min(8, deviceId.length())) + "_" + tokenHash.substring(0, Math.min(8, tokenHash.length()));
-            Log.i(TAG, "Căutare cursă: " + uniqueKeyForUpdate);
+            // SIMPLE FIX: Caută direct după UIT în loc de unique key complex
+            CourseData courseData = null;
+            String foundKey = null;
             
-            CourseData courseData = activeCourses.get(uniqueKeyForUpdate);
+            for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+                if (entry.getValue().realUit.equals(specificUIT)) {
+                    courseData = entry.getValue();
+                    foundKey = entry.getKey();
+                    break;
+                }
+            }
+            
+            Log.i(TAG, "Căutare UIT: " + specificUIT + " → " + (courseData != null ? "GĂSIT" : "NU GĂSIT"));
             if (courseData != null) {
                 int oldStatus = courseData.status;
                 Log.i(TAG, "Status: " + oldStatus + " → " + newStatus + " pentru " + specificUIT);
@@ -255,7 +260,7 @@ public class BackgroundGPSService extends Service {
                     // STOP LOGIC: Frontend updateCourseStatus() already sent status 4 to server
                     // Android only removes course from GPS tracking - NO DUPLICATE server calls
                     
-                    activeCourses.remove(uniqueKeyForUpdate);
+                    activeCourses.remove(foundKey);
                     Log.e(TAG, "✅ STOP: Cursă " + specificUIT + " eliminată COMPLET din GPS tracking");
                     
                     // DEBUG: Verifică câte curse mai rămân active
@@ -269,42 +274,7 @@ public class BackgroundGPSService extends Service {
                     }
                 }
             } else {
-                Log.e(TAG, "❌ CRITICĂ: UIT " + specificUIT + " cu unique key " + uniqueKeyForUpdate + " NU GĂSIT în HashMap!");
-                
-                // DEBUG EXHAUSTIV: Listează TOATE key-urile din HashMap
-                Log.e(TAG, "🔍 DEBUG HashMap - Total curse: " + activeCourses.size());
-                for (String existingKey : activeCourses.keySet()) {
-                    Log.e(TAG, "  💡 Key existent: " + existingKey);
-                }
-                Log.e(TAG, "  🔍 Key căutat: " + uniqueKeyForUpdate);
-                
-                // POSSIBLE FIX: Încearcă să găsească cursa după UIT în loc de key complet
-                CourseData foundCourse = null;
-                String foundKey = null;
-                for (java.util.Map.Entry<String, CourseData> debugEntry : activeCourses.entrySet()) {
-                    if (debugEntry.getValue().realUit.equals(specificUIT)) {
-                        foundCourse = debugEntry.getValue();
-                        foundKey = debugEntry.getKey();
-                        break;
-                    }
-                }
-                
-                if (foundCourse != null) {
-                    Log.e(TAG, "🛠️ FALLBACK FIX: Găsit UIT prin căutare directă - actualizez status");
-                    int oldStatus = foundCourse.status;
-                    if (newStatus == 2) { // ACTIVE/RESUME
-                        foundCourse.status = 2;
-                        Log.i(TAG, "🟢 FALLBACK RESUME: GPS reactivat pentru " + specificUIT);
-                    } else if (newStatus == 3) { // PAUSE
-                        foundCourse.status = 3;
-                        Log.i(TAG, "🔶 FALLBACK PAUSE: GPS pentru " + specificUIT + " - NU mai transmite la server");
-                    } else if (newStatus == 4) { // STOP
-                        activeCourses.remove(foundKey);
-                        Log.e(TAG, "✅ FALLBACK STOP: Cursă " + specificUIT + " eliminată din tracking");
-                    }
-                } else {
-                    Log.e(TAG, "💀 FATAL: UIT " + specificUIT + " COMPLET ABSENT din sistem!");
-                }
+                Log.e(TAG, "❌ UIT " + specificUIT + " nu găsit în curse active!");
             }
             
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {
