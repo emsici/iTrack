@@ -411,13 +411,68 @@ public class BackgroundGPSService extends Service {
                 Log.e(TAG, "❌ CRITICAL: GPS va continua cu statusul vechi pentru " + specificUIT + "!");
                 Log.e(TAG, "🔍 DEBUG: vehicleForUpdate=" + vehicleForUpdate + ", specificUIT=" + specificUIT);
                 
-                // CRITICAL: Încearcă să găsească cursele cu UIT similar în HashMap
+                // CRITICAL FIX: Încearcă să găsească cursele cu UIT similar și să le actualizeze FORȚAT
+                CourseData foundCourse = null;
+                String foundKey = null;
                 for (String existingKey : activeCourses.keySet()) {
                     if (existingKey.contains(specificUIT)) {
                         Log.e(TAG, "🔍 GĂSIT SIMILAR: " + existingKey + " conține " + specificUIT);
-                        CourseData similarCourse = activeCourses.get(existingKey);
-                        Log.e(TAG, "🔍 SIMILAR STATUS: " + similarCourse.status + " pentru key " + existingKey);
+                        foundCourse = activeCourses.get(existingKey);
+                        foundKey = existingKey;
+                        Log.e(TAG, "🔍 SIMILAR STATUS: " + foundCourse.status + " pentru key " + existingKey);
+                        break;
                     }
+                }
+                
+                if (foundCourse != null && foundKey != null) {
+                    Log.e(TAG, "🔧 FORȚEZ UPDATE pentru cursă găsită cu key similar: " + foundKey);
+                    
+                    if (newStatus == 3) { // PAUSE
+                        foundCourse.status = 3;
+                        Log.e(TAG, "✅ FORȚAT PAUSE: Status actualizat la 3 pentru " + specificUIT);
+                        
+                        // Oprește GPS complet și verifică alte curse
+                        stopBackgroundGPS();
+                        
+                        int activeCourseCount = 0;
+                        for (CourseData course : activeCourses.values()) {
+                            if (course.status == 2) {
+                                activeCourseCount++;
+                            }
+                        }
+                        
+                        if (activeCourseCount > 0) {
+                            Log.e(TAG, "⚡ REPORNESC GPS pentru " + activeCourseCount + " curse active rămase");
+                            startBackgroundGPS();
+                        } else {
+                            Log.e(TAG, "✅ GPS OPRIT COMPLET - toate cursele în pauză sau stop");
+                        }
+                    } else if (newStatus == 4) { // STOP
+                        activeCourses.remove(foundKey);
+                        Log.e(TAG, "✅ FORȚAT STOP: Cursă eliminată din HashMap: " + specificUIT);
+                        
+                        stopBackgroundGPS();
+                        
+                        if (!activeCourses.isEmpty()) {
+                            int activeCourseCount = 0;
+                            for (CourseData course : activeCourses.values()) {
+                                if (course.status == 2) {
+                                    activeCourseCount++;
+                                }
+                            }
+                            
+                            if (activeCourseCount > 0) {
+                                Log.e(TAG, "⚡ REPORNESC GPS pentru " + activeCourseCount + " curse active rămase");
+                                startBackgroundGPS();
+                            } else {
+                                Log.e(TAG, "✅ GPS OPRIT DEFINITIV - nu mai sunt curse active");
+                            }
+                        } else {
+                            Log.e(TAG, "✅ GPS OPRIT DEFINITIV - HashMap gol");
+                        }
+                    }
+                } else {
+                    Log.e(TAG, "❌ CRITICAL: Nu găsesc NICIO cursă cu UIT " + specificUIT + " în HashMap!");
                 }
             }
             
@@ -1031,8 +1086,15 @@ public class BackgroundGPSService extends Service {
                 String uniqueKey = entry.getKey();
                 CourseData courseData = entry.getValue();
                 
-                // Doar cursele ACTIVE (status 2) pot transmite GPS data
+                // CRITICAL DOUBLE CHECK: Verifică isGPSRunning înainte de transmisie
+                if (!isGPSRunning) {
+                    Log.e(TAG, "🚫 ABORT TRANSMISIE: isGPSRunning = false - GPS a fost oprit!");
+                    return; // Oprește complet transmisia
+                }
+                
+                // CRITICAL: Doar cursele ACTIVE (status 2) pot transmite GPS data
                 if (courseData.status != 2) {
+                    Log.e(TAG, "🚫 SKIP: Cursă " + courseData.realUit + " are status " + courseData.status + " (nu ACTIVE)");
                     continue; // Skip pentru curse în pauză/oprire
                 }
                 
@@ -1670,7 +1732,27 @@ public class BackgroundGPSService extends Service {
     
     private boolean retryOfflineTransmission(OfflineGPSData offlineData) {
         try {
-            Log.e(TAG, "🔄 Retry transmisie pentru: " + offlineData.realUit);
+            // CRITICAL FIX: Verifică statusul curent al cursei înainte de retransmisie
+            String checkKey = null;
+            boolean courseFound = false;
+            int currentStatus = 0;
+            
+            for (String key : activeCourses.keySet()) {
+                if (key.contains(offlineData.realUit)) {
+                    CourseData courseData = activeCourses.get(key);
+                    currentStatus = courseData.status;
+                    courseFound = true;
+                    checkKey = key;
+                    break;
+                }
+            }
+            
+            if (courseFound && currentStatus != 2) {
+                Log.e(TAG, "🚫 SKIP RETRY: Cursa " + offlineData.realUit + " are status " + currentStatus + " (nu ACTIVE) - nu retransmit");
+                return true; // Returnează true pentru a elimina din queue (nu mai încerca)
+            }
+            
+            Log.e(TAG, "🔄 Retry transmisie pentru: " + offlineData.realUit + " (status verificat: " + currentStatus + ")");
             
             java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
             javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
