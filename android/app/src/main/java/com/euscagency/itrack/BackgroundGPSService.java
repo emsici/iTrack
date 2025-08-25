@@ -136,11 +136,11 @@ public class BackgroundGPSService extends Service {
             fusedLocationClient = null;
         }
         
-        // WakeLock pentru fundal garantat - HIGH PRIORITY pentru Android Doze bypass
+        // WakeLock OPTIMIZAT pentru telefon blocat - MAXIM BYPASS Android Doze
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = powerManager.newWakeLock(
-            PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, 
-            "iTrack:BackgroundGPS:Critical"
+            PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE, 
+            "iTrack:BackgroundGPS:LockedScreen:Priority"
         );
         
         // Thread de fundal pentru operații GPS
@@ -165,6 +165,7 @@ public class BackgroundGPSService extends Service {
                 .setMaxUpdateDelayMillis(500) // CRITICAL FIX: Max 0.5s delay pentru locație instantanee
                 .setGranularity(Granularity.GRANULARITY_FINE)
                 .setWaitForAccurateLocation(true) // CRITICAL FIX: AȘTEAPTĂ fix GPS real de la sateliți
+                .setDurationMillis(Long.MAX_VALUE) // OPTIMIZARE: Request GPS pentru timp INFINIT (telefon blocat)
                 .build();
         
         Log.e(TAG, "📍 LocationRequest configurat: HIGH_ACCURACY, interval " + GPS_INTERVAL_SECONDS + "s");
@@ -549,11 +550,11 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔧 HTTP ThreadPool reinițializat cu queue limitat la 1000 pentru memory safety");
         }
         
-        // Acquire WakeLock cu timeout pentru prevenirea kill de Android
+        // OPTIMIZARE TELEFON BLOCAT: WakeLock fără timeout pentru GPS continuu
         if (!wakeLock.isHeld()) {
-            wakeLock.acquire(60 * 60 * 1000); // 1 oră timeout
-            Log.e(TAG, "WakeLock acquired cu timeout 1 oră");
-            sendLogToJavaScript("WakeLock acquired - serviciul va rula continuu");
+            wakeLock.acquire(); // FĂRĂ TIMEOUT - va fi eliberat manual la stop GPS
+            Log.e(TAG, "🔋 WakeLock acquired PERMANENT pentru telefon blocat - GPS va rula continuu");
+            sendLogToJavaScript("🔋 WakeLock PERMANENT acquired - GPS va rula chiar și la telefon blocat");
         }
         
         // OPTIMIZARE MAXIMĂ: ELIMINĂ ScheduledExecutorService - REDUNDANT cu LocationCallback
@@ -590,13 +591,14 @@ public class BackgroundGPSService extends Service {
             
             Log.e(TAG, "🚀 PORNESC location updates continuous pentru stabilitate...");
             
-            // Configurează location request pentru updates continue cu locații REALE de la sateliți
+            // OPTIMIZARE TELEFON BLOCAT: Location request pentru GPS CONTINUU la telefon blocat
             LocationRequest continuousRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, GPS_INTERVAL_SECONDS * 1000)
                     .setMinUpdateIntervalMillis(GPS_INTERVAL_SECONDS * 1000)
                     .setMaxUpdateAgeMillis(0) // CRITICAL FIX: ZERO cache - DOAR locații noi de la sateliți
                     .setMaxUpdateDelayMillis(500) // CRITICAL FIX: Max 0.5s delay pentru locație instantanee
                     .setGranularity(Granularity.GRANULARITY_FINE)
                     .setWaitForAccurateLocation(true) // CRITICAL FIX: FORȚEAZĂ așteptarea fix-ului GPS real
+                    .setDurationMillis(Long.MAX_VALUE) // TELEFON BLOCAT: GPS infinit timp - nu expira
                     .build();
             
             fusedLocationClient.requestLocationUpdates(continuousRequest, locationCallback, backgroundHandler.getLooper());
