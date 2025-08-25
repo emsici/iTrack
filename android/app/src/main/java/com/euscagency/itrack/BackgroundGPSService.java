@@ -395,10 +395,10 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔧 gpsExecutor null check: " + (gpsExecutor != null));
             Log.e(TAG, "🔧 gpsExecutor shutdown check: " + (gpsExecutor != null ? gpsExecutor.isShutdown() : "NULL"));
             
-            // CRITICAL FIX: DOAR ScheduledExecutorService cu interval corect - fără execuții extra
+            // CRITICAL FIX: Prima execuție IMEDIATĂ pentru feedback instant, apoi la fiecare 10 secunde
             java.util.concurrent.ScheduledFuture<?> future = gpsExecutor.scheduleAtFixedRate(
                 gpsRunnable, 
-                GPS_INTERVAL_SECONDS, // PRIMA EXECUȚIE DUPĂ 10 SECUNDE (nu imediat)
+                0, // PRIMA EXECUȚIE IMEDIAT pentru feedback instant
                 GPS_INTERVAL_SECONDS, // APOI LA FIECARE 10 SECUNDE  
                 TimeUnit.SECONDS
             );
@@ -704,9 +704,9 @@ public class BackgroundGPSService extends Service {
                     @Override
                     public void run() {
                         try {
-                            // GPS NATIV EXCLUSIV: Timeout optimizat pentru precizie maximă
-                            Thread.sleep(20000); // 20 secunde pentru GPS de înaltă precizie
-                            sendLogToJavaScript("GPS timeout după 20s - folosesc cea mai bună poziție disponibilă");
+                            // GPS NATIV OPTIMIZAT: Timeout redus pentru ciclu de 10s - mai rapid și eficient
+                            Thread.sleep(8000); // 8 secunde - suficient pentru GPS fix și mai rapid decât intervalul de 10s
+                            sendLogToJavaScript("GPS timeout după 8s - folosesc cea mai bună poziție disponibilă");
                             locationManager.removeUpdates(listener);
                         } catch (Exception e) {
                             Log.e(TAG, "Eroare timeout: " + e.getMessage());
