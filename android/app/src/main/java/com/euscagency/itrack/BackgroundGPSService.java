@@ -737,20 +737,19 @@ public class BackgroundGPSService extends Service {
                     }
                 }
                 
-                // TIMEOUT OPTIMIZAT PENTRU PRECIZIE
-                new Thread(new Runnable() {
+                // TIMEOUT OPTIMIZAT PENTRU PRECIZIE - folosesc Handler pentru thread safety
+                backgroundHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             // GPS NATIV EXCLUSIV: Timeout optimizat pentru precizie maximă
-                            Thread.sleep(20000); // 20 secunde pentru GPS de înaltă precizie
                             sendLogToJavaScript("GPS timeout după 20s - folosesc cea mai bună poziție disponibilă");
                             locationManager.removeUpdates(listener);
                         } catch (Exception e) {
                             Log.e(TAG, "Eroare timeout: " + e.getMessage());
                         }
                     }
-                }).start();
+                }, 20000); // 20 secunde pentru GPS de înaltă precizie
 
             
         } catch (Exception e) {
