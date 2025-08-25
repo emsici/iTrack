@@ -74,8 +74,7 @@ public class PermissionsHelper extends Plugin {
                 return;
             }
             
-            // Bridge pentru solicitarea permisiunii background
-            this.bridge.saveCall(call, "REQUEST_BACKGROUND_LOCATION");
+            // Direct permission request without callback
             ActivityCompat.requestPermissions(activity, 
                 new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 
                 REQUEST_CODE_BACKGROUND_LOCATION);
@@ -120,7 +119,7 @@ public class PermissionsHelper extends Plugin {
                 intent.setData(Uri.parse("package:" + context.getPackageName()));
                 
                 try {
-                    this.bridge.saveCall(call, "REQUEST_BATTERY_OPTIMIZATION");
+                    // Direct battery optimization request
                     activity.startActivityForResult(intent, REQUEST_CODE_BATTERY_OPTIMIZATION);
                 } catch (Exception e) {
                     // Fallback la setările generale de baterie
@@ -149,59 +148,7 @@ public class PermissionsHelper extends Plugin {
         }
     }
     
-    @Override
-    protected void handleOnActivityResult(int requestCode, int resultCode, Intent data) {
-        super.handleOnActivityResult(requestCode, resultCode, data);
-        
-        PluginCall savedCall = bridge.getSavedCall("REQUEST_BACKGROUND_LOCATION");
-        if (savedCall == null) return;
-        
-        if (requestCode == REQUEST_CODE_BACKGROUND_LOCATION) {
-            // Verifică din nou statusul după solicitare
-            String status = "denied";
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) 
-                    == PackageManager.PERMISSION_GRANTED) {
-                    status = "granted";
-                }
-            }
-            
-            JSObject result = new JSObject();
-            result.put("status", status);
-            savedCall.resolve(result);
-            
-        } else if (requestCode == REQUEST_CODE_BATTERY_OPTIMIZATION) {
-            // Verifică statusul battery optimization
-            boolean isIgnoring = false;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                PowerManager pm = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
-                if (pm != null) {
-                    isIgnoring = pm.isIgnoringBatteryOptimizations(getContext().getPackageName());
-                }
-            }
-            
-            JSObject result = new JSObject();
-            result.put("success", isIgnoring);
-            savedCall.resolve(result);
-        }
-    }
+    // Removed handleOnActivityResult - permissions handled directly in request methods
     
-    @Override
-    protected void handleRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.handleRequestPermissionsResult(requestCode, permissions, grantResults);
-        
-        PluginCall savedCall = bridge.getSavedCall("REQUEST_BACKGROUND_LOCATION");
-        if (savedCall == null) return;
-        
-        if (requestCode == REQUEST_CODE_BACKGROUND_LOCATION) {
-            String status = "denied";
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                status = "granted";
-            }
-            
-            JSObject result = new JSObject();
-            result.put("status", status);
-            savedCall.resolve(result);
-        }
-    }
+    // Removed handleRequestPermissionsResult - permissions handled directly in request methods
 }
