@@ -31,9 +31,7 @@ declare global {
       // Handler pentru mesaje GPS din serviciul Android
       onGPSMessage?: (message: string) => void;
     };
-    courseAnalyticsService?: {
-      updateCourseStatistics: (courseId: string, lat: number, lng: number, speed: number, accuracy: number, isManualPause: boolean) => void;
-    };
+    courseAnalyticsService?: any;
   }
 }
 
@@ -77,11 +75,11 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       viteza: Math.round(gpsData.speed * 3.6),
       directie: Math.round(gpsData.heading),
       altitudine: Math.round(gpsData.alt),
-      hdop: Math.round(gpsData.acc), // GPS accuracy in meters (using hdop field name for server compatibility)
+      hdop: Math.round(gpsData.acc),
       gsm_signal: await getNetworkSignal(),
       baterie: await getBatteryLevel(),
       status: newStatus,
-      timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
+      timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
     };
     
     const endpoint = `${API_BASE_URL}gps.php`;
@@ -145,14 +143,12 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
     const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
     const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`; // UIT + Vehicul + Token = identificator COMPLET unic
     
-    // CRITICAL FIX: Trimite status-ul REAL al cursei pentru consistență completă
-    const gpsStatus = course.status || 2; // Status real al cursei (2=ACTIVE dacă lipsește)
     const result = window.AndroidGPS.startGPS(
       ikRoTransKey,
       vehicleNumber,
       course.uit,
       token,
-      gpsStatus
+      2
     );
     
     console.log("Rezultat serviciu GPS:", result);

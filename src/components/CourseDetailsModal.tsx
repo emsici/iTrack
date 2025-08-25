@@ -45,8 +45,8 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             pauses.push(point);
           }
           
-          // CONSISTENCY FIX: Folosește același threshold ca în courseAnalytics.ts
-          if (point.speed < 2) { // MIN_SPEED_THRESHOLD = 2 km/h (consistent cu courseAnalytics.ts)
+          // Detectează opriri automate (viteză sub 2 km/h)
+          if (point.speed < 2) { // Sub 2 km/h
             slowPoints.push(point);
           } else {
             // Dacă am avut mai mult de 3 puncte lente consecutive, e o oprire automată

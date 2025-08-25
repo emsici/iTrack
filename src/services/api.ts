@@ -21,7 +21,7 @@ let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null =
 let requestInProgress = false;
 
 export interface LoginResponse {
-  status: string;
+  status?: string;
   token?: string;
   error?: string;
 }
@@ -37,7 +37,7 @@ export interface GPSData {
   numar_inmatriculare: string;
   uit: string;
   status: number;
-  hdop: number; // GPS accuracy in meters (HDOP field name for server compatibility)
+  hdop: number;
   gsm_signal: number;
 }
 
@@ -231,52 +231,37 @@ const performVehicleCoursesRequest = async (
         if (responseData.data.length > 0) {
           console.log("Processing course data");
           const processedCourses = responseData.data.map(
-            (course: any, index: number) => {
-              // CRITICAL NULL SAFETY: Verifică că course nu este null/undefined
-              if (!course || typeof course !== 'object') {
-                console.warn(`Course ${index} is invalid:`, course);
-                return null;
-              }
-
-              // REQUIRED FIELD VALIDATION: ikRoTrans este obligatoriu
-              if (!course.ikRoTrans) {
-                console.warn(`Course ${index} missing ikRoTrans:`, course);
-                return null;
-              }
-
-              return {
-                id: course.ikRoTrans.toString(),
-                name: `Transport ${course.ikRoTrans}`,
-                departure_location: course.Vama || "Punct plecare",
-                destination_location:
-                  course.VamaStop || course.denumireLocStop || "Destinație",
-                departure_time: null,
-                arrival_time: null,
-                description: course.denumireDeclarant || "Transport profesional",
-                status: course.status || 1, // Folosește status-ul de la server sau 1 ca default
-                uit: course.UIT || course.uit || `UIT_${course.ikRoTrans}`, // Fallback pentru cazuri când UIT lipsește
-                ikRoTrans: course.ikRoTrans,
-                codDeclarant: course.codDeclarant,
-                denumireDeclarant: course.denumireDeclarant,
-                nrVehicul: course.nrVehicul,
-                dataTransport: course.dataTransport,
-                vama: course.Vama,
-                birouVamal: course.BirouVamal,
-                judet: course.Judet,
-                denumireLocStart: course.denumireLocStart,
-                denumireLocStop: course.denumireLocStop,
-                vamaStop: course.VamaStop,
-                birouVamalStop: course.BirouVamalStop,
-                judetStop: course.JudetStop,
-                BirouVamal: course.BirouVamal,
-                BirouVamalStop: course.BirouVamalStop,
-                Judet: course.Judet,
-                JudetStop: course.JudetStop,
-                Vama: course.Vama,
-                VamaStop: course.VamaStop
-              };
-            })
-            .filter((course: any) => course !== null); // CRITICAL: Remove null courses
+            (course: any, index: number) => ({
+              id: course.ikRoTrans?.toString() || `course_${index}`,
+              name: `Transport ${course.ikRoTrans}`,
+              departure_location: course.Vama || "Punct plecare",
+              destination_location:
+                course.VamaStop || course.denumireLocStop || "Destinație",
+              departure_time: null,
+              arrival_time: null,
+              description: course.denumireDeclarant,
+              status: course.status || 1, // Folosește status-ul de la server sau 1 ca default
+              uit: course.UIT || course.uit || `UIT_${course.ikRoTrans}`, // Fallback pentru cazuri când UIT lipsește
+              ikRoTrans: course.ikRoTrans,
+              codDeclarant: course.codDeclarant,
+              denumireDeclarant: course.denumireDeclarant,
+              nrVehicul: course.nrVehicul,
+              dataTransport: course.dataTransport,
+              vama: course.Vama,
+              birouVamal: course.BirouVamal,
+              judet: course.Judet,
+              denumireLocStart: course.denumireLocStart,
+              vamaStop: course.VamaStop,
+              birouVamalStop: course.BirouVamalStop,
+              judetStop: course.JudetStop,
+              BirouVamal: course.BirouVamal,
+              BirouVamalStop: course.BirouVamalStop,
+              Judet: course.Judet,
+              JudetStop: course.JudetStop,
+              Vama: course.Vama,
+              VamaStop: course.VamaStop,
+            }),
+          );
 
           console.log(
             `Processed ${processedCourses.length} courses successfully`,
@@ -361,41 +346,14 @@ export const logout = async (token: string): Promise<boolean> => {
       return false;
     }
 
-    // CRITICAL NULL SAFETY: Handle both string (from Android) and object (from JS) input
+    // Handle both string (from Android) and object (from JS) input
     let gpsData;
-    if (!gpsDataInput) {
-      console.error("❌ GPS transmission failed: gpsDataInput is null or undefined");
-      return false;
-    }
-    
     if (typeof gpsDataInput === 'string') {
-      try {
-        gpsData = JSON.parse(gpsDataInput);
-        console.log("📱 ANDROID BRIDGE → GPS data received as JSON string");
-      } catch (parseError) {
-        console.error("❌ GPS transmission failed: Invalid JSON string from Android", parseError);
-        return false;
-      }
+      gpsData = JSON.parse(gpsDataInput);
+      console.log("📱 ANDROID BRIDGE → GPS data received as JSON string");
     } else {
       gpsData = gpsDataInput;
       console.log("🌐 JAVASCRIPT → GPS data received as object");
-    }
-
-    // CRITICAL VALIDATION: Verifică structura GPS data
-    if (!gpsData || typeof gpsData !== 'object') {
-      console.error("❌ GPS transmission failed: Invalid GPS data structure");
-      return false;
-    }
-
-    // REQUIRED FIELDS VALIDATION
-    if (!gpsData.uit || !gpsData.lat || !gpsData.lng || !gpsData.numar_inmatriculare) {
-      console.error("❌ GPS transmission failed: Missing required fields", {
-        has_uit: !!gpsData.uit,
-        has_lat: !!gpsData.lat,
-        has_lng: !!gpsData.lng,
-        has_vehicle: !!gpsData.numar_inmatriculare
-      });
-      return false;
     }
 
     console.log("🚀 === UNIFIED GPS TRANSMISSION ===");
@@ -410,7 +368,7 @@ export const logout = async (token: string): Promise<boolean> => {
       directie: gpsData.directie,
       altitudine: gpsData.altitudine,
       baterie: gpsData.baterie,
-      hdop: gpsData.hdop || gpsData.accuracy_m || 0, // GPS accuracy in meters
+      hdop: gpsData.hdop,
       gsm_signal: gpsData.gsm_signal
     });
 
