@@ -22,7 +22,7 @@ import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import java.util.concurrent.Executors;
 // ELIMINAT: ScheduledExecutorService, HandlerThread - FusedLocationProviderClient face totul automat
-// ELIMINAT: TimeUnit - folosit doar în comentarii pentru claritate
+import java.util.concurrent.TimeUnit; // NECESAR pentru awaitTermination și retry scheduling
 import android.app.Notification;
 
 /**
@@ -783,7 +783,7 @@ public class BackgroundGPSService extends Service {
             
             // Sincron - pentru compatibility cu apelurile existente
             try {
-                return com.google.android.gms.tasks.Tasks.await(locationTask, 2, TimeUnit.SECONDS);
+                return com.google.android.gms.tasks.Tasks.await(locationTask, 2000, java.util.concurrent.TimeUnit.MILLISECONDS);
             } catch (Exception e) {
                 Log.e(TAG, "❌ Fusion GPS last location timeout: " + e.getMessage());
                 return null;
@@ -922,7 +922,7 @@ public class BackgroundGPSService extends Service {
                         processOfflineQueue();
                     }
                 }
-            }, RETRY_INITIAL_DELAY, RETRY_INITIAL_DELAY, TimeUnit.SECONDS);
+            }, RETRY_INITIAL_DELAY, RETRY_INITIAL_DELAY, java.util.concurrent.TimeUnit.SECONDS);
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error starting offline retry system: " + e.getMessage());

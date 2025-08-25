@@ -100,8 +100,8 @@ public class MainActivity extends BridgeActivity {
                 isAndroidGPSAdded = true; // FIXED: Marchează ca adăugat
                 
             } else {
-                Log.e(TAG, "❌ WebView is null - retrying in 1 second");
-                new Handler(Looper.getMainLooper()).postDelayed(() -> addAndroidGPSInterface(), 1000);
+                Log.e(TAG, "❌ WebView is null - nu mai retry (flag protection)");
+                isAndroidGPSAdded = false; // Reset flag pentru următoarea încercare
             }
         } catch (Exception e) {
             Log.e(TAG, "❌ Error adding AndroidGPS interface: " + e.getMessage(), e);
@@ -236,7 +236,7 @@ public class MainActivity extends BridgeActivity {
 
     @JavascriptInterface
     public String clearAllOnLogout() {
-        Log.e(TAG, "🧹 === SIMPLE GPS === clearAllOnLogout called");
+        Log.e(TAG, "🧹 === FUSION GPS === clearAllOnLogout called");
         
         try {
             // Stop BackgroundGPSService
