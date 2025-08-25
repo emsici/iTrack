@@ -67,66 +67,10 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       throw new Error('Actualizare status imposibilă - GPS necesar pentru coordonate reale');
     }
     
-    // CRITICAL FIX: La PAUSE (status 3) NU trimite coordonate GPS reale
-    let statusUpdateData;
-    
-    if (newStatus === 3) { // PAUSE
-      console.log('PAUSE DETECTED - trimit status fără coordonate GPS reale');
-      statusUpdateData = {
-        uit: courseUit,
-        numar_inmatriculare: vehicleNumber,
-        lat: 0,  // PAUSE - coordonate zero pentru a indica status doar
-        lng: 0,  // PAUSE - coordonate zero pentru a indica status doar
-        viteza: 0,
-        directie: 0,
-        altitudine: 0,
-        hdop: 0,
-        gsm_signal: await getNetworkSignal(),
-        baterie: await getBatteryLevel(),
-        status: newStatus,
-        timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
-      };
-    } else {
-      // RESUME/STOP - folosește coordonate GPS reale
-      statusUpdateData = {
-        uit: courseUit,
-        numar_inmatriculare: vehicleNumber,
-        lat: gpsData.lat,  // DOAR coordonate GPS reale
-        lng: gpsData.lng,  // DOAR coordonate GPS reale
-        viteza: Math.round(gpsData.speed * 3.6),
-        directie: Math.round(gpsData.heading),
-        altitudine: Math.round(gpsData.alt),
-        hdop: Math.round(gpsData.acc),
-        gsm_signal: await getNetworkSignal(),
-        baterie: await getBatteryLevel(),
-        status: newStatus,
-        timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
-      };
-    }
-    
-    const endpoint = `${API_BASE_URL}gps.php`;
-    
-    const response = await CapacitorHttp.post({
-      url: endpoint,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`,
-        'Accept': 'application/json',
-        'User-Agent': 'iTrack-VehicleScreen/1.0'
-      },
-      data: statusUpdateData
-    });
-    
-    console.log(`Status server: ${response.status}`);
-    
-    if (response.status >= 200 && response.status < 300) {
-      console.log(`Status actualizat cu succes pentru cursă ${courseId}`);
-      logAPI('Status actualizat');
-    } else {
-      console.error(`Eroare actualizare status ${response.status}:`, response.data);
-      logAPI('Eroare status');
-      throw new Error(`Actualizare status eșuată: ${response.status}`);
-    }
+    // CRITICAL FIX: ELIMINĂ STATUS UPDATE DUPLICAT
+    // Android service trimite acum status-ul la server prin sendStatusUpdateToServer()
+    // Frontend se ocupă DOAR de UI update - NU mai trimite la server pentru a evita duplicarea
+    console.log(`✅ ELIMINAT STATUS DUPLICAT: Android service trimite status ${newStatus} pentru ${courseUit}`);
     
   } catch (error) {
     console.error(`Eroare actualizare status pentru cursă ${courseId}:`, error);
@@ -271,7 +215,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const currentVehicleRef = useRef<string>('');
 
   // Offline GPS count handled by BackgroundGPSService natively
-  const [offlineGPSCount] = useState(0);
+  const [offlineGPSCount, setOfflineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);

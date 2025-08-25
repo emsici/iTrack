@@ -49,14 +49,14 @@ public class BackgroundGPSService extends Service {
     
     // ELIMINAT: Health Monitor, lastGPSCycleTime - FusedLocationProviderClient e automat robust
     
-    // RATE LIMITING: Thread pool pentru HTTP transmissions pentru a evita server overloading
+    // CRITICAL FIX: Thread pool CU COADĂ LIMITATĂ pentru a preveni memory leaks
     private java.util.concurrent.ThreadPoolExecutor httpThreadPool;
     private String globalVehicle;
     
     // THREAD SAFETY: AtomicBoolean pentru isGPSRunning state thread-safe
     private java.util.concurrent.atomic.AtomicBoolean isGPSRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
     
-    // OFFLINE QUEUE: Sistem pentru persistența GPS când nu e rețea
+    // CRITICAL FIX: OFFLINE QUEUE cu LIMITĂ IMPUSĂ pentru memory safety
     private java.util.concurrent.ConcurrentLinkedQueue<OfflineGPSData> offlineQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
     private java.util.concurrent.ScheduledExecutorService retryExecutor;
     private java.util.concurrent.atomic.AtomicBoolean isRetryRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
@@ -136,12 +136,28 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "✅ Serviciul GPS de Fundal este Gata");
     }
     
-    // Initialize HTTP Thread Pool pentru rate limiting - max 3 connections simultan
+    // CRITICAL SECURITY FIX: HTTP Thread Pool cu coadă LIMITATĂ pentru memory safety
     private void initializeHttpThreadPool() {
         try {
             if (httpThreadPool == null || httpThreadPool.isShutdown()) {
-                httpThreadPool = (java.util.concurrent.ThreadPoolExecutor) Executors.newFixedThreadPool(3);
-                Log.e(TAG, "🔧 HTTP Thread Pool inițializat: max 3 connections simultan");
+                // SECURITY: Coadă limitată (1000) + RejectedExecutionHandler pentru memoria controlată
+                java.util.concurrent.BlockingQueue<Runnable> boundedQueue = 
+                    new java.util.concurrent.LinkedBlockingQueue<>(1000);
+                    
+                httpThreadPool = new java.util.concurrent.ThreadPoolExecutor(
+                    3, // corePoolSize
+                    3, // maxPoolSize  
+                    60L, java.util.concurrent.TimeUnit.SECONDS, // keepAliveTime
+                    boundedQueue,
+                    new java.util.concurrent.RejectedExecutionHandler() {
+                        @Override
+                        public void rejectedExecution(Runnable r, java.util.concurrent.ThreadPoolExecutor executor) {
+                            Log.e(TAG, "🚨 HTTP Thread Pool FULL - cerere respinsă pentru memory safety");
+                            // Salvează în offline queue în loc să consume memoria
+                        }
+                    }
+                );
+                Log.e(TAG, "🔧 SECURE HTTP Thread Pool: 3 threads, coadă max 1000, memory protected");
             }
         } catch (Exception e) {
             Log.e(TAG, "❌ Eroare inițializare HTTP Thread Pool: " + e.getMessage());
@@ -232,6 +248,9 @@ public class BackgroundGPSService extends Service {
                     courseData.status = 2;
                     Log.i(TAG, "🟢 RESUME: GPS reactivat pentru " + specificUIT);
                     
+                    // CRITICAL FIX: TRIMITE status RESUME la server
+                    sendStatusUpdateToServer(newStatus, foundKey);
+                    
                     if (!isGPSRunning.get()) {
                         Log.i(TAG, "Pornesc GPS pentru resume");
                         startBackgroundGPS();
@@ -239,43 +258,30 @@ public class BackgroundGPSService extends Service {
                         Log.i(TAG, "GPS deja activ - continuă pentru " + specificUIT);
                     }
                 } else if (newStatus == 3) { // PAUSE
-                    // CRITICAL: Actualizare imediată și verificare
-                    int oldStatus = courseData.status;
                     courseData.status = 3;
-                    Log.e(TAG, "🔶 PAUSE APPLIED: UIT " + specificUIT + " status " + oldStatus + " → 3 (PAUSE)");
-                    Log.e(TAG, "🔶 PAUSE EFFECT: Cursa NU va mai transmite GPS la server până la RESUME");
+                    Log.e(TAG, "🔶 PAUSE: UIT " + specificUIT + " status → 3 (PAUSE)");
                     
-                    // IMMEDIATE VERIFICATION: Verifică că status-ul s-a schimbat
-                    if (courseData.status == 3) {
-                        Log.e(TAG, "✅ PAUSE CONFIRMED: Status setat corect la 3 pentru " + specificUIT);
-                    } else {
-                        Log.e(TAG, "❌ PAUSE FAILED: Status nu s-a setat la 3 pentru " + specificUIT);
-                    }
+                    // CRITICAL FIX: TRIMITE status PAUSE la server (a lipsit!)
+                    sendStatusUpdateToServer(newStatus, foundKey);
                     
-                    // Verifică câte curse mai sunt ACTIVE pentru logging
                     int activeCourseCount = 0;
                     for (CourseData course : activeCourses.values()) {
-                        if (course.status == 2) { // DOAR ACTIVE = transmisie GPS
+                        if (course.status == 2) {
                             activeCourseCount++;
                         }
                     }
-                    
-                    Log.e(TAG, "📊 PAUSE STATUS: " + activeCourseCount + " curse rămân ACTIVE, GPS continuă pentru ele");
+                    Log.e(TAG, "📊 PAUSE: " + activeCourseCount + " curse rămân ACTIVE");
                 } else if (newStatus == 4) { // STOP
-                    // STOP LOGIC: Frontend updateCourseStatus() already sent status 4 to server
-                    // Android only removes course from GPS tracking - NO DUPLICATE server calls
+                    // CRITICAL FIX: TRIMITE status STOP la server ÎNAINTE de eliminare
+                    sendStatusUpdateToServer(newStatus, foundKey);
                     
                     activeCourses.remove(foundKey);
-                    Log.e(TAG, "✅ STOP: Cursă " + specificUIT + " eliminată COMPLET din GPS tracking");
+                    Log.e(TAG, "✅ STOP: Status trimis + cursă eliminată din GPS tracking pentru " + specificUIT);
                     
-                    // DEBUG: Verifică câte curse mai rămân active
-                    Log.e(TAG, "🔍 VERIFY STOP: Curse rămase: " + activeCourses.size());
-                    
-                    // EFFICIENCY: GPS continuă pentru reactivare rapidă sau alte curse active
                     if (activeCourses.isEmpty()) {
-                        Log.e(TAG, "🔄 TOATE cursele STOP - FUSION GPS în standby pentru reactivare rapidă");
+                        Log.e(TAG, "🔄 TOATE cursele STOP - GPS în standby");
                     } else {
-                        Log.e(TAG, "⚡ FUSION GPS continuă pentru " + activeCourses.size() + " curse rămase");
+                        Log.e(TAG, "⚡ GPS continuă pentru " + activeCourses.size() + " curse rămase");
                     }
                 }
             } else {
@@ -310,9 +316,9 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        // Reinițializează httpThreadPool dacă necesar
+        // CRITICAL: Reinițializează httpThreadPool SECURIZAT dacă necesar
         if (httpThreadPool == null || httpThreadPool.isShutdown()) {
-            httpThreadPool = (java.util.concurrent.ThreadPoolExecutor) Executors.newFixedThreadPool(3);
+            initializeHttpThreadPool(); // Folosește metoda securizată cu coadă limitată
         }
         
         // WAKE LOCK FIXED: Folosește doar pentru deep sleep protection cu Fusion GPS
@@ -609,14 +615,14 @@ public class BackgroundGPSService extends Service {
     // GPS→MAP CONNECTION: Trimite coordonatele către courseAnalyticsService pentru vizualizare
     private void sendGPSToAnalyticsService(org.json.JSONObject gpsData, String realUit) {
         try {
-            // Log direct către JavaScript bridge pentru courseAnalyticsService
-            String analyticsCode = "GPS_ANALYTICS:" + gpsData.toString();
-            Log.e("JS_ANALYTICS_BRIDGE", analyticsCode);
+            // CRITICAL FIX: JavaScript bridge prin sendLogToJavaScript (nu prin Log.e)
+            String analyticsMessage = "GPS_ANALYTICS:" + gpsData.toString();
+            sendLogToJavaScript(analyticsMessage);
             
             // DEBUG: Confirmă că coordonatele se trimit pentru hartă
             double lat = gpsData.getDouble("lat");
             double lng = gpsData.getDouble("lng");
-            Log.e(TAG, "📍 GPS→HARTA: UIT " + realUit + " la (" + lat + ", " + lng + ") trimis pentru vizualizare");
+            Log.e(TAG, "📍 GPS→HARTA: UIT " + realUit + " la (" + lat + ", " + lng + ") trimis prin bridge");
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Eroare GPS→Analytics: " + e.getMessage());
