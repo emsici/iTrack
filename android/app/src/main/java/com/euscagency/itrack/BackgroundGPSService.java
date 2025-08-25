@@ -159,8 +159,8 @@ public class BackgroundGPSService extends Service {
     private void setupLocationRequest() {
         locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, GPS_INTERVAL_SECONDS * 1000)
                 .setMinUpdateIntervalMillis(GPS_INTERVAL_SECONDS * 1000)
-                .setMaxUpdateAgeMillis(GPS_INTERVAL_SECONDS * 2 * 1000) // Accept locații cu max 20s vechime
-                .setMaxUpdateDelayMillis(2000) // CRITICAL FIX: Max 2s delay pentru precizie timing
+                .setMaxUpdateAgeMillis(5000) // CRITICAL FIX: Accept DOAR locații cu max 5s vechime pentru freshness
+                .setMaxUpdateDelayMillis(1000) // CRITICAL FIX: Max 1s delay pentru timing precis
                 .setGranularity(Granularity.GRANULARITY_FINE)
                 .setWaitForAccurateLocation(false) // Nu aștepta locații foarte precise - preferă viteza
                 .build();
@@ -186,6 +186,21 @@ public class BackgroundGPSService extends Service {
                     Log.e(TAG, "❌ Location null în LocationResult");
                     return;
                 }
+                
+                // CRITICAL FIX: Verifică freshness-ul locației înainte de procesare
+                long currentTime = System.currentTimeMillis();
+                long locationTime = location.getTime();
+                long locationAgeMs = currentTime - locationTime;
+                long locationAgeSeconds = locationAgeMs / 1000;
+                
+                if (locationAgeMs > 30000) { // Respinge locații mai vechi de 30s
+                    Log.w(TAG, "🚫 Location prea veche: " + locationAgeSeconds + "s - respins pentru freshness");
+                    sendLogToJavaScript("🚫 GPS location prea veche (" + locationAgeSeconds + "s) - respins");
+                    return;
+                }
+                
+                Log.i(TAG, "✅ Location FRESH (" + locationAgeSeconds + "s): " + location.getLatitude() + ", " + location.getLongitude());
+                sendLogToJavaScript("✅ GPS FRESH (" + locationAgeSeconds + "s): " + location.getLatitude() + ", " + location.getLongitude());
                 
                 // Procesează locația pe background thread pentru a nu bloca callback-ul
                 backgroundHandler.post(() -> processLocationUpdate(location));
@@ -661,10 +676,11 @@ public class BackgroundGPSService extends Service {
             
             Log.e(TAG, "🚀 PORNESC location updates continuous pentru stabilitate...");
             
-            // Configurează location request pentru updates continue
+            // Configurează location request pentru updates continue cu locații FRESH
             LocationRequest continuousRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, GPS_INTERVAL_SECONDS * 1000)
                     .setMinUpdateIntervalMillis(GPS_INTERVAL_SECONDS * 1000)
-                    .setMaxUpdateAgeMillis(GPS_INTERVAL_SECONDS * 2 * 1000)
+                    .setMaxUpdateAgeMillis(5000) // CRITICAL FIX: DOAR locații fresh max 5s vechime
+                    .setMaxUpdateDelayMillis(1000) // CRITICAL FIX: Max 1s delay pentru timing precis
                     .setGranularity(Granularity.GRANULARITY_FINE)
                     .setWaitForAccurateLocation(false)
                     .build();
