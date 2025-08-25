@@ -355,17 +355,14 @@ public class BackgroundGPSService extends Service {
                         Log.e(TAG, "✅ GPS cycle completed successfully");
                         sendLogToJavaScript("✅ GPS cycle completed");
                         
-                        // CRITICAL: Reînnoiește WakeLock la fiecare 30 de minute pentru prevenirea kill
-                        if (wakeLock != null && wakeLock.isHeld()) {
-                            wakeLock.release();
-                            wakeLock.acquire(60 * 60 * 1000); // Re-acquire pentru încă 1 oră
-                            Log.e(TAG, "🔄 WakeLock renewed pentru continuare garantată");
-                        } else if (wakeLock != null) {
-                            // WakeLock a fost eliberat - reîl dobândește
+                        // CRITICAL: WakeLock status check - NU mai reînnoiește agresiv
+                        if (wakeLock != null && !wakeLock.isHeld()) {
+                            // Doar dacă s-a eliberat, reîl dobândește
                             Log.e(TAG, "🚨 WakeLock a fost eliberat - redobândire forțată!");
                             wakeLock.acquire(60 * 60 * 1000);
                             sendLogToJavaScript("🚨 WakeLock redobândit forțat");
                         }
+                        // SKIP periodic renewal - poate cauza instabilitate
                         
                     } catch (Exception e) {
                         Log.e(TAG, "❌ EROARE CRITICĂ în GPS cycle: " + e.getMessage());
@@ -374,12 +371,9 @@ public class BackgroundGPSService extends Service {
                         
                         // CRITICAL: În caz de eroare critică, încearcă recovery
                         try {
-                            Log.e(TAG, "🔄 Încercare recovery după eroare critică...");
-                            if (gpsExecutor == null || gpsExecutor.isShutdown()) {
-                                Log.e(TAG, "🚨 ScheduledExecutorService compromis - RESTART COMPLET!");
-                                isGPSRunning.set(false);
-                                startBackgroundGPS();
-                            }
+                            Log.e(TAG, "🔄 Eroare GPS detectată - SKIP recovery pentru debugging");
+                            // DISABLED: startBackgroundGPS(); // Previne restart loops din Scheduled thread
+                            Log.e(TAG, "⚠️ Recovery DISABLED pentru debugging GPS transmission");
                         } catch (Exception recoveryError) {
                             Log.e(TAG, "❌ Recovery failed: " + recoveryError.getMessage());
                             sendLogToJavaScript("❌ Recovery failed: " + recoveryError.getMessage());
