@@ -336,20 +336,15 @@ public class BackgroundGPSService extends Service {
             
             // Create a runnable that MUST be executed
             Runnable gpsRunnable = new Runnable() {
-                private int executionCount = 0;
-                
                 @Override
                 public void run() {
-                    executionCount++;
-                    String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-                    
-                    Log.e(TAG, "⏰ === SCHEDULED TASK #" + executionCount + " START [" + currentTime + "] ===");
+                    Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION START ===");
+                    Log.e(TAG, "🕐 Current time: " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
                     Log.e(TAG, "🔧 Thread: " + Thread.currentThread().getName());
                     Log.e(TAG, "🔧 isGPSRunning: " + isGPSRunning.get());
                     Log.e(TAG, "🔧 activeCourses.size(): " + activeCourses.size());
-                    Log.e(TAG, "🔧 gpsExecutor status: " + (gpsExecutor != null ? !gpsExecutor.isShutdown() : "NULL"));
                     
-                    sendLogToJavaScript("⏰ SCHEDULED TASK #" + executionCount + " [" + currentTime + "] START");
+                    sendLogToJavaScript("⏰ SCHEDULED TASK EXECUTION - " + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()));
                     
                     try {
                         performGPSCycle();
@@ -360,14 +355,17 @@ public class BackgroundGPSService extends Service {
                         Log.e(TAG, "✅ GPS cycle completed successfully");
                         sendLogToJavaScript("✅ GPS cycle completed");
                         
-                        // CRITICAL: WakeLock status check - NU mai reînnoiește agresiv
-                        if (wakeLock != null && !wakeLock.isHeld()) {
-                            // Doar dacă s-a eliberat, reîl dobândește
+                        // CRITICAL: Reînnoiește WakeLock la fiecare 30 de minute pentru prevenirea kill
+                        if (wakeLock != null && wakeLock.isHeld()) {
+                            wakeLock.release();
+                            wakeLock.acquire(60 * 60 * 1000); // Re-acquire pentru încă 1 oră
+                            Log.e(TAG, "🔄 WakeLock renewed pentru continuare garantată");
+                        } else if (wakeLock != null) {
+                            // WakeLock a fost eliberat - reîl dobândește
                             Log.e(TAG, "🚨 WakeLock a fost eliberat - redobândire forțată!");
                             wakeLock.acquire(60 * 60 * 1000);
                             sendLogToJavaScript("🚨 WakeLock redobândit forțat");
                         }
-                        // SKIP periodic renewal - poate cauza instabilitate
                         
                     } catch (Exception e) {
                         Log.e(TAG, "❌ EROARE CRITICĂ în GPS cycle: " + e.getMessage());
@@ -376,20 +374,19 @@ public class BackgroundGPSService extends Service {
                         
                         // CRITICAL: În caz de eroare critică, încearcă recovery
                         try {
-                            Log.e(TAG, "🔄 Eroare GPS detectată - SKIP recovery pentru debugging");
-                            // DISABLED: startBackgroundGPS(); // Previne restart loops din Scheduled thread
-                            Log.e(TAG, "⚠️ Recovery DISABLED pentru debugging GPS transmission");
+                            Log.e(TAG, "🔄 Încercare recovery după eroare critică...");
+                            if (gpsExecutor == null || gpsExecutor.isShutdown()) {
+                                Log.e(TAG, "🚨 ScheduledExecutorService compromis - RESTART COMPLET!");
+                                isGPSRunning.set(false);
+                                startBackgroundGPS();
+                            }
                         } catch (Exception recoveryError) {
                             Log.e(TAG, "❌ Recovery failed: " + recoveryError.getMessage());
                             sendLogToJavaScript("❌ Recovery failed: " + recoveryError.getMessage());
                         }
                     }
                     
-                    String endTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-                    Log.e(TAG, "⏰ === SCHEDULED TASK #" + executionCount + " END [" + endTime + "] ===");
-                    Log.e(TAG, "⏱️ Next execution in " + GPS_INTERVAL_SECONDS + " seconds at: " + 
-                          new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date(System.currentTimeMillis() + GPS_INTERVAL_SECONDS * 1000)));
-                    sendLogToJavaScript("⏰ TASK #" + executionCount + " COMPLETE - next in " + GPS_INTERVAL_SECONDS + "s");
+                    Log.e(TAG, "⏰ === SCHEDULED TASK EXECUTION END ===");
                 }
             };
             
@@ -416,7 +413,7 @@ public class BackgroundGPSService extends Service {
             isGPSRunning.set(true);
             
             // CRITICAL: Start health monitoring system pentru auto-recovery
-            // startHealthMonitor(); // DISABLED pentru debugging GPS transmission
+            startHealthMonitor();
             
             // OFFLINE QUEUE: Start retry system pentru coordonate GPS offline
             startOfflineRetrySystem();
@@ -569,33 +566,25 @@ public class BackgroundGPSService extends Service {
     
     private void performGPSCycle() {
         String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-        Log.e(TAG, "🔄 === GPS CYCLE START [" + currentTime + "] ===");
-        Log.e(TAG, "🔄 ScheduledExecutor status: " + (gpsExecutor != null ? !gpsExecutor.isShutdown() : "NULL"));
-        Log.e(TAG, "🔄 isGPSRunning: " + isGPSRunning.get());
-        Log.e(TAG, "🔄 Active courses: " + activeCourses.size());
-        sendLogToJavaScript("🔄 GPS CYCLE START [" + currentTime + "] - " + activeCourses.size() + " curse");
+        Log.i(TAG, "GPS ciclu început - " + activeCourses.size() + " curse");
         
         // Verifică dacă serviciul funcționează corect
         if (gpsExecutor == null || gpsExecutor.isShutdown()) {
-            Log.e(TAG, "❌ GPS service compromis - ScheduledExecutor OPRIT!");
-            sendLogToJavaScript("❌ GPS service compromis!");
+            Log.e(TAG, "GPS service compromis - restart");
+            sendLogToJavaScript("GPS restart necesar");
             isGPSRunning.set(false);
-            // startBackgroundGPS(); // DISABLED pentru debugging - previne restart loops
+            startBackgroundGPS();
             return;
         }
         
-        Log.e(TAG, "✅ GPS Executor healthy - continuă procesarea");
-        sendLogToJavaScript("✅ GPS Executor healthy - " + activeCourses.size() + " curse");
+        sendLogToJavaScript("GPS ciclu activ - " + activeCourses.size() + " curse");
         
         if (activeCourses.isEmpty()) {
-            Log.e(TAG, "❌ NU există curse active - SKIP GPS cycle");
-            sendLogToJavaScript("❌ NU există curse active - SKIP cycle");
             return;
         }
         
         if (globalToken == null) {
-            Log.e(TAG, "❌ Token lipsă - SKIP GPS cycle");
-            sendLogToJavaScript("❌ Token lipsă - SKIP cycle");
+            sendLogToJavaScript("Eroare: Token lipsă");
             return;
         }
         
@@ -608,13 +597,11 @@ public class BackgroundGPSService extends Service {
         }
         
         if (activeCourseCount == 0) {
-            Log.e(TAG, "❌ NU există curse cu status ACTIVE (2) - SKIP GPS cycle");
-            sendLogToJavaScript("❌ Toate cursele în PAUZĂ/STOP - SKIP cycle");
             return; // Nu există curse active
         }
         
-        Log.e(TAG, "🚀 GPS transmitere pentru " + activeCourseCount + " curse ACTIVE din " + activeCourses.size() + " total");
-        sendLogToJavaScript("🚀 GPS START - " + activeCourseCount + " curse ACTIVE");
+        Log.i(TAG, "GPS transmitere pentru " + activeCourseCount + " curse active");
+        sendLogToJavaScript("GPS transmitere - " + activeCourseCount + " curse active");
         
         // Verifică permisiuni
         boolean fineLocationPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
@@ -730,12 +717,8 @@ public class BackgroundGPSService extends Service {
             
         } catch (Exception e) {
             Log.e(TAG, "❌ GPS cycle error: " + e.getMessage());
-            sendLogToJavaScript("❌ GPS cycle error: " + e.getMessage());
             e.printStackTrace();
         }
-        
-        Log.e(TAG, "🔄 === GPS CYCLE END [" + new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) + "] ===");
-        sendLogToJavaScript("🔄 GPS CYCLE COMPLETE - aștept următorul cycle în 10s");
     }
     
     private void transmitGPSDataToAllActiveCourses(Location location) {
