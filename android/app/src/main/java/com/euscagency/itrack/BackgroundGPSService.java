@@ -1316,6 +1316,9 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
             Log.e(TAG, "🔑 Token length: " + (globalToken != null ? globalToken.length() : "NULL"));
             
+            // JAVA FIX: Variabilă final pentru inner class
+            final String finalGpsDataJson = gpsDataJson;
+            
             // Make HTTP request on background thread
             new Thread(new Runnable() {
                 @Override
@@ -1338,7 +1341,7 @@ public class BackgroundGPSService extends Service {
                         
                         // Send JSON data
                         try (java.io.OutputStream os = conn.getOutputStream()) {
-                            byte[] input = gpsDataJson.getBytes("utf-8");
+                            byte[] input = finalGpsDataJson.getBytes("utf-8");
                             os.write(input, 0, input.length);
                             Log.e(TAG, "📤 Data sent: " + input.length + " bytes");
                         }
