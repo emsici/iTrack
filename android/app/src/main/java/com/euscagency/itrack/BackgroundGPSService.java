@@ -838,14 +838,14 @@ public class BackgroundGPSService extends Service {
                             
                             if (activeCourseCount > 0) {
                                 // JAVA FIX: Variabilă final pentru inner class
-                                final int finalActiveCourseCount = activeCourseCount;
+                                final int finalCount = activeCourseCount;
                                 // Restart în 2 secunde pentru a evita conflictele
                                 new Thread(new Runnable() {
                                     @Override
                                     public void run() {
                                         try {
                                             Thread.sleep(2000);
-                                            Log.e(TAG, "🔄 HEALTH RECOVERY: Restart GPS service pentru " + finalActiveCourseCount + " curse ACTIVE...");
+                                            Log.e(TAG, "🔄 HEALTH RECOVERY: Restart GPS service pentru " + finalCount + " curse ACTIVE...");
                                             startBackgroundGPS();
                                             sendLogToJavaScript("🔄 GPS Service RESTARTAT de Health Monitor pentru curse ACTIVE");
                                         } catch (Exception e) {
