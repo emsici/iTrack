@@ -696,6 +696,10 @@ public class BackgroundGPSService extends Service {
                     if (locationAge < 30000) { // Sub 30 secunde = fresh
                         Log.i(TAG, "🎯 GPS CACHED de înaltă precizie disponibil (vârstă: " + (locationAge/1000) + "s)");
                         sendLogToJavaScript("GPS cached high-precision: " + lastKnown.getAccuracy() + "m");
+                        
+                        // CRITICAL FIX: Folosește coordonatele cached pentru continuitate
+                        // Aceasta garantează transmisia la fiecare 10s chiar și când GPS-ul nu primește fix nou
+                        transmitGPSDataToAllActiveCourses(lastKnown);
                     }
                 }
                 
@@ -704,9 +708,9 @@ public class BackgroundGPSService extends Service {
                     @Override
                     public void run() {
                         try {
-                            // GPS NATIV OPTIMIZAT: Timeout redus pentru ciclu de 10s - mai rapid și eficient
-                            Thread.sleep(8000); // 8 secunde - suficient pentru GPS fix și mai rapid decât intervalul de 10s
-                            sendLogToJavaScript("GPS timeout după 8s - folosesc cea mai bună poziție disponibilă");
+                            // GPS TIMEOUT OPTIMIZAT: 5 secunde pentru GPS fix rapid în ciclul de 10s
+                            Thread.sleep(5000); // 5 secunde - rapid și nu blochează următorul ciclu
+                            sendLogToJavaScript("GPS timeout după 5s - cleanup listener");
                             locationManager.removeUpdates(listener);
                         } catch (Exception e) {
                             Log.e(TAG, "Eroare timeout: " + e.getMessage());
