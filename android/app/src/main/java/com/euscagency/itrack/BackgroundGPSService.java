@@ -1101,6 +1101,28 @@ public class BackgroundGPSService extends Service {
                 return false;
             }
             
+            // CRITICAL FIX: Verifică dacă cursa pentru această coordonată este încă ACTIVE
+            try {
+                String uitFromData = offlineData.gpsData.getString("uit");
+                boolean courseStillActive = false;
+                
+                for (CourseData course : activeCourses.values()) {
+                    if (course.realUit.equals(uitFromData) && course.status == 2) {
+                        courseStillActive = true;
+                        break;
+                    }
+                }
+                
+                if (!courseStillActive) {
+                    Log.e(TAG, "🔶 OFFLINE RETRY SKIP: UIT " + uitFromData + " nu mai este ACTIVE - abandoning retry");
+                    return true; // Consider success pentru a elimina din coadă
+                }
+                
+                Log.e(TAG, "✅ OFFLINE RETRY VALID: UIT " + uitFromData + " încă ACTIVE - proceeding");
+            } catch (Exception statusCheck) {
+                Log.e(TAG, "⚠️ OFFLINE RETRY: Nu pot verifica status - proceeding anyway");
+            }
+            
             java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
             javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
             conn.setRequestMethod("POST");

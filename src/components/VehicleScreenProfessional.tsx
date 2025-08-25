@@ -67,20 +67,42 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       throw new Error('Actualizare status imposibilă - GPS necesar pentru coordonate reale');
     }
     
-    const statusUpdateData = {
-      uit: courseUit,
-      numar_inmatriculare: vehicleNumber,
-      lat: gpsData.lat,  // DOAR coordonate GPS reale
-      lng: gpsData.lng,  // DOAR coordonate GPS reale
-      viteza: Math.round(gpsData.speed * 3.6),
-      directie: Math.round(gpsData.heading),
-      altitudine: Math.round(gpsData.alt),
-      hdop: Math.round(gpsData.acc),
-      gsm_signal: await getNetworkSignal(),
-      baterie: await getBatteryLevel(),
-      status: newStatus,
-      timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
-    };
+    // CRITICAL FIX: La PAUSE (status 3) NU trimite coordonate GPS reale
+    let statusUpdateData;
+    
+    if (newStatus === 3) { // PAUSE
+      console.log('PAUSE DETECTED - trimit status fără coordonate GPS reale');
+      statusUpdateData = {
+        uit: courseUit,
+        numar_inmatriculare: vehicleNumber,
+        lat: 0,  // PAUSE - coordonate zero pentru a indica status doar
+        lng: 0,  // PAUSE - coordonate zero pentru a indica status doar
+        viteza: 0,
+        directie: 0,
+        altitudine: 0,
+        hdop: 0,
+        gsm_signal: await getNetworkSignal(),
+        baterie: await getBatteryLevel(),
+        status: newStatus,
+        timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
+      };
+    } else {
+      // RESUME/STOP - folosește coordonate GPS reale
+      statusUpdateData = {
+        uit: courseUit,
+        numar_inmatriculare: vehicleNumber,
+        lat: gpsData.lat,  // DOAR coordonate GPS reale
+        lng: gpsData.lng,  // DOAR coordonate GPS reale
+        viteza: Math.round(gpsData.speed * 3.6),
+        directie: Math.round(gpsData.heading),
+        altitudine: Math.round(gpsData.alt),
+        hdop: Math.round(gpsData.acc),
+        gsm_signal: await getNetworkSignal(),
+        baterie: await getBatteryLevel(),
+        status: newStatus,
+        timestamp: new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
+      };
+    }
     
     const endpoint = `${API_BASE_URL}gps.php`;
     
