@@ -105,7 +105,7 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
     
     if (response.status >= 200 && response.status < 300) {
       console.log(`Status ${newStatus} confirmat server pentru identificator ${courseId}`);
-      logAPI('Status actualizat');
+      logAPI(`Status actualizat pentru ID ${courseId} → status ${newStatus}`);
     } else {
       console.error(`Eroare actualizare status ${response.status}:`, response.data);
       logAPI('Eroare status');
