@@ -179,16 +179,24 @@ public class BackgroundGPSService extends Service {
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
+                Log.e(TAG, "🔔 LOCATION CALLBACK TRIGGERED - LocationResult received");
+                sendLogToJavaScript("🔔 GPS CALLBACK TRIGGERED - primesc coordonate noi");
+                
                 if (locationResult == null) {
                     Log.e(TAG, "❌ LocationResult null");
+                    sendLogToJavaScript("❌ GPS LocationResult null - eroare sistem");
                     return;
                 }
                 
                 Location location = locationResult.getLastLocation();
                 if (location == null) {
                     Log.e(TAG, "❌ Location null în LocationResult");
+                    sendLogToJavaScript("❌ GPS Location null în LocationResult");
                     return;
                 }
+                
+                Log.e(TAG, "📡 LOCATION CALLBACK SUCCESS - processing location data");
+                sendLogToJavaScript("📡 GPS CALLBACK SUCCESS - procesez coordonate");
                 
                 // CRITICAL FIX: Verifică freshness-ul locației înainte de procesare
                 long currentTime = System.currentTimeMillis();
@@ -202,6 +210,8 @@ public class BackgroundGPSService extends Service {
                     return;
                 }
                 
+                Log.e(TAG, "✅ FRESH LOCATION ACCEPTED - vârstă: " + locationAgeSeconds + "s, continuez cu transmisia");
+                
                 // Verifică sursă locație pentru a confirma că e de la GPS sateliți
                 String provider = location.getProvider();
                 boolean hasAccuracy = location.hasAccuracy();
@@ -214,6 +224,8 @@ public class BackgroundGPSService extends Service {
                 lastLocationUpdateTime = System.currentTimeMillis();
                 
                 // Procesează locația pe background thread pentru a nu bloca callback-ul
+                Log.e(TAG, "🔄 POSTING to backgroundHandler - va transmite GPS data");
+                sendLogToJavaScript("🔄 GPS data în curs de transmisie către server");
                 backgroundHandler.post(() -> processLocationUpdate(location));
             }
         };
@@ -625,8 +637,8 @@ public class BackgroundGPSService extends Service {
                 Log.w(TAG, "⚠️ Eroare prima locație la start: " + e.getMessage() + " - LocationCallback va prelua");
             }
             
-            Log.e(TAG, "✅ GPS CONTINUU PORNIT - prima coordonată IMEDIAT + automat la fiecare " + GPS_INTERVAL_SECONDS + "s");
-            sendLogToJavaScript("✅ GPS CONTINUU pornit - prima transmisie IMEDIAT + apoi la fiecare " + GPS_INTERVAL_SECONDS + "s");
+            Log.e(TAG, "✅ GPS CONTINUU PORNIT - LocationCallback ACTIV pentru transmisie la fiecare " + GPS_INTERVAL_SECONDS + "s");
+            sendLogToJavaScript("✅ GPS CONTINUU pornit - LocationCallback ACTIV va trimite automat la " + GPS_INTERVAL_SECONDS + "s");
             
         } catch (SecurityException e) {
             Log.e(TAG, "❌ Security exception location updates: " + e.getMessage());
@@ -892,7 +904,9 @@ public class BackgroundGPSService extends Service {
      */
     private void processLocationUpdate(Location location) {
         try {
-            Log.i(TAG, "📡 Procesez locație pentru " + activeCourses.size() + " curse");
+            Log.e(TAG, "🚀 === PROCESS LOCATION UPDATE CALLED ===");
+            Log.e(TAG, "📡 Procesez locație pentru " + activeCourses.size() + " curse ACTIVE");
+            sendLogToJavaScript("📡 GPS PROCESS - procesez coordonate pentru " + activeCourses.size() + " curse");
             
             // CRITICAL SECURITY VALIDATION: Respinge coordonatele (0,0) sau invalide
             double latitude = location.getLatitude();
@@ -980,8 +994,13 @@ public class BackgroundGPSService extends Service {
             }
             
             if (coursesTransmitting > 0) {
-                Log.i(TAG, "✅ FUSED GPS transmis pentru " + coursesTransmitting + " curse din " + activeCourses.size() + " total");
-                sendLogToJavaScript("✅ FUSED GPS transmis - " + coursesTransmitting + " curse (" + Math.round(location.getAccuracy()) + "m precizie)");
+                Log.e(TAG, "✅ === GPS TRANSMISIE SUCCESS ===");
+                Log.e(TAG, "✅ FUSED GPS transmis pentru " + coursesTransmitting + " curse din " + activeCourses.size() + " total");
+                sendLogToJavaScript("✅ GPS TRANSMIS - " + coursesTransmitting + " curse (" + Math.round(location.getAccuracy()) + "m precizie)");
+            } else {
+                Log.e(TAG, "⚠️ === ZERO TRANSMISII ===");
+                Log.e(TAG, "⚠️ Nu s-au transmis coordonate - toate cursele sunt INACTIVE sau GPS oprit");
+                sendLogToJavaScript("⚠️ GPS ZERO transmisii - curse inactive sau GPS oprit");
             }
             
         } catch (Exception e) {
