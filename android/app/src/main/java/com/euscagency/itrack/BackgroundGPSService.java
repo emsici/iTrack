@@ -225,7 +225,7 @@ public class BackgroundGPSService extends Service {
                 
                 if (newStatus == 2) { // ACTIVE/RESUME
                     courseData.status = 2;
-                    Log.i(TAG, "GPS reactivat pentru " + specificUIT);
+                    Log.i(TAG, "🟢 RESUME: GPS reactivat pentru " + specificUIT);
                     
                     if (!isGPSRunning.get()) {
                         Log.i(TAG, "Pornesc GPS pentru resume");
@@ -235,7 +235,7 @@ public class BackgroundGPSService extends Service {
                     }
                 } else if (newStatus == 3) { // PAUSE
                     courseData.status = 3;
-                    Log.i(TAG, "GPS în pauză pentru " + specificUIT + " - NU mai transmite la server");
+                    Log.i(TAG, "🔶 PAUSE: GPS pentru " + specificUIT + " - NU mai transmite la server");
                     
                     // Verifică dacă mai există curse ACTIVE (doar status 2)
                     int activeCourseCount = 0;
@@ -252,21 +252,20 @@ public class BackgroundGPSService extends Service {
                         Log.i(TAG, "GPS continuă pentru " + activeCourseCount + " curse ACTIVE - transmisie la server");
                     }
                 } else if (newStatus == 4) { // STOP
-                    // CRITICAL FIX: NU trimite status la server din Android - JavaScript deja a trimis!
-                    Log.e(TAG, "🚫 SKIP server status update - JavaScript updateCourseStatus already sent status 4 to server");
+                    // STOP LOGIC: Frontend updateCourseStatus() already sent status 4 to server
+                    // Android only removes course from GPS tracking - NO DUPLICATE server calls
                     
                     activeCourses.remove(uniqueKeyForUpdate);
-                    Log.e(TAG, "STOP: UIT " + specificUIT + " eliminat COMPLET din tracking (GPS va fi OPRIT pentru această cursă)");
+                    Log.e(TAG, "✅ STOP: Cursă " + specificUIT + " eliminată COMPLET din GPS tracking");
                     
                     // DEBUG: Verifică câte curse mai rămân active
                     Log.e(TAG, "🔍 VERIFY STOP: Curse rămase: " + activeCourses.size());
                     
-                    // Dacă nu mai sunt curse active, GPS continuă în fundal pentru reactivare rapidă
+                    // EFFICIENCY: GPS continuă pentru reactivare rapidă sau alte curse active
                     if (activeCourses.isEmpty()) {
-                        Log.e(TAG, "🛑 TOATE cursele STOP - GPS continuă în fundal pentru reactivare rapidă");
-                        // NU opresc GPS automat - doar la logout explicit
+                        Log.e(TAG, "🔄 TOATE cursele STOP - FUSION GPS în standby pentru reactivare rapidă");
                     } else {
-                        Log.e(TAG, "⚡ GPS continuă pentru " + activeCourses.size() + " curse rămase");
+                        Log.e(TAG, "⚡ FUSION GPS continuă pentru " + activeCourses.size() + " curse rămase");
                     }
                 }
             } else {
@@ -816,9 +815,29 @@ public class BackgroundGPSService extends Service {
     }
     
     private Notification createNotification() {
+        // Count ACTIVE courses (status 2) for dynamic notification
+        int activeCourseCount = 0;
+        int totalCourses = activeCourses.size();
+        
+        for (CourseData course : activeCourses.values()) {
+            if (course.status == 2) { // DOAR ACTIVE courses
+                activeCourseCount++;
+            }
+        }
+        
+        // Dynamic notification text based on GPS state
+        String contentText;
+        if (activeCourseCount > 0) {
+            contentText = "FUSION GPS activ - " + activeCourseCount + "/" + totalCourses + " curse transmit";
+        } else if (totalCourses > 0) {
+            contentText = "FUSION GPS în standby - " + totalCourses + " curse în pauză/stop";
+        } else {
+            contentText = "FUSION GPS gata - așteaptă curse noi";
+        }
+        
         return new Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("iTrack GPS Active")
-            .setContentText("Transmisie coordonate la 10 secunde")
+            .setContentTitle("iTrack FUSION GPS")
+            .setContentText(contentText)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setOngoing(true)
             .setPriority(Notification.PRIORITY_HIGH)
