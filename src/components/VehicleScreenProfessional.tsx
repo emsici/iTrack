@@ -149,9 +149,9 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
     const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
     const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`; // UIT + Vehicul + Token = identificator COMPLET unic
     
-    // CRITICAL FIX: FORȚEAZĂ MEREU status=2 (ACTIVE) când pornesc GPS
-    // Indiferent de status-ul inițial din server, GPS-ul înseamnă că cursa devine ACTIVĂ
-    const gpsStatus = 2; // FORȚEAZĂ STATUS ACTIV pentru GPS - indiferent de statusul original din server
+    // CRITICAL SAFETY: NU FORȚA status=2 - respectă statusul actual din course
+    // GPS pornește pentru diverse statusuri (2=ACTIVE, poate și pentru monitorizare)
+    const gpsStatus = course.status; // RESPECTĂ statusul ACTUAL din server - NU forța ACTIVE
     const result = window.AndroidGPS.startGPS(
       ikRoTransKey,
       vehicleNumber,

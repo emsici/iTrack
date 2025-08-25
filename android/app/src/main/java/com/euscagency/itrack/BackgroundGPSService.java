@@ -575,13 +575,26 @@ public class BackgroundGPSService extends Service {
                         sendLogToJavaScript("❌ EROARE CRITICĂ GPS: " + e.getMessage());
                         e.printStackTrace();
                         
-                        // CRITICAL: În caz de eroare critică, încearcă recovery
+                        // CRITICAL: În caz de eroare critică, încearcă recovery DOAR dacă există curse ACTIVE
                         try {
                             Log.e(TAG, "🔄 Încercare recovery după eroare critică...");
                             if (gpsExecutor == null || gpsExecutor.isShutdown()) {
-                                Log.e(TAG, "🚨 ScheduledExecutorService compromis - RESTART COMPLET!");
-                                isGPSRunning = false;
-                                startBackgroundGPS();
+                                // CRITICAL SAFETY: Verifică dacă există curse ACTIVE înainte de restart
+                                int activeCourseCount = 0;
+                                for (CourseData course : activeCourses.values()) {
+                                    if (course.status == 2) {
+                                        activeCourseCount++;
+                                    }
+                                }
+                                
+                                if (activeCourseCount > 0) {
+                                    Log.e(TAG, "🚨 ScheduledExecutorService compromis - RESTART COMPLET pentru " + activeCourseCount + " curse ACTIVE!");
+                                    isGPSRunning = false;
+                                    startBackgroundGPS();
+                                } else {
+                                    Log.e(TAG, "🚫 RECOVERY SKIPPED - nu există curse ACTIVE (toate în PAUSE/STOP)");
+                                    sendLogToJavaScript("🚫 Recovery skipped - toate cursele în PAUSE/STOP");
+                                }
                             }
                         } catch (Exception recoveryError) {
                             Log.e(TAG, "❌ Recovery failed: " + recoveryError.getMessage());
@@ -815,20 +828,33 @@ public class BackgroundGPSService extends Service {
                                 gpsExecutor = null;
                             }
                             
-                            // Restart în 2 secunde pentru a evita conflictele
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        Thread.sleep(2000);
-                                        Log.e(TAG, "🔄 HEALTH RECOVERY: Restart GPS service...");
-                                        startBackgroundGPS();
-                                        sendLogToJavaScript("🔄 GPS Service RESTARTAT de Health Monitor");
-                                    } catch (Exception e) {
-                                        Log.e(TAG, "❌ Health recovery error: " + e.getMessage());
-                                    }
+                            // CRITICAL SAFETY: Verifică dacă există curse ACTIVE înainte de restart
+                            int activeCourseCount = 0;
+                            for (CourseData course : activeCourses.values()) {
+                                if (course.status == 2) {
+                                    activeCourseCount++;
                                 }
-                            }).start();
+                            }
+                            
+                            if (activeCourseCount > 0) {
+                                // Restart în 2 secunde pentru a evita conflictele
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Thread.sleep(2000);
+                                            Log.e(TAG, "🔄 HEALTH RECOVERY: Restart GPS service pentru " + activeCourseCount + " curse ACTIVE...");
+                                            startBackgroundGPS();
+                                            sendLogToJavaScript("🔄 GPS Service RESTARTAT de Health Monitor pentru curse ACTIVE");
+                                        } catch (Exception e) {
+                                            Log.e(TAG, "❌ Health recovery error: " + e.getMessage());
+                                        }
+                                    }
+                                }).start();
+                            } else {
+                                Log.e(TAG, "🚫 HEALTH RECOVERY SKIPPED - nu există curse ACTIVE (toate în PAUSE/STOP)");
+                                sendLogToJavaScript("🚫 Health recovery skipped - toate cursele în PAUSE/STOP");
+                            }
                             
                         } else {
                             Log.e(TAG, "✅ Health check PASSED - GPS service healthy");
