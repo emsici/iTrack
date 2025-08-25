@@ -296,8 +296,17 @@ class BackgroundPermissionsService {
       try {
         const result = await step.action();
         if (result) {
-          completedSteps++;
-          console.log(`✅ Step ${step.step} completat cu succes`);
+          // CRITICAL FIX: Reverifica status-ul real după action, nu lua doar result
+          await this.checkAllPermissions(); // Refresh status
+          const updatedSteps = this.getSetupSteps();
+          const currentStepUpdated = updatedSteps.find(s => s.step === step.step);
+          
+          if (currentStepUpdated && currentStepUpdated.isCompleted) {
+            completedSteps++;
+            console.log(`✅ Step ${step.step} completat cu succes și verificat`);
+          } else {
+            console.log(`⚠️ Step ${step.step} action executat dar permission încă nu e granted`);
+          }
         } else {
           console.log(`❌ Step ${step.step} eșuat`);
           if (step.isRequired) {
