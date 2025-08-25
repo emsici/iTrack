@@ -44,7 +44,7 @@ declare global {
 // Funcții GPS Android directe - BackgroundGPSService gestionează totul nativ
 const updateCourseStatus = async (courseId: string, courseUit: string, newStatus: number, authToken: string, vehicleNumber: string) => {
   try {
-    console.log(`Actualizez status cursă ${courseId} la ${newStatus}`);
+    console.log(`Status ${newStatus} schimbat pentru identificator ${courseId}`);
     
     // CRITICAL: Obține coordonate GPS REALE sau eșuează complet - ZERO TOLERANCE pentru date false
     let gpsData = null;
@@ -104,7 +104,7 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
     console.log(`Status server: ${response.status}`);
     
     if (response.status >= 200 && response.status < 300) {
-      console.log(`Status actualizat cu succes pentru cursă ${courseId}`);
+      console.log(`Status ${newStatus} confirmat server pentru identificator ${courseId}`);
       logAPI('Status actualizat');
     } else {
       console.error(`Eroare actualizare status ${response.status}:`, response.data);
@@ -1340,7 +1340,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   const courseForGPS = courses.find(c => c.id === courseId);
                   const oldStatus = courseForGPS?.status;
                   
-                  console.log(`Actualizare status: ${oldStatus} → ${newStatus} pentru cursă ${courseId}`);
+                  console.log(`Status ${oldStatus} → ${newStatus} schimbat pentru identificator local ${courseId}`);
                   
                   // Actualizează serverul
                   await updateCourseStatus(courseId, courseUit, newStatus, token, vehicleNumber);

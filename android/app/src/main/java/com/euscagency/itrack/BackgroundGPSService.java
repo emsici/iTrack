@@ -309,7 +309,7 @@ public class BackgroundGPSService extends Service {
             String specificUIT = intent.getStringExtra("uit");
             String vehicleForUpdate = intent.getStringExtra("vehicle"); // Vehicul pentru status update
             
-            Log.i(TAG, "Actualizare status: " + specificUIT + " → " + newStatus);
+            Log.i(TAG, "Status " + newStatus + " schimbat pentru identificator local " + specificUIT);
             
             // CRITICAL: Construiește key unic pentru găsirea cursei corecte  
             // CRITICAL FIX: Trebuie să folosească ACEEAȘI logică ca la start pentru conflict prevention
@@ -338,7 +338,7 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "🔍 DEBUG: HashMap conține " + activeCourses.size() + " curse: " + activeCourses.keySet());
             if (courseData != null) {
                 int oldStatus = courseData.status;
-                Log.i(TAG, "Status: " + oldStatus + " → " + newStatus + " pentru " + specificUIT);
+                Log.i(TAG, "Status " + oldStatus + " → " + newStatus + " schimbat pentru identificator local " + specificUIT);
                 
                 if (newStatus == 2) { // ACTIVE/RESUME
                     courseData.status = 2;
@@ -382,7 +382,7 @@ public class BackgroundGPSService extends Service {
                     stopBackgroundGPS();
                     
                     activeCourses.remove(uniqueKeyForUpdate);
-                    Log.e(TAG, "🗑️ STOP: UIT " + specificUIT + " eliminat COMPLET din tracking");
+                    Log.e(TAG, "🗑️ Status 4 schimbat pentru identificator local " + specificUIT + " - eliminat COMPLET din tracking");
                     
                     // DEBUG: Verifică câte curse mai rămân active
                     Log.e(TAG, "🔍 VERIFY STOP: Curse rămase: " + activeCourses.size());
@@ -429,7 +429,7 @@ public class BackgroundGPSService extends Service {
                     
                     if (newStatus == 3) { // PAUSE
                         foundCourse.status = 3;
-                        Log.e(TAG, "✅ FORȚAT PAUSE: Status actualizat la 3 pentru " + specificUIT);
+                        Log.e(TAG, "✅ FORȚAT PAUSE: Status 3 schimbat pentru identificator local " + specificUIT);
                         
                         // Oprește GPS complet și verifică alte curse
                         stopBackgroundGPS();
@@ -449,7 +449,7 @@ public class BackgroundGPSService extends Service {
                         }
                     } else if (newStatus == 4) { // STOP
                         activeCourses.remove(foundKey);
-                        Log.e(TAG, "✅ FORȚAT STOP: Cursă eliminată din HashMap: " + specificUIT);
+                        Log.e(TAG, "✅ FORȚAT STOP: Status 4 schimbat pentru identificator local " + specificUIT + " - eliminat din HashMap");
                         
                         stopBackgroundGPS();
                         
@@ -493,6 +493,11 @@ public class BackgroundGPSService extends Service {
         } else if (isGPSRunning) {
             Log.e(TAG, "⚠️ isGPSRunning=true dar ScheduledExecutorService nu există - RESETEZ isGPSRunning");
             isGPSRunning = false;
+        }
+        
+        // CRITICAL FIX: Pornește location updates continuous pentru locații stabile
+        if (!isLocationUpdatesActive) {
+            startContinuousLocationUpdates();
         }
         
         if (activeCourses.isEmpty()) {
@@ -622,6 +627,45 @@ public class BackgroundGPSService extends Service {
         } catch (Exception e) {
             Log.e(TAG, "❌ EROARE CRITICĂ la pornirea ScheduledExecutorService: " + e.getMessage());
             sendLogToJavaScript("❌ EROARE CRITICĂ ScheduledExecutorService: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * CRITICAL FIX: Pornește location updates continuous pentru locații stabile
+     */
+    private void startContinuousLocationUpdates() {
+        try {
+            if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "❌ Permisiuni GPS lipsă pentru location updates");
+                return;
+            }
+            
+            if (fusedLocationClient == null) {
+                Log.e(TAG, "❌ FusedLocationProviderClient null - nu pot porni location updates");
+                return;
+            }
+            
+            Log.e(TAG, "🚀 PORNESC location updates continuous pentru stabilitate...");
+            
+            // Configurează location request pentru updates continue
+            LocationRequest continuousRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, GPS_INTERVAL_SECONDS * 1000)
+                    .setMinUpdateIntervalMillis(GPS_INTERVAL_SECONDS * 1000)
+                    .setMaxUpdateAgeMillis(GPS_INTERVAL_SECONDS * 2 * 1000)
+                    .setGranularity(Granularity.GRANULARITY_FINE)
+                    .setWaitForAccurateLocation(false)
+                    .build();
+            
+            fusedLocationClient.requestLocationUpdates(continuousRequest, locationCallback, backgroundHandler.getLooper());
+            isLocationUpdatesActive = true;
+            
+            Log.e(TAG, "✅ Location updates CONTINUOUS active - va primi locații automat la " + GPS_INTERVAL_SECONDS + "s");
+            sendLogToJavaScript("✅ Location updates CONTINUOUS pornit pentru stabilitate");
+            
+        } catch (SecurityException e) {
+            Log.e(TAG, "❌ Security exception location updates: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Eroare start continuous location updates: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -816,7 +860,7 @@ public class BackgroundGPSService extends Service {
      */
     private void performGPSCycle() {
         String currentTime = new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date());
-        Log.i(TAG, "🔥 FUSED GPS ciclu început - " + activeCourses.size() + " curse");
+        Log.i(TAG, "🔥 GPS CYCLE #" + System.currentTimeMillis() + " - " + activeCourses.size() + " curse active");
         
         // Verifică dacă serviciul funcționează corect
         if (gpsExecutor == null || gpsExecutor.isShutdown()) {
@@ -827,7 +871,7 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        sendLogToJavaScript("🔥 FUSED GPS ciclu activ - " + activeCourses.size() + " curse");
+        sendLogToJavaScript("🔥 GPS CYCLE ACTIV #" + (System.currentTimeMillis()/1000) + " - " + activeCourses.size() + " curse");
         
         if (activeCourses.isEmpty()) {
             Log.w(TAG, "Nu există curse active pentru GPS");
