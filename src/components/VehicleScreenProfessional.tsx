@@ -876,26 +876,45 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <i className="fas fa-info" style={{ fontSize: '20px', color: 'white' }}></i>
           </button>
 
-          {/* Online indicator */}
-          <div style={{
-            width: '56px',
-            height: '56px',
-            background: 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)',
-            border: '2px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 16px rgba(72, 187, 120, 0.3)'
-          }}>
+          {/* Offline GPS Sync Status - Show only when there are pending coordinates */}
+          {offlineGPSCount > 0 && (
             <div style={{
-              width: '16px',
-              height: '16px',
-              background: '#ffffff',
-              borderRadius: '50%',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
-            }}></div>
-          </div>
+              width: '56px',
+              height: '56px',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 16px rgba(245, 158, 11, 0.3)',
+              position: 'relative'
+            }}>
+              <i className="fas fa-sync-alt" style={{ 
+                fontSize: '16px', 
+                color: 'white',
+                animation: 'spin 2s linear infinite'
+              }}></i>
+              <span style={{
+                position: 'absolute',
+                top: '-8px',
+                right: '-8px',
+                background: '#ef4444',
+                color: 'white',
+                borderRadius: '10px',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                minWidth: '20px',
+                height: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '2px solid white'
+              }}>
+                {offlineGPSCount > 99 ? '99+' : offlineGPSCount}
+              </span>
+            </div>
+          )}
 
           {/* Stats/Analytics - design frumos */}
           <button 
