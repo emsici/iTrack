@@ -227,6 +227,15 @@ public class BackgroundGPSService extends Service {
                 return START_STICKY;
             }
             
+            // DEBUG: Afișează toate cursele stocate pentru troubleshooting
+            Log.e(TAG, "🔍 === DEBUG TOATE CURSELE STOCATE ===");
+            Log.e(TAG, "🔎 Caut după specificUIT: '" + specificUIT + "'");
+            for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
+                CourseData course = entry.getValue();
+                Log.e(TAG, "📋 HashMap key='" + entry.getKey() + "' courseId='" + course.courseId + "' realUit='" + course.realUit + "'");
+            }
+            Log.e(TAG, "🔍 === END DEBUG ===");
+            
             // CRITICAL FIX: Caută după courseId (uitId) pentru consistență cu frontend  
             CourseData courseData = null;
             String foundKey = null;
@@ -243,6 +252,13 @@ public class BackgroundGPSService extends Service {
             }
             
             Log.i(TAG, "Căutare UIT: " + specificUIT + " → " + (courseData != null ? "GĂSIT" : "NU GĂSIT"));
+            if (courseData == null) {
+                Log.e(TAG, "❌ CRITICAL ERROR: Nu găsesc cursa pentru UPDATE status " + newStatus);
+                Log.e(TAG, "❌ Frontend a trimis specificUIT: '" + specificUIT + "'");
+                Log.e(TAG, "❌ Verifică că ikRoTransKey din frontend MATCH cu courseId din Android!");
+                return START_STICKY;
+            }
+            
             if (courseData != null) {
                 int oldStatus = courseData.status;
                 Log.i(TAG, "Status: " + oldStatus + " → " + newStatus + " pentru " + specificUIT);
