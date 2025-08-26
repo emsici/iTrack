@@ -17,22 +17,22 @@
 
 ### **Environment Management Automated (Recomandat)**
 
-**Pentru mediul TEST (development implicit):**
+**Pentru mediul DEVELOPMENT (etsm3 test):**
 ```bash
 # Windows
-start.bat
+start.bat dev
 
 # Linux/macOS  
-./start.sh
+./start.sh dev
 ```
 
-**Pentru mediul PRODUCTION (enterprise):**
+**Pentru mediul PRODUCTION (etsm_prod enterprise):**
 ```bash
 # Windows
-start.bat PROD
+start.bat prod
 
 # Linux/macOS
-./start.sh PROD
+./start.sh prod
 ```
 
 ### **Schimbarea Automată Environment Enterprise**
@@ -44,10 +44,15 @@ Scripturile automatizate gestionează:
 
 **Environment switching enterprise - zero intervenție manuală!**
 
-### **Build Manual Professional (Fallback)**
+### **Build Manual Professional cu Environment**
 ```bash
-# 1. Build enterprise complet cu dependințe
-build.bat
+# Build pentru DEVELOPMENT
+build.bat dev     # Windows
+./build.sh dev    # Linux/macOS
+
+# Build pentru PRODUCTION  
+build.bat prod    # Windows
+./build.sh prod   # Linux/macOS
 
 # SAU workflow pas cu pas:
 # 1. Instalare dependințe npm
@@ -228,23 +233,30 @@ graph TD
 
 ## 🔧 **BUILD AUTOMATION ENTERPRISE**
 
-### **Versioning System cu Environment Management**
+### **Environment Management cu Parametri**
 ```bash
-# Scripturile includ logica enterprise completă:
-# ├─ Environment switching automat (TEST ↔ PROD)
+# Scripturile acceptă parametri dev/prod pentru control complet:
+# ├─ Environment switching explicit (dev = etsm3, prod = etsm_prod)
 # ├─ Web application build optimizat (Vite)
 # ├─ Capacitor sync pentru Android
 # └─ Android Studio launch automatic
 
-start.bat               # Windows - Build TEST default
-start.bat PROD          # Windows - Build PRODUCTION enterprise  
-start.sh                # Linux/macOS - Build TEST
-start.sh PROD           # Linux/macOS - Build PRODUCTION enterprise
+# Development Server (rapid testing)
+start.bat dev           # Windows - Development (etsm3)
+start.sh dev            # Linux/macOS - Development (etsm3)
+
+# Production Server (enterprise)  
+start.bat prod          # Windows - Production (etsm_prod)
+start.sh prod           # Linux/macOS - Production (etsm_prod)
+
+# Full Build Process
+build.bat dev/prod      # Windows - Build cu environment selectabil
+build.sh dev/prod       # Linux/macOS - Build cu environment selectabil
 ```
 
 **Environments enterprise disponibile:**
-- **TEST**: `www.euscagency.com/etsm_test/` (pentru development și QA)
-- **PROD**: `www.euscagency.com/etsm_prod/` (pentru producție enterprise)
+- **dev**: `www.euscagency.com/etsm3/` (pentru development și QA)
+- **prod**: `www.euscagency.com/etsm_prod/` (pentru producție enterprise)
 
 ---
 
@@ -312,11 +324,15 @@ http://localhost:5000    # Local development URL optimizat
 
 ### **API Configuration Enterprise**
 ```typescript
-// Configurare centralizată prin automation scripts
+// Configurare centralizată prin environment variables
 API_CONFIG = {
-  TEST: "https://www.euscagency.com/etsm_test/platforme/transport/apk/",
+  DEV: "https://www.euscagency.com/etsm3/platforme/transport/apk/",
   PROD: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/"
 }
+
+// Automat prin import.meta.env cu setare în scripturi:
+// start.bat dev  -> VITE_API_BASE_URL = etsm3
+// start.bat prod -> VITE_API_BASE_URL = etsm_prod
 ```
 
 ### **Android Build Process Enterprise**
@@ -409,8 +425,12 @@ Documentation:    JSDoc comprehensive în română pentru support
 
 ### **Build Production Enterprise**
 ```bash
-start.bat PROD        # Windows PRODUCTION build enterprise
-start.sh PROD         # Linux PRODUCTION build enterprise
+build.bat prod        # Windows PRODUCTION build enterprise
+build.sh prod         # Linux PRODUCTION build enterprise
+
+# Pentru development testing
+build.bat dev         # Windows DEVELOPMENT build
+build.sh dev          # Linux DEVELOPMENT build
 
 Output Enterprise:
 ├─ dist/              # Web assets optimizate cu compression
