@@ -125,7 +125,7 @@ npx cap open android
 | **[PREZENTARE_BUSINESS_iTrack.md](./md/PREZENTARE_BUSINESS_iTrack.md)** | Prezentare tehnică business cu arhitectura pe 5 straturi | Management, Business Analysts |
 | **[PREZENTARE_CLIENTI_iTrack.md](./md/PREZENTARE_CLIENTI_iTrack.md)** | Documentație pentru clienți enterprise cu ROI și benefits | Sales, Clienți Enterprise |
 | **[replit.md](./replit.md)** | Configurații dezvoltare și istoric technical changes | Echipa de dezvoltare |
-| **[changelog.md](./md/changelog.md)** | Istoric modificări și versioning enterprise | Toate echipele |
+| **[ANALIZA_TEHNICA_COMPLETA_iTrack.md](./md/ANALIZA_TEHNICA_COMPLETA_iTrack.md)** | Changelog și istoric modificări enterprise | Toate echipele |
 
 ### **Enterprise Debugging Resources**
 - **Debug Panel**: Acces prin 50 click-uri pe footer timestamp
@@ -209,7 +209,6 @@ Capacitor Preferences Enterprise Storage:
 android/app/src/main/java/com/euscagency/itrack/
 ├─ BackgroundGPSService.java      # Serviciu GPS principal cu thread safety
 ├─ MainActivity.java              # Bridge Capacitor cu error handling
-├─ AndroidGPSInterface.java       # Interface pentru comunicare directă
 └─ capacitor.config.ts            # Configurare plugins și permissions
 ```
 
