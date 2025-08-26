@@ -1,0 +1,41 @@
+iTrack Application Logs
+Generated: 27.08.2025, 02:54:00
+Total Logs: 37
+
+[2025-08-26T23:53:55.024Z] INFO (APP): 🔔 Notificare rapidă: iTrack GPS - Debug Mode Activat - logurile apar sub cursele active
+[2025-08-26T23:53:42.494Z] ERROR (APP): ❌ Eroare sincronizare automată: TypeError: ra.syncOfflineData is not a function
+[2025-08-26T23:53:42.494Z] INFO (APP): 🌐 Conexiune restabilită - aplicația este din nou online
+[2025-08-26T23:53:40.406Z] INFO (APP): 📊 Started NEW analytics tracking for course: 136687 | UIT: 3D9E842456130159
+[2025-08-26T23:53:40.302Z] INFO (APP): 📡 Răspuns GPS: 200
+[2025-08-26T23:53:39.990Z] INFO (APP): GPS obținut: 44.2583498, 28.6176258
+[2025-08-26T23:53:37.328Z] ERROR (APP): ❌ Eroare sincronizare automată: TypeError: ra.syncOfflineData is not a function
+[2025-08-26T23:53:37.328Z] INFO (APP): 🌐 Conexiune restabilită - aplicația este din nou online
+[2025-08-26T23:53:35.578Z] INFO (APP): Actualizare status: 1 → 2 pentru cursă 136687
+[2025-08-26T23:53:32.178Z] ERROR (APP): ❌ Eroare sincronizare automată: TypeError: ra.syncOfflineData is not a function
+[2025-08-26T23:53:32.178Z] INFO (APP): 🌐 Conexiune restabilită - aplicația este din nou online
+[2025-08-26T23:53:26.920Z] INFO (APP): 🏁 LOADING STOP pentru TM31ECC
+[2025-08-26T23:53:26.418Z] INFO (API): Curse încărcate: 3 pentru TM31ECC
+[2025-08-26T23:53:26.394Z] INFO (APP): 🔧 CLEANUP: API requests cancelled for vehicle switch
+[2025-08-26T23:53:26.280Z] INFO (API): Cerere completată pentru TM31ECC - toate blocările eliminate
+[2025-08-26T23:53:26.279Z] INFO (API): Procesate 3 curse pentru TM31ECC
+[2025-08-26T23:53:26.279Z] INFO (API): API response: status=200, data={"status":"success","count":3,"data":[{"ikRoTrans":136549,"codDeclarant":"24386651","denumireDeclarant":"ONESTORE ENERGY SRL","nrVehicul":"TM31ECC","UIT":"8U6U382356130192","dataTransport":"2025-08-22","Vama":"BV","BirouVamal":"BV Târguri ?i Expozi?ii, Municipiul Bucure?ti","Judet":"B","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"Str. Rudeni nr. 77 nr. -, Chitila, Jud. Ilfov","JudetStop":"IF","denumireLocStop":"CHITILA"},{"ikRoTrans":136687,"codDeclarant":"16539878","denumireDeclarant":"EPRS.RO SRL","nrVehicul":"TM31ECC","UIT":"3D9E842456130159","dataTransport":"2025-08-22","Vama":"BV","BirouVamal":"BV Târguri ?i Expozi?ii, Municipiul Bucure?ti","Judet":"B","denumireLocStart":null,"VamaStop":"ADR","BirouVamalStop":"Strada Tebea, nr. 14 nr. -, Otopeni, Jud. Ilfov, Cod po?tal 075100","JudetStop":"IF","denumireLocStop":"OTOPENI"},{"ikRoTrans":137843,"codDeclarant":"9755224","denumireDeclarant":"OTTER-DISTRIBUTION SRL","nrVehicul":"TM31ECC","UIT":"1M2C698556130167","dataTransport":"2025-08-26","Vama":"ADR","BirouVamal":"SOSEAUA DE CENTURA NR 220 nr. -, Pantelimon, Jud. Ilfov","Judet":"IF","denumireLocStart":"PANTELIMON","VamaStop":"ADR","BirouVamalStop":"AUTOSTRADA SOARELUI KM 15 nr. -, Fundeni, Jud. Ilfov","JudetStop":"IF","denumireLocStop":"FUNDENI"}]}
+[2025-08-26T23:53:26.278Z] INFO (APP): Lungime date: Fără date
+[2025-08-26T23:53:25.354Z] INFO (API): Încărc curse pentru vehiculul TM31ECC
+[2025-08-26T23:53:25.353Z] INFO (APP): 🔍 ÎNCEPUT ÎNCĂRCARE: TM31ECC
+[2025-08-26T23:53:24.617Z] INFO (APP): 🔄 Submit click - inputValue: TM31ECC
+[2025-08-26T23:53:23.860Z] ERROR (APP): ❌ Eroare sincronizare automată: TypeError: ra.syncOfflineData is not a function
+[2025-08-26T23:53:23.859Z] INFO (APP): 🌐 Conexiune restabilită - aplicația este din nou online
+[2025-08-26T23:53:19.481Z] ERROR (APP): ❌ Eroare sincronizare automată: TypeError: ra.syncOfflineData is not a function
+[2025-08-26T23:53:19.481Z] INFO (APP): 🌐 Conexiune restabilită - aplicația este din nou online
+[2025-08-26T23:53:14.432Z] ERROR (APP): ❌ Eroare sincronizare automată: TypeError: ra.syncOfflineData is not a function
+[2025-08-26T23:53:14.431Z] INFO (APP): 🌐 Conexiune restabilită - aplicația este din nou online
+[2025-08-26T23:53:12.935Z] ERROR (APP): ❌ Eroare sincronizare automată: TypeError: ra.syncOfflineData is not a function
+[2025-08-26T23:53:12.934Z] INFO (APP): 🌐 Conexiune restabilită - aplicația este din nou online
+[2025-08-26T23:53:12.301Z] ERROR (APP): ❌ Eroare sincronizare automată: TypeError: ra.syncOfflineData is not a function
+[2025-08-26T23:53:12.277Z] ERROR (APP): ❌ Eroare sincronizare automată: TypeError: ra.syncOfflineData is not a function
+[2025-08-26T23:53:12.276Z] INFO (APP): 🌐 Conexiune restabilită - aplicația este din nou online
+[2025-08-26T23:53:10.392Z] INFO (API): Login CapacitorHttp reușit pentru +40722222222
+[2025-08-26T23:53:10.392Z] INFO (APP): ✅ Logare CapacitorHttp reușită
+[2025-08-26T23:53:10.081Z] INFO (API): Încercare login direct CapacitorHttp pentru +40722222222
+[2025-08-26T23:53:10.080Z] INFO (APP): Logare directă CapacitorHttp pentru: +40722222222
+[2025-08-26T23:53:02.201Z] INFO (SYSTEM): Logger inițializat - mode: PRODUCȚIE (FORȚAT ACTIV)

@@ -274,7 +274,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         // CRITICAL FIX: Auto-sincronizare când rețeaua revine!
         try {
           console.log('🔄 Pornesc sincronizarea automată offline...');
-          const success = await offlineGPSService.syncOfflineData(token);
+          const success = await offlineGPSService.syncOfflineCoordinates(token);
           if (success) {
             nativeNotificationService.showQuickNotification(
               'iTrack GPS', 
@@ -333,7 +333,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           const stats = await offlineGPSService.getStats();
           if (stats.totalOffline > 0 && !stats.syncInProgress) {
             console.log('🔄 Încercare sincronizare periodică...');
-            await offlineGPSService.syncOfflineData(token);
+            await offlineGPSService.syncOfflineCoordinates(token);
           }
         }
       } catch (error) {

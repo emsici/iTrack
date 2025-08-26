@@ -16,6 +16,9 @@ class AndroidNotificationService implements NotificationService {
     try {
       const message = this.formatTrackingMessage(activeCourses);
       
+      // Așteaptă ca bridge-ul să fie gata
+      await this.waitForAndroidBridge();
+      
       // Verifică dacă AndroidGPS este disponibil
       if (window.AndroidGPS?.showPersistentNotification) {
         await window.AndroidGPS.showPersistentNotification(
@@ -25,11 +28,31 @@ class AndroidNotificationService implements NotificationService {
         );
         console.log('🔔 Notificare persistentă afișată:', message);
       } else {
-        console.log('⚠️ AndroidGPS nu e disponibil pentru notificări');
+        console.log('⚠️ AndroidGPS nu e disponibil pentru notificări persistente');
+        console.log('🔍 Debug - window.AndroidGPS:', window.AndroidGPS);
       }
     } catch (error) {
       console.error('❌ Eroare afișare notificare persistentă:', error);
     }
+  }
+
+  /**
+   * Așteaptă ca bridge-ul Android să fie disponibil
+   */
+  private async waitForAndroidBridge(maxWait: number = 5000): Promise<void> {
+    const startTime = Date.now();
+    
+    while (Date.now() - startTime < maxWait) {
+      if (window.AndroidGPS?.showPersistentNotification) {
+        console.log('✅ AndroidGPS bridge gata!');
+        return;
+      }
+      
+      // Așteaptă 100ms și încearcă din nou
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    console.log('⏰ Timeout waiting for AndroidGPS bridge');
   }
 
   /**
@@ -51,9 +74,14 @@ class AndroidNotificationService implements NotificationService {
    */
   async showQuickNotification(title: string, message: string, duration: number = 5000): Promise<void> {
     try {
+      // Așteaptă ca bridge-ul să fie gata
+      await this.waitForAndroidBridge();
+      
       if (window.AndroidGPS?.showQuickNotification) {
         await window.AndroidGPS.showQuickNotification(title, message, duration);
-        console.log('🔔 Notificare rapidă:', title, '-', message);
+        console.log('🔔 Notificare rapidă trimisă:', title, '-', message);
+      } else {
+        console.log('⚠️ AndroidGPS nu e disponibil pentru notificări rapide');
       }
     } catch (error) {
       console.error('❌ Eroare notificare rapidă:', error);
@@ -64,6 +92,13 @@ class AndroidNotificationService implements NotificationService {
    * Actualizează notificarea persistentă cu noile curse
    */
   async updateTrackingNotification(activeCourses: Course[]): Promise<void> {
+    console.log(`🔔 updateTrackingNotification called with ${activeCourses.length} courses`);
+    console.log('🔔 AndroidGPS availability:', {
+      exists: !!window.AndroidGPS,
+      showPersistent: !!window.AndroidGPS?.showPersistentNotification,
+      showQuick: !!window.AndroidGPS?.showQuickNotification
+    });
+    
     if (activeCourses.length > 0) {
       await this.showPersistentTracking(activeCourses);
     } else {
