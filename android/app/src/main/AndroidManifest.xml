@@ -43,16 +43,10 @@
             
         
             
-        <!-- Background Auto-Refresh Service -->
-        <service
-            android:name="com.itrack.BackgroundRefreshService"
-            android:enabled="true"
-            android:exported="false" />
-            
-        <receiver
-            android:name="com.itrack.BackgroundRefreshService$RefreshReceiver"
-            android:enabled="true"
-            android:exported="false" />
+        <!-- REMOVED: BackgroundRefreshService - serviciu izolat și nefolosit
+             Service-ul era în pachetul com.itrack (inconsistent cu com.euscagency.itrack)
+             Nu avea niciun starter sau listener, consumând doar resurse
+             Logica de refresh este deja implementată în BackgroundGPSService -->
             
         <!-- GPS Broadcast Receiver for independent activation -->
 
@@ -98,9 +92,8 @@
     
     <!-- Removed external storage permissions - using internal storage -->
     
-    <!-- Background refresh permissions -->
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <!-- REMOVED: Background refresh permissions - nu mai sunt necesare
+         BackgroundRefreshService a fost eliminat -->
     
     <!-- Real device data permissions for authentic GPS transmission -->
     <uses-permission android:name="android.permission.BATTERY_STATS" />
