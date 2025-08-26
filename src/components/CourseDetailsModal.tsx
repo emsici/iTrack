@@ -298,7 +298,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           {/* SECȚIUNEA 2: Declarant */}
           <div style={{
             padding: '16px',
-            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
             borderRadius: '12px',
             border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
             marginBottom: '12px'
@@ -317,7 +317,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             </h3>
             <div style={{ 
               fontSize: '14px',
-              color: currentTheme === 'dark' ? '#ffffff' : '#2d3748'
+              color: currentTheme === 'dark' ? '#ffffff' : '#1a202c'
             }}>
               <div style={{ marginBottom: '8px' }}><strong>Cod Declarant:</strong> {course.codDeclarant || 'N/A'}</div>
               <div><strong>Denumire Declarant:</strong> {course.denumireDeclarant || 'N/A'}</div>
@@ -327,7 +327,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           {/* SECȚIUNEA 3: Locație Plecare */}
           <div style={{
             padding: '16px',
-            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
             borderRadius: '12px',
             border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
             marginBottom: '12px'
@@ -346,7 +346,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             </h3>
             <div style={{ 
               fontSize: '14px',
-              color: currentTheme === 'dark' ? '#ffffff' : '#2d3748'
+              color: currentTheme === 'dark' ? '#ffffff' : '#1a202c'
             }}>
               <div style={{ marginBottom: '8px' }}><strong>Vamă:</strong> {course.Vama || course.vama || 'N/A'}</div>
               <div style={{ marginBottom: '8px' }}><strong>Birou Vamal:</strong> {course.BirouVamal || course.birouVamal || 'N/A'}</div>
@@ -358,7 +358,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           {/* SECȚIUNEA 4: Locație Sosire */}
           <div style={{
             padding: '16px',
-            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
             borderRadius: '12px',
             border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
             marginBottom: '12px'
@@ -377,7 +377,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             </h3>
             <div style={{ 
               fontSize: '14px',
-              color: currentTheme === 'dark' ? '#ffffff' : '#2d3748'
+              color: currentTheme === 'dark' ? '#ffffff' : '#1a202c'
             }}>
               <div style={{ marginBottom: '8px' }}><strong>Vamă Stop:</strong> {course.VamaStop || course.vamaStop || 'N/A'}</div>
               <div style={{ marginBottom: '8px' }}><strong>Birou Vamal Stop:</strong> {course.BirouVamalStop || course.birouVamalStop || 'N/A'}</div>
@@ -389,7 +389,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           {/* SECȚIUNEA 5: Statistici Cursă GPS */}
           <div style={{
             padding: '16px',
-            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
             borderRadius: '12px',
             border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
             marginBottom: '12px'
@@ -606,7 +606,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           {/* SECȚIUNEA 6: Harta cu Opriri GPS */}
           <div style={{
             padding: '16px',
-            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(248, 250, 252, 0.9)',
+            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
             borderRadius: '12px',
             border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
             marginBottom: '12px'

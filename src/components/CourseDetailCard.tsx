@@ -55,7 +55,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = memo(({
         case 1: return '#3b82f6'; // Disponibilă - albastru
         case 2: return '#10b981'; // În progres - verde  
         case 3: return '#f59e0b'; // Pauzată - galben
-        case 4: return '#ef4444'; // Finalizată - roșu
+        case 4: return '#10b981'; // Finalizată - verde
         default: return '#6b7280'; // Unknown - gri
       }
     };

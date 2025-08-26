@@ -751,7 +751,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
       {/* Header optimizat și frumos */}
       <div style={{ 
-        paddingTop: 'max(env(safe-area-inset-top), 20px)', 
+        paddingTop: 'max(env(safe-area-inset-top), 40px)', 
         background: themeColors.headerBg,
         borderBottom: `1px solid ${themeColors.border}`,
         position: 'sticky',

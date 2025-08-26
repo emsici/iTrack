@@ -97,7 +97,7 @@ const CourseStatsModal: React.FC<CourseStatsModalProps> = ({
       case 1: return { icon: 'fa-clock', color: '#64748b' };
       case 2: return { icon: 'fa-play', color: '#16a34a' };
       case 3: return { icon: 'fa-pause', color: '#f59e0b' };
-      case 4: return { icon: 'fa-stop', color: '#dc2626' };
+      case 4: return { icon: 'fa-check', color: '#10b981' };
       default: return { icon: 'fa-question', color: '#64748b' };
     }
   };
