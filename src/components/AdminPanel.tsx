@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAppLogs, AppLog } from '../services/appLogger';
+import { getAppLogs, clearAppLogs, AppLog } from '../services/appLogger';
 
 interface AdminPanelProps {
   isOpen: boolean;
@@ -93,7 +93,16 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
-  // Clear logs functionality - REMOVED per user request
+  // Clear logs functionality
+  const handleClearLogs = async () => {
+    try {
+      await clearAppLogs();
+      setLogs([]);
+      console.log('Log-uri șterse cu succes');
+    } catch (error) {
+      console.error('Eroare la ștergerea log-urilor:', error);
+    }
+  };
 
   // Removed unused function - cleaned up
 
@@ -276,6 +285,19 @@ const AdminPanel: React.FC<AdminPanelProps> = ({
           {isCopyingLogs ? 'Se copiază...' : copySuccess ? 'Copiat!' : 'Copiază Log-uri'}
         </button>
         
+        <button
+          onClick={handleClearLogs}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#f59e0b',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          Șterge Log-uri
+        </button>
       </div>
 
       <div style={{
