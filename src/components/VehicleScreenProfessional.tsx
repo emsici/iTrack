@@ -321,7 +321,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               course.id === activeUit
             );
             
-            console.log(`🔍 Caut cursă pentru UIT=${activeUit}, realUit=${realUit}, ikRoTrans=${ikRoTrans}`);
+            console.log(`🔍 Caut cursă pentru UIT=${activeUit}, realUit=${realUit}, ikRoTrans=${ikRoTrans}, uniqueKey=${uniqueKey}`);
             console.log(`📋 ${courses.length} curse în listă:`, courses.map(c => `${c.id}(uit:${c.uit}, ikRo:${c.ikRoTrans}, status:${c.status})`));
             if (activeCourse) {
               // Adaugă coordonatele în courseAnalyticsService pentru vizualizare pe hartă
