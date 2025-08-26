@@ -76,7 +76,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px',
+        padding: '40px 20px 20px 20px',
         boxSizing: 'border-box'
       }}>
       <div 
@@ -638,44 +638,6 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             )}
           </div>
 
-          {/* SECȚIUNEA 6: Harta cu Opriri GPS */}
-          <div style={{
-            padding: '16px',
-            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
-            borderRadius: '12px',
-            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
-            marginBottom: '12px'
-          }}>
-            <h3 style={{
-              fontSize: '16px',
-              fontWeight: '700',
-              color: currentTheme === 'dark' ? '#ffffff' : '#1a202c',
-              margin: '0 0 16px 0',
-              display: 'flex',
-              alignItems: 'center'
-            }}>
-              <i className="fas fa-map-marker-alt" style={{ 
-                marginRight: '8px', 
-                color: '#10b981' 
-              }}></i>
-              Harta cu Opriri GPS
-            </h3>
-            
-            {courseStats && courseStats.gpsPoints && courseStats.gpsPoints.length > 0 ? (
-              <div style={{ color: currentTheme === 'dark' ? '#94a3b8' : '#4b5563', fontSize: '14px' }}>
-                Harta se încarcă cu {courseStats.gpsPoints.length} puncte GPS...
-              </div>
-            ) : (
-              <div style={{ 
-                textAlign: 'center', 
-                color: currentTheme === 'dark' ? '#94a3b8' : '#4b5563', 
-                fontSize: '14px',
-                fontStyle: 'italic'
-              }}>
-                Pornește GPS-ul pentru a vedea harta cu opriri
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </div>
