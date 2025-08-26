@@ -284,7 +284,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   // EXPUNE courseAnalyticsService la global window pentru Android bridge
   useEffect(() => {
     window.courseAnalyticsService = courseAnalyticsService;
-    console.log('✅ courseAnalyticsService exposed to window for Android bridge');
     
     return () => {
       window.courseAnalyticsService = undefined;

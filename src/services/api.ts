@@ -465,14 +465,13 @@ export const sendGPSData = async (
     };
 
     try {
-      console.log("📡 GPS Transmission to gps.php");
-      console.log("🔐 FULL TOKEN BEING SENT:", `Bearer ${token}`);
+      console.log("📡 Transmisie GPS către gps.php");
       console.log("🎯 Request URL:", `${API_BASE_URL}gps.php`);
       console.log("Vehicle:", gpsData.numar_inmatriculare);
       console.log("UIT:", gpsData.uit);
       console.log("Status:", gpsData.status);
       console.log(
-        "🚨 COMPLETE GPS DATA BEING SENT:",
+        "🚨 DATE GPS COMPLETE TRIMISE:",
         JSON.stringify(gpsData, null, 2),
       );
 
@@ -504,10 +503,10 @@ export const sendGPSData = async (
         },
       });
 
-      console.log(`📡 GPS Response: ${response.status}`);
+      console.log(`📡 Răspuns GPS: ${response.status}`);
 
       if (response.status === 200 || response.status === 204) {
-        console.log("✅ GPS data transmitted successfully");
+        console.log("✅ Date GPS transmise cu succes");
         // SUCCESS: Server răspunde, suntem online
         return true;
       } else {
