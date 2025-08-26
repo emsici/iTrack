@@ -45,11 +45,11 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
 
   const getStatusColor = (status: number) => {
     switch (status) {
-      case 1: return '#2563eb'; // Disponibilă - albastru
-      case 2: return '#059669'; // În progres - verde intens
-      case 3: return '#f59e0b'; // Pauzată - galben
-      case 4: return '#ef4444'; // Finalizată - roșu
-      default: return '#6b7280';
+      case 1: return '#2563eb'; // Disponibilă - albastru profesional
+      case 2: return '#10b981'; // În progres - verde vizibil
+      case 3: return '#f59e0b'; // Pauzată - galben vibrant
+      case 4: return '#ef4444'; // Finalizată - roșu clar
+      default: return '#6b7280'; // Status necunoscut - gri
     }
   };
 
@@ -99,9 +99,13 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                     ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.98) 0%, rgba(6, 95, 70, 0.98) 100%)'
                     : currentTheme === 'night'
                       ? 'linear-gradient(135deg, rgba(30, 27, 75, 0.98) 0%, rgba(49, 46, 129, 0.98) 100%)'
-                      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+                      : currentTheme === 'ocean'
+                        ? 'linear-gradient(135deg, rgba(12, 74, 110, 0.98) 0%, rgba(14, 116, 144, 0.98) 100%)'
+                        : currentTheme === 'carbon'
+                          ? 'linear-gradient(135deg, rgba(17, 24, 39, 0.98) 0%, rgba(31, 41, 55, 0.98) 100%)'
+                          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
           backdropFilter: 'blur(20px)',
-          border: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+          border: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night' || currentTheme === 'ocean' || currentTheme === 'carbon'
             ? '1px solid rgba(255, 255, 255, 0.1)'
             : '1px solid rgba(0, 0, 0, 0.1)',
           borderRadius: '24px',
@@ -132,7 +136,11 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                     ? '#a7f3d0'
                     : currentTheme === 'night'
                       ? '#c7d2fe'
-                      : '#000000',
+                      : currentTheme === 'ocean'
+                        ? '#f0f9ff'
+                        : currentTheme === 'carbon'
+                          ? '#ecfdf5'
+                          : '#000000',
             fontSize: '24px',
             cursor: 'pointer',
             padding: '8px',
@@ -172,7 +180,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             <i className="fas fa-truck"></i>
           </div>
           <h2 style={{
-            color: currentTheme === 'dark' ? '#ffffff' : '#2d3748',
+            color: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '#ffffff' : '#2d3748',
             fontSize: '22px',
             fontWeight: '700',
             margin: '0 0 8px 0'
@@ -190,7 +198,11 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                     ? '#a7f3d0'
                     : currentTheme === 'night'
                       ? '#c7d2fe'
-                      : '#000000',
+                      : currentTheme === 'ocean'
+                        ? '#f0f9ff'
+                        : currentTheme === 'carbon'
+                          ? '#ecfdf5'
+                          : '#000000',
             fontSize: '14px',
             margin: 0
           }}>
@@ -233,15 +245,15 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           {/* SECȚIUNEA 1: Identificare Transport */}
           <div style={{
             padding: '16px',
-            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
+            background: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.95)',
             borderRadius: '12px',
-            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            border: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
             marginBottom: '12px'
           }}>
             <h3 style={{
               fontSize: '16px',
               fontWeight: '700',
-              color: currentTheme === 'dark' ? '#ffffff' : '#1a202c',
+              color: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '#ffffff' : '#1a202c',
               margin: '0 0 12px 0',
               display: 'flex',
               alignItems: 'center',
@@ -261,15 +273,15 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           {/* SECȚIUNEA 2: Declarant */}
           <div style={{
             padding: '16px',
-            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
+            background: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.95)',
             borderRadius: '12px',
-            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            border: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
             marginBottom: '12px'
           }}>
             <h3 style={{
               fontSize: '16px',
               fontWeight: '700',
-              color: currentTheme === 'dark' ? '#ffffff' : '#1a202c',
+              color: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '#ffffff' : '#1a202c',
               margin: '0 0 12px 0',
               display: 'flex',
               alignItems: 'center',
@@ -290,15 +302,15 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           {/* SECȚIUNEA 3: Locație Plecare */}
           <div style={{
             padding: '16px',
-            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
+            background: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.95)',
             borderRadius: '12px',
-            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            border: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
             marginBottom: '12px'
           }}>
             <h3 style={{
               fontSize: '16px',
               fontWeight: '700',
-              color: currentTheme === 'dark' ? '#ffffff' : '#1a202c',
+              color: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '#ffffff' : '#1a202c',
               margin: '0 0 12px 0',
               display: 'flex',
               alignItems: 'center',
@@ -321,15 +333,15 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           {/* SECȚIUNEA 4: Locație Sosire */}
           <div style={{
             padding: '16px',
-            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
+            background: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.95)',
             borderRadius: '12px',
-            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            border: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
             marginBottom: '12px'
           }}>
             <h3 style={{
               fontSize: '16px',
               fontWeight: '700',
-              color: currentTheme === 'dark' ? '#ffffff' : '#1a202c',
+              color: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '#ffffff' : '#1a202c',
               margin: '0 0 12px 0',
               display: 'flex',
               alignItems: 'center',
@@ -352,15 +364,15 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           {/* SECȚIUNEA 5: Statistici Cursă GPS */}
           <div style={{
             padding: '16px',
-            background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
+            background: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.95)',
             borderRadius: '12px',
-            border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            border: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
             marginBottom: '12px'
           }}>
             <h3 style={{
               fontSize: '16px',
               fontWeight: '700',
-              color: currentTheme === 'dark' ? '#ffffff' : '#1a202c',
+              color: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '#ffffff' : '#1a202c',
               margin: '0 0 16px 0',
               display: 'flex',
               alignItems: 'center',
@@ -644,15 +656,15 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
           {courseStats && courseStats.gpsPoints && courseStats.gpsPoints.length > 0 && (
             <div style={{
               padding: '16px',
-              background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
+              background: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.95)',
               borderRadius: '12px',
-              border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+              border: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
               marginBottom: '12px'
             }}>
               <h3 style={{
                 fontSize: '16px',
                 fontWeight: '700',
-                color: currentTheme === 'dark' ? '#ffffff' : '#1a202c',
+                color: currentTheme === 'dark' || currentTheme === 'ocean' || currentTheme === 'carbon' ? '#ffffff' : '#1a202c',
                 margin: '0 0 16px 0',
                 display: 'flex',
                 alignItems: 'center'
