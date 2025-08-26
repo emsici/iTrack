@@ -17,6 +17,7 @@ import CourseDetailsModal from "./CourseDetailsModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme } from "../services/themeService";
 import { courseAnalyticsService } from "../services/courseAnalytics";
+import OfflineSyncMonitor from "./OfflineSyncMonitor";
 
 // Interfață TypeScript pentru AndroidGPS bridge
 declare global {
@@ -241,8 +242,35 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const currentVehicleRef = useRef<string>('');
   const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
 
-  // Offline GPS count handled by BackgroundGPSService natively
-  const [offlineGPSCount] = useState(0);
+  // Network and offline monitoring
+  const [isOnline, setIsOnline] = useState(true);
+  
+  // Network status monitoring
+  useEffect(() => {
+    const checkNetworkStatus = async () => {
+      try {
+        const status = await Network.getStatus();
+        setIsOnline(status.connected);
+      } catch (error) {
+        console.error('Network status check failed:', error);
+      }
+    };
+
+    checkNetworkStatus();
+
+    const networkListener = Network.addListener('networkStatusChange', (status) => {
+      setIsOnline(status.connected);
+      if (status.connected) {
+        console.log('🌐 Conexiune restabilită - aplicația este din nou online');
+      } else {
+        console.log('📴 Conexiune pierdută - aplicația funcționează offline');
+      }
+    });
+
+    return () => {
+      networkListener.then(listener => listener.remove());
+    };
+  }, []);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -414,7 +442,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       setLoadingCourses(new Set());
       console.log('🔧 CLEANUP: Loading states cleared');
     };
-  }, [vehicleNumber, token, coursesLoaded, offlineGPSCount]);
+  }, [vehicleNumber, token, coursesLoaded]);
 
   // SENIOR DEVELOPER FIX: Race condition protected course loading
   const handleLoadCourses = async () => {
@@ -858,46 +886,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <i className="fas fa-info" style={{ fontSize: '20px', color: 'white' }}></i>
           </button>
 
-          {/* Offline GPS Sync Status - Show only when there are pending coordinates */}
-          {offlineGPSCount > 0 && (
-            <div style={{
-              width: '56px',
-              height: '56px',
-              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-              border: '2px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 16px rgba(245, 158, 11, 0.3)',
-              position: 'relative'
-            }}>
-              <i className="fas fa-sync-alt" style={{ 
-                fontSize: '16px', 
-                color: 'white',
-                animation: 'spin 2s linear infinite'
-              }}></i>
-              <span style={{
-                position: 'absolute',
-                top: '-8px',
-                right: '-8px',
-                background: '#ef4444',
-                color: 'white',
-                borderRadius: '10px',
-                fontSize: '10px',
-                fontWeight: 'bold',
-                minWidth: '20px',
-                height: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '2px solid white'
-              }}>
-                {offlineGPSCount > 99 ? '99+' : offlineGPSCount}
-              </span>
-            </div>
-          )}
-
           {/* Stats/Analytics - design frumos */}
           <button 
             onClick={() => setShowStatsModal(true)}
@@ -933,6 +921,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             }}>
             <i className="fas fa-sign-out-alt" style={{ fontSize: '20px', color: 'white' }}></i>
           </button>
+        </div>
+
+        {/* Offline GPS Sync Monitor - poziționat în header pentru vizibilitate optimă */}
+        <div style={{ padding: '0 24px 20px' }}>
+          <OfflineSyncMonitor 
+            isOnline={isOnline}
+            className="mb-3"
+          />
         </div>
       </div>
 
