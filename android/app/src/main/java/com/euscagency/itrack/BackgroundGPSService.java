@@ -1209,4 +1209,21 @@ public class BackgroundGPSService extends Service {
             notificationManager.notify(NOTIFICATION_ID, createNotification());
         }
     }
+    
+    // CLASA AUXILIARĂ: OfflineGPSData pentru stocarea coordonatelor GPS offline cu retry logic
+    private static class OfflineGPSData {
+        public final org.json.JSONObject gpsData;
+        public final long timestamp;
+        public final int retryCount;
+        
+        public OfflineGPSData(org.json.JSONObject gpsData, long timestamp) {
+            this(gpsData, timestamp, 0);
+        }
+        
+        public OfflineGPSData(org.json.JSONObject gpsData, long timestamp, int retryCount) {
+            this.gpsData = gpsData;
+            this.timestamp = timestamp;
+            this.retryCount = retryCount;
+        }
+    }
 }
