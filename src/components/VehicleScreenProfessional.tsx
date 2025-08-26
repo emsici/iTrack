@@ -613,6 +613,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         text: '#ffffff',
         headerBg: 'linear-gradient(135deg, #4c1d95 0%, #5b21b6 100%)',
         border: 'rgba(255, 255, 255, 0.2)'
+      },
+      ocean: {
+        bg: 'linear-gradient(135deg, #0c4a6e 0%, #075985 100%)',
+        text: '#f0f9ff',
+        headerBg: 'linear-gradient(135deg, #0c4a6e 0%, #075985 100%)',
+        border: 'rgba(240, 249, 255, 0.2)'
+      },
+      carbon: {
+        bg: 'linear-gradient(135deg, #111827 0%, #1f2937 100%)',
+        text: '#ecfdf5',
+        headerBg: 'linear-gradient(135deg, #111827 0%, #1f2937 100%)',
+        border: 'rgba(236, 253, 245, 0.2)'
       }
     };
     return themes[currentTheme] || themes.dark;

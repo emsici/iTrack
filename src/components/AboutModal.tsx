@@ -3,7 +3,7 @@ import React from 'react';
 interface AboutModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentTheme: 'dark' | 'light' | 'driver' | 'business' | 'nature' | 'night';
+  currentTheme: string;
 }
 
 const AboutModal: React.FC<AboutModalProps> = ({ 
@@ -49,9 +49,13 @@ const AboutModal: React.FC<AboutModalProps> = ({
                     ? 'linear-gradient(135deg, rgba(6, 78, 59, 0.98) 0%, rgba(6, 95, 70, 0.98) 100%)'
                     : currentTheme === 'night'
                       ? 'linear-gradient(135deg, rgba(30, 27, 75, 0.98) 0%, rgba(49, 46, 129, 0.98) 100%)'
-                      : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+                      : currentTheme === 'ocean'
+                        ? 'linear-gradient(135deg, rgba(12, 74, 110, 0.98) 0%, rgba(7, 89, 133, 0.98) 100%)'
+                        : currentTheme === 'carbon'
+                          ? 'linear-gradient(135deg, rgba(17, 24, 39, 0.98) 0%, rgba(31, 41, 55, 0.98) 100%)'
+                          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
           backdropFilter: 'blur(20px)',
-          border: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night'
+          border: currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night' || currentTheme === 'ocean' || currentTheme === 'carbon'
             ? '1px solid rgba(255, 255, 255, 0.1)'
             : '1px solid rgba(0, 0, 0, 0.1)',
           borderRadius: '24px',

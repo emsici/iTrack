@@ -17,7 +17,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   if (!isOpen) return null;
 
-  const isDarkVariant = currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night';
+  const isDarkVariant = currentTheme === 'dark' || currentTheme === 'driver' || currentTheme === 'nature' || currentTheme === 'night' || currentTheme === 'ocean' || currentTheme === 'carbon';
 
   return (
     <div 
@@ -137,7 +137,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             {(Object.keys(THEME_INFO) as Theme[]).map((theme) => {
               const themeInfo = THEME_INFO[theme];
               const isSelected = currentTheme === theme;
-              const isThemeDark = theme === 'dark' || theme === 'driver' || theme === 'nature' || theme === 'night';
+              const isThemeDark = theme === 'dark' || theme === 'driver' || theme === 'nature' || theme === 'night' || theme === 'ocean' || theme === 'carbon';
               
               // Theme preview colors
               const getThemePreview = (theme: Theme) => {
@@ -148,6 +148,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   case 'business': return ['#f8fafc', '#3b82f6', '#1e293b'];
                   case 'nature': return ['#064e3b', '#10b981', '#d1fae5'];
                   case 'night': return ['#1e1b4b', '#8b5cf6', '#e0e7ff'];
+                  case 'ocean': return ['#0c4a6e', '#0ea5e9', '#f0f9ff'];
+                  case 'carbon': return ['#111827', '#10b981', '#ecfdf5'];
                   default: return ['#0f172a', '#1e293b', '#475569'];
                 }
               };

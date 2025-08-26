@@ -1,6 +1,6 @@
 import { Preferences } from '@capacitor/preferences';
 
-export type Theme = 'dark' | 'light' | 'driver' | 'business' | 'nature' | 'night';
+export type Theme = 'dark' | 'light' | 'driver' | 'business' | 'nature' | 'night' | 'ocean' | 'carbon';
 
 const THEME_STORAGE_KEY = 'app_theme';
 
@@ -11,7 +11,7 @@ export class ThemeService {
   async loadTheme(): Promise<Theme> {
     try {
       const { value } = await Preferences.get({ key: THEME_STORAGE_KEY });
-      if (value && ['light', 'dark', 'driver', 'business', 'nature', 'night'].includes(value)) {
+      if (value && ['light', 'dark', 'driver', 'business', 'nature', 'night', 'ocean', 'carbon'].includes(value)) {
         this.currentTheme = value as Theme;
       }
     } catch (error) {
@@ -133,6 +133,34 @@ export class ThemeService {
         successColor: '#10b981',
         warningColor: '#f59e0b',
         errorColor: '#f87171'
+      },
+      ocean: {
+        bgPrimary: 'rgba(12, 74, 110, 0.95)',
+        bgSecondary: 'rgba(7, 89, 133, 0.95)',
+        bgTertiary: 'rgba(3, 105, 161, 0.95)',
+        textPrimary: '#f0f9ff',
+        textSecondary: '#e0f2fe',
+        textMuted: '#bae6fd',
+        borderColor: 'rgba(14, 165, 233, 0.3)',
+        shadowColor: 'rgba(14, 165, 233, 0.2)',
+        accentColor: '#0ea5e9',
+        successColor: '#06b6d4',
+        warningColor: '#f59e0b',
+        errorColor: '#ef4444'
+      },
+      carbon: {
+        bgPrimary: 'rgba(17, 24, 39, 0.95)',
+        bgSecondary: 'rgba(31, 41, 55, 0.95)',
+        bgTertiary: 'rgba(55, 65, 81, 0.95)',
+        textPrimary: '#ecfdf5',
+        textSecondary: '#d1fae5',
+        textMuted: '#a7f3d0',
+        borderColor: 'rgba(16, 185, 129, 0.3)',
+        shadowColor: 'rgba(16, 185, 129, 0.2)',
+        accentColor: '#10b981',
+        successColor: '#22c55e',
+        warningColor: '#fbbf24',
+        errorColor: '#ef4444'
       }
     };
 
@@ -197,7 +225,9 @@ export class ThemeService {
       'business': '#0f172a',  // FIXED: Dark status bar for business theme  
       'driver': '#1c1917',    // Dark brown
       'nature': '#064e3b',    // Dark green
-      'night': '#1e1b4b'      // Dark blue
+      'night': '#1e1b4b',     // Dark blue
+      'ocean': '#0c4a6e',     // Deep ocean blue
+      'carbon': '#111827'     // Carbon black
     };
     return statusBarColors[theme] || statusBarColors.dark;
   }
@@ -223,5 +253,7 @@ export const THEME_INFO = {
   driver: { name: 'Șofer', description: 'Tema caldă pentru șoferi profesioniști', icon: 'truck' },
   business: { name: 'Business', description: 'Tema corporate pentru manageri', icon: 'briefcase' },
   nature: { name: 'Natură', description: 'Tema verde pentru relaxare', icon: 'leaf' },
-  night: { name: 'Nocturnă', description: 'Tema violet pentru condusul nocturn', icon: 'star' }
+  night: { name: 'Nocturnă', description: 'Tema violet pentru condusul nocturn', icon: 'star' },
+  ocean: { name: 'Ocean', description: 'Tema albastru oceanic cu contrast perfect', icon: 'water' },
+  carbon: { name: 'Carbon', description: 'Tema carbon negru cu accente verde', icon: 'bolt' }
 };
