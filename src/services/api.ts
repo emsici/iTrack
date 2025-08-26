@@ -166,8 +166,8 @@ export const getVehicleCourses = async (
     // Always clear locks, even on error
     currentVehicleRequest = null;
     requestInProgress = false;
-    console.log("Request completed - locks cleared");
-    logAPI(`Request completed for ${vehicleNumber} - all locks cleared`);
+    console.log("Cerere completată - blocuri eliminate");
+    logAPI(`Cerere completată pentru ${vehicleNumber} - toate blocurile eliminate`);
   }
 };
 
@@ -278,29 +278,29 @@ const performVehicleCoursesRequest = async (
           );
 
           console.log(
-            `Processed ${processedCourses.length} courses successfully`,
+            `Procesate ${processedCourses.length} curse cu succes`,
           );
           logAPI(
-            `Processed ${processedCourses.length} courses for ${vehicleNumber}`,
+            `Procesate ${processedCourses.length} curse pentru ${vehicleNumber}`,
           );
           return processedCourses;
         } else {
-          console.log("No courses found for vehicle");
+          console.log("Nu s-au găsit curse pentru vehicul");
           return [];
         }
       } else {
-        console.log("Invalid API response format");
-        logAPI(`Invalid response format: ${JSON.stringify(responseData)}`);
+        console.log("Format răspuns API invalid");
+        logAPI(`Format răspuns invalid: ${JSON.stringify(responseData)}`);
         return [];
       }
     } else {
-      console.log("Non-200 HTTP response:", response.status);
-      console.log("Continuing with empty array instead of throwing error");
+      console.log("Răspuns HTTP non-200:", response.status);
+      console.log("Continuă cu array gol în loc de eroare");
       return [];
     }
   } catch (error) {
-    console.error("Error loading vehicle courses:", error);
-    logAPI(`Error loading courses for ${vehicleNumber}: ${error}`);
+    console.error("Eroare la încărcarea curselor vehiculului:", error);
+    logAPI(`Eroare încărcare curse pentru ${vehicleNumber}: ${error}`);
     // Return empty array instead of throwing error to allow graceful degradation
     return [];
   }
@@ -308,15 +308,15 @@ const performVehicleCoursesRequest = async (
 
 export const logout = async (token: string): Promise<boolean> => {
   try {
-    console.log("Starting logout process with Bearer token");
-    logAPI("Starting logout process");
+    console.log("Începerea procesului de deconectare cu Bearer token");
+    logAPI("Începerea procesului de deconectare");
 
     // Use centralized API configuration
     const logoutUrl = `${API_BASE_URL}logout.php`;
 
     // CapacitorHttp pentru logout (unified HTTP method)
     try {
-      console.log("=== CapacitorHttp logout ===");
+      console.log("=== Deconectare CapacitorHttp ===");
 
       const response = await CapacitorHttp.post({
         url: logoutUrl,
@@ -330,21 +330,21 @@ export const logout = async (token: string): Promise<boolean> => {
       });
 
       if (response.status >= 200 && response.status < 300) {
-        console.log("CapacitorHttp logout successful");
-        logAPI("CapacitorHttp logout successful");
+        console.log("Deconectare CapacitorHttp reușită");
+        logAPI("Deconectare CapacitorHttp reușită");
         return true;
       }
     } catch (capacitorError) {
       console.error("❌ CapacitorHttp logout failed:", capacitorError);
-      logAPI(`CapacitorHttp logout error: ${capacitorError}`);
+      logAPI(`Eroare deconectare CapacitorHttp: ${capacitorError}`);
     }
 
-    console.log("Logout failed - continuing anyway");
-    logAPI("Logout failed - continuing anyway");
+    console.log("Deconectarea a eșuat - continuarea oricum");
+    logAPI("Deconectarea a eșuat - continuarea oricum");
     return false;
   } catch (error) {
     console.error("Logout error:", error);
-    logAPI(`Logout error: ${error}`);
+    logAPI(`Eroare deconectare: ${error}`);
     return false;
   }
 };
