@@ -7,7 +7,7 @@ if not "%1"=="" (
 )
 
 echo ========================================
-echo         iTrack - Build Script
+echo         iTrack - Build Script  🇷🇴
 echo ========================================
 echo.
 echo DEFAULT: Production build (etsm_prod)
@@ -15,7 +15,7 @@ echo Pentru development foloseste: build.bat dev
 echo.
 
 echo ========================================
-echo         iTrack - Build %ENV%
+echo         iTrack - Build %ENV%  🇷🇴
 echo ========================================
 echo.
 
@@ -78,7 +78,7 @@ echo - Android Studio deschis
 
 echo.
 echo ========================================
-echo           Build %ENV% Finalizat!
+echo       🇷🇴  Build %ENV% Finalizat!  🇷🇴
 echo ========================================
 echo Proiect gata pentru %ENV% in Android Studio
 echo Environment: %ENV%

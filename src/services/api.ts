@@ -3,6 +3,7 @@ import { logAPI } from "./appLogger";
 import { CapacitorHttp } from "@capacitor/core";
 // BackgroundGPSService gestionează GPS offline nativ - nu este necesar serviciu separat
 // Import static pentru a rezolva avertismentul Vite dynamic/static import
+import { offlineGPSService } from './offlineGPS';
 
 // Configurația API Centralizată
 export const API_CONFIG = {
@@ -624,8 +625,7 @@ export const sendGPSData = async (
         
         console.log('💾 Salvez coordonată offline - fetch fallback eșuat');
         try {
-          // Activez salvarea offline cu offlineGPSService
-          const { offlineGPSService } = await import('./offlineGPS');
+          // Activez salvarea offline cu offlineGPSService  
           await offlineGPSService.saveOfflineCoordinate(gpsData);
           console.log('✅ Coordonată salvată offline cu succes (fetch fallback)');
         } catch (error) {
@@ -647,7 +647,6 @@ export const sendGPSData = async (
     console.log('💾 Salvez coordonată offline - eroare completă de transmisie');
     try {
       // Activez salvarea offline cu offlineGPSService
-      const { offlineGPSService } = await import('./offlineGPS');
       await offlineGPSService.saveOfflineCoordinate(gpsData);
       console.log('✅ Coordonată salvată offline cu succes');
     } catch (offlineError) {
