@@ -19,6 +19,7 @@ import { themeService, Theme } from "../services/themeService";
 import { courseAnalyticsService } from "../services/courseAnalytics";
 import { offlineGPSService } from "../services/offlineGPS";
 import OfflineSyncMonitor from "./OfflineSyncMonitor";
+import { courseStateManager } from "../services/courseStateManager";
 
 // Interfață TypeScript pentru AndroidGPS bridge
 declare global {
@@ -519,15 +520,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
       
       if (response && Array.isArray(response) && response.length > 0) {
-        setCourses(response);
+        // RESTAUREAZĂ starea salvată pentru acest vehicul
+        const savedState = await courseStateManager.restoreCourseState(vehicleNumber);
+        const finalCourses = savedState 
+          ? courseStateManager.mergeCourseStates(response, savedState)
+          : response;
+        
+        setCourses(finalCourses);
         setCoursesLoaded(true);
         
         // Store valid vehicle number pentru următoarea sesiune
         await storeVehicleNumber(vehicleNumber);
-        console.log(`✅ SUCCESS: ${response.length} curse încărcate pentru ${vehicleNumber}`);
+        console.log(`✅ SUCCESS: ${finalCourses.length} curse încărcate pentru ${vehicleNumber}${savedState ? ' (cu stare restaurată)' : ''}`);
         
         // Log successful load
-        await logAPI(`Curse încărcate: ${response.length} pentru ${vehicleNumber}`);
+        await logAPI(`Curse încărcate: ${finalCourses.length} pentru ${vehicleNumber}`);
       } else {
         console.log(`⚠️ Nu s-au găsit curse pentru ${vehicleNumber}`);
         setError("Nu au fost găsite curse pentru acest vehicul");
@@ -882,6 +889,13 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             currentTheme={currentTheme}
             onVehicleSelect={async (number) => {
               console.log(`🔄 Vehicul selectat: ${number}`);
+              
+              // SALVEAZĂ starea curselor pentru vehiculul curent înainte să schimbe
+              if (vehicleNumber && courses.length > 0) {
+                await courseStateManager.saveCourseState(vehicleNumber, courses);
+                console.log(`💾 Starea salvată pentru vehiculul precedent: ${vehicleNumber}`);
+              }
+              
               setVehicleNumber(number);
               setCoursesLoaded(false);
               setCourses([]);
@@ -1310,6 +1324,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   setCourses(prev => prev.map(c => 
                     c.id === courseId ? { ...c, status: newStatus } : c
                   ));
+                  
+                  // SALVEAZĂ noua stare în courseStateManager
+                  await courseStateManager.updateCourseStatus(vehicleNumber, courseId, newStatus);
                   
                   // Gestionează GPS-ul
                   if (courseForGPS) {
