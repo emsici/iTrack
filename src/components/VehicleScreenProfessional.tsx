@@ -1589,6 +1589,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     setShowDebugPage(true);
                     setClickCount(0);
                     toast.success('Debug Mode Activat!', 'Logurile apar sub cursele active');
+                    // TEST TOAST pentru verificare
+                    toast.info('Toast Test', 'Dacă vezi acest mesaj, toast-urile funcționează!');
                   }
                   
                   return newCount;

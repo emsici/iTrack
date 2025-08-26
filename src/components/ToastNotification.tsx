@@ -41,7 +41,7 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
           position: fixed;
           top: 20px;
           right: 20px;
-          z-index: 999999;
+          z-index: 9999999;
           max-width: 400px;
           width: 100%;
           pointer-events: none;
