@@ -31,6 +31,9 @@ public class BackgroundGPSService extends Service {
     private static final long GPS_INTERVAL_SECONDS = 10;
     private static final int NOTIFICATION_ID = 2002;
     private static final String CHANNEL_ID = "BackgroundGPSChannel";
+    private static final int RETRY_INITIAL_DELAY = 30;
+    private static final int RETRY_MAX_DELAY = 300;
+    private static final int MAX_OFFLINE_QUEUE_SIZE = 1000;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
