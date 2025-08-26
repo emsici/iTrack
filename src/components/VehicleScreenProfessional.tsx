@@ -309,24 +309,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             console.error('❌ Bridge error GPS offline save:', error);
           }
           
-        } else if (message.startsWith('ANDROID_OFFLINE_QUEUE:')) {
-          // BRIDGE: Update count Android offline queue pentru monitoring unified
-          try {
-            const androidQueueSize = parseInt(message.replace('ANDROID_OFFLINE_QUEUE:', ''));
-            console.log(`📊 BRIDGE: Android offline queue: ${androidQueueSize} coordonate`);
-          } catch (error) {
-            console.error('❌ Bridge error Android queue count:', error);
-          }
-          
-        } else if (message.startsWith('ANDROID_SYNC_PROGRESS:')) {
-          // BRIDGE: Progres sincronizare Android pentru monitoring unified  
-          try {
-            const progressData = message.replace('ANDROID_SYNC_PROGRESS:', '');
-            const [success, total, remaining] = progressData.split('/').map(s => parseInt(s));
-            console.log(`📤 BRIDGE: Android sync - ${success}/${total} trimise, ${remaining} rămase`);
-          } catch (error) {
-            console.error('❌ Bridge error Android sync progress:', error);
-          }
+        // UNIFIED OFFLINE: Nu mai avem Android queue messages - totul unified în JavaScript
           
         // CRITICAL GPS→MAP: Interceptează coordonatele GPS pentru hartă
         } else if (message.startsWith('GPS_ANALYTICS:')) {

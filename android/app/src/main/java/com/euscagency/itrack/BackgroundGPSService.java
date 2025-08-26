@@ -59,35 +59,9 @@ public class BackgroundGPSService extends Service {
     // CRITICAL FIX: Flag separat pentru tracking dacă LocationCallback este EFECTIV înregistrat
     private java.util.concurrent.atomic.AtomicBoolean locationUpdatesActive = new java.util.concurrent.atomic.AtomicBoolean(false);
     
-    // CRITICAL FIX: OFFLINE QUEUE cu LIMITĂ IMPUSĂ pentru memory safety
-    private java.util.concurrent.ConcurrentLinkedQueue<OfflineGPSData> offlineQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
-    private java.util.concurrent.ScheduledExecutorService retryExecutor;
-    private java.util.concurrent.atomic.AtomicBoolean isRetryRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
-    private static final int MAX_OFFLINE_QUEUE_SIZE = 1000; // Maxim 1000 coordonate offline
-    private static final int RETRY_INITIAL_DELAY = 30; // Prima încercare după 30s
-    private static final int RETRY_MAX_DELAY = 300; // Maxim 5 minute între încercări
-    
-    // Clasă pentru datele GPS offline
-    private static class OfflineGPSData {
-        final org.json.JSONObject gpsData;
-        final String timestamp;
-        final int retryCount;
-        final long createdAt;
-        
-        OfflineGPSData(org.json.JSONObject data, String time) {
-            this.gpsData = data;
-            this.timestamp = time;
-            this.retryCount = 0;
-            this.createdAt = System.currentTimeMillis();
-        }
-        
-        OfflineGPSData(org.json.JSONObject data, String time, int retries) {
-            this.gpsData = data;
-            this.timestamp = time;
-            this.retryCount = retries;
-            this.createdAt = System.currentTimeMillis();
-        }
-    }
+    // UNIFIED OFFLINE: Nu mai folosim Android queue - totul prin JavaScript
+    // ELIMINAT: ConcurrentLinkedQueue, retryExecutor, isRetryRunning, MAX_OFFLINE_QUEUE_SIZE, OfflineGPSData
+    // Toate coordonatele offline sunt gestionate de JavaScript offlineGPSService
     
     // Clasă pentru datele cursei
     private static class CourseData {
@@ -656,23 +630,14 @@ public class BackgroundGPSService extends Service {
                     } catch (Exception e) {
                         Log.e(TAG, "Eroare transmisie GPS pentru " + realUit + ": " + e.getMessage());
                         
-                        // OFFLINE QUEUE: Salvează coordonatele pentru retry automat
+                        // UNIFIED OFFLINE: Salvează DOAR în JavaScript - sistemul unificat
                         try {
-                            // Recreate timestamp for offline queue
-                            java.util.TimeZone romaniaTimeZone = java.util.TimeZone.getTimeZone("Europe/Bucharest");
-                            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            sdf.setTimeZone(romaniaTimeZone);
-                            String offlineTimestamp = sdf.format(new java.util.Date());
-                            
-                            // CRITICAL: Salvează în AMBELE sisteme offline pentru consistență
-                            addToOfflineQueue(gpsData, offlineTimestamp);
-                            
-                            // BRIDGE: Notifică și JavaScript offline service pentru consistență
+                            // CRITICAL: Trimite direct la JavaScript pentru gestionare unificată
                             sendGPSToOfflineService(gpsData, realUit);
                             
-                            Log.e(TAG, "💾 GPS coordinate saved to Android offline queue + JavaScript bridge");
+                            Log.e(TAG, "💾 GPS coordinate sent to unified JavaScript offline system");
                         } catch (Exception offlineError) {
-                            Log.e(TAG, "Eroare salvare offline queue: " + offlineError.getMessage());
+                            Log.e(TAG, "Eroare trimitere GPS la sistemul offline unificat: " + offlineError.getMessage());
                         }
                     }
                 }
@@ -1049,12 +1014,7 @@ public class BackgroundGPSService extends Service {
             retryExecutor = null;
         }
         
-        // MEMORY CLEANUP OFFLINE QUEUE
-        if (!offlineQueue.isEmpty()) {
-            Log.e(TAG, "🛑 Clearing offline queue: " + offlineQueue.size() + " pending GPS coordinates");
-            offlineQueue.clear();
-        }
-        isRetryRunning.set(false);
+        // UNIFIED OFFLINE: Nu mai avem Android queue de curățat - totul în JavaScript
         
         // WAKELOCK CRITICAL CLEANUP - previne battery drain
         if (wakeLock != null && wakeLock.isHeld()) {
