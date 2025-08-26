@@ -65,6 +65,25 @@ npx cap open android
 
 ---
 
+## 📞 **SUPPORT ENTERPRISE ȘI DOCUMENTAȚIE**
+
+### **Documentație Enterprise Tehnică**
+- **README.md**: Documentația enterprise principală (acest fișier)
+- **[ANALIZA_TEHNICA_COMPLETA_iTrack.md](./ANALIZA_TEHNICA_COMPLETA_iTrack.md)**: Analiză enterprise comprehensive cu thread safety și performance
+- **[POVESTEA_iTrack.md](./POVESTEA_iTrack.md)**: User journey enterprise completă de la login la finalizare
+- **[PREZENTARE_BUSINESS_iTrack.md](./PREZENTARE_BUSINESS_iTrack.md)**: Prezentare tehnică business cu arhitectura pe 5 straturi
+- **[PREZENTARE_CLIENTI_iTrack.md](./PREZENTARE_CLIENTI_iTrack.md)**: Documentație pentru clienți enterprise cu ROI și benefits
+- **[replit.md](./replit.md)**: Configurații dezvoltare și istoric technical changes
+- **[changelog.md](./changelog.md)**: Istoric modificări și versioning enterprise
+
+### **Enterprise Debugging Resources**
+- **Debug Panel**: Acces prin 50 click-uri pe footer timestamp
+- **Browser Console**: Log-uri development în browser cu filtering
+- **Android Logcat**: Log-uri native Android prin ADB pentru troubleshooting
+- **Network Inspector**: Monitorizare API calls HTTP cu performance metrics
+
+---
+
 ## 🏗️ **ARHITECTURA ENTERPRISE APLICAȚIEI**
 
 ### **Stack Tehnologic Enterprise Principal**
@@ -403,25 +422,6 @@ Google Play Store:    Enterprise configuration pentru Play Console
 MDM Integration:      Mobile Device Management pentru corporate deployment
 Direct Install:       APK side-loading pentru testing și validation
 ```
-
----
-
-## 📞 **SUPPORT ENTERPRISE ȘI DOCUMENTAȚIE**
-
-### **Documentație Enterprise Tehnică**
-- **README.md**: Documentația enterprise principală (acest fișier)
-- **[ANALIZA_TEHNICA_COMPLETA_iTrack.md](./ANALIZA_TEHNICA_COMPLETA_iTrack.md)**: Analiză enterprise comprehensive cu thread safety și performance
-- **[POVESTEA_iTrack.md](./POVESTEA_iTrack.md)**: User journey enterprise completă de la login la finalizare
-- **[PREZENTARE_BUSINESS_iTrack.md](./PREZENTARE_BUSINESS_iTrack.md)**: Prezentare tehnică business cu arhitectura pe 5 straturi
-- **[PREZENTARE_CLIENTI_iTrack.md](./PREZENTARE_CLIENTI_iTrack.md)**: Documentație pentru clienți enterprise cu ROI și benefits
-- **[replit.md](./replit.md)**: Configurații dezvoltare și istoric technical changes
-- **[changelog.md](./changelog.md)**: Istoric modificări și versioning enterprise
-
-### **Enterprise Debugging Resources**
-- **Debug Panel**: Acces prin 50 click-uri pe footer timestamp
-- **Browser Console**: Log-uri development în browser cu filtering
-- **Android Logcat**: Log-uri native Android prin ADB pentru troubleshooting
-- **Network Inspector**: Monitorizare API calls HTTP cu performance metrics
 
 ---
 
