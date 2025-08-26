@@ -37,16 +37,14 @@ class AppLoggerService {
       // Încarcă logurile existente din stocare
       await this.loadLogs();
 
-      // Suprascrie metodele console doar în development pentru performanță
-      if (!this.isProductionMode) {
-        this.interceptConsole();
-      }
+      // ACTIVEAZĂ logging întotdeauna pentru debugging GPS
+      this.interceptConsole();
       
       // Pornește timer pentru salvare batch
       this.startBatchSaveTimer();
 
       this.initialized = true;
-      this.log("INFO", `Logger inițializat - mode: ${this.isProductionMode ? 'PRODUCȚIE' : 'DEZVOLTARE'}`, "SYSTEM");
+      this.log("INFO", `Logger inițializat - mode: ${this.isProductionMode ? 'PRODUCȚIE' : 'DEZVOLTARE'} (FORȚAT ACTIV)`, "SYSTEM");
     } catch (error) {
       console.error("Eroare inițializare Logger aplicație:", error);
     }
@@ -149,10 +147,10 @@ class AppLoggerService {
     message: string,
     category: string = "APP",
   ): void {
-    // În production mode, loghează doar erorile critice
-    if (this.isProductionMode && level !== "ERROR") {
-      return;
-    }
+    // LOGHEAZĂ TOATE NIVELURILE pentru debugging GPS (comentat pentru producție)
+    // if (this.isProductionMode && level !== "ERROR") {
+    //   return;
+    // }
 
     const logEntry: AppLog = {
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
@@ -162,13 +160,11 @@ class AppLoggerService {
       category,
     };
 
-    // Adaugă în pending batch în loc de salvare imediată
+    // Adaugă în pending batch și FLUSH IMEDIAT pentru debugging
     this.pendingLogs.push(logEntry);
     
-    // Flush dacă batch-ul este plin
-    if (this.pendingLogs.length >= this.BATCH_SIZE) {
-      this.flushPendingLogs();
-    }
+    // FLUSH IMEDIAT pentru a vedea logurile instant
+    this.flushPendingLogs();
   }
 
   async getLogs(): Promise<AppLog[]> {
