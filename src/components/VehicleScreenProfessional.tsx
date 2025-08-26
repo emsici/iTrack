@@ -305,7 +305,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             const gpsData = JSON.parse(gpsDataStr);
             
             console.log('🌉 BRIDGE: Primesc GPS din Android pentru offline save:', gpsData);
-            offlineGPSService.saveOfflineCoordinate(gpsData, gpsData.uit);
+            offlineGPSService.saveOfflineCoordinate(gpsData);
           } catch (error) {
             console.error('❌ Bridge error GPS offline save:', error);
           }
