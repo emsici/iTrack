@@ -43,6 +43,13 @@ export interface GPSData {
 
 
 
+/**
+ * Autentifică utilizatorul prin email și parolă
+ * @param email - Adresa de email a utilizatorului
+ * @param password - Parola utilizatorului
+ * @returns Promise cu rezultatul autentificării (token sau eroare)
+ * @description Folosește CapacitorHttp pentru comunicația directă cu serverul Android
+ */
 export const login = async (
   email: string,
   password: string,
@@ -65,8 +72,8 @@ export const login = async (
     if (response.status >= 200 && response.status < 300 && response.data) {
       const data = response.data;
       if (data.status === "success" && data.token) {
-        console.log("✅ CapacitorHttp login successful");
-        logAPI(`CapacitorHttp login successful for ${email}`);
+        console.log("✅ Login CapacitorHttp reușit");
+        logAPI(`Login CapacitorHttp reușit pentru ${email}`);
         return { status: "success", token: data.token };
       } else {
         logAPI(`CapacitorHttp login failed: ${data.message}`);
@@ -76,16 +83,16 @@ export const login = async (
         };
       }
     } else {
-      console.error("❌ Login failed:", response.status);
-      logAPI(`Login failed: ${response.status}`);
+      console.error("❌ Login eșuat:", response.status);
+      logAPI(`Login eșuat: ${response.status}`);
       return {
         status: "error",
         error: `Eroare server: ${response.status}`,
       };
     }
   } catch (error: any) {
-    console.error("Login error:", error);
-    logAPI(`Login error: ${error.message}`);
+    console.error("Eroare login:", error);
+    logAPI(`Eroare login: ${error.message}`);
     return {
       status: "error",
       error: "Eroare de conectare la server",
@@ -93,6 +100,13 @@ export const login = async (
   }
 };
 
+/**
+ * Încarcă cursele disponibile pentru un vehicul specific
+ * @param vehicleNumber - Numărul de înmatriculare al vehiculului
+ * @param token - Token-ul de autentificare al utilizatorului
+ * @returns Promise cu lista de curse sau array gol în caz de eroare
+ * @description Implementează race condition protection și request deduplication
+ */
 export const getVehicleCourses = async (
   vehicleNumber: string,
   token: string,

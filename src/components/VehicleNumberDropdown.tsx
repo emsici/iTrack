@@ -83,11 +83,11 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
   };
 
   const handleInputConfirm = () => {
-    console.log('🔄 handleInputConfirm called - inputValue:', inputValue.trim());
-    console.log('🔄 onChange function available:', typeof onChange);
+    console.log('🔄 handleInputConfirm apelat - inputValue:', inputValue.trim());
+    console.log('🔄 funția onChange disponibilă:', typeof onChange);
     
     if (inputValue.trim()) {
-      console.log('✅ Calling callback with value:', inputValue.trim());
+      console.log('✅ Apelez callback cu valoarea:', inputValue.trim());
       
       // Header theme folosește onVehicleSelect, default theme folosește onChange
       if (theme === 'header' && onVehicleSelect) {
@@ -96,14 +96,14 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
         onChange(inputValue.trim());
       }
       
-      console.log('✅ Closing input page and clearing state');
+      console.log('✅ Închid pagina de input și curăț starea');
       setShowInputPage(false);
       setInputValue('');
       setIsOpen(false);
       
-      console.log('✅ Vehicle number successfully added!');
+      console.log('✅ Numărul vehiculului adăugat cu succes!');
     } else {
-      console.log('❌ Input value is empty, not submitting');
+      console.log('❌ Valoarea input este goală, nu trimit');
     }
   };
 

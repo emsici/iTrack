@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Geolocation } from '@capacitor/geolocation';
-import { CapacitorHttp } from '@capacitor/core';
 import { Network } from '@capacitor/network';
 import { Course } from "../types";
-import { getVehicleCourses, logout, API_BASE_URL, sendGPSData } from "../services/api";
+import { getVehicleCourses, logout, sendGPSData } from "../services/api";
 import { clearToken, storeVehicleNumber, getStoredVehicleNumber, clearStoredVehicleNumber } from "../services/storage";
 import { logAPI } from "../services/appLogger";
 
@@ -81,7 +80,7 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       directie: Math.round(gpsData.heading || 0),
       altitudine: Math.round(gpsData.alt || 0),
       hdop: Math.round(gpsData.acc || 0),
-      gsm_signal: parseInt(realSignal.replace('%', '')) || 75, // Real signal or fallback
+      gsm_signal: typeof realSignal === 'number' ? realSignal : parseInt(String(realSignal).replace('%', '')) || 75,
       baterie: parseInt(realBattery.replace('%', '')) || 100, // Real battery or fallback
       status: newStatus,
       timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
@@ -240,9 +239,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [loadingCourses, setLoadingCourses] = useState(new Set<string>());
   const abortControllerRef = useRef<AbortController | null>(null);
   const currentVehicleRef = useRef<string>('');
+  const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
 
   // Offline GPS count handled by BackgroundGPSService natively
-  const [offlineGPSCount, setOfflineGPSCount] = useState(0);
+  const [offlineGPSCount] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -326,6 +326,15 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
     };
   }, [toast]);
+
+  // CLEANUP pentru timeout-uri la unmount
+  useEffect(() => {
+    return () => {
+      // Curăță toate timeout-urile active la unmount
+      timeoutRefs.current.forEach(timeoutId => clearTimeout(timeoutId));
+      timeoutRefs.current = [];
+    };
+  }, []);
 
   // PERFORMANCE OPTIMIZED: Initialize theme and vehicle number with debouncing
   useEffect(() => {
@@ -464,10 +473,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       }
     } finally {
       // GUARANTEED loading stop
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setLoading(false);
         console.log(`🏁 LOADING STOP pentru ${currentRequest}`);
       }, 500);
+      timeoutRefs.current.push(timeoutId);
     }
   };
 
@@ -796,9 +806,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               setLoading(false); // Reset loading state
               
               // Delay mic pentru UI update, apoi încarcă cursele
-              setTimeout(() => {
+              const timeoutId = setTimeout(() => {
                 handleLoadCourses();
               }, 100);
+              timeoutRefs.current.push(timeoutId);
             }}
             theme="header"
           />

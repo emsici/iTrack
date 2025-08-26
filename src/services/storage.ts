@@ -4,6 +4,12 @@ const TOKEN_KEY = 'auth_token';
 const VEHICLE_NUMBER_KEY = 'vehicle_number';
 const VEHICLE_HISTORY_KEY = 'vehicle_number_history';
 
+/**
+ * Salvează token-ul de autentificare în storage-ul persistent
+ * @param token - Token-ul JWT primit de la server
+ * @throws Error dacă salvarea eșuează
+ * @description Folosește Capacitor Preferences pentru persistarea securizată
+ */
 export const storeToken = async (token: string): Promise<void> => {
   try {
     await Preferences.set({
@@ -11,17 +17,22 @@ export const storeToken = async (token: string): Promise<void> => {
       value: token
     });
   } catch (error) {
-    console.error('Error storing token:', error);
+    console.error('Eroare stocare token:', error);
     throw error;
   }
 };
 
+/**
+ * Recuperează token-ul de autentificare din storage
+ * @returns Promise<string | null> - Token-ul salvat sau null dacă nu există
+ * @description Graceful degradation - returnează null în caz de eroare
+ */
 export const getStoredToken = async (): Promise<string | null> => {
   try {
     const result = await Preferences.get({ key: TOKEN_KEY });
     return result.value;
   } catch (error) {
-    console.error('Error getting stored token:', error);
+    console.error('Eroare citire token stocat:', error);
     return null;
   }
 };
@@ -30,11 +41,17 @@ export const clearToken = async (): Promise<void> => {
   try {
     await Preferences.remove({ key: TOKEN_KEY });
   } catch (error) {
-    console.error('Error clearing token:', error);
+    console.error('Eroare ștergere token:', error);
     throw error;
   }
 };
 
+/**
+ * Salvează numărul vehiculului și actualizează istoricul
+ * @param vehicleNumber - Numărul de înmatriculare al vehiculului
+ * @throws Error dacă salvarea eșuează
+ * @description Salvează vehiculul curent și îl adaugă în istoric (maxim 5)
+ */
 export const storeVehicleNumber = async (vehicleNumber: string): Promise<void> => {
   try {
     await Preferences.set({
@@ -49,7 +66,7 @@ export const storeVehicleNumber = async (vehicleNumber: string): Promise<void> =
       await Preferences.set({ key: VEHICLE_HISTORY_KEY, value: JSON.stringify(updatedHistory) });
     }
   } catch (error) {
-    console.error('Error storing vehicle number:', error);
+    console.error('Eroare stocare număr vehicul:', error);
     throw error;
   }
 };
@@ -59,7 +76,7 @@ export const getStoredVehicleNumber = async (): Promise<string | null> => {
     const result = await Preferences.get({ key: VEHICLE_NUMBER_KEY });
     return result.value;
   } catch (error) {
-    console.error('Error getting stored vehicle number:', error);
+    console.error('Eroare citire număr vehicul stocat:', error);
     return null;
   }
 };
@@ -68,12 +85,17 @@ export const clearStoredVehicleNumber = async (): Promise<void> => {
   try {
     await Preferences.remove({ key: VEHICLE_NUMBER_KEY });
   } catch (error) {
-    console.error('Error clearing stored vehicle number:', error);
+    console.error('Eroare ștergere număr vehicul stocat:', error);
     throw error;
   }
 };
 
 // Vehicle number history functions for dropdown
+/**
+ * Recuperează istoricul numerelor de vehicule cu validare
+ * @returns Promise<string[]> - Lista cu numerele valide din istoric
+ * @description Filtrează automat numerele invalide (IL02ADD, undefined, null)
+ */
 export const getVehicleNumberHistory = async (): Promise<string[]> => {
   try {
     const result = await Preferences.get({ key: VEHICLE_HISTORY_KEY });
@@ -99,7 +121,7 @@ export const getVehicleNumberHistory = async (): Promise<string[]> => {
     }
     return [];
   } catch (error) {
-    console.error('Error getting vehicle number history:', error);
+    console.error('Eroare citire istoric număr vehicul:', error);
     return [];
   }
 };
@@ -113,7 +135,7 @@ export const removeVehicleNumberFromHistory = async (vehicleNumber: string): Pro
       value: JSON.stringify(updatedHistory) 
     });
   } catch (error) {
-    console.error('Error removing vehicle number from history:', error);
+    console.error('Eroare eliminare număr vehicul din istoric:', error);
     throw error;
   }
 };

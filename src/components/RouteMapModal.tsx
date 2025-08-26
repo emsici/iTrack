@@ -25,12 +25,23 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseDa
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [isReplaying, setIsReplaying] = useState(false);
   const [replayProgress, setReplayProgress] = useState(0);
+  const replayIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (isOpen && !L) {
       loadLeaflet();
     }
   }, [isOpen]);
+
+  // CLEANUP pentru interval la unmount
+  useEffect(() => {
+    return () => {
+      if (replayIntervalRef.current) {
+        clearInterval(replayIntervalRef.current);
+        replayIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   const loadLeaflet = async () => {
     try {
@@ -176,6 +187,7 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseDa
     const interval = setInterval(() => {
       if (currentIndex >= points.length) {
         clearInterval(interval);
+        replayIntervalRef.current = null;
         setIsReplaying(false);
         setReplayProgress(100);
         return;
@@ -203,6 +215,8 @@ const RouteMapModal: React.FC<RouteMapModalProps> = ({ isOpen, onClose, courseDa
       
       currentIndex++;
     }, intervalTime);
+    
+    replayIntervalRef.current = interval;
   };
 
   const exportGPX = () => {

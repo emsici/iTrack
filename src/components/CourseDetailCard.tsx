@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
 import { Course } from '../types';
 import { courseAnalyticsService, CourseStatistics } from '../services/courseAnalytics';
 import RouteMapModal from './RouteMapModal';
@@ -12,7 +12,7 @@ interface CourseDetailCardProps {
   currentTheme?: string;
 }
 
-const CourseDetailCard: React.FC<CourseDetailCardProps> = ({ 
+const CourseDetailCard: React.FC<CourseDetailCardProps> = memo(({ 
   course, 
   onStatusUpdate,
   onDetailsClick,
@@ -38,27 +38,36 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     }
   };
 
-  const getStatusText = (status: number) => {
-    switch (status) {
-      case 1: return 'Disponibilă';
-      case 2: return 'În progres';
-      case 3: return 'Pauzată';
-      case 4: return 'Finalizată';
-      default: return 'Necunoscut';
-    }
-  };
+  // PERFORMANCE: Memoize expensive computations
+  const statusInfo = useMemo(() => {
+    const getStatusText = (status: number) => {
+      switch (status) {
+        case 1: return 'Disponibilă';
+        case 2: return 'În progres';
+        case 3: return 'Pauzată';
+        case 4: return 'Finalizată';
+        default: return 'Necunoscut';
+      }
+    };
 
-  const getStatusColor = (status: number) => {
-    switch (status) {
-      case 1: return '#3b82f6'; // Disponibilă - albastru
-      case 2: return '#10b981'; // În progres - verde  
-      case 3: return '#f59e0b'; // Pauzată - galben
-      case 4: return '#ef4444'; // Finalizată - roșu
-      default: return '#6b7280'; // Unknown - gri
-    }
-  };
+    const getStatusColor = (status: number) => {
+      switch (status) {
+        case 1: return '#3b82f6'; // Disponibilă - albastru
+        case 2: return '#10b981'; // În progres - verde  
+        case 3: return '#f59e0b'; // Pauzată - galben
+        case 4: return '#ef4444'; // Finalizată - roșu
+        default: return '#6b7280'; // Unknown - gri
+      }
+    };
 
-  const handleAction = (action: string) => {
+    return {
+      text: getStatusText(course.status),
+      color: getStatusColor(course.status)
+    };
+  }, [course.status]);
+
+  // PERFORMANCE: Memoize callback to prevent unnecessary re-renders
+  const handleAction = useCallback((action: string) => {
     if (isLoading) {
       return; // Prevent double submission
     }
@@ -83,7 +92,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
     }
     
     onStatusUpdate(course.id, course.uit, newStatus, action);
-  };
+  }, [course.id, course.uit, onStatusUpdate, isLoading]);
 
   const renderActionButtons = () => {
     switch (course.status) {
@@ -225,7 +234,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           left: 0;
           right: 0;
           height: 2px;
-          background: ${getStatusColor(course.status)};
+          background: ${statusInfo.color};
           transition: none;
         }
 
@@ -264,7 +273,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
         }
 
         .status-badge-compact {
-          background: ${getStatusColor(course.status)};
+          background: ${statusInfo.color};
           color: #ffffff;
           padding: 4px 12px;
           border-radius: 12px;
@@ -472,7 +481,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = ({
           </strong>
         </div>
         <span className="status-badge-compact" style={{ flexShrink: '0' }}>
-          {getStatusText(course.status)}
+          {statusInfo.text}
         </span>
       </div>
 

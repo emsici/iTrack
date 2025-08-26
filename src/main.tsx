@@ -8,7 +8,7 @@ import { Capacitor } from '@capacitor/core';
 
 if (Capacitor.isNativePlatform()) {
   // Initialize native features
-  console.log('Running on native platform');
+  console.log('Rulează pe platformă nativă');
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
