@@ -1,8 +1,15 @@
 @echo off
 echo ========================================
-echo     iTrack - Build si Deschidere Android
+echo     iTrack - Production Build
 echo ========================================
 echo.
+echo Building for PRODUCTION environment...
+echo API: www.euscagency.com/etsm_prod/
+echo.
+
+REM Set production environment variables
+set VITE_API_BASE_URL=https://www.euscagency.com/etsm_prod/platforme/transport/apk/
+set NODE_ENV=production
 
 echo [1/4] Instalare dependinte...
 call npm install
@@ -14,14 +21,14 @@ if %errorlevel% neq 0 (
 echo - Dependinte instalate
 
 echo.
-echo [2/4] Build proiect...
+echo [2/4] Build proiect pentru PRODUCTION...
 call npx vite build
 if %errorlevel% neq 0 (
     echo EROARE: vite build esuat
     pause
     exit /b 1
 )
-echo - Proiect compilat
+echo - Proiect compilat pentru PRODUCTION
 
 echo.
 echo [3/4] Sincronizare cu Android...
@@ -45,7 +52,8 @@ echo - Android Studio deschis
 
 echo.
 echo ========================================
-echo           Build Finalizat!
+echo           Build PRODUCTION Finalizat!
 echo ========================================
-echo Proiect gata pentru testare in Android Studio
+echo Proiect gata pentru release in Android Studio
+echo Environment: PRODUCTION (etsm_prod)
 pause
