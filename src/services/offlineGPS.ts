@@ -148,7 +148,11 @@ class OfflineGPSService {
       });
 
       console.log(`💾 GPS offline salvat: UIT ${coordinate.uit}, ${coordinate.lat}, ${coordinate.lng}`);
-      this.updateStats();
+      console.log(`📊 Total coordonate offline: ${offlineCoords.length}`);
+      
+      // Actualizează și notifică statisticile IMEDIAT pentru UI
+      this.currentStats.totalOffline = offlineCoords.length;
+      this.notifyListeners();
     } catch (error) {
       console.error('❌ Eroare salvare GPS offline:', error);
     }

@@ -34,18 +34,33 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
   });
   const [expanded, setExpanded] = useState(false);
 
-  // NU afișa componenta dacă suntem online ȘI nu avem coordonate offline
-  if (isOnline && stats.totalOffline === 0 && !stats.syncInProgress) {
+  // AFIȘEAZĂ ÎNTOTDEAUNA când:
+  // 1. Suntem offline (pentru a vedea coordonatele care se salvează)
+  // 2. Avem coordonate offline care așteaptă sincronizare
+  // 3. E sincronizare în progres
+  const shouldShow = !isOnline || stats.totalOffline > 0 || stats.syncInProgress;
+  
+  if (!shouldShow) {
     return null;
   }
 
   useEffect(() => {
     // Subscribe to sync stats updates
     const unsubscribe = offlineGPSService.onSyncStatsChange((newStats) => {
+      console.log('📊 Stats update received:', newStats);
       setStats(newStats);
     });
 
-    return unsubscribe;
+    // Actualizare periodică pentru a prinde coordonatele noi
+    const statsInterval = setInterval(async () => {
+      const currentStats = await offlineGPSService.getStats();
+      setStats(currentStats);
+    }, 3000); // la fiecare 3 secunde
+
+    return () => {
+      unsubscribe();
+      clearInterval(statsInterval);
+    };
   }, []);
 
   // Auto-sync when coming back online
