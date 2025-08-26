@@ -1059,7 +1059,9 @@ public class BackgroundGPSService extends Service {
                 }
             }
             
-            OfflineGPSData offlineData = new OfflineGPSData(gpsData, timestamp);
+            // Convert String timestamp to long for OfflineGPSData constructor
+            long timestampLong = System.currentTimeMillis();
+            OfflineGPSData offlineData = new OfflineGPSData(gpsData, timestampLong);
             offlineQueue.offer(offlineData);
             
             Log.e(TAG, "💾 GPS coordinate added to offline queue. Total: " + offlineQueue.size());
