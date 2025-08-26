@@ -5,8 +5,8 @@
 ---
 
 ## 📊 **ENTERPRISE PROJECT STATISTICS**
-- **35+ fișiere TypeScript/TSX** cu **15,500+ linii de cod production**
-- **6 servicii native Android** Java pentru GPS enterprise
+- **12 componente TypeScript/TSX** cu **9,100+ linii de cod production**
+- **6 servicii TypeScript** pentru GPS enterprise și business logic
 - **6 teme UI corporate** cu glassmorphism modern
 - **10-secunde interval GPS** cu transmisie garantată enterprise
 - **100% log-uri în română** pentru support și debugging local
@@ -159,7 +159,7 @@ Security:     JWT Authentication cu token management
 
 #### **1. PRESENTATION LAYER (UI/UX Enterprise)**
 ```
-src/components/
+src/components/ (12 componente enterprise)
 ├── LoginScreen.tsx               # Autentificare corporate JWT
 ├── VehicleScreenProfessional.tsx # Dashboard principal enterprise  
 ├── CourseDetailCard.tsx          # Business cards cu analytics
@@ -167,7 +167,7 @@ src/components/
 ├── RouteMapModal.tsx             # Hartă interactivă OpenStreetMap
 ├── CourseStatsModal.tsx          # Business intelligence și raportare
 ├── CourseDetailsModal.tsx        # Detalii complete transport
-├── ThemeSelector.tsx             # Selector 6 teme corporate
+├── SettingsModal.tsx             # Configurări aplicație și teme
 ├── AboutModal.tsx                # Informații aplicație cu versioning
 ├── ToastNotification.tsx         # Notificări enterprise animate
 ├── OfflineSyncMonitor.tsx        # Monitoring offline enterprise
@@ -176,14 +176,13 @@ src/components/
 
 #### **2. BUSINESS SERVICES LAYER (Core Logic Enterprise)**
 ```
-src/services/
+src/services/ (6 servicii enterprise)
 ├── api.ts                        # REST API client cu race condition protection
 ├── storage.ts                    # Persistent storage cu validation
 ├── courseAnalytics.ts            # Business analytics cu Haversine math
 ├── offlineGPS.ts                 # Offline sync cu exponential backoff
 ├── themeService.ts               # Corporate theme management
-├── appLogger.ts                  # Enterprise logging cu categorii
-└── hooks/useToast.ts             # Toast management hook
+└── appLogger.ts                  # Enterprise logging cu categorii
 ```
 
 #### **3. COMMUNICATION LAYER (GPS & API Enterprise)**
@@ -553,7 +552,7 @@ Direct Install:       APK side-loading pentru testing și validation
 
 **Dezvoltat cu ❤️ pentru fleet management enterprise în România**
 
-*Versiunea 25.08.25 - August 25, 2025*  
+*Versiunea 26.08.25 - August 26, 2025*  
 *Analiză enterprise completă realizată component cu component*
 
 ---

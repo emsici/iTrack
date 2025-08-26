@@ -1,6 +1,6 @@
 # iTrack GPS - Soluția Enterprise pentru Fleet Management Modern
 
-**Aplicația Completă de Monitorizare Vehicule pentru Companiile de Transport din România**
+**Aplicația Completă de Monitorizare Vehicule pentru Companiile de Transport din România - August 26, 2025**
 
 ---
 
@@ -294,7 +294,7 @@ Testați aplicația gratuit timp de 45 zile pe până la 10 vehicule pentru a m�
 
 ---
 
-**v25.08.25 - August 25, 2025**  
+**v26.08.25 - August 26, 2025**  
 *Soluția enterprise completă pentru fleet management modern și digital transformation*
 
 **Pentru demonstrație enterprise, business consultation sau pricing personalizat, contactați echipa noastră de specialiști în fleet management digital transformation.**

@@ -1,6 +1,6 @@
 # 📱 Povestea iTrack: Aplicația GPS Profesională pentru Fleet Management
 
-*O călătorie prin capabilitățile complete ale celei mai avansate aplicații de monitorizare GPS din România*
+*O călătorie prin capabilitățile complete ale celei mai avansate aplicații de monitorizare GPS din România - actualizat 26 August 2025*
 
 ---
 
@@ -410,4 +410,4 @@ Când Marian ajunge la destinație, apasă "FINALIZEAZĂ":
 **📊 Performanță: <1% CPU usage, <80MB RAM, 12+ ore autonomie**  
 **🎯 Precizie: 3-8 metri GPS, 99.9% acuratețe traseu, <0.1% eroare distanță**
 
-*Actualizat: 25 August 2025*
+*Actualizat: 26 August 2025*
