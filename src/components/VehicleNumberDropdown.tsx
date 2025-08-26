@@ -461,7 +461,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
             transition: 'all 0.2s ease'
           }}
         >
-          <span style={{ fontSize: '14px', color: '#cbd5e0' }}>
+          <span style={{ fontSize: '14px', color: '#ffffff', fontWeight: '600' }}>
             {currentVehicle || 'VEHICUL'}
           </span>
           <i className="fas fa-chevron-down" style={{ 
@@ -507,7 +507,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
                     onClick={() => handleVehicleSelect(vehicle)}
                     style={{
                       padding: '12px 16px',
-                      color: '#cbd5e0',
+                      color: '#ffffff',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -665,7 +665,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
               key={vehicle}
               style={{
                 padding: '12px 16px',
-                color: (darkMode || currentTheme === 'dark') ? '#ffffff' : '#1e293b',
+                color: (darkMode || currentTheme === 'dark') ? '#ffffff' : '#0f172a',
                 fontSize: '13px',
                 fontWeight: '600',
                 cursor: 'pointer',

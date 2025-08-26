@@ -188,17 +188,18 @@ const AboutModal: React.FC<AboutModalProps> = ({
               margin: '0 0 12px 0',
               opacity: '0.9'
             }}>
-              iTrack transformă managementul flotelor de transport prin tehnologie GPS avansată. 
-              Oferim soluții complete pentru companiile de transport din România care doresc 
-              să optimizeze operațiunile, să reducă costurile și să îmbunătățească eficiența flotei.
+              iTrack GPS este aplicația de management flotă dedicată companiilor de transport din România. 
+              Sistem complet de urmărire GPS cu coordonate la 10 secunde, funcționare offline și 
+              sincronizare automată pentru control total asupra vehiculelor și curselor de transport.
             </p>
             <p style={{
               fontSize: '14px',
               margin: '0',
               opacity: '0.9'
             }}>
-              Cu iTrack, companiile de transport obțin control complet asupra vehiculelor, 
-              optimizează rutele și reduc consumul de combustibil prin monitorizare GPS precisă și raportare în timp real.
+              Aplicația include serviciu background Android nativ pentru transmisie GPS continuă, 
+              gestionare offline a coordonatelor, analitici de cursă detaliate și 6 teme corporative 
+              profesionale pentru o experiență utilizator completă.
             </p>
           </div>
 
@@ -215,11 +216,11 @@ const AboutModal: React.FC<AboutModalProps> = ({
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
-                { icon: 'fas fa-map-marker-alt', title: 'GPS în timp real', desc: 'Coordonate la 5 secunde, offline și online' },
-                { icon: 'fas fa-route', title: 'Management curse', desc: 'Încărcare automată și urmărire status' },
-                { icon: 'fas fa-wifi', title: 'Sincronizare offline', desc: 'Salvare locală și transmitere automată' },
-                { icon: 'fas fa-chart-line', title: 'Statistici curse', desc: 'Distanță, timp și viteză calculate automat' },
-                { icon: 'fas fa-cog', title: 'Serviciu background', desc: 'Funcționare continuă, consum redus baterie' }
+                { icon: 'fas fa-map-marker-alt', title: 'GPS în timp real', desc: 'Coordonate la 10 secunde, transmisie automată' },
+                { icon: 'fas fa-route', title: 'Management curse', desc: 'Status-uri în timp real: Start, Pauză, Finalizare' },
+                { icon: 'fas fa-wifi', title: 'Funcționare offline', desc: 'Salvare GPS local + sincronizare la revenirea online' },
+                { icon: 'fas fa-chart-line', title: 'Analitici curse', desc: 'Distanță, viteză, timp și trasee GPS complete' },
+                { icon: 'fas fa-cog', title: 'Serviciu Android nativ', desc: 'Background GPS permanent, optimizat pentru baterie' }
               ].map((feature, index) => (
                 <div key={index} style={{
                   display: 'flex',

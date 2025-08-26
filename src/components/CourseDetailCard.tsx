@@ -52,11 +52,11 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = memo(({
 
     const getStatusColor = (status: number) => {
       switch (status) {
-        case 1: return '#3b82f6'; // Disponibilă - albastru
-        case 2: return '#10b981'; // În progres - verde  
-        case 3: return '#f59e0b'; // Pauzată - galben
-        case 4: return '#10b981'; // Finalizată - verde
-        default: return '#6b7280'; // Unknown - gri
+        case 1: return '#2563eb'; // Disponibilă - albastru mai viu
+        case 2: return '#059669'; // În progres - verde intens  
+        case 3: return '#ea580c'; // Pauzată - portocaliu viu
+        case 4: return '#16a34a'; // Finalizată - verde închis
+        default: return '#374151'; // Unknown - gri închis pentru contrast
       }
     };
 
@@ -157,7 +157,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = memo(({
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{
-              color: currentTheme === 'light' ? '#6b7280' : '#9ca3af',
+              color: currentTheme === 'light' ? '#374151' : '#e5e7eb',
               fontSize: '12px',
               fontStyle: 'italic',
               textAlign: 'center'
