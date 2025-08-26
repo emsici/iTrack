@@ -39,13 +39,17 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
     <div className="toast-container" style={{ border: '2px solid red', backgroundColor: 'rgba(255,0,0,0.1)' }}>
       <style>{`
         .toast-container {
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          z-index: 9999999;
-          max-width: 400px;
-          width: 100%;
-          pointer-events: none;
+          position: fixed !important;
+          top: 50% !important;
+          left: 50% !important;
+          transform: translate(-50%, -50%) !important;
+          z-index: 9999999 !important;
+          max-width: 500px !important;
+          width: auto !important;
+          pointer-events: auto !important;
+          background: red !important;
+          border: 10px solid yellow !important;
+          padding: 30px !important;
         }
         
         .toast {
@@ -53,20 +57,20 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
 
         .toast {
-          background: rgba(15, 23, 42, 0.95) !important;
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
-          border-radius: 12px;
-          padding: 16px !important;
-          margin-bottom: 12px !important;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-          transform: translateX(0) !important;
-          animation: none !important;
-          position: relative !important;
-          overflow: hidden;
+          background: lime !important;
+          border: 3px solid black !important;
+          border-radius: 10px !important;
+          padding: 20px !important;
+          margin-bottom: 10px !important;
+          color: black !important;
+          font-weight: bold !important;
+          font-size: 16px !important;
           display: block !important;
           visibility: visible !important;
           opacity: 1 !important;
+          position: relative !important;
+          width: 300px !important;
+          min-height: 60px !important;
         }
 
         .toast.removing {
@@ -113,9 +117,9 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
 
         .toast-title {
-          color: #ffffff;
-          font-weight: 600;
-          font-size: 14px;
+          color: black !important;
+          font-weight: bold !important;
+          font-size: 18px !important;
           flex: 1;
         }
 
@@ -135,10 +139,11 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
 
         .toast-message {
-          color: #cbd5e1;
-          font-size: 13px;
+          color: black !important;
+          font-size: 16px !important;
           line-height: 1.4;
-          margin-left: 36px;
+          margin-left: 0px !important;
+          font-weight: bold !important;
         }
 
         .toast-progress {
@@ -164,12 +169,12 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
       `}</style>
 
-      <div style={{ color: 'white', background: 'red', padding: '10px', marginBottom: '5px' }}>
-        TOAST CONTAINER VISIBLE - {toasts.length} toasts
+      <div style={{ color: 'white', background: 'red', padding: '20px', marginBottom: '10px', fontSize: '24px', fontWeight: 'bold' }}>
+        🚨 TOAST CONTAINER VISIBLE - {toasts.length} toasts 🚨
       </div>
       {toasts.map((toast, index) => (
-        <div key={toast.id + '_debug'} style={{ background: 'yellow', color: 'black', padding: '5px', marginBottom: '2px', border: '1px solid black' }}>
-          DEBUG TOAST {index + 1}: {toast.type} - {toast.title}
+        <div key={toast.id + '_debug'} style={{ background: 'yellow', color: 'black', padding: '20px', marginBottom: '10px', border: '3px solid black', fontSize: '20px', fontWeight: 'bold' }}>
+          🍞 DEBUG TOAST #{index + 1}: {toast.type} - {toast.title}
         </div>
       ))}
       {toasts.map((toast) => (
@@ -215,13 +220,14 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, getIcon, getColo
 
   return (
     <div 
-      className={`toast ${isRemoving ? 'removing' : ''}`}
+      className="toast"
       style={{ 
-        '--toast-color': getColor(toast.type),
-        border: '3px solid lime',
-        background: 'rgba(0,0,0,0.9)',
-        color: 'white'
-      } as any}
+        background: 'lime !important',
+        border: '3px solid black !important',
+        color: 'black !important',
+        padding: '20px !important',
+        marginBottom: '10px !important'
+      }}
     >
       <div className="toast-header">
         <div className="toast-icon">
