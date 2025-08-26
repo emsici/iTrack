@@ -43,6 +43,7 @@ public class BackgroundGPSService extends Service {
     private java.util.concurrent.atomic.AtomicBoolean isGPSRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
     private java.util.concurrent.atomic.AtomicBoolean locationUpdatesActive = new java.util.concurrent.atomic.AtomicBoolean(false);
     private java.util.concurrent.atomic.AtomicBoolean isRetryRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
+    private java.util.concurrent.ConcurrentLinkedQueue<OfflineGPSData> offlineQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
     
     
     // Clasă pentru datele cursei
