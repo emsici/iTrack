@@ -665,7 +665,7 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
               key={vehicle}
               style={{
                 padding: '12px 16px',
-                color: darkMode ? '#ffffff' : '#1e293b',
+                color: (darkMode || currentTheme === 'dark') ? '#ffffff' : '#1e293b',
                 fontSize: '13px',
                 fontWeight: '600',
                 cursor: 'pointer',

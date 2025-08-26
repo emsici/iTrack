@@ -970,6 +970,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         <div style={{ padding: '0 24px 20px' }}>
           <OfflineSyncMonitor 
             isOnline={isOnline}
+            currentTheme={currentTheme}
             className="mb-3"
           />
         </div>

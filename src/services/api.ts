@@ -624,8 +624,10 @@ export const sendGPSData = async (
         
         console.log('💾 Salvez coordonată offline - fetch fallback eșuat');
         try {
-          // BackgroundGPSService handles offline GPS storage natively
-          // await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
+          // Activez salvarea offline cu offlineGPSService
+          const { offlineGPSService } = await import('./offlineGPS');
+          await offlineGPSService.saveOfflineCoordinate(gpsData);
+          console.log('✅ Coordonată salvată offline cu succes (fetch fallback)');
         } catch (error) {
           console.error('❌ Eroare salvare offline (fetch):', error);
         }
@@ -644,8 +646,10 @@ export const sendGPSData = async (
     // SALVARE AUTOMATĂ OFFLINE pentru eroare completă de transmisie  
     console.log('💾 Salvez coordonată offline - eroare completă de transmisie');
     try {
-      // BackgroundGPSService handles offline GPS storage natively
-      // await offlineGPSService.saveCoordinate(gpsData, gpsData.uit, gpsData.numar_inmatriculare, token, gpsData.status);
+      // Activez salvarea offline cu offlineGPSService
+      const { offlineGPSService } = await import('./offlineGPS');
+      await offlineGPSService.saveOfflineCoordinate(gpsData);
+      console.log('✅ Coordonată salvată offline cu succes');
     } catch (offlineError) {
       console.error('❌ Eroare salvare offline (error catch):', offlineError);
     }

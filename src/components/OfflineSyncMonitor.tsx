@@ -19,9 +19,10 @@ interface OfflineSyncStats {
 interface OfflineSyncMonitorProps {
   isOnline: boolean;
   className?: string;
+  currentTheme?: string;
 }
 
-const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, className = '' }) => {
+const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, className = '', currentTheme = 'dark' }) => {
   const [stats, setStats] = useState<OfflineSyncStats>({
     totalOffline: 0,
     totalSynced: 0,
@@ -55,12 +56,7 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
     }
   }, [isOnline, stats.totalOffline, stats.syncInProgress]);
 
-  const handleManualSync = async () => {
-    if (stats.syncInProgress || !isOnline) return;
-    
-    console.log('🔄 Sincronizare manuală inițiată...');
-    await offlineGPSService.syncOfflineCoordinates();
-  };
+  // Nu mai permitem sincronizare manuală - doar automată
 
   const formatLastSync = (date: Date | null) => {
     if (!date) return 'Niciodată';
@@ -160,19 +156,19 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
             <div className="col-4">
               <div className="text-center">
                 <div className="h5 mb-0 text-warning">{stats.totalOffline}</div>
-                <small className="text-muted">În așteptare</small>
+                <small style={{ color: currentTheme === 'dark' ? '#94a3b8' : '#6b7280' }}>În așteptare</small>
               </div>
             </div>
             <div className="col-4">
               <div className="text-center">
                 <div className="h5 mb-0 text-success">{stats.totalSynced}</div>
-                <small className="text-muted">Sincronizate</small>
+                <small style={{ color: currentTheme === 'dark' ? '#94a3b8' : '#6b7280' }}>Sincronizate</small>
               </div>
             </div>
             <div className="col-4">
               <div className="text-center">
                 <div className="h5 mb-0 text-danger">{stats.syncErrors}</div>
-                <small className="text-muted">Erori</small>
+                <small style={{ color: currentTheme === 'dark' ? '#94a3b8' : '#6b7280' }}>Erori</small>
               </div>
             </div>
           </div>
@@ -181,8 +177,12 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
           {stats.syncInProgress && (
             <div className="mb-3">
               <div className="d-flex justify-content-between mb-1">
-                <small>Sincronizare în curs...</small>
-                <small>{stats.currentBatch}/{stats.totalBatches} loturi</small>
+                <small style={{ color: currentTheme === 'dark' ? '#e2e8f0' : '#374151' }}>
+                  Sincronizare în curs...
+                </small>
+                <small style={{ color: currentTheme === 'dark' ? '#e2e8f0' : '#374151' }}>
+                  {stats.currentBatch}/{stats.totalBatches} loturi
+                </small>
               </div>
               <div className="progress" style={{ height: '6px' }}>
                 <div 
@@ -196,7 +196,9 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
 
           {/* Info ultima sincronizare */}
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <small className="text-muted">
+            <small style={{ 
+              color: currentTheme === 'dark' ? '#94a3b8' : '#6b7280' 
+            }}>
               Ultima sincronizare: {formatLastSync(stats.lastSyncAttempt)}
             </small>
             <div className="d-flex align-items-center">
@@ -206,48 +208,27 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
             </div>
           </div>
 
-          {/* Butoane de acțiune */}
-          <div className="d-grid gap-2">
-            <button 
-              className="btn btn-sm"
-              onClick={handleManualSync}
-              disabled={stats.syncInProgress || !isOnline || stats.totalOffline === 0}
-              style={{
-                backgroundColor: stats.syncInProgress || !isOnline || stats.totalOffline === 0 
-                  ? 'rgba(108, 117, 125, 0.3)' 
-                  : 'rgba(255, 193, 7, 0.8)',
-                border: '1px solid rgba(255, 193, 7, 0.4)',
-                color: stats.syncInProgress || !isOnline || stats.totalOffline === 0 ? '#6c757d' : '#000',
-                fontWeight: '500',
-                padding: '8px 12px'
-              }}
-            >
-              {stats.syncInProgress ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                  Sincronizare în curs...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-arrow-repeat me-2"></i>
-                  Sincronizare manuală ({stats.totalOffline} coordonate)
-                </>
-              )}
-            </button>
-            
-            {stats.totalOffline === 0 && (
-              <div className="alert alert-success mb-0 py-2">
-                <i className="bi bi-check-circle me-2"></i>
-                <small>Toate coordonatele sunt sincronizate!</small>
-              </div>
-            )}
-            
-            {!isOnline && stats.totalOffline > 0 && (
-              <div className="alert alert-warning mb-0 py-2">
-                <i className="bi bi-wifi-off me-2"></i>
-                <small>Offline - coordonatele vor fi sincronizate automat la reconectare</small>
-              </div>
-            )}
+          {/* Info sincronizare automată */}
+          <div style={{
+            padding: '12px',
+            background: currentTheme === 'dark' 
+              ? 'rgba(34, 197, 94, 0.1)' 
+              : 'rgba(34, 197, 94, 0.05)',
+            border: `1px solid ${currentTheme === 'dark' 
+              ? 'rgba(34, 197, 94, 0.3)' 
+              : 'rgba(34, 197, 94, 0.2)'}`,
+            borderRadius: '8px',
+            textAlign: 'center'
+          }}>
+            <i className="bi bi-info-circle me-2" style={{ 
+              color: currentTheme === 'dark' ? '#22c55e' : '#059669' 
+            }}></i>
+            <small style={{ 
+              color: currentTheme === 'dark' ? '#e2e8f0' : '#374151',
+              fontWeight: '500'
+            }}>
+              Sincronizare automată când revine internetul
+            </small>
           </div>
         </div>
       )}
