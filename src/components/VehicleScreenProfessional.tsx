@@ -1347,20 +1347,176 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             />
           ))}
           
-          {/* Mesaj când nu sunt curse pentru filtru specific */}
+          {/* Alertă frumoasă când nu sunt curse pentru filtru specific */}
           {selectedStatusFilter !== 'all' && 
            courses.filter(c => c.status === selectedStatusFilter).length === 0 && (
             <div style={{
-              textAlign: 'center',
-              padding: '40px 20px',
-              color: '#a0aec0',
-              fontSize: '16px'
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '60px 20px',
+              margin: '20px',
+              background: currentTheme === 'dark' 
+                ? 'linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(51, 65, 85, 0.4) 100%)'
+                : currentTheme === 'light'
+                  ? 'linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.6) 100%)'
+                  : currentTheme === 'business'
+                    ? 'linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%)'
+                    : currentTheme === 'driver'
+                      ? 'linear-gradient(135deg, rgba(6, 95, 70, 0.2) 0%, rgba(4, 120, 87, 0.1) 100%)'
+                      : currentTheme === 'nature'
+                        ? 'linear-gradient(135deg, rgba(22, 101, 52, 0.2) 0%, rgba(21, 128, 61, 0.1) 100%)'
+                        : currentTheme === 'night'
+                          ? 'linear-gradient(135deg, rgba(76, 29, 149, 0.2) 0%, rgba(91, 33, 182, 0.1) 100%)'
+                          : 'linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(51, 65, 85, 0.4) 100%)',
+              border: currentTheme === 'dark'
+                ? '1px solid rgba(148, 163, 184, 0.2)'
+                : currentTheme === 'light'
+                  ? '1px solid rgba(203, 213, 225, 0.4)'
+                  : currentTheme === 'business'
+                    ? '1px solid rgba(59, 130, 246, 0.3)'
+                    : currentTheme === 'driver'
+                      ? '1px solid rgba(16, 185, 129, 0.3)'
+                      : currentTheme === 'nature'
+                        ? '1px solid rgba(34, 197, 94, 0.3)'
+                        : currentTheme === 'night'
+                          ? '1px solid rgba(139, 92, 246, 0.3)'
+                          : '1px solid rgba(148, 163, 184, 0.2)',
+              borderRadius: '16px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+              backdropFilter: 'blur(10px)',
+              textAlign: 'center'
             }}>
-              Nu sunt curse {
-                selectedStatusFilter === 1 ? 'DISPONIBILE' :
-                selectedStatusFilter === 2 ? 'ACTIVE' : 
-                selectedStatusFilter === 3 ? 'ÎN PAUZĂ' : 'OPRITE'
-              }
+              {/* Icon */}
+              <div style={{
+                width: '80px',
+                height: '80px',
+                background: currentTheme === 'dark'
+                  ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+                  : currentTheme === 'light'
+                    ? 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)'
+                    : currentTheme === 'business'
+                      ? 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)'
+                      : currentTheme === 'driver'
+                        ? 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)'
+                        : currentTheme === 'nature'
+                          ? 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)'
+                          : currentTheme === 'night'
+                            ? 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)'
+                            : 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '32px',
+                color: currentTheme === 'dark'
+                  ? '#94a3b8'
+                  : currentTheme === 'light'
+                    ? '#64748b'
+                    : currentTheme === 'business'
+                      ? '#3b82f6'
+                      : currentTheme === 'driver'
+                        ? '#059669'
+                        : currentTheme === 'nature'
+                          ? '#16a34a'
+                          : currentTheme === 'night'
+                            ? '#8b5cf6'
+                            : '#64748b',
+                marginBottom: '24px',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+              }}>
+                📋
+              </div>
+              
+              {/* Title */}
+              <h3 style={{
+                color: currentTheme === 'dark'
+                  ? '#f1f5f9'
+                  : currentTheme === 'light'
+                    ? '#1e293b'
+                    : currentTheme === 'business'
+                      ? '#1e40af'
+                      : currentTheme === 'driver'
+                        ? '#065f46'
+                        : currentTheme === 'nature'
+                          ? '#14532d'
+                          : currentTheme === 'night'
+                            ? '#581c87'
+                            : '#1e293b',
+                fontSize: '20px',
+                fontWeight: '700',
+                margin: '0 0 12px 0',
+                letterSpacing: '-0.025em'
+              }}>
+                Nicio cursă găsită
+              </h3>
+              
+              {/* Description */}
+              <p style={{
+                color: currentTheme === 'dark'
+                  ? '#94a3b8'
+                  : currentTheme === 'light'
+                    ? '#64748b'
+                    : currentTheme === 'business'
+                      ? '#64748b'
+                      : currentTheme === 'driver'
+                        ? '#6b7280'
+                        : currentTheme === 'nature'
+                          ? '#6b7280'
+                          : currentTheme === 'night'
+                            ? '#a1a1aa'
+                            : '#64748b',
+                fontSize: '15px',
+                margin: '0 0 20px 0',
+                lineHeight: '1.5',
+                maxWidth: '280px'
+              }}>
+                Nu există curse {
+                  selectedStatusFilter === 1 ? 'disponibile' :
+                  selectedStatusFilter === 2 ? 'active' : 
+                  selectedStatusFilter === 3 ? 'în pauză' : 'oprite'
+                } pentru vehiculul selectat.
+              </p>
+              
+              {/* Action hint */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 20px',
+                background: currentTheme === 'dark'
+                  ? 'rgba(59, 130, 246, 0.1)'
+                  : currentTheme === 'light'
+                    ? 'rgba(59, 130, 246, 0.05)'
+                    : currentTheme === 'business'
+                      ? 'rgba(59, 130, 246, 0.1)'
+                      : currentTheme === 'driver'
+                        ? 'rgba(34, 197, 94, 0.1)'
+                        : currentTheme === 'nature'
+                          ? 'rgba(34, 197, 94, 0.1)'
+                          : currentTheme === 'night'
+                            ? 'rgba(139, 92, 246, 0.1)'
+                            : 'rgba(59, 130, 246, 0.05)',
+                borderRadius: '8px',
+                fontSize: '13px',
+                color: currentTheme === 'dark'
+                  ? '#60a5fa'
+                  : currentTheme === 'light'
+                    ? '#2563eb'
+                    : currentTheme === 'business'
+                      ? '#2563eb'
+                      : currentTheme === 'driver'
+                        ? '#059669'
+                        : currentTheme === 'nature'
+                          ? '#16a34a'
+                          : currentTheme === 'night'
+                            ? '#8b5cf6'
+                            : '#2563eb',
+                fontWeight: '500'
+              }}>
+                💡 Încearcă să schimbi filtrul sau vehiculul
+              </div>
             </div>
           )}
           
