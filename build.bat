@@ -1,175 +1,149 @@
 @echo off
 setlocal enabledelayedexpansion
 
-rem Set default environment
-set ENV=prod
+cls
+echo.
+echo ================================================
+echo            iTrack GPS - Build Tool
+echo ================================================
+echo.
 
-if not "%1"=="" (
+rem Interactive environment selection if no parameter provided
+if "%1"=="" (
+    echo Selecteaza environment-ul pentru build:
+    echo.
+    echo 1. DEVELOPMENT ^(API: etsm3^)
+    echo 2. PRODUCTION  ^(API: etsm_prod^)
+    echo.
+    set /p choice="Introdu optiunea (1 sau 2): "
+    
+    if "!choice!"=="1" (
+        set ENV=dev
+    ) else if "!choice!"=="2" (
+        set ENV=prod
+    ) else (
+        echo.
+        echo Optiune invalida. Folosesc PRODUCTION ca default.
+        set ENV=prod
+        timeout /t 2 >nul
+    )
+) else (
     set ENV=%1
 )
 
-rem Setează culoarea: fundal negru, text alb
-color 0F
-
-cls
 echo.
-echo.
-echo                 ████████████████████████████████████████████
-echo                 ████████████████████████████████████████████
-echo                 ████████████████████████████████████████████
-echo                 ███████████ ITRACK GPS ROMANIA ████████████
-echo                 ████████████████████████████████████████████
-echo                 ████████████████████████████████████████████
-echo                 ████████████████████████████████████████████
-echo.
-echo                 ████████ STEAGUL ROMANIEI ████████
-echo                 ██████                            ██████
-echo                 ████   ■■■■■■  ■■■■■■  ■■■■■■   ████
-echo                 ██     ■ BLU ■ ■GALB■ ■ROSU■     ██
-echo                 ████   ■■■■■■  ■■■■■■  ■■■■■■   ████
-echo                 ██████                            ██████
-echo                 ████████████████████████████████████████
-echo.
-echo                 ═══════════════════════════════════════════
-echo                    🇷🇴 SISTEM BUILD PROFESIONAL 🇷🇴
-echo                 ═══════════════════════════════════════════
-echo.
-echo                 ░░░░ Environment-uri disponibile: ░░░░
-echo                 ▶ PRODUCTION (etsm_prod) - [DEFAULT]
-echo                 ▶ DEVELOPMENT (etsm3) - build.bat dev
-echo.
+echo ================================================
 
 if /i "%ENV%"=="dev" (
-    color 0E
-    echo                 ╔═══════════════════════════════════════╗
-    echo                 ║     🔧 DEVELOPMENT ENVIRONMENT      ║
-    echo                 ║      API: www.euscagency.com/etsm3/   ║
-    echo                 ╚═══════════════════════════════════════╝
+    echo Environment: DEVELOPMENT
+    echo API Endpoint: www.euscagency.com/etsm3/
     set VITE_API_BASE_URL=https://www.euscagency.com/etsm3/platforme/transport/apk/
     set NODE_ENV=development
 ) else if /i "%ENV%"=="prod" (
-    color 0A
-    echo                 ╔═══════════════════════════════════════╗
-    echo                 ║      🚀 PRODUCTION ENVIRONMENT      ║
-    echo                 ║   API: www.euscagency.com/etsm_prod/  ║
-    echo                 ╚═══════════════════════════════════════╝
+    echo Environment: PRODUCTION
+    echo API Endpoint: www.euscagency.com/etsm_prod/
     set VITE_API_BASE_URL=https://www.euscagency.com/etsm_prod/platforme/transport/apk/
     set NODE_ENV=production
 ) else (
-    color 0C
-    echo                 ╔═══════════════════════════════════════╗
-    echo                 ║           ❌ EROARE FATALA ❌         ║
-    echo                 ║      Environment invalid '%ENV%'       ║
-    echo                 ║        Foloseste: dev sau prod        ║
-    echo                 ╚═══════════════════════════════════════╝
+    echo.
+    echo EROARE: Environment invalid '%ENV%'
+    echo Foloseste: dev sau prod
     echo.
     pause
     exit /b 1
 )
 
+echo ================================================
+
 echo.
-echo                 ┌─────────────────────────────────────────┐
-echo                 │          🔄 PROCES DE BUILD            │
-echo                 └─────────────────────────────────────────┘
+echo Pornesc procesul de build...
 echo.
 
-echo ░░░ [ETAPA 1/4] Instalare dependințe Node.js...
-echo ╠══ Verificând package.json și npm...
+echo [ETAPA 1/4] Instalare dependinte Node.js...
 call npm install >nul 2>&1
 if %errorlevel% neq 0 (
-    color 0C
-    echo ╠══ ❌ EROARE: npm install eșuat
-    echo ╚══ Verificați conexiunea internet și package.json
+    echo.
+    echo EROARE: npm install esuat
+    echo Verificati conexiunea internet si package.json
     echo.
     pause
     exit /b 1
 )
-echo ╠══ ✅ Dependințe instalate cu succes
-echo.
+echo Done.
 
-echo ░░░ [ETAPA 2/4] Build aplicație pentru %ENV%...
-echo ╠══ Compilând cu Vite bundler...
+echo [ETAPA 2/4] Build aplicatie pentru %ENV%...
 call npx vite build >nul 2>&1
 if %errorlevel% neq 0 (
-    color 0C
-    echo ╠══ ❌ EROARE: vite build eșuat
-    echo ╚══ Verificați codul TypeScript și dependințele
+    echo.
+    echo EROARE: vite build esuat
+    echo Verificati codul TypeScript si dependintele
     echo.
     pause
     exit /b 1
 )
-echo ╠══ ✅ Aplicație compilată pentru environment %ENV%
-echo.
+echo Done.
 
-echo ░░░ [ETAPA 3/4] Sincronizare cu Android...
-echo ╠══ Copiind assets în proiectul Android...
+echo [ETAPA 3/4] Sincronizare cu Android...
 call npx cap sync android >nul 2>&1
 if %errorlevel% neq 0 (
-    color 0C
-    echo ╠══ ❌ EROARE: capacitor sync eșuat
-    echo ╚══ Verificați configurația Capacitor
+    echo.
+    echo EROARE: capacitor sync esuat
+    echo Verificati configuratia Capacitor
     echo.
     pause
     exit /b 1
 )
-echo ╠══ ✅ Proiect Android sincronizat
-echo.
+echo Done.
 
-echo ░░░ [ETAPA 4/4] Lansare Android Studio...
-echo ╠══ Deschizând IDE-ul pentru development...
+echo [ETAPA 4/4] Lansare Android Studio...
 call npx cap open android >nul 2>&1
 if %errorlevel% neq 0 (
-    color 0C
-    echo ╠══ ❌ EROARE: deschiderea Android Studio eșuată
-    echo ╚══ Instalați Android Studio și configurați PATH
+    echo.
+    echo EROARE: deschiderea Android Studio esuata
+    echo Instalati Android Studio si configurati PATH
     echo.
     pause
     exit /b 1
 )
-echo ╠══ ✅ Android Studio lansat cu succes
+echo Done.
+
+echo.
+echo ================================================
+echo              BUILD FINALIZAT CU SUCCES!
+echo ================================================
+echo.
+echo Toate etapele au fost finalizate cu succes.
+echo Proiectul este gata in Android Studio.
+echo Environment: %ENV%
+echo.
+echo INSTRUCTIUNI URMATOARE:
+echo 1. Android Studio este deschis
+echo 2. Selectati device/emulator
+echo 3. Apasati 'Run' pentru testare
+echo 4. Pentru APK: Build -^> Generate Signed Bundle/APK
+echo.
+echo ================================================
 echo.
 
-rem Culoare verde pentru succes
-color 0A
-cls
+echo Continui cu alte operatiuni?
 echo.
+echo 1. Restart build cu alt environment
+echo 2. Deschide director proiect
+echo 3. Iesire
 echo.
-echo                 ████████████████████████████████████████████
-echo                 ████████████████████████████████████████████
-echo                 ████████████████████████████████████████████
-echo                 ███████████ BUILD FINALIZAT! ███████████████
-echo                 ████████████████████████████████████████████
-echo                 ████████████████████████████████████████████
-echo                 ████████████████████████████████████████████
-echo.
-echo                 ██████ STEAGUL ROMANIEI - SUCCES ██████
-echo                 ████                                ████
-echo                 ██   🟦🟦🟦  🟨🟨🟨  🟥🟥🟥   ██
-echo                 ██   🟦🟦🟦  🟨🟨🟨  🟥🟥🟥   ██
-echo                 ██   🟦🟦🟦  🟨🟨🟨  🟥🟥🟥   ██
-echo                 ████                                ████
-echo                 ████████████████████████████████████████
-echo.
-echo                 ╔═══════════════════════════════════════════╗
-echo                 ║        🇷🇴 BUILD %ENV% REUȘIT! 🇷🇴        ║
-echo                 ║                                           ║
-echo                 ║  ✅ Toate etapele finalizate cu succes   ║
-echo                 ║  📱 Proiect gata în Android Studio       ║
-echo                 ║  🌐 Environment: %ENV%                    ║
-echo                 ║  🚀 Gata pentru deployment!              ║
-echo                 ╚═══════════════════════════════════════════╝
-echo.
-echo                 ████ INSTRUCTIUNI URMATOARE ████
-echo                 ▶ Android Studio este deschis
-echo                 ▶ Selectați device/emulator
-echo                 ▶ Apăsați 'Run' pentru testare
-echo                 ▶ Pentru APK: Build → Generate Signed Bundle/APK
-echo.
-echo                 ┌─────────────────────────────────────────┐
-echo                 │    🔧 iTrack GPS Romania - Build Tool   │
-echo                 │       Dezvoltat pentru excelență       │
-echo                 └─────────────────────────────────────────┘
-echo.
+set /p choice="Alege optiunea (1, 2 sau 3): "
 
-rem Resetează culoarea
-color
+if "!choice!"=="1" (
+    echo.
+    echo Restarting build tool...
+    timeout /t 1 >nul
+    "%~f0"
+) else if "!choice!"=="2" (
+    echo.
+    echo Deschid directorul proiectului...
+    start .
+) else (
+    echo.
+    echo Build tool terminat.
+    timeout /t 2 >nul
+)

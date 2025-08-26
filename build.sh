@@ -1,167 +1,150 @@
 #!/bin/bash
 
-# Set default environment
-ENV="prod"
+clear
+echo ""
+echo "================================================"
+echo "            iTrack GPS - Build Tool"
+echo "================================================"
+echo ""
 
-if [ "$1" != "" ]; then
+# Interactive environment selection if no parameter provided
+if [ "$1" = "" ]; then
+    echo "Selecteaza environment-ul pentru build:"
+    echo ""
+    echo "1. DEVELOPMENT (API: etsm3)"
+    echo "2. PRODUCTION  (API: etsm_prod)"
+    echo ""
+    read -p "Introdu optiunea (1 sau 2): " choice
+    
+    if [ "$choice" = "1" ]; then
+        ENV="dev"
+    elif [ "$choice" = "2" ]; then
+        ENV="prod"
+    else
+        echo ""
+        echo "Optiune invalida. Folosesc PRODUCTION ca default."
+        ENV="prod"
+        sleep 2
+    fi
+else
     ENV=$1
 fi
 
-# Culori pentru terminal
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-MAGENTA='\033[0;35m'
-CYAN='\033[0;36m'
-WHITE='\033[1;37m'
-BOLD='\033[1m'
-NC='\033[0m' # No Color
-
-clear
 echo ""
-echo ""
-echo -e "${WHITE}                ████████████████████████████████████████████${NC}"
-echo -e "${WHITE}                ████████████████████████████████████████████${NC}"
-echo -e "${WHITE}                ████████████████████████████████████████████${NC}"
-echo -e "${WHITE}                ███████████ ITRACK GPS ROMANIA ████████████${NC}"
-echo -e "${WHITE}                ████████████████████████████████████████████${NC}"
-echo -e "${WHITE}                ████████████████████████████████████████████${NC}"
-echo -e "${WHITE}                ████████████████████████████████████████████${NC}"
-echo ""
-echo -e "${CYAN}                ████████ STEAGUL ROMANIEI ████████${NC}"
-echo -e "${WHITE}                ██████                            ██████${NC}"
-echo -e "${BLUE}                ████   ■■■■■■${NC}  ${YELLOW}■■■■■■${NC}  ${RED}■■■■■■${NC}   ${WHITE}████${NC}"
-echo -e "${BLUE}                ██     ■ BLU ■${NC} ${YELLOW}■GALB■${NC} ${RED}■ROSU■${NC}     ${WHITE}██${NC}"
-echo -e "${BLUE}                ████   ■■■■■■${NC}  ${YELLOW}■■■■■■${NC}  ${RED}■■■■■■${NC}   ${WHITE}████${NC}"
-echo -e "${WHITE}                ██████                            ██████${NC}"
-echo -e "${WHITE}                ████████████████████████████████████████${NC}"
-echo ""
-echo -e "${MAGENTA}                ═══════════════════════════════════════════${NC}"
-echo -e "${BOLD}                   🇷🇴 SISTEM BUILD PROFESIONAL 🇷🇴${NC}"
-echo -e "${MAGENTA}                ═══════════════════════════════════════════${NC}"
-echo ""
-echo -e "${CYAN}                ░░░░ Environment-uri disponibile: ░░░░${NC}"
-echo -e "${WHITE}                ▶ PRODUCTION (etsm_prod) - [DEFAULT]${NC}"
-echo -e "${WHITE}                ▶ DEVELOPMENT (etsm3) - ./build.sh dev${NC}"
-echo ""
+echo "================================================"
 
 if [ "$ENV" = "dev" ]; then
-    echo -e "${YELLOW}                ╔═══════════════════════════════════════╗${NC}"
-    echo -e "${YELLOW}                ║     🔧 DEVELOPMENT ENVIRONMENT      ║${NC}"
-    echo -e "${YELLOW}                ║      API: www.euscagency.com/etsm3/   ║${NC}"
-    echo -e "${YELLOW}                ╚═══════════════════════════════════════╝${NC}"
+    echo "Environment: DEVELOPMENT"
+    echo "API Endpoint: www.euscagency.com/etsm3/"
     export VITE_API_BASE_URL="https://www.euscagency.com/etsm3/platforme/transport/apk/"
     export NODE_ENV="development"
 elif [ "$ENV" = "prod" ]; then
-    echo -e "${GREEN}                ╔═══════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}                ║      🚀 PRODUCTION ENVIRONMENT      ║${NC}"
-    echo -e "${GREEN}                ║   API: www.euscagency.com/etsm_prod/  ║${NC}"
-    echo -e "${GREEN}                ╚═══════════════════════════════════════╝${NC}"
+    echo "Environment: PRODUCTION"
+    echo "API Endpoint: www.euscagency.com/etsm_prod/"
     export VITE_API_BASE_URL="https://www.euscagency.com/etsm_prod/platforme/transport/apk/"
     export NODE_ENV="production"
 else
-    echo -e "${RED}                ╔═══════════════════════════════════════╗${NC}"
-    echo -e "${RED}                ║           ❌ EROARE FATALA ❌         ║${NC}"
-    echo -e "${RED}                ║      Environment invalid '$ENV'        ║${NC}"
-    echo -e "${RED}                ║        Foloseste: dev sau prod        ║${NC}"
-    echo -e "${RED}                ╚═══════════════════════════════════════╝${NC}"
     echo ""
-    read -p "Apasă Enter pentru a ieși..."
+    echo "EROARE: Environment invalid '$ENV'"
+    echo "Foloseste: dev sau prod"
+    echo ""
+    read -p "Apasa Enter pentru a iesi..."
     exit 1
 fi
 
+echo "================================================"
+
 echo ""
-echo -e "${CYAN}                ┌─────────────────────────────────────────┐${NC}"
-echo -e "${CYAN}                │          🔄 PROCES DE BUILD            │${NC}"
-echo -e "${CYAN}                └─────────────────────────────────────────┘${NC}"
+echo "Pornesc procesul de build..."
 echo ""
 
-echo -e "${WHITE}░░░ [ETAPA 1/4] Instalare dependințe Node.js...${NC}"
-echo -e "${CYAN}╠══ Verificând package.json și npm...${NC}"
+echo "[ETAPA 1/4] Instalare dependinte Node.js..."
 if ! npm install >/dev/null 2>&1; then
-    echo -e "${RED}╠══ ❌ EROARE: npm install eșuat${NC}"
-    echo -e "${RED}╚══ Verificați conexiunea internet și package.json${NC}"
     echo ""
-    read -p "Apasă Enter pentru a ieși..."
+    echo "EROARE: npm install esuat"
+    echo "Verificati conexiunea internet si package.json"
+    echo ""
+    read -p "Apasa Enter pentru a iesi..."
     exit 1
 fi
-echo -e "${GREEN}╠══ ✅ Dependințe instalate cu succes${NC}"
-echo ""
+echo "Done."
 
-echo -e "${WHITE}░░░ [ETAPA 2/4] Build aplicație pentru $ENV...${NC}"
-echo -e "${CYAN}╠══ Compilând cu Vite bundler...${NC}"
+echo "[ETAPA 2/4] Build aplicatie pentru $ENV..."
 if ! npx vite build >/dev/null 2>&1; then
-    echo -e "${RED}╠══ ❌ EROARE: vite build eșuat${NC}"
-    echo -e "${RED}╚══ Verificați codul TypeScript și dependințele${NC}"
     echo ""
-    read -p "Apasă Enter pentru a ieși..."
+    echo "EROARE: vite build esuat"
+    echo "Verificati codul TypeScript si dependintele"
+    echo ""
+    read -p "Apasa Enter pentru a iesi..."
     exit 1
 fi
-echo -e "${GREEN}╠══ ✅ Aplicație compilată pentru environment $ENV${NC}"
-echo ""
+echo "Done."
 
-echo -e "${WHITE}░░░ [ETAPA 3/4] Sincronizare cu Android...${NC}"
-echo -e "${CYAN}╠══ Copiind assets în proiectul Android...${NC}"
+echo "[ETAPA 3/4] Sincronizare cu Android..."
 if ! npx cap sync android >/dev/null 2>&1; then
-    echo -e "${RED}╠══ ❌ EROARE: capacitor sync eșuat${NC}"
-    echo -e "${RED}╚══ Verificați configurația Capacitor${NC}"
     echo ""
-    read -p "Apasă Enter pentru a ieși..."
+    echo "EROARE: capacitor sync esuat"
+    echo "Verificati configuratia Capacitor"
+    echo ""
+    read -p "Apasa Enter pentru a iesi..."
     exit 1
 fi
-echo -e "${GREEN}╠══ ✅ Proiect Android sincronizat${NC}"
-echo ""
+echo "Done."
 
-echo -e "${WHITE}░░░ [ETAPA 4/4] Lansare Android Studio...${NC}"
-echo -e "${CYAN}╠══ Deschizând IDE-ul pentru development...${NC}"
+echo "[ETAPA 4/4] Lansare Android Studio..."
 if ! npx cap open android >/dev/null 2>&1; then
-    echo -e "${RED}╠══ ❌ EROARE: deschiderea Android Studio eșuată${NC}"
-    echo -e "${RED}╚══ Instalați Android Studio și configurați PATH${NC}"
     echo ""
-    read -p "Apasă Enter pentru a ieși..."
+    echo "EROARE: deschiderea Android Studio esuata"
+    echo "Instalati Android Studio si configurati PATH"
+    echo ""
+    read -p "Apasa Enter pentru a iesi..."
     exit 1
 fi
-echo -e "${GREEN}╠══ ✅ Android Studio lansat cu succes${NC}"
+echo "Done."
+
+echo ""
+echo "================================================"
+echo "              BUILD FINALIZAT CU SUCCES!"
+echo "================================================"
+echo ""
+echo "Toate etapele au fost finalizate cu succes."
+echo "Proiectul este gata in Android Studio."
+echo "Environment: $ENV"
+echo ""
+echo "INSTRUCTIUNI URMATOARE:"
+echo "1. Android Studio este deschis"
+echo "2. Selectati device/emulator"
+echo "3. Apasati 'Run' pentru testare"
+echo "4. Pentru APK: Build -> Generate Signed Bundle/APK"
+echo ""
+echo "================================================"
 echo ""
 
-# Afișare finală de succes
-clear
+echo "Continui cu alte operatiuni?"
 echo ""
+echo "1. Restart build cu alt environment"
+echo "2. Deschide director proiect"
+echo "3. Iesire"
 echo ""
-echo -e "${GREEN}                ████████████████████████████████████████████${NC}"
-echo -e "${GREEN}                ████████████████████████████████████████████${NC}"
-echo -e "${GREEN}                ████████████████████████████████████████████${NC}"
-echo -e "${GREEN}                ███████████ BUILD FINALIZAT! ███████████████${NC}"
-echo -e "${GREEN}                ████████████████████████████████████████████${NC}"
-echo -e "${GREEN}                ████████████████████████████████████████████${NC}"
-echo -e "${GREEN}                ████████████████████████████████████████████${NC}"
-echo ""
-echo -e "${BOLD}                ██████ STEAGUL ROMANIEI - SUCCES ██████${NC}"
-echo -e "${WHITE}                ████                                ████${NC}"
-echo -e "${BLUE}                ██   🟦🟦🟦${NC}  ${YELLOW}🟨🟨🟨${NC}  ${RED}🟥🟥🟥${NC}   ${WHITE}██${NC}"
-echo -e "${BLUE}                ██   🟦🟦🟦${NC}  ${YELLOW}🟨🟨🟨${NC}  ${RED}🟥🟥🟥${NC}   ${WHITE}██${NC}"
-echo -e "${BLUE}                ██   🟦🟦🟦${NC}  ${YELLOW}🟨🟨🟨${NC}  ${RED}🟥🟥🟥${NC}   ${WHITE}██${NC}"
-echo -e "${WHITE}                ████                                ████${NC}"
-echo -e "${WHITE}                ████████████████████████████████████████${NC}"
-echo ""
-echo -e "${GREEN}                ╔═══════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}                ║        🇷🇴 BUILD $ENV REUȘIT! 🇷🇴        ║${NC}"
-echo -e "${GREEN}                ║                                           ║${NC}"
-echo -e "${GREEN}                ║  ✅ Toate etapele finalizate cu succes   ║${NC}"
-echo -e "${GREEN}                ║  📱 Proiect gata în Android Studio       ║${NC}"
-echo -e "${GREEN}                ║  🌐 Environment: $ENV                     ║${NC}"
-echo -e "${GREEN}                ║  🚀 Gata pentru deployment!              ║${NC}"
-echo -e "${GREEN}                ╚═══════════════════════════════════════════╝${NC}"
-echo ""
-echo -e "${CYAN}                ████ INSTRUCTIUNI URMATOARE ████${NC}"
-echo -e "${WHITE}                ▶ Android Studio este deschis${NC}"
-echo -e "${WHITE}                ▶ Selectați device/emulator${NC}"
-echo -e "${WHITE}                ▶ Apăsați 'Run' pentru testare${NC}"
-echo -e "${WHITE}                ▶ Pentru APK: Build → Generate Signed Bundle/APK${NC}"
-echo ""
-echo -e "${MAGENTA}                ┌─────────────────────────────────────────┐${NC}"
-echo -e "${MAGENTA}                │    🔧 iTrack GPS Romania - Build Tool   │${NC}"
-echo -e "${MAGENTA}                │       Dezvoltat pentru excelență       │${NC}"
-echo -e "${MAGENTA}                └─────────────────────────────────────────┘${NC}"
-echo ""
+read -p "Alege optiunea (1, 2 sau 3): " choice
+
+if [ "$choice" = "1" ]; then
+    echo ""
+    echo "Restarting build tool..."
+    sleep 1
+    exec "$0"
+elif [ "$choice" = "2" ]; then
+    echo ""
+    echo "Deschid directorul proiectului..."
+    if command -v xdg-open >/dev/null 2>&1; then
+        xdg-open .
+    elif command -v open >/dev/null 2>&1; then
+        open .
+    else
+        echo "Nu pot deschide directorul automat."
+    fi
+else
+    echo ""
+    echo "Build tool terminat."
+    sleep 2
+fi
