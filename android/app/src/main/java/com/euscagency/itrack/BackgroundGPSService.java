@@ -56,6 +56,9 @@ public class BackgroundGPSService extends Service {
     // THREAD SAFETY: AtomicBoolean pentru isGPSRunning state thread-safe
     private java.util.concurrent.atomic.AtomicBoolean isGPSRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
     
+    // CRITICAL FIX: Flag separat pentru tracking dacă LocationCallback este EFECTIV înregistrat
+    private java.util.concurrent.atomic.AtomicBoolean locationUpdatesActive = new java.util.concurrent.atomic.AtomicBoolean(false);
+    
     // CRITICAL FIX: OFFLINE QUEUE cu LIMITĂ IMPUSĂ pentru memory safety
     private java.util.concurrent.ConcurrentLinkedQueue<OfflineGPSData> offlineQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
     private java.util.concurrent.ScheduledExecutorService retryExecutor;
@@ -201,15 +204,8 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "📱 Notificare serviciu fundal actualizată");
             
             if (courseStatus == 2) {
-                if (!isGPSRunning.get()) {
-                    Log.e(TAG, "🚀 PORNIRE FUSION GPS pentru prima cursă activă");
-                    startBackgroundGPS();
-                } else {
-                    Log.e(TAG, "⚡ FUSION GPS rulează deja - cursă nouă adăugată la tracking existent");
-                    Log.e(TAG, "📋 Fusion GPS va include automat noul UIT în callback-ul existent");
-                    Log.e(TAG, "🔄 Nu e nevoie de restart - serviciul transmite pentru TOATE cursele active");
-                    sendLogToJavaScript("⚡ UIT nou adăugat la FUSION GPS existent: " + uitId);
-                }
+                // CRITICAL FIX: Garantează că LocationCallback este ÎNTOTDEAUNA înregistrat pentru curse ACTIVE
+                ensureLocationUpdatesRegistered();
             } else {
                 Log.e(TAG, "GPS not started - course status is " + courseStatus + " (not ACTIVE)");
             }
@@ -256,12 +252,8 @@ public class BackgroundGPSService extends Service {
                     // CRITICAL FIX: TRIMITE status RESUME la server
                     sendStatusUpdateToServer(newStatus, foundKey);
                     
-                    if (!isGPSRunning.get()) {
-                        Log.i(TAG, "Pornesc GPS pentru resume");
-                        startBackgroundGPS();
-                    } else {
-                        Log.i(TAG, "GPS deja activ - continuă pentru " + specificUIT);
-                    }
+                    // CRITICAL FIX: Garantează LocationCallback înregistrat pentru RESUME
+                    ensureLocationUpdatesRegistered();
                 } else if (newStatus == 3) { // PAUSE
                     courseData.status = 3;
                     Log.e(TAG, "🔶 PAUSE: UIT " + specificUIT + " status → 3 (PAUSE)");
@@ -269,6 +261,7 @@ public class BackgroundGPSService extends Service {
                     // CRITICAL FIX: TRIMITE status PAUSE la server (a lipsit!)
                     sendStatusUpdateToServer(newStatus, foundKey);
                     
+                    // CRITICAL FIX: Verifică dacă mai sunt curse ACTIVE pentru a opri GPS
                     int activeCourseCount = 0;
                     for (CourseData course : activeCourses.values()) {
                         if (course.status == 2) {
@@ -276,6 +269,12 @@ public class BackgroundGPSService extends Service {
                         }
                     }
                     Log.e(TAG, "📊 PAUSE: " + activeCourseCount + " curse rămân ACTIVE");
+                    
+                    // CRITICAL FIX: Dacă nu mai sunt curse ACTIVE, oprește LocationUpdates
+                    if (activeCourseCount == 0) {
+                        Log.e(TAG, "🛑 TOATE cursele în PAUZĂ/STOP - opresc LocationUpdates");
+                        stopLocationUpdates();
+                    }
                 } else if (newStatus == 4) { // STOP
                     // CRITICAL FIX: TRIMITE status STOP la server ÎNAINTE de eliminare
                     sendStatusUpdateToServer(newStatus, foundKey);
@@ -283,10 +282,19 @@ public class BackgroundGPSService extends Service {
                     activeCourses.remove(foundKey);
                     Log.e(TAG, "✅ STOP: Status trimis + cursă eliminată din GPS tracking pentru " + specificUIT);
                     
-                    if (activeCourses.isEmpty()) {
-                        Log.e(TAG, "🔄 TOATE cursele STOP - GPS în standby");
+                    // CRITICAL FIX: Verifică dacă mai sunt curse ACTIVE pentru GPS
+                    int activeCourseCount = 0;
+                    for (CourseData course : activeCourses.values()) {
+                        if (course.status == 2) {
+                            activeCourseCount++;
+                        }
+                    }
+                    
+                    if (activeCourseCount == 0) {
+                        Log.e(TAG, "🛑 TOATE cursele STOP - opresc LocationUpdates");
+                        stopLocationUpdates();
                     } else {
-                        Log.e(TAG, "⚡ GPS continuă pentru " + activeCourses.size() + " curse rămase");
+                        Log.e(TAG, "⚡ GPS continuă pentru " + activeCourseCount + " curse ACTIVE rămase");
                     }
                 }
             } else {
@@ -457,6 +465,7 @@ public class BackgroundGPSService extends Service {
         
         // PORNIRE: Fusion GPS cu update-uri automate continue
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, android.os.Looper.getMainLooper());
+        locationUpdatesActive.set(true); // CRITICAL FIX: Marchează că LocationCallback este înregistrat
         
         Log.e(TAG, "✅ FUSION GPS PORNIT - triangulare automată GPS+WiFi+Cellular la " + GPS_INTERVAL_SECONDS + "s");
         sendLogToJavaScript("✅ FUSION GPS activ - triangulare inteligentă la " + GPS_INTERVAL_SECONDS + "s");
@@ -465,7 +474,66 @@ public class BackgroundGPSService extends Service {
     private void stopFusionGPS() {
         if (fusedLocationClient != null && locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
-            Log.e(TAG, "🛑 FUSION GPS oprit");
+            locationUpdatesActive.set(false); // CRITICAL FIX: Marchează că LocationCallback nu mai e înregistrat
+            Log.e(TAG, "🛑 FUSION GPS oprit - LocationUpdates deactivated");
+        }
+    }
+    
+    // CRITICAL FIX: Oprește LocationUpdates fără a opri complet serviciul
+    private void stopLocationUpdates() {
+        if (fusedLocationClient != null && locationCallback != null && locationUpdatesActive.get()) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+            locationUpdatesActive.set(false);
+            Log.e(TAG, "🛑 LOCATION UPDATES OPRITE - nu mai sunt curse ACTIVE");
+        }
+    }
+    
+    // CRITICAL FIX: Garantează că LocationUpdates sunt înregistrate când există curse ACTIVE
+    private void ensureLocationUpdatesRegistered() {
+        // Verifică dacă există cel puțin o cursă ACTIVE (status 2)
+        boolean hasActiveCourse = false;
+        for (CourseData course : activeCourses.values()) {
+            if (course.status == 2) {
+                hasActiveCourse = true;
+                break;
+            }
+        }
+        
+        if (!hasActiveCourse) {
+            Log.e(TAG, "📍 ENSURE LOCATION: Nu sunt curse ACTIVE - NU pornesc LocationUpdates");
+            return;
+        }
+        
+        if (locationUpdatesActive.get()) {
+            Log.e(TAG, "📍 ENSURE LOCATION: LocationUpdates deja ACTIVE - perfect!");
+            return;
+        }
+        
+        // Pornește GPS service complet dacă nu rulează
+        if (!isGPSRunning.get()) {
+            Log.e(TAG, "📍 ENSURE LOCATION: GPS service oprit - pornesc complet");
+            startBackgroundGPS();
+            return;
+        }
+        
+        // GPS service rulează dar LocationUpdates nu sunt active - re-înregistrează
+        Log.e(TAG, "📍 ENSURE LOCATION: GPS service activ dar LocationUpdates oprite - RE-ÎNREGISTREZ");
+        
+        // Verifică permisiuni
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "❌ ENSURE LOCATION: Permisiuni GPS lipsă");
+            return;
+        }
+        
+        // Re-înregistrează LocationCallback direct
+        if (fusedLocationClient != null && locationRequest != null && locationCallback != null) {
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, android.os.Looper.getMainLooper());
+            locationUpdatesActive.set(true);
+            Log.e(TAG, "✅ ENSURE LOCATION: LocationUpdates RE-ÎNREGISTRATE cu succes!");
+            sendLogToJavaScript("✅ LocationUpdates re-activate - transmisie GPS restaurată");
+        } else {
+            Log.e(TAG, "❌ ENSURE LOCATION: Components null - pornesc GPS complet");
+            startBackgroundGPS();
         }
     }
     
