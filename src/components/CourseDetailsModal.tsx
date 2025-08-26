@@ -45,8 +45,8 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
 
   const getStatusColor = (status: number) => {
     switch (status) {
-      case 1: return '#3b82f6'; // Disponibilă - albastru
-      case 2: return '#10b981'; // În progres - verde
+      case 1: return '#2563eb'; // Disponibilă - albastru
+      case 2: return '#059669'; // În progres - verde intens
       case 3: return '#f59e0b'; // Pauzată - galben
       case 4: return '#ef4444'; // Finalizată - roșu
       default: return '#6b7280';

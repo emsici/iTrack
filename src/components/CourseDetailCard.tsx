@@ -417,11 +417,7 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = memo(({
 
         .btn-pause-compact {
           background: linear-gradient(135deg, #f59e0b, #d97706);
-          box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
-          padding: 10px 18px;
-          font-size: 0.9rem;
-          font-weight: 700;
-          transform: scale(1.05);
+          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         }
 
         .btn-resume-compact {
