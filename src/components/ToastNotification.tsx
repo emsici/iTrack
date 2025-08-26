@@ -196,14 +196,15 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, getIcon, getColo
   const [isRemoving, setIsRemoving] = useState(false);
   console.log('🍞 TOAST ITEM RENDER:', toast.title, toast.type);
 
-  useEffect(() => {
-    const duration = toast.duration || 5000;
-    const timer = setTimeout(() => {
-      handleRemove();
-    }, duration);
+  // DISABLED AUTO-REMOVE pentru debug
+  // useEffect(() => {
+  //   const duration = toast.duration || 5000;
+  //   const timer = setTimeout(() => {
+  //     handleRemove();
+  //   }, duration);
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   const handleRemove = () => {
     setIsRemoving(true);
@@ -232,12 +233,13 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, getIcon, getColo
         </button>
       </div>
       <div className="toast-message">{toast.message}</div>
-      <div 
+      {/* DISABLED PROGRESS pentru debug */}
+      {/* <div 
         className="toast-progress"
         style={{ 
           animationDuration: `${toast.duration || 5000}ms`
         }}
-      ></div>
+      ></div> */}
     </div>
   );
 };
