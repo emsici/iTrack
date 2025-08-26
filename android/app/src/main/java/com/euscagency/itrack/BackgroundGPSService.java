@@ -664,8 +664,13 @@ public class BackgroundGPSService extends Service {
                             sdf.setTimeZone(romaniaTimeZone);
                             String offlineTimestamp = sdf.format(new java.util.Date());
                             
+                            // CRITICAL: Salvează în AMBELE sisteme offline pentru consistență
                             addToOfflineQueue(gpsData, offlineTimestamp);
-                            Log.e(TAG, "💾 GPS coordinate saved to offline queue for retry");
+                            
+                            // BRIDGE: Notifică și JavaScript offline service pentru consistență
+                            sendGPSToOfflineService(gpsData, realUit);
+                            
+                            Log.e(TAG, "💾 GPS coordinate saved to Android offline queue + JavaScript bridge");
                         } catch (Exception offlineError) {
                             Log.e(TAG, "Eroare salvare offline queue: " + offlineError.getMessage());
                         }
@@ -675,6 +680,20 @@ public class BackgroundGPSService extends Service {
             
         } catch (Exception e) {
             Log.e(TAG, "Eroare executare GPS pentru " + realUit + ": " + e.getMessage());
+        }
+    }
+    
+    // GPS→OFFLINE BRIDGE: Trimite coordonatele către offlineGPSService pentru consistență
+    private void sendGPSToOfflineService(org.json.JSONObject gpsData, String realUit) {
+        try {
+            // CRITICAL: Bridge către JavaScript offline service pentru sync unified
+            String offlineMessage = "GPS_OFFLINE_SAVE:" + gpsData.toString();
+            sendLogToJavaScript(offlineMessage);
+            
+            Log.e(TAG, "🌉 BRIDGE→JS: GPS coordinate sent to JavaScript offline service");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ BRIDGE ERROR: Failed to send GPS to JavaScript offline service: " + e.getMessage());
         }
     }
     
@@ -1102,7 +1121,9 @@ public class BackgroundGPSService extends Service {
             offlineQueue.offer(offlineData);
             
             Log.e(TAG, "💾 GPS coordinate added to offline queue. Total: " + offlineQueue.size());
-            sendLogToJavaScript("💾 GPS offline queue: " + offlineQueue.size() + " coordonate");
+            
+            // BRIDGE: Notifică JavaScript despre mărimea queue-ului Android pentru monitoring
+            sendLogToJavaScript("ANDROID_OFFLINE_QUEUE:" + offlineQueue.size());
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error adding to offline queue: " + e.getMessage());
@@ -1171,8 +1192,9 @@ public class BackgroundGPSService extends Service {
             if (processedCount > 0) {
                 Log.e(TAG, "📊 Offline queue processed: " + processedCount + " items (" + 
                        successCount + " success, " + failedCount + " failed)");
-                sendLogToJavaScript("📊 Offline sync: " + successCount + "/" + processedCount + 
-                                   " coordonate trimise, " + offlineQueue.size() + " rămase");
+                
+                // BRIDGE: Notifică JavaScript progresul sincronizării Android queue
+                sendLogToJavaScript("ANDROID_SYNC_PROGRESS:" + successCount + "/" + processedCount + "/" + offlineQueue.size());
             }
             
         } catch (Exception e) {
