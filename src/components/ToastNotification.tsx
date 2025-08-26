@@ -39,11 +39,12 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
       <style>{`
         .toast-container {
           position: fixed;
-          top: 100px;
-          right: 20px;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           z-index: 9999999;
-          max-width: 400px;
-          width: 100%;
+          max-width: 450px;
+          width: auto;
           pointer-events: none;
         }
         
@@ -52,19 +53,20 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
 
         .toast {
-          background: rgba(15, 23, 42, 0.98);
+          background: rgba(15, 23, 42, 0.95);
           backdrop-filter: blur(20px);
           border: 2px solid #10b981;
           border-radius: 12px;
           padding: 20px;
           margin-bottom: 15px;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
           transform: translateX(0);
-          animation: none;
+          animation: slideIn 0.3s ease-out forwards;
           position: relative;
           overflow: hidden;
           pointer-events: auto;
           min-height: 80px;
+          width: 350px;
         }
 
         .toast.removing {
