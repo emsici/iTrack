@@ -1,16 +1,18 @@
 @echo off
-if "%1"=="" (
-    set ENV=prod
-    echo ================================
-    echo      iTrack - Start Server
-    echo ================================
-    echo.
-    echo DEFAULT: Production environment (etsm_prod)
-    echo Pentru development foloseste: start.bat dev
-    echo.
-) else (
+rem Set default environment
+set ENV=prod
+
+if not "%1"=="" (
     set ENV=%1
 )
+
+echo ================================
+echo      iTrack - Start Server
+echo ================================
+echo.
+echo DEFAULT: Production environment (etsm_prod)
+echo Pentru development foloseste: start.bat dev
+echo.
 
 echo ================================
 echo      iTrack - Start %ENV%
@@ -31,8 +33,6 @@ if /i "%ENV%"=="dev" (
     echo EROARE: Environment invalid '%ENV%'
     echo Foloseste: dev sau prod
     echo.
-echo press any key to exit
-pause > nul
     exit /b 1
 )
 
@@ -43,11 +43,5 @@ npm run dev
 if errorlevel 1 (
     echo EROARE: Server failed to start!
     echo.
-echo press any key to exit
-pause > nul
     exit /b 1
 )
-
-echo.
-echo press any key to exit
-pause > nul

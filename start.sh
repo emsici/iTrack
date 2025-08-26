@@ -1,16 +1,18 @@
 #!/bin/bash
-if [ "$1" = "" ]; then
-    ENV="prod"
-    echo "================================"
-    echo "      iTrack - Start Server"
-    echo "================================"
-    echo ""
-    echo "DEFAULT: Production environment (etsm_prod)"
-    echo "Pentru development foloseste: ./start.sh dev"
-    echo ""
-else
+# Set default environment  
+ENV="prod"
+
+if [ "$1" != "" ]; then
     ENV=$1
 fi
+
+echo "================================"
+echo "      iTrack - Start Server"
+echo "================================"
+echo ""
+echo "DEFAULT: Production environment (etsm_prod)"
+echo "Pentru development foloseste: ./start.sh dev"
+echo ""
 
 echo "================================"
 echo "      iTrack - Start $ENV"

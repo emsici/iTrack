@@ -1,16 +1,18 @@
 #!/bin/bash
-if [ "$1" = "" ]; then
-    ENV="prod"
-    echo "========================================"
-    echo "         iTrack - Build Script"
-    echo "========================================"
-    echo ""
-    echo "DEFAULT: Production build (etsm_prod)"
-    echo "Pentru development foloseste: ./build.sh dev"
-    echo ""
-else
+# Set default environment
+ENV="prod"
+
+if [ "$1" != "" ]; then
     ENV=$1
 fi
+
+echo "========================================"
+echo "         iTrack - Build Script"
+echo "========================================"
+echo ""
+echo "DEFAULT: Production build (etsm_prod)"
+echo "Pentru development foloseste: ./build.sh dev"
+echo ""
 
 echo "========================================"
 echo "         iTrack - Build $ENV"
