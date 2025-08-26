@@ -9,8 +9,6 @@ import { logAPI } from "../services/appLogger";
 import CourseStatsModal from "./CourseStatsModal";
 import CourseDetailCard from "./CourseDetailCard";
 import AdminPanel from "./AdminPanel";
-import ToastNotification from "./ToastNotification";
-import { useToast } from "../hooks/useToast";
 import SettingsModal from "./SettingsModal";
 import AboutModal from "./AboutModal";
 import CourseDetailsModal from "./CourseDetailsModal";
@@ -289,7 +287,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
   const [gpsStatus, setGpsStatus] = useState<'active' | 'inactive' | 'unknown'>('unknown');
 
-  const toast = useToast();
   
 
   // EXPUNE courseAnalyticsService la global window pentru Android bridge
@@ -390,14 +387,14 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         
         if (message.includes('GPS dezactivat') || message.includes('GPS DEZACTIVAT')) {
           setGpsStatus('inactive');
-          toast.error(
-            'GPS Dezactivat', 
-            'Activează GPS în setări pentru tracking de înaltă precizie'
+          nativeNotificationService.showQuickNotification(
+            'iTrack GPS',
+            'GPS dezactivat - activează GPS în setări',
+            7000
           );
         } else if (message.includes('GPS NATIV activ') || message.includes('GPS HIGH-PRECISION')) {
           setGpsStatus('active');
           if (message.includes('GPS NATIV activ')) {
-            toast.success('GPS Activ', 'Tracking de înaltă precizie pornit (3-8 metri)');
             nativeNotificationService.showQuickNotification(
               'iTrack GPS',
               'GPS activ - tracking de înaltă precizie pornit',
@@ -406,7 +403,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           }
         } else if (message.includes('GPS indisponibil')) {
           setGpsStatus('inactive');
-          toast.warning('GPS Indisponibil', 'Verifică setările și semnalul GPS');
           nativeNotificationService.showQuickNotification(
             'iTrack GPS',
             'GPS indisponibil - verifică setările',
@@ -422,7 +418,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         window.AndroidGPS.onGPSMessage = undefined;
       }
     };
-  }, [toast]);
+  }, []);
 
   // CLEANUP pentru timeout-uri la unmount
   useEffect(() => {
@@ -1328,7 +1324,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 // ULTIMATE PROTECTION: Dubla verificare pentru concurrency
                 if (loadingCourses.has(courseId)) {
                   console.log(`🚫 CONCURRENCY BLOCK: Course ${courseId} update already in progress`);
-                  toast.error('Actualizare în curs', 'Așteaptă finalizarea operației anterioare');
+                  nativeNotificationService.showQuickNotification(
+                    'iTrack GPS',
+                    'Actualizare în curs - așteaptă finalizarea',
+                    5000
+                  );
                   return;
                 }
                 
@@ -1411,7 +1411,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   
                 } catch (error) {
                   console.error('Eroare actualizare status:', error);
-                  toast.error('Eroare actualizare status', 'Nu s-a putut actualiza statusul');
+                  nativeNotificationService.showQuickNotification(
+                    'iTrack GPS',
+                    'Eroare actualizare status - încearcă din nou',
+                    7000
+                  );
                 } finally {
                   setLoadingCourses(prev => {
                     const newSet = new Set(prev);
@@ -1613,7 +1617,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   if (newCount >= 50) {
                     setShowDebugPage(true);
                     setClickCount(0);
-                    toast.success('Debug Mode Activat!', 'Logurile apar sub cursele active');
+                    nativeNotificationService.showQuickNotification(
+                      'iTrack GPS',
+                      'Debug Mode Activat - logurile apar sub cursele active',
+                      5000
+                    );
                   }
                   
                   return newCount;
@@ -1710,10 +1718,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         currentTheme={currentTheme}
       />
 
-      <ToastNotification
-        toasts={toast.toasts}
-        onRemove={toast.removeToast}
-      />
+      {/* Toast-uri eliminate - folosim doar notificări native */}
       
 
       {/* Modal Confirmare Logout */}

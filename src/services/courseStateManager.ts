@@ -30,6 +30,7 @@ class CourseStateManager {
         courses: courses.map(course => ({
           // Salvează doar câmpurile esențiale pentru stare
           id: course.id,
+          name: course.name || course.uit || '', // Numele cursei
           status: course.status,
           uit: course.uit,
           ikRoTrans: course.ikRoTrans

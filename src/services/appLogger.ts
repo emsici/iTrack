@@ -16,7 +16,7 @@ export interface AppLog {
 class AppLoggerService {
   private readonly STORAGE_KEY = "app_logs";
   private readonly MAX_LOGS = 1000; // Redus pentru performanță
-  private readonly BATCH_SIZE = 50; // Salvează la fiecare 50 de loguri
+  // private readonly BATCH_SIZE = 50; // Pentru funcții viitoare de batch logging
   private readonly BATCH_INTERVAL = 30000; // Sau la fiecare 30 secunde
   private logs: AppLog[] = [];
   private pendingLogs: AppLog[] = [];

@@ -99,8 +99,7 @@ class BrowserNotificationService implements NotificationService {
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification('iTrack GPS', {
         body: message,
-        icon: '/icon-192x192.png',
-        persistent: true
+        icon: '/icon-192x192.png'
       });
     }
   }
