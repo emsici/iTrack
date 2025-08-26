@@ -39,7 +39,7 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
       <style>{`
         .toast-container {
           position: fixed;
-          top: 20px;
+          top: 100px;
           right: 20px;
           z-index: 9999999;
           max-width: 400px;
@@ -52,18 +52,19 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
 
         .toast {
-          background: rgba(15, 23, 42, 0.95);
+          background: rgba(15, 23, 42, 0.98);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 2px solid #10b981;
           border-radius: 12px;
-          padding: 16px;
-          margin-bottom: 12px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+          padding: 20px;
+          margin-bottom: 15px;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
           transform: translateX(0);
-          animation: slideIn 0.3s ease-out forwards;
+          animation: none;
           position: relative;
           overflow: hidden;
           pointer-events: auto;
+          min-height: 80px;
         }
 
         .toast.removing {
@@ -111,8 +112,8 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
 
         .toast-title {
           color: #ffffff;
-          font-weight: 600;
-          font-size: 14px;
+          font-weight: 700;
+          font-size: 16px;
           flex: 1;
         }
 
@@ -132,10 +133,11 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
 
         .toast-message {
-          color: #cbd5e1;
-          font-size: 13px;
+          color: #e2e8f0;
+          font-size: 15px;
           line-height: 1.4;
           margin-left: 36px;
+          font-weight: 500;
         }
 
         .toast-progress {
@@ -185,7 +187,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, getIcon, getColo
   const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
-    const duration = toast.duration || 5000;
+    const duration = toast.duration || 10000; // 10 secunde în loc de 5
     const timer = setTimeout(() => {
       handleRemove();
     }, duration);
@@ -218,7 +220,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, getIcon, getColo
       <div 
         className="toast-progress"
         style={{ 
-          animationDuration: `${toast.duration || 5000}ms`
+          animationDuration: `${toast.duration || 10000}ms`
         }}
       ></div>
     </div>
