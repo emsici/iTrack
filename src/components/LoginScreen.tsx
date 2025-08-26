@@ -46,15 +46,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
         return;
       }
       
-      // Check for test credentials
+      // Check for test credentials - silent verification without logging
       if (email === "+40722222222" && password === "parola123") {
-        console.log("Credențiale test detectate - se continuă cu autentificarea la server");
         // Continue to server authentication below
       }
-
-      // Debug CapacitorHttp availability
-      console.log('CapacitorHttp disponibil:', typeof window !== 'undefined');
-      console.log('Info platformă:', navigator.userAgent);
       
       const response = await login(email, password);
 

@@ -113,7 +113,7 @@ const App: React.FC = () => {
   if (isLoading) {
     return (
       <div className="app" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <div>Loading...</div>
+        <div>Se încarcă...</div>
       </div>
     );
   }

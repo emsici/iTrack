@@ -31,6 +31,9 @@ class AppLoggerService {
       // Detectează environment pentru control logging
       this.isProductionMode = !import.meta.env.DEV && import.meta.env.MODE === 'production';
       
+      // La instalare nouă, șterge logurile vechi
+      await this.clearOldLogsOnNewInstall();
+      
       // Încarcă logurile existente din stocare
       await this.loadLogs();
 
@@ -43,9 +46,27 @@ class AppLoggerService {
       this.startBatchSaveTimer();
 
       this.initialized = true;
-      this.log("INFO", `Logger inițializat - mode: ${this.isProductionMode ? 'PRODUCTION' : 'DEVELOPMENT'}`, "SYSTEM");
+      this.log("INFO", `Logger inițializat - mode: ${this.isProductionMode ? 'PRODUCȚIE' : 'DEZVOLTARE'}`, "SYSTEM");
     } catch (error) {
       console.error("Eroare inițializare Logger aplicație:", error);
+    }
+  }
+
+  private async clearOldLogsOnNewInstall(): Promise<void> {
+    try {
+      // Verifică dacă este instalare nouă sau aplicația a fost reinstalată
+      const appVersion = "v1.0.0"; // Poți modifica această versiune când faci update-uri
+      const { value: storedVersion } = await Preferences.get({ key: "app_version" });
+      
+      if (!storedVersion || storedVersion !== appVersion) {
+        // Este instalare nouă sau versiune diferită - șterge logurile vechi
+        await Preferences.remove({ key: this.STORAGE_KEY });
+        await Preferences.set({ key: "app_version", value: appVersion });
+        this.logs = [];
+        console.log("🧹 Loguri vechi șterse la instalare nouă/update aplicație");
+      }
+    } catch (error) {
+      console.error("Eroare ștergere loguri vechi:", error);
     }
   }
 

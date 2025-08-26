@@ -25,10 +25,10 @@ const getEnvironmentURL = (): string => {
   const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
   
   if (isDevelopment) {
-    console.log('🔧 Environment: DEVELOPMENT - folosesc API de test');
+    console.log('🔧 Mediu: DEZVOLTARE - folosesc API de test');
     return API_CONFIG.DEV;
   } else {
-    console.log('🚀 Environment: PRODUCTION - folosesc API live');
+    console.log('🚀 Mediu: PRODUCȚIE - folosesc API live');
     return API_CONFIG.PROD;
   }
 };
@@ -75,7 +75,7 @@ export const login = async (
   password: string,
 ): Promise<LoginResponse> => {
   try {
-    console.log("Login direct CapacitorHttp pentru:", email);
+    console.log("Logare directă CapacitorHttp pentru:", email);
     logAPI(`Încercare login direct CapacitorHttp pentru ${email}`);
 
     // DOAR ANDROID: CapacitorHttp direct - nu sunt necesare fallback-uri
@@ -92,11 +92,11 @@ export const login = async (
     if (response.status >= 200 && response.status < 300 && response.data) {
       const data = response.data;
       if (data.status === "success" && data.token) {
-        console.log("✅ Login CapacitorHttp reușit");
+        console.log("✅ Logare CapacitorHttp reușită");
         logAPI(`Login CapacitorHttp reușit pentru ${email}`);
         return { status: "success", token: data.token };
       } else {
-        logAPI(`CapacitorHttp login failed: ${data.message}`);
+        logAPI(`Logare CapacitorHttp eșuată: ${data.message}`);
         return {
           status: "error",
           error: data.message || "Date de conectare incorecte",
@@ -104,7 +104,7 @@ export const login = async (
       }
     } else {
       console.error("❌ Login eșuat:", response.status);
-      logAPI(`Login eșuat: ${response.status}`);
+      logAPI(`Logare eșuată: ${response.status}`);
       return {
         status: "error",
         error: `Eroare server: ${response.status}`,
@@ -112,7 +112,7 @@ export const login = async (
     }
   } catch (error: any) {
     console.error("Eroare login:", error);
-    logAPI(`Eroare login: ${error.message}`);
+    logAPI(`Eroare logare: ${error.message}`);
     return {
       status: "error",
       error: "Eroare de conectare la server",
@@ -136,18 +136,18 @@ export const getVehicleCourses = async (
     currentVehicleRequest &&
     currentVehicleRequest.vehicle === vehicleNumber
   ) {
-    console.log("Blocking duplicate request - reusing active");
+    console.log("Blochez cerere duplicată - folosesc cea activă");
     logAPI(
-      `Blocking duplicate request for vehicle ${vehicleNumber} - reusing active promise`,
+      `Blochez cerere duplicată pentru vehiculul ${vehicleNumber} - folosesc promisiunea activă`,
     );
     return await currentVehicleRequest.promise;
   }
 
   // Check global request lock to prevent any simultaneous API calls
   if (requestInProgress) {
-    console.log("Global request lock - waiting for completion");
+    console.log("Blocare globală cerere - aștept finalizarea");
     logAPI(
-      `Global request lock active - waiting for completion before processing ${vehicleNumber}`,
+      `Blocare globală cerere activă - aștept finalizarea înainte de a procesa ${vehicleNumber}`,
     );
 
     // Wait for current request to complete with timeout protection
@@ -160,8 +160,8 @@ export const getVehicleCourses = async (
 
     // If still locked after timeout, force unlock
     if (requestInProgress) {
-      console.log("Timeout - forcing request unlock");
-      logAPI("Request timeout - forcing unlock to prevent deadlock");
+      console.log("Timeout - forțez deblocarea cererii");
+      logAPI("Timeout cerere - forțez deblocarea pentru a preveni blocajul");
       requestInProgress = false;
       currentVehicleRequest = null;
     }
@@ -169,7 +169,7 @@ export const getVehicleCourses = async (
 
   // Admin mode - use actual API but with admin token
   if (token === "ADMIN_TOKEN") {
-    console.log("Admin mode: Using actual API data");
+    console.log("Mod admin: Folosesc date API reale");
     // Continue with normal API flow using real server data
   }
 
@@ -186,8 +186,8 @@ export const getVehicleCourses = async (
     // Always clear locks, even on error
     currentVehicleRequest = null;
     requestInProgress = false;
-    console.log("Cerere completată - blocuri eliminate");
-    logAPI(`Cerere completată pentru ${vehicleNumber} - toate blocurile eliminate`);
+    console.log("Cerere completată - blocările eliminate");
+    logAPI(`Cerere completată pentru ${vehicleNumber} - toate blocările eliminate`);
   }
 };
 
@@ -199,7 +199,7 @@ const performVehicleCoursesRequest = async (
     const timestamp = Date.now();
     const urlWithCacheBuster = `${API_BASE_URL}vehicul.php?nr=${vehicleNumber}&t=${timestamp}`;
 
-    logAPI(`Loading courses for vehicle ${vehicleNumber}`);
+    logAPI(`Încărc curse pentru vehiculul ${vehicleNumber}`);
 
     // PRIMARY: CapacitorHttp pentru încărcare rapidă curse
     let response;
@@ -217,11 +217,11 @@ const performVehicleCoursesRequest = async (
       });
 
       // CapacitorHttp courses response received
-      console.log("Data length:", capacitorResponse.data?.length || "No data");
+      console.log("Lungime date:", capacitorResponse.data?.length || "Fără date");
 
       if (capacitorResponse.status === 401) {
         console.log(
-          "CapacitorHttp: Token expired - continuing with error response",
+          "CapacitorHttp: Token expirat - continui cu răspuns de eroare",
         );
         return { status: "error", error: "TOKEN_EXPIRED" };
       }
@@ -232,18 +232,18 @@ const performVehicleCoursesRequest = async (
       };
     } catch (capacitorError) {
       console.error("❌ CapacitorHttp courses failed:", capacitorError);
-      logAPI(`CapacitorHttp courses error: ${capacitorError}`);
+      logAPI(`Eroare CapacitorHttp curse: ${capacitorError}`);
       return { status: "error", error: "CAPACITOR_HTTP_ERROR" };
     }
 
-    console.log("API Response Status:", response.status);
-    console.log("API Response Data:", JSON.stringify(response.data, null, 2));
+    console.log("Status răspuns API:", response.status);
+    console.log("Date răspuns API:", JSON.stringify(response.data, null, 2));
     
     // DEBUG LOGGING pentru status-uri primite de la server
     if (response.data?.data?.length > 0) {
-      console.log("🔍 === STATUS ANALYSIS ===");
+      console.log("🔍 === ANALIZĂ STATUS-URI ===");
       response.data.data.forEach((course: any, index: number) => {
-        console.log(`📋 Course ${index}: ikRoTrans=${course.ikRoTrans}, serverStatus=${course.status || 'UNDEFINED'}, UIT=${course.UIT || course.uit}`);
+        console.log(`📋 Cursă ${index}: ikRoTrans=${course.ikRoTrans}, statusServer=${course.status || 'NEDEFINIT'}, UIT=${course.UIT || course.uit}`);
       });
     }
     logAPI(
@@ -259,11 +259,11 @@ const performVehicleCoursesRequest = async (
         Array.isArray(responseData.data)
       ) {
         console.log(
-          `Found ${responseData.data.length} courses for vehicle ${vehicleNumber}`,
+          `Găsite ${responseData.data.length} curse pentru vehiculul ${vehicleNumber}`,
         );
 
         if (responseData.data.length > 0) {
-          console.log("Processing course data");
+          console.log("Procesez datele curselor");
           const processedCourses = responseData.data.map(
             (course: any, index: number) => ({
               id: course.ikRoTrans?.toString() || `course_${index}`,
@@ -363,7 +363,7 @@ export const logout = async (token: string): Promise<boolean> => {
     logAPI("Deconectarea a eșuat - continuarea oricum");
     return false;
   } catch (error) {
-    console.error("Logout error:", error);
+    console.error("Eroare deconectare:", error);
     logAPI(`Eroare deconectare: ${error}`);
     return false;
   }
@@ -376,7 +376,7 @@ export const logout = async (token: string): Promise<boolean> => {
 ): Promise<boolean> => {
   try {
     if (!token || token.trim() === "") {
-      console.error("❌ GPS transmission failed: No Bearer token provided");
+      console.error("❌ Transmisia GPS a eșuat: Nu a fost furnizat token Bearer");
       return false;
     }
 
@@ -421,52 +421,52 @@ export const logout = async (token: string): Promise<boolean> => {
       data: gpsData,
     });
 
-    console.log("📡 === GPS RESPONSE DETAILED ===");
-    console.log("📊 Status Code:", response.status);
-    console.log("📥 Response Data:", response.data);
-    console.log("📦 Response Headers:", response.headers || {});
+    console.log("📡 === RĂSPUNS GPS DETALIAT ===");
+    console.log("📊 Cod status:", response.status);
+    console.log("📥 Date răspuns:", response.data);
+    console.log("📦 Anteturi răspuns:", response.headers || {});
     
     // Detailed response analysis
     if (response.data) {
       if (typeof response.data === 'string') {
-        console.log("📄 Response Preview:", response.data.substring(0, 300));
-        console.log("📏 Response Length:", response.data.length);
+        console.log("📄 Previzualizare răspuns:", response.data.substring(0, 300));
+        console.log("📏 Lungime răspuns:", response.data.length);
       } else if (typeof response.data === 'object') {
-        console.log("📋 Response Object:", JSON.stringify(response.data, null, 2));
+        console.log("📋 Obiect răspuns:", JSON.stringify(response.data, null, 2));
       }
     }
 
     // Handle specific error codes
     if (response.status === 401) {
-      console.error("❌ 401 UNAUTHORIZED - Invalid or expired token");
-      logAPI(`GPS 401 UNAUTHORIZED - Course: ${gpsData.uit}`);
+      console.error("❌ 401 NEAUTORIZAT - Token invalid sau expirat");
+      logAPI(`GPS 401 NEAUTORIZAT - Cursă: ${gpsData.uit}`);
       return false;
     } else if (response.status === 403) {
-      console.error("❌ 403 FORBIDDEN - Admin token restricted");
-      logAPI(`GPS 403 FORBIDDEN - Admin token - Course: ${gpsData.uit}`);
+      console.error("❌ 403 INTERZIS - Token admin restricționat");
+      logAPI(`GPS 403 INTERZIS - Token admin - Cursă: ${gpsData.uit}`);
       return false;
     } else if (response.status === 415) {
-      console.error("❌ 415 UNSUPPORTED MEDIA TYPE - Check headers");
-      logAPI(`GPS 415 UNSUPPORTED MEDIA TYPE - Course: ${gpsData.uit}`);
+      console.error("❌ 415 TIP MEDIA NESUPORTAT - Verificați anteturile");
+      logAPI(`GPS 415 TIP MEDIA NESUPORTAT - Cursă: ${gpsData.uit}`);
       return false;
     }
 
     if (response.status >= 200 && response.status < 300) {
-      console.log("✅ GPS transmitted successfully for course:", gpsData.uit, "- Status:", response.status);
-      logAPI(`GPS transmission successful - Course: ${gpsData.uit} - Status: ${response.status}`);
+      console.log("✅ GPS transmis cu succes pentru cursa:", gpsData.uit, "- Status:", response.status);
+      logAPI(`Transmisie GPS reușită - Cursă: ${gpsData.uit} - Status: ${response.status}`);
       return true;
     } else {
-      console.error("❌ GPS transmission failed with status:", response.status);
-      logAPI(`GPS transmission failed - Course: ${gpsData.uit} - Status: ${response.status}`);
+      console.error("❌ Transmisia GPS a eșuat cu statusul:", response.status);
+      logAPI(`Transmisie GPS eșuată - Cursă: ${gpsData.uit} - Status: ${response.status}`);
       return false;
     }
 
   } catch (error) {
-    console.error("❌ GPS transmission error:", error);
+    console.error("❌ Eroare transmisie GPS:", error);
     if (error instanceof Error) {
-      console.error("  Error details:", error.name, error.message);
+      console.error("  Detalii eroare:", error.name, error.message);
     }
-    logAPI(`GPS transmission error: ${error}`);
+    logAPI(`Eroare transmisie GPS: ${error}`);
     return false;
   }
 };
@@ -476,7 +476,7 @@ export const sendGPSData = async (
   token: string,
 ): Promise<boolean> => {
   try {
-    console.log("GPS transmission to server...");
+    console.log("Transmisie GPS către server...");
 
     // GPS transmission using login token
     const headers = {
@@ -486,8 +486,8 @@ export const sendGPSData = async (
 
     try {
       console.log("📡 Transmisie GPS către gps.php");
-      console.log("🎯 Request URL:", `${API_BASE_URL}gps.php`);
-      console.log("Vehicle:", gpsData.numar_inmatriculare);
+      console.log("🎯 URL cerere:", `${API_BASE_URL}gps.php`);
+      console.log("Vehicul:", gpsData.numar_inmatriculare);
       console.log("UIT:", gpsData.uit);
       console.log("Status:", gpsData.status);
       console.log(
@@ -504,7 +504,7 @@ export const sendGPSData = async (
           const currentTime = Date.now();
 
           if (currentTime >= expTime) {
-            console.log("Token expired - returning false");
+            console.log("Token expirat - returnez false");
             return false;
           }
         }
@@ -530,19 +530,19 @@ export const sendGPSData = async (
         // SUCCESS: Server răspunde, suntem online
         return true;
       } else {
-        console.error(`❌ GPS failed: ${response.status}`);
-        console.error("Response:", response.data);
+        console.error(`❌ GPS eșuat: ${response.status}`);
+        console.error("Răspuns:", response.data);
         
         // BackgroundGPSService handles offline storage natively
-        console.log('💾 BackgroundGPSService handles offline storage natively');
+        console.log('💾 BackgroundGPSService gestionează stocarea offline nativ');
         return false;
       }
 
       // If error, try with different data serialization
       if (response.status >= 400) {
-        console.log("🔄 TRYING ALTERNATIVE DATA SERIALIZATION...");
-        console.log("First attempt failed with:", response.status);
-        console.log("Response data:", response.data);
+        console.log("🔄 ÎNCERC SERIALIZARE ALTERNATIVĂ DATE...");
+        console.log("Prima încercare a eșuat cu:", response.status);
+        console.log("Date răspuns:", response.data);
 
         // Try with pre-stringified data (some servers expect this)
         const alternativeResponse = await CapacitorHttp.request({
@@ -555,11 +555,11 @@ export const sendGPSData = async (
           data: JSON.stringify(gpsData),
         });
 
-        console.log("Alternative response status:", alternativeResponse.status);
-        console.log("Alternative response data:", alternativeResponse.data);
+        console.log("Status răspuns alternativ:", alternativeResponse.status);
+        console.log("Date răspuns alternativ:", alternativeResponse.data);
 
         if (alternativeResponse.status < 400) {
-          console.log("✅ Alternative format worked!");
+          console.log("✅ Formatul alternativ a funcționat!");
           return (
             alternativeResponse.status >= 200 &&
             alternativeResponse.status < 300
@@ -567,17 +567,17 @@ export const sendGPSData = async (
         }
       }
       logAPI(
-        `CapacitorHttp GPS result: ${response.status} - ${JSON.stringify(response.data)}`,
+        `Rezultat GPS CapacitorHttp: ${response.status} - ${JSON.stringify(response.data)}`,
       );
 
       if (response.status === 401) {
-        console.log("GPS: Token expired - returning false");
+        console.log("GPS: Token expirat - returnez false");
         return false;
       }
 
       // SALVARE AUTOMATĂ OFFLINE pentru orice status care nu e 200/204
-      console.error(`❌ GPS failed: ${response.status}`);
-      console.error("Response:", response.data);
+      console.error(`❌ GPS eșuat: ${response.status}`);
+      console.error("Răspuns:", response.data);
       // BackgroundGPSService handles HTTP error reporting natively
       
       console.log('💾 Salvez coordonată offline - server nu răspunde cu succes');
@@ -590,8 +590,8 @@ export const sendGPSData = async (
       
       return false;
     } catch (capacitorError) {
-      console.log("=== CapacitorHttp failed, trying fetch ===");
-      console.log("CapacitorHttp error:", capacitorError);
+      console.log("=== CapacitorHttp eșuat, încerc fetch ===");
+      console.log("Eroare CapacitorHttp:", capacitorError);
 
       // SECONDARY: fetch fallback
       const response = await fetch(`${API_BASE_URL}gps.php`, {
@@ -605,23 +605,23 @@ export const sendGPSData = async (
         body: JSON.stringify(gpsData),
       });
 
-      console.log("=== Fetch GPS Response ===");
+      console.log("=== Răspuns GPS Fetch ===");
       console.log("Status:", response.status);
       const responseText = await response.text();
-      console.log("Response text:", responseText);
-      logAPI(`Fetch GPS response: ${response.status} - ${responseText}`);
+      console.log("Text răspuns:", responseText);
+      logAPI(`Răspuns GPS Fetch: ${response.status} - ${responseText}`);
 
       if (response.status === 401) {
-        console.log("GPS fetch: Token expired - returning false");
+        console.log("GPS fetch: Token expirat - returnez false");
         return false;
       }
 
       if (response.status === 200 || response.status === 201 || response.status === 204) {
-        console.log("✅ Fetch GPS sent successfully");
+        console.log("✅ Fetch GPS trimis cu succes");
         return true;
       } else {
         // SALVARE AUTOMATĂ OFFLINE pentru fetch fallback cu status != 200
-        console.error(`❌ Fetch GPS failed: ${response.status}`);
+        console.error(`❌ Fetch GPS eșuat: ${response.status}`);
         
         console.log('💾 Salvez coordonată offline - fetch fallback eșuat');
         try {
@@ -636,12 +636,12 @@ export const sendGPSData = async (
     }
   } catch (error) {
     if (error instanceof Error && error.message === "TOKEN_EXPIRED") {
-      console.log("GPS transmission: Token expired - returning false");
+      console.log("Transmisie GPS: Token expirat - returnez false");
       return false;
     }
 
-    console.error("GPS transmission error:", error);
-    logAPI(`GPS error: ${error}`);
+    console.error("Eroare transmisie GPS:", error);
+    logAPI(`Eroare GPS: ${error}`);
     
     // SALVARE AUTOMATĂ OFFLINE pentru eroare completă de transmisie  
     console.log('💾 Salvez coordonată offline - eroare completă de transmisie');
