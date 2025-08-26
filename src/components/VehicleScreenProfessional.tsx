@@ -266,12 +266,32 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
     checkNetworkStatus();
 
-    const networkListener = Network.addListener('networkStatusChange', (status) => {
+    const networkListener = Network.addListener('networkStatusChange', async (status) => {
       setIsOnline(status.connected);
       if (status.connected) {
         console.log('🌐 Conexiune restabilită - aplicația este din nou online');
+        
+        // CRITICAL FIX: Auto-sincronizare când rețeaua revine!
+        try {
+          console.log('🔄 Pornesc sincronizarea automată offline...');
+          const success = await offlineGPSService.syncOfflineData(token);
+          if (success) {
+            nativeNotificationService.showQuickNotification(
+              'iTrack GPS', 
+              'Coordonate offline sincronizate cu succes',
+              5000
+            );
+          }
+        } catch (error) {
+          console.error('❌ Eroare sincronizare automată:', error);
+        }
       } else {
         console.log('📴 Conexiune pierdută - aplicația funcționează offline');
+        nativeNotificationService.showQuickNotification(
+          'iTrack GPS',
+          'Offline - datele GPS se salvează local',
+          7000
+        );
       }
     });
 
@@ -303,6 +323,26 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     const activeCourses = courses.filter(course => course.status === 2); // Status 2 = în progres
     nativeNotificationService.updateTrackingNotification(activeCourses);
   }, [courses]);
+
+  // Periodic offline sync check (every 5 minutes)
+  useEffect(() => {
+    const syncInterval = setInterval(async () => {
+      try {
+        const networkStatus = await Network.getStatus();
+        if (networkStatus.connected && token) {
+          const stats = await offlineGPSService.getStats();
+          if (stats.totalOffline > 0 && !stats.syncInProgress) {
+            console.log('🔄 Încercare sincronizare periodică...');
+            await offlineGPSService.syncOfflineData(token);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Eroare sync periodic:', error);
+      }
+    }, 5 * 60 * 1000); // 5 minute
+
+    return () => clearInterval(syncInterval);
+  }, [token]);
 
   // GPS MESSAGE HANDLER pentru alertele din serviciul Android
   useEffect(() => {
