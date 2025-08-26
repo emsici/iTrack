@@ -14,7 +14,6 @@ interface ToastNotificationProps {
 }
 
 const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove }) => {
-  console.log('🍞 TOAST COMPONENT RENDER:', toasts.length, 'toasts');
   const getIcon = (type: string) => {
     switch (type) {
       case 'success': return 'fa-check-circle';
@@ -36,20 +35,16 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
   };
 
   return (
-    <div className="toast-container" style={{ border: '2px solid red', backgroundColor: 'rgba(255,0,0,0.1)' }}>
+    <div className="toast-container">
       <style>{`
         .toast-container {
-          position: fixed !important;
-          top: 50% !important;
-          left: 50% !important;
-          transform: translate(-50%, -50%) !important;
-          z-index: 9999999 !important;
-          max-width: 500px !important;
-          width: auto !important;
-          pointer-events: auto !important;
-          background: red !important;
-          border: 10px solid yellow !important;
-          padding: 30px !important;
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 9999999;
+          max-width: 400px;
+          width: 100%;
+          pointer-events: none;
         }
         
         .toast {
@@ -57,20 +52,18 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
 
         .toast {
-          background: lime !important;
-          border: 3px solid black !important;
-          border-radius: 10px !important;
-          padding: 20px !important;
-          margin-bottom: 10px !important;
-          color: black !important;
-          font-weight: bold !important;
-          font-size: 16px !important;
-          display: block !important;
-          visibility: visible !important;
-          opacity: 1 !important;
-          position: relative !important;
-          width: 300px !important;
-          min-height: 60px !important;
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 12px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+          transform: translateX(0);
+          animation: slideIn 0.3s ease-out forwards;
+          position: relative;
+          overflow: hidden;
+          pointer-events: auto;
         }
 
         .toast.removing {
@@ -117,9 +110,9 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
 
         .toast-title {
-          color: black !important;
-          font-weight: bold !important;
-          font-size: 18px !important;
+          color: #ffffff;
+          font-weight: 600;
+          font-size: 14px;
           flex: 1;
         }
 
@@ -139,11 +132,10 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
 
         .toast-message {
-          color: black !important;
-          font-size: 16px !important;
+          color: #cbd5e1;
+          font-size: 13px;
           line-height: 1.4;
-          margin-left: 0px !important;
-          font-weight: bold !important;
+          margin-left: 36px;
         }
 
         .toast-progress {
@@ -169,14 +161,6 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
       `}</style>
 
-      <div style={{ color: 'white', background: 'red', padding: '20px', marginBottom: '10px', fontSize: '24px', fontWeight: 'bold' }}>
-        🚨 TOAST CONTAINER VISIBLE - {toasts.length} toasts 🚨
-      </div>
-      {toasts.map((toast, index) => (
-        <div key={toast.id + '_debug'} style={{ background: 'yellow', color: 'black', padding: '20px', marginBottom: '10px', border: '3px solid black', fontSize: '20px', fontWeight: 'bold' }}>
-          🍞 DEBUG TOAST #{index + 1}: {toast.type} - {toast.title}
-        </div>
-      ))}
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}
@@ -199,17 +183,15 @@ interface ToastItemProps {
 
 const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, getIcon, getColor }) => {
   const [isRemoving, setIsRemoving] = useState(false);
-  console.log('🍞 TOAST ITEM RENDER:', toast.title, toast.type);
 
-  // DISABLED AUTO-REMOVE pentru debug
-  // useEffect(() => {
-  //   const duration = toast.duration || 5000;
-  //   const timer = setTimeout(() => {
-  //     handleRemove();
-  //   }, duration);
+  useEffect(() => {
+    const duration = toast.duration || 5000;
+    const timer = setTimeout(() => {
+      handleRemove();
+    }, duration);
 
-  //   return () => clearTimeout(timer);
-  // }, []);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleRemove = () => {
     setIsRemoving(true);
@@ -220,14 +202,8 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, getIcon, getColo
 
   return (
     <div 
-      className="toast"
-      style={{ 
-        background: 'lime !important',
-        border: '3px solid black !important',
-        color: 'black !important',
-        padding: '20px !important',
-        marginBottom: '10px !important'
-      }}
+      className={`toast ${isRemoving ? 'removing' : ''}`}
+      style={{ '--toast-color': getColor(toast.type) } as any}
     >
       <div className="toast-header">
         <div className="toast-icon">
@@ -239,13 +215,12 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, getIcon, getColo
         </button>
       </div>
       <div className="toast-message">{toast.message}</div>
-      {/* DISABLED PROGRESS pentru debug */}
-      {/* <div 
+      <div 
         className="toast-progress"
         style={{ 
           animationDuration: `${toast.duration || 5000}ms`
         }}
-      ></div> */}
+      ></div>
     </div>
   );
 };

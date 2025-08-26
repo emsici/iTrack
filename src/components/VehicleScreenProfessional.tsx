@@ -283,10 +283,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   const toast = useToast();
   
-  // DEBUG: Verifică dacă toast hook funcționează
-  useEffect(() => {
-    console.log('🍞 TOAST HOOK STATE:', toast.toasts.length, 'toasts in array');
-  }, [toast.toasts]);
 
   // EXPUNE courseAnalyticsService la global window pentru Android bridge
   useEffect(() => {
@@ -1591,20 +1587,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   const newCount = prev + 1;
                   
                   if (newCount >= 50) {
-                    console.log('🎯 50 CLICKS REACHED! About to call toasts...');
                     setShowDebugPage(true);
                     setClickCount(0);
-                    
-                    console.log('🍞 TOAST OBJECT:', toast);
-                    console.log('🍞 TOAST.SUCCESS:', typeof toast.success);
-                    
-                    const id1 = toast.success('Debug Mode Activat!', 'Logurile apar sub cursele active');
-                    console.log('🍞 TOAST 1 ID:', id1);
-                    
-                    const id2 = toast.info('Toast Test', 'Dacă vezi acest mesaj, toast-urile funcționează!');
-                    console.log('🍞 TOAST 2 ID:', id2);
-                    
-                    console.log('🍞 CURRENT TOASTS AFTER CALLS:', toast.toasts.length);
+                    toast.success('Debug Mode Activat!', 'Logurile apar sub cursele active');
                   }
                   
                   return newCount;
@@ -1706,10 +1691,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         onRemove={toast.removeToast}
       />
       
-      {/* DEBUG: Verifică props direct */}
-      <div style={{position: 'fixed', bottom: '10px', right: '10px', background: 'orange', color: 'black', padding: '5px', zIndex: 99999}}>
-        PROPS DEBUG: {toast.toasts.length} toasts in props
-      </div>
 
       {/* Modal Confirmare Logout */}
       {showLogoutModal && (
