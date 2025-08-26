@@ -923,31 +923,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             <i className="fas fa-cog" style={{ fontSize: '20px', color: '#e2e8f0' }}></i>
           </button>
 
-          {/* Test Toast */}
-          <button 
-            onClick={() => {
-              toast.success('Test Succes!', 'Toast-ul funcționează perfect! 🎉');
-              setTimeout(() => {
-                toast.warning('Test Atenționare', 'Acesta este un toast de warning ⚠️');
-              }, 1500);
-              setTimeout(() => {
-                toast.error('Test Eroare', 'Acesta este un toast de eroare ❌');
-              }, 3000);
-            }}
-            style={{
-              width: '56px',
-              height: '56px',
-              background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-              border: '2px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
-            }}>
-            <i className="fas fa-bell" style={{ fontSize: '20px', color: '#ffffff' }}></i>
-          </button>
 
           {/* Info */}
           <button 
