@@ -15,14 +15,6 @@
 
 ## 🚀 **QUICK START ENTERPRISE - SETUP RAPID**
 
-### **🇷🇴 Environment Management Colorat și Interactiv**
-
-**🎨 SCRIPTURILE COLORATE CU STEAGUL ROMÂNIEI:**
-- Build scripturi completamente redesign cu interface colorată
-- ASCII art cu steagul României în 3 culori (🟦🟨🟥)
-- Progress bars vizuale și feedback interactiv
-- Design profesional dar atractiv vizual
-
 ### **⚡ COMUTARE RAPIDĂ ENVIRONMENT - PROD ↔ DEV**
 
 **📊 Pentru mediul DEVELOPMENT (etsm3 test):**
