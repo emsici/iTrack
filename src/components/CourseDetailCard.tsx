@@ -580,6 +580,6 @@ const CourseDetailCard: React.FC<CourseDetailCardProps> = memo(({
       )}
     </div>
   );
-};
+});
 
 export default CourseDetailCard;
