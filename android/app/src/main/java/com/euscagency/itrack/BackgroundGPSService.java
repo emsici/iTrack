@@ -558,8 +558,7 @@ public class BackgroundGPSService extends Service {
                 // SIMPLE & CLEAR: DOAR status 2 (ACTIVE) transmite GPS la server
                 if (courseData.status != 2) {
                     String statusName = courseData.status == 3 ? "PAUSE" : courseData.status == 4 ? "STOP" : "INVALID";
-                    Log.e(TAG, "⏸️ SKIP TRANSMIT: UIT " + courseData.realUit + " are status " + courseData.status + " (" + statusName + ") - NU TRANSMITE");
-                    continue; // Skip pentru orice status în afară de ACTIVE (2)
+                            continue; // Skip pentru orice status în afară de ACTIVE (2)
                 }
                 
                 // DOAR Status 2 (ACTIVE) ajunge aici
@@ -595,7 +594,7 @@ public class BackgroundGPSService extends Service {
             }
             
         } catch (Exception e) {
-            Log.e(TAG, "Eroare transmisie GPS: " + e.getMessage());
+            // GPS transmission error
         }
     }
     
@@ -627,8 +626,7 @@ public class BackgroundGPSService extends Service {
                         int responseCode = conn.getResponseCode();
                         
                         if (responseCode >= 200 && responseCode < 300) {
-                            Log.i(TAG, "GPS trimis cu succes pentru " + realUit);
-                            
+                                        
                             // CRITICAL: Actualizează analytics cu coordonatele GPS pentru harta
                             try {
                                 // Extract GPS data for analytics
@@ -646,8 +644,7 @@ public class BackgroundGPSService extends Service {
                                     lat + ", " + lng + ", " + speed + ", " + accuracy + ", " + isManualPause + ");";
                                     
                                 Log.e("JS_ANALYTICS_BRIDGE", analyticsCall);
-                                Log.i(TAG, "✅ Analytics bridge called for course: " + uniqueKey + " (status=" + currentStatus + ", pause=" + isManualPause + ")");
-                                
+                                                
                             } catch (Exception analyticsError) {
                                 Log.e(TAG, "❌ Analytics update failed: " + analyticsError.getMessage());
                             }

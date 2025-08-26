@@ -112,11 +112,9 @@ class CourseAnalyticsService {
       const isHighPrecision = accuracy <= this.HIGH_PRECISION_ACCURACY;
       
       if (!isHighPrecision) {
-        console.log(`⚠️ LOW-PRECISION GPS respins: ${accuracy}m precizie (>10m)`);
         return analytics; // Nu procesează puncte de precizie scăzută
       }
       
-      console.log(`✅ HIGH-PRECISION GPS acceptat: ${accuracy}m precizie`);
 
       // Add new GPS point
       analytics.gpsPoints.push(newPoint);
