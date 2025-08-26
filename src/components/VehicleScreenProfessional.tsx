@@ -20,6 +20,7 @@ import { courseAnalyticsService } from "../services/courseAnalytics";
 import { offlineGPSService } from "../services/offlineGPS";
 import OfflineSyncMonitor from "./OfflineSyncMonitor";
 import { courseStateManager } from "../services/courseStateManager";
+import nativeNotificationService from "../services/nativeNotifications";
 
 // Interfață TypeScript pentru AndroidGPS bridge
 declare global {
@@ -32,6 +33,10 @@ declare global {
       markManualPause: (ikRoTrans: string) => string;
       // Handler pentru mesaje GPS din serviciul Android
       onGPSMessage?: (message: string) => void;
+      // Native notification methods
+      showPersistentNotification?: (title: string, message: string, persistent: boolean) => Promise<void>;
+      hidePersistentNotification?: () => Promise<void>;
+      showQuickNotification?: (title: string, message: string, duration: number) => Promise<void>;
     };
     courseAnalyticsService?: any;
   }
@@ -158,6 +163,9 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
 // pentru pauză și stop individual, iar stopGPS doar pentru clearAll la logout
 
 const logoutClearAllGPS = async () => {
+  // Ascunde notificările persistente la logout
+  await nativeNotificationService.hidePersistentTracking();
+  
   if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
     return window.AndroidGPS.clearAllOnLogout();
   }
@@ -293,6 +301,12 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     };
   }, []);
 
+  // Native notifications pentru cursele active
+  useEffect(() => {
+    const activeCourses = courses.filter(course => course.status === 2); // Status 2 = în progres
+    nativeNotificationService.updateTrackingNotification(activeCourses);
+  }, [courses]);
+
   // GPS MESSAGE HANDLER pentru alertele din serviciul Android
   useEffect(() => {
     // Setup handler pentru mesajele GPS din Android
@@ -384,10 +398,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           setGpsStatus('active');
           if (message.includes('GPS NATIV activ')) {
             toast.success('GPS Activ', 'Tracking de înaltă precizie pornit (3-8 metri)');
+            nativeNotificationService.showQuickNotification(
+              'iTrack GPS',
+              'GPS activ - tracking de înaltă precizie pornit',
+              5000
+            );
           }
         } else if (message.includes('GPS indisponibil')) {
           setGpsStatus('inactive');
           toast.warning('GPS Indisponibil', 'Verifică setările și semnalul GPS');
+          nativeNotificationService.showQuickNotification(
+            'iTrack GPS',
+            'GPS indisponibil - verifică setările',
+            7000
+          );
         }
       };
     }

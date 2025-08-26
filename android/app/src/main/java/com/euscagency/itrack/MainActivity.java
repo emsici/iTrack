@@ -372,4 +372,113 @@ public class MainActivity extends BridgeActivity {
             return "Eroare: " + e.getMessage();
         }
     }
+
+    // NATIVE NOTIFICATIONS pentru iTrack GPS - sistem de notificări persistente
+    @JavascriptInterface
+    public void showPersistentNotification(String title, String message, boolean persistent) {
+        Log.d(TAG, "🔔 === NATIVE NOTIFICATION === Afișez notificare persistentă: " + title + " - " + message);
+        
+        try {
+            runOnUiThread(() -> {
+                android.app.NotificationManager notificationManager = 
+                    (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                
+                // Creează canal pentru notificări pe Android 8.0+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    android.app.NotificationChannel channel = new android.app.NotificationChannel(
+                        "itrack_gps_channel",
+                        "iTrack GPS Notifications",
+                        android.app.NotificationManager.IMPORTANCE_LOW
+                    );
+                    channel.setDescription("Notificări pentru tracking GPS iTrack");
+                    channel.setSound(null, null); // Silențios pentru notificările persistente
+                    notificationManager.createNotificationChannel(channel);
+                }
+                
+                // Creează notificarea
+                androidx.core.app.NotificationCompat.Builder builder = 
+                    new androidx.core.app.NotificationCompat.Builder(this, "itrack_gps_channel")
+                        .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+                        .setContentTitle(title)
+                        .setContentText(message)
+                        .setPriority(androidx.core.app.NotificationCompat.PRIORITY_LOW)
+                        .setOngoing(persistent) // Persistentă dacă e specificat
+                        .setSound(null); // Silențios
+                
+                // Afișează notificarea
+                notificationManager.notify(3001, builder.build());
+                Log.d(TAG, "✅ Notificare persistentă afișată cu succes");
+            });
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Eroare afișare notificare persistentă: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    @JavascriptInterface
+    public void hidePersistentNotification() {
+        Log.d(TAG, "🔔 === NATIVE NOTIFICATION === Ascund notificare persistentă");
+        
+        try {
+            runOnUiThread(() -> {
+                android.app.NotificationManager notificationManager = 
+                    (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.cancel(3001); // Șterge notificarea persistentă
+                Log.d(TAG, "✅ Notificare persistentă ascunsă cu succes");
+            });
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Eroare ascundere notificare persistentă: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    @JavascriptInterface
+    public void showQuickNotification(String title, String message, int durationMs) {
+        Log.d(TAG, "🔔 === NATIVE NOTIFICATION === Afișez notificare rapidă: " + title + " - " + message + " (" + durationMs + "ms)");
+        
+        try {
+            runOnUiThread(() -> {
+                android.app.NotificationManager notificationManager = 
+                    (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                
+                // Creează canal pentru notificări pe Android 8.0+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    android.app.NotificationChannel channel = new android.app.NotificationChannel(
+                        "itrack_quick_channel",
+                        "iTrack Quick Notifications",
+                        android.app.NotificationManager.IMPORTANCE_DEFAULT
+                    );
+                    channel.setDescription("Notificări rapide iTrack GPS");
+                    notificationManager.createNotificationChannel(channel);
+                }
+                
+                // Creează notificarea rapidă
+                androidx.core.app.NotificationCompat.Builder builder = 
+                    new androidx.core.app.NotificationCompat.Builder(this, "itrack_quick_channel")
+                        .setSmallIcon(android.R.drawable.ic_dialog_info)
+                        .setContentTitle(title)
+                        .setContentText(message)
+                        .setPriority(androidx.core.app.NotificationCompat.PRIORITY_DEFAULT)
+                        .setAutoCancel(true); // Se șterge la click
+                
+                // Afișează notificarea
+                int notificationId = (int) System.currentTimeMillis(); // ID unic
+                notificationManager.notify(notificationId, builder.build());
+                
+                // Programează ștergerea automată
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    notificationManager.cancel(notificationId);
+                    Log.d(TAG, "🔔 Notificare rapidă ștearsă automat după " + durationMs + "ms");
+                }, durationMs);
+                
+                Log.d(TAG, "✅ Notificare rapidă afișată cu succes");
+            });
+            
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Eroare afișare notificare rapidă: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
