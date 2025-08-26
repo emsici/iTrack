@@ -1,15 +1,15 @@
 @echo off
 if "%1"=="" (
+    set ENV=prod
     echo ========================================
     echo         iTrack - Build Script
     echo ========================================
     echo.
-    echo Foloseste: build.bat [dev/prod]
-    echo   build.bat dev  - Development (etsm3)
-    echo   build.bat prod - Production (etsm_prod)
+    echo DEFAULT: Production build (etsm_prod)
+    echo Pentru development foloseste: build.bat dev
     echo.
-    pause
-    exit /b 1
+) else (
+    set ENV=%1
 )
 
 set ENV=%1

@@ -1,14 +1,15 @@
 #!/bin/bash
 if [ "$1" = "" ]; then
+    ENV="prod"
     echo "================================"
     echo "      iTrack - Start Server"
     echo "================================"
     echo ""
-    echo "Foloseste: ./start.sh [dev/prod]"
-    echo "   ./start.sh dev  - Development (etsm3)"
-    echo "   ./start.sh prod - Production (etsm_prod)"
+    echo "DEFAULT: Production environment (etsm_prod)"
+    echo "Pentru development foloseste: ./start.sh dev"
     echo ""
-    exit 1
+else
+    ENV=$1
 fi
 
 ENV=$1

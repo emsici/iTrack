@@ -1,14 +1,15 @@
 #!/bin/bash
 if [ "$1" = "" ]; then
+    ENV="prod"
     echo "========================================"
     echo "         iTrack - Build Script"
     echo "========================================"
     echo ""
-    echo "Foloseste: ./build.sh [dev/prod]"
-    echo "   ./build.sh dev  - Development (etsm3)"
-    echo "   ./build.sh prod - Production (etsm_prod)"
+    echo "DEFAULT: Production build (etsm_prod)"
+    echo "Pentru development foloseste: ./build.sh dev"
     echo ""
-    exit 1
+else
+    ENV=$1
 fi
 
 ENV=$1

@@ -1,15 +1,15 @@
 @echo off
 if "%1"=="" (
+    set ENV=prod
     echo ================================
     echo      iTrack - Start Server
     echo ================================
     echo.
-    echo Foloseste: start.bat [dev/prod]
-    echo   start.bat dev  - Development (etsm3)
-    echo   start.bat prod - Production (etsm_prod)
+    echo DEFAULT: Production environment (etsm_prod)
+    echo Pentru development foloseste: start.bat dev
     echo.
-    pause
-    exit /b 1
+) else (
+    set ENV=%1
 )
 
 set ENV=%1
