@@ -1096,7 +1096,7 @@ public class BackgroundGPSService extends Service {
                 processedCount++;
                 
                 // EXPONENTIAL BACKOFF: Calculează delay bazat pe retry count
-                long dataAge = System.currentTimeMillis() - offlineData.createdAt;
+                long dataAge = System.currentTimeMillis() - offlineData.timestamp;
                 int retryDelay = Math.min(RETRY_INITIAL_DELAY * (1 << offlineData.retryCount), RETRY_MAX_DELAY);
                 
                 // Skip dacă data e prea veche (peste 24 ore)
