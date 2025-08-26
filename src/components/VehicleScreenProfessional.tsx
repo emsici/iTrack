@@ -345,7 +345,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 activeCourse.id,
                 gpsData.lat,
                 gpsData.lng,
-                gpsData.viteza / 3.6, // Convert km/h to m/s for consistency
+                gpsData.viteza, // Viteza rămâne în km/h - FIX BUG CRITIC
                 gpsData.hdop,
                 false // not manual pause
               );
@@ -362,7 +362,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   firstActiveCourse.id,
                   gpsData.lat,
                   gpsData.lng,
-                  gpsData.viteza / 3.6,
+                  gpsData.viteza, // Viteza rămâne în km/h - FIX BUG CRITIC
                   gpsData.hdop,
                   false
                 );
@@ -1333,6 +1333,18 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                     // Pornire GPS: start sau resume
                     if (newStatus === 2 && (oldStatus === 1 || oldStatus === 3)) {
                       console.log(`GPS pornit pentru cursă ${courseId}`);
+                      
+                      // CRITICAL FIX: INIȚIALIZEAZĂ TRACKING STATISTICI
+                      if (oldStatus === 1) {
+                        // Nouă cursă - start tracking
+                        courseAnalyticsService.startCourseTracking(courseId, courseForGPS.uit, vehicleNumber);
+                        console.log(`📊 Analytics tracking STARTED pentru cursă ${courseId}`);
+                      } else if (oldStatus === 3) {
+                        // Resume din pauză - resume tracking
+                        courseAnalyticsService.resumeCourseTracking(courseId);
+                        console.log(`📊 Analytics tracking RESUMED pentru cursă ${courseId}`);
+                      }
+                      
                       startAndroidGPS(courseForGPS, vehicleNumber, token);
                     }
                     
@@ -1341,6 +1353,17 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                              (newStatus === 4 && (oldStatus === 2 || oldStatus === 3))) {
                       const actionType = newStatus === 3 ? 'PAUSE' : 'STOP';
                       console.log(`GPS ${actionType.toLowerCase()} pentru cursă ${courseId}`);
+                      
+                      // CRITICAL FIX: GESTIONEAZĂ ANALYTICS LA PAUZĂ/STOP
+                      if (newStatus === 3) {
+                        // Pauză - pause tracking
+                        courseAnalyticsService.pauseCourseTracking(courseId);
+                        console.log(`📊 Analytics tracking PAUSED pentru cursă ${courseId}`);
+                      } else if (newStatus === 4) {
+                        // Stop final - stop tracking
+                        courseAnalyticsService.stopCourseTracking(courseId);
+                        console.log(`📊 Analytics tracking STOPPED pentru cursă ${courseId}`);
+                      }
                       
                       // ADAUGĂ PUNCT GPS CU FLAG MANUAL PENTRU PAUZĂ
                       if (newStatus === 3 && window.AndroidGPS && window.AndroidGPS.markManualPause) {

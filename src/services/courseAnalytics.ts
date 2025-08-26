@@ -39,7 +39,7 @@ class CourseAnalyticsService {
   // Removed fuel consumption - too variable for trucks without real data
   private readonly MIN_SPEED_THRESHOLD = 2; // km/h - below this is considered stopped
   private readonly MIN_DISTANCE_THRESHOLD = 0.005; // km - minimum distance to count (5 metri pentru precizie înaltă)
-  private readonly HIGH_PRECISION_ACCURACY = 10; // metri - sub 10m considerăm high precision
+  private readonly HIGH_PRECISION_ACCURACY = 25; // metri - sub 25m considerăm high precision (relaxed pentru mai multe puncte)
 
   /**
    * Start tracking analytics for a course
