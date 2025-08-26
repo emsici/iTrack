@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Course } from '../types';
 import { courseAnalyticsService, CourseStatistics } from '../services/courseAnalytics';
+import RouteMapModal from './RouteMapModal';
 
 interface CourseDetailsModalProps {
   course: Course;
@@ -16,6 +17,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
   currentTheme
 }) => {
   const [courseStats, setCourseStats] = useState<CourseStatistics | null>(null);
+  const [showRouteMap, setShowRouteMap] = useState(false);
   
   useEffect(() => {
     if (isOpen && !courseStats) {
@@ -638,8 +640,86 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
             )}
           </div>
 
+          {/* SECȚIUNEA 6: Harta cu Traseu GPS */}
+          {courseStats && courseStats.gpsPoints && courseStats.gpsPoints.length > 0 && (
+            <div style={{
+              padding: '16px',
+              background: currentTheme === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.95)',
+              borderRadius: '12px',
+              border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+              marginBottom: '12px'
+            }}>
+              <h3 style={{
+                fontSize: '16px',
+                fontWeight: '700',
+                color: currentTheme === 'dark' ? '#ffffff' : '#1a202c',
+                margin: '0 0 16px 0',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <i className="fas fa-map-marked-alt" style={{ 
+                  marginRight: '8px', 
+                  color: '#3b82f6' 
+                }}></i>
+                Traseu GPS
+              </h3>
+              
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '12px'
+              }}>
+                <div style={{
+                  color: currentTheme === 'dark' ? '#94a3b8' : '#4b5563',
+                  fontSize: '14px'
+                }}>
+                  {courseStats.gpsPoints.length} puncte GPS înregistrate
+                </div>
+                <button
+                  onClick={() => setShowRouteMap(true)}
+                  style={{
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 16px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
+                  }}
+                >
+                  <i className="fas fa-map" style={{ fontSize: '12px' }}></i>
+                  Vezi Harta
+                </button>
+              </div>
+              
+              <div style={{
+                fontSize: '12px',
+                color: currentTheme === 'dark' ? '#64748b' : '#6b7280',
+                fontStyle: 'italic'
+              }}>
+                Harta include traseu complet, markere start/stop și replay animat
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
+      
+      {/* Route Map Modal */}
+      {showRouteMap && courseStats && (
+        <RouteMapModal
+          isOpen={showRouteMap}
+          onClose={() => setShowRouteMap(false)}
+          courseData={courseStats}
+          currentTheme={currentTheme}
+        />
+      )}
     </div>
   );
 };
