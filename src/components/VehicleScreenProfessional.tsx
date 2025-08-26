@@ -1591,13 +1591,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   const newCount = prev + 1;
                   
                   if (newCount >= 50) {
+                    console.log('🎯 50 CLICKS REACHED! About to call toasts...');
                     setShowDebugPage(true);
                     setClickCount(0);
-                    console.log('🍞 CALLING TOAST SUCCESS');
-                    toast.success('Debug Mode Activat!', 'Logurile apar sub cursele active');
-                    console.log('🍞 CALLING TOAST INFO');  
-                    toast.info('Toast Test', 'Dacă vezi acest mesaj, toast-urile funcționează!');
-                    console.log('🍞 TOAST CALLS COMPLETED');
+                    
+                    console.log('🍞 TOAST OBJECT:', toast);
+                    console.log('🍞 TOAST.SUCCESS:', typeof toast.success);
+                    
+                    const id1 = toast.success('Debug Mode Activat!', 'Logurile apar sub cursele active');
+                    console.log('🍞 TOAST 1 ID:', id1);
+                    
+                    const id2 = toast.info('Toast Test', 'Dacă vezi acest mesaj, toast-urile funcționează!');
+                    console.log('🍞 TOAST 2 ID:', id2);
+                    
+                    console.log('🍞 CURRENT TOASTS AFTER CALLS:', toast.toasts.length);
                   }
                   
                   return newCount;
