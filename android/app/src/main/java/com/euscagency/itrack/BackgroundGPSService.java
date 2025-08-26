@@ -247,17 +247,7 @@ public class BackgroundGPSService extends Service {
                 
                 if (newStatus == 2) { // ACTIVE/RESUME
                     courseData.status = 2;
-                    Log.e(TAG, "🟢 RESUME: GPS reactivat pentru " + specificUIT + " (key: " + foundKey + ")");
-                    
-                    // CRITICAL DEBUG: Verifică statusul înainte de ensure
-                    int activeCount = 0;
-                    for (CourseData course : activeCourses.values()) {
-                        if (course.status == 2) {
-                            activeCount++;
-                            Log.e(TAG, "🔍 ACTIVE COURSE: " + course.realUit + " status=" + course.status);
-                        }
-                    }
-                    Log.e(TAG, "📊 RESUME DEBUG: Total " + activeCount + " curse ACTIVE după setare status");
+                    Log.i(TAG, "🟢 RESUME: GPS reactivat pentru " + specificUIT);
                     
                     // CRITICAL FIX: TRIMITE status RESUME la server
                     sendStatusUpdateToServer(newStatus, foundKey);
@@ -500,30 +490,16 @@ public class BackgroundGPSService extends Service {
     
     // CRITICAL FIX: Garantează că LocationUpdates sunt înregistrate când există curse ACTIVE
     private void ensureLocationUpdatesRegistered() {
-        // CRITICAL DEBUG: Verifică în detaliu statusul curselor
+        // Verifică curse active
         int activeCount = 0;
-        Log.e(TAG, "📍 ENSURE LOCATION DEBUG: Verificând " + activeCourses.size() + " curse totale:");
-        for (java.util.Map.Entry<String, CourseData> entry : activeCourses.entrySet()) {
-            String key = entry.getKey();
-            CourseData course = entry.getValue();
-            Log.e(TAG, "  Cursă: " + course.realUit + " (key: " + key + ") status=" + course.status);
+        for (CourseData course : activeCourses.values()) {
             if (course.status == 2) {
                 activeCount++;
             }
         }
-        Log.e(TAG, "📍 ENSURE LOCATION: " + activeCount + " curse cu status ACTIVE (2)");
         
         if (activeCount == 0) {
-            Log.e(TAG, "📍 ENSURE LOCATION: Nu sunt curse ACTIVE - NU pornesc LocationUpdates");
             return;
-        }
-        
-        Log.e(TAG, "📍 ENSURE LOCATION: locationUpdatesActive=" + locationUpdatesActive.get() + ", isGPSRunning=" + isGPSRunning.get());
-        
-        if (locationUpdatesActive.get()) {
-            Log.e(TAG, "📍 ENSURE LOCATION: LocationUpdates deja ACTIVE - verificare suplimentară...");
-            // CRITICAL FIX: Forțează re-înregistrarea pentru siguranță în cazul RESUME
-            Log.e(TAG, "⚠️ ENSURE LOCATION: FORȚEZ re-înregistrarea pentru siguranță la RESUME");
         }
         
         // Pornește GPS service complet dacă nu rulează
@@ -542,23 +518,18 @@ public class BackgroundGPSService extends Service {
             return;
         }
         
-        // CRITICAL FIX: Forțează re-înregistrarea LocationCallback pentru siguranță
+        // Re-înregistrează LocationCallback
         if (fusedLocationClient != null && locationRequest != null && locationCallback != null) {
-            // CRITICAL: Oprește mai întâi pentru curățenie
             try {
                 fusedLocationClient.removeLocationUpdates(locationCallback);
-                Log.e(TAG, "🧹 ENSURE LOCATION: Oprit LocationUpdates existente pentru curățenie");
             } catch (Exception e) {
-                Log.e(TAG, "⚠️ ENSURE LOCATION: Nu am putut opri LocationUpdates (poate nu erau active): " + e.getMessage());
+                // Ignoră eroarea dacă nu erau active
             }
             
-            // Re-înregistrează fresh
             fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, android.os.Looper.getMainLooper());
             locationUpdatesActive.set(true);
-            Log.e(TAG, "✅ ENSURE LOCATION: LocationUpdates RE-ÎNREGISTRATE cu succes (FRESH)!");
-            sendLogToJavaScript("✅ LocationUpdates re-activate - transmisie GPS restaurată pentru RESUME");
+            Log.i(TAG, "✅ GPS LocationUpdates reactivate");
         } else {
-            Log.e(TAG, "❌ ENSURE LOCATION: Components null - pornesc GPS complet");
             startBackgroundGPS();
         }
     }
@@ -583,8 +554,6 @@ public class BackgroundGPSService extends Service {
                 String uniqueKey = entry.getKey();
                 CourseData courseData = entry.getValue();
                 
-                // CRITICAL DEBUG: Verifică status-ul fiecărei curse ÎNAINTE de transmisie
-                Log.e(TAG, "🔍 VERIFY BEFORE TRANSMIT: UIT=" + courseData.realUit + " status=" + courseData.status + " key=" + uniqueKey);
                 
                 // SIMPLE & CLEAR: DOAR status 2 (ACTIVE) transmite GPS la server
                 if (courseData.status != 2) {
