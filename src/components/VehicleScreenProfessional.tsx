@@ -17,6 +17,7 @@ import CourseDetailsModal from "./CourseDetailsModal";
 import VehicleNumberDropdown from "./VehicleNumberDropdown";
 import { themeService, Theme } from "../services/themeService";
 import { courseAnalyticsService } from "../services/courseAnalytics";
+import { offlineGPSService } from "../services/offlineGPS";
 import OfflineSyncMonitor from "./OfflineSyncMonitor";
 
 // Interfață TypeScript pentru AndroidGPS bridge

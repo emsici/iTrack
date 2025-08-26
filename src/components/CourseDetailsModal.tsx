@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Course } from '../types';
-import { courseAnalyticsService, CourseStatistics, GPSPoint } from '../services/courseAnalytics';
-import RouteMapModal from './RouteMapModal';
+import { courseAnalyticsService, CourseStatistics } from '../services/courseAnalytics';
 
 interface CourseDetailsModalProps {
   course: Course;
@@ -16,58 +15,20 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
   onClose,
   currentTheme
 }) => {
-  const [showRouteMap, setShowRouteMap] = useState(false);
-  const [showFullScreenMap, setShowFullScreenMap] = useState(false);
   const [courseStats, setCourseStats] = useState<CourseStatistics | null>(null);
-  const [pausePoints, setPausePoints] = useState<GPSPoint[]>([]);
-  const [loading, setLoading] = useState(false);
   
   useEffect(() => {
-    if (isOpen && showRouteMap && !courseStats) {
+    if (isOpen && !courseStats) {
       loadCourseGPSData();
     }
-  }, [isOpen, showRouteMap, course.id, course.status]); // CRITICAL FIX: Adaugă course.status pentru refresh la schimbarea status-ului
+  }, [isOpen, course.id, course.status]); // CRITICAL FIX: Adaugă course.status pentru refresh la schimbarea status-ului
   
   const loadCourseGPSData = async () => {
-    setLoading(true);
     try {
       const stats = await courseAnalyticsService.getCourseAnalytics(course.id);
       setCourseStats(stats);
-      
-      if (stats && stats.gpsPoints) {
-        // Identifică punctele de pauză (viteza foarte mică și mai multe puncte consecutive)
-        const pauses: GPSPoint[] = [];
-        let slowPoints: GPSPoint[] = [];
-        
-        stats.gpsPoints.forEach((point) => {
-          // Adaugă pauze manuale
-          if (point.isManualPause) {
-            pauses.push(point);
-          }
-          
-          // Detectează opriri automate (viteză sub 2 km/h)
-          if (point.speed < 2) { // Sub 2 km/h
-            slowPoints.push(point);
-          } else {
-            // Dacă am avut mai mult de 3 puncte lente consecutive, e o oprire automată
-            if (slowPoints.length >= 3) {
-              pauses.push(slowPoints[Math.floor(slowPoints.length / 2)]); // Punctul din mijloc
-            }
-            slowPoints = [];
-          }
-        });
-        
-        // Verifică și ultimele puncte
-        if (slowPoints.length >= 3) {
-          pauses.push(slowPoints[Math.floor(slowPoints.length / 2)]);
-        }
-        
-        setPausePoints(pauses);
-      }
     } catch (error) {
       console.error('Eroare încărcare date GPS:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -700,7 +661,7 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
               Harta cu Opriri GPS
             </h3>
             
-            {courseStats.gpsPoints && courseStats.gpsPoints.length > 0 ? (
+            {courseStats && courseStats.gpsPoints && courseStats.gpsPoints.length > 0 ? (
               <div style={{ color: currentTheme === 'dark' ? '#94a3b8' : '#4b5563', fontSize: '14px' }}>
                 Harta se încarcă cu {courseStats.gpsPoints.length} puncte GPS...
               </div>
