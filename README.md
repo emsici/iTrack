@@ -410,11 +410,12 @@ Direct Install:       APK side-loading pentru testing și validation
 
 ### **Documentație Enterprise Tehnică**
 - **README.md**: Documentația enterprise principală (acest fișier)
-- **replit.md**: Configurații și preferințe development
-- **ANALIZA_TEHNICA_COMPLETA_iTrack.md**: Analiză enterprise comprehensive
-- **PREZENTARE_BUSINESS_iTrack.md**: Prezentare tehnică business
-- **PREZENTARE_CLIENTI_iTrack.md**: Documentație pentru clienți enterprise
-- **changelog.md**: Istoric modificări și versioning enterprise
+- **[ANALIZA_TEHNICA_COMPLETA_iTrack.md](./ANALIZA_TEHNICA_COMPLETA_iTrack.md)**: Analiză enterprise comprehensive cu thread safety și performance
+- **[POVESTEA_iTrack.md](./POVESTEA_iTrack.md)**: User journey enterprise completă de la login la finalizare
+- **[PREZENTARE_BUSINESS_iTrack.md](./PREZENTARE_BUSINESS_iTrack.md)**: Prezentare tehnică business cu arhitectura pe 5 straturi
+- **[PREZENTARE_CLIENTI_iTrack.md](./PREZENTARE_CLIENTI_iTrack.md)**: Documentație pentru clienți enterprise cu ROI și benefits
+- **[replit.md](./replit.md)**: Configurații dezvoltare și istoric technical changes
+- **[changelog.md](./changelog.md)**: Istoric modificări și versioning enterprise
 
 ### **Enterprise Debugging Resources**
 - **Debug Panel**: Acces prin 50 click-uri pe footer timestamp
