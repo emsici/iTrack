@@ -631,55 +631,6 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                   </div>
                 </div>
 
-                {/* Timp total opriri */}
-                <div style={{
-                  padding: '12px',
-                  background: 'rgba(168, 85, 247, 0.1)',
-                  border: '1px solid rgba(168, 85, 247, 0.3)',
-                  borderRadius: '8px',
-                  textAlign: 'center'
-                }}>
-                  <div style={{
-                    fontSize: '20px',
-                    fontWeight: 'bold',
-                    color: '#a855f7',
-                    marginBottom: '4px'
-                  }}>
-                    {Math.floor(courseStats.stopDuration / 60)}h {Math.round(courseStats.stopDuration % 60)}m
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
-                  }}>
-                    Timp Total Opriri
-                  </div>
-                </div>
-
-                {/* Procentaj timp în mișcare */}
-                <div style={{
-                  padding: '12px',
-                  background: 'rgba(20, 184, 166, 0.1)',
-                  border: '1px solid rgba(20, 184, 166, 0.3)',
-                  borderRadius: '8px',
-                  textAlign: 'center'
-                }}>
-                  <div style={{
-                    fontSize: '20px',
-                    fontWeight: 'bold',
-                    color: '#14b8a6',
-                    marginBottom: '4px'
-                  }}>
-                    {courseStats.drivingTime > 0 ? 
-                      Math.round((courseStats.drivingTime / (courseStats.drivingTime + courseStats.stopDuration)) * 100) : 0}%
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
-                  }}>
-                    Timp în Mișcare
-                  </div>
-                </div>
-
                 {/* Frecvența opririlor */}
                 <div style={{
                   padding: '12px',
