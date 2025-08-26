@@ -3,9 +3,7 @@ package com.euscagency.itrack;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-// ELIMINAT: Handler, Looper - FusedLocationProviderClient folosește propriul thread
 import android.util.Log;
-// ELIMINAT: LocationManager, LocationListener - înlocuite cu FusedLocationProviderClient
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationRequest;
@@ -21,8 +19,7 @@ import androidx.core.app.NotificationCompat;
 import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import java.util.concurrent.Executors;
-// ELIMINAT: ScheduledExecutorService, HandlerThread - FusedLocationProviderClient face totul automat
-import java.util.concurrent.TimeUnit; // NECESAR pentru awaitTermination și retry scheduling
+import java.util.concurrent.TimeUnit; 
 import android.app.Notification;
 
 /**

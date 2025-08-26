@@ -581,6 +581,341 @@ const CourseDetailsModal: React.FC<CourseDetailsModalProps> = ({
                     Opriri Auto-Detectate
                   </div>
                 </div>
+
+                {/* Timp total opriri */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(168, 85, 247, 0.1)',
+                  border: '1px solid rgba(168, 85, 247, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#a855f7',
+                    marginBottom: '4px'
+                  }}>
+                    {Math.floor(courseStats.stopDuration / 60)}h {Math.round(courseStats.stopDuration % 60)}m
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Timp Total Opriri
+                  </div>
+                </div>
+
+                {/* Timp în mișcare (%) */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(20, 184, 166, 0.1)',
+                  border: '1px solid rgba(20, 184, 166, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#14b8a6',
+                    marginBottom: '4px'
+                  }}>
+                    {courseStats.drivingTime > 0 ? 
+                      Math.round((courseStats.drivingTime / (courseStats.drivingTime + courseStats.stopDuration)) * 100) : 0}%
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Timp în Mișcare
+                  </div>
+                </div>
+
+                {/* Timp total opriri */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(168, 85, 247, 0.1)',
+                  border: '1px solid rgba(168, 85, 247, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#a855f7',
+                    marginBottom: '4px'
+                  }}>
+                    {Math.floor(courseStats.stopDuration / 60)}h {Math.round(courseStats.stopDuration % 60)}m
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Timp Total Opriri
+                  </div>
+                </div>
+
+                {/* Procentaj timp în mișcare */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(20, 184, 166, 0.1)',
+                  border: '1px solid rgba(20, 184, 166, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#14b8a6',
+                    marginBottom: '4px'
+                  }}>
+                    {courseStats.drivingTime > 0 ? 
+                      Math.round((courseStats.drivingTime / (courseStats.drivingTime + courseStats.stopDuration)) * 100) : 0}%
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Timp în Mișcare
+                  </div>
+                </div>
+
+                {/* Frecvența opririlor */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(251, 113, 133, 0.1)',
+                  border: '1px solid rgba(251, 113, 133, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#fb7185',
+                    marginBottom: '4px'
+                  }}>
+                    {courseStats.drivingTime > 0 ? 
+                      ((courseStats.totalStops || 0) / (courseStats.drivingTime / 60)).toFixed(1) : 0}
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Opriri/Oră
+                  </div>
+                </div>
+
+                {/* Detalii suplimentare analytics */}
+              <div style={{
+                marginTop: '16px',
+                padding: '16px',
+                background: currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.5)' : 'rgba(241, 245, 249, 0.8)',
+                borderRadius: '12px',
+                border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.05)'
+              }}>
+                <h4 style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: currentTheme === 'dark' ? '#cbd5e0' : '#374151',
+                  margin: '0 0 12px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <i className="fas fa-info-circle" style={{ color: '#6b7280' }}></i>
+                  Detalii Suplimentare
+                </h4>
+                
+                <div style={{ fontSize: '13px', color: currentTheme === 'dark' ? '#94a3b8' : '#4b5563' }}>
+                  <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Început urmărire:</span>
+                    <strong>{new Date(courseStats.startTime).toLocaleString('ro-RO')}</strong>
+                  </div>
+                  
+                  {courseStats.endTime && (
+                    <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Sfârșit urmărire:</span>
+                      <strong>{new Date(courseStats.endTime).toLocaleString('ro-RO')}</strong>
+                    </div>
+                  )}
+                  
+                  <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Ultima actualizare:</span>
+                    <strong>{new Date(courseStats.lastUpdateTime).toLocaleString('ro-RO')}</strong>
+                  </div>
+                  
+                  <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Status urmărire:</span>
+                    <strong style={{ color: courseStats.isActive ? '#10b981' : '#ef4444' }}>
+                      {courseStats.isActive ? 'ACTIV' : 'OPRIT'}
+                    </strong>
+                  </div>
+                  
+                  {courseStats.gpsPoints && courseStats.gpsPoints.length > 0 && (
+                    <>
+                      <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Interval GPS mediu:</span>
+                        <strong>
+                          {courseStats.gpsPoints.length > 1 ? 
+                            Math.round((new Date(courseStats.gpsPoints[courseStats.gpsPoints.length - 1].timestamp).getTime() - 
+                                      new Date(courseStats.gpsPoints[0].timestamp).getTime()) / 
+                                     (courseStats.gpsPoints.length - 1) / 1000) + 's' : 'N/A'}
+                        </strong>
+                      </div>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Precizie GPS medie:</span>
+                        <strong>
+                          {(courseStats.gpsPoints.reduce((sum, point) => sum + point.accuracy, 0) / 
+                            courseStats.gpsPoints.length).toFixed(1)}m
+                        </strong>
+                      </div>
+                    </>
+                  )}
+                </div>
+                {/* Timp total opriri */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(168, 85, 247, 0.1)',
+                  border: '1px solid rgba(168, 85, 247, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#a855f7',
+                    marginBottom: '4px'
+                  }}>
+                    {Math.floor(courseStats.stopDuration / 60)}h {Math.round(courseStats.stopDuration % 60)}m
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Timp Total Opriri
+                  </div>
+                </div>
+
+                {/* Procentaj timp în mișcare */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(20, 184, 166, 0.1)',
+                  border: '1px solid rgba(20, 184, 166, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#14b8a6',
+                    marginBottom: '4px'
+                  }}>
+                    {courseStats.drivingTime > 0 ? 
+                      Math.round((courseStats.drivingTime / (courseStats.drivingTime + courseStats.stopDuration)) * 100) : 0}%
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Timp în Mișcare
+                  </div>
+                </div>
+
+                {/* Frecvența opririlor */}
+                <div style={{
+                  padding: '12px',
+                  background: 'rgba(251, 113, 133, 0.1)',
+                  border: '1px solid rgba(251, 113, 133, 0.3)',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    fontSize: '20px',
+                    fontWeight: 'bold',
+                    color: '#fb7185',
+                    marginBottom: '4px'
+                  }}>
+                    {courseStats.drivingTime > 0 ? 
+                      ((courseStats.totalStops || 0) / (courseStats.drivingTime / 60)).toFixed(1) : 0}
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: currentTheme === 'dark' ? '#cbd5e0' : '#374151'
+                  }}>
+                    Opriri/Oră
+                  </div>
+                </div>
+              </div>
+
+              {/* Detalii suplimentare analytics */}
+              <div style={{
+                marginTop: '16px',
+                padding: '16px',
+                background: currentTheme === 'dark' ? 'rgba(15, 23, 42, 0.5)' : 'rgba(241, 245, 249, 0.8)',
+                borderRadius: '12px',
+                border: currentTheme === 'dark' ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.05)'
+              }}>
+                <h4 style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: currentTheme === 'dark' ? '#cbd5e0' : '#374151',
+                  margin: '0 0 12px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <i className="fas fa-info-circle" style={{ color: '#6b7280' }}></i>
+                  Detalii Suplimentare
+                </h4>
+                
+                <div style={{ fontSize: '13px', color: currentTheme === 'dark' ? '#94a3b8' : '#4b5563' }}>
+                  <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Început urmărire:</span>
+                    <strong>{new Date(courseStats.startTime).toLocaleString('ro-RO')}</strong>
+                  </div>
+                  
+                  {courseStats.endTime && (
+                    <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Sfârșit urmărire:</span>
+                      <strong>{new Date(courseStats.endTime).toLocaleString('ro-RO')}</strong>
+                    </div>
+                  )}
+                  
+                  <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Ultima actualizare:</span>
+                    <strong>{new Date(courseStats.lastUpdateTime).toLocaleString('ro-RO')}</strong>
+                  </div>
+                  
+                  <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Status urmărire:</span>
+                    <strong style={{ color: courseStats.isActive ? '#10b981' : '#ef4444' }}>
+                      {courseStats.isActive ? 'ACTIV' : 'OPRIT'}
+                    </strong>
+                  </div>
+                  
+                  {courseStats.gpsPoints && courseStats.gpsPoints.length > 0 && (
+                    <>
+                      <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Interval GPS mediu:</span>
+                        <strong>
+                          {courseStats.gpsPoints.length > 1 ? 
+                            Math.round((new Date(courseStats.gpsPoints[courseStats.gpsPoints.length - 1].timestamp).getTime() - 
+                                      new Date(courseStats.gpsPoints[0].timestamp).getTime()) / 
+                                     (courseStats.gpsPoints.length - 1) / 1000) + 's' : 'N/A'}
+                        </strong>
+                      </div>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Precizie GPS medie:</span>
+                        <strong>
+                          {(courseStats.gpsPoints.reduce((sum, point) => sum + point.accuracy, 0) / 
+                            courseStats.gpsPoints.length).toFixed(1)}m
+                        </strong>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             ) : (
               <div style={{
