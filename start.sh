@@ -1,21 +1,43 @@
 #!/bin/bash
+if [ "$1" = "" ]; then
+    echo "================================"
+    echo "      iTrack - Start Server"
+    echo "================================"
+    echo ""
+    echo "Foloseste: ./start.sh [dev/prod]"
+    echo "   ./start.sh dev  - Development (etsm3)"
+    echo "   ./start.sh prod - Production (etsm_prod)"
+    echo ""
+    exit 1
+fi
+
+ENV=$1
 echo "================================"
-echo "      iTrack - Development Server"
+echo "      iTrack - Start $ENV"
 echo "================================"
 echo ""
-echo "Starting DEVELOPMENT environment..."
-echo "API: www.euscagency.com/etsm3/"
+
+if [ "$ENV" = "dev" ]; then
+    echo "Starting DEVELOPMENT environment..."
+    echo "API: www.euscagency.com/etsm3/"
+    export VITE_API_BASE_URL=https://www.euscagency.com/etsm3/platforme/transport/apk/
+    export NODE_ENV=development
+elif [ "$ENV" = "prod" ]; then
+    echo "Starting PRODUCTION environment..."
+    echo "API: www.euscagency.com/etsm_prod/"
+    export VITE_API_BASE_URL=https://www.euscagency.com/etsm_prod/platforme/transport/apk/
+    export NODE_ENV=production
+else
+    echo "EROARE: Environment invalid '$ENV'"
+    echo "Foloseste: dev sau prod"
+    exit 1
+fi
+
 echo ""
-
-# Set development environment variables
-export VITE_API_BASE_URL=https://www.euscagency.com/etsm3/platforme/transport/apk/
-export NODE_ENV=development
-
-# Start development server
 echo "Starting Vite development server on port 5000..."
 npm run dev
 
 if [ $? -ne 0 ]; then
-    echo "EROARE: Development server failed to start!"
+    echo "EROARE: Server failed to start!"
     exit 1
 fi

@@ -1,16 +1,39 @@
 #!/bin/bash
+if [ "$1" = "" ]; then
+    echo "========================================"
+    echo "         iTrack - Build Script"
+    echo "========================================"
+    echo ""
+    echo "Foloseste: ./build.sh [dev/prod]"
+    echo "   ./build.sh dev  - Development (etsm3)"
+    echo "   ./build.sh prod - Production (etsm_prod)"
+    echo ""
+    exit 1
+fi
+
+ENV=$1
 echo "========================================"
-echo "     iTrack - Production Build"
+echo "         iTrack - Build $ENV"
 echo "========================================"
 echo ""
-echo "Building for PRODUCTION environment..."
-echo "API: www.euscagency.com/etsm_prod/"
+
+if [ "$ENV" = "dev" ]; then
+    echo "Building for DEVELOPMENT environment..."
+    echo "API: www.euscagency.com/etsm3/"
+    export VITE_API_BASE_URL=https://www.euscagency.com/etsm3/platforme/transport/apk/
+    export NODE_ENV=development
+elif [ "$ENV" = "prod" ]; then
+    echo "Building for PRODUCTION environment..."
+    echo "API: www.euscagency.com/etsm_prod/"
+    export VITE_API_BASE_URL=https://www.euscagency.com/etsm_prod/platforme/transport/apk/
+    export NODE_ENV=production
+else
+    echo "EROARE: Environment invalid '$ENV'"
+    echo "Foloseste: dev sau prod"
+    exit 1
+fi
+
 echo ""
-
-# Set production environment variables
-export VITE_API_BASE_URL=https://www.euscagency.com/etsm_prod/platforme/transport/apk/
-export NODE_ENV=production
-
 echo "[1/4] Instalare dependinte..."
 npm install
 if [ $? -ne 0 ]; then
@@ -20,13 +43,13 @@ fi
 echo "✓ Dependinte instalate"
 
 echo ""
-echo "[2/4] Build proiect pentru PRODUCTION..."
+echo "[2/4] Build proiect pentru $ENV..."
 npx vite build
 if [ $? -ne 0 ]; then
     echo "EROARE: vite build esuat"
     exit 1
 fi
-echo "✓ Proiect compilat pentru PRODUCTION"
+echo "✓ Proiect compilat pentru $ENV"
 
 echo ""
 echo "[3/4] Sincronizare cu Android..."
@@ -48,7 +71,7 @@ echo "✓ Android Studio deschis"
 
 echo ""
 echo "========================================"
-echo "           Build PRODUCTION Finalizat!"
+echo "           Build $ENV Finalizat!"
 echo "========================================"
-echo "Proiect gata pentru release in Android Studio"
-echo "Environment: PRODUCTION (etsm_prod)"
+echo "Proiect gata pentru $ENV in Android Studio"
+echo "Environment: $ENV"
