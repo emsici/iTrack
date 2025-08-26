@@ -33,6 +33,11 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
   });
   const [expanded, setExpanded] = useState(false);
 
+  // NU afișa componenta dacă suntem online ȘI nu avem coordonate offline
+  if (isOnline && stats.totalOffline === 0 && !stats.syncInProgress) {
+    return null;
+  }
+
   useEffect(() => {
     // Subscribe to sync stats updates
     const unsubscribe = offlineGPSService.onSyncStatsChange((newStats) => {
@@ -76,13 +81,6 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
     return Math.round((stats.currentBatch / stats.totalBatches) * 100);
   };
 
-  const getSyncStatusColor = () => {
-    if (stats.syncInProgress) return 'text-warning';
-    if (!isOnline) return 'text-muted';
-    if (stats.totalOffline === 0) return 'text-success';
-    if (stats.syncErrors > 0) return 'text-danger';
-    return 'text-info';
-  };
 
   const getSyncStatusIcon = () => {
     if (stats.syncInProgress) return '🔄';
@@ -93,11 +91,26 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
   };
 
   return (
-    <div className={`card ${className}`} style={{ 
-      backgroundColor: 'rgba(255, 255, 255, 0.15)', 
-      border: '1px solid rgba(255, 255, 255, 0.2)',
-      borderRadius: '12px',
-      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)'
+    <div className={className} style={{ 
+      background: !isOnline 
+        ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.1) 100%)'
+        : stats.totalOffline > 0 
+          ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.1) 100%)'
+          : 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.1) 100%)',
+      border: !isOnline 
+        ? '1px solid rgba(239, 68, 68, 0.3)'
+        : stats.totalOffline > 0
+          ? '1px solid rgba(245, 158, 11, 0.3)'
+          : '1px solid rgba(34, 197, 94, 0.3)',
+      borderRadius: '16px',
+      boxShadow: !isOnline 
+        ? '0 4px 20px rgba(239, 68, 68, 0.2)'
+        : stats.totalOffline > 0
+          ? '0 4px 20px rgba(245, 158, 11, 0.2)'
+          : '0 4px 20px rgba(34, 197, 94, 0.2)',
+      backdropFilter: 'blur(10px)',
+      margin: '16px',
+      overflow: 'hidden'
     }}>
       <div 
         className="card-header d-flex justify-content-between align-items-center cursor-pointer"
@@ -110,11 +123,19 @@ const OfflineSyncMonitor: React.FC<OfflineSyncMonitorProps> = ({ isOnline, class
         }}
       >
         <div className="d-flex align-items-center">
-          <span className="me-2" style={{ fontSize: '1.1em' }}>{getSyncStatusIcon()}</span>
-          <h6 className="mb-0" style={{ fontSize: '0.95rem', fontWeight: '600' }}>
-            <span className={getSyncStatusColor()}>
-              Sincronizare GPS
-            </span>
+          <span className="me-2" style={{ 
+            fontSize: '1.2em',
+            filter: !isOnline ? 'drop-shadow(0 0 8px rgba(239, 68, 68, 0.6))' : stats.totalOffline > 0 ? 'drop-shadow(0 0 8px rgba(245, 158, 11, 0.6))' : 'drop-shadow(0 0 8px rgba(34, 197, 94, 0.6))'
+          }}>
+            {getSyncStatusIcon()}
+          </span>
+          <h6 className="mb-0" style={{ 
+            fontSize: '1rem', 
+            fontWeight: '700',
+            color: !isOnline ? '#ef4444' : stats.totalOffline > 0 ? '#f59e0b' : '#22c55e',
+            textShadow: '0 1px 3px rgba(0, 0, 0, 0.3)'
+          }}>
+            {!isOnline ? 'OFFLINE - GPS se salvează local' : stats.totalOffline > 0 ? 'Sincronizare GPS' : 'GPS sincronizat'}
           </h6>
         </div>
         <div className="d-flex align-items-center">
