@@ -303,12 +303,26 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
             const gpsDataStr = message.replace('GPS_ANALYTICS:', '');
             const gpsData = JSON.parse(gpsDataStr);
             
-            // Găsește cursa activă pentru acest UIT și adaugă coordonatele pentru hartă
+            // FIXED: Extrage TOATE identificatorii din GPS data
             const activeUit = gpsData.uit;
-            console.log(`📍 GPS→HARTA: Primesc coordonate pentru ${activeUit} - (${gpsData.lat}, ${gpsData.lng})`);
+            const realUit = gpsData.realUit || activeUit;
+            const ikRoTrans = gpsData.ikRoTrans || activeUit;
+            const uniqueKey = gpsData.uniqueKey;
             
-            // Caută cursa în lista de curse active
-            const activeCourse = courses.find((course: Course) => course.uit === activeUit);
+            console.log(`📍 GPS→HARTA: Primesc coordonate pentru UIT=${activeUit}, realUit=${realUit}, ikRoTrans=${ikRoTrans}`);
+            console.log(`📋 Coordonate: (${gpsData.lat}, ${gpsData.lng}) viteză=${gpsData.viteza}km/h`);
+            
+            // CRITICAL FIX: Caută cursa după toate identificatorii posibili
+            const activeCourse = courses.find((course: Course) => 
+              course.uit === activeUit || 
+              course.uit === realUit ||
+              course.ikRoTrans === activeUit ||
+              course.ikRoTrans === ikRoTrans ||
+              course.id === activeUit
+            );
+            
+            console.log(`🔍 Caut cursă pentru UIT=${activeUit}, realUit=${realUit}, ikRoTrans=${ikRoTrans}`);
+            console.log(`📋 ${courses.length} curse în listă:`, courses.map(c => `${c.id}(uit:${c.uit}, ikRo:${c.ikRoTrans}, status:${c.status})`));
             if (activeCourse) {
               // Adaugă coordonatele în courseAnalyticsService pentru vizualizare pe hartă
               courseAnalyticsService.updateCourseStatistics(
@@ -322,6 +336,21 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               console.log(`✅ GPS→HARTA: Coordonate salvate pentru cursa ${activeCourse.id}`);
             } else {
               console.warn(`⚠️ GPS→HARTA: Nu găsesc cursa activă pentru UIT ${activeUit}`);
+              console.warn(`📋 Curse în listă:`, courses.map(c => `${c.id}(${c.uit}/${c.ikRoTrans})`));
+              
+              // FALLBACK: încearcă cu primul curs activ (status 2)
+              const firstActiveCourse = courses.find(c => c.status === 2);
+              if (firstActiveCourse) {
+                console.log(`🔄 FALLBACK: Folosesc primul curs activ ${firstActiveCourse.id}`);
+                courseAnalyticsService.updateCourseStatistics(
+                  firstActiveCourse.id,
+                  gpsData.lat,
+                  gpsData.lng,
+                  gpsData.viteza / 3.6,
+                  gpsData.hdop,
+                  false
+                );
+              }
             }
           } catch (e) {
             console.error('❌ Eroare GPS→Analytics parsing:', e);

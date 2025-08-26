@@ -585,7 +585,8 @@ public class BackgroundGPSService extends Service {
                 transmitSingleCourseGPS(gpsData, uniqueKey, courseData.realUit);
                 
                 // CRITICAL GPS→MAP CONNECTION: Salvează coordonatele și în courseAnalyticsService pentru hartă
-                sendGPSToAnalyticsService(gpsData, courseData.realUit);
+                // FIXED: Trimite TOATE identificatorii pentru matching în JS
+                sendGPSToAnalyticsService(gpsData, courseData.realUit, uniqueKey, courseData.courseId);
             }
             
             if (coursesTransmitting > 0) {
@@ -678,10 +679,15 @@ public class BackgroundGPSService extends Service {
     }
     
     // GPS→MAP CONNECTION: Trimite coordonatele către courseAnalyticsService pentru vizualizare
-    private void sendGPSToAnalyticsService(org.json.JSONObject gpsData, String realUit) {
+    private void sendGPSToAnalyticsService(org.json.JSONObject gpsData, String realUit, String uniqueKey, String ikRoTrans) {
         try {
-            // CRITICAL FIX: JavaScript bridge prin sendLogToJavaScript (nu prin Log.e)
-            String analyticsMessage = "GPS_ANALYTICS:" + gpsData.toString();
+            // CRITICAL FIX: JavaScript bridge cu TOATE identificatorii pentru matching
+            org.json.JSONObject enrichedData = new org.json.JSONObject(gpsData.toString());
+            enrichedData.put("realUit", realUit);
+            enrichedData.put("uniqueKey", uniqueKey);
+            enrichedData.put("ikRoTrans", ikRoTrans);
+            
+            String analyticsMessage = "GPS_ANALYTICS:" + enrichedData.toString();
             sendLogToJavaScript(analyticsMessage);
             
             // DEBUG: Confirmă că coordonatele se trimit pentru hartă
