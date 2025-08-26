@@ -282,6 +282,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const [gpsStatus, setGpsStatus] = useState<'active' | 'inactive' | 'unknown'>('unknown');
 
   const toast = useToast();
+  
+  // DEBUG: Verifică dacă toast hook funcționează
+  useEffect(() => {
+    console.log('🍞 TOAST HOOK STATE:', toast.toasts.length, 'toasts in array');
+  }, [toast.toasts]);
 
   // EXPUNE courseAnalyticsService la global window pentru Android bridge
   useEffect(() => {
@@ -1588,9 +1593,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                   if (newCount >= 50) {
                     setShowDebugPage(true);
                     setClickCount(0);
+                    console.log('🍞 CALLING TOAST SUCCESS');
                     toast.success('Debug Mode Activat!', 'Logurile apar sub cursele active');
-                    // TEST TOAST pentru verificare
+                    console.log('🍞 CALLING TOAST INFO');  
                     toast.info('Toast Test', 'Dacă vezi acest mesaj, toast-urile funcționează!');
+                    console.log('🍞 TOAST CALLS COMPLETED');
                   }
                   
                   return newCount;

@@ -53,17 +53,20 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
 
         .toast {
-          background: rgba(15, 23, 42, 0.95);
+          background: rgba(15, 23, 42, 0.95) !important;
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
           border-radius: 12px;
-          padding: 16px;
-          margin-bottom: 12px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-          transform: translateX(100%);
-          animation: slideIn 0.3s ease-out forwards;
-          position: relative;
+          padding: 16px !important;
+          margin-bottom: 12px !important;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+          transform: translateX(0) !important;
+          animation: none !important;
+          position: relative !important;
           overflow: hidden;
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
         }
 
         .toast.removing {
@@ -212,7 +215,12 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, getIcon, getColo
   return (
     <div 
       className={`toast ${isRemoving ? 'removing' : ''}`}
-      style={{ '--toast-color': getColor(toast.type) } as any}
+      style={{ 
+        '--toast-color': getColor(toast.type),
+        border: '3px solid lime',
+        background: 'rgba(0,0,0,0.9)',
+        color: 'white'
+      } as any}
     >
       <div className="toast-header">
         <div className="toast-icon">
