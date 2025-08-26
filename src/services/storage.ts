@@ -8,7 +8,19 @@ const VEHICLE_HISTORY_KEY = 'vehicle_number_history';
  * Salvează token-ul de autentificare în storage-ul persistent
  * @param token - Token-ul JWT primit de la server
  * @throws Error dacă salvarea eșuează
- * @description Folosește Capacitor Preferences pentru persistarea securizată
+ * @description AVERTISMENT SECURITATE: Token stocat NECRIPTAT în Preferences
+ * 
+ * PROBLEMĂ CRITICĂ DE SECURITATE:
+ * - Token JWT stocat în plain text în SharedPreferences Android
+ * - Vulnerabil la accese neautorizate dacă device compromis
+ * - Nu respectă best practices pentru aplicații enterprise
+ * 
+ * SOLUȚIE RECOMANDATĂ:
+ * - Implementare @aparajita/capacitor-secure-storage sau @capawesome/capacitor-secure-storage
+ * - AES-256 encryption cu Android KeyStore hardware-backed protection
+ * - Optional: biometric authentication pentru acces token
+ * 
+ * PENTRU PRODUCȚIE: Înlocuiește cu secure storage pentru aplicații enterprise
  */
 export const storeToken = async (token: string): Promise<void> => {
   try {

@@ -15,22 +15,35 @@ export interface AppLog {
 
 class AppLoggerService {
   private readonly STORAGE_KEY = "app_logs";
-  private readonly MAX_LOGS = 10000; // Numărul maxim de loguri de stocat
+  private readonly MAX_LOGS = 1000; // Redus pentru performanță
+  private readonly BATCH_SIZE = 50; // Salvează la fiecare 50 de loguri
+  private readonly BATCH_INTERVAL = 30000; // Sau la fiecare 30 secunde
   private logs: AppLog[] = [];
+  private pendingLogs: AppLog[] = [];
   private initialized = false;
+  private saveTimer: NodeJS.Timeout | null = null;
+  private isProductionMode = false;
 
   async init(): Promise<void> {
     if (this.initialized) return;
 
     try {
+      // Detectează environment pentru control logging
+      this.isProductionMode = !import.meta.env.DEV && import.meta.env.MODE === 'production';
+      
       // Încarcă logurile existente din stocare
       await this.loadLogs();
 
-      // Suprascrie metodele console pentru a captura logurile
-      this.interceptConsole();
+      // Suprascrie metodele console doar în development pentru performanță
+      if (!this.isProductionMode) {
+        this.interceptConsole();
+      }
+      
+      // Pornește timer pentru salvare batch
+      this.startBatchSaveTimer();
 
       this.initialized = true;
-      this.log("INFO", "Logger aplicație inițializat", "SYSTEM");
+      this.log("INFO", `Logger inițializat - mode: ${this.isProductionMode ? 'PRODUCTION' : 'DEVELOPMENT'}`, "SYSTEM");
     } catch (error) {
       console.error("Eroare inițializare Logger aplicație:", error);
     }
@@ -48,8 +61,20 @@ class AppLoggerService {
     }
   }
 
-  private async saveLogs(): Promise<void> {
+  private startBatchSaveTimer(): void {
+    this.saveTimer = setInterval(() => {
+      this.flushPendingLogs();
+    }, this.BATCH_INTERVAL);
+  }
+
+  private async flushPendingLogs(): Promise<void> {
+    if (this.pendingLogs.length === 0) return;
+
     try {
+      // Adaugă pending logs la logs principale
+      this.logs.push(...this.pendingLogs);
+      this.pendingLogs = [];
+
       // Păstrează doar logurile cele mai recente
       if (this.logs.length > this.MAX_LOGS) {
         this.logs = this.logs.slice(-this.MAX_LOGS);
@@ -60,8 +85,13 @@ class AppLoggerService {
         value: JSON.stringify(this.logs),
       });
     } catch (error) {
-      console.error("Eroare salvare log-uri în stocare:", error);
+      console.error("Eroare salvare batch log-uri:", error);
     }
+  }
+
+  private async saveLogs(): Promise<void> {
+    // Folosit doar pentru clearLogs și cleanup final
+    await this.flushPendingLogs();
   }
 
   private interceptConsole(): void {
@@ -69,9 +99,17 @@ class AppLoggerService {
     const originalWarn = console.warn;
     const originalError = console.error;
 
+    // Throttling pentru a evita spam de loguri
+    let lastLogTime = 0;
+    const LOG_THROTTLE_MS = 100; // Maximum 10 logs per second
+
     console.log = (...args: any[]) => {
       originalLog.apply(console, args);
-      this.log("INFO", args.join(" "), "APP");
+      const now = Date.now();
+      if (now - lastLogTime > LOG_THROTTLE_MS) {
+        this.log("INFO", args.join(" "), "APP");
+        lastLogTime = now;
+      }
     };
 
     console.warn = (...args: any[]) => {
@@ -90,6 +128,11 @@ class AppLoggerService {
     message: string,
     category: string = "APP",
   ): void {
+    // În production mode, loghează doar erorile critice
+    if (this.isProductionMode && level !== "ERROR") {
+      return;
+    }
+
     const logEntry: AppLog = {
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       timestamp: new Date().toISOString(),
@@ -98,8 +141,13 @@ class AppLoggerService {
       category,
     };
 
-    this.logs.push(logEntry);
-    this.saveLogs(); // Save immediately for persistence
+    // Adaugă în pending batch în loc de salvare imediată
+    this.pendingLogs.push(logEntry);
+    
+    // Flush dacă batch-ul este plin
+    if (this.pendingLogs.length >= this.BATCH_SIZE) {
+      this.flushPendingLogs();
+    }
   }
 
   async getLogs(): Promise<AppLog[]> {
@@ -109,8 +157,19 @@ class AppLoggerService {
 
   async clearLogs(): Promise<void> {
     this.logs = [];
+    this.pendingLogs = [];
     await this.saveLogs();
     this.log("INFO", "Logs cleared", "SYSTEM");
+  }
+
+  // Cleanup pentru timer când aplicația se închide
+  cleanup(): void {
+    if (this.saveTimer) {
+      clearInterval(this.saveTimer);
+      this.saveTimer = null;
+    }
+    // Flush toate logurile pending înainte de închidere
+    this.flushPendingLogs();
   }
 
   async getLogsCount(): Promise<number> {

@@ -175,11 +175,11 @@ export class ThemeService {
       try {
         // Use dynamic import to avoid build errors in web environment
         import('@capacitor/status-bar').then(module => {
-          const { StatusBar } = module;
+          const { StatusBar, Style } = module;
           StatusBar.setBackgroundColor({ color: statusBarColor });
           StatusBar.setStyle({ 
-            style: isLightContent ? 'light' : 'dark'
-          } as any);
+            style: isLightContent ? Style.Light : Style.Dark
+          });
           console.log(`🎨 Status bar updated: ${statusBarColor}, content: ${isLightContent ? 'LIGHT' : 'DARK'}`);
         }).catch(err => {
           console.log('Status bar plugin not available (browser environment):', err);

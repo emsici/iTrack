@@ -8,22 +8,10 @@ const config: CapacitorConfig = {
     androidScheme: 'https'
   },
   plugins: {
-    Geolocation: {
-      requestPermissions: true,
-      enableBackgroundLocationUpdates: true,
-      backgroundLocationUpdateInterval: 5000, // 5 seconds for consistent tracking
-      distanceFilter: 0,
-      enableHighAccuracy: true,
-      timeout: 15000, // Reduced timeout for faster response  
-      maximumAge: 2000 // Use only fresh locations (2s or newer)
-    },
-    App: {
-      appendUserAgent: 'iTrack/1.0',
-      handleTasks: true
-    },
-    Device: {
-      getInfo: true
-    },
+    // NOTA: Geolocation nu acceptă configurații globale aici
+    // Opțiunile (enableHighAccuracy, timeout, maximumAge, minimumUpdateInterval) 
+    // se configurează prin PositionOptions la fiecare apel către getCurrentPosition/watchPosition
+    
     StatusBar: {
       style: 'DARK',
       backgroundColor: '#0f172a',

@@ -12,8 +12,27 @@ export const API_CONFIG = {
   PROD: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/",
 };
 
-// Mediul activ curent - COMMUTAT PE PROD (etsm_prod) - conform solicitării utilizatorului
-export const API_BASE_URL = API_CONFIG.PROD; // Trecut pe PRODUCȚIE
+// Environment Management - automat detection bazat pe import.meta.env
+const getEnvironmentURL = (): string => {
+  // Check environment variables first (for deployment flexibility)
+  const envURL = import.meta.env.VITE_API_BASE_URL;
+  if (envURL) {
+    return envURL;
+  }
+  
+  // Auto-detect environment based on mode
+  const isDevelopment = import.meta.env.DEV || import.meta.env.MODE === 'development';
+  
+  if (isDevelopment) {
+    console.log('🔧 Environment: DEVELOPMENT - folosesc API de test');
+    return API_CONFIG.DEV;
+  } else {
+    console.log('🚀 Environment: PRODUCTION - folosesc API live');
+    return API_CONFIG.PROD;
+  }
+};
+
+export const API_BASE_URL = getEnvironmentURL();
 
 // Gestionarea cererii unice pentru a preveni conflictele
 let currentVehicleRequest: { vehicle: string; promise: Promise<any> } | null =
