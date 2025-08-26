@@ -31,34 +31,17 @@ public class BackgroundGPSService extends Service {
     private static final long GPS_INTERVAL_SECONDS = 10;
     private static final int NOTIFICATION_ID = 2002;
     private static final String CHANNEL_ID = "BackgroundGPSChannel";
-    
-    // ELIMINAT: LocationManager - înlocuit cu FusedLocationProviderClient
-    // FUSION GPS: Google Play Services - triangulare inteligentă 
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
     private PowerManager.WakeLock wakeLock;
-    // ELIMINAT: ScheduledExecutorService, HandlerThread - FusedLocationProviderClient face totul automat
-    
-    // MULTI-UIT SUPPORT: Thread-safe Map pentru toate cursele active simultan - CRITICAL pentru multi-threading
     private java.util.Map<String, CourseData> activeCourses = new java.util.concurrent.ConcurrentHashMap<>();
     private String globalToken;
-    
-    // ELIMINAT: Health Monitor, lastGPSCycleTime - FusedLocationProviderClient e automat robust
-    
-    // CRITICAL FIX: Thread pool CU COADĂ LIMITATĂ pentru a preveni memory leaks
     private java.util.concurrent.ThreadPoolExecutor httpThreadPool;
     private String globalVehicle;
-    
-    // THREAD SAFETY: AtomicBoolean pentru isGPSRunning state thread-safe
     private java.util.concurrent.atomic.AtomicBoolean isGPSRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
-    
-    // CRITICAL FIX: Flag separat pentru tracking dacă LocationCallback este EFECTIV înregistrat
     private java.util.concurrent.atomic.AtomicBoolean locationUpdatesActive = new java.util.concurrent.atomic.AtomicBoolean(false);
     
-    // UNIFIED OFFLINE: Nu mai folosim Android queue - totul prin JavaScript
-    // ELIMINAT: ConcurrentLinkedQueue, retryExecutor, isRetryRunning, MAX_OFFLINE_QUEUE_SIZE, OfflineGPSData
-    // Toate coordonatele offline sunt gestionate de JavaScript offlineGPSService
     
     // Clasă pentru datele cursei
     private static class CourseData {
@@ -89,9 +72,7 @@ public class BackgroundGPSService extends Service {
         
         // Initialize HTTP Thread Pool pentru rate limiting
         initializeHttpThreadPool();
-        
-        // ELIMINAT: LocationManager inițializare - folosim doar FusedLocationProviderClient
-        
+               
         // FUSION GPS: Inițializare Google Play Services Location
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         
@@ -311,7 +292,6 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "✅ WakeLock acquired pentru deep sleep protection cu Fusion GPS");
         }
         
-        // ELIMINAT: Handler manual - FusedLocationProviderClient apelează LocationCallback automat
         
         isGPSRunning.set(true);
         
@@ -363,7 +343,6 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "🛑 FUSION GPS Service oprit complet");
     }
     
-    // ELIMINAT: Health Monitor - FusedLocationProviderClient e automat robust și nu se oprește
     
     private void startFusionGPS() {
         Log.e(TAG, "🚀 PORNIRE FUSION GPS cu triangulare inteligentă");
