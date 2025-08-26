@@ -15,34 +15,85 @@
 
 ## 🚀 **QUICK START ENTERPRISE - SETUP RAPID**
 
-### **Environment Management Automated (Recomandat)**
+### **🇷🇴 Environment Management Colorat și Interactiv**
 
-**Pentru mediul DEVELOPMENT (etsm3 test):**
+**🎨 SCRIPTURILE COLORATE CU STEAGUL ROMÂNIEI:**
+- Build scripturi completamente redesign cu interface colorată
+- ASCII art cu steagul României în 3 culori (🟦🟨🟥)
+- Progress bars vizuale și feedback interactiv
+- Design profesional dar atractiv vizual
+
+### **⚡ COMUTARE RAPIDĂ ENVIRONMENT - PROD ↔ DEV**
+
+**📊 Pentru mediul DEVELOPMENT (etsm3 test):**
 ```bash
-# Windows
+# 🪟 Windows - Script colorat cu steagul României
 start.bat dev
+build.bat dev
 
-# Linux/macOS  
-./start.sh dev
+# 🐧 Linux/macOS - Script colorat cu terminal colors
+./start.sh dev  
+./build.sh dev
 ```
 
-**Pentru mediul PRODUCTION (etsm_prod enterprise):**
+**🚀 Pentru mediul PRODUCTION (etsm_prod enterprise):**
 ```bash
-# Windows
+# 🪟 Windows - Script colorat cu steagul României  
 start.bat prod
+build.bat prod
 
-# Linux/macOS
+# 🐧 Linux/macOS - Script colorat cu terminal colors
 ./start.sh prod
+./build.sh prod
 ```
 
-### **Schimbarea Automată Environment Enterprise**
-Scripturile automatizate gestionează:
-- **Modifică API_CONFIG în `src/services/api.ts`** (TEST ↔ PROD automat)
-- **Actualizează Android services în Java** (API_BASE_URL synchronization)
-- **Execută build.bat** pentru compilare enterprise completă
-- **Lansează Android Studio** pentru APK final optimizat
+### **🔄 ENVIRONMENT SWITCHING - ZERO CONFIGURARE MANUALĂ**
 
-**Environment switching enterprise - zero intervenție manuală!**
+**🎯 Cum trecem de pe PRODUCTION la DEVELOPMENT:**
+1. **Oprește aplicația curentă** (dacă rulează în Android Studio)
+2. **Rulează comanda pentru environment dorit:**
+   ```bash
+   # Pentru Windows:
+   build.bat dev    # Trece automat pe development
+   
+   # Pentru Linux/macOS:
+   ./build.sh dev   # Trece automat pe development
+   ```
+3. **Scriptul colorat execută automat:**
+   - ✅ Setează `VITE_API_BASE_URL=etsm3` pentru development
+   - ✅ Compilează aplicația pentru environment nou
+   - ✅ Sincronizează cu Android (npx cap sync)
+   - ✅ Deschide Android Studio cu proiectul actualizat
+
+**🎯 Cum trecem de pe DEVELOPMENT la PRODUCTION:**
+1. **Oprește aplicația curentă** (dacă rulează în Android Studio)
+2. **Rulează comanda pentru production:**
+   ```bash
+   # Pentru Windows:
+   build.bat prod   # Trece automat pe production
+   
+   # Pentru Linux/macOS:
+   ./build.sh prod  # Trece automat pe production
+   ```
+3. **Scriptul colorat execută automat:**
+   - ✅ Setează `VITE_API_BASE_URL=etsm_prod` pentru production
+   - ✅ Compilează aplicația pentru environment nou
+   - ✅ Sincronizează cu Android (npx cap sync)
+   - ✅ Deschide Android Studio cu proiectul actualizat
+
+### **🌈 CARACTERISTICI SCRIPT-URI COLORATE:**
+```bash
+🇷🇴 Steagul României colorat în ASCII art și emoji
+🎨 Interfață colorată dinamică (verde/galben/roșu pentru success/warning/error)
+📊 Progress bars vizuale pentru fiecare etapă
+⚡ Feedback în timp real pentru toate operațiunile
+🔧 Mesaje profesionale în română cu instrucțiuni clare
+```
+
+**🚨 IMPORTANT: Environment switching este INSTANT și AUTOMAT!**
+- Nu trebuie să modifici manual niciun fișier
+- Scripturile gestionează totul automat
+- Verifică culoarea în script pentru a confirma environment-ul activ
 
 ### **Build Manual Professional cu Environment**
 ```bash
