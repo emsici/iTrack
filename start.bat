@@ -30,7 +30,9 @@ if /i "%ENV%"=="dev" (
 ) else (
     echo EROARE: Environment invalid '%ENV%'
     echo Foloseste: dev sau prod
-    pause
+    echo.
+echo press any key to exit
+pause > nul
     exit /b 1
 )
 
@@ -40,8 +42,12 @@ npm run dev
 
 if errorlevel 1 (
     echo EROARE: Server failed to start!
-    pause
+    echo.
+echo press any key to exit
+pause > nul
     exit /b 1
 )
 
-pause
+echo.
+echo press any key to exit
+pause > nul

@@ -30,7 +30,9 @@ if /i "%ENV%"=="dev" (
 ) else (
     echo EROARE: Environment invalid '%ENV%'
     echo Foloseste: dev sau prod
-    pause
+    echo.
+echo press any key to exit
+pause > nul
     exit /b 1
 )
 
@@ -39,7 +41,9 @@ echo [1/4] Instalare dependinte...
 call npm install
 if %errorlevel% neq 0 (
     echo EROARE: npm install esuat
-    pause
+    echo.
+echo press any key to exit
+pause > nul
     exit /b 1
 )
 echo - Dependinte instalate
@@ -49,7 +53,9 @@ echo [2/4] Build proiect pentru %ENV%...
 call npx vite build
 if %errorlevel% neq 0 (
     echo EROARE: vite build esuat
-    pause
+    echo.
+echo press any key to exit
+pause > nul
     exit /b 1
 )
 echo - Proiect compilat pentru %ENV%
@@ -59,7 +65,9 @@ echo [3/4] Sincronizare cu Android...
 call npx cap sync android
 if %errorlevel% neq 0 (
     echo EROARE: capacitor sync esuat
-    pause
+    echo.
+echo press any key to exit
+pause > nul
     exit /b 1
 )
 echo - Android sincronizat
@@ -69,7 +77,9 @@ echo [4/4] Deschidere Android Studio...
 call npx cap open android
 if %errorlevel% neq 0 (
     echo EROARE: deschiderea Android Studio esuata
-    pause
+    echo.
+echo press any key to exit
+pause > nul
     exit /b 1
 )
 echo - Android Studio deschis
@@ -80,4 +90,6 @@ echo           Build %ENV% Finalizat!
 echo ========================================
 echo Proiect gata pentru %ENV% in Android Studio
 echo Environment: %ENV%
-pause
+echo.
+echo press any key to exit
+pause > nul
