@@ -14,6 +14,7 @@ interface ToastNotificationProps {
 }
 
 const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove }) => {
+  console.log('🍞 TOAST COMPONENT RENDER:', toasts.length, 'toasts');
   const getIcon = (type: string) => {
     switch (type) {
       case 'success': return 'fa-check-circle';
@@ -35,7 +36,7 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
   };
 
   return (
-    <div className="toast-container">
+    <div className="toast-container" style={{ border: '2px solid red', backgroundColor: 'rgba(255,0,0,0.1)' }}>
       <style>{`
         .toast-container {
           position: fixed;
@@ -160,6 +161,9 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
         }
       `}</style>
 
+      <div style={{ color: 'white', background: 'red', padding: '10px', marginBottom: '5px' }}>
+        TOAST CONTAINER VISIBLE - {toasts.length} toasts
+      </div>
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}

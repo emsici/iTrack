@@ -20,7 +20,12 @@ export const useToast = () => {
       duration: duration || (type === 'error' ? 7000 : 5000)
     };
 
-    setToasts(prev => [...prev, newToast]);
+    console.log('🍞 TOAST CREATED:', { type, title, message, id });
+    setToasts(prev => {
+      const newToasts = [...prev, newToast];
+      console.log('🍞 TOASTS ARRAY:', newToasts.length, 'items');
+      return newToasts;
+    });
     return id;
   }, []);
 
