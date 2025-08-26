@@ -38,6 +38,7 @@ public class BackgroundGPSService extends Service {
     private java.util.Map<String, CourseData> activeCourses = new java.util.concurrent.ConcurrentHashMap<>();
     private String globalToken;
     private java.util.concurrent.ThreadPoolExecutor httpThreadPool;
+    private java.util.concurrent.ScheduledExecutorService retryExecutor;
     private String globalVehicle;
     private java.util.concurrent.atomic.AtomicBoolean isGPSRunning = new java.util.concurrent.atomic.AtomicBoolean(false);
     private java.util.concurrent.atomic.AtomicBoolean locationUpdatesActive = new java.util.concurrent.atomic.AtomicBoolean(false);
