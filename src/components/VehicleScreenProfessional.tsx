@@ -1698,6 +1698,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         toasts={toast.toasts}
         onRemove={toast.removeToast}
       />
+      
+      {/* DEBUG: Verifică props direct */}
+      <div style={{position: 'fixed', bottom: '10px', right: '10px', background: 'orange', color: 'black', padding: '5px', zIndex: 99999}}>
+        PROPS DEBUG: {toast.toasts.length} toasts in props
+      </div>
 
       {/* Modal Confirmare Logout */}
       {showLogoutModal && (

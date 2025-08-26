@@ -1,8 +1,13 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Toast } from '../components/ToastNotification';
 
 export const useToast = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  
+  // DEBUG: Log state changes
+  useEffect(() => {
+    console.log('🍞 HOOK STATE CHANGED:', toasts.length, 'toasts', toasts.map(t => t.title));
+  }, [toasts]);
 
   const addToast = useCallback((
     type: Toast['type'],
@@ -23,7 +28,7 @@ export const useToast = () => {
     console.log('🍞 TOAST CREATED:', { type, title, message, id });
     setToasts(prev => {
       const newToasts = [...prev, newToast];
-      console.log('🍞 TOASTS ARRAY:', newToasts.length, 'items');
+      console.log('🍞 TOASTS ARRAY UPDATED:', newToasts.length, 'items', newToasts.map(t => t.title));
       return newToasts;
     });
     return id;
