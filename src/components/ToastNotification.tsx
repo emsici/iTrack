@@ -164,6 +164,11 @@ const ToastNotification: React.FC<ToastNotificationProps> = ({ toasts, onRemove 
       <div style={{ color: 'white', background: 'red', padding: '10px', marginBottom: '5px' }}>
         TOAST CONTAINER VISIBLE - {toasts.length} toasts
       </div>
+      {toasts.map((toast, index) => (
+        <div key={toast.id + '_debug'} style={{ background: 'yellow', color: 'black', padding: '5px', marginBottom: '2px', border: '1px solid black' }}>
+          DEBUG TOAST {index + 1}: {toast.type} - {toast.title}
+        </div>
+      ))}
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}
@@ -186,6 +191,7 @@ interface ToastItemProps {
 
 const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove, getIcon, getColor }) => {
   const [isRemoving, setIsRemoving] = useState(false);
+  console.log('🍞 TOAST ITEM RENDER:', toast.title, toast.type);
 
   useEffect(() => {
     const duration = toast.duration || 5000;
