@@ -377,7 +377,8 @@ public class MainActivity extends BridgeActivity {
     // NATIVE NOTIFICATIONS pentru iTrack GPS - sistem de notificări persistente
     @JavascriptInterface
     public void showPersistentNotification(String title, String message, boolean persistent) {
-        Log.d(TAG, "🔔 === NATIVE NOTIFICATION === Afișez notificare persistentă: " + title + " - " + message);
+        Log.d(TAG, "🔔 === NATIVE NOTIFICATION === showPersistentNotification CALLED: " + title + " - " + message);
+        System.out.println("🔔 SYSTEM OUT: Native persistent notification called - " + title + " : " + message);
         
         try {
             runOnUiThread(() -> {
@@ -437,7 +438,8 @@ public class MainActivity extends BridgeActivity {
     
     @JavascriptInterface
     public void showQuickNotification(String title, String message, int durationMs) {
-        Log.d(TAG, "🔔 === NATIVE NOTIFICATION === Afișez notificare rapidă: " + title + " - " + message + " (" + durationMs + "ms)");
+        Log.d(TAG, "🔔 === NATIVE NOTIFICATION === showQuickNotification CALLED: " + title + " - " + message + " (" + durationMs + "ms)");
+        System.out.println("🔔 SYSTEM OUT: Native notification called - " + title + " : " + message);
         
         try {
             runOnUiThread(() -> {
