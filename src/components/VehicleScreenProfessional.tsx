@@ -89,7 +89,16 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       gsm_signal: typeof realSignal === 'number' ? realSignal : parseInt(String(realSignal).replace('%', '')) || 75,
       baterie: parseInt(realBattery.replace('%', '')) || 100, // Real battery or fallback
       status: newStatus,
-      timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
+      timestamp: new Intl.DateTimeFormat('ro-RO', {
+        year: 'numeric',
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZone: 'Europe/Bucharest',
+        hour12: false
+      }).format(new Date()).replace(/(\d{2})\.(\d{2})\.(\d{4}), (\d{2}):(\d{2}):(\d{2})/, '$3-$2-$1 $4:$5:$6')
     };
     
     const statusSent = await sendGPSData(gpsPayload, authToken);
