@@ -21,22 +21,22 @@
 ```bash
 # 🪟 Windows - Script unificat cu selecție platformă
 start.bat dev
-build.bat    # Selecție interactivă: Android/iOS/Ambele + Environment
+build.bat    # Selecție interactivă: Android sau iOS + Environment
 
 # 🐧 Linux/macOS - Script unificat cu selecție platformă
 ./start.sh dev  
-./build.sh   # Selecție interactivă: Android/iOS/Ambele + Environment
+./build.sh   # Selecție interactivă: Android sau iOS + Environment
 ```
 
 **🚀 Pentru mediul PRODUCTION (etsm_prod enterprise):**
 ```bash
 # 🪟 Windows - Script unificat cu selecție platformă
 start.bat prod
-build.bat    # Selecție interactivă: Android/iOS/Ambele + Environment
+build.bat    # Selecție interactivă: Android sau iOS + Environment
 
 # 🐧 Linux/macOS - Script unificat cu selecție platformă
 ./start.sh prod
-./build.sh   # Selecție interactivă: Android/iOS/Ambele + Environment
+./build.sh   # Selecție interactivă: Android sau iOS + Environment
 ```
 
 ### **🔄 ENVIRONMENT SWITCHING - ZERO CONFIGURARE MANUALĂ**
@@ -90,13 +90,12 @@ build.bat    # Selecție interactivă: Android/iOS/Ambele + Environment
 ### **Build Unificat Professional cu Selecție Platformă**
 ```bash
 # Build interactiv cu selecție platformă și environment
-build.bat     # Windows - Meniu interactiv: Android/iOS/Ambele + Dev/Prod
-./build.sh    # Linux/macOS - Meniu interactiv: Android/iOS/Ambele + Dev/Prod
+build.bat     # Windows - Meniu interactiv: Android sau iOS + Dev/Prod
+./build.sh    # Linux/macOS - Meniu interactiv: Android sau iOS + Dev/Prod
 
 # Opțiuni disponibile în scriptul unificat:
-# 1. ANDROID (APK) - Build doar pentru Android
-# 2. iOS (IPA) - Build doar pentru iOS  
-# 3. AMBELE platforme - Build pentru Android + iOS simultan
+# 1. ANDROID (APK) - Build pentru Android
+# 2. iOS (IPA) - Build pentru iOS (macOS only)
 # 
 # Environment selection pentru fiecare:
 # 1. DEVELOPMENT (etsm3) - Pentru testing și QA
@@ -284,11 +283,11 @@ graph TD
 ### **Sistem Unificat de Build cu Selecție Multiplă**
 ```bash
 # Script unificat cu interfață interactivă pentru control complet:
-# ├─ Selecție platformă: Android/iOS/Ambele
+# ├─ Selecție platformă: Android sau iOS
 # ├─ Environment switching: Development(etsm3)/Production(etsm_prod)
 # ├─ Web application build optimizat (Vite)
-# ├─ Capacitor sync multi-platformă
-# └─ IDE launch automatic (Android Studio + Xcode)
+# ├─ Capacitor sync pentru platforma selectată
+# └─ IDE launch automatic (Android Studio sau Xcode)
 
 # Development Server (rapid testing)
 start.bat dev           # Windows - Development (etsm3)
@@ -304,8 +303,7 @@ build.sh                # Linux/macOS - Meniu interactiv complet
 
 # Opțiuni build disponibile în script unificat:
 # 1. ANDROID (APK) - npm install → vite build → cap sync android → cap open android
-# 2. iOS (IPA) - npm install → vite build → cap sync ios → cap open ios  
-# 3. AMBELE - npm install → vite build → cap sync android + ios → open both IDEs
+# 2. iOS (IPA) - npm install → vite build → cap sync ios → cap open ios (macOS only)
 ```
 
 **Environments enterprise disponibile:**
@@ -486,7 +484,6 @@ build.sh              # Linux/macOS - Meniu: Platformă + Environment
 # Workflow automatizat pentru fiecare platformă:
 # ANDROID: npm install → vite build → cap sync android → Android Studio
 # iOS: npm install → vite build → cap sync ios → Xcode (macOS only)
-# AMBELE: npm install → vite build → cap sync android + ios → both IDEs
 
 Output Enterprise:
 ├─ dist/              # Web assets optimizate cu compression

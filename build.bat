@@ -13,9 +13,8 @@ echo Selecteaza platforma pentru build:
 echo.
 echo 1. ANDROID (APK)
 echo 2. iOS (IPA)
-echo 3. AMBELE platforme
 echo.
-set /p platform_choice="Introdu optiunea (1, 2 sau 3): "
+set /p platform_choice="Introdu optiunea (1 sau 2): "
 
 echo.
 echo ================================================
@@ -63,9 +62,6 @@ if "!platform_choice!"=="1" (
 ) else if "!platform_choice!"=="2" (
     echo 🍎 Building pentru iOS...
     call :build_ios
-) else if "!platform_choice!"=="3" (
-    echo 🚀 Building pentru AMBELE platforme...
-    call :build_both
 ) else (
     echo.
     echo Optiune invalida. Folosesc ANDROID ca default.
@@ -167,65 +163,6 @@ echo Proiectul iOS este gata in ios/ folder.
 echo.
 goto :end
 
-:build_both
-echo.
-echo [BOTH] [ETAPA 1/6] Instalare dependinte...
-call npm install >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ npm install esuat
-    pause
-    exit /b 1
-)
-echo ✅ Done.
-
-echo [BOTH] [ETAPA 2/6] Build aplicatie pentru %ENV%...
-call npx vite build >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ vite build esuat
-    pause
-    exit /b 1
-)
-echo ✅ Done.
-
-echo [BOTH] [ETAPA 3/6] Sincronizare cu Android...
-call npx cap sync android >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ capacitor sync android esuat
-    pause
-    exit /b 1
-)
-echo ✅ Android Done.
-
-echo [BOTH] [ETAPA 4/6] Sincronizare cu iOS...
-call npx cap sync ios >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ capacitor sync ios esuat
-    pause
-    exit /b 1
-)
-echo ✅ iOS Done.
-
-echo [BOTH] [ETAPA 5/6] Lansare Android Studio...
-start "" npx cap open android >nul 2>&1
-echo ✅ Android Studio Done.
-
-echo [BOTH] [ETAPA 6/6] Lansare Xcode...
-call npx cap open ios >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ⚠️ Xcode launch failed ^(macOS only^)
-)
-echo ✅ Xcode Done.
-
-echo.
-echo 🚀 ================================================
-echo       ANDROID + iOS BUILD FINALIZAT CU SUCCES!
-echo ================================================
-echo Environment: !ENV_NAME!
-echo.
-echo 🤖 Android: Gata in Android Studio
-echo 🍎 iOS: Gata in ios/ folder ^(Xcode pe macOS^)
-echo.
-goto :end
 
 :end
 echo ================================================

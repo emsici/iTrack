@@ -14,9 +14,8 @@ echo "Selecteaza platforma pentru build:"
 echo
 echo "1. ANDROID (APK)"
 echo "2. iOS (IPA)"
-echo "3. AMBELE platforme"
 echo
-read -p "Introdu optiunea (1, 2 sau 3): " platform_choice
+read -p "Introdu optiunea (1 sau 2): " platform_choice
 
 echo
 echo "================================================"
@@ -70,10 +69,6 @@ case $platform_choice in
     2)
         echo "🍎 Building pentru iOS..."
         build_ios
-        ;;
-    3)
-        echo "🚀 Building pentru AMBELE platforme..."
-        build_both
         ;;
     *)
         echo
@@ -177,68 +172,6 @@ build_ios() {
     show_final_options
 }
 
-# Function: Build Both
-build_both() {
-    echo
-    echo "[BOTH] [ETAPA 1/6] Instalare dependinte..."
-    npm install > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo "❌ npm install esuat"
-        exit 1
-    fi
-    echo "✅ Done."
-
-    echo "[BOTH] [ETAPA 2/6] Build aplicatie pentru $ENV..."
-    npx vite build > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo "❌ vite build esuat"
-        exit 1
-    fi
-    echo "✅ Done."
-
-    echo "[BOTH] [ETAPA 3/6] Sincronizare cu Android..."
-    npx cap sync android > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo "❌ capacitor sync android esuat"
-        exit 1
-    fi
-    echo "✅ Android Done."
-
-    echo "[BOTH] [ETAPA 4/6] Sincronizare cu iOS..."
-    npx cap sync ios > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo "❌ capacitor sync ios esuat"
-        exit 1
-    fi
-    echo "✅ iOS Done."
-
-    echo "[BOTH] [ETAPA 5/6] Lansare Android Studio..."
-    npx cap open android > /dev/null 2>&1 &
-    echo "✅ Android Studio Done."
-
-    echo "[BOTH] [ETAPA 6/6] Lansare Xcode..."
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        npx cap open ios > /dev/null 2>&1
-        if [ $? -ne 0 ]; then
-            echo "⚠️ Xcode launch failed"
-        fi
-        echo "✅ Xcode Done."
-    else
-        echo "⚠️ Skip Xcode (not macOS)"
-    fi
-
-    echo
-    echo "🚀 ================================================"
-    echo "       ANDROID + iOS BUILD FINALIZAT CU SUCCES!"
-    echo "================================================"
-    echo "Environment: $ENV_NAME"
-    echo
-    echo "🤖 Android: Gata pentru build"
-    echo "🍎 iOS: Gata in ios/ folder (Xcode pe macOS)"
-    echo
-
-    show_final_options
-}
 
 # Function: Show final options
 show_final_options() {
