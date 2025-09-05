@@ -87,6 +87,14 @@ build_android() {
         exit 1
     fi
     echo "✅ Done."
+    
+    echo "[ANDROID] [ETAPA 1.5/4] Configure Android environment..."
+    mkdir -p android/app/src/main/assets
+    cat > android/app/src/main/assets/environment.properties << EOF
+API_BASE_URL=$API_URL
+ENVIRONMENT=$ENV_NAME
+EOF
+    echo "✅ Android Environment configured."
 
     echo "[ANDROID] [ETAPA 2/4] Build aplicatie pentru $ENV..."
     npx vite build > /dev/null 2>&1
@@ -133,6 +141,21 @@ build_ios() {
         exit 1
     fi
     echo "✅ Done."
+    
+    echo "[iOS] [ETAPA 1.5/4] Configure iOS environment..."
+    cat > ios/App/App/environment.plist << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>API_BASE_URL</key>
+    <string>$API_URL</string>
+    <key>ENVIRONMENT</key>
+    <string>$ENV_NAME</string>
+</dict>
+</plist>
+EOF
+    echo "✅ iOS Environment configured."
 
     echo "[iOS] [ETAPA 2/4] Build aplicatie pentru $ENV..."
     npx vite build > /dev/null 2>&1

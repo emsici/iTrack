@@ -240,7 +240,9 @@ import UserNotifications
         // Implementation similar to Android's HTTP transmission
         guard let course = activeCourses[gpsData.ikRoTrans] else { return }
         
-        let url = URL(string: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php")!
+        // Use environment-aware API URL (same logic as frontend)
+        let apiBaseURL = getEnvironmentAPIURL()
+        let url = URL(string: "\(apiBaseURL)gps.php")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -286,6 +288,23 @@ import UserNotifications
         
         offlineGPSQueue.append(gpsData)
         print("💾 [iOS GPS] Added to offline queue. Queue size: \(offlineGPSQueue.count)")
+    }
+    
+    // MARK: - Environment Management
+    
+    private static func getEnvironmentAPIURL() -> String {
+        // Check for environment configuration from main bundle
+        if let path = Bundle.main.path(forResource: "environment", ofType: "plist"),
+           let env = NSDictionary(contentsOfFile: path),
+           let apiURL = env["API_BASE_URL"] as? String {
+            print("📡 [iOS GPS] Using configured API: \(apiURL)")
+            return apiURL
+        }
+        
+        // Fallback to production (safe default)
+        let prodURL = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/"
+        print("📡 [iOS GPS] Using default production API: \(prodURL)")
+        return prodURL
     }
     
     // MARK: - Background Tasks & Notifications

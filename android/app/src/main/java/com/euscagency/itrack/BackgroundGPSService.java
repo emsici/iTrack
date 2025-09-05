@@ -563,7 +563,7 @@ public class BackgroundGPSService extends Service {
                 @Override
                 public void run() {
                     try {
-                        java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
+                        java.net.URL url = new java.net.URL(getEnvironmentAPIURL() + "gps.php");
                         javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");
                         conn.setRequestProperty("Content-Type", "application/json");
@@ -733,7 +733,7 @@ public class BackgroundGPSService extends Service {
     private void sendStatusHTTPDirect(String statusDataJson) {
         try {
             Log.e(TAG, "🔄 === STARTING STATUS HTTP TRANSMISSION ===");
-            Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
+            Log.e(TAG, "🔗 URL: " + getEnvironmentAPIURL() + "gps.php");
             Log.e(TAG, "📊 Status Data: " + statusDataJson);
             
             // CRITICAL: Use thread pool pentru rate limiting - status updates use same pool as GPS
@@ -743,7 +743,7 @@ public class BackgroundGPSService extends Service {
                     try {
                         Log.e(TAG, "📡 Status HTTP thread started from thread pool");
                         
-                        java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
+                        java.net.URL url = new java.net.URL(getEnvironmentAPIURL() + "gps.php");
                         javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
                         conn.setRequestMethod("POST");
                         conn.setRequestProperty("Content-Type", "application/json");
@@ -1177,7 +1177,7 @@ public class BackgroundGPSService extends Service {
                 Log.e(TAG, "⚠️ OFFLINE RETRY: Nu pot verifica status - proceeding anyway");
             }
             
-            java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
+            java.net.URL url = new java.net.URL(getEnvironmentAPIURL() + "gps.php");
             javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
@@ -1208,6 +1208,30 @@ public class BackgroundGPSService extends Service {
             Log.e(TAG, "❌ Offline GPS retry exception: " + e.getMessage());
             return false;
         }
+    }
+    
+    // ENVIRONMENT MANAGEMENT: Determine API URL based on environment configuration
+    private String getEnvironmentAPIURL() {
+        try {
+            // Read environment configuration from assets/environment.properties
+            java.io.InputStream inputStream = getAssets().open("environment.properties");
+            java.util.Properties props = new java.util.Properties();
+            props.load(inputStream);
+            
+            String configuredURL = props.getProperty("API_BASE_URL");
+            if (configuredURL != null && !configuredURL.isEmpty()) {
+                Log.d(TAG, "📡 [Android GPS] Using configured API: " + configuredURL);
+                return configuredURL;
+            }
+            
+        } catch (Exception e) {
+            Log.w(TAG, "⚠️ Could not read environment.properties, using production default: " + e.getMessage());
+        }
+        
+        // Fallback to production (safe default)
+        String prodURL = "https://www.euscagency.com/etsm_prod/platforme/transport/apk/";
+        Log.d(TAG, "📡 [Android GPS] Using default production API: " + prodURL);
+        return prodURL;
     }
     
     // FIXED: Adaugă updateNotification() pentru consistency cu NOTIFICATION_ID

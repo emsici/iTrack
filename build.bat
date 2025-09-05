@@ -81,6 +81,12 @@ if %errorlevel% neq 0 (
 )
 echo ✅ Done.
 
+echo [ANDROID] [ETAPA 1.5/4] Configure Android environment...
+if not exist android\app\src\main\assets mkdir android\app\src\main\assets
+echo API_BASE_URL=!API_URL! > android\app\src\main\assets\environment.properties
+echo ENVIRONMENT=!ENV_NAME! >> android\app\src\main\assets\environment.properties
+echo ✅ Android Environment configured.
+
 echo [ANDROID] [ETAPA 2/4] Build aplicatie pentru %ENV%...
 call npx vite build >nul 2>&1
 if %errorlevel% neq 0 (
@@ -127,6 +133,19 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 echo ✅ Done.
+
+echo [iOS] [ETAPA 1.5/4] Configure iOS environment...
+echo ^<?xml version="1.0" encoding="UTF-8"?^> > ios\App\App\environment.plist
+echo ^<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"^> >> ios\App\App\environment.plist
+echo ^<plist version="1.0"^> >> ios\App\App\environment.plist
+echo ^<dict^> >> ios\App\App\environment.plist
+echo     ^<key^>API_BASE_URL^</key^> >> ios\App\App\environment.plist
+echo     ^<string^>!API_URL!^</string^> >> ios\App\App\environment.plist
+echo     ^<key^>ENVIRONMENT^</key^> >> ios\App\App\environment.plist
+echo     ^<string^>!ENV_NAME!^</string^> >> ios\App\App\environment.plist
+echo ^</dict^> >> ios\App\App\environment.plist
+echo ^</plist^> >> ios\App\App\environment.plist
+echo ✅ iOS Environment configured.
 
 echo [iOS] [ETAPA 2/4] Build aplicatie pentru %ENV%...
 call npx vite build >nul 2>&1
