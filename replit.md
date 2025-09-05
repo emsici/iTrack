@@ -8,6 +8,12 @@ Preferred communication style: Simple, everyday language.
 
 # System Architecture
 
+## Cross-Platform Support
+- **Android Platform**: Original native implementation with Java services
+- **iOS Platform**: Complete Swift port with 100% feature parity (December 5, 2025)
+- **Dual Build System**: Separate build scripts for Android and iOS deployment
+- **Unified Codebase**: Single React/TypeScript frontend for both platforms
+
 ## Frontend Architecture
 - **React 19.1.0 with TypeScript**: Strict type safety with modern React features
 - **Vite 6.3.5**: Ultra-fast build system optimized for development and production
@@ -23,10 +29,11 @@ Preferred communication style: Simple, everyday language.
 - **Environment Management**: Automated switching between TEST/PROD environments
 
 ## Native Mobile Architecture
-- **Capacitor Framework**: Hybrid app framework bridging JavaScript and native Android
-- **Native GPS Services**: Java-based background GPS service with Android AlarmManager
-- **WebView Bridge**: Bidirectional communication between React app and native Android services
-- **Foreground Services**: Continuous GPS tracking with notification management
+- **Capacitor Framework**: Cross-platform hybrid framework for Android and iOS
+- **Android GPS Services**: Java-based BackgroundGPSService with FusedLocationProvider
+- **iOS GPS Services**: Swift-based BackgroundGPSService with Core Location
+- **WebView Bridge**: Unified JavaScript interface for both Android and iOS platforms
+- **Background Services**: Continuous GPS tracking on both platforms with notifications
 
 ## Data Storage Solutions
 - **Capacitor Preferences**: Primary storage for authentication tokens and user preferences
