@@ -1,150 +1,279 @@
 #!/bin/bash
 
-clear
-echo ""
-echo "================================================"
-echo "            iTrack GPS - Build Tool"
-echo "================================================"
-echo ""
+# iTrack GPS - Master Build Script
+# Unified build tool pentru Android, iOS sau ambele
 
-# Interactive environment selection if no parameter provided
-if [ "$1" = "" ]; then
-    echo "Selecteaza environment-ul pentru build:"
-    echo ""
-    echo "1. DEVELOPMENT (API: etsm3)"
-    echo "2. PRODUCTION  (API: etsm_prod)"
-    echo ""
-    read -p "Introdu optiunea (1 sau 2): " choice
-    
-    if [ "$choice" = "1" ]; then
+clear
+echo "================================================"
+echo "        iTrack GPS - Master Build Tool"
+echo "================================================"
+echo
+
+# Platform selection
+echo "Selecteaza platforma pentru build:"
+echo
+echo "1. ANDROID (APK)"
+echo "2. iOS (IPA)"
+echo "3. AMBELE platforme"
+echo
+read -p "Introdu optiunea (1, 2 sau 3): " platform_choice
+
+echo
+echo "================================================"
+
+# Environment selection
+echo "Selecteaza environment-ul:"
+echo
+echo "1. DEVELOPMENT (API: etsm3)"
+echo "2. PRODUCTION  (API: etsm_prod)"
+echo
+read -p "Introdu optiunea (1 sau 2): " env_choice
+
+case $env_choice in
+    1)
         ENV="dev"
-    elif [ "$choice" = "2" ]; then
+        ENV_NAME="DEVELOPMENT"
+        API_URL="https://www.euscagency.com/etsm3/platforme/transport/apk/"
+        ;;
+    2)
         ENV="prod"
-    else
-        echo ""
+        ENV_NAME="PRODUCTION"
+        API_URL="https://www.euscagency.com/etsm_prod/platforme/transport/apk/"
+        ;;
+    *)
+        echo
         echo "Optiune invalida. Folosesc PRODUCTION ca default."
         ENV="prod"
+        ENV_NAME="PRODUCTION"
+        API_URL="https://www.euscagency.com/etsm_prod/platforme/transport/apk/"
         sleep 2
+        ;;
+esac
+
+echo
+echo "================================================"
+echo "Environment: $ENV_NAME"
+echo "API Endpoint: $API_URL"
+echo "================================================"
+echo
+
+# Set environment variables
+export VITE_API_BASE_URL="$API_URL"
+export NODE_ENV="$ENV"
+
+# Execute based on platform choice
+case $platform_choice in
+    1)
+        echo "🤖 Building pentru ANDROID..."
+        build_android
+        ;;
+    2)
+        echo "🍎 Building pentru iOS..."
+        build_ios
+        ;;
+    3)
+        echo "🚀 Building pentru AMBELE platforme..."
+        build_both
+        ;;
+    *)
+        echo
+        echo "Optiune invalida. Folosesc ANDROID ca default."
+        build_android
+        ;;
+esac
+
+# Function: Build Android
+build_android() {
+    echo
+    echo "[ANDROID] [ETAPA 1/4] Instalare dependinte..."
+    npm install > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "❌ npm install esuat"
+        exit 1
     fi
-else
-    ENV=$1
-fi
+    echo "✅ Done."
 
-echo ""
-echo "================================================"
+    echo "[ANDROID] [ETAPA 2/4] Build aplicatie pentru $ENV..."
+    npx vite build > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "❌ vite build esuat"
+        exit 1
+    fi
+    echo "✅ Done."
 
-if [ "$ENV" = "dev" ]; then
-    echo "Environment: DEVELOPMENT"
-    echo "API Endpoint: www.euscagency.com/etsm3/"
-    export VITE_API_BASE_URL="https://www.euscagency.com/etsm3/platforme/transport/apk/"
-    export NODE_ENV="development"
-elif [ "$ENV" = "prod" ]; then
-    echo "Environment: PRODUCTION"
-    echo "API Endpoint: www.euscagency.com/etsm_prod/"
-    export VITE_API_BASE_URL="https://www.euscagency.com/etsm_prod/platforme/transport/apk/"
-    export NODE_ENV="production"
-else
-    echo ""
-    echo "EROARE: Environment invalid '$ENV'"
-    echo "Foloseste: dev sau prod"
-    echo ""
-    read -p "Apasa Enter pentru a iesi..."
-    exit 1
-fi
+    echo "[ANDROID] [ETAPA 3/4] Sincronizare cu Android..."
+    npx cap sync android > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "❌ capacitor sync android esuat"
+        exit 1
+    fi
+    echo "✅ Done."
 
-echo "================================================"
+    echo "[ANDROID] [ETAPA 4/4] Lansare Android Studio..."
+    npx cap open android > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "❌ deschiderea Android Studio esuata"
+        echo "Android project ready in android/ folder"
+    fi
+    echo "✅ Done."
 
-echo ""
-echo "Pornesc procesul de build..."
-echo ""
+    echo
+    echo "🤖 ================================================"
+    echo "        ANDROID BUILD FINALIZAT CU SUCCES!"
+    echo "================================================"
+    echo "Environment: $ENV_NAME"
+    echo "Proiectul Android este gata."
+    echo
 
-echo "[ETAPA 1/4] Instalare dependinte Node.js..."
-if ! npm install >/dev/null 2>&1; then
-    echo ""
-    echo "EROARE: npm install esuat"
-    echo "Verificati conexiunea internet si package.json"
-    echo ""
-    read -p "Apasa Enter pentru a iesi..."
-    exit 1
-fi
-echo "Done."
+    show_final_options
+}
 
-echo "[ETAPA 2/4] Build aplicatie pentru $ENV..."
-if ! npx vite build >/dev/null 2>&1; then
-    echo ""
-    echo "EROARE: vite build esuat"
-    echo "Verificati codul TypeScript si dependintele"
-    echo ""
-    read -p "Apasa Enter pentru a iesi..."
-    exit 1
-fi
-echo "Done."
+# Function: Build iOS
+build_ios() {
+    echo
+    echo "[iOS] [ETAPA 1/4] Instalare dependinte..."
+    npm install > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "❌ npm install esuat"
+        exit 1
+    fi
+    echo "✅ Done."
 
-echo "[ETAPA 3/4] Sincronizare cu Android..."
-if ! npx cap sync android >/dev/null 2>&1; then
-    echo ""
-    echo "EROARE: capacitor sync esuat"
-    echo "Verificati configuratia Capacitor"
-    echo ""
-    read -p "Apasa Enter pentru a iesi..."
-    exit 1
-fi
-echo "Done."
+    echo "[iOS] [ETAPA 2/4] Build aplicatie pentru $ENV..."
+    npx vite build > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "❌ vite build esuat"
+        exit 1
+    fi
+    echo "✅ Done."
 
-echo "[ETAPA 4/4] Lansare Android Studio..."
-if ! npx cap open android >/dev/null 2>&1; then
-    echo ""
-    echo "EROARE: deschiderea Android Studio esuata"
-    echo "Instalati Android Studio si configurati PATH"
-    echo ""
-    read -p "Apasa Enter pentru a iesi..."
-    exit 1
-fi
-echo "Done."
+    echo "[iOS] [ETAPA 3/4] Sincronizare cu iOS..."
+    npx cap sync ios > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "❌ capacitor sync ios esuat"
+        exit 1
+    fi
+    echo "✅ Done."
 
-echo ""
-echo "================================================"
-echo "              BUILD FINALIZAT CU SUCCES!"
-echo "================================================"
-echo ""
-echo "Toate etapele au fost finalizate cu succes."
-echo "Proiectul este gata in Android Studio."
-echo "Environment: $ENV"
-echo ""
-echo "INSTRUCTIUNI URMATOARE:"
-echo "1. Android Studio este deschis"
-echo "2. Selectati device/emulator"
-echo "3. Apasati 'Run' pentru testare"
-echo "4. Pentru APK: Build -> Generate Signed Bundle/APK"
-echo ""
-echo "================================================"
-echo ""
-
-echo "Continui cu alte operatiuni?"
-echo ""
-echo "1. Restart build cu alt environment"
-echo "2. Deschide director proiect"
-echo "3. Iesire"
-echo ""
-read -p "Alege optiunea (1, 2 sau 3): " choice
-
-if [ "$choice" = "1" ]; then
-    echo ""
-    echo "Restarting build tool..."
-    sleep 1
-    exec "$0"
-elif [ "$choice" = "2" ]; then
-    echo ""
-    echo "Deschid directorul proiectului..."
-    if command -v xdg-open >/dev/null 2>&1; then
-        xdg-open .
-    elif command -v open >/dev/null 2>&1; then
-        open .
+    echo "[iOS] [ETAPA 4/4] Lansare Xcode..."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        npx cap open ios > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+            echo "⚠️ deschiderea Xcode esuata"
+        fi
+        echo "✅ Done."
     else
-        echo "Nu pot deschide directorul automat."
+        echo "⚠️ Skip (not macOS) - iOS project ready in ios/ folder"
     fi
-else
-    echo ""
-    echo "Build tool terminat."
-    sleep 2
-fi
+
+    echo
+    echo "🍎 ================================================"
+    echo "          iOS BUILD FINALIZAT CU SUCCES!"
+    echo "================================================"
+    echo "Environment: $ENV_NAME"
+    echo "Proiectul iOS este gata in ios/ folder."
+    echo
+
+    show_final_options
+}
+
+# Function: Build Both
+build_both() {
+    echo
+    echo "[BOTH] [ETAPA 1/6] Instalare dependinte..."
+    npm install > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "❌ npm install esuat"
+        exit 1
+    fi
+    echo "✅ Done."
+
+    echo "[BOTH] [ETAPA 2/6] Build aplicatie pentru $ENV..."
+    npx vite build > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "❌ vite build esuat"
+        exit 1
+    fi
+    echo "✅ Done."
+
+    echo "[BOTH] [ETAPA 3/6] Sincronizare cu Android..."
+    npx cap sync android > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "❌ capacitor sync android esuat"
+        exit 1
+    fi
+    echo "✅ Android Done."
+
+    echo "[BOTH] [ETAPA 4/6] Sincronizare cu iOS..."
+    npx cap sync ios > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo "❌ capacitor sync ios esuat"
+        exit 1
+    fi
+    echo "✅ iOS Done."
+
+    echo "[BOTH] [ETAPA 5/6] Lansare Android Studio..."
+    npx cap open android > /dev/null 2>&1 &
+    echo "✅ Android Studio Done."
+
+    echo "[BOTH] [ETAPA 6/6] Lansare Xcode..."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        npx cap open ios > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+            echo "⚠️ Xcode launch failed"
+        fi
+        echo "✅ Xcode Done."
+    else
+        echo "⚠️ Skip Xcode (not macOS)"
+    fi
+
+    echo
+    echo "🚀 ================================================"
+    echo "       ANDROID + iOS BUILD FINALIZAT CU SUCCES!"
+    echo "================================================"
+    echo "Environment: $ENV_NAME"
+    echo
+    echo "🤖 Android: Gata pentru build"
+    echo "🍎 iOS: Gata in ios/ folder (Xcode pe macOS)"
+    echo
+
+    show_final_options
+}
+
+# Function: Show final options
+show_final_options() {
+    echo "================================================"
+    echo
+    echo "Continui cu alte operatiuni?"
+    echo
+    echo "1. Restart build cu alte optiuni"
+    echo "2. Deschide director proiect"
+    echo "3. Iesire"
+    echo
+    read -p "Alege optiunea (1, 2 sau 3): " choice
+
+    case $choice in
+        1)
+            echo
+            echo "Restarting master build tool..."
+            sleep 1
+            exec "$0"
+            ;;
+        2)
+            echo
+            echo "Deschid directorul proiectului..."
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                open .
+            elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+                xdg-open .
+            else
+                echo "Directory: $(pwd)"
+            fi
+            ;;
+        *)
+            echo
+            echo "Master build tool terminat."
+            sleep 2
+            ;;
+    esac
+}

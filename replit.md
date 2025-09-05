@@ -11,7 +11,7 @@ Preferred communication style: Simple, everyday language.
 ## Cross-Platform Support
 - **Android Platform**: Original native implementation with Java services
 - **iOS Platform**: Complete Swift port with 100% feature parity (December 5, 2025)
-- **Dual Build System**: Separate build scripts for Android and iOS deployment
+- **Unified Build System**: Single build script supporting Android, iOS, or both platforms
 - **Unified Codebase**: Single React/TypeScript frontend for both platforms
 
 ## Frontend Architecture
