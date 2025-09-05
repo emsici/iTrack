@@ -1,0 +1,23 @@
+{
+	"appId": "com.euscagency.itrack",
+	"appName": "iTrack",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https",
+		"iosScheme": "https"
+	},
+	"plugins": {
+		"StatusBar": {
+			"style": "DARK",
+			"backgroundColor": "#0f172a",
+			"overlaysWebView": false
+		}
+	},
+	"packageClassList": [
+		"DevicePlugin",
+		"GeolocationPlugin",
+		"CAPNetworkPlugin",
+		"PreferencesPlugin",
+		"StatusBarPlugin"
+	]
+}
