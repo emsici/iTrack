@@ -20,6 +20,14 @@ import OfflineSyncMonitor from "./OfflineSyncMonitor";
 import { courseStateManager } from "../services/courseStateManager";
 import nativeNotificationService from "../services/nativeNotifications";
 
+// Funcție pentru timestamp România (UTC+2/UTC+3) - CRITICAL FIX pentru ora locală
+const getRomanianTimestamp = (): string => {
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const romania = new Date(utc + (2 * 3600000)); // UTC+2 (UTC+3 în timpul verii)
+  return romania.toISOString().slice(0, 19).replace('T', ' ');
+};
+
 // Interfață TypeScript pentru AndroidGPS bridge
 declare global {
   interface Window {
@@ -66,7 +74,6 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
         heading: position.coords.heading || 0
       };
       
-      console.log(`GPS obținut: ${gpsData.lat}, ${gpsData.lng}`);
     } catch (gpsError) {
       console.error('GPS INDISPONIBIL - actualizare status respinsă pentru protejarea datelor reale');
       throw new Error('Actualizare status imposibilă - GPS necesar pentru coordonate reale');
@@ -89,20 +96,16 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
       gsm_signal: typeof realSignal === 'number' ? realSignal : parseInt(String(realSignal).replace('%', '')) || 75,
       baterie: parseInt(realBattery.replace('%', '')) || 100, // Real battery or fallback
       status: newStatus,
-      timestamp: new Date().toISOString().slice(0, 19).replace('T', ' ')
+      timestamp: getRomanianTimestamp()
     };
     
     const statusSent = await sendGPSData(gpsPayload, authToken);
     
-    if (statusSent) {
-      console.log(`✅ STATUS ${newStatus} trimis la server pentru cursă ${courseId}`);
-    } else {
-      console.error(`❌ Eroare trimitere status ${newStatus} la server`);
+    if (!statusSent) {
       throw new Error('Status update failed to reach server');
     }
     
   } catch (error) {
-    console.error(`Eroare actualizare status pentru cursă ${courseId}:`, error);
     logAPI('Eroare actualizare status');
     throw error as Error;
   }
@@ -271,9 +274,8 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       if (status.connected) {
         console.log('🌐 Conexiune restabilită - aplicația este din nou online');
         
-        // CRITICAL FIX: Auto-sincronizare când rețeaua revine!
+        // Auto-sincronizare când rețeaua revine
         try {
-          console.log('🔄 Pornesc sincronizarea automată offline...');
           const success = await offlineGPSService.syncOfflineCoordinates(token);
           if (success) {
             nativeNotificationService.showQuickNotification(
@@ -286,7 +288,6 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
           console.error('❌ Eroare sincronizare automată:', error);
         }
       } else {
-        console.log('📴 Conexiune pierdută - aplicația funcționează offline');
         nativeNotificationService.showQuickNotification(
           'iTrack GPS',
           'Offline - datele GPS se salvează local',
