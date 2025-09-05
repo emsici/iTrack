@@ -23,9 +23,22 @@ import nativeNotificationService from "../services/nativeNotifications";
 // Funcție pentru timestamp România (UTC+2/UTC+3) - CRITICAL FIX pentru ora locală
 const getRomanianTimestamp = (): string => {
   const now = new Date();
-  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-  const romania = new Date(utc + (2 * 3600000)); // UTC+2 (UTC+3 în timpul verii)
-  return romania.toISOString().slice(0, 19).replace('T', ' ');
+  // Folosește timezone-ul României cu schimbarea automată DST
+  const romaniaTime = now.toLocaleString('ro-RO', {
+    timeZone: 'Europe/Bucharest',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+  
+  // Convertește din format DD.MM.YYYY, HH:mm:ss în YYYY-MM-DD HH:mm:ss
+  const [datePart, timePart] = romaniaTime.split(', ');
+  const [day, month, year] = datePart.split('.');
+  return `${year}-${month}-${day} ${timePart}`;
 };
 
 // Interfață TypeScript pentru AndroidGPS bridge
