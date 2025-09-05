@@ -41,8 +41,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx vite --host 0.0.0.0 --port 5000"
-waitForPort = 5000
+args = "npm run dev"
 
 [[workflows.workflow]]
 name = "APK Build"
@@ -59,34 +58,34 @@ outputType = "console"
 name = "Build"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run build || npx vite build"
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
 
 [[workflows.workflow]]
 name = "Capacitor Sync"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx cap sync"
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run cap:sync"
 
 [[workflows.workflow]]
 name = "Type Check"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx tsc --noEmit"
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run type-check"
 
 [deployment]
 run = ["sh", "-c", "npm install vite @vitejs/plugin-react typescript react react-dom @types/react @types/react-dom @capacitor/core @capacitor/cli @capacitor/android @capacitor/geolocation @capacitor/background-mode @capacitor/device @capacitor/preferences bootstrap"]
