@@ -7,6 +7,14 @@ import { CapacitorHttp } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { API_BASE_URL } from './api';
 
+// Funcție pentru timestamp România (UTC+2/UTC+3) - CRITICAL FIX pentru consistență temporală
+const getRomanianTimestamp = (): string => {
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const romania = new Date(utc + (2 * 3600000)); // UTC+2 (UTC+3 în timpul verii)
+  return romania.toISOString().slice(0, 19).replace('T', ' ');
+};
+
 export interface OfflineGPSCoordinate {
   id: string;
   uit: string;
@@ -93,9 +101,9 @@ class OfflineGPSService {
               gsm_signal: androidCoord.gsm_signal || 0,
               baterie: androidCoord.baterie || '0%',
               status: androidCoord.status || 2,
-              timestamp: androidCoord.timestamp || new Date().toISOString().slice(0, 19).replace('T', ' '),
+              timestamp: androidCoord.timestamp || getRomanianTimestamp(),
               attempts: 0,
-              lastAttempt: new Date().toISOString()
+              lastAttempt: getRomanianTimestamp()
             };
             existingCoords.push(convertedCoord);
           }
@@ -136,7 +144,7 @@ class OfflineGPSService {
         status: gpsData.status,
         timestamp: gpsData.timestamp,
         attempts: 0,
-        lastAttempt: new Date().toISOString()
+        lastAttempt: getRomanianTimestamp()
       };
 
       const offlineCoords = await this.getOfflineCoordinates();
@@ -215,7 +223,7 @@ class OfflineGPSService {
               this.currentStats.totalSynced++;
             } else {
               coord.attempts++;
-              coord.lastAttempt = new Date().toISOString();
+              coord.lastAttempt = getRomanianTimestamp();
               if (coord.attempts < this.MAX_RETRY_ATTEMPTS) {
                 failedCoords.push(coord);
               } else {
@@ -226,7 +234,7 @@ class OfflineGPSService {
           } catch (error) {
             console.error(`❌ Eroare transmisie coordonată ${coord.id}:`, error);
             coord.attempts++;
-            coord.lastAttempt = new Date().toISOString();
+            coord.lastAttempt = getRomanianTimestamp();
             if (coord.attempts < this.MAX_RETRY_ATTEMPTS) {
               failedCoords.push(coord);
             } else {
