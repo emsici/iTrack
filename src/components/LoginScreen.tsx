@@ -470,61 +470,29 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
           .password-toggle {
             position: absolute;
-            right: 12px;
+            right: 18px;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(248, 250, 252, 0.95);
-            border: 2px solid rgba(226, 232, 240, 0.8);
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
             color: #64748b;
             cursor: pointer;
             font-size: 1.1rem;
-            padding: 10px;
-            border-radius: 10px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 42px;
-            height: 42px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10;
-            user-select: none;
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
           }
 
-          .password-toggle:hover:not(:disabled) {
+          .password-toggle:hover {
             color: #4f46e5;
-            background: rgba(241, 245, 249, 0.98);
+            background: #f1f5f9;
             border-color: #cbd5e1;
-            transform: translateY(-50%) scale(1.08);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
-          }
-
-          .password-toggle:active:not(:disabled) {
-            transform: translateY(-50%) scale(1.02);
-            transition: all 0.1s ease;
-          }
-
-          .password-toggle:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: rgba(248, 250, 252, 0.3);
-          }
-
-          .password-toggle:focus-visible {
-            outline: 2px solid #4f46e5;
-            outline-offset: 2px;
-          }
-
-          /* Responsive touch improvements */
-          @media (hover: none) and (pointer: coarse) {
-            .password-toggle {
-              width: 48px;
-              height: 48px;
-              padding: 12px;
-              font-size: 1.2rem;
-            }
+            transform: translateY(-50%) scale(1.05);
           }
 
           .login-button {
@@ -854,23 +822,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               <button
                 type="button"
                 className="password-toggle"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (!loading) {
-                    setShowPassword(!showPassword);
-                  }
-                }}
-                onMouseDown={(e) => e.preventDefault()}
-                onTouchStart={(e) => e.preventDefault()}
+                onClick={() => setShowPassword(!showPassword)}
                 disabled={loading}
                 title={showPassword ? "Ascunde parola" : "Afișează parola"}
-                aria-label={showPassword ? "Ascunde parola" : "Afișează parola"}
-                tabIndex={0}
               >
                 <i
                   className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}
-                  style={{ pointerEvents: 'none' }}
                 ></i>
               </button>
             </div>

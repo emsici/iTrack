@@ -29,6 +29,7 @@ class AndroidNotificationService implements NotificationService {
         console.log('🔔 Notificare persistentă afișată:', message);
       } else {
         console.log('⚠️ AndroidGPS nu e disponibil pentru notificări persistente');
+        console.log('🔍 Debug - window.AndroidGPS:', window.AndroidGPS);
       }
     } catch (error) {
       console.error('❌ Eroare afișare notificare persistentă:', error);
@@ -78,7 +79,7 @@ class AndroidNotificationService implements NotificationService {
       
       if (window.AndroidGPS?.showQuickNotification) {
         await window.AndroidGPS.showQuickNotification(title, message, duration);
-        console.log('🔔 Notificare rapidă trimisă');
+        console.log('🔔 Notificare rapidă trimisă:', title, '-', message);
       } else {
         console.log('⚠️ AndroidGPS nu e disponibil pentru notificări rapide');
       }
@@ -91,6 +92,25 @@ class AndroidNotificationService implements NotificationService {
    * Actualizează notificarea persistentă cu noile curse
    */
   async updateTrackingNotification(activeCourses: Course[]): Promise<void> {
+    console.log(`🔔 === NATIVE NOTIFICATION DEBUG === updateTrackingNotification called with ${activeCourses.length} courses`);
+    console.log('🔔 AndroidGPS availability:', {
+      exists: !!window.AndroidGPS,
+      showPersistent: !!window.AndroidGPS?.showPersistentNotification,
+      showQuick: !!window.AndroidGPS?.showQuickNotification,
+      allMethods: window.AndroidGPS ? Object.keys(window.AndroidGPS) : 'AndroidGPS is null'
+    });
+    
+    // TEST direct notification call
+    if (window.AndroidGPS?.showQuickNotification) {
+      console.log('🔔 Testing direct quick notification...');
+      try {
+        window.AndroidGPS.showQuickNotification('TEST', 'Notificare de test iTrack GPS', 5000);
+        console.log('✅ Direct notification call successful!');
+      } catch (error) {
+        console.error('❌ Direct notification call failed:', error);
+      }
+    }
+    
     if (activeCourses.length > 0) {
       await this.showPersistentTracking(activeCourses);
     } else {

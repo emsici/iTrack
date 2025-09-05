@@ -4,191 +4,130 @@ setlocal enabledelayedexpansion
 cls
 echo.
 echo ================================================
-echo        iTrack GPS - Master Build Tool
+echo            iTrack GPS - Build Tool
 echo ================================================
 echo.
 
-rem Platform selection
-echo Selecteaza platforma pentru build:
-echo.
-echo 1. ANDROID (APK)
-echo 2. iOS (IPA)
-echo.
-set /p platform_choice="Introdu optiunea (1 sau 2): "
-
-echo.
-echo ================================================
-
-rem Environment selection
-echo Selecteaza environment-ul:
-echo.
-echo 1. DEVELOPMENT ^(API: etsm3^)
-echo 2. PRODUCTION  ^(API: etsm_prod^)
-echo.
-set /p env_choice="Introdu optiunea (1 sau 2): "
-
-if "!env_choice!"=="1" (
-    set ENV=dev
-    set ENV_NAME=DEVELOPMENT
-    set API_URL=https://www.euscagency.com/etsm3/platforme/transport/apk/
-) else if "!env_choice!"=="2" (
-    set ENV=prod
-    set ENV_NAME=PRODUCTION
-    set API_URL=https://www.euscagency.com/etsm_prod/platforme/transport/apk/
-) else (
+rem Interactive environment selection if no parameter provided
+if "%1"=="" (
+    echo Selecteaza environment-ul pentru build:
     echo.
-    echo Optiune invalida. Folosesc PRODUCTION ca default.
-    set ENV=prod
-    set ENV_NAME=PRODUCTION
-    set API_URL=https://www.euscagency.com/etsm_prod/platforme/transport/apk/
-    timeout /t 2 >nul
+    echo 1. DEVELOPMENT ^(API: etsm3^)
+    echo 2. PRODUCTION  ^(API: etsm_prod^)
+    echo.
+    set /p choice="Introdu optiunea (1 sau 2): "
+    
+    if "!choice!"=="1" (
+        set ENV=dev
+    ) else if "!choice!"=="2" (
+        set ENV=prod
+    ) else (
+        echo.
+        echo Optiune invalida. Folosesc PRODUCTION ca default.
+        set ENV=prod
+        timeout /t 2 >nul
+    )
+) else (
+    set ENV=%1
 )
 
 echo.
 echo ================================================
-echo Environment: !ENV_NAME!
-echo API Endpoint: !API_URL!
-echo ================================================
-echo.
 
-rem Set environment variables
-set VITE_API_BASE_URL=!API_URL!
-set NODE_ENV=!ENV!
-
-rem Execute based on platform choice
-if "!platform_choice!"=="1" (
-    echo 🤖 Building pentru ANDROID...
-    call :build_android
-) else if "!platform_choice!"=="2" (
-    echo 🍎 Building pentru iOS...
-    call :build_ios
+if /i "%ENV%"=="dev" (
+    echo Environment: DEVELOPMENT
+    echo API Endpoint: www.euscagency.com/etsm3/
+    set VITE_API_BASE_URL=https://www.euscagency.com/etsm3/platforme/transport/apk/
+    set NODE_ENV=development
+) else if /i "%ENV%"=="prod" (
+    echo Environment: PRODUCTION
+    echo API Endpoint: www.euscagency.com/etsm_prod/
+    set VITE_API_BASE_URL=https://www.euscagency.com/etsm_prod/platforme/transport/apk/
+    set NODE_ENV=production
 ) else (
     echo.
-    echo Optiune invalida. Folosesc ANDROID ca default.
-    call :build_android
+    echo EROARE: Environment invalid '%ENV%'
+    echo Foloseste: dev sau prod
+    echo.
+    pause
+    exit /b 1
 )
 
-goto :end
+echo ================================================
 
-:build_android
 echo.
-echo [ANDROID] [ETAPA 1/4] Instalare dependinte...
+echo Pornesc procesul de build...
+echo.
+
+echo [ETAPA 1/4] Instalare dependinte Node.js...
 call npm install >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ❌ npm install esuat
+    echo.
+    echo EROARE: npm install esuat
+    echo Verificati conexiunea internet si package.json
+    echo.
     pause
     exit /b 1
 )
-echo ✅ Done.
+echo Done.
 
-echo [ANDROID] [ETAPA 1.5/4] Configure Android environment...
-if not exist android\app\src\main\assets mkdir android\app\src\main\assets
-echo API_BASE_URL=!API_URL! > android\app\src\main\assets\environment.properties
-echo ENVIRONMENT=!ENV_NAME! >> android\app\src\main\assets\environment.properties
-echo ✅ Android Environment configured.
-
-echo [ANDROID] [ETAPA 2/4] Build aplicatie pentru %ENV%...
+echo [ETAPA 2/4] Build aplicatie pentru %ENV%...
 call npx vite build >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ❌ vite build esuat
+    echo.
+    echo EROARE: vite build esuat
+    echo Verificati codul TypeScript si dependintele
+    echo.
     pause
     exit /b 1
 )
-echo ✅ Done.
+echo Done.
 
-echo [ANDROID] [ETAPA 3/4] Sincronizare cu Android...
+echo [ETAPA 3/4] Sincronizare cu Android...
 call npx cap sync android >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ❌ capacitor sync android esuat
+    echo.
+    echo EROARE: capacitor sync esuat
+    echo Verificati configuratia Capacitor
+    echo.
     pause
     exit /b 1
 )
-echo ✅ Done.
+echo Done.
 
-echo [ANDROID] [ETAPA 4/4] Lansare Android Studio...
+echo [ETAPA 4/4] Lansare Android Studio...
 call npx cap open android >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ❌ deschiderea Android Studio esuata
+    echo.
+    echo EROARE: deschiderea Android Studio esuata
+    echo Instalati Android Studio si configurati PATH
+    echo.
     pause
     exit /b 1
 )
-echo ✅ Done.
+echo Done.
 
 echo.
-echo 🤖 ================================================
-echo        ANDROID BUILD FINALIZAT CU SUCCES!
 echo ================================================
-echo Environment: !ENV_NAME!
-echo Proiectul Android este gata in Android Studio.
-echo.
-goto :end
-
-:build_ios
-echo.
-echo [iOS] [ETAPA 1/4] Instalare dependinte...
-call npm install >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ npm install esuat
-    pause
-    exit /b 1
-)
-echo ✅ Done.
-
-echo [iOS] [ETAPA 1.5/4] Configure iOS environment...
-echo ^<?xml version="1.0" encoding="UTF-8"?^> > ios\App\App\environment.plist
-echo ^<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"^> >> ios\App\App\environment.plist
-echo ^<plist version="1.0"^> >> ios\App\App\environment.plist
-echo ^<dict^> >> ios\App\App\environment.plist
-echo     ^<key^>API_BASE_URL^</key^> >> ios\App\App\environment.plist
-echo     ^<string^>!API_URL!^</string^> >> ios\App\App\environment.plist
-echo     ^<key^>ENVIRONMENT^</key^> >> ios\App\App\environment.plist
-echo     ^<string^>!ENV_NAME!^</string^> >> ios\App\App\environment.plist
-echo ^</dict^> >> ios\App\App\environment.plist
-echo ^</plist^> >> ios\App\App\environment.plist
-echo ✅ iOS Environment configured.
-
-echo [iOS] [ETAPA 2/4] Build aplicatie pentru %ENV%...
-call npx vite build >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ vite build esuat
-    pause
-    exit /b 1
-)
-echo ✅ Done.
-
-echo [iOS] [ETAPA 3/4] Sincronizare cu iOS...
-call npx cap sync ios >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ capacitor sync ios esuat
-    pause
-    exit /b 1
-)
-echo ✅ Done.
-
-echo [iOS] [ETAPA 4/4] Lansare Xcode...
-call npx cap open ios >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ deschiderea Xcode esuata ^(macOS only^)
-    echo iOS project ready in ios/ folder
-)
-echo ✅ Done.
-
-echo.
-echo 🍎 ================================================
-echo          iOS BUILD FINALIZAT CU SUCCES!
-echo ================================================
-echo Environment: !ENV_NAME!
-echo Proiectul iOS este gata in ios/ folder.
-echo.
-goto :end
-
-
-:end
+echo              BUILD FINALIZAT CU SUCCES!
 echo ================================================
 echo.
+echo Toate etapele au fost finalizate cu succes.
+echo Proiectul este gata in Android Studio.
+echo Environment: %ENV%
+echo.
+echo INSTRUCTIUNI URMATOARE:
+echo 1. Android Studio este deschis
+echo 2. Selectati device/emulator
+echo 3. Apasati 'Run' pentru testare
+echo 4. Pentru APK: Build -^> Generate Signed Bundle/APK
+echo.
+echo ================================================
+echo.
+
 echo Continui cu alte operatiuni?
 echo.
-echo 1. Restart build cu alte optiuni
+echo 1. Restart build cu alt environment
 echo 2. Deschide director proiect
 echo 3. Iesire
 echo.
@@ -196,7 +135,7 @@ set /p choice="Alege optiunea (1, 2 sau 3): "
 
 if "!choice!"=="1" (
     echo.
-    echo Restarting master build tool...
+    echo Restarting build tool...
     timeout /t 1 >nul
     "%~f0"
 ) else if "!choice!"=="2" (
@@ -205,6 +144,6 @@ if "!choice!"=="1" (
     start .
 ) else (
     echo.
-    echo Master build tool terminat.
+    echo Build tool terminat.
     timeout /t 2 >nul
 )

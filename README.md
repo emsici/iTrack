@@ -19,24 +19,24 @@
 
 **📊 Pentru mediul DEVELOPMENT (etsm3 test):**
 ```bash
-# 🪟 Windows - Script unificat cu selecție platformă
+# 🪟 Windows - Script colorat cu steagul României
 start.bat dev
-build.bat    # Selecție interactivă: Android sau iOS + Environment
+build.bat dev
 
-# 🐧 Linux/macOS - Script unificat cu selecție platformă
+# 🐧 Linux/macOS - Script colorat cu terminal colors
 ./start.sh dev  
-./build.sh   # Selecție interactivă: Android sau iOS + Environment
+./build.sh dev
 ```
 
 **🚀 Pentru mediul PRODUCTION (etsm_prod enterprise):**
 ```bash
-# 🪟 Windows - Script unificat cu selecție platformă
+# 🪟 Windows - Script colorat cu steagul României  
 start.bat prod
-build.bat    # Selecție interactivă: Android sau iOS + Environment
+build.bat prod
 
-# 🐧 Linux/macOS - Script unificat cu selecție platformă
+# 🐧 Linux/macOS - Script colorat cu terminal colors
 ./start.sh prod
-./build.sh   # Selecție interactivă: Android sau iOS + Environment
+./build.sh prod
 ```
 
 ### **🔄 ENVIRONMENT SWITCHING - ZERO CONFIGURARE MANUALĂ**
@@ -87,34 +87,28 @@ build.bat    # Selecție interactivă: Android sau iOS + Environment
 - Scripturile gestionează totul automat
 - Verifică culoarea în script pentru a confirma environment-ul activ
 
-### **Build Unificat Professional cu Selecție Platformă**
+### **Build Manual Professional cu Environment**
 ```bash
-# Build interactiv cu selecție platformă și environment
-build.bat     # Windows - Meniu interactiv: Android sau iOS + Dev/Prod
-./build.sh    # Linux/macOS - Meniu interactiv: Android sau iOS + Dev/Prod
+# Build pentru DEVELOPMENT
+build.bat dev     # Windows
+./build.sh dev    # Linux/macOS
 
-# Opțiuni disponibile în scriptul unificat:
-# 1. ANDROID (APK) - Build pentru Android
-# 2. iOS (IPA) - Build pentru iOS (macOS only)
-# 
-# Environment selection pentru fiecare:
-# 1. DEVELOPMENT (etsm3) - Pentru testing și QA
-# 2. PRODUCTION (etsm_prod) - Pentru producție enterprise
+# Build pentru PRODUCTION  
+build.bat prod    # Windows
+./build.sh prod   # Linux/macOS
 
-# SAU workflow manual pas cu pas:
+# SAU workflow pas cu pas:
 # 1. Instalare dependințe npm
 npm install
 
 # 2. Build aplicație web optimizată
 npx vite build
 
-# 3. Sincronizare Capacitor (Android/iOS)
-npx cap sync android   # Pentru Android
-npx cap sync ios       # Pentru iOS
+# 3. Sincronizare Capacitor Android
+npx cap sync android
 
-# 4. Launch IDE pentru build final
-npx cap open android   # Android Studio pentru APK
-npx cap open ios       # Xcode pentru IPA (macOS only)
+# 4. Launch Android Studio pentru APK
+npx cap open android
 ```
 
 ---
@@ -280,14 +274,13 @@ graph TD
 
 ## 🔧 **BUILD AUTOMATION ENTERPRISE**
 
-### **Sistem Unificat de Build cu Selecție Multiplă**
+### **Environment Management cu Parametri**
 ```bash
-# Script unificat cu interfață interactivă pentru control complet:
-# ├─ Selecție platformă: Android sau iOS
-# ├─ Environment switching: Development(etsm3)/Production(etsm_prod)
+# Scripturile acceptă parametri dev/prod pentru control complet:
+# ├─ Environment switching explicit (dev = etsm3, prod = etsm_prod)
 # ├─ Web application build optimizat (Vite)
-# ├─ Capacitor sync pentru platforma selectată
-# └─ IDE launch automatic (Android Studio sau Xcode)
+# ├─ Capacitor sync pentru Android
+# └─ Android Studio launch automatic
 
 # Development Server (rapid testing)
 start.bat dev           # Windows - Development (etsm3)
@@ -297,13 +290,9 @@ start.sh dev            # Linux/macOS - Development (etsm3)
 start.bat prod          # Windows - Production (etsm_prod)
 start.sh prod           # Linux/macOS - Production (etsm_prod)
 
-# Unified Build Process cu Multi-Platform Support
-build.bat               # Windows - Meniu interactiv complet
-build.sh                # Linux/macOS - Meniu interactiv complet
-
-# Opțiuni build disponibile în script unificat:
-# 1. ANDROID (APK) - npm install → vite build → cap sync android → cap open android
-# 2. iOS (IPA) - npm install → vite build → cap sync ios → cap open ios (macOS only)
+# Full Build Process
+build.bat dev/prod      # Windows - Build cu environment selectabil
+build.sh dev/prod       # Linux/macOS - Build cu environment selectabil
 ```
 
 **Environments enterprise disponibile:**
@@ -477,19 +466,17 @@ Documentation:    JSDoc comprehensive în română pentru support
 
 ### **Build Production Enterprise**
 ```bash
-# Script unificat cu selecție interactivă pentru toate platformele
-build.bat             # Windows - Meniu: Platformă + Environment
-build.sh              # Linux/macOS - Meniu: Platformă + Environment
+build.bat prod        # Windows PRODUCTION build enterprise
+build.sh prod         # Linux PRODUCTION build enterprise
 
-# Workflow automatizat pentru fiecare platformă:
-# ANDROID: npm install → vite build → cap sync android → Android Studio
-# iOS: npm install → vite build → cap sync ios → Xcode (macOS only)
+# Pentru development testing
+build.bat dev         # Windows DEVELOPMENT build
+build.sh dev          # Linux DEVELOPMENT build
 
 Output Enterprise:
 ├─ dist/              # Web assets optimizate cu compression
 ├─ android/app/build/outputs/apk/debug/  # APK final enterprise
-├─ ios/App/build/     # IPA build folder (Xcode)
-└─ Package sizes: APK ~18MB, IPA ~20MB cu optimization
+└─ APK size: ~18MB cu toate dependințele și optimizations
 ```
 
 ### **Distribution Channels Enterprise**

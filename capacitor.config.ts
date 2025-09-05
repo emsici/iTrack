@@ -5,8 +5,7 @@ const config: CapacitorConfig = {
   appName: 'iTrack',
   webDir: 'dist',
   server: {
-    androidScheme: 'https',
-    iosScheme: 'https'
+    androidScheme: 'https'
   },
   plugins: {
     // NOTA: Geolocation nu acceptă configurații globale aici

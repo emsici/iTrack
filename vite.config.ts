@@ -7,7 +7,7 @@ export default defineConfig({
     outDir: "dist",
   },
   server: {
-    port: 5000,
+    port: 5555,
     allowedHosts: true,
     host: "0.0.0.0",
   },
