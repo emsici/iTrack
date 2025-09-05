@@ -7,6 +7,20 @@ import { CapacitorHttp } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { API_BASE_URL } from './api';
 
+// Funcție centralizată pentru timestamp România
+function getRomanianTimestamp(): string {
+  return new Intl.DateTimeFormat('ro-RO', {
+    year: 'numeric',
+    month: '2-digit', 
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'Europe/Bucharest',
+    hour12: false
+  }).format(new Date()).replace(/(\d{2})\.(\d{2})\.(\d{4}), (\d{2}):(\d{2}):(\d{2})/, '$3-$2-$1 $4:$5:$6');
+}
+
 export interface OfflineGPSCoordinate {
   id: string;
   uit: string;
@@ -93,9 +107,9 @@ class OfflineGPSService {
               gsm_signal: androidCoord.gsm_signal || 0,
               baterie: androidCoord.baterie || '0%',
               status: androidCoord.status || 2,
-              timestamp: androidCoord.timestamp || new Date().toISOString().slice(0, 19).replace('T', ' '),
+              timestamp: androidCoord.timestamp || getRomanianTimestamp(),
               attempts: 0,
-              lastAttempt: new Date().toISOString()
+              lastAttempt: getRomanianTimestamp()
             };
             existingCoords.push(convertedCoord);
           }
@@ -136,7 +150,7 @@ class OfflineGPSService {
         status: gpsData.status,
         timestamp: gpsData.timestamp,
         attempts: 0,
-        lastAttempt: new Date().toISOString()
+        lastAttempt: getRomanianTimestamp()
       };
 
       const offlineCoords = await this.getOfflineCoordinates();
@@ -215,7 +229,7 @@ class OfflineGPSService {
               this.currentStats.totalSynced++;
             } else {
               coord.attempts++;
-              coord.lastAttempt = new Date().toISOString();
+              coord.lastAttempt = getRomanianTimestamp();
               if (coord.attempts < this.MAX_RETRY_ATTEMPTS) {
                 failedCoords.push(coord);
               } else {
@@ -226,7 +240,7 @@ class OfflineGPSService {
           } catch (error) {
             console.error(`❌ Eroare transmisie coordonată ${coord.id}:`, error);
             coord.attempts++;
-            coord.lastAttempt = new Date().toISOString();
+            coord.lastAttempt = getRomanianTimestamp();
             if (coord.attempts < this.MAX_RETRY_ATTEMPTS) {
               failedCoords.push(coord);
             } else {
