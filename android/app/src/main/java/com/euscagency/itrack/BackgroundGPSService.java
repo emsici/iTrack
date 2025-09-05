@@ -405,14 +405,17 @@ public class BackgroundGPSService extends Service {
                         // Verifică curse active
                         int activeCourseCount = 0;
                         for (CourseData course : activeCourses.values()) {
+                            Log.e(TAG, "🔍 DEBUG CURSE: status=" + course.status + ", courseId=" + course.courseId);
                             if (course.status == 2) activeCourseCount++;
                         }
+                        
+                        Log.e(TAG, "📊 TOTAL CURSE: " + activeCourses.size() + ", ACTIVE (status=2): " + activeCourseCount);
                         
                         if (activeCourseCount > 0) {
                             Log.e(TAG, "📡 FUSION GPS transmite pentru " + activeCourseCount + " curse ACTIVE");
                             transmitGPSDataToAllActiveCourses(location);
                         } else {
-                            Log.e(TAG, "⏸️ FUSION GPS: Nu sunt curse ACTIVE - skip transmisie");
+                            Log.e(TAG, "⏸️ FUSION GPS: Nu sunt curse ACTIVE - skip transmisie (verifică status-urile de mai sus)");
                         }
                     }
                 }
