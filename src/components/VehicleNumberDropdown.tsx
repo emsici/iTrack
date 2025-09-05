@@ -175,6 +175,15 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
   const themeColors = getThemeColors();
 
   if (showInputPage) {
+    // IMPROVED: Better colors for header theme visibility
+    const modalBg = theme === 'header' 
+      ? (currentTheme === 'light' ? '#ffffff' : '#0f172a')
+      : themeColors.bg;
+      
+    const modalTextColor = theme === 'header'
+      ? (currentTheme === 'light' ? '#0f172a' : '#ffffff') 
+      : themeColors.text;
+
     return (
       <div style={{ 
         position: 'fixed',
@@ -182,28 +191,30 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        background: themeColors.bg,
+        background: modalBg,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        zIndex: 1000,
+        zIndex: 9999, // INCREASED for header theme
         padding: '20px',
-        paddingTop: '5px', // MUTAT FOARTE SUS pentru tastatura
+        paddingTop: '5px',
         paddingBottom: '20px',
         minHeight: '100vh',
         overflowY: 'auto'
       }}>
-        {/* Decorative Background Elements */}
+        {/* Decorative Background Elements - Enhanced visibility */}
         <div style={{
           position: 'absolute',
           top: '20%',
           left: '10%',
           width: '100px',
           height: '100px',
-          background: darkMode 
-            ? 'radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+          background: theme === 'header'
+            ? 'radial-gradient(circle, rgba(34, 197, 94, 0.2) 0%, transparent 70%)'
+            : (darkMode 
+              ? 'radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)'),
           borderRadius: '50%',
           animation: 'float 6s ease-in-out infinite'
         }}></div>
@@ -214,9 +225,11 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
           right: '15%',
           width: '80px',
           height: '80px',
-          background: darkMode 
-            ? 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%)',
+          background: theme === 'header'
+            ? 'radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%)'
+            : (darkMode 
+              ? 'radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)'
+              : 'radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%)'),
           borderRadius: '50%',
           animation: 'float 4s ease-in-out infinite reverse'
         }}></div>
@@ -229,17 +242,25 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
             }
             
             .input-container {
-              background: ${themeColors.cardBg};
+              background: ${theme === 'header' 
+                ? (currentTheme === 'light' 
+                  ? 'rgba(255, 255, 255, 0.98)' 
+                  : 'rgba(15, 23, 42, 0.98)') 
+                : themeColors.cardBg};
               backdrop-filter: blur(15px);
-              border: 2px solid ${themeColors.border};
+              border: 2px solid ${theme === 'header' 
+                ? (currentTheme === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)') 
+                : themeColors.border};
               border-radius: 20px;
               padding: 32px 24px;
-              box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.4);
+              box-shadow: ${theme === 'header' 
+                ? '0 20px 40px -12px rgba(0, 0, 0, 0.6)' 
+                : '0 20px 40px -12px rgba(0, 0, 0, 0.4)'};
               max-width: 380px;
               width: 100%;
               position: relative;
               overflow: hidden;
-              margin-top: -20px; /* MUTAT MAI SUS pentru tastatura */
+              margin-top: -20px;
             }
             
             .input-container::before {
@@ -254,11 +275,15 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
 
             .vehicle-input {
               width: 100%;
-              padding: 20px 24px; /* MĂRIT PADDING pentru confort */
-              background: ${currentTheme === 'light' ? 'rgba(248, 250, 252, 0.8)' : 'rgba(15, 23, 42, 0.6)'};
-              border: 2px solid ${themeColors.border};
+              padding: 20px 24px;
+              background: ${theme === 'header' 
+                ? (currentTheme === 'light' ? 'rgba(248, 250, 252, 0.9)' : 'rgba(30, 41, 59, 0.8)') 
+                : (currentTheme === 'light' ? 'rgba(248, 250, 252, 0.8)' : 'rgba(15, 23, 42, 0.6)')};
+              border: 2px solid ${theme === 'header' 
+                ? (currentTheme === 'light' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.25)') 
+                : themeColors.border};
               border-radius: 12px;
-              color: ${themeColors.text};
+              color: ${theme === 'header' ? modalTextColor : themeColors.text};
               fontSize: 16px;
               fontWeight: 600;
               textAlign: center;
@@ -361,8 +386,8 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
             </div>
             
             <h2 style={{
-              color: themeColors.text,
-              fontSize: '18px', // REDUS
+              color: theme === 'header' ? modalTextColor : themeColors.text,
+              fontSize: '18px',
               fontWeight: '700',
               margin: 0,
               textAlign: 'center'
@@ -371,9 +396,11 @@ const VehicleNumberDropdown: React.FC<VehicleNumberDropdownProps> = ({
             </h2>
             
             <p style={{
-              color: currentTheme === 'light' ? 'rgba(100, 116, 139, 0.8)' : 'rgba(148, 163, 184, 0.8)',
-              fontSize: '12px', // REDUS
-              margin: '4px 0 0', // REDUS
+              color: theme === 'header' 
+                ? (currentTheme === 'light' ? 'rgba(100, 116, 139, 0.9)' : 'rgba(148, 163, 184, 0.9)')
+                : (currentTheme === 'light' ? 'rgba(100, 116, 139, 0.8)' : 'rgba(148, 163, 184, 0.8)'),
+              fontSize: '12px',
+              margin: '4px 0 0',
               fontWeight: '500'
             }}>
               Introdu numărul de înmatriculare
