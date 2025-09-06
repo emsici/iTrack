@@ -95,7 +95,10 @@ extension BackgroundGPSService {
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
                     print("\(self.TAG): ❌ GPS HTTP error: \(error.localizedDescription)")
-                    // TODO: Salvează în offline queue
+                    // FIXED: Salvează în offline queue pe network error
+                    if let courseId = self.findCourseIdFromUniqueKey(uniqueKey) {
+                        self.saveGPSDataOffline(gpsData, for: courseId)
+                    }
                     return
                 }
                 
@@ -106,6 +109,10 @@ extension BackgroundGPSService {
                     print("\(self.TAG): ✅ GPS transmission SUCCESS pentru \(uniqueKey)")
                 } else {
                     print("\(self.TAG): ❌ GPS transmission FAILED: \(statusCode)")
+                    // FIXED: Salvează în offline queue pe HTTP error
+                    if let courseId = self.findCourseIdFromUniqueKey(uniqueKey) {
+                        self.saveGPSDataOffline(gpsData, for: courseId)
+                    }
                 }
             }
             
@@ -113,6 +120,17 @@ extension BackgroundGPSService {
             
         } catch {
             print("\(TAG): ❌ JSON serialization error: \(error.localizedDescription)")
+            // FIXED: Salvează în offline queue pe serialization error
+            if let courseId = self.findCourseIdFromUniqueKey(uniqueKey) {
+                self.saveGPSDataOffline(gpsData, for: courseId)
+            }
+        }
+    }
+    
+    // FIXED: Helper pentru a găsi courseId din uniqueKey
+    private func findCourseIdFromUniqueKey(_ uniqueKey: String) -> String? {
+        return gpsQueue.sync {
+            return self.activeCourses[uniqueKey]?.courseId
         }
     }
     
