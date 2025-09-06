@@ -20,7 +20,7 @@ import OfflineSyncMonitor from "./OfflineSyncMonitor";
 import { courseStateManager } from "../services/courseStateManager";
 import nativeNotificationService from "../services/nativeNotifications";
 
-// Interfață TypeScript pentru AndroidGPS bridge
+// Interfață TypeScript pentru AndroidGPS și iOSGPS bridge
 declare global {
   interface Window {
     AndroidGPS?: {
@@ -36,13 +36,122 @@ declare global {
       hidePersistentNotification?: () => Promise<void>;
       showQuickNotification?: (title: string, message: string, duration: number) => Promise<void>;
     };
+    // iOS GPS Bridge (identic cu AndroidGPS)
+    iOSGPS?: {
+      startGPS: (ikRoTrans: string, vehicleNumber: string, realUit: string, token: string, status: number) => Promise<string>;
+      stopGPS: (courseId: string) => Promise<string>;
+      updateStatus: (courseId: string, status: number, vehicleNumber: string) => Promise<string>;
+      clearAllOnLogout: () => Promise<string>;
+      markManualPause: (ikRoTrans: string) => Promise<string>;
+      // Native notification methods iOS
+      showPersistentNotification?: (title: string, message: string, persistent: boolean) => Promise<void>;
+      hidePersistentNotification?: () => Promise<void>;
+      showQuickNotification?: (title: string, message: string, duration: number) => Promise<void>;
+    };
     courseAnalyticsService?: any;
   }
 }
 
-// Urmărirea curselor active - pentru Android BackgroundGPSService (gestionată în serviciul nativ)
+// Urmărirea curselor active - pentru Android/iOS BackgroundGPSService (gestionată în serviciul nativ)
 
-// Funcții GPS Android directe - BackgroundGPSService gestionează totul nativ
+const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) => {
+  if (!course) {
+    console.error("Cursă invalidă pentru GPS");
+    return "Eroare: Cursă invalidă";
+  }
+  
+  if (!course.ikRoTrans && !course.uit) {
+    console.error("Cursă fără identificatori pentru GPS");
+    return "Eroare: Identificatori lipsă";
+  }
+  
+  if (!vehicleNumber?.trim()) {
+    console.error("Numărul vehiculului lipsește pentru GPS");
+    return "Eroare: Vehicul invalid";
+  }
+  
+  if (!token?.trim()) {
+    console.error("Token lipsă pentru GPS");
+    return "Eroare: Token invalid";
+  }
+  
+  if (window.AndroidGPS && window.AndroidGPS.startGPS) {
+    console.log("GPS Android pornit pentru cursă");
+    
+    // CONFLICT PREVENTION: Identificator complet unic pentru a evita conflictele între utilizatori
+    const baseKey = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
+    // Hash simplu pentru token în JavaScript
+    const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
+    const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`;
+    
+    // CRITICAL FIX: Trimite baseKey ca fallback pentru server dacă course.uit e null
+    const serverUit = course.uit || baseKey; // baseKey = ikRoTrans sau uit simplu pentru server
+    
+    const result = window.AndroidGPS.startGPS(
+      ikRoTransKey,
+      vehicleNumber,
+      serverUit,
+      token,
+      2
+    );
+    
+    console.log("Rezultat serviciu GPS:", result);
+    return result;
+  } else {
+    console.error("AndroidGPS indisponibil");
+    return "Eroare: AndroidGPS indisponibil";
+  }
+};
+
+// iOS GPS - funcții identice cu Android
+const startiOSGPS = async (course: Course, vehicleNumber: string, token: string) => {
+  if (!course) {
+    console.error("Cursă invalidă pentru GPS");
+    return "Eroare: Cursă invalidă";
+  }
+  
+  if (!course.ikRoTrans && !course.uit) {
+    console.error("Cursă fără identificatori pentru GPS");
+    return "Eroare: Identificatori lipsă";
+  }
+  
+  if (!vehicleNumber?.trim()) {
+    console.error("Numărul vehiculului lipsește pentru GPS");
+    return "Eroare: Vehicul invalid";
+  }
+  
+  if (!token?.trim()) {
+    console.error("Token lipsă pentru GPS");
+    return "Eroare: Token invalid";
+  }
+  
+  if (window.iOSGPS && window.iOSGPS.startGPS) {
+    console.log("GPS iOS pornit pentru cursă");
+    
+    // CONFLICT PREVENTION: Identificator complet unic (identic cu Android)
+    const baseKey = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
+    const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
+    const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`;
+    
+    const serverUit = course.uit || baseKey;
+    
+    const result = await window.iOSGPS.startGPS(
+      ikRoTransKey,
+      vehicleNumber,
+      serverUit,
+      token,
+      2
+    );
+    
+    console.log("Rezultat serviciu GPS iOS:", result);
+    return result;
+  } else {
+    console.error("iOSGPS indisponibil");
+    return "Eroare: iOSGPS indisponibil";
+  }
+};
+
+// Funcții GPS native directe - BackgroundGPSService gestionează totul nativ
 const updateCourseStatus = async (courseId: string, courseUit: string, newStatus: number, authToken: string, vehicleNumber: string) => {
   try {
     console.log(`Actualizez status cursă ${courseId} la ${newStatus}`);
@@ -173,10 +282,18 @@ const logoutClearAllGPS = async () => {
   // Ascunde notificările persistente la logout
   await nativeNotificationService.hidePersistentTracking();
   
+  // Android GPS clear
   if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
     return window.AndroidGPS.clearAllOnLogout();
   }
-  console.warn('AndroidGPS interface not available - browser mode');
+  
+  // iOS GPS clear
+  if (window.iOSGPS && window.iOSGPS.clearAllOnLogout) {
+    return await window.iOSGPS.clearAllOnLogout();
+  }
+  
+  console.warn('GPS interface not available - browser mode');
+  return "GPS interface not available";
 };
 
 // Funcții globale pentru senzori reali - utilizate în updateCourseStatus și startGPSForActiveCourses
@@ -355,7 +472,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
 
   // GPS MESSAGE HANDLER pentru alertele din serviciul Android
   useEffect(() => {
-    // Setup handler pentru mesajele GPS din Android
+    // Setup handler pentru mesajele GPS (Android build)
     if (window.AndroidGPS) {
       window.AndroidGPS.onGPSMessage = (message: string) => {
         console.log('GPS Message din Android:', message);
@@ -462,7 +579,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
 
     return () => {
-      // Cleanup handler
+      // Cleanup handler (Android build)
       if (window.AndroidGPS) {
         window.AndroidGPS.onGPSMessage = undefined;
       }
@@ -1419,7 +1536,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                         console.log(`📊 Analytics tracking RESUMED pentru cursă ${courseId}`);
                       }
                       
+                      // Start GPS pe platforma disponibilă
                       startAndroidGPS(courseForGPS, vehicleNumber, token);
+                      startiOSGPS(courseForGPS, vehicleNumber, token);
                     }
                     
                     // Oprire GPS: pause sau stop
@@ -1440,20 +1559,34 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                       }
                       
                       // ADAUGĂ PUNCT GPS CU FLAG MANUAL PENTRU PAUZĂ
-                      if (newStatus === 3 && window.AndroidGPS && window.AndroidGPS.markManualPause) {
-                        // CRITICAL FIX: Folosește EXACT aceeași logică ca la START GPS
+                      if (newStatus === 3) {
+                        // Manual pause pentru Android și iOS
                         const baseKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
                         const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
                         const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`;
-                        window.AndroidGPS.markManualPause(ikRoTransKey);
+                        
+                        // Android manual pause
+                        if (window.AndroidGPS && window.AndroidGPS.markManualPause) {
+                          window.AndroidGPS.markManualPause(ikRoTransKey);
+                        }
+                        // iOS manual pause  
+                        if (window.iOSGPS && window.iOSGPS.markManualPause) {
+                          window.iOSGPS.markManualPause(ikRoTransKey);
+                        }
                       }
                       
+                      // GPS status update pentru Android și iOS
+                      const baseKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
+                      const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
+                      const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`;
+                      
+                      // Android status update
                       if (window.AndroidGPS && window.AndroidGPS.updateStatus) {
-                        // CRITICAL FIX: Folosește EXACT aceeași logică ca la START GPS
-                        const baseKey = courseForGPS.ikRoTrans ? String(courseForGPS.ikRoTrans) : courseForGPS.uit;
-                        const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
-                        const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`;
                         window.AndroidGPS.updateStatus(ikRoTransKey, newStatus, vehicleNumber);
+                      }
+                      // iOS status update
+                      if (window.iOSGPS && window.iOSGPS.updateStatus) {
+                        window.iOSGPS.updateStatus(ikRoTransKey, newStatus, vehicleNumber);
                       }
                     }
                   }
