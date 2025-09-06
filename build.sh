@@ -7,8 +7,30 @@ echo "            iTrack GPS - Build Tool"
 echo "================================================"
 echo ""
 
-# Interactive environment selection if no parameter provided
+# Interactive selections if no parameters provided
 if [ "$1" = "" ]; then
+    echo "Selecteaza platforma pentru build:"
+    echo ""
+    echo "1. ANDROID"
+    echo "2. iOS"
+    echo "3. AMBELE (Android + iOS)"
+    echo ""
+    read -p "Introdu optiunea (1, 2 sau 3): " platform_choice
+    
+    if [ "$platform_choice" = "1" ]; then
+        PLATFORM="android"
+    elif [ "$platform_choice" = "2" ]; then
+        PLATFORM="ios"
+    elif [ "$platform_choice" = "3" ]; then
+        PLATFORM="both"
+    else
+        echo ""
+        echo "Optiune invalida. Folosesc ANDROID ca default."
+        PLATFORM="android"
+        sleep 2
+    fi
+    
+    echo ""
     echo "Selecteaza environment-ul pentru build:"
     echo ""
     echo "1. DEVELOPMENT (API: etsm3)"
@@ -28,6 +50,7 @@ if [ "$1" = "" ]; then
     fi
 else
     ENV=$1
+    PLATFORM=${2:-android}  # Default la android dacă nu e specificat
 fi
 
 echo ""
@@ -52,6 +75,7 @@ else
     exit 1
 fi
 
+echo "Platforma: $PLATFORM"
 echo "================================================"
 
 echo ""
@@ -80,27 +104,79 @@ if ! npx vite build >/dev/null 2>&1; then
 fi
 echo "Done."
 
-echo "[ETAPA 3/4] Sincronizare cu Android..."
-if ! npx cap sync android >/dev/null 2>&1; then
-    echo ""
-    echo "EROARE: capacitor sync esuat"
-    echo "Verificati configuratia Capacitor"
-    echo ""
-    read -p "Apasa Enter pentru a iesi..."
-    exit 1
-fi
-echo "Done."
+# Configurare PATH pentru CocoaPods (iOS)
+export PATH="/home/runner/workspace/.local/share/gem/ruby/3.1.0/bin:$PATH"
 
-echo "[ETAPA 4/4] Lansare Android Studio..."
-if ! npx cap open android >/dev/null 2>&1; then
-    echo ""
-    echo "EROARE: deschiderea Android Studio esuata"
-    echo "Instalati Android Studio si configurati PATH"
-    echo ""
-    read -p "Apasa Enter pentru a iesi..."
-    exit 1
+if [ "$PLATFORM" = "android" ] || [ "$PLATFORM" = "both" ]; then
+    echo "[ETAPA 3a] Sincronizare cu Android..."
+    if ! npx cap sync android >/dev/null 2>&1; then
+        echo ""
+        echo "EROARE: capacitor sync android esuat"
+        echo "Verificati configuratia Capacitor"
+        echo ""
+        read -p "Apasa Enter pentru a iesi..."
+        exit 1
+    fi
+    echo "Done."
 fi
-echo "Done."
+
+if [ "$PLATFORM" = "ios" ] || [ "$PLATFORM" = "both" ]; then
+    echo "[ETAPA 3b] Configurare dependinte iOS (CocoaPods)..."
+    cd ios/App
+    if ! pod install >/dev/null 2>&1; then
+        echo ""
+        echo "EROARE: pod install esuat"
+        echo "Verificati CocoaPods si Podfile"
+        cd ../..
+        echo ""
+        read -p "Apasa Enter pentru a iesi..."
+        exit 1
+    fi
+    cd ../..
+    echo "Done."
+    
+    echo "[ETAPA 3c] Sincronizare cu iOS..."
+    if ! npx cap sync ios >/dev/null 2>&1; then
+        echo ""
+        echo "EROARE: capacitor sync ios esuat"
+        echo "Verificati configuratia Capacitor iOS"
+        echo ""
+        read -p "Apasa Enter pentru a iesi..."
+        exit 1
+    fi
+    echo "Done."
+fi
+
+if [ "$PLATFORM" = "android" ]; then
+    echo "[ETAPA 4] Lansare Android Studio..."
+    if ! npx cap open android >/dev/null 2>&1; then
+        echo ""
+        echo "EROARE: deschiderea Android Studio esuata"
+        echo "Instalati Android Studio si configurati PATH"
+        echo ""
+        read -p "Apasa Enter pentru a iesi..."
+        exit 1
+    fi
+    echo "Done."
+elif [ "$PLATFORM" = "ios" ]; then
+    echo "[ETAPA 4] Lansare Xcode..."
+    if ! npx cap open ios >/dev/null 2>&1; then
+        echo ""
+        echo "EROARE: deschiderea Xcode esuata"
+        echo "Instalati Xcode pe macOS"
+        echo ""
+        read -p "Apasa Enter pentru a iesi..."
+        exit 1
+    fi
+    echo "Done."
+elif [ "$PLATFORM" = "both" ]; then
+    echo "[ETAPA 4] Lansare IDE-uri..."
+    echo "Lansez Android Studio..."
+    npx cap open android >/dev/null 2>&1 &
+    echo "Lansez Xcode..."  
+    npx cap open ios >/dev/null 2>&1 &
+    echo "Done."
+fi
 
 echo ""
 echo "================================================"
@@ -108,15 +184,33 @@ echo "              BUILD FINALIZAT CU SUCCES!"
 echo "================================================"
 echo ""
 echo "Toate etapele au fost finalizate cu succes."
-echo "Proiectul este gata in Android Studio."
+if [ "$PLATFORM" = "android" ]; then
+    echo "Proiectul Android este gata in Android Studio."
+elif [ "$PLATFORM" = "ios" ]; then
+    echo "Proiectul iOS este gata in Xcode."
+else
+    echo "Proiectele Android si iOS sunt gata."
+fi
 echo "Environment: $ENV"
+echo "Platforma: $PLATFORM"
 echo ""
 echo "INSTRUCTIUNI URMATOARE:"
-echo "1. Android Studio este deschis"
-echo "2. Selectati device/emulator"
-echo "3. Apasati 'Run' pentru testare"
-echo "4. Pentru APK: Build -> Generate Signed Bundle/APK"
-echo ""
+if [ "$PLATFORM" = "android" ] || [ "$PLATFORM" = "both" ]; then
+    echo "ANDROID:"
+    echo "1. Android Studio este deschis"
+    echo "2. Selectati device/emulator Android"
+    echo "3. Apasati 'Run' pentru testare"
+    echo "4. Pentru APK: Build -> Generate Signed Bundle/APK"
+    echo ""
+fi
+if [ "$PLATFORM" = "ios" ] || [ "$PLATFORM" = "both" ]; then
+    echo "iOS:"
+    echo "1. Xcode este deschis (necesita macOS)"
+    echo "2. Selectati device/simulator iOS"
+    echo "3. Apasati 'Run' pentru testare"
+    echo "4. Pentru IPA: Product -> Archive"
+    echo ""
+fi
 echo "================================================"
 echo ""
 

@@ -8,8 +8,30 @@ echo            iTrack GPS - Build Tool
 echo ================================================
 echo.
 
-rem Interactive environment selection if no parameter provided
+rem Interactive selections if no parameters provided
 if "%1"=="" (
+    echo Selecteaza platforma pentru build:
+    echo.
+    echo 1. ANDROID
+    echo 2. iOS
+    echo 3. AMBELE ^(Android + iOS^)
+    echo.
+    set /p platform_choice="Introdu optiunea (1, 2 sau 3): "
+    
+    if "!platform_choice!"=="1" (
+        set PLATFORM=android
+    ) else if "!platform_choice!"=="2" (
+        set PLATFORM=ios
+    ) else if "!platform_choice!"=="3" (
+        set PLATFORM=both
+    ) else (
+        echo.
+        echo Optiune invalida. Folosesc ANDROID ca default.
+        set PLATFORM=android
+        timeout /t 2 >nul
+    )
+    
+    echo.
     echo Selecteaza environment-ul pentru build:
     echo.
     echo 1. DEVELOPMENT ^(API: etsm3^)
@@ -29,6 +51,11 @@ if "%1"=="" (
     )
 ) else (
     set ENV=%1
+    if "%2"=="" (
+        set PLATFORM=android
+    ) else (
+        set PLATFORM=%2
+    )
 )
 
 echo.
@@ -53,6 +80,7 @@ if /i "%ENV%"=="dev" (
     exit /b 1
 )
 
+echo Platforma: %PLATFORM%
 echo ================================================
 
 echo.
@@ -83,29 +111,121 @@ if %errorlevel% neq 0 (
 )
 echo Done.
 
-echo [ETAPA 3/4] Sincronizare cu Android...
-call npx cap sync android >nul 2>&1
-if %errorlevel% neq 0 (
-    echo.
-    echo EROARE: capacitor sync esuat
-    echo Verificati configuratia Capacitor
-    echo.
-    pause
-    exit /b 1
-)
-echo Done.
+rem Configurare PATH pentru CocoaPods (iOS)
+set PATH=%PATH%;%USERPROFILE%\.local\share\gem\ruby\3.1.0\bin
 
-echo [ETAPA 4/4] Lansare Android Studio...
-call npx cap open android >nul 2>&1
-if %errorlevel% neq 0 (
-    echo.
-    echo EROARE: deschiderea Android Studio esuata
-    echo Instalati Android Studio si configurati PATH
-    echo.
-    pause
-    exit /b 1
+if /i "%PLATFORM%"=="android" (
+    echo [ETAPA 3] Sincronizare cu Android...
+    call npx cap sync android >nul 2>&1
+    if !errorlevel! neq 0 (
+        echo.
+        echo EROARE: capacitor sync android esuat
+        echo Verificati configuratia Capacitor
+        echo.
+        pause
+        exit /b 1
+    )
+    echo Done.
+) else if /i "%PLATFORM%"=="ios" (
+    echo [ETAPA 3a] Configurare dependinte iOS ^(CocoaPods^)...
+    cd ios\App
+    call pod install >nul 2>&1
+    if !errorlevel! neq 0 (
+        echo.
+        echo EROARE: pod install esuat
+        echo Verificati CocoaPods si Podfile
+        cd ..\..
+        echo.
+        pause
+        exit /b 1
+    )
+    cd ..\..
+    echo Done.
+    
+    echo [ETAPA 3b] Sincronizare cu iOS...
+    call npx cap sync ios >nul 2>&1
+    if !errorlevel! neq 0 (
+        echo.
+        echo EROARE: capacitor sync ios esuat
+        echo Verificati configuratia Capacitor iOS
+        echo.
+        pause
+        exit /b 1
+    )
+    echo Done.
+) else if /i "%PLATFORM%"=="both" (
+    echo [ETAPA 3a] Sincronizare cu Android...
+    call npx cap sync android >nul 2>&1
+    if !errorlevel! neq 0 (
+        echo.
+        echo EROARE: capacitor sync android esuat
+        echo Verificati configuratia Capacitor
+        echo.
+        pause
+        exit /b 1
+    )
+    echo Done.
+    
+    echo [ETAPA 3b] Configurare dependinte iOS ^(CocoaPods^)...
+    cd ios\App
+    call pod install >nul 2>&1
+    if !errorlevel! neq 0 (
+        echo.
+        echo EROARE: pod install esuat
+        echo Verificati CocoaPods si Podfile
+        cd ..\..
+        echo.
+        pause
+        exit /b 1
+    )
+    cd ..\..
+    echo Done.
+    
+    echo [ETAPA 3c] Sincronizare cu iOS...
+    call npx cap sync ios >nul 2>&1
+    if !errorlevel! neq 0 (
+        echo.
+        echo EROARE: capacitor sync ios esuat
+        echo Verificati configuratia Capacitor iOS
+        echo.
+        pause
+        exit /b 1
+    )
+    echo Done.
 )
-echo Done.
+
+if /i "%PLATFORM%"=="android" (
+    echo [ETAPA 4] Lansare Android Studio...
+    call npx cap open android >nul 2>&1
+    if !errorlevel! neq 0 (
+        echo.
+        echo EROARE: deschiderea Android Studio esuata
+        echo Instalati Android Studio si configurati PATH
+        echo.
+        pause
+        exit /b 1
+    )
+    echo Done.
+) else if /i "%PLATFORM%"=="ios" (
+    echo [ETAPA 4] Lansare Xcode...
+    call npx cap open ios >nul 2>&1
+    if !errorlevel! neq 0 (
+        echo.
+        echo EROARE: deschiderea Xcode esuata
+        echo Instalati Xcode pe macOS
+        echo.
+        pause
+        exit /b 1
+    )
+    echo Done.
+) else if /i "%PLATFORM%"=="both" (
+    echo [ETAPA 4] Lansare IDE-uri...
+    echo Lansez Android Studio...
+    start /b npx cap open android >nul 2>&1
+    echo Lansez Xcode...
+    start /b npx cap open ios >nul 2>&1
+    echo Done.
+)
 
 echo.
 echo ================================================
@@ -113,15 +233,45 @@ echo              BUILD FINALIZAT CU SUCCES!
 echo ================================================
 echo.
 echo Toate etapele au fost finalizate cu succes.
-echo Proiectul este gata in Android Studio.
+if /i "%PLATFORM%"=="android" (
+    echo Proiectul Android este gata in Android Studio.
+) else if /i "%PLATFORM%"=="ios" (
+    echo Proiectul iOS este gata in Xcode.
+) else (
+    echo Proiectele Android si iOS sunt gata.
+)
 echo Environment: %ENV%
+echo Platforma: %PLATFORM%
 echo.
 echo INSTRUCTIUNI URMATOARE:
-echo 1. Android Studio este deschis
-echo 2. Selectati device/emulator
-echo 3. Apasati 'Run' pentru testare
-echo 4. Pentru APK: Build -^> Generate Signed Bundle/APK
-echo.
+if /i "%PLATFORM%"=="android" (
+    echo ANDROID:
+    echo 1. Android Studio este deschis
+    echo 2. Selectati device/emulator Android
+    echo 3. Apasati 'Run' pentru testare
+    echo 4. Pentru APK: Build -^> Generate Signed Bundle/APK
+    echo.
+) else if /i "%PLATFORM%"=="ios" (
+    echo iOS:
+    echo 1. Xcode este deschis ^(necesita macOS^)
+    echo 2. Selectati device/simulator iOS
+    echo 3. Apasati 'Run' pentru testare
+    echo 4. Pentru IPA: Product -^> Archive
+    echo.
+) else (
+    echo ANDROID:
+    echo 1. Android Studio este deschis
+    echo 2. Selectati device/emulator Android
+    echo 3. Apasati 'Run' pentru testare
+    echo 4. Pentru APK: Build -^> Generate Signed Bundle/APK
+    echo.
+    echo iOS:
+    echo 1. Xcode este deschis ^(necesita macOS^)
+    echo 2. Selectati device/simulator iOS
+    echo 3. Apasati 'Run' pentru testare
+    echo 4. Pentru IPA: Product -^> Archive
+    echo.
+)
 echo ================================================
 echo.
 
