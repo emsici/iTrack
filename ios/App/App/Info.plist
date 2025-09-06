@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.euscagency.itrack</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>iTrack</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>UIMainStoryboardFile</key>
+    <string>Main</string>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>armv7</string>
+    </array>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    
+    <!-- ===== PERMISIUNI GPS BACKGROUND - IDENTIC CU ANDROID ===== -->
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>iTrack GPS necesită acces continuu la locație pentru urmărirea vehiculelor în timp real, inclusiv când aplicația rulează în fundal.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>iTrack GPS folosește locația pentru urmărirea precisă a vehiculelor și calcularea rutelor.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>iTrack GPS necesită acces continuu la locație pentru transmisia GPS în background la intervale de 10 secunde.</string>
+    
+    <!-- BACKGROUND MODES pentru GPS continuu -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>location</string>
+        <string>background-processing</string>
+        <string>background-fetch</string>
+    </array>
+    
+    <!-- NOTIFICĂRI LOCALE -->
+    <key>UIUserNotificationSettings</key>
+    <dict>
+        <key>UIUserNotificationTypeAlert</key>
+        <true/>
+        <key>UIUserNotificationTypeSound</key>
+        <true/>
+        <key>UIUserNotificationTypeBadge</key>
+        <true/>
+    </dict>
+    
+    <!-- CAPACITOR CONFIGURARE -->
+    <key>CapacitorInitialWebapp</key>
+    <string>initial://localhost</string>
+    <key>CapacitorSwiftWebview</key>
+    <true/>
+    
+    <!-- SECURITY - PERMITE CONEXIUNI HTTP PENTRU API -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+</dict>
+</plist>
