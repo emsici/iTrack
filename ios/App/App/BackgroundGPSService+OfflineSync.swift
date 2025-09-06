@@ -1,13 +1,21 @@
 //
 //  BackgroundGPSService+OfflineSync.swift
-//  iTrack GPS - Offline GPS Sync pentru iOS
+//  iTrack GPS - Offline GPS Sync pentru iOS (FIX COMPLET)
 //
-//  Implementare identică cu Android pentru sync offline GPS data
+//  FIXED: Toate problemele critice identificate de advisor
 //
 
 import Foundation
+import Network
 
-// MARK: - Offline Sync Extension (identic cu Android)
+// MARK: - Static Storage Holder (SWIFT EXTENSION FIX)
+private struct OfflineSyncHolder {
+    static let offlineQueue = DispatchQueue(label: "com.euscagency.itrack.offline", qos: .background)
+    static var networkMonitor: NWPathMonitor?
+    static let networkQueue = DispatchQueue(label: "com.euscagency.itrack.network", qos: .background)
+}
+
+// MARK: - Offline Sync Extension (FIXED pentru compile + reliability)
 extension BackgroundGPSService {
     
     private var offlineQueueURL: URL {
@@ -15,19 +23,49 @@ extension BackgroundGPSService {
         return documentsPath.appendingPathComponent("gps_offline_queue.json")
     }
     
-    // Salvează GPS data offline când HTTP eșuează (identic cu Android)
+    // FIXED: HTTP method with completion pentru retry logic
+    private func sendGPSHTTP(gpsData: [String: Any], completion: @escaping (Bool) -> Void) {
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: gpsData),
+              let url = URL(string: "https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php") else {
+            completion(false)
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(globalToken ?? "")", forHTTPHeaderField: "Authorization")
+        request.httpBody = jsonData
+        request.timeoutInterval = 30
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            let httpResponse = response as? HTTPURLResponse
+            let statusCode = httpResponse?.statusCode ?? 0
+            let success = (200...299).contains(statusCode) && error == nil
+            
+            if success {
+                print("✅ iOS GPS HTTP SUCCESS: \(statusCode)")
+            } else {
+                print("❌ iOS GPS HTTP FAILED: \(statusCode), error: \(error?.localizedDescription ?? "unknown")")
+            }
+            
+            completion(success)
+        }.resume()
+    }
+    
+    // FIXED: Salvează GPS data offline când HTTP eșuează
     func saveGPSDataOffline(_ gpsData: [String: Any], for courseId: String) {
         let timestamp = getRomanianTimestamp()
-        let offlineEntry = [
+        let offlineEntry: [String: Any] = [
             "timestamp": timestamp,
             "courseId": courseId,
             "gpsData": gpsData,
             "retryCount": 0,
-            "createdAt": Date().timeIntervalSince1970
-        ] as [String : Any]
+            "createdAt": Date().timeIntervalSince1970,
+            "nextAttemptAt": Date().timeIntervalSince1970 // Poate fi încercat imediat
+        ]
         
-        // Thread-safe offline queue operations
-        serialQueue.async { [weak self] in
+        OfflineSyncHolder.offlineQueue.async { [weak self] in
             guard let self = self else { return }
             
             var offlineQueue = self.loadOfflineQueue()
@@ -39,15 +77,14 @@ extension BackgroundGPSService {
             }
             
             self.saveOfflineQueue(offlineQueue)
+            print("💾 iOS GPS OFFLINE SAVE: \(courseId) @ \(timestamp)")
             
-            print("📱 iOS GPS OFFLINE SAVE: \(courseId) @ \(timestamp)")
-            
-            // Încearc\u0103 sync imediat
+            // Încercă sync imediat dacă network e disponibil
             self.attemptOfflineSync()
         }
     }
     
-    // \u00cencarcă queue offline din storage
+    // FIXED: Încarcă queue offline din storage
     private func loadOfflineQueue() -> [[String: Any]] {
         guard FileManager.default.fileExists(atPath: offlineQueueURL.path),
               let data = try? Data(contentsOf: offlineQueueURL),
@@ -58,19 +95,19 @@ extension BackgroundGPSService {
         return queue
     }
     
-    // Salvează queue offline în storage
+    // FIXED: Salvează queue offline în storage
     private func saveOfflineQueue(_ queue: [[String: Any]]) {
         do {
-            let data = try JSONSerialization.data(withJSONObject: queue)
+            let data = try JSONSerialization.data(withJSONObject: queue, options: .prettyPrinted)
             try data.write(to: offlineQueueURL)
         } catch {
             print("❌ iOS GPS Offline Queue Save Error: \(error.localizedDescription)")
         }
     }
     
-    // Sync offline data la server (identic cu Android)
+    // FIXED: Sync offline data cu EXPONENTIAL BACKOFF real
     func attemptOfflineSync() {
-        serialQueue.async { [weak self] in
+        OfflineSyncHolder.offlineQueue.async { [weak self] in
             guard let self = self else { return }
             
             let offlineQueue = self.loadOfflineQueue()
@@ -80,6 +117,7 @@ extension BackgroundGPSService {
             
             var successCount = 0
             var remainingQueue: [[String: Any]] = []
+            let now = Date().timeIntervalSince1970
             
             for entry in offlineQueue {
                 guard let gpsData = entry["gpsData"] as? [String: Any],
@@ -90,7 +128,7 @@ extension BackgroundGPSService {
                 }
                 
                 // Skip entries older than 24 hours
-                if Date().timeIntervalSince1970 - createdAt > 24 * 3600 {
+                if now - createdAt > 24 * 3600 {
                     print("⏰ iOS GPS Offline: Discarding old entry for \(courseId)")
                     continue
                 }
@@ -101,27 +139,40 @@ extension BackgroundGPSService {
                     continue
                 }
                 
-                // Încercare sync HTTP
+                // FIXED: EXPONENTIAL BACKOFF - Check if entry can be retried now
+                let nextAttemptAt = entry["nextAttemptAt"] as? TimeInterval ?? 0
+                if now < nextAttemptAt {
+                    remainingQueue.append(entry) // Too early, keep in queue
+                    continue
+                }
+                
+                // Sincronizare HTTP cu semaphore pentru async completion
                 let semaphore = DispatchSemaphore(value: 0)
                 var syncSuccess = false
                 
-                self.transmitGPSData(gpsData) { success in
+                self.sendGPSHTTP(gpsData: gpsData) { success in
                     syncSuccess = success
-                    if success {
-                        successCount += 1
-                        print("✅ iOS GPS Offline Sync SUCCESS: \(courseId)")
-                    } else {
-                        // Increment retry count și păstrează în queue
-                        var updatedEntry = entry
-                        updatedEntry["retryCount"] = retryCount + 1
-                        remainingQueue.append(updatedEntry)
-                        print("❌ iOS GPS Offline Sync FAILED: \(courseId) (retry \(retryCount + 1))")
-                    }
                     semaphore.signal()
                 }
                 
                 // Wait for HTTP completion (timeout 30s)
                 _ = semaphore.wait(timeout: .now() + 30)
+                
+                if syncSuccess {
+                    successCount += 1
+                    print("✅ iOS GPS Offline Sync SUCCESS: \(courseId)")
+                } else {
+                    // FIXED: EXPONENTIAL BACKOFF calculation
+                    let backoffSeconds = min(pow(2.0, Double(retryCount)) * 10, 600) // Max 10min
+                    let nextAttempt = now + backoffSeconds
+                    
+                    var updatedEntry = entry
+                    updatedEntry["retryCount"] = retryCount + 1
+                    updatedEntry["nextAttemptAt"] = nextAttempt
+                    remainingQueue.append(updatedEntry)
+                    
+                    print("❌ iOS GPS Offline Sync FAILED: \(courseId) (retry \(retryCount + 1), next attempt in \(Int(backoffSeconds))s)")
+                }
             }
             
             // Update offline queue cu remaining entries
@@ -133,25 +184,36 @@ extension BackgroundGPSService {
         }
     }
     
-    // MARK: - Network Status Monitoring (pentru auto-sync)
+    // FIXED: Network monitoring cu NWPathMonitor real
     func setupNetworkMonitoring() {
-        // Monitor network changes pentru auto-sync când devine disponibil
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(networkStatusChanged),
-            name: NSNotification.Name("NetworkStatusChanged"),
-            object: nil
-        )
+        OfflineSyncHolder.networkMonitor = NWPathMonitor()
         
-        print("📶 iOS GPS Network Monitoring setup pentru offline sync")
+        OfflineSyncHolder.networkMonitor?.pathUpdateHandler = { [weak self] path in
+            if path.status == .satisfied {
+                print("📶 iOS GPS Network AVAILABLE - attempting offline sync")
+                self?.attemptOfflineSync()
+            } else {
+                print("📶 iOS GPS Network UNAVAILABLE")
+            }
+        }
+        
+        OfflineSyncHolder.networkMonitor?.start(queue: BackgroundGPSService.networkQueue)
+        print("📶 iOS GPS Network Monitoring setup cu NWPathMonitor")
     }
     
-    @objc private func networkStatusChanged() {
-        print("📶 iOS GPS Network Status Changed - attempting offline sync")
+    func stopNetworkMonitoring() {
+        OfflineSyncHolder.networkMonitor?.cancel()
+        OfflineSyncHolder.networkMonitor = nil
+        print("📶 iOS GPS Network Monitoring stopped")
+    }
+    
+    // MARK: - App lifecycle triggers pentru sync
+    func triggerAppForegroundSync() {
+        print("📱 iOS GPS App Foreground - attempting offline sync")
         attemptOfflineSync()
     }
     
-    // MARK: - Cleanup and Stats
+    // MARK: - Cleanup and Stats (cu course cleanup)
     func getOfflineQueueStats() -> [String: Any] {
         let queue = loadOfflineQueue()
         let totalEntries = queue.count
@@ -160,27 +222,26 @@ extension BackgroundGPSService {
             return Date().timeIntervalSince1970 - createdAt > 24 * 3600
         }.count
         
+        let fileSizeBytes = (try? FileManager.default.attributesOfItem(atPath: offlineQueueURL.path)[.size] as? Int64) ?? 0
+        
         return [
             "totalEntries": totalEntries,
             "oldEntries": oldEntries,
-            "queueSizeMB": (try? FileManager.default.attributesOfItem(atPath: offlineQueueURL.path)[.size] as? Int64) ?? 0 / 1024 / 1024
+            "queueSizeMB": fileSizeBytes / 1024 / 1024
         ]
     }
     
-    func clearOldOfflineEntries() {
-        serialQueue.async { [weak self] in
+    func clearAllOfflineData() {
+        OfflineSyncHolder.offlineQueue.async { [weak self] in
             guard let self = self else { return }
             
-            let queue = self.loadOfflineQueue()
-            let cleanQueue = queue.filter { entry in
-                guard let createdAt = entry["createdAt"] as? TimeInterval else { return false }
-                return Date().timeIntervalSince1970 - createdAt <= 24 * 3600
-            }
+            // Clear offline queue file
+            try? FileManager.default.removeItem(at: self.offlineQueueURL)
             
-            if cleanQueue.count < queue.count {
-                self.saveOfflineQueue(cleanQueue)
-                print("🧹 iOS GPS Offline: Cleaned \(queue.count - cleanQueue.count) old entries")
-            }
+            // Stop network monitoring
+            self.stopNetworkMonitoring()
+            
+            print("🧹 iOS GPS Offline: All data cleared (logout)")
         }
     }
 }
