@@ -2,7 +2,7 @@ modules = ["nodejs-20", "java-17", "openjdk-17"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["android-tools", "gradle", "openjdk", "openjdk11", "android-udev-rules", "ruby"]
+packages = ["android-tools", "gradle", "openjdk", "openjdk11", "android-udev-rules", "ruby", "curl"]
 
 [workflows]
 runButton = "Project"
