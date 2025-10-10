@@ -226,55 +226,6 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
   }
 };
 
-const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) => {
-  if (!course) {
-    console.error("Cursă invalidă pentru GPS");
-    return "Eroare: Cursă invalidă";
-  }
-  
-  if (!course.ikRoTrans && !course.uit) {
-    console.error("Cursă fără identificatori pentru GPS");
-    return "Eroare: Identificatori lipsă";
-  }
-  
-  if (!vehicleNumber?.trim()) {
-    console.error("Numărul vehiculului lipsește pentru GPS");
-    return "Eroare: Vehicul invalid";
-  }
-  
-  if (!token?.trim()) {
-    console.error("Token lipsă pentru GPS");
-    return "Eroare: Token invalid";
-  }
-  
-  if (window.AndroidGPS && window.AndroidGPS.startGPS) {
-    console.log("GPS Android pornit pentru cursă");
-    
-    // CONFLICT PREVENTION: Identificator complet unic pentru a evita conflictele între utilizatori
-    const baseKey = course.ikRoTrans ? String(course.ikRoTrans) : course.uit;
-    // Hash simplu pentru token în JavaScript
-    const tokenHash = token.split('').reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) & 0xffffffff, 0);
-    const ikRoTransKey = `${baseKey}_${vehicleNumber}_${Math.abs(tokenHash).toString().substring(0, 8)}`; // UIT + Vehicul + Token = identificator COMPLET unic
-    
-    // CRITICAL FIX: Trimite baseKey ca fallback pentru server dacă course.uit e null
-    const serverUit = course.uit || baseKey; // baseKey = ikRoTrans sau uit simplu pentru server
-    
-    const result = window.AndroidGPS.startGPS(
-      ikRoTransKey,
-      vehicleNumber,
-      serverUit,
-      token,
-      2
-    );
-    
-    console.log("Rezultat serviciu GPS:", result);
-    return result;
-  } else {
-    console.error("AndroidGPS indisponibil");
-    return "Eroare: AndroidGPS indisponibil";
-  }
-};
-
 // ELIMINAT stopAndroidGPS - folosim updateStatus pentru multi-course support
 // pentru pauză și stop individual, iar stopGPS doar pentru clearAll la logout
 
