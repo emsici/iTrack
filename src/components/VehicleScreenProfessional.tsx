@@ -230,21 +230,38 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
 // pentru pauză și stop individual, iar stopGPS doar pentru clearAll la logout
 
 const logoutClearAllGPS = async () => {
-  // Ascunde notificările persistente la logout
-  await nativeNotificationService.hidePersistentTracking();
-  
-  // Android GPS clear
-  if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
-    return window.AndroidGPS.clearAllOnLogout();
+  try {
+    // Ascunde notificările persistente la logout (protejat)
+    try {
+      await nativeNotificationService.hidePersistentTracking();
+    } catch (notifError) {
+      console.warn('Eroare ascundere notificări:', notifError);
+    }
+    
+    // Android GPS clear
+    if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
+      try {
+        return window.AndroidGPS.clearAllOnLogout();
+      } catch (androidError) {
+        console.warn('Eroare clearAllOnLogout Android:', androidError);
+      }
+    }
+    
+    // iOS GPS clear
+    if (window.iOSGPS && window.iOSGPS.clearAllOnLogout) {
+      try {
+        return await window.iOSGPS.clearAllOnLogout();
+      } catch (iosError) {
+        console.warn('Eroare clearAllOnLogout iOS:', iosError);
+      }
+    }
+    
+    console.warn('GPS interface not available - browser mode');
+    return "GPS interface not available";
+  } catch (error) {
+    console.error('Eroare generală logoutClearAllGPS:', error);
+    return "Eroare la logout GPS";
   }
-  
-  // iOS GPS clear
-  if (window.iOSGPS && window.iOSGPS.clearAllOnLogout) {
-    return await window.iOSGPS.clearAllOnLogout();
-  }
-  
-  console.warn('GPS interface not available - browser mode');
-  return "GPS interface not available";
 };
 
 // Funcții globale pentru senzori reali - utilizate în updateCourseStatus și startGPSForActiveCourses
@@ -698,25 +715,53 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   };
 
   const handleLogout = async () => {
+    console.log('🚪 LOGOUT BUTTON PRESSED - Starting logout process...');
+    
+    // IMMEDIATE: Call onLogout first to prevent UI freeze
     try {
-      // Clear all GPS tracking on logout
-      await logoutClearAllGPS();
-      
-      // Clear stored data
-      await clearToken();
-      await clearStoredVehicleNumber();
-      
-      // Attempt server logout (non-blocking)
+      // Step 1: Clear GPS tracking (non-blocking)
       try {
-        await logout(token);
-      } catch (logoutError) {
-        console.warn('Server logout failed, continuing with local cleanup:', logoutError);
+        await logoutClearAllGPS();
+        console.log('✅ GPS cleared');
+      } catch (gpsError) {
+        console.warn('GPS clear error (continuing):', gpsError);
       }
       
+      // Step 2: Clear stored data (non-blocking)
+      try {
+        await clearToken();
+        console.log('✅ Token cleared');
+      } catch (tokenError) {
+        console.warn('Token clear error (continuing):', tokenError);
+      }
+      
+      try {
+        await clearStoredVehicleNumber();
+        console.log('✅ Vehicle number cleared');
+      } catch (vehicleError) {
+        console.warn('Vehicle clear error (continuing):', vehicleError);
+      }
+      
+      // Step 3: Server logout (non-blocking, with timeout)
+      try {
+        const logoutPromise = logout(token);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Logout timeout')), 3000)
+        );
+        await Promise.race([logoutPromise, timeoutPromise]);
+        console.log('✅ Server logout complete');
+      } catch (logoutError) {
+        console.warn('Server logout skipped:', logoutError);
+      }
+      
+      // Step 4: Navigate to login
+      console.log('✅ Calling onLogout callback...');
       onLogout();
+      
     } catch (error) {
-      console.error('Logout error:', error);
-      onLogout(); // Force logout even if there are errors
+      console.error('❌ Logout error:', error);
+      // Force logout even if there are errors
+      onLogout();
     }
   };
 
