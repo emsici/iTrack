@@ -714,55 +714,32 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const handleLogout = async () => {
-    console.log('🚪 LOGOUT BUTTON PRESSED - Starting logout process...');
+  const handleLogout = () => {
+    console.log('🚪 LOGOUT BUTTON PRESSED - INSTANT logout');
     
-    // IMMEDIATE: Call onLogout first to prevent UI freeze
-    try {
-      // Step 1: Clear GPS tracking (non-blocking)
+    // INSTANT: Apel onLogout IMEDIAT - fără await, fără așteptare
+    // Cleanup se face în background după ce UI-ul s-a schimbat
+    
+    // Cleanup în background (fire and forget - nu așteptăm)
+    setTimeout(() => {
       try {
-        await logoutClearAllGPS();
-        console.log('✅ GPS cleared');
-      } catch (gpsError) {
-        console.warn('GPS clear error (continuing):', gpsError);
+        // GPS clear
+        logoutClearAllGPS().catch(e => console.warn('GPS clear:', e));
+        // Token clear  
+        clearToken().catch(e => console.warn('Token clear:', e));
+        // Vehicle clear
+        clearStoredVehicleNumber().catch(e => console.warn('Vehicle clear:', e));
+        // Server logout (ignorăm rezultatul)
+        logout(token).catch(e => console.warn('Server logout:', e));
+        console.log('✅ Background cleanup initiated');
+      } catch (e) {
+        console.warn('Background cleanup error:', e);
       }
-      
-      // Step 2: Clear stored data (non-blocking)
-      try {
-        await clearToken();
-        console.log('✅ Token cleared');
-      } catch (tokenError) {
-        console.warn('Token clear error (continuing):', tokenError);
-      }
-      
-      try {
-        await clearStoredVehicleNumber();
-        console.log('✅ Vehicle number cleared');
-      } catch (vehicleError) {
-        console.warn('Vehicle clear error (continuing):', vehicleError);
-      }
-      
-      // Step 3: Server logout (non-blocking, with timeout)
-      try {
-        const logoutPromise = logout(token);
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Logout timeout')), 3000)
-        );
-        await Promise.race([logoutPromise, timeoutPromise]);
-        console.log('✅ Server logout complete');
-      } catch (logoutError) {
-        console.warn('Server logout skipped:', logoutError);
-      }
-      
-      // Step 4: Navigate to login
-      console.log('✅ Calling onLogout callback...');
-      onLogout();
-      
-    } catch (error) {
-      console.error('❌ Logout error:', error);
-      // Force logout even if there are errors
-      onLogout();
-    }
+    }, 100);
+    
+    // INSTANT: Navigare la login - NU AȘTEPTĂM NIMIC
+    console.log('✅ Calling onLogout callback IMMEDIATELY...');
+    onLogout();
   };
 
   // Funcție pentru obținerea culorilor temei curente
