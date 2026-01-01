@@ -54,7 +54,7 @@ export const clearToken = async (): Promise<void> => {
     await Preferences.remove({ key: TOKEN_KEY });
   } catch (error) {
     console.error('Eroare ștergere token:', error);
-    throw error;
+    // Nu facem throw - permitem logout să continue
   }
 };
 
@@ -98,7 +98,7 @@ export const clearStoredVehicleNumber = async (): Promise<void> => {
     await Preferences.remove({ key: VEHICLE_NUMBER_KEY });
   } catch (error) {
     console.error('Eroare ștergere număr vehicul stocat:', error);
-    throw error;
+    // Nu facem throw - permitem logout să continue
   }
 };
 
