@@ -191,8 +191,37 @@ class BrowserNotificationService implements NotificationService {
   }
 }
 
-// Export serviciul principal
-export const nativeNotificationService: NotificationService = 
-  window.AndroidGPS ? new AndroidNotificationService() : new BrowserNotificationService();
+// LAZY DETECTION: Serviciu care detectează dinamic AndroidGPS/iOSGPS
+class LazyNotificationService implements NotificationService {
+  private androidService = new AndroidNotificationService();
+  private browserService = new BrowserNotificationService();
+  
+  private getActiveService(): NotificationService {
+    // Verifică la fiecare apel dacă bridge-ul nativ e disponibil
+    if (window.AndroidGPS || window.iOSGPS) {
+      return this.androidService;
+    }
+    return this.browserService;
+  }
+  
+  async showPersistentTracking(activeCourses: Course[]): Promise<void> {
+    return this.getActiveService().showPersistentTracking(activeCourses);
+  }
+  
+  async hidePersistentTracking(): Promise<void> {
+    return this.getActiveService().hidePersistentTracking();
+  }
+  
+  async showQuickNotification(title: string, message: string, duration?: number): Promise<void> {
+    return this.getActiveService().showQuickNotification(title, message, duration);
+  }
+  
+  async updateTrackingNotification(activeCourses: Course[]): Promise<void> {
+    return this.getActiveService().updateTrackingNotification(activeCourses);
+  }
+}
+
+// Export serviciul principal cu LAZY DETECTION
+export const nativeNotificationService: NotificationService = new LazyNotificationService();
 
 export default nativeNotificationService;
