@@ -717,28 +717,28 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const handleLogout = () => {
     console.log('🚪 LOGOUT BUTTON PRESSED - INSTANT logout');
     
-    // INSTANT: Apel onLogout IMEDIAT - fără await, fără așteptare
-    // Cleanup se face în background după ce UI-ul s-a schimbat
+    // Salvăm token-ul ÎNAINTE de a schimba UI-ul (pentru cleanup background)
+    const savedToken = token;
     
-    // Cleanup în background (fire and forget - nu așteptăm)
-    setTimeout(() => {
-      try {
-        // GPS clear
-        logoutClearAllGPS().catch(e => console.warn('GPS clear:', e));
-        // Token clear  
-        clearToken().catch(e => console.warn('Token clear:', e));
-        // Vehicle clear
-        clearStoredVehicleNumber().catch(e => console.warn('Vehicle clear:', e));
-        // Server logout (ignorăm rezultatul)
-        logout(token).catch(e => console.warn('Server logout:', e));
-        console.log('✅ Background cleanup initiated');
-      } catch (e) {
-        console.warn('Background cleanup error:', e);
+    // CLEANUP SINCRON - fără setTimeout, fără probleme de lifecycle
+    try {
+      // GPS clear - sincron, nu așteaptă
+      logoutClearAllGPS().catch(() => {});
+      // Token clear - sincron, nu așteaptă
+      clearToken().catch(() => {});
+      // Vehicle clear - sincron, nu așteaptă  
+      clearStoredVehicleNumber().catch(() => {});
+      // Server logout cu token salvat - sincron, nu așteaptă
+      if (savedToken) {
+        logout(savedToken).catch(() => {});
       }
-    }, 100);
+      console.log('✅ Cleanup initiated');
+    } catch (e) {
+      // Ignorăm orice eroare
+    }
     
-    // INSTANT: Navigare la login - NU AȘTEPTĂM NIMIC
-    console.log('✅ Calling onLogout callback IMMEDIATELY...');
+    // INSTANT: Navigare la login
+    console.log('✅ Calling onLogout...');
     onLogout();
   };
 
