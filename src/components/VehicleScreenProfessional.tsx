@@ -343,6 +343,9 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const currentVehicleRef = useRef<string>('');
   const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
+  
+  // LOGOUT PROTECTION: Previne apăsări multiple și crash-uri
+  const logoutInProgressRef = useRef<boolean>(false);
 
   // Network and offline monitoring
   const [isOnline, setIsOnline] = useState(true);
@@ -714,32 +717,45 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const handleLogout = () => {
-    console.log('🚪 LOGOUT BUTTON PRESSED - INSTANT logout');
+  const handleLogout = async () => {
+    // PROTECȚIE: Previne apăsări multiple
+    if (logoutInProgressRef.current) {
+      console.log('⚠️ Logout deja în progres, ignorăm');
+      return;
+    }
+    logoutInProgressRef.current = true;
     
-    // Salvăm token-ul ÎNAINTE de a schimba UI-ul (pentru cleanup background)
+    console.log('🚪 LOGOUT BUTTON PRESSED');
+    
+    // Salvăm token-ul ÎNAINTE de a schimba UI-ul
     const savedToken = token;
     
-    // CLEANUP SINCRON - fără setTimeout, fără probleme de lifecycle
     try {
-      // GPS clear - sincron, nu așteaptă
-      logoutClearAllGPS().catch(() => {});
-      // Token clear - sincron, nu așteaptă
-      clearToken().catch(() => {});
-      // Vehicle clear - sincron, nu așteaptă  
-      clearStoredVehicleNumber().catch(() => {});
-      // Server logout cu token salvat - sincron, nu așteaptă
-      if (savedToken) {
-        logout(savedToken).catch(() => {});
+      // STEP 1: GPS cleanup PRIMUL și OBLIGATORIU - așteptăm complet
+      try {
+        await logoutClearAllGPS();
+        console.log('✅ GPS cleanup done');
+      } catch (e) {
+        console.warn('GPS cleanup error:', e);
       }
-      console.log('✅ Cleanup initiated');
-    } catch (e) {
-      // Ignorăm orice eroare
+      
+      // STEP 2: Restul cleanup-urilor (nu critice pentru crash)
+      try {
+        await Promise.allSettled([
+          clearToken().catch(() => {}),
+          clearStoredVehicleNumber().catch(() => {}),
+          savedToken ? logout(savedToken).catch(() => {}) : Promise.resolve()
+        ]);
+        console.log('✅ Storage cleanup done');
+      } catch (e) {
+        console.warn('Storage cleanup error:', e);
+      }
+    } finally {
+      // GARANTAT: Navigăm la login indiferent de erori
+      console.log('✅ Navigating to login...');
+      logoutInProgressRef.current = false;
+      onLogout();
     }
-    
-    // INSTANT: Navigare la login
-    console.log('✅ Calling onLogout...');
-    onLogout();
   };
 
   // Funcție pentru obținerea culorilor temei curente
