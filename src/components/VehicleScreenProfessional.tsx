@@ -2006,7 +2006,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
               <button
                 onClick={() => {
                   setShowLogoutModal(false);
-                  onLogout();
+                  handleLogout();
                 }}
                 style={{
                   flex: 1,
