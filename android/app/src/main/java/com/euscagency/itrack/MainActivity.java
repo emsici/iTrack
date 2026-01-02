@@ -25,6 +25,7 @@ public class MainActivity extends BridgeActivity {
     private static final String TAG = "iTrackMainActivity";
     private static MainActivity instance;
     private boolean isAndroidGPSAdded = false; // FIXED: Previne multiple addJavascriptInterface
+    private static volatile boolean isLoggingOut = false; // CRASH FIX: Previne apeluri WebView după logout
 
     public static MainActivity getInstance() {
         return instance;
@@ -127,6 +128,10 @@ public class MainActivity extends BridgeActivity {
     
     @JavascriptInterface
     public String startGPS(String courseId, String vehicleNumber, String uit, String authToken, int status) {
+        // CRASH FIX: Resetăm flag-ul de logout când utilizatorul pornește GPS (nouă sesiune)
+        isLoggingOut = false;
+        Log.e(TAG, "🔓 isLoggingOut = false - WebView calls enabled");
+        
         Log.e(TAG, "🚀 === BACKGROUND GPS === AndroidGPS.startGPS CALLED FROM JAVASCRIPT");
         Log.e(TAG, "📍 Starting NATIVE GPS system:");
         Log.e(TAG, "  - courseId: " + courseId);
@@ -239,6 +244,10 @@ public class MainActivity extends BridgeActivity {
     public String clearAllOnLogout() {
         Log.e(TAG, "🧹 === FUSION GPS === clearAllOnLogout called");
         
+        // CRASH FIX: Setăm flag-ul ÎNAINTE de orice pentru a bloca apelurile WebView
+        isLoggingOut = true;
+        Log.e(TAG, "🔒 isLoggingOut = true - WebView calls blocked");
+        
         try {
             // Stop BackgroundGPSService
             Intent intent = new Intent(this, BackgroundGPSService.class);
@@ -337,23 +346,51 @@ public class MainActivity extends BridgeActivity {
     // NETWORK STATUS REPORTING pentru frontend - CRITICAL pentru online/offline detection
     @JavascriptInterface
     public void onGPSTransmissionSuccess() {
+        // CRASH FIX: Nu apela WebView dacă logout e în progres
+        if (isLoggingOut) {
+            Log.d(TAG, "📡 GPS transmission SUCCESS - SKIPPED (logout in progress)");
+            return;
+        }
+        
         Log.d(TAG, "📡 GPS transmission SUCCESS - notifying WebView about network status");
         
         // Call JavaScript function to report success
         runOnUiThread(() -> {
-            String jsCode = "if(window.AndroidGPSCallback && window.AndroidGPSCallback.onTransmissionSuccess) { window.AndroidGPSCallback.onTransmissionSuccess(); }";
-            getBridge().getWebView().evaluateJavascript(jsCode, null);
+            try {
+                if (isLoggingOut) return; // Double check în UI thread
+                WebView webView = getBridge().getWebView();
+                if (webView != null) {
+                    String jsCode = "if(window.AndroidGPSCallback && window.AndroidGPSCallback.onTransmissionSuccess) { window.AndroidGPSCallback.onTransmissionSuccess(); }";
+                    webView.evaluateJavascript(jsCode, null);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "WebView call failed (likely destroyed): " + e.getMessage());
+            }
         });
     }
 
     @JavascriptInterface  
     public void onGPSTransmissionError(int httpStatus) {
+        // CRASH FIX: Nu apela WebView dacă logout e în progres
+        if (isLoggingOut) {
+            Log.d(TAG, "📡 GPS transmission ERROR - SKIPPED (logout in progress)");
+            return;
+        }
+        
         Log.d(TAG, "📡 GPS transmission ERROR " + httpStatus + " - notifying WebView about network status");
         
         // Call JavaScript function to report error
         runOnUiThread(() -> {
-            String jsCode = "if(window.AndroidGPSCallback && window.AndroidGPSCallback.onTransmissionError) { window.AndroidGPSCallback.onTransmissionError(" + httpStatus + "); }";
-            getBridge().getWebView().evaluateJavascript(jsCode, null);
+            try {
+                if (isLoggingOut) return; // Double check în UI thread
+                WebView webView = getBridge().getWebView();
+                if (webView != null) {
+                    String jsCode = "if(window.AndroidGPSCallback && window.AndroidGPSCallback.onTransmissionError) { window.AndroidGPSCallback.onTransmissionError(" + httpStatus + "); }";
+                    webView.evaluateJavascript(jsCode, null);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "WebView call failed (likely destroyed): " + e.getMessage());
+            }
         });
     }
     
