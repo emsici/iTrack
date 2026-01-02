@@ -714,44 +714,31 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
   };
 
-  const handleLogout = async () => {
-    console.log('🚪 LOGOUT BUTTON PRESSED');
+  const handleLogout = () => {
+    console.log('🚪 LOGOUT BUTTON PRESSED - INSTANT logout');
     
-    // Salvăm token-ul ÎNAINTE de orice cleanup
+    // Salvăm token-ul ÎNAINTE de a schimba UI-ul (pentru cleanup background)
     const savedToken = token;
     
-    // CRITICAL: Așteptăm GPS cleanup ÎNAINTE de a schimba UI-ul
-    // Altfel WebView-ul se distruge și bridge-ul Android face crash
+    // CLEANUP SINCRON - fără setTimeout, fără probleme de lifecycle
     try {
-      console.log('🔄 Cleaning up GPS...');
-      await logoutClearAllGPS();
-      console.log('✅ GPS cleanup done');
+      // GPS clear - sincron, nu așteaptă
+      logoutClearAllGPS().catch(() => {});
+      // Token clear - sincron, nu așteaptă
+      clearToken().catch(() => {});
+      // Vehicle clear - sincron, nu așteaptă  
+      clearStoredVehicleNumber().catch(() => {});
+      // Server logout cu token salvat - sincron, nu așteaptă
+      if (savedToken) {
+        logout(savedToken).catch(() => {});
+      }
+      console.log('✅ Cleanup initiated');
     } catch (e) {
-      console.warn('GPS cleanup error (continuing):', e);
+      // Ignorăm orice eroare
     }
     
-    // Acum putem curăța restul (nu depind de bridge Android)
-    try {
-      await clearToken();
-      console.log('✅ Token cleared');
-    } catch (e) {
-      console.warn('Token clear error:', e);
-    }
-    
-    try {
-      await clearStoredVehicleNumber();
-      console.log('✅ Vehicle cleared');
-    } catch (e) {
-      console.warn('Vehicle clear error:', e);
-    }
-    
-    // Server logout (nu e critic, poate rula async)
-    if (savedToken) {
-      logout(savedToken).catch(() => {});
-    }
-    
-    // ACUM e sigur să schimbăm UI-ul
-    console.log('✅ Navigating to login...');
+    // INSTANT: Navigare la login
+    console.log('✅ Calling onLogout...');
     onLogout();
   };
 
