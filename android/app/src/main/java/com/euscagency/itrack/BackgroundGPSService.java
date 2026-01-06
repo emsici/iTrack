@@ -326,39 +326,42 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "🛑 Current isGPSRunning: " + isGPSRunning.get());
         Log.e(TAG, "🛑 Active courses: " + activeCourses.size());
         
+        // CRASH FIX: Setăm flag-ul PRIMUL pentru a bloca TOATE callback-urile
+        isServiceLoggingOut = true;
         isGPSRunning.set(false);
         
-        // OPRIRE: Fusion GPS
+        // OPRIRE: Fusion GPS IMEDIAT pentru a opri callback-urile
         stopFusionGPS();
         
-        // ELIMINAT: Handler cleanup - nu mai avem Handler manual
+        // CRASH FIX: Oprește retryExecutor IMEDIAT pentru a preveni callback-uri
+        if (retryExecutor != null && !retryExecutor.isShutdown()) {
+            retryExecutor.shutdownNow();
+            Log.e(TAG, "🛑 Retry Executor force stopped");
+            retryExecutor = null;
+        }
         
+        // CRASH FIX: Curăță activeCourses pentru a preveni iterații
+        activeCourses.clear();
+        Log.e(TAG, "🛑 Active courses cleared");
+        
+        // CRASH FIX: Curăță offline queue
+        offlineQueue.clear();
+        Log.e(TAG, "🛑 Offline queue cleared");
+        
+        // WakeLock release (fără sendLogToJavaScript - ar fi blocat oricum)
         if (wakeLock != null && wakeLock.isHeld()) {
             wakeLock.release();
             Log.e(TAG, "🛑 WakeLock released");
-            sendLogToJavaScript("🛑 WakeLock released");
-        } else {
-            Log.e(TAG, "🛑 WakeLock was already released or null");
         }
         
-        // ELIMINAT: Health Monitor - FusedLocationProviderClient e robust automat
-        
-        // Stop HTTP Thread Pool pentru a evita memory leaks
+        // Stop HTTP Thread Pool IMEDIAT
         if (httpThreadPool != null && !httpThreadPool.isShutdown()) {
-            httpThreadPool.shutdown();
-            try {
-                if (!httpThreadPool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
-                    httpThreadPool.shutdownNow();
-                }
-                Log.e(TAG, "🛑 HTTP Thread Pool stopped");
-            } catch (InterruptedException e) {
-                httpThreadPool.shutdownNow();
-                Log.e(TAG, "🛑 HTTP Thread Pool force stopped");
-            }
+            httpThreadPool.shutdownNow(); // Force stop, nu mai așteptăm
+            Log.e(TAG, "🛑 HTTP Thread Pool force stopped");
+            httpThreadPool = null;
         }
         
-        // SIMPLU: Fusion GPS oprit - gata!
-        Log.e(TAG, "🛑 FUSION GPS Service oprit complet");
+        Log.e(TAG, "🛑 FUSION GPS Service oprit complet - toate callback-urile blocate");
     }
     
     
@@ -386,6 +389,11 @@ public class BackgroundGPSService extends Service {
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
+                // CRASH FIX: Nu procesa dacă logout e în progres
+                if (isServiceLoggingOut) {
+                    Log.d(TAG, "📵 onLocationResult SKIPPED - logout in progress");
+                    return;
+                }
                 if (locationResult == null) return;
                 
                 for (Location location : locationResult.getLocations()) {
@@ -503,6 +511,12 @@ public class BackgroundGPSService extends Service {
     }
     
     private void transmitGPSDataToAllActiveCourses(Location location) {
+        // CRASH FIX: Nu procesa dacă logout e în progres
+        if (isServiceLoggingOut) {
+            Log.d(TAG, "📵 transmitGPSDataToAllActiveCourses SKIPPED - logout in progress");
+            return;
+        }
+        
         try {
             Log.i(TAG, "Pregătesc transmisia GPS pentru " + activeCourses.size() + " curse");
             
@@ -1094,6 +1108,12 @@ public class BackgroundGPSService extends Service {
     
     // OFFLINE QUEUE: Procesează coada pentru retry cu exponential backoff
     private void processOfflineQueue() {
+        // CRASH FIX: Nu procesa dacă logout e în progres
+        if (isServiceLoggingOut) {
+            Log.d(TAG, "📵 processOfflineQueue SKIPPED - logout in progress");
+            return;
+        }
+        
         try {
             if (offlineQueue.isEmpty()) {
                 return;
