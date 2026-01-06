@@ -144,10 +144,25 @@ public class BackgroundGPSService extends Service {
             globalVehicle = intent.getStringExtra("vehicle");
             int courseStatus = intent.getIntExtra("status", 2); // Default ACTIVE
             
+            // CRASH FIX: Verifică dacă avem date valide ÎNAINTE de a continua
+            if (globalToken == null || globalToken.isEmpty()) {
+                Log.e(TAG, "❌ CRASH PREVENTED: globalToken is null - cannot start GPS");
+                return START_STICKY;
+            }
+            if (globalVehicle == null || globalVehicle.isEmpty()) {
+                Log.e(TAG, "❌ CRASH PREVENTED: globalVehicle is null - cannot start GPS");
+                return START_STICKY;
+            }
+            if (uitId == null || uitId.isEmpty()) {
+                Log.e(TAG, "❌ CRASH PREVENTED: uitId is null - cannot start GPS");
+                return START_STICKY;
+            }
+            
             // CRITICAL: Creează key unic pentru HashMap pentru a evita conflictul între mașini
             // CONFLICT PREVENTION: Adăugăm și token-ul pentru a evita conflictele între utilizatori
             String deviceId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
-            String tokenHash = String.valueOf(Math.abs(globalToken.hashCode())); // Hash token pentru unicitate
+            if (deviceId == null) deviceId = "unknown"; // CRASH FIX: deviceId null check
+            String tokenHash = String.valueOf(Math.abs(globalToken.hashCode())); // Acum safe - globalToken verificat mai sus
             String uniqueKey = globalVehicle + "_" + uitId + "_" + deviceId.substring(0, Math.min(8, deviceId.length())) + "_" + tokenHash.substring(0, Math.min(8, tokenHash.length())); // Vehicul + UIT + Device + Token = key COMPLET unic
             
             Log.e(TAG, "⚡ MULTI-VEHICLE MULTI-COURSE - Adăugare cursă:");
@@ -323,42 +338,71 @@ public class BackgroundGPSService extends Service {
     
     private void stopBackgroundGPS() {
         Log.e(TAG, "🛑 === STOP BACKGROUND GPS CALLED ===");
-        Log.e(TAG, "🛑 Current isGPSRunning: " + isGPSRunning.get());
-        Log.e(TAG, "🛑 Active courses: " + activeCourses.size());
         
         // CRASH FIX: Setăm flag-ul PRIMUL pentru a bloca TOATE callback-urile
         isServiceLoggingOut = true;
         isGPSRunning.set(false);
         
+        // CRASH FIX: Null checks pentru logging safe
+        Log.e(TAG, "🛑 Active courses: " + (activeCourses != null ? activeCourses.size() : "null"));
+        
         // OPRIRE: Fusion GPS IMEDIAT pentru a opri callback-urile
-        stopFusionGPS();
+        try {
+            stopFusionGPS();
+        } catch (Exception e) {
+            Log.e(TAG, "🛑 stopFusionGPS error (ignored): " + e.getMessage());
+        }
         
         // CRASH FIX: Oprește retryExecutor IMEDIAT pentru a preveni callback-uri
-        if (retryExecutor != null && !retryExecutor.isShutdown()) {
-            retryExecutor.shutdownNow();
-            Log.e(TAG, "🛑 Retry Executor force stopped");
+        try {
+            if (retryExecutor != null && !retryExecutor.isShutdown()) {
+                retryExecutor.shutdownNow();
+                Log.e(TAG, "🛑 Retry Executor force stopped");
+            }
             retryExecutor = null;
+        } catch (Exception e) {
+            Log.e(TAG, "🛑 retryExecutor shutdown error (ignored): " + e.getMessage());
         }
         
         // CRASH FIX: Curăță activeCourses pentru a preveni iterații
-        activeCourses.clear();
-        Log.e(TAG, "🛑 Active courses cleared");
+        try {
+            if (activeCourses != null) {
+                activeCourses.clear();
+                Log.e(TAG, "🛑 Active courses cleared");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "🛑 activeCourses clear error (ignored): " + e.getMessage());
+        }
         
         // CRASH FIX: Curăță offline queue
-        offlineQueue.clear();
-        Log.e(TAG, "🛑 Offline queue cleared");
+        try {
+            if (offlineQueue != null) {
+                offlineQueue.clear();
+                Log.e(TAG, "🛑 Offline queue cleared");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "🛑 offlineQueue clear error (ignored): " + e.getMessage());
+        }
         
         // WakeLock release (fără sendLogToJavaScript - ar fi blocat oricum)
-        if (wakeLock != null && wakeLock.isHeld()) {
-            wakeLock.release();
-            Log.e(TAG, "🛑 WakeLock released");
+        try {
+            if (wakeLock != null && wakeLock.isHeld()) {
+                wakeLock.release();
+                Log.e(TAG, "🛑 WakeLock released");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "🛑 wakeLock release error (ignored): " + e.getMessage());
         }
         
         // Stop HTTP Thread Pool IMEDIAT
-        if (httpThreadPool != null && !httpThreadPool.isShutdown()) {
-            httpThreadPool.shutdownNow(); // Force stop, nu mai așteptăm
-            Log.e(TAG, "🛑 HTTP Thread Pool force stopped");
+        try {
+            if (httpThreadPool != null && !httpThreadPool.isShutdown()) {
+                httpThreadPool.shutdownNow(); // Force stop, nu mai așteptăm
+                Log.e(TAG, "🛑 HTTP Thread Pool force stopped");
+            }
             httpThreadPool = null;
+        } catch (Exception e) {
+            Log.e(TAG, "🛑 httpThreadPool shutdown error (ignored): " + e.getMessage());
         }
         
         Log.e(TAG, "🛑 FUSION GPS Service oprit complet - toate callback-urile blocate");

@@ -40,29 +40,23 @@ public class MainActivity extends BridgeActivity {
         instance = this;
         Log.d(TAG, "✅ MainActivity inițializat - pregătirea interfețelor AndroidGPS");
         
-        // CRASH PROTECTION: Capturăm crash-urile și le ignorăm DOAR dacă sunt în timpul logout-ului
+        // CRASH PROTECTION: Capturăm ORICE crash în timpul logout-ului și îl ignorăm
         originalHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             String message = throwable.getMessage() != null ? throwable.getMessage() : "";
             String stackTrace = Log.getStackTraceString(throwable);
             
-            // Dacă suntem în logout și crash-ul e legat de WebView/Bridge, îl ignorăm
-            if (isLoggingOut && (
-                message.contains("WebView") || 
-                message.contains("Bridge") || 
-                message.contains("evaluateJavascript") ||
-                message.contains("NullPointerException") ||
-                stackTrace.contains("WebView") ||
-                stackTrace.contains("evaluateJavascript") ||
-                stackTrace.contains("getBridge")
-            )) {
-                Log.e(TAG, "🛡️ CRASH PREVENTED during logout: " + message);
+            // CRASH FIX FINAL: Dacă suntem în logout, ignorăm ORICE excepție
+            // Nu mai filtrăm după tip - ORICE crash în timpul logout-ului e ignorat
+            if (isLoggingOut) {
+                Log.e(TAG, "🛡️ CRASH PREVENTED during logout: " + throwable.getClass().getSimpleName() + " - " + message);
                 Log.e(TAG, "🛡️ Stack trace (ignored): " + stackTrace);
                 // NU propagăm crash-ul - îl ignorăm graceful
+                // App-ul va continua normal către ecranul de login
                 return;
             }
             
-            // Pentru alte crash-uri, le propagăm normal
+            // Pentru crash-uri în afara logout-ului, le propagăm normal
             if (originalHandler != null) {
                 originalHandler.uncaughtException(thread, throwable);
             }
