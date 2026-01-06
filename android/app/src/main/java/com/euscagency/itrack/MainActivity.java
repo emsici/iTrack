@@ -54,6 +54,11 @@ public class MainActivity extends BridgeActivity {
         
         // FIXED: Single initialization pentru a evita multiple addJavascriptInterface
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            // CRASH FIX: Nu executa dacă logout e în progres
+            if (isLoggingOut) {
+                Log.d(TAG, "🔒 onStart Handler SKIPPED - logout in progress");
+                return;
+            }
             if (!isAndroidGPSAdded) {
                 addAndroidGPSInterface();
             }
@@ -354,6 +359,11 @@ public class MainActivity extends BridgeActivity {
         
         // Programez verificarea periodică a log-urilor pentru offline GPS
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            // CRASH FIX: Nu executa dacă logout e în progres
+            if (isLoggingOut) {
+                Log.d(TAG, "🔒 setupOfflineGPSListener Handler SKIPPED - logout in progress");
+                return;
+            }
             monitorOfflineGPSLogs();
         }, 2000);
     }

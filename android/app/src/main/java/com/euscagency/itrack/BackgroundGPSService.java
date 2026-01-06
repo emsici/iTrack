@@ -1107,6 +1107,11 @@ public class BackgroundGPSService extends Service {
             retryExecutor.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
+                    // CRASH FIX: Verifică flag-ul în Runnable
+                    if (isServiceLoggingOut) {
+                        Log.d(TAG, "📵 Retry Runnable SKIPPED - logout in progress");
+                        return;
+                    }
                     if (!offlineQueue.isEmpty()) {
                         processOfflineQueue();
                     }
@@ -1121,6 +1126,12 @@ public class BackgroundGPSService extends Service {
     
     // OFFLINE QUEUE: Adaugă coordonate GPS în coada pentru retry
     private void addToOfflineQueue(org.json.JSONObject gpsData, String timestamp) {
+        // CRASH FIX: Nu adăuga dacă logout e în progres
+        if (isServiceLoggingOut) {
+            Log.d(TAG, "📵 addToOfflineQueue SKIPPED - logout in progress");
+            return;
+        }
+        
         try {
             // MEMORY PROTECTION: Limitează mărimea cozii pentru a evita memory leaks
             if (offlineQueue.size() >= MAX_OFFLINE_QUEUE_SIZE) {
