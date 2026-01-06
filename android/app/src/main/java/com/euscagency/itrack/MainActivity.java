@@ -306,18 +306,40 @@ public class MainActivity extends BridgeActivity {
         Log.e(TAG, "🔒 isLoggingOut = true - WebView calls blocked");
         
         try {
-            // Stop BackgroundGPSService
-            Intent intent = new Intent(this, BackgroundGPSService.class);
-            intent.setAction("STOP_BACKGROUND_GPS");
-            
-            startService(intent);
-            Log.e(TAG, "✅ BackgroundGPSService stop requested on logout");
-            return "SUCCESS: BACKGROUND GPS stopped and cleared";
+            // CRASH FIX: Verificăm dacă serviciul rulează ÎNAINTE de a trimite STOP
+            // Dacă serviciul NU rulează, startService(STOP) îl pornește doar pentru a-l opri
+            // ceea ce cauzează crash (accesează state neinițializat)
+            if (isServiceRunning(BackgroundGPSService.class)) {
+                Log.e(TAG, "📍 BackgroundGPSService IS RUNNING - sending STOP");
+                Intent intent = new Intent(this, BackgroundGPSService.class);
+                intent.setAction("STOP_BACKGROUND_GPS");
+                startService(intent);
+                Log.e(TAG, "✅ BackgroundGPSService stop requested on logout");
+                return "SUCCESS: BACKGROUND GPS stopped and cleared";
+            } else {
+                Log.e(TAG, "📍 BackgroundGPSService NOT RUNNING - skip STOP (no crash)");
+                return "SUCCESS: GPS was not running";
+            }
             
         } catch (Exception e) {
             Log.e(TAG, "❌ Error clearing NATIVE GPS data: " + e.getMessage());
             return "ERROR: " + e.getMessage();
         }
+    }
+    
+    // Helper pentru a verifica dacă un serviciu rulează
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        try {
+            ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceClass.getName().equals(service.service.getClassName())) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error checking service status: " + e.getMessage());
+        }
+        return false;
     }
     
     @JavascriptInterface
