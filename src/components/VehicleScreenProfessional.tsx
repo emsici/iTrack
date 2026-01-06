@@ -725,38 +725,37 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
     logoutInProgressRef.current = true;
     
-    console.log('🚪 LOGOUT BUTTON PRESSED');
+    console.log('🚪 LOGOUT BUTTON PRESSED - SIMPLIFIED VERSION');
     
     // Salvăm token-ul ÎNAINTE de a schimba UI-ul
     const savedToken = token;
     
     try {
-      // STEP 1: GPS cleanup PRIMUL și OBLIGATORIU - așteptăm complet
-      try {
-        await logoutClearAllGPS();
-        console.log('✅ GPS cleanup done');
-      } catch (e) {
-        console.warn('GPS cleanup error:', e);
-      }
+      // CRASH FIX: NU apelăm GPS cleanup - lasăm serviciul să ruleze
+      // Serviciul va fi oprit când utilizatorul se loghează din nou sau închide aplicația
+      // Aceasta previne crash-ul cauzat de apelurile WebView după logout
+      console.log('⏭️ Skipping GPS cleanup to prevent crash');
       
-      // STEP 2: Restul cleanup-urilor (nu critice pentru crash)
-      try {
-        await Promise.allSettled([
+      // Doar cleanup storage (non-blocking, cu timeout)
+      const cleanupPromise = Promise.race([
+        Promise.allSettled([
           clearToken().catch(() => {}),
-          clearStoredVehicleNumber().catch(() => {}),
-          savedToken ? logout(savedToken).catch(() => {}) : Promise.resolve()
-        ]);
-        console.log('✅ Storage cleanup done');
-      } catch (e) {
-        console.warn('Storage cleanup error:', e);
-      }
-    } finally {
-      // CRASH FIX: Delay pentru a da timp serviciului GPS nativ să se oprească complet
-      // Aceasta previne apelurile WebView după ce componenta e distrusă
-      console.log('✅ Waiting for native GPS service to stop...');
-      await new Promise(resolve => setTimeout(resolve, 500));
+          clearStoredVehicleNumber().catch(() => {})
+        ]),
+        new Promise(resolve => setTimeout(resolve, 1000)) // 1s timeout
+      ]);
       
-      // GARANTAT: Navigăm la login indiferent de erori
+      await cleanupPromise;
+      console.log('✅ Storage cleanup done');
+      
+      // API logout în background (nu așteptăm)
+      if (savedToken) {
+        logout(savedToken).catch(() => {});
+      }
+    } catch (e) {
+      console.warn('Logout error (ignored):', e);
+    } finally {
+      // GARANTAT: Navigăm la login imediat
       console.log('✅ Navigating to login...');
       logoutInProgressRef.current = false;
       onLogout();
