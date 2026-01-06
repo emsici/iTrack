@@ -725,28 +725,37 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     }
     logoutInProgressRef.current = true;
     
-    console.log('🚪 LOGOUT BUTTON PRESSED - SIMPLIFIED VERSION');
+    console.log('🚪 LOGOUT BUTTON PRESSED');
     
     // Salvăm token-ul ÎNAINTE de a schimba UI-ul
     const savedToken = token;
     
     try {
-      // CRASH FIX: NU apelăm GPS cleanup - lasăm serviciul să ruleze
-      // Serviciul va fi oprit când utilizatorul se loghează din nou sau închide aplicația
-      // Aceasta previne crash-ul cauzat de apelurile WebView după logout
-      console.log('⏭️ Skipping GPS cleanup to prevent crash');
+      // STEP 1: GPS cleanup - apelează serviciul nativ pentru a opri GPS-ul
+      // Serviciul are flag isServiceLoggingOut care blochează toate callback-urile
+      console.log('🛑 Stopping GPS service...');
+      try {
+        await logoutClearAllGPS();
+        console.log('✅ GPS cleanup done');
+      } catch (e) {
+        console.warn('GPS cleanup error (ignored):', e);
+      }
       
-      // Doar cleanup storage (non-blocking, cu timeout)
-      const cleanupPromise = Promise.race([
-        Promise.allSettled([
+      // STEP 2: Delay CRITIC pentru a permite serviciului să se oprească COMPLET
+      // Aceasta dă timp serviciului să proceseze stopSelf() și să nu mai apeleze WebView
+      console.log('⏳ Waiting for service to fully stop...');
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 1 secundă delay
+      
+      // STEP 3: Storage cleanup
+      try {
+        await Promise.allSettled([
           clearToken().catch(() => {}),
           clearStoredVehicleNumber().catch(() => {})
-        ]),
-        new Promise(resolve => setTimeout(resolve, 1000)) // 1s timeout
-      ]);
-      
-      await cleanupPromise;
-      console.log('✅ Storage cleanup done');
+        ]);
+        console.log('✅ Storage cleanup done');
+      } catch (e) {
+        console.warn('Storage cleanup error:', e);
+      }
       
       // API logout în background (nu așteptăm)
       if (savedToken) {
@@ -755,7 +764,7 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
     } catch (e) {
       console.warn('Logout error (ignored):', e);
     } finally {
-      // GARANTAT: Navigăm la login imediat
+      // GARANTAT: Navigăm la login
       console.log('✅ Navigating to login...');
       logoutInProgressRef.current = false;
       onLogout();

@@ -34,6 +34,10 @@ public class BackgroundGPSService extends Service {
     private static final int RETRY_INITIAL_DELAY = 30;
     private static final int RETRY_MAX_DELAY = 300;
     private static final int MAX_OFFLINE_QUEUE_SIZE = 1000;
+    
+    // CRASH FIX: Flag static pentru a bloca toate operațiile când logout e în progres
+    private static volatile boolean isServiceLoggingOut = false;
+    
     private FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
@@ -130,6 +134,10 @@ public class BackgroundGPSService extends Service {
         Log.e(TAG, "onStartCommand apelat cu acțiune: " + (intent != null ? intent.getAction() : "null"));
         
         if (intent != null && "START_BACKGROUND_GPS".equals(intent.getAction())) {
+            // CRASH FIX: Resetăm flag-ul de logout când serviciul e pornit din nou
+            isServiceLoggingOut = false;
+            Log.e(TAG, "🔓 isServiceLoggingOut = false - GPS service starting");
+            
             String uitId = intent.getStringExtra("uit"); // ikRoTrans ca identificator HashMap
             String realUit = intent.getStringExtra("extra_uit"); // UIT real pentru server
             globalToken = intent.getStringExtra("token");
@@ -260,8 +268,12 @@ public class BackgroundGPSService extends Service {
             }
             
         } else if (intent != null && "STOP_BACKGROUND_GPS".equals(intent.getAction())) {
-            Log.e(TAG, "Stop GPS requested");
+            // CRASH FIX: Setăm flag-ul ÎNAINTE de orice pentru a bloca toate callback-urile
+            isServiceLoggingOut = true;
+            Log.e(TAG, "🔒 isServiceLoggingOut = true - STOP GPS requested");
             stopBackgroundGPS();
+            // Oprim serviciul imediat pentru a preveni orice callback
+            stopSelf();
         }
         
         return START_STICKY;
@@ -805,6 +817,12 @@ public class BackgroundGPSService extends Service {
     // ELIMINAT: sendOfflineGPSToJavaScript - avem offline queue nativ mai eficient
     
     private void sendLogToJavaScript(String message) {
+        // CRASH FIX: Nu apela nimic dacă logout e în progres
+        if (isServiceLoggingOut) {
+            Log.d(TAG, "📵 sendLogToJavaScript SKIPPED - logout in progress: " + message);
+            return;
+        }
+        
         try {
             // Send log via Android system log with special tag for JS capture
             Log.e("JS_BRIDGE_LOG", "[Android GPS]: " + message);
