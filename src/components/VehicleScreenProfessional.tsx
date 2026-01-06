@@ -743,8 +743,10 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
       
       // STEP 2: Delay CRITIC pentru a permite serviciului să se oprească COMPLET
       // Aceasta dă timp serviciului să proceseze stopSelf() și să nu mai apeleze WebView
+      // HTTP requests pot dura până la 15 secunde (timeout), dar flag-ul le blochează imediat
       console.log('⏳ Waiting for service to fully stop...');
-      await new Promise(resolve => setTimeout(resolve, 1000)); // 1 secundă delay
+      await new Promise(resolve => setTimeout(resolve, 2000)); // 2 secunde delay pentru siguranță
+      console.log('✅ Service shutdown complete - safe to navigate');
       
       // STEP 3: Storage cleanup
       try {
