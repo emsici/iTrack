@@ -18,7 +18,7 @@ import { courseAnalyticsService } from "../services/courseAnalytics";
 import { offlineGPSService } from "../services/offlineGPS";
 import OfflineSyncMonitor from "./OfflineSyncMonitor";
 import { courseStateManager } from "../services/courseStateManager";
-import nativeNotificationService from "../services/nativeNotifications";
+import nativeNotificationService, { setLogoutInProgress } from "../services/nativeNotifications";
 
 // Interfață TypeScript pentru AndroidGPS și iOSGPS bridge
 declare global {
@@ -231,13 +231,14 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
 
 const logoutClearAllGPS = async () => {
   try {
-    // CRASH FIX: Apelăm clearAllOnLogout PRIMUL pentru a seta isLoggingOut = true
-    // Aceasta blochează toate apelurile native ulterioare și previne crash-ul
+    // CRASH FIX #1: Setăm flag-ul JavaScript PRIMUL - blochează TOATE apelurile async
+    console.log('🔒 STEP 1: Setting JavaScript logout guard FIRST...');
+    setLogoutInProgress(true);
     
-    // Android GPS clear - TREBUIE APELAT PRIMUL pentru a seta flag-ul nativ
+    // CRASH FIX #2: Apelăm clearAllOnLogout pentru a seta isLoggingOut nativ
     if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
       try {
-        console.log('🔒 Setting native isLoggingOut flag FIRST...');
+        console.log('🔒 STEP 2: Setting native isLoggingOut flag...');
         window.AndroidGPS.clearAllOnLogout();
         console.log('✅ Native logout flag set');
       } catch (androidError) {
@@ -254,14 +255,15 @@ const logoutClearAllGPS = async () => {
       }
     }
     
-    // Ascunde notificările persistente la logout - ACUM e safe, flag-ul e setat
+    // STEP 3: Ascunde notificările - ACUM e safe, AMBELE flag-uri sunt setate
     try {
+      console.log('🔒 STEP 3: Hiding notifications (both guards active)...');
       await nativeNotificationService.hidePersistentTracking();
     } catch (notifError) {
       console.warn('Eroare ascundere notificări:', notifError);
     }
     
-    console.log('✅ GPS logout cleanup completed');
+    console.log('✅ GPS logout cleanup completed - ALL guards active');
     return "SUCCESS: GPS cleared";
   } catch (error) {
     console.error('Eroare generală logoutClearAllGPS:', error);
