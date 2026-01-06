@@ -751,6 +751,11 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         console.warn('Storage cleanup error:', e);
       }
     } finally {
+      // CRASH FIX: Delay pentru a da timp serviciului GPS nativ să se oprească complet
+      // Aceasta previne apelurile WebView după ce componenta e distrusă
+      console.log('✅ Waiting for native GPS service to stop...');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       // GARANTAT: Navigăm la login indiferent de erori
       console.log('✅ Navigating to login...');
       logoutInProgressRef.current = false;
