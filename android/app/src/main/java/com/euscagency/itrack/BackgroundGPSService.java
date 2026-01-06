@@ -582,12 +582,23 @@ public class BackgroundGPSService extends Service {
     }
     
     private void transmitSingleCourseGPS(org.json.JSONObject gpsData, String uniqueKey, String realUit) {
+        // CRASH FIX: Nu executa dacă logout e în progres
+        if (isServiceLoggingOut) {
+            Log.d(TAG, "📵 transmitSingleCourseGPS SKIPPED - logout in progress");
+            return;
+        }
+        
         try {
             String gpsDataJson = gpsData.toString();
             
             httpThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
+                    // CRASH FIX: Verifică și în thread
+                    if (isServiceLoggingOut) {
+                        Log.d(TAG, "📵 GPS HTTP thread SKIPPED - logout in progress");
+                        return;
+                    }
                     try {
                         java.net.URL url = new java.net.URL("https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
                         javax.net.ssl.HttpsURLConnection conn = (javax.net.ssl.HttpsURLConnection) url.openConnection();
@@ -658,6 +669,12 @@ public class BackgroundGPSService extends Service {
     
     // GPS→OFFLINE BRIDGE: Trimite coordonatele către offlineGPSService pentru consistență
     private void sendGPSToOfflineService(org.json.JSONObject gpsData, String realUit) {
+        // CRASH FIX: Nu executa dacă logout e în progres
+        if (isServiceLoggingOut) {
+            Log.d(TAG, "📵 sendGPSToOfflineService SKIPPED - logout in progress");
+            return;
+        }
+        
         try {
             // CRITICAL: Bridge către JavaScript offline service pentru sync unified
             String offlineMessage = "GPS_OFFLINE_SAVE:" + gpsData.toString();
@@ -672,6 +689,12 @@ public class BackgroundGPSService extends Service {
     
     // GPS→MAP CONNECTION: Trimite coordonatele către courseAnalyticsService pentru vizualizare
     private void sendGPSToAnalyticsService(org.json.JSONObject gpsData, String realUit, String uniqueKey, String ikRoTrans) {
+        // CRASH FIX: Nu executa dacă logout e în progres
+        if (isServiceLoggingOut) {
+            Log.d(TAG, "📵 sendGPSToAnalyticsService SKIPPED - logout in progress");
+            return;
+        }
+        
         try {
             // CRITICAL FIX: JavaScript bridge cu TOATE identificatorii pentru matching
             org.json.JSONObject enrichedData = new org.json.JSONObject(gpsData.toString());
@@ -693,6 +716,12 @@ public class BackgroundGPSService extends Service {
     }
     
     private void sendStatusUpdateToServer(int newStatus, String uniqueKey) {
+        // CRASH FIX: Nu executa dacă logout e în progres
+        if (isServiceLoggingOut) {
+            Log.d(TAG, "📵 sendStatusUpdateToServer SKIPPED - logout in progress");
+            return;
+        }
+        
         try {
             Log.e(TAG, "📤 === PREPARING STATUS UPDATE FROM ANDROID SERVICE ===");
             
@@ -757,6 +786,12 @@ public class BackgroundGPSService extends Service {
     }
     
     private void sendStatusHTTPDirect(String statusDataJson) {
+        // CRASH FIX: Nu executa dacă logout e în progres
+        if (isServiceLoggingOut) {
+            Log.d(TAG, "📵 sendStatusHTTPDirect SKIPPED - logout in progress");
+            return;
+        }
+        
         try {
             Log.e(TAG, "🔄 === STARTING STATUS HTTP TRANSMISSION ===");
             Log.e(TAG, "🔗 URL: https://www.euscagency.com/etsm_prod/platforme/transport/apk/gps.php");
@@ -766,6 +801,11 @@ public class BackgroundGPSService extends Service {
             httpThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
+                    // CRASH FIX: Verifică și în thread
+                    if (isServiceLoggingOut) {
+                        Log.d(TAG, "📵 Status HTTP thread SKIPPED - logout in progress");
+                        return;
+                    }
                     try {
                         Log.e(TAG, "📡 Status HTTP thread started from thread pool");
                         
