@@ -18,7 +18,7 @@ import { courseAnalyticsService } from "../services/courseAnalytics";
 import { offlineGPSService } from "../services/offlineGPS";
 import OfflineSyncMonitor from "./OfflineSyncMonitor";
 import { courseStateManager } from "../services/courseStateManager";
-import nativeNotificationService, { setLogoutInProgress } from "../services/nativeNotifications";
+import nativeNotificationService, { setLogoutInProgress, getLogoutInProgress } from "../services/nativeNotifications";
 
 // Interfață TypeScript pentru AndroidGPS și iOSGPS bridge
 declare global {
@@ -55,6 +55,12 @@ declare global {
 // Urmărirea curselor active - pentru Android/iOS BackgroundGPSService (gestionată în serviciul nativ)
 
 const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) => {
+  // CRASH GUARD: Block native calls during logout
+  if (getLogoutInProgress()) {
+    console.log('🔒 startAndroidGPS BLOCKED - logout in progress');
+    return "Blocked: logout in progress";
+  }
+  
   if (!course) {
     console.error("Cursă invalidă pentru GPS");
     return "Eroare: Cursă invalidă";
@@ -105,6 +111,12 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
 
 // iOS GPS - funcții identice cu Android
 const startiOSGPS = async (course: Course, vehicleNumber: string, token: string) => {
+  // CRASH GUARD: Block native calls during logout
+  if (getLogoutInProgress()) {
+    console.log('🔒 startiOSGPS BLOCKED - logout in progress');
+    return "Blocked: logout in progress";
+  }
+  
   if (!course) {
     console.error("Cursă invalidă pentru GPS");
     return "Eroare: Cursă invalidă";
@@ -153,6 +165,12 @@ const startiOSGPS = async (course: Course, vehicleNumber: string, token: string)
 
 // Funcții GPS native directe - BackgroundGPSService gestionează totul nativ
 const updateCourseStatus = async (courseId: string, courseUit: string, newStatus: number, authToken: string, vehicleNumber: string) => {
+  // CRASH GUARD: Block operations during logout
+  if (getLogoutInProgress()) {
+    console.log('🔒 updateCourseStatus BLOCKED - logout in progress');
+    return;
+  }
+  
   try {
     console.log(`Actualizez status cursă ${courseId} la ${newStatus}`);
     

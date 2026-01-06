@@ -6,6 +6,7 @@ import VehicleScreen from './components/VehicleScreenProfessional';
 import AdminPanel from './components/AdminPanel';
 import { getStoredToken, storeToken, clearToken } from './services/storage';
 import { API_BASE_URL } from './services/api';
+import { setLogoutInProgress } from './services/nativeNotifications';
 // GPS operations now handled by capacitorGPS service
 
 type AppState = 'login' | 'vehicle' | 'admin';
@@ -50,6 +51,11 @@ const App: React.FC = () => {
 
   const handleLogin = async (authToken: string, _isAdmin: boolean = false) => {
     // Login successful, storing token
+    
+    // CRASH FIX: Reset JavaScript logout guard - permite apeluri native din nou
+    console.log('🔓 Resetting JavaScript logout guard for new session');
+    setLogoutInProgress(false);
+    
     try {
       // ALWAYS store token and go to vehicle screen - AdminPanel via 50 clicks only
       await storeToken(authToken);
