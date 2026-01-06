@@ -73,6 +73,12 @@ public class MainActivity extends BridgeActivity {
     }
 
     private void addAndroidGPSInterface() {
+        // CRASH FIX: Nu adăuga interfața dacă logout e în progres
+        if (isLoggingOut) {
+            Log.d(TAG, "🔒 addAndroidGPSInterface SKIPPED - logout in progress");
+            return;
+        }
+        
         try {
             WebView webView = getBridge().getWebView();
             if (webView != null) {
@@ -83,19 +89,24 @@ public class MainActivity extends BridgeActivity {
                 
                 // Wait for WebView to be ready, then set flags and verify
                 webView.post(() -> {
-                    webView.evaluateJavascript("window.AndroidGPSReady = true;", null);
-                    webView.evaluateJavascript("window.androidGPSBridgeReady = true;", null);
-                    webView.evaluateJavascript("window.androidGPSInterfaceReady = true;", null);
-                    
-                    // CRITICAL: Test and report if interface is working
-                    webView.evaluateJavascript(
-                        "const isAvailable = (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function');" +
-                        "window.androidGPSVerified = isAvailable;",
-                        null
-                    );
-                    
-                    // If interface fails, schedule periodic retry
-                    scheduleInterfaceVerification();
+                    try {
+                        if (isLoggingOut) return; // CRASH FIX: Double check
+                        webView.evaluateJavascript("window.AndroidGPSReady = true;", null);
+                        webView.evaluateJavascript("window.androidGPSBridgeReady = true;", null);
+                        webView.evaluateJavascript("window.androidGPSInterfaceReady = true;", null);
+                        
+                        // CRITICAL: Test and report if interface is working
+                        webView.evaluateJavascript(
+                            "const isAvailable = (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function');" +
+                            "window.androidGPSVerified = isAvailable;",
+                            null
+                        );
+                        
+                        // If interface fails, schedule periodic retry
+                        scheduleInterfaceVerification();
+                    } catch (Exception e) {
+                        Log.e(TAG, "WebView post failed: " + e.getMessage());
+                    }
                 });
                 
                 Log.d(TAG, "✅ AndroidGPS interface added successfully");
@@ -114,12 +125,22 @@ public class MainActivity extends BridgeActivity {
     
     private void scheduleInterfaceVerification() {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            WebView webView = getBridge().getWebView();
-            if (webView != null) {
-                webView.evaluateJavascript(
-                    "window.androidGPSVerified = (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function');",
-                    null
-                );
+            // CRASH FIX: Nu verifica dacă logout e în progres
+            if (isLoggingOut) {
+                Log.d(TAG, "🔒 scheduleInterfaceVerification SKIPPED - logout in progress");
+                return;
+            }
+            
+            try {
+                WebView webView = getBridge().getWebView();
+                if (webView != null) {
+                    webView.evaluateJavascript(
+                        "window.androidGPSVerified = (typeof window.AndroidGPS !== 'undefined' && typeof window.AndroidGPS.startGPS === 'function');",
+                        null
+                    );
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "scheduleInterfaceVerification failed: " + e.getMessage());
             }
         }, 3000);
     }
