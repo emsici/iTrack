@@ -31,11 +31,42 @@ public class MainActivity extends BridgeActivity {
         return instance;
     }
 
+    // Păstrăm handler-ul original pentru crash-uri NON-logout
+    private static Thread.UncaughtExceptionHandler originalHandler;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
         Log.d(TAG, "✅ MainActivity inițializat - pregătirea interfețelor AndroidGPS");
+        
+        // CRASH PROTECTION: Capturăm crash-urile și le ignorăm DOAR dacă sunt în timpul logout-ului
+        originalHandler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            String message = throwable.getMessage() != null ? throwable.getMessage() : "";
+            String stackTrace = Log.getStackTraceString(throwable);
+            
+            // Dacă suntem în logout și crash-ul e legat de WebView/Bridge, îl ignorăm
+            if (isLoggingOut && (
+                message.contains("WebView") || 
+                message.contains("Bridge") || 
+                message.contains("evaluateJavascript") ||
+                message.contains("NullPointerException") ||
+                stackTrace.contains("WebView") ||
+                stackTrace.contains("evaluateJavascript") ||
+                stackTrace.contains("getBridge")
+            )) {
+                Log.e(TAG, "🛡️ CRASH PREVENTED during logout: " + message);
+                Log.e(TAG, "🛡️ Stack trace (ignored): " + stackTrace);
+                // NU propagăm crash-ul - îl ignorăm graceful
+                return;
+            }
+            
+            // Pentru alte crash-uri, le propagăm normal
+            if (originalHandler != null) {
+                originalHandler.uncaughtException(thread, throwable);
+            }
+        });
         
         // Setup offline GPS listener pentru capturarea din BackgroundGPSService
         setupOfflineGPSListener();
@@ -389,13 +420,14 @@ public class MainActivity extends BridgeActivity {
         runOnUiThread(() -> {
             try {
                 if (isLoggingOut) return; // Double check în UI thread
+                if (getBridge() == null) return; // CRASH FIX: Bridge poate fi null
                 WebView webView = getBridge().getWebView();
-                if (webView != null) {
+                if (webView != null && !isLoggingOut) {
                     String jsCode = "if(window.AndroidGPSCallback && window.AndroidGPSCallback.onTransmissionSuccess) { window.AndroidGPSCallback.onTransmissionSuccess(); }";
                     webView.evaluateJavascript(jsCode, null);
                 }
             } catch (Exception e) {
-                Log.e(TAG, "WebView call failed (likely destroyed): " + e.getMessage());
+                // SILENT: Nu logăm erori de WebView distrus - e normal la logout
             }
         });
     }
@@ -414,13 +446,14 @@ public class MainActivity extends BridgeActivity {
         runOnUiThread(() -> {
             try {
                 if (isLoggingOut) return; // Double check în UI thread
+                if (getBridge() == null) return; // CRASH FIX: Bridge poate fi null
                 WebView webView = getBridge().getWebView();
-                if (webView != null) {
+                if (webView != null && !isLoggingOut) {
                     String jsCode = "if(window.AndroidGPSCallback && window.AndroidGPSCallback.onTransmissionError) { window.AndroidGPSCallback.onTransmissionError(" + httpStatus + "); }";
                     webView.evaluateJavascript(jsCode, null);
                 }
             } catch (Exception e) {
-                Log.e(TAG, "WebView call failed (likely destroyed): " + e.getMessage());
+                // SILENT: Nu logăm erori de WebView distrus - e normal la logout
             }
         });
     }
