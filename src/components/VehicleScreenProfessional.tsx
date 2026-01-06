@@ -231,17 +231,15 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
 
 const logoutClearAllGPS = async () => {
   try {
-    // Ascunde notificările persistente la logout (protejat)
-    try {
-      await nativeNotificationService.hidePersistentTracking();
-    } catch (notifError) {
-      console.warn('Eroare ascundere notificări:', notifError);
-    }
+    // CRASH FIX: Apelăm clearAllOnLogout PRIMUL pentru a seta isLoggingOut = true
+    // Aceasta blochează toate apelurile native ulterioare și previne crash-ul
     
-    // Android GPS clear
+    // Android GPS clear - TREBUIE APELAT PRIMUL pentru a seta flag-ul nativ
     if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
       try {
-        return window.AndroidGPS.clearAllOnLogout();
+        console.log('🔒 Setting native isLoggingOut flag FIRST...');
+        window.AndroidGPS.clearAllOnLogout();
+        console.log('✅ Native logout flag set');
       } catch (androidError) {
         console.warn('Eroare clearAllOnLogout Android:', androidError);
       }
@@ -250,14 +248,21 @@ const logoutClearAllGPS = async () => {
     // iOS GPS clear
     if (window.iOSGPS && window.iOSGPS.clearAllOnLogout) {
       try {
-        return await window.iOSGPS.clearAllOnLogout();
+        await window.iOSGPS.clearAllOnLogout();
       } catch (iosError) {
         console.warn('Eroare clearAllOnLogout iOS:', iosError);
       }
     }
     
-    console.warn('GPS interface not available - browser mode');
-    return "GPS interface not available";
+    // Ascunde notificările persistente la logout - ACUM e safe, flag-ul e setat
+    try {
+      await nativeNotificationService.hidePersistentTracking();
+    } catch (notifError) {
+      console.warn('Eroare ascundere notificări:', notifError);
+    }
+    
+    console.log('✅ GPS logout cleanup completed');
+    return "SUCCESS: GPS cleared";
   } catch (error) {
     console.error('Eroare generală logoutClearAllGPS:', error);
     return "Eroare la logout GPS";
