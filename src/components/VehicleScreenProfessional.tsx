@@ -18,7 +18,7 @@ import { courseAnalyticsService } from "../services/courseAnalytics";
 import { offlineGPSService } from "../services/offlineGPS";
 import OfflineSyncMonitor from "./OfflineSyncMonitor";
 import { courseStateManager } from "../services/courseStateManager";
-import nativeNotificationService, { setLogoutInProgress, getLogoutInProgress } from "../services/nativeNotifications";
+import nativeNotificationService from "../services/nativeNotifications";
 
 // Interfață TypeScript pentru AndroidGPS și iOSGPS bridge
 declare global {
@@ -55,12 +55,6 @@ declare global {
 // Urmărirea curselor active - pentru Android/iOS BackgroundGPSService (gestionată în serviciul nativ)
 
 const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) => {
-  // CRASH GUARD: Block native calls during logout
-  if (getLogoutInProgress()) {
-    console.log('🔒 startAndroidGPS BLOCKED - logout in progress');
-    return "Blocked: logout in progress";
-  }
-  
   if (!course) {
     console.error("Cursă invalidă pentru GPS");
     return "Eroare: Cursă invalidă";
@@ -111,12 +105,6 @@ const startAndroidGPS = (course: Course, vehicleNumber: string, token: string) =
 
 // iOS GPS - funcții identice cu Android
 const startiOSGPS = async (course: Course, vehicleNumber: string, token: string) => {
-  // CRASH GUARD: Block native calls during logout
-  if (getLogoutInProgress()) {
-    console.log('🔒 startiOSGPS BLOCKED - logout in progress');
-    return "Blocked: logout in progress";
-  }
-  
   if (!course) {
     console.error("Cursă invalidă pentru GPS");
     return "Eroare: Cursă invalidă";
@@ -165,12 +153,6 @@ const startiOSGPS = async (course: Course, vehicleNumber: string, token: string)
 
 // Funcții GPS native directe - BackgroundGPSService gestionează totul nativ
 const updateCourseStatus = async (courseId: string, courseUit: string, newStatus: number, authToken: string, vehicleNumber: string) => {
-  // CRASH GUARD: Block operations during logout
-  if (getLogoutInProgress()) {
-    console.log('🔒 updateCourseStatus BLOCKED - logout in progress');
-    return;
-  }
-  
   try {
     console.log(`Actualizez status cursă ${courseId} la ${newStatus}`);
     
@@ -248,45 +230,24 @@ const updateCourseStatus = async (courseId: string, courseUit: string, newStatus
 // pentru pauză și stop individual, iar stopGPS doar pentru clearAll la logout
 
 const logoutClearAllGPS = async () => {
+  // SIMPLU: Oprește GPS-ul nativ. ATÂT.
+  console.log('🚪 LOGOUT: Stopping GPS...');
+  
   try {
-    // CRASH FIX #1: Setăm flag-ul JavaScript PRIMUL - blochează TOATE apelurile async
-    console.log('🔒 STEP 1: Setting JavaScript logout guard FIRST...');
-    setLogoutInProgress(true);
-    
-    // CRASH FIX #2: Apelăm clearAllOnLogout pentru a seta isLoggingOut nativ
-    if (window.AndroidGPS && window.AndroidGPS.clearAllOnLogout) {
-      try {
-        console.log('🔒 STEP 2: Setting native isLoggingOut flag...');
-        window.AndroidGPS.clearAllOnLogout();
-        console.log('✅ Native logout flag set');
-      } catch (androidError) {
-        console.warn('Eroare clearAllOnLogout Android:', androidError);
-      }
+    // Android
+    if (window.AndroidGPS?.clearAllOnLogout) {
+      window.AndroidGPS.clearAllOnLogout();
     }
-    
-    // iOS GPS clear
-    if (window.iOSGPS && window.iOSGPS.clearAllOnLogout) {
-      try {
-        await window.iOSGPS.clearAllOnLogout();
-      } catch (iosError) {
-        console.warn('Eroare clearAllOnLogout iOS:', iosError);
-      }
+    // iOS
+    if (window.iOSGPS?.clearAllOnLogout) {
+      await window.iOSGPS.clearAllOnLogout();
     }
-    
-    // STEP 3: Ascunde notificările - ACUM e safe, AMBELE flag-uri sunt setate
-    try {
-      console.log('🔒 STEP 3: Hiding notifications (both guards active)...');
-      await nativeNotificationService.hidePersistentTracking();
-    } catch (notifError) {
-      console.warn('Eroare ascundere notificări:', notifError);
-    }
-    
-    console.log('✅ GPS logout cleanup completed - ALL guards active');
-    return "SUCCESS: GPS cleared";
-  } catch (error) {
-    console.error('Eroare generală logoutClearAllGPS:', error);
-    return "Eroare la logout GPS";
+    console.log('✅ GPS stopped');
+  } catch (e) {
+    console.log('GPS stop (ignored):', e);
   }
+  
+  return "SUCCESS";
 };
 
 // Funcții globale pentru senzori reali - utilizate în updateCourseStatus și startGPSForActiveCourses

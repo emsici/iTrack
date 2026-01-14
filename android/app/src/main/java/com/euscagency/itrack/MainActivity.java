@@ -293,31 +293,28 @@ public class MainActivity extends BridgeActivity {
 
     @JavascriptInterface
     public String clearAllOnLogout() {
-        Log.e(TAG, "🧹 === FUSION GPS === clearAllOnLogout called");
+        Log.e(TAG, "🧹 === LOGOUT === clearAllOnLogout - SIMPLU");
         
-        // CRASH FIX: Setăm flag-ul ÎNAINTE de orice pentru a bloca apelurile WebView
+        // SIMPLU: Setăm flag-ul și oprim serviciul. ATÂT.
         isLoggingOut = true;
-        Log.e(TAG, "🔒 isLoggingOut = true - WebView calls blocked");
         
         try {
-            // CRASH FIX: Verificăm dacă serviciul rulează ÎNAINTE de a trimite STOP
-            // Dacă serviciul NU rulează, startService(STOP) îl pornește doar pentru a-l opri
-            // ceea ce cauzează crash (accesează state neinițializat)
-            if (isServiceRunning(BackgroundGPSService.class)) {
-                Log.e(TAG, "📍 BackgroundGPSService IS RUNNING - sending STOP");
-                Intent intent = new Intent(this, BackgroundGPSService.class);
-                intent.setAction("STOP_BACKGROUND_GPS");
-                startService(intent);
-                Log.e(TAG, "✅ BackgroundGPSService stop requested on logout");
-                return "SUCCESS: BACKGROUND GPS stopped and cleared";
-            } else {
-                Log.e(TAG, "📍 BackgroundGPSService NOT RUNNING - skip STOP (no crash)");
-                return "SUCCESS: GPS was not running";
+            // Oprește serviciul GPS dacă rulează
+            stopService(new Intent(this, BackgroundGPSService.class));
+            Log.e(TAG, "✅ GPS Service stopped");
+            
+            // Anulează notificările
+            try {
+                android.app.NotificationManager nm = (android.app.NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (nm != null) nm.cancelAll();
+            } catch (Exception e) {
+                // Ignoră
             }
             
+            return "SUCCESS";
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error clearing NATIVE GPS data: " + e.getMessage());
-            return "ERROR: " + e.getMessage();
+            Log.e(TAG, "❌ Logout error: " + e.getMessage());
+            return "SUCCESS"; // Returnăm SUCCESS oricum - logout trebuie să meargă
         }
     }
     

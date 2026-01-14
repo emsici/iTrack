@@ -1,16 +1,5 @@
 import { Course } from '../types';
 
-// CRASH PREVENTION: Flag JavaScript pentru a bloca apelurile native după logout
-let isLogoutInProgress = false;
-
-// API pentru a seta flag-ul din alte module
-export const setLogoutInProgress = (value: boolean) => {
-  isLogoutInProgress = value;
-  console.log(`🔒 JavaScript logout guard: ${value ? 'ACTIVATED' : 'DEACTIVATED'}`);
-};
-
-export const getLogoutInProgress = () => isLogoutInProgress;
-
 interface NotificationService {
   showPersistentTracking: (activeCourses: Course[]) => Promise<void>;
   hidePersistentTracking: () => Promise<void>;
@@ -20,138 +9,38 @@ interface NotificationService {
 
 class AndroidNotificationService implements NotificationService {
   
-  /**
-   * Afișează notificarea persistentă pentru tracking GPS
-   */
   async showPersistentTracking(activeCourses: Course[]): Promise<void> {
-    // CRASH GUARD: Skip dacă logout e în progres
-    if (isLogoutInProgress) {
-      console.log('🔒 showPersistentTracking BLOCKED - logout in progress');
-      return;
-    }
-    
     try {
       const message = this.formatTrackingMessage(activeCourses);
-      
-      // Așteaptă ca bridge-ul să fie gata
-      await this.waitForAndroidBridge();
-      
-      // DOUBLE CHECK după await
-      if (isLogoutInProgress) {
-        console.log('🔒 showPersistentTracking BLOCKED after await - logout in progress');
-        return;
-      }
-      
-      // Verifică dacă AndroidGPS este disponibil
       if (window.AndroidGPS?.showPersistentNotification) {
-        await window.AndroidGPS.showPersistentNotification(
-          'iTrack GPS', 
-          message,
-          true // persistent
-        );
-        console.log('🔔 Notificare persistentă afișată:', message);
-      } else {
-        console.log('⚠️ AndroidGPS nu e disponibil pentru notificări persistente');
-        console.log('🔍 Debug - window.AndroidGPS:', window.AndroidGPS);
+        await window.AndroidGPS.showPersistentNotification('iTrack GPS', message, true);
       }
     } catch (error) {
-      if (!isLogoutInProgress) {
-        console.error('❌ Eroare afișare notificare persistentă:', error);
-      }
+      console.log('Notification error (ignored):', error);
     }
   }
 
-  /**
-   * Așteaptă ca bridge-ul Android să fie disponibil
-   */
-  private async waitForAndroidBridge(maxWait: number = 5000): Promise<void> {
-    const startTime = Date.now();
-    
-    while (Date.now() - startTime < maxWait) {
-      // CRASH GUARD: Exit early dacă logout e în progres
-      if (isLogoutInProgress) {
-        console.log('🔒 waitForAndroidBridge ABORTED - logout in progress');
-        return;
-      }
-      
-      if (window.AndroidGPS?.showPersistentNotification) {
-        console.log('✅ AndroidGPS bridge gata!');
-        return;
-      }
-      
-      // Așteaptă 100ms și încearcă din nou
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    
-    console.log('⏰ Timeout waiting for AndroidGPS bridge');
-  }
-
-  /**
-   * Ascunde notificarea persistentă
-   */
   async hidePersistentTracking(): Promise<void> {
-    // CRASH GUARD: Skip dacă logout e în progres (dar permite apelul din logoutClearAllGPS)
-    if (isLogoutInProgress) {
-      console.log('🔒 hidePersistentTracking called during logout - safe operation');
-    }
-    
     try {
       if (window.AndroidGPS?.hidePersistentNotification) {
         await window.AndroidGPS.hidePersistentNotification();
-        console.log('🔔 Notificare persistentă ascunsă');
       }
     } catch (error) {
-      if (!isLogoutInProgress) {
-        console.error('❌ Eroare ascundere notificare persistentă:', error);
-      }
+      console.log('Hide notification error (ignored):', error);
     }
   }
 
-  /**
-   * Afișează notificare rapidă care dispare automat
-   */
   async showQuickNotification(title: string, message: string, duration: number = 5000): Promise<void> {
-    // CRASH GUARD: Skip dacă logout e în progres
-    if (isLogoutInProgress) {
-      console.log('🔒 showQuickNotification BLOCKED - logout in progress');
-      return;
-    }
-    
     try {
-      // Așteaptă ca bridge-ul să fie gata
-      await this.waitForAndroidBridge();
-      
-      // DOUBLE CHECK după await
-      if (isLogoutInProgress) {
-        console.log('🔒 showQuickNotification BLOCKED after await - logout in progress');
-        return;
-      }
-      
       if (window.AndroidGPS?.showQuickNotification) {
         await window.AndroidGPS.showQuickNotification(title, message, duration);
-        console.log('🔔 Notificare rapidă trimisă:', title, '-', message);
-      } else {
-        console.log('⚠️ AndroidGPS nu e disponibil pentru notificări rapide');
       }
     } catch (error) {
-      if (!isLogoutInProgress) {
-        console.error('❌ Eroare notificare rapidă:', error);
-      }
+      console.log('Quick notification error (ignored):', error);
     }
   }
 
-  /**
-   * Actualizează notificarea persistentă cu noile curse
-   */
   async updateTrackingNotification(activeCourses: Course[]): Promise<void> {
-    // CRASH GUARD: Skip dacă logout e în progres
-    if (isLogoutInProgress) {
-      console.log('🔒 updateTrackingNotification BLOCKED - logout in progress');
-      return;
-    }
-    
-    console.log(`🔔 === NATIVE NOTIFICATION DEBUG === updateTrackingNotification called with ${activeCourses.length} courses`);
-    
     if (activeCourses.length > 0) {
       await this.showPersistentTracking(activeCourses);
     } else {
