@@ -586,6 +586,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
                 setCourses(response);
                 setCoursesLoaded(true);
                 console.log('✅ Cursele vehiculului încărcate automat:', response.length);
+                
+                // AUTO-START GPS pentru cursele active (status=2)
+                const activeCourses = response.filter((c: Course) => c.status === 2);
+                if (activeCourses.length > 0) {
+                  console.log(`🚀 AUTO-START GPS pentru ${activeCourses.length} curse active`);
+                  for (const course of activeCourses) {
+                    try {
+                      startAndroidGPS(course, storedVehicle!, token);
+                      console.log(`✅ GPS pornit automat pentru cursa ${course.uit}`);
+                    } catch (e) {
+                      console.log(`⚠️ Eroare pornire GPS pentru ${course.uit}:`, e);
+                    }
+                  }
+                }
               } else {
                 console.log('⚠️ Vehiculul stocat nu are curse disponibile');
               }
@@ -676,6 +690,20 @@ const VehicleScreen: React.FC<VehicleScreenProps> = ({ token, onLogout }) => {
         // Store valid vehicle number pentru următoarea sesiune
         await storeVehicleNumber(vehicleNumber);
         console.log(`✅ SUCCESS: ${finalCourses.length} curse încărcate pentru ${vehicleNumber}${savedState ? ' (cu stare restaurată)' : ''}`);
+        
+        // AUTO-START GPS pentru cursele active (status=2)
+        const activeCourses = finalCourses.filter((c: Course) => c.status === 2);
+        if (activeCourses.length > 0) {
+          console.log(`🚀 AUTO-START GPS pentru ${activeCourses.length} curse active`);
+          for (const course of activeCourses) {
+            try {
+              startAndroidGPS(course, vehicleNumber, token);
+              console.log(`✅ GPS pornit automat pentru cursa ${course.uit}`);
+            } catch (e) {
+              console.log(`⚠️ Eroare pornire GPS pentru ${course.uit}:`, e);
+            }
+          }
+        }
         
         // Log successful load
         await logAPI(`Curse încărcate: ${finalCourses.length} pentru ${vehicleNumber}`);
